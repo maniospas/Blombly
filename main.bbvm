@@ -1,0 +1,22 @@
+CONST x I9
+CONST y I6
+BEGIN test
+BEGIN test2
+add z x y
+CONST _anon0 I1
+add z _anon0 z
+return # z
+CONST # I
+END
+CALL z # test2
+return # z
+CONST # I
+END
+BEGIN args
+CONST _anon1 I1
+add x x _anon1
+END
+CALL k args test
+print # k
+print # x
+CONST # I
