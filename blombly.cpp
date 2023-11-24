@@ -171,27 +171,26 @@ public:
     int getEnd() const {return end;}
 };
 
-
-std::vector<std::string> split(std::string s, const std::string& delimiter) {
-    size_t pos_start = 0, pos_end, delim_len = delimiter.length();
-    std::string token;
-    std::vector<std::string> res;
-    while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos) {
-        token = s.substr (pos_start, pos_end - pos_start);
-        pos_start = pos_end + delim_len;
-        if(token.size()>0)
-            res.push_back (token);
-    }
-    res.push_back(s.substr (pos_start));
-    return res;
-}
-
-
 class Command {
 public:
     std::vector<std::string> args;
     Command(std::string command) {
-        args = split(command, " ");
+        std::string accumulate;
+        int pos = 0;
+        bool inString = false;
+        while(pos<command.size()){
+            if(command[pos]=='"')
+                inString = !inString;
+            if(!inString && (command[pos]==' ' || pos==command.size()-1)){
+                if(command[pos]!=' ')
+                    accumulate += command[pos];
+                args.push_back(accumulate);
+                accumulate = "";
+            }
+            else
+                accumulate += command[pos];
+            pos += 1;
+        }
     }
 };
 
@@ -238,7 +237,7 @@ std::shared_ptr<Data> executeBlock(const std::vector<std::shared_ptr<Command>>& 
         std::shared_ptr<Data> value;
         if(command[0]=="CONST") {
             if(command[2][0]=='"')
-                value = std::make_shared<BString>(command[2].substr(2, command[2].size()-1));
+                value = std::make_shared<BString>(command[2].substr(1, command[2].size()-2));
             else if(command[2][0]=='I')
                 value = std::make_shared<Integer>(std::atoi(command[2].substr(1).c_str()));
             else if(command[2][0]=='F')
@@ -246,7 +245,7 @@ std::shared_ptr<Data> executeBlock(const std::vector<std::shared_ptr<Command>>& 
             else
                 std::cerr << "Unable to understand constant: " << command[2] << std::endl;
         }
-        else if(command[0]=="print") 
+        else if(command[0]=="print")  
             std::cout << memory->get(command[2])->toString() << std::endl;
         else if(command[0]=="BEGIN") {
             int pos = i+1;
@@ -427,8 +426,16 @@ private:
                 std::string argexpr;
                 int depth = 0;
                 int i = 0;
+                bool inString = false;
                 std::string accumulate;
                 while(i<args.size()) {
+                    if(args[i]=='"')
+                        inString = !inString;
+                    if(inString) {
+                        accumulate += args[i];
+                        i += 1;
+                        continue;
+                    }
                     if(depth==0 && (args[i]==',' || i==args.size()-1)) {
                         trim(accumulate);
                         if(symbols.find(accumulate) == symbols.end()) {
@@ -473,8 +480,16 @@ public:
         std::string command;
         int pos = 0;
         int depth = 0;
+        bool inString = false;
         while(pos<code.size()) {
             char c = code[pos];
+            if(c=='"')
+                inString = !inString;
+            if(inString) {
+                command += c;
+                pos += 1;
+                continue;
+            }
             if(c=='\n')
                 c = ' ';
             if(c=='\t')

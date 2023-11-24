@@ -1,21 +1,23 @@
 CONST x I9
 CONST y I6
+CONST _anon0 "Hellow world!"
+print # _anon0
 BEGIN test
 BEGIN test2
-CONST _anon0 I1
-add _anon2 x y
-add _anon1 x _anon2
-add z _anon0 _anon1
-add _anon2 y z
-add z x _anon2
+CONST _anon1 I1
+add _anon3 x y
+add _anon2 x _anon3
+add z _anon1 _anon2
+add _anon3 y z
+add z x _anon3
 return # z
 END
 CALL z # test2
 return # z
 END
 BEGIN kwargs
-CONST _anon3 I1
-add x x _anon3
+CONST _anon4 I1
+add x x _anon4
 END
 CALL k kwargs test
 print # k

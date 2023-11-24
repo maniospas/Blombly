@@ -1,6 +1,8 @@
 x = 9;
 y = 6;
 
+print("Hellow world!");
+
 test = {
     test2 = {
         z = add(1,add(x,add(x,y)));
