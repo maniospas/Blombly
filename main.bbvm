@@ -2,21 +2,21 @@ CONST x I9
 CONST y I6
 BEGIN test
 BEGIN test2
-add z x y
 CONST _anon0 I1
-add z _anon0 z
+add _anon2 x y
+add _anon1 x _anon2
+add z _anon0 _anon1
+add _anon2 y z
+add z x _anon2
 return # z
-CONST # I
 END
 CALL z # test2
 return # z
-CONST # I
 END
-BEGIN args
-CONST _anon1 I1
-add x x _anon1
+BEGIN kwargs
+CONST _anon3 I1
+add x x _anon3
 END
-CALL k args test
+CALL k kwargs test
 print # k
 print # x
-CONST # I

@@ -3,15 +3,15 @@ y = 6;
 
 test = {
     test2 = {
-        z = add(x,y);
-        z = add(1,z);
+        z = add(1,add(x,add(x,y)));
+        z = add(x, add(y,z));
         return(z);
     }
     z = test2();
     return(z);
 }
 
-args = {x=add(x,1)}
-k = test(args);
+kwargs = {x=add(x,1)}
+k = test(kwargs);
 print(k);
 print(x); 

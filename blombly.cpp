@@ -397,10 +397,14 @@ private:
         /**
          * Parses an indivual command found in a block of code. Called by parse.
         */
+        if(command.size()==0)
+            return;
         std::string variable = getAssignee(command);
         std::string value = getValue(command);
         size_t pos = value.find('(');
         if(pos == std::string::npos) {
+            if(variable=="#")
+                return;
             if(isString(value))
                 compiled += "CONST "+variable+" "+value+"\n";
             else if(isInt(value))
@@ -425,7 +429,7 @@ private:
                 int i = 0;
                 std::string accumulate;
                 while(i<args.size()) {
-                    if(args[i]==',' || i==args.size()-1) {
+                    if(depth==0 && (args[i]==',' || i==args.size()-1)) {
                         trim(accumulate);
                         if(symbols.find(accumulate) == symbols.end()) {
                             std::string tmp = "_anon"+std::to_string(topTemp);
@@ -434,7 +438,7 @@ private:
                             tmpParser.parse(tmp+" = "+accumulate+";");
                             compiled += tmpParser.toString();
                             accumulate = tmp;
-                            topTemp = tmpParser.topTemp;
+                            //topTemp = tmpParser.topTemp;
                         }
                         argexpr += " "+accumulate;
                         accumulate = "";
