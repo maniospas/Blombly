@@ -1,24 +1,12 @@
-CONST x I9
-CONST y I6
-CONST _anon0 "Hellow world!"
-print # _anon0
-BEGIN test
-BEGIN test2
+BEGIN block
 CONST _anon1 I1
-add _anon3 x y
-add _anon2 x _anon3
-add z _anon1 _anon2
-add _anon3 y z
-add z x _anon3
-return # z
+add x x _anon1
+add _anon2 x y
+return # _anon2
 END
-CALL z # test2
-return # z
+BEGIN _anon3
+CONST x I1
+CONST y I2
 END
-BEGIN kwargs
-CONST _anon4 I1
-add x x _anon4
-END
-CALL k kwargs test
-print # k
-print # x
+CALL sum _anon3 block
+print # sum

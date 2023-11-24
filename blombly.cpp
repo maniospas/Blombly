@@ -376,7 +376,7 @@ private:
     }
     bool isInt(const std::string& value) {
         try{
-            std::atoi(value.c_str());
+            std:stoi(value);
             return true;
         }
         catch(...) {
@@ -385,7 +385,7 @@ private:
     }
     bool isFloat(const std::string& value) {
         try{
-            std::atof(value.c_str());
+            std:stof(value);
             return true;
         }
         catch(...) {
@@ -402,7 +402,7 @@ private:
         std::string value = getValue(command);
         size_t pos = value.find('(');
         if(pos == std::string::npos) {
-            if(variable=="#")
+            if(variable=="#" || value.size()==0) // flexible parsing for undeclared variables
                 return;
             if(isString(value))
                 compiled += "CONST "+variable+" "+value+"\n";
@@ -411,13 +411,23 @@ private:
             else if(isFloat(value))
                 compiled += "CONST "+variable+" F"+value+"\n";
             else
-                compiled += value+" "+variable+"\n";
+                compiled += "IS "+value+" "+variable+"\n"; // this is not an actual assembly command but is used to indicate that parsed text is just a varlabe that should be obtained from future usages
         } else {
             std::string args = value.substr(pos+1); // leaving the right parenthesis to be removed during further computations
             value = value.substr(0, pos);
             trim(value);
             if(symbols.find(value) != symbols.end()) {
                 std::string argexpr = args.substr(0, args.size()-1);
+                if(symbols.find(argexpr) == symbols.end()) {
+                    std::string tmp = "_anon"+std::to_string(topTemp);
+                    topTemp += 1;
+                    Parser tmpParser = Parser(symbols, topTemp);
+                    tmpParser.parse(tmp+" = "+argexpr+";");
+                    if(tmpParser.toString().substr(0, 3) != "IS "){
+                        compiled += tmpParser.toString();
+                        argexpr = tmp;
+                    }
+                }
                 if(argexpr=="")
                     argexpr = "#";
                 compiled += "CALL "+variable+" "+argexpr+" "+value+"\n";
@@ -443,9 +453,11 @@ private:
                             topTemp += 1;
                             Parser tmpParser = Parser(symbols, topTemp);
                             tmpParser.parse(tmp+" = "+accumulate+";");
-                            compiled += tmpParser.toString();
-                            accumulate = tmp;
-                            //topTemp = tmpParser.topTemp;
+                            if(tmpParser.toString().substr(0, 3) != "IS "){
+                                compiled += tmpParser.toString();
+                                accumulate = tmp;
+                                //topTemp = tmpParser.topTemp;
+                            }
                         }
                         argexpr += " "+accumulate;
                         accumulate = "";

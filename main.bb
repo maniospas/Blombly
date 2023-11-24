@@ -1,19 +1,6 @@
-x = 9;
-y = 6;
-
-print("Hellow world!");
-
-test = {
-    test2 = {
-        z = add(1,add(x,add(x,y)));
-        z = add(x, add(y,z));
-        return(z);
-    }
-    z = test2();
-    return(z);
+block = {
+    x = add(x, 1);
+    return(add(x,y));
 }
-
-kwargs = {x=add(x,1)}
-k = test(kwargs);
-print(k);
-print(x); 
+sum = block({x=1;y=2});
+print(sum);
