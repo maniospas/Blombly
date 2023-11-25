@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include <unordered_set>  
+#include <pthread.h>
 
 
 
@@ -81,6 +82,7 @@ class Data {
      * This abstract class represents data stored in the memory.
     */
 public:
+    bool isMutable = true; // mutable means that it cannot be shared
     virtual std::string toString() const = 0;
     virtual std::string getType() const = 0;
     virtual ~Data() = default;
@@ -100,6 +102,16 @@ public:
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         throw Unimplemented();
     }
+};
+
+class Future: public Data {
+private:
+    int thread;
+public:
+    Future(int threadid): thread(threadid) {}
+    std::string getType() const override {return "future";}
+    std::string toString() const override {return "future";}
+    int getThread() const {return thread;}
 };
 
 
@@ -194,20 +206,42 @@ public:
     }
 };
 
+class ThreadReturn {
+public:
+    std::shared_ptr<Data> value;
+    ThreadReturn(std::shared_ptr<Data> val){value = val;}
+};
+
 
 class Memory {
 private:
     std::shared_ptr<Memory> parent;
     std::unordered_map<std::string, std::shared_ptr<Data>> data;
+    bool allowMutables;
 public:
-    Memory() {parent=nullptr;}
+    Memory() {parent=nullptr;allowMutables=true;}
     Memory(std::shared_ptr<Memory> par): parent(par) {}
     std::shared_ptr<Data> get(std::string item) {
+        return get(item, true);
+    }
+    std::shared_ptr<Data> get(std::string item, bool allowMutable) {
         if(item=="#")
             return nullptr;
         std::shared_ptr<Data> ret = data[item];
+        if(ret && ret->getType() == "future") {
+            ThreadReturn* result;
+            pthread_join(std::static_pointer_cast<Future>(ret)->getThread(), (void**)&result);
+            result->value->isMutable = ret->isMutable;
+            ret = result->value;
+            data[item] = ret;
+            delete result;
+        }
+        if(ret && !allowMutable && ret->isMutable) {
+            std::cerr << "Mutable symbol can not be accessed from nested block (make it final to do so): " + item << std::endl;
+            return nullptr;
+        }
         if(!ret && parent)
-            ret = parent->get(item);
+            ret = parent->get(item, allowMutables);
         if(!ret)
             std::cerr << "Missing value: " + item << std::endl;
         return ret;
@@ -215,12 +249,48 @@ public:
     void set(std::string item, std::shared_ptr<Data> value) {
         if(item=="#") 
             return;
+        if(data[item]!=nullptr && !data[item]->isMutable) {
+            std::cerr << "Cannot set final value: " + item << std::endl;
+            return;
+        } 
         data[item] = value;
+    }
+    void detach() {
+        allowMutables = false;
     }
 };
 
+class ThreadData{
+public:
+    ThreadData(){}
+    int threadId;
+    std::shared_ptr<Memory> memory;
+    int start;
+    int end;
+    std::vector<std::shared_ptr<Command>>* program;
+};
 
-std::shared_ptr<Data> executeBlock(const std::vector<std::shared_ptr<Command>>& program,
+
+std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* program,
+                  int start, 
+                  int end,
+                  const std::shared_ptr<Memory>& memory);
+
+
+void* thread_function(void *args){
+    ThreadData* data = (ThreadData*)args;
+    std::shared_ptr<Data> value = executeBlock(
+        data->program, 
+        data->start, 
+        data->end, 
+        data->memory);
+    delete data;
+    pthread_exit(new ThreadReturn(value));
+}
+
+
+pthread_mutex_t printLock; 
+std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* program,
                   int start, 
                   int end,
                   const std::shared_ptr<Memory>& memory) {
@@ -233,7 +303,7 @@ std::shared_ptr<Data> executeBlock(const std::vector<std::shared_ptr<Command>>& 
      * @return A Data shared pointer holding the code block's outcome. This is nullptr if nothing is returned.
     */
     for(int i=start;i<=end;i++) {
-        auto command = program[i]->args;
+        auto command = program->at(i)->args;
         std::shared_ptr<Data> value;
         if(command[0]=="CONST") {
             if(command[2][0]=='"')
@@ -245,15 +315,22 @@ std::shared_ptr<Data> executeBlock(const std::vector<std::shared_ptr<Command>>& 
             else
                 std::cerr << "Unable to understand constant: " << command[2] << std::endl;
         }
-        else if(command[0]=="print")  
-            std::cout << memory->get(command[2])->toString() << std::endl;
-        else if(command[0]=="BEGIN") {
+        else if(command[0]=="FINAL") {
+            memory->get(command[2])->isMutable = false;
+        }
+        else if(command[0]=="print")  {
+            std::string out = memory->get(command[2])->toString() + "\n";
+            pthread_mutex_lock(&printLock); 
+            std::cout << out;
+            pthread_mutex_unlock(&printLock);
+        }
+        else if(command[0]=="BEGIN" || command[0]=="BEGINFINAL") {
             int pos = i+1;
             int depth = 0;
             std::string command_type;
             while(pos<=end) {
-                command_type = program[pos]->args[0];
-                if(command_type=="BEGIN")
+                command_type = program->at(pos)->args[0];
+                if(command_type=="BEGIN" || command_type=="BEGINFINAL")
                     depth += 1;
                 if(command_type=="END") {
                     if(depth==0)
@@ -265,6 +342,8 @@ std::shared_ptr<Data> executeBlock(const std::vector<std::shared_ptr<Command>>& 
             if(depth>0)
                 std::cerr << "Unclosed code block" << std::endl;
             value = std::make_shared<Code>(i+1, pos);
+            if(command[0]=="BEGINFINAL")
+                value->isMutable = false;
             i = pos;
         }
         else if(command[0]=="END") {
@@ -285,6 +364,31 @@ std::shared_ptr<Data> executeBlock(const std::vector<std::shared_ptr<Command>>& 
             // execute the called code in the new memory
             std::shared_ptr<Code> code = std::static_pointer_cast<Code>(execute);
             value = executeBlock(program, code->getStart(), code->getEnd(), newMemory);
+        }
+        else if(command[0]=="ASYNC") {
+            // create new writable memory under the current context
+            std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
+            std::shared_ptr<Data> context = memory->get(command[2]);
+            std::shared_ptr<Data> execute = memory->get(command[3]);
+            // check if the call has some context, and if so, execute it in the new memory
+            if(context && context->getType()=="code") {
+                std::shared_ptr<Code> code = std::static_pointer_cast<Code>(context);
+                value = executeBlock(program, code->getStart(), code->getEnd(), newMemory);
+                if(value) // show an erroe message if the context returned with anything other than END
+                    std::cerr << "Code execution context should not return a value." << std::endl;
+            }
+            newMemory->detach();
+            // execute the called code in the new memory
+            std::shared_ptr<Code> code = std::static_pointer_cast<Code>(execute);
+            //
+            pthread_t thread_id;
+            ThreadData* data = new ThreadData();
+            data->start = code->getStart();
+            data->end = code->getEnd();
+            data->program = program;
+            data->memory = newMemory;
+            pthread_create(&thread_id, NULL, &thread_function, data);
+            value = std::make_shared<Future>(thread_id);
         }
         else if(command[0]=="return") {
             return memory->get(command[2]);
@@ -325,7 +429,7 @@ int vm(const std::string& fileName) {
 
     // initialize memory and execute the assembly commands
     std::shared_ptr<Memory> memory = std::make_shared<Memory>();
-    executeBlock(program, 0, program.size()-1, memory);
+    executeBlock(&program, 0, program.size()-1, memory);
     return 0;
 }
 
@@ -400,6 +504,12 @@ private:
             return;
         std::string variable = getAssignee(command);
         std::string value = getValue(command);
+        bool finalize = false;
+        if(variable.substr(0, 6)=="final ") {
+            finalize = true;
+            variable = variable.substr(6);
+            trim(variable);
+        }
         size_t pos = value.find('(');
         if(pos == std::string::npos) {
             if(variable=="#" || value.size()==0) // flexible parsing for undeclared variables
@@ -430,7 +540,7 @@ private:
                 }
                 if(argexpr=="")
                     argexpr = "#";
-                compiled += "CALL "+variable+" "+argexpr+" "+value+"\n";
+                compiled += "ASYNC "+variable+" "+argexpr+" "+value+"\n";
             }
             else {
                 std::string argexpr;
@@ -476,6 +586,9 @@ private:
         }
         if(variable!="#")
             symbols.insert(variable);
+        if(finalize) {
+            compiled += "FINAL # "+variable+"\n";
+        }
     }
 public:
     Parser() {
@@ -512,7 +625,13 @@ public:
                 depth -= 1;
             if(depth==0 && c=='{') {
                 std::string variable = getAssignee(command);
-                compiled += "BEGIN "+variable+"\n";
+                if(variable.substr(0, 6)=="final "){
+                    variable = variable.substr(6);
+                    trim(variable);
+                    compiled += "BEGINFINAL "+variable+"\n";
+                }
+                else
+                    compiled += "BEGIN "+variable+"\n";
                 if(variable!="#")
                     symbols.insert(variable);
                 command = "";
@@ -593,6 +712,13 @@ int main(int argc, char* argv[]) {
             return false;
         fileName = fileName+"vm";
     }
+
+    // initialize mutexes
+        
+    if (pthread_mutex_init(&printLock, NULL) != 0) { 
+        printf("\nPrint mutex init failed\n"); 
+        return 1; 
+    } 
 
     // run the assembly file in the virtual machine
     return vm(fileName);
