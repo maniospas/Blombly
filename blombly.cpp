@@ -19,14 +19,106 @@
 #include <vector>
 #include <unordered_map>
 #include <stack>
+#include <map>
 #include <sstream>
 #include <memory> 
 #include <cstdlib>
 #include <algorithm>
 #include <unordered_set>  
 #include <pthread.h>
+#include <queue>
+#include <atomic>
+#include <functional>
+#include <thread>
 
 
+
+class ThreadPool {
+public:
+    ThreadPool(size_t numThreads) : stop(false), nextTaskId(0) {
+        for (size_t i = 0; i < numThreads; ++i) {
+            pthread_t tid;
+            pthread_create(&tid, nullptr, workerThread, this);
+            threads.push_back(tid);
+        }
+    }
+
+    // Function to add tasks to the thread pool and return a unique task identifier
+    int enqueue(std::function<void*(void*)> function, void* data) {
+        pthread_mutex_lock(&queueMutex);
+        int taskId = nextTaskId++;
+        tasks.push({ taskId, function, data });
+        pthread_mutex_unlock(&queueMutex);
+        pthread_cond_signal(&taskCondition);
+        return taskId;
+    }
+
+    // Function to wait for a specific task to complete based on its task identifier
+    void join(int taskId, void** returnValue) {
+        pthread_mutex_lock(&joinMutex);
+        while (!completedTasks[taskId]) {
+            pthread_cond_wait(&joinCondition, &joinMutex);
+        }
+        *returnValue = taskOutputs[taskId];
+        pthread_mutex_unlock(&joinMutex);
+    }
+
+    ~ThreadPool() {
+        stop = true;
+        pthread_cond_broadcast(&taskCondition);
+        for (pthread_t tid : threads) {
+            pthread_join(tid, nullptr);
+        }
+    }
+
+private:
+    struct Task {
+        int taskId;
+        std::function<void*(void*)> function;
+        void* data;
+    };
+
+    static void* workerThread(void* arg) {
+        ThreadPool* pool = static_cast<ThreadPool*>(arg);
+        while (true) {
+            pthread_mutex_lock(&pool->queueMutex);
+            while (pool->tasks.empty() && !pool->stop) {
+                pthread_cond_wait(&pool->taskCondition, &pool->queueMutex);
+            }
+
+            if (pool->stop && pool->tasks.empty()) {
+                pthread_mutex_unlock(&pool->queueMutex);
+                break;
+            }
+
+            Task task = pool->tasks.front();
+            pool->tasks.pop();
+            pthread_mutex_unlock(&pool->queueMutex);
+
+            void* ret = task.function(task.data);
+
+            pthread_mutex_lock(&pool->joinMutex);
+            pool->completedTasks[task.taskId] = true;
+            pool->taskOutputs[task.taskId] = ret;
+            pthread_cond_signal(&pool->joinCondition);
+            pthread_mutex_unlock(&pool->joinMutex);
+        }
+        pthread_exit(nullptr);
+    }
+
+    std::vector<pthread_t> threads;
+    std::queue<Task> tasks;
+    std::unordered_map<int, bool> completedTasks;
+    std::unordered_map<int, void*> taskOutputs;
+    pthread_mutex_t queueMutex = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_t joinMutex = PTHREAD_MUTEX_INITIALIZER;
+    pthread_cond_t taskCondition = PTHREAD_COND_INITIALIZER;
+    pthread_cond_t joinCondition = PTHREAD_COND_INITIALIZER;
+    bool stop;
+    std::atomic<int> nextTaskId;
+};
+
+ThreadPool* threads;
 
 // trim from start (in place)
 static inline void ltrim(std::string &s) {
@@ -230,7 +322,8 @@ public:
         std::shared_ptr<Data> ret = data[item];
         if(ret && ret->getType() == "future") {
             ThreadReturn* result;
-            pthread_join(std::static_pointer_cast<Future>(ret)->getThread(), (void**)&result);
+            threads->join(std::static_pointer_cast<Future>(ret)->getThread(), (void**)&result);
+            //pthread_join(std::static_pointer_cast<Future>(ret)->getThread(), (void**)&result);
             result->value->isMutable = ret->isMutable;
             ret = result->value;
             data[item] = ret;
@@ -263,12 +356,20 @@ public:
 class ThreadData{
 public:
     ThreadData(){}
-    int threadId;
     std::shared_ptr<Memory> memory;
     int start;
     int end;
     std::vector<std::shared_ptr<Command>>* program;
 };
+
+
+void waitForAll() {
+    /*for(pthread_t thread : threads) {
+        ThreadReturn* result;
+        pthread_join(thread, (void**)&result);
+        delete result;
+    }*/
+}
 
 
 std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* program,
@@ -278,6 +379,8 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
 
 
 void* thread_function(void *args){
+    pthread_t self_id = pthread_self();
+
     ThreadData* data = (ThreadData*)args;
     std::shared_ptr<Data> value = executeBlock(
         data->program, 
@@ -285,7 +388,9 @@ void* thread_function(void *args){
         data->end, 
         data->memory);
     delete data;
-    pthread_exit(new ThreadReturn(value));
+    ThreadReturn* ret = new ThreadReturn(value);
+    return ret;
+    //pthread_exit(ret);
 }
 
 
@@ -387,7 +492,8 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             data->end = code->getEnd();
             data->program = program;
             data->memory = newMemory;
-            pthread_create(&thread_id, NULL, &thread_function, data);
+            thread_id = threads->enqueue(&thread_function, data);
+            //pthread_create(&thread_id, NULL, &thread_function, data);
             value = std::make_shared<Future>(thread_id);
         }
         else if(command[0]=="return") {
@@ -405,13 +511,15 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
 }
 
 
-int vm(const std::string& fileName) {
+int vm(const std::string& fileName, int numThreads) {
     /**
      * Reads commands from a compiled blombly assembly file (.bbvm) 
      * and runs them in the virtual machine.
      * @param fileName The path to the file.
      * @return 0 if execution completed successfully
     */
+
+    threads = new ThreadPool(numThreads);
 
     // open the blombly assembly file
     std::ifstream inputFile(fileName);
@@ -430,6 +538,9 @@ int vm(const std::string& fileName) {
     // initialize memory and execute the assembly commands
     std::shared_ptr<Memory> memory = std::make_shared<Memory>();
     executeBlock(&program, 0, program.size()-1, memory);
+    
+    delete threads;
+
     return 0;
 }
 
@@ -528,7 +639,10 @@ private:
             trim(value);
             if(symbols.find(value) != symbols.end()) {
                 std::string argexpr = args.substr(0, args.size()-1);
-                if(symbols.find(argexpr) == symbols.end()) {
+                trim(argexpr);
+                if(argexpr=="")
+                    argexpr = "#";
+                else if(symbols.find(argexpr) == symbols.end()) {
                     std::string tmp = "_anon"+std::to_string(topTemp);
                     topTemp += 1;
                     Parser tmpParser = Parser(symbols, topTemp);
@@ -538,8 +652,6 @@ private:
                         argexpr = tmp;
                     }
                 }
-                if(argexpr=="")
-                    argexpr = "#";
                 compiled += "ASYNC "+variable+" "+argexpr+" "+value+"\n";
             }
             else {
@@ -702,9 +814,18 @@ int compile(const std::string& source, const std::string& destination) {
 int main(int argc, char* argv[]) {
     // parse file to run
     std::string fileName = "main.bb";
+    int threads = std::thread::hardware_concurrency();
+    if(threads==0)
+        threads = 4;
     if (argc > 1) 
         fileName = argv[1];
-
+    if (argc > 2)  {
+        threads = atoi(argv[2]);
+        if(threads==0)
+            threads = std::thread::hardware_concurrency();
+        if(threads==0)
+            threads = 4;
+    }
     // if the file has a blombly source code format (.bb) compile 
     // it into an assembly file (.bbvm)
     if(fileName.substr(fileName.size()-3, fileName.size())==".bb") {
@@ -721,5 +842,5 @@ int main(int argc, char* argv[]) {
     } 
 
     // run the assembly file in the virtual machine
-    return vm(fileName);
+    return vm(fileName, threads);
 }
