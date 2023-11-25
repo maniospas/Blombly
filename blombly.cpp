@@ -316,6 +316,10 @@ public:
     std::shared_ptr<Data> get(std::string item) {
         return get(item, true);
     }
+    void pull(std::shared_ptr<Memory> other) {
+        for (auto it = other->data.begin(); it != other->data.end(); it++)
+            set(it->first, it->second);
+    }
     std::shared_ptr<Data> get(std::string item, bool allowMutable) {
         if(item=="#")
             return nullptr;
@@ -363,13 +367,16 @@ public:
 };
 
 
-void waitForAll() {
-    /*for(pthread_t thread : threads) {
-        ThreadReturn* result;
-        pthread_join(thread, (void**)&result);
-        delete result;
-    }*/
-}
+class MacroResult: public Data {
+private:
+    std::shared_ptr<Memory> memory;
+public:
+    MacroResult(std::shared_ptr<Memory> mem) {memory=mem;}
+    std::string getType() const override {return "macroresult";}
+    std::string toString() const override {return "macroresult";}
+    std::shared_ptr<Memory> getMemory() {return memory;}
+};
+
 
 
 std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* program,
@@ -410,7 +417,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
     for(int i=start;i<=end;i++) {
         auto command = program->at(i)->args;
         std::shared_ptr<Data> value;
-        if(command[0]=="CONST") {
+        if(command[0]=="BUILTIN") {
             if(command[2][0]=='"')
                 value = std::make_shared<BString>(command[2].substr(1, command[2].size()-2));
             else if(command[2][0]=='I')
@@ -452,8 +459,9 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             i = pos;
         }
         else if(command[0]=="END") {
+            //return std::make_shared<MacroResult>(memory);
             break;
-        }
+        }/*
         else if(command[0]=="CALL") {
             // create new writable memory under the current context
             std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
@@ -469,8 +477,8 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             // execute the called code in the new memory
             std::shared_ptr<Code> code = std::static_pointer_cast<Code>(execute);
             value = executeBlock(program, code->getStart(), code->getEnd(), newMemory);
-        }
-        else if(command[0]=="ASYNC") {
+        }*/
+        else if(command[0]=="CALL") {
             // create new writable memory under the current context
             std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
             std::shared_ptr<Data> context = memory->get(command[2]);
@@ -498,6 +506,25 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
         }
         else if(command[0]=="return") {
             return memory->get(command[2]);
+        }
+        else if(command[0]=="inline") {
+            value = memory->get(command[2]);
+            if(value->getType()!="code") {
+                std::cerr << "Can only inline a non-called code block" << std::endl;
+                value = nullptr;
+            }
+            else {
+                std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
+                value = executeBlock(program, code->getStart(), code->getEnd(), memory);
+            }
+            /*if(value->getType()!="macroresult") {
+                std::cerr << "Can only inline the outcome of a method without return" << std::endl;
+                value = nullptr;
+            }
+            else {
+                memory->pull(std::static_pointer_cast<MacroResult>(value)->getMemory());
+                //value = std::make_shared<MacroResult>(memory);
+            }*/
         }
         else  {
             std::vector<std::shared_ptr<Data>> args;
@@ -626,11 +653,11 @@ private:
             if(variable=="#" || value.size()==0) // flexible parsing for undeclared variables
                 return;
             if(isString(value))
-                compiled += "CONST "+variable+" "+value+"\n";
+                compiled += "BUILTIN "+variable+" "+value+"\n";
             else if(isInt(value))
-                compiled += "CONST "+variable+" I"+value+"\n";
+                compiled += "BUILTIN "+variable+" I"+value+"\n";
             else if(isFloat(value))
-                compiled += "CONST "+variable+" F"+value+"\n";
+                compiled += "BUILTIN "+variable+" F"+value+"\n";
             else
                 compiled += "IS "+value+" "+variable+"\n"; // this is not an actual assembly command but is used to indicate that parsed text is just a varlabe that should be obtained from future usages
         } else {
@@ -652,7 +679,7 @@ private:
                         argexpr = tmp;
                     }
                 }
-                compiled += "ASYNC "+variable+" "+argexpr+" "+value+"\n";
+                compiled += "CALL "+variable+" "+argexpr+" "+value+"\n";
             }
             else {
                 std::string argexpr;

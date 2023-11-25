@@ -1,27 +1,16 @@
-CONST bias I1
+BUILTIN bias I1
 FINAL # bias
-BEGINFINAL sum
-CONST _anon0 "exec"
-print # _anon0
-add _anon1 x bias
-return # _anon1
+BEGINFINAL inc_result
+add result result bias
 END
-BEGINFINAL sum2
-CONST _anon2 "exec2"
-print # _anon2
-add _anon3 x1 y
-return # _anon3
+BEGINFINAL add_inc
+add result x y
+inline # inc_result
+return # result
 END
-BEGIN args
-CONST x I1
-CONST y I2
+BEGIN _anon4
+BUILTIN x I4
+BUILTIN y I5
 END
-ASYNC x1 args sum
-FINAL # x1
-ASYNC x2 args sum2
-ASYNC x3 args sum
-ASYNC x4 args sum2
-print # x1
-print # x2
-print # x3
-print # x4
+CALL _anon3 _anon4 add_inc
+print # _anon3
