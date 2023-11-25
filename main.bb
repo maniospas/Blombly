@@ -1,6 +1,4 @@
-block = {
-    x = add(x, 1);
-    return(add(x,y));
-}
-sum = block({x=1;y=2});
-print(sum);
+sum = {return(add(x,y));}
+inc = {x=add(x,1);}
+incsum = {return(sum(inc));}
+print(incsum({x=1;y=2}));

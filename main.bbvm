@@ -1,12 +1,18 @@
-BEGIN block
-CONST _anon1 I1
-add x x _anon1
-add _anon2 x y
-return # _anon2
+BEGIN sum
+add _anon0 x y
+return # _anon0
 END
-BEGIN _anon3
+BEGIN inc
+CONST _anon2 I1
+add x x _anon2
+END
+BEGIN incsum
+CALL _anon3 inc sum
+return # _anon3
+END
+BEGIN _anon5
 CONST x I1
 CONST y I2
 END
-CALL sum _anon3 block
-print # sum
+CALL _anon4 _anon5 incsum
+print # _anon4
