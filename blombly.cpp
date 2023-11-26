@@ -30,6 +30,7 @@
 #include <atomic>
 #include <functional>
 #include <thread>
+#include <cmath>
 
 
 
@@ -216,11 +217,24 @@ public:
     std::string toString() const override {return std::to_string(value);}
     int getValue() const {return value;}
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
-        if(operation=="add" && all.size()==2 && all[0]->getType()=="int" && all[1]->getType()=="int") 
-            return std::make_shared<Integer>(
-                std::static_pointer_cast<Integer>(all[0])->getValue()+
-                std::static_pointer_cast<Integer>(all[1])->getValue()
-            );
+        if(all.size()==2 && all[0]->getType()=="int" && all[1]->getType()=="int") {
+            int v1 = std::static_pointer_cast<Integer>(all[0])->getValue();
+            int v2 = std::static_pointer_cast<Integer>(all[1])->getValue();
+            int res;
+            if(operation=="add")
+                res = v1 + v2;
+            if(operation=="sub")
+                res = v1 - v2;
+            if(operation=="mul")
+                res = v1 * v2;
+            if(operation=="div")
+                res = v1 / v2;
+            if(operation=="mod")
+                res = v1 % v2;
+            if(operation=="pow")
+                res = pow(v1, v2);
+            return std::make_shared<Integer>(res);
+        }
         throw Unimplemented();
     }
 };
@@ -234,21 +248,24 @@ public:
     std::string toString() const override {return std::to_string(value);}
     float getValue() const {return value;}
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
-        if(operation=="add" && all.size()==2 && all[0]->getType()=="float" && all[1]->getType()=="float") 
-            return std::make_shared<Integer>(
-                std::static_pointer_cast<Float>(all[0])->getValue()+
-                std::static_pointer_cast<Float>(all[1])->getValue()
-            );
-        if(operation=="add" && all.size()==2 && all[0]->getType()=="int" && all[1]->getType()=="float") 
-            return std::make_shared<Integer>(
-                std::static_pointer_cast<Integer>(all[0])->getValue()+
-                std::static_pointer_cast<Float>(all[1])->getValue()
-            );
-        if(operation=="add" && all.size()==2 && all[0]->getType()=="float" && all[1]->getType()=="int") 
-            return std::make_shared<Integer>(
-                std::static_pointer_cast<Float>(all[0])->getValue()+
-                std::static_pointer_cast<Integer>(all[1])->getValue()
-            );
+        if(all.size()==2 
+            && (all[0]->getType()=="float" || all[0]->getType()=="int") 
+            && (all[1]->getType()=="float" || all[1]->getType()=="int")) { 
+            float v1 = all[0]->getType()=="int"?std::static_pointer_cast<Integer>(all[0])->getValue():std::static_pointer_cast<Float>(all[0])->getValue();
+            float v2 = all[1]->getType()=="int"?std::static_pointer_cast<Integer>(all[1])->getValue():std::static_pointer_cast<Float>(all[1])->getValue();
+            float res;
+            if(operation=="add")
+                res = v1 + v2;
+            if(operation=="sub")
+                res = v1 - v2;
+            if(operation=="mul")
+                res = v1 * v2;
+            if(operation=="div")
+                res = v1 / v2;
+            if(operation=="pow")
+                res = pow(v1, v2);
+            return std::make_shared<Float>(res);
+        }
         throw Unimplemented();
     }
 };

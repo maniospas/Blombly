@@ -1,19 +1,4 @@
-BEGIN _anon0
-BUILTIN x I1
-BUILTIN y I2
-BEGIN manh
-return # x+y
-END
-END
-struct point _anon0
-FINAL # point
-get _anon1 point x
-print # _anon1
-BUILTIN _anon3 I2
-set # point x _anon3
-BUILTIN _anon5 I3
-set # point x _anon5
-BUILTIN _anon7 I4
-set # point x _anon7
-get _anon8 point x
-print # _anon8
+BUILTIN _anon1 I1
+BUILTIN _anon2 I2
+mul _anon0 _anon1 _anon2
+print # _anon0
