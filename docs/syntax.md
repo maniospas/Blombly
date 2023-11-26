@@ -62,7 +62,7 @@ final inc = {
     return(add(x, bias));
 }
 print(inc(x=4)); // 5 - can ommit trailing ; and inferable brakets (is equivalent to print(inc({x=4;}));)
-print(inc(x=4;bias=2)) // 6 (can overwrite external value)
+print(inc(x=4;bias=2)); // 6 (can overwrite external value)
 ```
 
 To let code blocks call each other, you must make them final,
@@ -92,3 +92,23 @@ print(result);
 ```
 
 :warning: Inlining runs sequentially in the same thread.
+
+## Derivded execution
+
+A final case of calling code blocks is by letting them
+experience all variables of the surrounding scope (like
+inline) but not modify the latter. This is called derived
+execution of the blocks and can be done like this:
+
+```javascript
+inc_x = {
+    x = add(x, 1);
+    return(x);
+} 
+x = 0;
+result = derived(inc_x);
+print(x); // still 0
+print(result); // 1
+```
+
+:warning: Derived execution runs sequentially in the same thread.
