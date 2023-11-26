@@ -36,7 +36,7 @@ kwargs = {
     x=add(x+1);
     y=2;
 }
-value = sum(kwargs);
+value = sum(kwargs); 
 print(value);
 print(x); // still 0
 ```
@@ -61,8 +61,8 @@ final bias = add(bias, 1); // final after the assignement
 final inc = {
     return(add(x, bias));
 }
-print(inc({x=4;})); // 5
-print(inc({x=4;bias=2})) // 6 (can overwrite external value)
+print(inc(x=4)); // 5 - can ommit trailing ; and inferable brakets (is equivalent to print(inc({x=4;}));)
+print(inc(x=4;bias=2)) // 6 (can overwrite external value)
 ```
 
 To let code blocks call each other, you must make them final,
