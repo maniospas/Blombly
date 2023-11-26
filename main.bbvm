@@ -1,4 +1,16 @@
-BUILTIN _anon1 I1
-BUILTIN _anon2 I2
-mul _anon0 _anon1 _anon2
-print # _anon0
+BUILTIN bias I1
+FINAL # bias
+BEGINFINAL inc_result
+add result result bias
+END
+BEGINFINAL addinc
+add result x y
+inline # inc_result
+return # result
+END
+BEGIN _anon4
+BUILTIN x I4
+BUILTIN y I5
+END
+CALL _anon3 _anon4 addinc
+print # _anon3
