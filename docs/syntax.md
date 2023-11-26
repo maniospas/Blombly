@@ -52,9 +52,8 @@ The top-level scope is left unaffected throughout this process.
 
 When you set a value to a variable you can set the assignment to be final.
 This indicates that the value will never be allowed change in this scope
-in the future, which makes it *thread-safe* and can thus be used by blocks 
-called from its scope. Here's an example of a final variable that is visible
-from inside a code block.
+in the future, which makes it *thread-safe* and can thus be visible by called
+blocks. Here's an example of a final variable that is visible from a running block.
 
 ```javascript
 bias = 0; // is not yet final
@@ -70,11 +69,10 @@ To let code blocks call each other, you must make them final,
 similarly to the above example. This lets
 you write secure code by controlling which functionality or variables
 are exposed to called blocks. To write recursive blocks (i.e., that
-call themselves) you need to make them final.
+call themselves) you also need to make them final.
 
 :bulb: Make keyword arguments final to make sure that the match between
 their name and value is never broken.
-
 
 ## Inline execution
 

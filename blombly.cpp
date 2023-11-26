@@ -367,14 +367,21 @@ public:
 };
 
 
-class MacroResult: public Data {
+class Struct: public Data {
 private:
+    pthread_mutex_t memoryLock; 
     std::shared_ptr<Memory> memory;
 public:
-    MacroResult(std::shared_ptr<Memory> mem) {memory=mem;}
-    std::string getType() const override {return "macroresult";}
-    std::string toString() const override {return "macroresult";}
-    std::shared_ptr<Memory> getMemory() {return memory;}
+    Struct(std::shared_ptr<Memory> mem) {
+        memory=mem;
+        if (pthread_mutex_init(&memoryLock, NULL) != 0) 
+            std::cerr << "Failed to create a mutex for struct read/write" << std::endl;
+    }
+    std::string getType() const override {return "struct";}
+    std::string toString() const override {return "struct";}
+    std::shared_ptr<Memory>& getMemory() {return memory;}
+    void lock() {pthread_mutex_lock(&memoryLock);}
+    void unlock(){pthread_mutex_unlock(&memoryLock);}
 };
 
 
@@ -507,6 +514,63 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
         else if(command[0]=="return") {
             return memory->get(command[2]);
         }
+        else if(command[0]=="struct") {
+            value = memory->get(command.size()>3?command[3]:command[2]);
+            std::shared_ptr<Data> parent = command.size()>3?memory->get(command[2]):nullptr;
+            if(value->getType()!="code") {
+                std::cerr << "Can only convert to a struct a non-called code block" << std::endl;
+                value = nullptr;
+            }
+            else if(parent) {
+                if(parent->getType()!="struct") {
+                    std::cerr << "Can only inherit from a struct during the consturction of a new one" << std::endl;
+                    value = nullptr;
+                }
+                else {
+                    std::shared_ptr<Memory> parentMemory = std::static_pointer_cast<Struct>(parent)->getMemory();
+                    std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(parentMemory);
+                    std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
+                    newMemory->set("super", parent);
+                    executeBlock(program, code->getStart(), code->getEnd(), newMemory);
+                    value = std::make_shared<Struct>(newMemory);
+                }
+            }
+            else {
+                std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
+                std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
+                executeBlock(program, code->getStart(), code->getEnd(), newMemory);
+                newMemory->detach();
+                value = std::make_shared<Struct>(newMemory);
+            }
+        }
+        else if(command[0]=="get") {
+            value = memory->get(command[2]);
+            if(value->getType()!="struct") {
+                std::cerr << "Can only get fields from a struct" << std::endl;
+                value = nullptr;
+            }
+            else {
+                std::shared_ptr<Struct> obj = std::static_pointer_cast<Struct>(value);
+                obj->lock();
+                value = obj->getMemory()->get(command[3]);
+                obj->unlock();
+            }
+        }
+        else if(command[0]=="set") {
+            value = memory->get(command[2]);
+            if(value->getType()!="struct") {
+                std::cerr << "Can only get fields from a struct" << std::endl;
+                value = nullptr;
+            }
+            else {
+                std::shared_ptr<Struct> obj = std::static_pointer_cast<Struct>(value);
+                std::shared_ptr<Data> setValue = memory->get(command[4]);
+                obj->lock();
+                obj->getMemory()->set(command[3], setValue);
+                obj->unlock();
+                value = nullptr;
+            }
+        }
         else if(command[0]=="inline") {
             value = memory->get(command[2]);
             if(value->getType()!="code") {
@@ -517,14 +581,6 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
                 value = executeBlock(program, code->getStart(), code->getEnd(), memory);
             }
-            /*if(value->getType()!="macroresult") {
-                std::cerr << "Can only inline the outcome of a method without return" << std::endl;
-                value = nullptr;
-            }
-            else {
-                memory->pull(std::static_pointer_cast<MacroResult>(value)->getMemory());
-                //value = std::make_shared<MacroResult>(memory);
-            }*/
         }
         else  {
             std::vector<std::shared_ptr<Data>> args;

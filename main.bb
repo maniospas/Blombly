@@ -1,10 +1,10 @@
-final bias = 1;
-final inc_result = {
-    result = add(result, bias);
-}
-final add_inc = {
-    result = add(x, y);
-    inline(inc_result);
-    return(result);
-}
-print(add_inc({x=4;y=5;})); 
+final point = struct({
+        x=1;
+        y=2;
+        manh={return(x+y);}
+    });
+print(get(point, x));
+set(point, x, 2);
+set(point, x, 3);
+set(point, x, 4);
+print(get(point, x));

@@ -1,16 +1,19 @@
-BUILTIN bias I1
-FINAL # bias
-BEGINFINAL inc_result
-add result result bias
+BEGIN _anon0
+BUILTIN x I1
+BUILTIN y I2
+BEGIN manh
+return # x+y
 END
-BEGINFINAL add_inc
-add result x y
-inline # inc_result
-return # result
 END
-BEGIN _anon4
-BUILTIN x I4
-BUILTIN y I5
-END
-CALL _anon3 _anon4 add_inc
-print # _anon3
+struct point _anon0
+FINAL # point
+get _anon1 point x
+print # _anon1
+BUILTIN _anon3 I2
+set # point x _anon3
+BUILTIN _anon5 I3
+set # point x _anon5
+BUILTIN _anon7 I4
+set # point x _anon7
+get _anon8 point x
+print # _anon8
