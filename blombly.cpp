@@ -599,6 +599,18 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 value = executeBlock(program, code->getStart(), code->getEnd(), memory);
             }
         }
+        else if(command[0]=="derive") {
+            value = memory->get(command[2]);
+            if(value->getType()!="code") {
+                std::cerr << "Can only inline a non-called code block" << std::endl;
+                value = nullptr;
+            }
+            else {
+                std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
+                std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
+                value = executeBlock(program, code->getStart(), code->getEnd(), newMemory);
+            }
+        }
         else  {
             std::vector<std::shared_ptr<Data>> args;
             for(int i=2;i<command.size();i++)
@@ -743,6 +755,8 @@ private:
                 if(argexpr=="")
                     argexpr = "#";
                 else if(symbols.find(argexpr) == symbols.end()) {
+                    if(argexpr[0]!='{')
+                        argexpr = "{"+argexpr+"}";
                     std::string tmp = "_anon"+std::to_string(topTemp);
                     topTemp += 1;
                     Parser tmpParser = Parser(symbols, topTemp);

@@ -7,4 +7,4 @@ final addinc = {
     inline(inc_result);
     return(result);
 }
-print(addinc({x=4;y=5;}));
+print(addinc(x=4;y=5));
