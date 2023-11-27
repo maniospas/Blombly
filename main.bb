@@ -1,10 +1,9 @@
-final bias = 1;
-final inc_result = {
-    result = add(result, bias);
+context = {
+    final bias = 1;
+    inc = {
+        return(add(x, bias));
+    }
 }
-final addinc = {
-    result = add(x, y);
-    inc_result:
-    return(result);
-}
-print(addinc(x=4;y=5)); 
+inc = new({context:return(inc)});
+final bias = 2;
+print(inc(x=1));

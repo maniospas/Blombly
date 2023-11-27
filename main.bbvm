@@ -1,16 +1,20 @@
+BEGIN context
 BUILTIN bias I1
 FINAL # bias
-BEGINFINAL inc_result
-add result result bias
+BEGIN inc
+add _anon0 x bias
+return # _anon0
 END
-BEGINFINAL addinc
-add result x y
-inline # inc_result
-return # result
 END
-BEGIN _anon4
-BUILTIN x I4
-BUILTIN y I5
+BEGIN _anon1
+inline # context
+return # inc
 END
-CALL _anon3 _anon4 addinc
-print # _anon3
+new inc _anon1
+BUILTIN bias I2
+FINAL # bias
+BEGIN _anon3
+BUILTIN x I1
+END
+CALL _anon2 _anon3 inc
+print # _anon2
