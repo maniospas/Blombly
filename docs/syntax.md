@@ -135,19 +135,25 @@ print(x); // still 0
 print(point.x); // 1
 ```
 
-:bulb: Use inline execution to use blocks as constructors. With this syntax,
-you can declare objects that use multiple constructors, like the following example.
+:bulb: Inline execution lets you use code blocks as constructors. With this syntax,
+you can declare objects that use multiple constructors, like in the following example.
 
 ```javascript
-Point = {final x=x;final y=y}
+StaticPoint = {final x=x;final y=y} // ensure that x, y are immutable
 Normed2D = {
     norm = {
-        x2 = pow(get(self, x), q);
-        y2 = pow(get(self, y), q);
+        xq = pow(get(self, x), q);
+        yq = pow(get(self, y), q);
         return(add(xq, yq));
     }
 }
 extx = 1;
-point = new({x=extx;y=2;Point:Normed2D:self}); // created object will not have field extx
-print(norm(point, {q=2}));
+point = new({
+    x=extx;
+    y=2;
+    StaticPoint:
+    Normed2D:
+    return(self);
+}); // created object will not store extx (only locally declared variables are kept)
+print(point.norm(q=2));
 ```

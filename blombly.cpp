@@ -84,7 +84,8 @@ public:
     }
     void pull(std::shared_ptr<Memory> other) {
         for (auto it = other->data.begin(); it != other->data.end(); it++)
-            set(it->first, it->second);
+            if(it->first!="self")
+                set(it->first, it->second);
     }
     std::shared_ptr<Data> get(std::string item, bool allowMutable) {
         if(item=="#")
@@ -148,11 +149,11 @@ public:
     std::shared_ptr<Memory>& getMemory() {return memory;}
     void lock() {pthread_mutex_lock(&memoryLock);}
     void unlock(){pthread_mutex_unlock(&memoryLock);}
-    /*virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
+    virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         if(all.size()==1 && all[0]->getType()=="struct" && operation=="copy")
             return std::make_shared<Struct>(memory);
         throw Unimplemented();
-    }*/
+    }
 };
 
 
@@ -262,7 +263,6 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
         else if(command[0]=="CALL") {
             // create new writable memory under the current context
             std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
-            newMemory->set("self", std::make_shared<Struct>(newMemory));
             std::shared_ptr<Data> context = MEMGET(memory, command[2]);
             std::shared_ptr<Data> execute = MEMGET(memory, command[3]);
             // check if the call has some context, and if so, execute it in the new memory
@@ -273,6 +273,9 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                     std::cerr << "Code execution context should not return a value." << std::endl;
             }
             newMemory->detach();
+            std::shared_ptr<Struct> self = command.size()>4?std::static_pointer_cast<Struct>(MEMGET(memory, command[4])):std::make_shared<Struct>(newMemory);
+            // only set the self object now to let the block reference it internally, but prevent the arguments from affecting it prematurely (and let them use any enclosing scope selfs)
+            newMemory->set("self", self);
             // execute the called code in the new memory
             std::shared_ptr<Code> code = std::static_pointer_cast<Code>(execute);
             //
@@ -350,8 +353,12 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
         }
         else if(command[0]=="inline") {
             value = MEMGET(memory, command[2]);
-            if(value->getType()!="code") {
-                std::cerr << "Can only inline a non-called code block" << std::endl;
+            if(value->getType()=="struct") {
+                std::shared_ptr<Struct> code = std::static_pointer_cast<Struct>(value);
+                memory->pull(code->getMemory());
+            }
+            else if(value->getType()!="code") {
+                std::cerr << "Can only inline a non-called code block or struct" << std::endl;
                 value = nullptr;
             }
             else {

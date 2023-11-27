@@ -7,9 +7,9 @@ END
 BEGIN Normed2D
 BEGIN norm
 get _anon0 self x
-pow x2 _anon0 q
+pow xq _anon0 q
 get _anon2 self y
-pow y2 _anon2 q
+pow yq _anon2 q
 add _anon4 xq yq
 return # _anon4
 END
@@ -23,7 +23,12 @@ inline # Normed2D
 return # self
 END
 new point _anon5
+BEGIN _anon6
+inline # point
+return # self
+END
+new point2 _anon6
 BUILTIN extx I2
 print # extx
-get _anon6 point x
-print # _anon6
+get _anon7 point2 x
+print # _anon7
