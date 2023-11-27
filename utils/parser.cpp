@@ -48,6 +48,9 @@ private:
     bool isString(const std::string& value) {
         return value[0]=='"' && value[value.size()-1]=='"';
     }
+    bool isBool(const std::string& value) {
+        return value=="true" || value=="false";
+    }
     bool isInt(const std::string& value) {
         try{
             std:stoi(value);
@@ -82,14 +85,30 @@ private:
         }
         size_t pos = value.find('(');
         if(pos == std::string::npos) {
+            if(value.size() && symbols.find(value) != symbols.end()) {
+                compiled += "copy "+variable+" "+value+"\n";
+                return;
+            }
+            if(value==":") {
+                compiled += "inline "+variable+" LAST\n";
+                return;
+            }
+            if(value.size() && value[value.size()-1]==':' && symbols.find(value.substr(0, value.size()-1)) != symbols.end()) {
+                compiled += "inline "+variable+" "+value.substr(0, value.size()-1)+"\n";
+                return;
+            }
             if(variable=="#" || value.size()==0) // flexible parsing for undeclared variables
                 return;
             if(isString(value))
                 compiled += "BUILTIN "+variable+" "+value+"\n";
+            else if(isBool(value))
+                compiled += "BUILTIN "+variable+" B"+value+"\n";
             else if(isInt(value))
                 compiled += "BUILTIN "+variable+" I"+value+"\n";
             else if(isFloat(value))
                 compiled += "BUILTIN "+variable+" F"+value+"\n";
+            else if(variable==value) 
+                compiled += "copy "+variable+" "+value+"\n";
             else
                 compiled += "IS "+value+" "+variable+"\n"; // this is not an actual assembly command but is used to indicate that parsed text is just a varlabe that should be obtained from future usages
         } else {
@@ -166,6 +185,7 @@ private:
 public:
     Parser() {
         topTemp = 0;
+        symbols.insert("self");
     }
     Parser(std::unordered_set<std::string>& symbs, int topTemps) {
         symbols = symbs;
@@ -212,6 +232,11 @@ public:
             else if(depth==0 && c=='}') {
                 addCommand(command);
                 compiled += "END\n";
+                command = "";
+            }
+            else if(depth==0 && c==':') {
+                command += c;
+                addCommand(command);
                 command = "";
             }
             else if(depth==0 && (c==';' || pos==code.size()-1)) {

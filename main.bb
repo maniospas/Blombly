@@ -1,10 +1,13 @@
-final bias = 1;
-final inc_result = {
-    result = add(result, bias);
+Point = {final x=x;final y=y}
+Normed2D = {
+    norm = {
+        x2 = pow(get(self, x), q);
+        y2 = pow(get(self, y), q);
+        return(add(xq, yq));
+    }
 }
-final addinc = {
-    result = add(x, y);
-    inline(inc_result);
-    return(result);
-}
-print(addinc(x=4;y=5));
+extx = 1;
+point = new({x=extx;y=2;Point:Normed2D:return(self)}); 
+extx = 2;
+print(extx);
+print(get(point, x));

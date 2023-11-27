@@ -47,8 +47,18 @@ public:
             } 
             catch(Unimplemented) { // TODO: catch only Unimplemented exceptions
             }
-        if(ret==nullptr)
-            std::cerr << "No valid implementation of "+operation+" for any of its arguments" << std::endl;
+        if(ret==nullptr) {
+            std::string err = "No valid builtin implementation for this method: "+operation+"(";
+            int i = 0;
+            for(const std::shared_ptr<Data>& arg : all) {
+                err += arg->getType();
+                if(i)
+                    err += ",";
+                i++;
+            }
+            err += ")";
+            std::cerr << err << std::endl;
+        }
         return ret;
     }
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
@@ -67,6 +77,35 @@ public:
 };
 
 
+class Boolean : public Data {
+private:
+    bool value;
+public:
+    Boolean(bool val) : value(val) {}
+    std::string getType() const override {return "bool";}
+    std::string toString() const override {return value?"true":"false";}
+    bool getValue() const {return value;}
+    virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
+        if(all.size()==1 && all[0]->getType()=="bool" && operation=="copy")
+            return std::make_shared<Boolean>(value);
+        if(all.size()==2 && all[0]->getType()=="bool" && all[1]->getType()=="bool") {
+            bool v1 = std::static_pointer_cast<Boolean>(all[0])->getValue();
+            bool v2 = std::static_pointer_cast<Boolean>(all[1])->getValue();
+            bool res;
+            if(operation=="and")
+                res = v1 && v2;
+            if(operation=="or")
+                res = v1 || v2;
+            if(operation=="eq")
+                res = v1 == v2;
+            if(operation=="neq")
+                res = v1 != v2;
+            return std::make_shared<Boolean>(res);
+        }
+        throw Unimplemented();
+    }
+};
+
 class Integer : public Data {
 private:
     int value;
@@ -76,9 +115,23 @@ public:
     std::string toString() const override {return std::to_string(value);}
     int getValue() const {return value;}
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
+        if(all.size()==1 && all[0]->getType()=="int" && operation=="copy")
+            return std::make_shared<Integer>(value);
         if(all.size()==2 && all[0]->getType()=="int" && all[1]->getType()=="int") {
             int v1 = std::static_pointer_cast<Integer>(all[0])->getValue();
             int v2 = std::static_pointer_cast<Integer>(all[1])->getValue();
+            if(operation=="eq")
+                std::make_shared<Boolean>(v1 == v2);
+            if(operation=="neq")
+                std::make_shared<Boolean>(v1 != v2);
+            if(operation=="lt")
+                std::make_shared<Boolean>(v1 < v2);
+            if(operation=="le")
+                std::make_shared<Boolean>(v1 <= v2);
+            if(operation=="gt")
+                std::make_shared<Boolean>(v1 > v2);
+            if(operation=="ge")
+                std::make_shared<Boolean>(v1 >= v2);
             int res;
             if(operation=="add")
                 res = v1 + v2;
@@ -107,11 +160,25 @@ public:
     std::string toString() const override {return std::to_string(value);}
     float getValue() const {return value;}
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
+        if(all.size()==1 && all[0]->getType()=="float" && operation=="copy")
+            return std::make_shared<Float>(value);
         if(all.size()==2 
             && (all[0]->getType()=="float" || all[0]->getType()=="int") 
             && (all[1]->getType()=="float" || all[1]->getType()=="int")) { 
             float v1 = all[0]->getType()=="int"?std::static_pointer_cast<Integer>(all[0])->getValue():std::static_pointer_cast<Float>(all[0])->getValue();
             float v2 = all[1]->getType()=="int"?std::static_pointer_cast<Integer>(all[1])->getValue():std::static_pointer_cast<Float>(all[1])->getValue();
+            if(operation=="eq")
+                std::make_shared<Boolean>(v1 == v2);
+            if(operation=="neq")
+                std::make_shared<Boolean>(v1 != v2);
+            if(operation=="lt")
+                std::make_shared<Boolean>(v1 < v2);
+            if(operation=="le")
+                std::make_shared<Boolean>(v1 <= v2);
+            if(operation=="gt")
+                std::make_shared<Boolean>(v1 > v2);
+            if(operation=="ge")
+                std::make_shared<Boolean>(v1 >= v2);
             float res;
             if(operation=="add")
                 res = v1 + v2;
@@ -130,6 +197,7 @@ public:
 };
 
 
+
 class BString : public Data {
 private:
     std::string value;
@@ -137,6 +205,11 @@ public:
     BString(const std::string& val) : value(val) {}
     std::string getType() const override {return "string";}
     std::string toString() const override {return value;}
+    virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
+        if(all.size()==1 && all[0]->getType()=="string" && operation=="copy")
+            return std::make_shared<BString>(value);
+        throw Unimplemented();
+    }
 };
 
 
@@ -149,4 +222,9 @@ public:
     std::string toString() const override {return "code from "+std::to_string(start)+" to "+std::to_string(end);}
     int getStart() const {return start;}
     int getEnd() const {return end;}
+    virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
+        if(all.size()==1 && all[0]->getType()=="code" && operation=="copy")
+            return std::make_shared<Code>(start, end);
+        throw Unimplemented();
+    }
 };

@@ -6,6 +6,7 @@ with equivalent syntax.
 1. [Code blocks](#code-blocks)
 2. [Final variables](#final-variables)
 3. [Inline execution](#inline-execution)
+4. [New](#new)
 
 ## Code blocks
  
@@ -77,8 +78,12 @@ their name and value is never broken.
 ## Inline execution
 
 Sometimes, you may want to call a code block and let it
-alter your scope's variables. You can do this by calling the inline
-method on the block object:
+alter your scope's variables. You can do this by ending 
+the block's usage with a colon (:). When you do this,
+you can ommit the semicolon at the end of the sentence.
+For example, in the following snippet `result = inc_x:` 
+is shorthand for `result = inc_x:;` that performs
+inline execution of `inc_x`.
 
 ```javascript
 inc_x = {
@@ -86,19 +91,24 @@ inc_x = {
     return("success");
 } 
 x = 0;
-result = inline(inc_x);
+result = inc_x:
 print(x); // 1
 print(result);
 ```
 
+:bulb: You can use inline execution to enrich your local context.
+
 :warning: Inlining runs sequentially in the same thread.
 
-## Derivded execution
+Control flow statements (conditions and loops) also perform inline execution.
+
+## New
 
 A final case of calling code blocks is by letting them
-experience all variables of the surrounding scope (like
-inline) but not modify the latter. This is called derived
-execution of the blocks and can be done like this:
+access all variables of the surrounding scope (like
+inline) but register modifications in a separate
+memory context. This is performed with the `new`
+keyword and can be done like this:
 
 ```javascript
 inc_x = {
@@ -106,9 +116,38 @@ inc_x = {
     return(x);
 } 
 x = 0;
-result = derived(inc_x);
+result = new(inc_x);
 print(x); // still 0
 print(result); // 1
 ```
 
-:warning: Derived execution runs sequentially in the same thread.
+:warning: Similarly to inline execution, `new` runs sequentially in the same thread.
+
+The newlly created memory context of any memory is stored as a data structure
+in a local datavariable called `self`. This lets you use `new` to create data
+structures like in the following code:
+
+```javascript
+x = 0;
+y = 2;
+point = new(x=1;y=y;return(self)); // don't forget to return self
+print(x); // still 0
+print(point.x); // 1
+```
+
+:bulb: Use inline execution to use blocks as constructors. With this syntax,
+you can declare objects that use multiple constructors, like the following example.
+
+```javascript
+Point = {final x=x;final y=y}
+Normed2D = {
+    norm = {
+        x2 = pow(get(self, x), q);
+        y2 = pow(get(self, y), q);
+        return(add(xq, yq));
+    }
+}
+extx = 1;
+point = new({x=extx;y=2;Point:Normed2D:self}); // created object will not have field extx
+print(norm(point, {q=2}));
+```
