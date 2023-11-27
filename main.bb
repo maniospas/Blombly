@@ -1,6 +1,7 @@
 StaticPoint = {final x=x;final y=y} 
 Normed2D = {
     norm = {
+        default(q=2);
         xq = pow(x, q);
         yq = pow(y, q);
         return(add(xq, yq));
@@ -14,4 +15,4 @@ point = new(
     Normed2D:
     return(self);
 ); 
-print(point.norm(q=2));
+print(point.norm());

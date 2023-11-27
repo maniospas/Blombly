@@ -148,7 +148,7 @@ private:
                 compiled += "CALL "+variable+" "+argexpr+" "+value+"\n";
             }
             else {
-                if(value=="new" && args[0]!='{')
+                if((value=="new" || value=="default") && args[0]!='{')
                     args = "{"+args.substr(0, args.size()-1)+"})";
                 std::string argexpr;
                 int depth = 0;

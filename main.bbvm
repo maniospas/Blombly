@@ -6,24 +6,25 @@ FINAL # y
 END
 BEGIN Normed2D
 BEGIN norm
+BEGIN _anon0
+BUILTIN q I2
+END
+default # _anon0
 pow xq x q
 pow yq y q
-add _anon2 xq yq
-return # _anon2
+add _anon3 xq yq
+return # _anon3
 END
 END
 BUILTIN extx I1
-BEGIN _anon3
+BEGIN _anon4
 copy x extx
 BUILTIN y I2
 inline # StaticPoint
 inline # Normed2D
 return # self
 END
-new point _anon3
-get _anon5 point norm
-BEGIN _anon6
-BUILTIN q I2
-END
-CALL _anon4 _anon6 _anon5
-print # _anon4
+new point _anon4
+get _anon6 point norm
+CALL _anon5 # _anon6
+print # _anon5

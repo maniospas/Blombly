@@ -107,6 +107,12 @@ public:
             if(it->first!="self")
                 set(it->first, it->second);
     }
+    void replaceMissing(std::shared_ptr<Memory> other) {
+        for (auto it = other->data.begin(); it != other->data.end(); it++)
+            if(it->first!="self")
+                if(!data[it->first])
+                    set(it->first, it->second);
+    }
     std::shared_ptr<Data> get(std::string item, bool allowMutable) {
         if(item=="#")
             return nullptr;
@@ -390,6 +396,23 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             else {
                 std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
                 value = executeBlock(program, code->getStart(), code->getEnd(), memory);
+            }
+        }
+        else if(command[0]=="default") {
+            value = MEMGET(memory, command[2]);
+            if(value->getType()=="struct") {
+                std::shared_ptr<Struct> code = std::static_pointer_cast<Struct>(value);
+                memory->replaceMissing(code->getMemory());
+            }
+            else if(value->getType()!="code") {
+                std::cerr << "Can only inline a non-called code block or struct" << std::endl;
+                value = nullptr;
+            }
+            else {
+                std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
+                std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
+                value = executeBlock(program, code->getStart(), code->getEnd(), newMemory);
+                memory->replaceMissing(newMemory);
             }
         }
         else if(command[0]=="new") {
