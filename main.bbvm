@@ -1,29 +1,29 @@
-BEGIN _anon0
-BUILTIN _anon1 "See this message only once because we created a new struct instead of a code block"
-print # _anon1
-BUILTIN bias I1
-FINAL # bias
-BUILTIN y I0
-BEGINFINAL inc
-BUILTIN _anon2 I1
-set # self y _anon2
-add _anon3 x bias
-return # _anon3
+BEGIN StaticPoint
+copy x x
+FINAL # x
+copy y y
+FINAL # y
 END
+BEGIN Normed2D
+BEGIN norm
+pow xq x q
+pow yq y q
+add _anon2 xq yq
+return # _anon2
+END
+END
+BUILTIN extx I1
+BEGIN _anon3
+copy x extx
+BUILTIN y I2
+inline # StaticPoint
+inline # Normed2D
 return # self
 END
-new context _anon0
-BUILTIN bias I2
-FINAL # bias
-get _anon2 context bias
-copy _anon1 _anon2
-print # _anon1
-get _anon3 context inc
-BEGIN _anon4
-BUILTIN x I1
+new point _anon3
+get _anon5 point norm
+BEGIN _anon6
+BUILTIN q I2
 END
-CALL _anon2 _anon4 _anon3
-print # _anon2
-get _anon4 context y
-copy _anon3 _anon4
-print # _anon3
+CALL _anon4 _anon6 _anon5
+print # _anon4

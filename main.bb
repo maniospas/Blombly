@@ -1,14 +1,17 @@
-context = new(
-    print("See this message only once because we created a new struct instead of a code block");
-    final bias = 1;
-    y = 0;
-    final inc = {
-        set(self, y, 1);
-        return(add(x, bias));
+StaticPoint = {final x=x;final y=y} 
+Normed2D = {
+    norm = {
+        xq = pow(x, q);
+        yq = pow(y, q);
+        return(add(xq, yq));
     }
-    return(self)
-);
-final bias = 2;
-print(context.bias);
-print(context.inc(x=1));
-print(context.y);
+}
+extx = 1;
+point = new(
+    x=extx;
+    y=2;
+    StaticPoint:
+    Normed2D:
+    return(self);
+); 
+print(point.norm(q=2));

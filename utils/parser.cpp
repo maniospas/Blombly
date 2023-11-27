@@ -150,7 +150,6 @@ private:
             else {
                 if(value=="new" && args[0]!='{')
                     args = "{"+args.substr(0, args.size()-1)+"})";
-                std::cout << value << args <<"\n";
                 std::string argexpr;
                 int depth = 0;
                 int i = 0;
