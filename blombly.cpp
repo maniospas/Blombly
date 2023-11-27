@@ -121,6 +121,11 @@ public:
     }
     void detach() {
         allowMutables = false;
+        parent = nullptr;
+    }
+    void detach(std::shared_ptr<Memory> par) {
+        allowMutables = false;
+        parent = par;
     }
 };
 
@@ -235,7 +240,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             }
             if(depth>0)
                 std::cerr << "Unclosed code block" << std::endl;
-            value = std::make_shared<Code>(i+1, pos);
+            value = std::make_shared<Code>(i+1, pos, memory);
             if(command[0]=="BEGINFINAL")
                 value->isMutable = false;
             i = pos;
@@ -269,16 +274,14 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             if(context && context->getType()=="code") {
                 std::shared_ptr<Code> code = std::static_pointer_cast<Code>(context);
                 value = executeBlock(program, code->getStart(), code->getEnd(), newMemory);
-                if(value) // show an erroe message if the context returned with anything other than END
-                    std::cerr << "Code execution context should not return a value." << std::endl;
+                //if(value) // show an error message if the context returned with anything other than END
+                //    std::cerr << "Code execution context should not return a value." << std::endl;
             }
-            newMemory->detach();
-            std::shared_ptr<Struct> self = command.size()>4?std::static_pointer_cast<Struct>(MEMGET(memory, command[4])):std::make_shared<Struct>(newMemory);
-            // only set the self object now to let the block reference it internally, but prevent the arguments from affecting it prematurely (and let them use any enclosing scope selfs)
-            newMemory->set("self", self);
-            // execute the called code in the new memory
+            // 
             std::shared_ptr<Code> code = std::static_pointer_cast<Code>(execute);
-            //
+            // reframe which memory
+            newMemory->detach(code->getDeclarationMemory());
+            // execute the called code in the new memory
             pthread_t thread_id;
             ThreadData* data = new ThreadData();
             data->start = code->getStart();
@@ -377,6 +380,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 newMemory->set("self", std::make_shared<Struct>(newMemory));
                 std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
                 value = executeBlock(program, code->getStart(), code->getEnd(), newMemory);
+                newMemory->detach();
             }
         }
         else  {

@@ -1,34 +1,16 @@
-BEGIN Point
-copy x x
-FINAL # x
-copy y y
-FINAL # y
+BUILTIN bias I1
+FINAL # bias
+BEGINFINAL inc_result
+add result result bias
 END
-BEGIN Normed2D
-BEGIN norm
-get _anon0 self x
-pow xq _anon0 q
-get _anon2 self y
-pow yq _anon2 q
-add _anon4 xq yq
-return # _anon4
+BEGINFINAL addinc
+add result x y
+inline # inc_result
+return # result
 END
+BEGIN _anon4
+BUILTIN x I4
+BUILTIN y I5
 END
-BUILTIN extx I1
-BEGIN _anon5
-copy x extx
-BUILTIN y I2
-inline # Point
-inline # Normed2D
-return # self
-END
-new point _anon5
-BEGIN _anon6
-inline # point
-return # self
-END
-new point2 _anon6
-BUILTIN extx I2
-print # extx
-get _anon7 point2 x
-print # _anon7
+CALL _anon3 _anon4 addinc
+print # _anon3

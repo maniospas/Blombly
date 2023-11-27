@@ -212,19 +212,24 @@ public:
     }
 };
 
+class Memory;
 
 class Code : public Data {
 private:
     int start, end;
+    std::shared_ptr<Memory> declarationMemory;
 public:
-    Code(int startAt, int endAt) : start(startAt), end(endAt) {}
+    Code(int startAt, int endAt, std::shared_ptr<Memory> declMemory) : start(startAt), end(endAt) {declarationMemory = declMemory;}
     std::string getType() const override {return "code";}
     std::string toString() const override {return "code from "+std::to_string(start)+" to "+std::to_string(end);}
     int getStart() const {return start;}
     int getEnd() const {return end;}
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         if(all.size()==1 && all[0]->getType()=="code" && operation=="copy")
-            return std::make_shared<Code>(start, end);
+            return std::make_shared<Code>(start, end, declarationMemory);
         throw Unimplemented();
+    }
+    std::shared_ptr<Memory>& getDeclarationMemory() {
+        return declarationMemory;
     }
 };

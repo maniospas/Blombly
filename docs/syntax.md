@@ -142,8 +142,8 @@ you can declare objects that use multiple constructors, like in the following ex
 StaticPoint = {final x=x;final y=y} // ensure that x, y are immutable
 Normed2D = {
     norm = {
-        xq = pow(get(self, x), q);
-        yq = pow(get(self, y), q);
+        xq = pow(x, q);
+        yq = pow(y, q);
         return(add(xq, yq));
     }
 }
