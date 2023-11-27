@@ -69,6 +69,17 @@ private:
             return false;
         }
     }
+    std::string parseChainedSymbols(const std::string& chain) {
+        int pos = chain.rfind('.');
+        if(pos==std::string::npos)
+            return chain;
+        std::string rhs = parseChainedSymbols(chain.substr(0, pos));
+        std::string tmp = "_anon"+std::to_string(topTemp);
+        topTemp += 1;
+        compiled += "get "+tmp+" "+rhs+" "+chain.substr(pos+1)+"\n";
+        symbols.insert(tmp);
+        return tmp; 
+    }
     void addCommand(std::string& command) {
         /**
          * Parses an indivual command found in a block of code. Called by parse.
@@ -85,6 +96,7 @@ private:
         }
         size_t pos = value.find('(');
         if(pos == std::string::npos) {
+            value = parseChainedSymbols(value);
             if(value.size() && symbols.find(value) != symbols.end()) {
                 compiled += "copy "+variable+" "+value+"\n";
                 return;
@@ -115,6 +127,7 @@ private:
             std::string args = value.substr(pos+1); // leaving the right parenthesis to be removed during further computations
             value = value.substr(0, pos);
             trim(value);
+            value = parseChainedSymbols(value);
             if(symbols.find(value) != symbols.end()) {
                 std::string argexpr = args.substr(0, args.size()-1);
                 trim(argexpr);
@@ -135,6 +148,9 @@ private:
                 compiled += "CALL "+variable+" "+argexpr+" "+value+"\n";
             }
             else {
+                if(value=="new" && args[0]!='{')
+                    args = "{"+args.substr(0, args.size()-1)+"})";
+                std::cout << value << args <<"\n";
                 std::string argexpr;
                 int depth = 0;
                 int i = 0;
@@ -216,6 +232,8 @@ public:
                 depth += 1;
             if(c==')')
                 depth -= 1;
+            if(depth==0 && c==',')
+                c = ';'; // trick to parse method(x=1,y=2) as method(x=1;y=2) for symbol method
             if(depth==0 && c=='{') {
                 std::string variable = getAssignee(command);
                 if(variable.substr(0, 6)=="final "){

@@ -76,9 +76,29 @@ private:
     std::shared_ptr<Memory> parent;
     std::unordered_map<std::string, std::shared_ptr<Data>> data;
     bool allowMutables;
+    pthread_mutex_t memoryLock; 
 public:
-    Memory() {parent=nullptr;allowMutables=true;;}
-    Memory(std::shared_ptr<Memory> par): parent(par) {allowMutables=true;}
+    Memory() {
+        parent=nullptr;
+        allowMutables=true;
+        if (pthread_mutex_init(&memoryLock, NULL) != 0) 
+            std::cerr << "Failed to create a mutex for memory read/write" << std::endl;
+    }
+    Memory(std::shared_ptr<Memory> par): parent(par) {
+        allowMutables=true;
+        if (pthread_mutex_init(&memoryLock, NULL) != 0) 
+            std::cerr << "Failed to create a mutex for struct read/write" << std::endl;
+    }
+    void lock() {
+        pthread_mutex_lock(&memoryLock);
+        if(parent)
+            parent->lock();
+    }
+    void unlock(){
+        pthread_mutex_unlock(&memoryLock);
+        if(parent)
+            parent->unlock();
+    }
     std::shared_ptr<Data> get(std::string item) {
         return get(item, true);
     }
@@ -101,7 +121,7 @@ public:
             delete result;
         }
         if(ret && !allowMutable && ret->isMutable) {
-            std::cerr << "Mutable symbol can not be accessed from nested block (make it final to do so): " + item << std::endl;
+            std::cerr << "Mutable symbol can not be accessed from nested block (make it final or access it from self.): " + item << std::endl;
             return nullptr;
         }
         if(!ret && parent)
@@ -114,7 +134,7 @@ public:
         if(item=="#") 
             return;
         if(data[item]!=nullptr && !data[item]->isMutable) {
-            std::cerr << "Cannot set final value: " + item << std::endl;
+            std::cerr << "Cannot overwrite final value: " + item << std::endl;
             return;
         } 
         data[item] = value;
@@ -141,19 +161,17 @@ public:
 
 class Struct: public Data {
 private:
-    pthread_mutex_t memoryLock; 
     std::shared_ptr<Memory> memory;
 public:
     Struct(std::shared_ptr<Memory> mem) {
         memory=mem;
-        if (pthread_mutex_init(&memoryLock, NULL) != 0) 
-            std::cerr << "Failed to create a mutex for struct read/write" << std::endl;
     }
     std::string getType() const override {return "struct";}
     std::string toString() const override {return "struct";}
     std::shared_ptr<Memory>& getMemory() {return memory;}
-    void lock() {pthread_mutex_lock(&memoryLock);}
-    void unlock(){pthread_mutex_unlock(&memoryLock);}
+    void lock() {memory->lock();}
+    void unlock(){memory->unlock();}
+    std::shared_ptr<Data> shallowCopy() const override {return std::make_shared<Struct>(memory);}
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         if(all.size()==1 && all[0]->getType()=="struct" && operation=="copy")
             return std::make_shared<Struct>(memory);
@@ -277,10 +295,13 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 //if(value) // show an error message if the context returned with anything other than END
                 //    std::cerr << "Code execution context should not return a value." << std::endl;
             }
+            else if(context && context->getType()=="struct")
+                newMemory->pull(std::static_pointer_cast<Struct>(context)->getMemory());
             // 
             std::shared_ptr<Code> code = std::static_pointer_cast<Code>(execute);
             // reframe which memory
             newMemory->detach(code->getDeclarationMemory());
+            newMemory->set("self", std::make_shared<Struct>(code->getDeclarationMemory()));
             // execute the called code in the new memory
             pthread_t thread_id;
             ThreadData* data = new ThreadData();
@@ -294,10 +315,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
         }
         else if(command[0]=="return") {
             // make return copy the object (NOTE: copying only reallocates (and changes) wrapper properties like finality, not the internal value - internal memory of structs will be the same)
-            std::vector<std::shared_ptr<Data>> args;
-            std::shared_ptr<Data> ret = MEMGET(memory, command[2]);
-            args.push_back(ret);
-            return ret->implement("copy", args); 
+            return MEMGET(memory, command[2])->shallowCopy(); 
         }
         else if(command[0]=="get") {
             value = MEMGET(memory, command[2]);
@@ -310,6 +328,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 obj->lock();
                 value = obj->getMemory()->get(command[3]);
                 obj->unlock();
+                value = value->shallowCopy();
             }
         }
         else if(command[0]=="set") {
@@ -443,13 +462,8 @@ int main(int argc, char* argv[]) {
         threads = 4;
     if (argc > 1) 
         fileName = argv[1];
-    if (argc > 2)  {
+    if (argc > 2)  
         threads = atoi(argv[2]);
-        if(threads==0)
-            threads = std::thread::hardware_concurrency();
-        if(threads==0)
-            threads = 4;
-    }
     // if the file has a blombly source code format (.bb) compile 
     // it into an assembly file (.bbvm)
     if(fileName.substr(fileName.size()-3, fileName.size())==".bb") {
@@ -458,8 +472,11 @@ int main(int argc, char* argv[]) {
         fileName = fileName+"vm";
     }
 
+    // if no threads, keep the compiled file only
+    if(threads==0)
+        return 0;
+
     // initialize mutexes
-        
     if (pthread_mutex_init(&printLock, NULL) != 0) { 
         printf("\nPrint mutex init failed\n"); 
         return 1; 

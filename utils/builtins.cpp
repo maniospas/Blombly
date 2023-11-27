@@ -37,6 +37,7 @@ public:
     bool isMutable = true; // mutable means that it cannot be shared
     virtual std::string toString() const = 0;
     virtual std::string getType() const = 0;
+    virtual std::shared_ptr<Data> shallowCopy() const = 0;
     virtual ~Data() = default;
     static std::shared_ptr<Data> run(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         std::shared_ptr<Data> ret;
@@ -73,6 +74,7 @@ public:
     Future(int threadid): thread(threadid) {}
     std::string getType() const override {return "future";}
     std::string toString() const override {return "future";}
+    std::shared_ptr<Data> shallowCopy() const override {throw Unimplemented();}
     int getThread() const {return thread;}
 };
 
@@ -85,6 +87,7 @@ public:
     std::string getType() const override {return "bool";}
     std::string toString() const override {return value?"true":"false";}
     bool getValue() const {return value;}
+    std::shared_ptr<Data> shallowCopy() const override {return std::make_shared<Boolean>(value);}
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         if(all.size()==1 && all[0]->getType()=="bool" && operation=="copy")
             return std::make_shared<Boolean>(value);
@@ -114,6 +117,7 @@ public:
     std::string getType() const override {return "int";}
     std::string toString() const override {return std::to_string(value);}
     int getValue() const {return value;}
+    std::shared_ptr<Data> shallowCopy() const override {return std::make_shared<Integer>(value);}
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         if(all.size()==1 && all[0]->getType()=="int" && operation=="copy")
             return std::make_shared<Integer>(value);
@@ -159,6 +163,7 @@ public:
     std::string getType() const override {return "float";}
     std::string toString() const override {return std::to_string(value);}
     float getValue() const {return value;}
+    std::shared_ptr<Data> shallowCopy() const override {return std::make_shared<Float>(value);}
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         if(all.size()==1 && all[0]->getType()=="float" && operation=="copy")
             return std::make_shared<Float>(value);
@@ -205,6 +210,7 @@ public:
     BString(const std::string& val) : value(val) {}
     std::string getType() const override {return "string";}
     std::string toString() const override {return value;}
+    std::shared_ptr<Data> shallowCopy() const override {return std::make_shared<BString>(value);}
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         if(all.size()==1 && all[0]->getType()=="string" && operation=="copy")
             return std::make_shared<BString>(value);
@@ -224,6 +230,7 @@ public:
     std::string toString() const override {return "code from "+std::to_string(start)+" to "+std::to_string(end);}
     int getStart() const {return start;}
     int getEnd() const {return end;}
+    std::shared_ptr<Data> shallowCopy() const override {return std::make_shared<Code>(start, end, declarationMemory);}
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         if(all.size()==1 && all[0]->getType()=="code" && operation=="copy")
             return std::make_shared<Code>(start, end, declarationMemory);

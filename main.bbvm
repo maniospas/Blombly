@@ -1,29 +1,29 @@
 BEGIN _anon0
-BUILTIN _anon1 "See this message only once because we created a struct instead of a code block"
+BUILTIN _anon1 "See this message only once because we created a new struct instead of a code block"
 print # _anon1
 BUILTIN bias I1
 FINAL # bias
+BUILTIN y I0
 BEGINFINAL inc
-add _anon2 x bias
-return # _anon2
+BUILTIN _anon2 I1
+set # self y _anon2
+add _anon3 x bias
+return # _anon3
 END
 return # self
 END
 new context _anon0
-BEGIN _anon1
-inline # context
-return # inc
-END
-new inc _anon1
-BEGIN _anon2
-inline # context
-return # inc
-END
-new inc _anon2
 BUILTIN bias I2
 FINAL # bias
+get _anon2 context bias
+copy _anon1 _anon2
+print # _anon1
+get _anon3 context inc
 BEGIN _anon4
 BUILTIN x I1
 END
-CALL _anon3 _anon4 inc
+CALL _anon2 _anon4 _anon3
+print # _anon2
+get _anon4 context y
+copy _anon3 _anon4
 print # _anon3
