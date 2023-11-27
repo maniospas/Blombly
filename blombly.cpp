@@ -293,7 +293,11 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             value = std::make_shared<Future>(thread_id);
         }
         else if(command[0]=="return") {
-            return MEMGET(memory, command[2]);
+            // make return copy the object (NOTE: copying only reallocates (and changes) wrapper properties like finality, not the internal value - internal memory of structs will be the same)
+            std::vector<std::shared_ptr<Data>> args;
+            std::shared_ptr<Data> ret = MEMGET(memory, command[2]);
+            args.push_back(ret);
+            return ret->implement("copy", args); 
         }
         else if(command[0]=="get") {
             value = MEMGET(memory, command[2]);
