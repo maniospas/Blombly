@@ -489,7 +489,7 @@ int main(int argc, char* argv[]) {
         threads = atoi(argv[2]);
     // if the file has a blombly source code format (.bb) compile 
     // it into an assembly file (.bbvm)
-    if(fileName.substr(fileName.size()-3, fileName.size())==".bb") {
+    if(fileName.substr(fileName.size()-3, 3)==".bb") {
         if(compile(fileName, fileName+"vm"))
             return false;
         fileName = fileName+"vm";

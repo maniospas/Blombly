@@ -1,5 +1,4 @@
-x = vector(3);
-x = add(x, 1);
-put(x, 1, 0);
-print(at(x, 0));
-print(at(x, 1));
+obj = new(x=new(x=1;self);self);
+print(obj.x.x);
+obj.x.x = 2;
+print(obj.x.x);

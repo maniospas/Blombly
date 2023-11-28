@@ -17,9 +17,11 @@ private:
         int pos = 0;
         int depth = 0;
         while(pos<lhs.size()) {
-            if(lhs[pos]=='('||lhs[pos]=='{')
-                break;
-            if(lhs[pos]=='=') {
+            if(lhs[pos]=='[' || lhs[pos]=='(' || lhs[pos]=='{')
+                depth += 1;
+            if(lhs[pos]==']' || lhs[pos]==')' || lhs[pos]=='}')
+                depth -= 1;
+            if(depth==0 && lhs[pos]=='=') {
                 trim(accumulate);
                 return accumulate;
             }
@@ -70,15 +72,89 @@ private:
         }
     }
     std::string parseChainedSymbols(const std::string& chain) {
-        int pos = chain.rfind('.');
-        if(pos==std::string::npos)
-            return chain;
+        int pos = chain.size();
+        int depth = 0;
+        int endBracket = pos;
+        while(true) {
+            pos -= 1;
+            char c = chain[pos];
+            if(c=='}' || c==']' || c==')') {
+                if(depth==0)
+                    endBracket = pos;
+                depth += 1;
+            }
+            if(c=='{' || c=='[' || c=='(')
+                depth -= 1;
+            if(depth==0 && c=='[') {
+                std::string rhs = parseChainedSymbols(chain.substr(0, pos));
+                std::string tmp = "_anon"+std::to_string(topTemp);
+                topTemp += 1;
+                Parser tmpParser = Parser(symbols, topTemp);
+                std::string accumulate = chain.substr(pos+1, endBracket-pos-1);
+                trim(accumulate);
+                tmpParser.parse(tmp+" = "+accumulate+";");
+                if(tmpParser.toString().substr(0, 3) != "IS "){
+                    compiled += tmpParser.toString();
+                    accumulate = tmp;
+                    //topTemp = tmpParser.topTemp;
+                }
+                compiled += "at "+tmp+" "+rhs+" "+accumulate+"\n";
+                symbols.insert(tmp);
+                return tmp;
+            }
+            if(depth==0 && c=='.')
+                break;
+            if(pos<0)
+                return chain;
+        }
         std::string rhs = parseChainedSymbols(chain.substr(0, pos));
         std::string tmp = "_anon"+std::to_string(topTemp);
         topTemp += 1;
         compiled += "get "+tmp+" "+rhs+" "+chain.substr(pos+1)+"\n";
         symbols.insert(tmp);
         return tmp; 
+    }
+    
+    std::string parseChainedSymbolsVariable(const std::string& chain) {
+        int pos = chain.size();
+        int depth = 0;
+        int endBracket = pos;
+        while(true) {
+            pos -= 1;
+            char c = chain[pos];
+            if(c=='}' || c==']' || c==')') {
+                if(depth==0)
+                    endBracket = pos;
+                depth += 1;
+            }
+            if(c=='{' || c=='[' || c=='(')
+                depth -= 1;
+            if(depth==0 && c=='[') {
+                std::string rhs = parseChainedSymbols(chain.substr(0, pos));
+                std::string tmp = "_anon"+std::to_string(topTemp);
+                topTemp += 1;
+                Parser tmpParser = Parser(symbols, topTemp);
+                std::string accumulate = chain.substr(pos+1, endBracket-pos-1);
+                trim(accumulate);
+                tmpParser.parse(tmp+" = "+accumulate+";");
+                if(tmpParser.toString().substr(0, 3) != "IS "){
+                    compiled += tmpParser.toString();
+                    accumulate = tmp;
+                    //topTemp = tmpParser.topTemp;
+                }
+                symbols.insert(tmp);
+                return "put "+tmp+" "+rhs+" "+accumulate;
+            }
+            if(depth==0 && c=='.')
+                break;
+            if(pos<0)
+                return chain;
+        }
+        std::string rhs = parseChainedSymbols(chain.substr(0, pos));
+        std::string tmp = "_anon"+std::to_string(topTemp);
+        topTemp += 1;
+        symbols.insert(tmp);
+        return "set "+tmp+" "+rhs+" "+chain.substr(pos+1);
     }
     void addCommand(std::string& command) {
         /**
@@ -95,6 +171,19 @@ private:
             trim(variable);
         }
         size_t pos = value.find('(');
+        std::string symbolicVariable = variable;
+        variable = parseChainedSymbolsVariable(symbolicVariable);
+        std::string postprocess = "";
+        if(variable!=symbolicVariable) {
+            std::string tmp = "_anon"+std::to_string(topTemp);
+            topTemp += 1;
+            postprocess = variable+" "+tmp+"\n";
+            if(finalize) {
+                postprocess += "FINAL # "+variable+";\n";
+                finalize = false;
+            }
+            variable = tmp;
+        }
         if(pos == std::string::npos) {
             value = parseChainedSymbols(value);
             if(value.size() && symbols.find(value) != symbols.end()) {
@@ -181,9 +270,9 @@ private:
                         i += 1;
                         continue;
                     }
-                    if(args[i]=='(' || args[i]=='{')
+                    if(args[i]=='(' || args[i]=='{' || args[i]=='[')
                         depth += 1;
-                    if(args[i]==')' || args[i]=='}')
+                    if(args[i]==')' || args[i]=='}' || args[i]==']')
                         depth -= 1;
                     accumulate += args[i];
                     i += 1;
@@ -193,6 +282,7 @@ private:
         }
         if(variable!="#")
             symbols.insert(variable);
+        compiled += postprocess;
         if(finalize) {
             compiled += "FINAL # "+variable+"\n";
         }
@@ -243,7 +333,11 @@ public:
                 c = ' ';
             if(c=='(') 
                 depth += 1;
+            if(c=='[') 
+                depth += 1;
             if(c==')')
+                depth -= 1;
+            if(c==']')
                 depth -= 1;
             if(depth==0 && c==',')
                 c = ';'; // trick to parse method(x=1,y=2) as method(x=1;y=2) for symbol method

@@ -1,13 +1,21 @@
-BUILTIN _anon0 I3
-vector x _anon0
-BUILTIN _anon1 I1
-add x x _anon1
-BUILTIN _anon2 I1
-BUILTIN _anon3 I0
-put # x _anon2 _anon3
-BUILTIN _anon5 I0
-at _anon4 x _anon5
-print # _anon4
-BUILTIN _anon6 I1
-at _anon5 x _anon6
+BEGIN _anon0
+BEGIN _anon1
+BUILTIN x I1
+copy # self
+END
+new x _anon1
+FINAL # x
+copy # self
+END
+new obj _anon0
+get _anon2 obj x
+get _anon3 _anon2 x
+copy _anon1 _anon3
+print # _anon1
+get _anon2 obj x
+BUILTIN _anon4 I2
+set _anon3 _anon2 x _anon4
+get _anon6 obj x
+get _anon7 _anon6 x
+copy _anon5 _anon7
 print # _anon5
