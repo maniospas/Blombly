@@ -4,14 +4,18 @@ BUILTIN _anon2 I0
 at _anon2 x _anon2
 copy _anon1 _anon2
 print # _anon1
+BEGIN _anon2
 BUILTIN i I0
-BEGIN loop
-BUILTIN _anon2 I1
-add i i _anon2
-print # i
-END
 BEGIN _anon3
 BUILTIN _anon4 I10
 lt # i _anon4
 END
-while # _anon3 loop
+BEGIN _anon4
+BUILTIN _anon5 I1
+add i i _anon5
+print # i
+END
+while # _anon3 _anon4
+copy # self
+END
+new # _anon2

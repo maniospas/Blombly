@@ -7,7 +7,8 @@ the same virtual machine instruction set.
 1. [Code blocks](#code-blocks)
 2. [Final variables](#final-variables)
 3. [Inline execution](#inline-execution)
-4. [Data sturctures](#data-structures)
+4. [Conditions and loops](#conditions-and-loops)
+5. [Data sturctures](#data-structures)
 
 ## Code blocks
  
@@ -133,6 +134,43 @@ print(result);
 :warning: Inlining runs sequentially in the same thread.
 
 Control flow statements (conditions and loops) also perform inline execution.
+
+## Conditions and loops
+
+Conditions and loops can run as shown in the following snippet. Their arguments
+are code blocks, which are executed inline once the conditions are performed. This
+means that execution is sequential in the same thread.
+
+```java
+x = 1;
+condition = {ge(x, 0);}
+nonnegative = {print("non-negative");}
+negative = {print("negative");}
+if(condition, nonnegative, negative);
+
+i = 0;
+condition = {lt(i, 10);}
+do = {
+    i = add(i, 1);
+    print(i);
+}
+while(condition, do);
+```
+
+To simplify syntax, you can also ommit the brackets of code blocks defined within
+conditions like so:
+
+```java
+x = 1;
+if(ge(x, 0), print("non-negative"), print("negative"));
+
+i = 0;
+while(lt(i, 10),
+    i = add(i, 1);
+    print(i);
+)
+
+```
 
 ## Data structures
 
