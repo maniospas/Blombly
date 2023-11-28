@@ -61,6 +61,24 @@ code block call and looks a lot like other programming languages:
 value = sum(x=add(x,1), y=2);
 ```
 
+Keyword arguments take priority over any local variable reading,
+and can be overwritten within methods. You can call the `default`
+method to perform a set of operations that extract default values;
+only outcomes that do not exist in your scope are kept.
+Variable assignment priority is demonstrated in the following snippet:
+
+```java
+final x = 0;
+inc = {
+    default(bias=0);
+    return(add(x, bias));
+}
+print(inc(x=1, bias=5)); // 6 - kwarg has top priority
+print(inc(x=1)); // 1 - default used for missing kwarg
+print(inc()); // 0 - final value of x is used
+```
+
+
 ## Final variables
 
 When you set a value to a variable you can set the assignment to be final.
@@ -143,10 +161,12 @@ print(result); // 1
 :warning: Similarly to inline execution, `new` runs sequentially in the same thread.
 
 The newlly created memory context is stored as a data structure
-in a local datavariable called `self`. This lets you use `new` to create data
-structures like in the following code. You can obtain field values (including
-code block fields that can be used as methods) from data
-structures with the dot operator like `struct.field`, which is also demonstrated below.
+in a local data structure called `self`. This can be returned
+and therefore lets you use `new` to create dynamic (duck-typed) data structure formats as
+in the following code. You can obtain structures field values from data
+structures with the dot operator like `struct.field`, 
+which is also demonstrated below. This operator can also retrieve code
+blocks to be used normally as methods.
 
 ```java
 x = 0;
@@ -178,3 +198,15 @@ point = new(
 ); // created object will not store extx (only locally declared variables are kept)
 print(point.norm(q=2));
 ```
+
+When calling a code block that is obrained from a data structure,
+final variables of the structure are still visible alongside the
+`self` reference to the structure. This reference can let you
+get and set non-final members of `self` using the dot operator.
+
+:bulb: Getting and setting on the same base data structure can be
+a means of continuous communication between functions. The operations
+themselves are atomic (e.g., safe to wait for specific values),
+but there is no guarantee that current values will persist within the
+same method and it's suggested that they are retrieved locally once
+to operate on.

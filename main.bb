@@ -3,7 +3,7 @@ Normed2D = {
     norm = {
         default(q=2);
         xq = pow(x, q);
-        yq = pow(y, q);
+        yq = pow(y, q); // testing
         return(add(xq, yq));
     }
 }

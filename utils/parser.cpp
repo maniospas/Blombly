@@ -214,8 +214,17 @@ public:
         int pos = 0;
         int depth = 0;
         bool inString = false;
+        bool inComment = false;
         while(pos<code.size()) {
             char c = code[pos];
+            if(inComment) {
+                if(c=='\n' || pos==code.size()-1) 
+                    inComment = false;
+                else {
+                    pos += 1;
+                    continue;
+                }
+            }
             if(c=='"')
                 inString = !inString;
             if(inString) {
@@ -225,6 +234,11 @@ public:
             }
             if(c=='\n')
                 c = ' ';
+            if(c=='/' && pos<code.size()-1 && code[pos+1]=='/') {
+                pos += 1;
+                inComment = true;
+                continue;
+            }
             if(c=='\t')
                 c = ' ';
             if(c=='(') 
@@ -293,7 +307,7 @@ int compile(const std::string& source, const std::string& destination) {
     std::string code = "";
     std::string line;
     while (std::getline(inputFile, line)) 
-        code += line;
+        code += line+"\n";
     inputFile.close();
         
     // create a compiled version of the code
