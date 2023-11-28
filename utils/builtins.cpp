@@ -47,19 +47,17 @@ public:
                 break;
             } 
             catch(Unimplemented) { // TODO: catch only Unimplemented exceptions
+                std::string err = "No valid builtin implementation for this method: "+operation+"(";
+                int i = 0;
+                for(const std::shared_ptr<Data>& arg : all) {
+                    if(i)
+                        err += ",";
+                    err += arg->getType();
+                    i++;
+                }
+                err += ")";
+                std::cerr << err << std::endl;
             }
-        if(ret==nullptr) {
-            std::string err = "No valid builtin implementation for this method: "+operation+"(";
-            int i = 0;
-            for(const std::shared_ptr<Data>& arg : all) {
-                err += arg->getType();
-                if(i)
-                    err += ",";
-                i++;
-            }
-            err += ")";
-            std::cerr << err << std::endl;
-        }
         return ret;
     }
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
@@ -118,51 +116,17 @@ public:
     std::string toString() const override {return std::to_string(value);}
     int getValue() const {return value;}
     std::shared_ptr<Data> shallowCopy() const override {return std::make_shared<Integer>(value);}
-    virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
-        if(all.size()==1 && all[0]->getType()=="int" && operation=="copy")
-            return std::make_shared<Integer>(value);
-        if(all.size()==2 && all[0]->getType()=="int" && all[1]->getType()=="int") {
-            int v1 = std::static_pointer_cast<Integer>(all[0])->getValue();
-            int v2 = std::static_pointer_cast<Integer>(all[1])->getValue();
-            if(operation=="eq")
-                std::make_shared<Boolean>(v1 == v2);
-            if(operation=="neq")
-                std::make_shared<Boolean>(v1 != v2);
-            if(operation=="lt")
-                std::make_shared<Boolean>(v1 < v2);
-            if(operation=="le")
-                std::make_shared<Boolean>(v1 <= v2);
-            if(operation=="gt")
-                std::make_shared<Boolean>(v1 > v2);
-            if(operation=="ge")
-                std::make_shared<Boolean>(v1 >= v2);
-            int res;
-            if(operation=="add")
-                res = v1 + v2;
-            if(operation=="sub")
-                res = v1 - v2;
-            if(operation=="mul")
-                res = v1 * v2;
-            if(operation=="div")
-                res = v1 / v2;
-            if(operation=="mod")
-                res = v1 % v2;
-            if(operation=="pow")
-                res = pow(v1, v2);
-            return std::make_shared<Integer>(res);
-        }
-        throw Unimplemented();
-    }
+    virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all);
 };
 
 class Float : public Data {
 private:
-    float value;
+    double value;
 public:
-    Float(float val) : value(val) {}
+    Float(double val) : value(val) {}
     std::string getType() const override {return "float";}
     std::string toString() const override {return std::to_string(value);}
-    float getValue() const {return value;}
+    double getValue() const {return value;}
     std::shared_ptr<Data> shallowCopy() const override {return std::make_shared<Float>(value);}
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         if(all.size()==1 && all[0]->getType()=="float" && operation=="copy")
@@ -170,8 +134,8 @@ public:
         if(all.size()==2 
             && (all[0]->getType()=="float" || all[0]->getType()=="int") 
             && (all[1]->getType()=="float" || all[1]->getType()=="int")) { 
-            float v1 = all[0]->getType()=="int"?std::static_pointer_cast<Integer>(all[0])->getValue():std::static_pointer_cast<Float>(all[0])->getValue();
-            float v2 = all[1]->getType()=="int"?std::static_pointer_cast<Integer>(all[1])->getValue():std::static_pointer_cast<Float>(all[1])->getValue();
+            double v1 = all[0]->getType()=="int"?std::static_pointer_cast<Integer>(all[0])->getValue():std::static_pointer_cast<Float>(all[0])->getValue();
+            double v2 = all[1]->getType()=="int"?std::static_pointer_cast<Integer>(all[1])->getValue():std::static_pointer_cast<Float>(all[1])->getValue();
             if(operation=="eq")
                 std::make_shared<Boolean>(v1 == v2);
             if(operation=="neq")
@@ -184,7 +148,7 @@ public:
                 std::make_shared<Boolean>(v1 > v2);
             if(operation=="ge")
                 std::make_shared<Boolean>(v1 >= v2);
-            float res;
+            double res;
             if(operation=="add")
                 res = v1 + v2;
             if(operation=="sub")
@@ -196,6 +160,137 @@ public:
             if(operation=="pow")
                 res = pow(v1, v2);
             return std::make_shared<Float>(res);
+        }
+        throw Unimplemented();
+    }
+};
+
+
+class RawVector {
+private:
+    pthread_mutex_t memoryLock; 
+public:
+    double* data;
+    int size;
+    RawVector(int siz) {
+        size = siz;
+        data = new double[size];
+        if (pthread_mutex_init(&memoryLock, NULL) != 0) 
+            std::cerr << "Failed to create a mutex for vector read/write" << std::endl;
+    }
+    ~RawVector() {
+        delete data;
+    }
+    void lock() {
+        pthread_mutex_lock(&memoryLock);
+    }
+    void unlock(){
+        pthread_mutex_unlock(&memoryLock);
+    }
+};
+
+
+class Vector : public Data {
+private:
+    std::shared_ptr<RawVector> value;
+public:
+    Vector(int size) {
+        value = std::make_shared<RawVector>(size);    
+    }
+    Vector(std::shared_ptr<RawVector> val) {
+        value=val;
+    }
+    std::string getType() const override {return "vec";}
+    std::string toString() const override {return "vector of size "+std::to_string(value->size);}
+    std::shared_ptr<RawVector> getValue() const {return value;}
+    std::shared_ptr<Data> shallowCopy() const override {return std::make_shared<Vector>(value);}
+    virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
+        if(all.size()==1 && all[0]->getType()=="vec" && operation=="copy")
+            return std::make_shared<Vector>(value);
+        if(all.size()==2 && all[0]->getType()=="vec" && all[1]->getType()=="int" && operation=="at") {
+            value->lock();
+            int index = std::static_pointer_cast<Integer>(all[1])->getValue();
+            if(index < 0 || index>=value->size) {
+                std::cerr << "Index out of range\n";
+                value->unlock();
+                return nullptr;
+            }
+            double val = value->data[index];
+            value->unlock();
+            return std::make_shared<Float>(val);
+        }
+        if(all.size()==3 && all[0]->getType()=="vec" && all[1]->getType()=="int" && all[2]->getType()=="int" && operation=="put") {
+            value->lock();
+            int index = std::static_pointer_cast<Integer>(all[1])->getValue();
+            int newValue = std::static_pointer_cast<Integer>(all[2])->getValue();
+            if(index < 0 || index>=value->size) 
+                std::cerr << "Index out of range\n";
+            else
+                value->data[index] = newValue;
+            value->unlock();
+            return nullptr;
+        }
+        if(all.size()==3 && all[0]->getType()=="vec" && all[1]->getType()=="int" && all[2]->getType()=="float" && operation=="put") {
+            value->lock();
+            int index = std::static_pointer_cast<Integer>(all[1])->getValue();
+            double newValue = std::static_pointer_cast<Float>(all[2])->getValue();
+            if(index < 0 || index>=value->size) 
+                std::cerr << "Index out of range\n";
+            value->data[index] = newValue;
+            value->unlock();
+            return nullptr;
+        }
+        if(all.size()==2 
+            && (all[0]->getType()=="vec" || all[0]->getType()=="float" || all[1]->getType()=="int") 
+            && (all[1]->getType()=="vec" || all[1]->getType()=="float" || all[1]->getType()=="int")
+            && ((all[0]->getType()=="vec")!=(all[1]->getType()=="vec"))) { 
+            value->lock();
+            std::shared_ptr<RawVector> vec = all[0]->getType()=="vec"?std::static_pointer_cast<Vector>(all[0])->getValue():std::static_pointer_cast<Vector>(all[1])->getValue();
+            std::shared_ptr<Data> uncastedother = all[0]->getType()=="vec"?all[1]:all[0];
+            double v = uncastedother->getType()=="int"?std::static_pointer_cast<Integer>(uncastedother)->getValue():std::static_pointer_cast<Float>(uncastedother)->getValue();
+            int n = value->size;
+            std::shared_ptr<RawVector> rawret = std::make_shared<RawVector>(n);
+            double* ret = rawret->data;
+            double* dat = value->data;
+            bool left = all[0]->getType()=="vec";
+            if(operation=="eq") 
+                for(int i=0;i<n;i++)
+                    ret[i] = dat[i]==v;
+            if(operation=="neq")
+                for(int i=0;i<n;i++)
+                    ret[i] = dat[i]!=v;
+            if(operation=="add")
+                for(int i=0;i<n;i++)
+                    ret[i] = dat[i]+v;
+            if(operation=="sub"){
+                if(left)
+                    for(int i=0;i<n;i++)
+                        ret[i] = dat[i]-v;
+                else
+                    for(int i=0;i<n;i++)
+                        ret[i] = v-dat[i];
+            }
+            if(operation=="mul")
+                for(int i=0;i<n;i++)
+                    ret[i] = dat[i]*v;
+            if(operation=="div"){
+                if(left)
+                    for(int i=0;i<n;i++)
+                        ret[i] = dat[i]/v;
+                else
+                    for(int i=0;i<n;i++)
+                        ret[i] = v/dat[i];
+            }
+            if(operation=="pow"){
+                if(left)
+                    for(int i=0;i<n;i++)
+                        ret[i] = pow(dat[i], v);
+                else
+                    for(int i=0;i<n;i++)
+                        ret[i] = pow(v, dat[i]);
+            }
+            value->unlock();
+            return std::make_shared<Vector>(rawret);
         }
         throw Unimplemented();
     }
@@ -240,3 +335,42 @@ public:
         return declarationMemory;
     }
 };
+
+
+std::shared_ptr<Data> Integer::implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
+    if(all.size()==1 && all[0]->getType()=="int" && operation=="copy")
+        return std::make_shared<Integer>(value);
+    if(all.size()==1 && all[0]->getType()=="int" && operation=="vector")
+        return std::make_shared<Vector>(value);
+    if(all.size()==2 && all[0]->getType()=="int" && all[1]->getType()=="int") {
+        int v1 = std::static_pointer_cast<Integer>(all[0])->getValue();
+        int v2 = std::static_pointer_cast<Integer>(all[1])->getValue();
+        if(operation=="eq")
+            std::make_shared<Boolean>(v1 == v2);
+        if(operation=="neq")
+            std::make_shared<Boolean>(v1 != v2);
+        if(operation=="lt")
+            std::make_shared<Boolean>(v1 < v2);
+        if(operation=="le")
+            std::make_shared<Boolean>(v1 <= v2);
+        if(operation=="gt")
+            std::make_shared<Boolean>(v1 > v2);
+        if(operation=="ge")
+            std::make_shared<Boolean>(v1 >= v2);
+        int res;
+        if(operation=="add")
+            res = v1 + v2;
+        if(operation=="sub")
+            res = v1 - v2;
+        if(operation=="mul")
+            res = v1 * v2;
+        if(operation=="div")
+            res = v1 / v2;
+        if(operation=="mod")
+            res = v1 % v2;
+        if(operation=="pow")
+            res = pow(v1, v2);
+        return std::make_shared<Integer>(res);
+    }
+    throw Unimplemented();
+}
