@@ -237,8 +237,12 @@ private:
                 compiled += "CALL "+variable+" "+argexpr+" "+value+"\n";
             }
             else {
-                if((value=="new" || value=="default") && args[0]!='{')
+                if((value=="new" || value=="default" || value=="safe") && args[0]!='{')
                     args = "{"+args.substr(0, args.size()-1)+"})";
+                if(value=="new") // automatically return self if no other return in new
+                    args = args.substr(0, args.size()-2)+";self;})";
+                if(value=="safe")
+                    args = "new";
                 std::string argexpr;
                 int depth = 0;
                 int i = 0;
@@ -255,6 +259,9 @@ private:
                     if(depth==0 && (args[i]==',' || i==args.size()-1)) {
                         trim(accumulate);
                         if(symbols.find(accumulate) == symbols.end()) {
+                            if(value=="while" || value=="if")
+                                if(accumulate[0]!='{')
+                                    accumulate = "{"+accumulate+"}";
                             std::string tmp = "_anon"+std::to_string(topTemp);
                             topTemp += 1;
                             Parser tmpParser = Parser(symbols, topTemp);

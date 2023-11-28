@@ -292,6 +292,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
         else if(command[0]=="CALL") {
             // create new writable memory under the current context
             std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
+            newMemory->set("locals", std::make_shared<Struct>(newMemory));
             std::shared_ptr<Data> context = MEMGET(memory, command[2]);
             std::shared_ptr<Data> execute = MEMGET(memory, command[3]);
             // check if the call has some context, and if so, execute it in the new memory
@@ -305,7 +306,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 newMemory->pull(std::static_pointer_cast<Struct>(context)->getMemory());
             // 
             std::shared_ptr<Code> code = std::static_pointer_cast<Code>(execute);
-            // reframe which memory
+            // reframe which memory is self
             newMemory->detach(code->getDeclarationMemory());
             newMemory->set("self", std::make_shared<Struct>(code->getDeclarationMemory()));
             // execute the called code in the new memory
@@ -354,6 +355,29 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 obj->getMemory()->set(command[3], setValue);
                 obj->unlock();
                 value = nullptr;
+            }
+        }
+        else if(command[0]=="while") {
+            std::shared_ptr<Data> condition = MEMGET(memory, command[2]);
+            std::shared_ptr<Data> accept = MEMGET(memory, command[3]);
+            if(condition->getType()!="code") 
+                std::cerr << "Can only inline a non-called code block for while condition" << std::endl;
+            else if(accept->getType()!="code") 
+                std::cerr << "Can only inline a non-called code block for while loop" << std::endl;
+            else {
+                std::shared_ptr<Code> codeCondition = std::static_pointer_cast<Code>(condition);
+                std::shared_ptr<Code> codeAccept = accept?std::static_pointer_cast<Code>(accept):nullptr;
+                while(true) {
+                    std::shared_ptr<Data> check = executeBlock(program, codeCondition->getStart(), codeCondition->getEnd(), memory);
+                    if(check->getType()!="bool") {
+                        std::cerr << "Logical condition failed to evaluate to bool" << std::endl;
+                        break;
+                    }
+                    else if(std::static_pointer_cast<Boolean>(check)->getValue()) 
+                        value = executeBlock(program, codeAccept->getStart(), codeAccept->getEnd(), memory);
+                    else
+                        break;
+                }
             }
         }
         else if(command[0]=="if") {
@@ -410,6 +434,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             }
             else {
                 std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
+                newMemory->set("locals", std::make_shared<Struct>(newMemory));
                 std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
                 value = executeBlock(program, code->getStart(), code->getEnd(), newMemory);
                 memory->replaceMissing(newMemory);
@@ -424,6 +449,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             else {
                 std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
                 newMemory->set("self", std::make_shared<Struct>(newMemory));
+                newMemory->set("locals", std::make_shared<Struct>(newMemory));
                 std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
                 value = executeBlock(program, code->getStart(), code->getEnd(), newMemory);
                 newMemory->detach();
@@ -469,6 +495,7 @@ int vm(const std::string& fileName, int numThreads) {
     // initialize memory and execute the assembly commands
     std::shared_ptr<Memory> memory = std::make_shared<Memory>();
     memory->set("self", std::make_shared<Struct>(memory));
+    memory->set("locals", std::make_shared<Struct>(memory));
     executeBlock(&program, 0, program.size()-1, memory);
     
     delete threads;

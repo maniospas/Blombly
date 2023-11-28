@@ -7,7 +7,7 @@ the same virtual machine instruction set.
 1. [Code blocks](#code-blocks)
 2. [Final variables](#final-variables)
 3. [Inline execution](#inline-execution)
-4. [New](#new)
+4. [Data sturctures](#data-structures)
 
 ## Code blocks
  
@@ -106,15 +106,10 @@ automatically make them final there too. Make the keyword argument
 declarations final if you want to make sure that they are never
 changed internally like so:
 
-```java
-inc(final x=5, final bias=2)
-```
-
-
 ## Inline execution
 
 Sometimes, you may want to call a code block and let it
-access and alter your scope's variables. 
+access *and alter any of your scope's variables*s. 
 This is called *inline execution* and can be invoked by
 the block's name ended with with a colon (:). When you do this,
 you can ommit the semicolon at the end of the command.
@@ -139,42 +134,26 @@ print(result);
 
 Control flow statements (conditions and loops) also perform inline execution.
 
-## New
+## Data structures
 
 A final case of calling code blocks is by letting them
 access all variables of the surrounding scope (like
-inline) but register modifications in a separate
-memory context. This is performed with the `new`
-keyword and can be done like this:
-
-```java
-inc_x = {
-    x = add(x, 1);
-    return(x);
-} 
-x = 0;
-result = new(inc_x);
-print(x); // still 0
-print(result); // 1
-```
-
-:warning: Similarly to inline execution, `new` runs sequentially in the same thread.
-
-The newlly created memory context is stored as a data structure
-in a local data structure called `self`. This can be returned
-and therefore lets you use `new` to create dynamic (duck-typed) data structure formats as
-in the following code. You can obtain structures field values from data
+inline) but storing any newly assigned variables in a data structure
+to be returned. You can obtain structure field values from data
 structures with the dot operator like `struct.field`, 
 which is also demonstrated below. This operator can also retrieve code
-blocks to be used normally as methods.
+blocks to be used normally as methods. Here's an example of a data
+structure:
 
 ```java
 x = 0;
 y = 2;
-point = new(x=1;y=y;return(self)); // don't forget to return self, can ommit the brackets
+point = new(x=1;y=y); // can ommit the brackets
 print(x); // still 0
 print(point.x); // 1
 ```
+
+:warning: Similarly to inline execution, `new` runs sequentially in the same thread.
 
 :bulb: Inline execution lets you use code blocks as constructors. With this syntax,
 you can declare objects that use multiple constructors, like in the following example.
@@ -194,7 +173,6 @@ point = new(
     y=2;
     StaticPoint:
     Normed2D:
-    return(self);
 ); // created object will not store extx (only locally declared variables are kept)
 print(point.norm(q=2));
 ```

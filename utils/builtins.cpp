@@ -137,17 +137,17 @@ public:
             double v1 = all[0]->getType()=="int"?std::static_pointer_cast<Integer>(all[0])->getValue():std::static_pointer_cast<Float>(all[0])->getValue();
             double v2 = all[1]->getType()=="int"?std::static_pointer_cast<Integer>(all[1])->getValue():std::static_pointer_cast<Float>(all[1])->getValue();
             if(operation=="eq")
-                std::make_shared<Boolean>(v1 == v2);
+                return std::make_shared<Boolean>(v1 == v2);
             if(operation=="neq")
-                std::make_shared<Boolean>(v1 != v2);
+                return std::make_shared<Boolean>(v1 != v2);
             if(operation=="lt")
-                std::make_shared<Boolean>(v1 < v2);
+                return std::make_shared<Boolean>(v1 < v2);
             if(operation=="le")
-                std::make_shared<Boolean>(v1 <= v2);
+                return std::make_shared<Boolean>(v1 <= v2);
             if(operation=="gt")
-                std::make_shared<Boolean>(v1 > v2);
+                return std::make_shared<Boolean>(v1 > v2);
             if(operation=="ge")
-                std::make_shared<Boolean>(v1 >= v2);
+                return std::make_shared<Boolean>(v1 >= v2);
             double res;
             if(operation=="add")
                 res = v1 + v2;
@@ -340,23 +340,23 @@ public:
 std::shared_ptr<Data> Integer::implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
     if(all.size()==1 && all[0]->getType()=="int" && operation=="copy")
         return std::make_shared<Integer>(value);
-    if(all.size()==1 && all[0]->getType()=="int" && operation=="vector")
+    if(all.size()==1 && all[0]->getType()=="int" && operation=="Vector")
         return std::make_shared<Vector>(value);
     if(all.size()==2 && all[0]->getType()=="int" && all[1]->getType()=="int") {
         int v1 = std::static_pointer_cast<Integer>(all[0])->getValue();
         int v2 = std::static_pointer_cast<Integer>(all[1])->getValue();
         if(operation=="eq")
-            std::make_shared<Boolean>(v1 == v2);
+            return std::make_shared<Boolean>(v1 == v2);
         if(operation=="neq")
-            std::make_shared<Boolean>(v1 != v2);
+            return std::make_shared<Boolean>(v1 != v2);
         if(operation=="lt")
-            std::make_shared<Boolean>(v1 < v2);
+            return std::make_shared<Boolean>(v1 < v2);
         if(operation=="le")
-            std::make_shared<Boolean>(v1 <= v2);
+            return std::make_shared<Boolean>(v1 <= v2);
         if(operation=="gt")
-            std::make_shared<Boolean>(v1 > v2);
+            return std::make_shared<Boolean>(v1 > v2);
         if(operation=="ge")
-            std::make_shared<Boolean>(v1 >= v2);
+            return std::make_shared<Boolean>(v1 >= v2);
         int res;
         if(operation=="add")
             res = v1 + v2;
