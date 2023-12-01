@@ -33,14 +33,14 @@ threads. You can transfer values as keyword arguments like so:
 ```java
 x = 0;
 sum = {
-    return(add(x,y));
+    return(x+y);
 }
 kwargs = {
-    x=add(x,1);
+    x=x+1;
     y=2;
 }
-value = sum(kwargs); 
-print(value);
+value = sum(kwargs); // runs kwargs before passing them
+print(value); // 3
 print(x); // still 0
 ```
 
@@ -59,7 +59,7 @@ and ommit its enclosing brackets (`{}`). For example, the following is also a va
 code block call and looks a lot like other programming languages:
 
 ```java
-value = sum(x=add(x,1), y=2);
+value = sum(x=x+1, y=2);
 ```
 
 Keyword arguments take priority over any local variable reading,
@@ -72,7 +72,7 @@ Variable assignment priority is demonstrated in the following snippet:
 final x = 0;
 inc = {
     default(bias=0);
-    return(add(x, bias));
+    return(x+bias);
 }
 print(inc(x=1, bias=5)); // 6 - kwarg has top priority
 print(inc(x=1)); // 1 - default used for missing kwarg
@@ -89,9 +89,9 @@ blocks defined within the same scope. Here's an example:
 
 ```java
 bias = 0; // is not yet final
-final bias = add(bias, 1); // final after the assignement
+final bias = bias+1; // final after the assignement
 final inc = {
-    return(add(x, bias));
+    return(x+bias);
 }
 print(inc(x=4)); // 5 - can ommit trailing ; and inferable brakets (is equivalent to print(inc({x=4;}));)
 print(inc(x=4, bias=2)); // 6 (can overwrite external value)
@@ -143,15 +143,15 @@ means that execution is sequential in the same thread.
 
 ```java
 x = 1;
-condition = {ge(x, 0);}
+condition = {x>=0;}
 nonnegative = {print("non-negative");}
 negative = {print("negative");}
 if(condition, nonnegative, negative);
 
 i = 0;
-condition = {lt(i, 10);}
+condition = {i<10;}
 do = {
-    i = add(i, 1);
+    i = i+1;
     print(i);
 }
 while(condition, do);
@@ -162,11 +162,11 @@ conditions like so:
 
 ```java
 x = 1;
-if(ge(x, 0), print("non-negative"), print("negative"));
+if(x>=0, print("non-negative"), print("negative"));
 
 i = 0;
-while(lt(i, 10),
-    i = add(i, 1);
+while(i<10,
+    i = i+1;
     print(i);
 )
 
@@ -199,11 +199,7 @@ you can declare objects that use multiple constructors, like in the following ex
 ```java
 StaticPoint = {final x=x;final y=y} // ensure that x, y are immutable
 Normed2D = {
-    norm = {
-        xq = pow(x, q);
-        yq = pow(y, q);
-        return(add(xq, yq));
-    }
+    norm = {return(x^q+y^q);}
 }
 extx = 1;
 point = new(

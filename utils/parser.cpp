@@ -16,7 +16,12 @@ private:
         std::string accumulate;
         int pos = 0;
         int depth = 0;
+        bool inString = false;
         while(pos<lhs.size()) {
+            if(lhs[pos]=='"')
+                inString = !inString;
+            if(inString)
+                continue;
             if(lhs[pos]=='[' || lhs[pos]=='(' || lhs[pos]=='{')
                 depth += 1;
             if(lhs[pos]==']' || lhs[pos]==')' || lhs[pos]=='}')
@@ -36,7 +41,12 @@ private:
         */
         int pos = 0;
         int depth = 0;
+        bool inString = false;
         while(pos<rhs.size()) {
+            if(rhs[pos]=='"')
+                inString = !inString;
+            if(inString)
+                continue;
             if(rhs[pos]=='[' || rhs[pos]=='(' || rhs[pos]=='{')
                 depth += 1;
             if(rhs[pos]==']' || rhs[pos]==')' || rhs[pos]=='}')
@@ -78,9 +88,16 @@ private:
         int pos = chain.size();
         int depth = 0;
         int endBracket = pos;
+        bool inString = false;
         while(true) {
             pos -= 1;
+            //if(pos<0)
+            //    return chain;
             char c = chain[pos];
+            if(c=='"')
+                inString = !inString;
+            if(inString && pos>=0) 
+                continue;
             if(c=='}' || c==']' || c==')') {
                 if(depth==0)
                     endBracket = pos;
@@ -122,9 +139,16 @@ private:
         int pos = chain.size();
         int depth = 0;
         int endBracket = pos;
+        bool inString = false;
         while(true) {
             pos -= 1;
+            if(pos<0)
+                return chain;
             char c = chain[pos];
+            if(c=='"')
+                inString = !inString;
+            if(inString && pos>=0) 
+                continue;
             if(c=='}' || c==']' || c==')') {
                 if(depth==0)
                     endBracket = pos;
@@ -166,8 +190,15 @@ private:
         int pos = 0;
         int depth = 0;
         char operand0 = operand[0];
+        bool inString = false;
         while(pos<expr.length()) {
             char c = expr[pos];
+            if(c=='"')
+                inString = !inString;
+            if(inString) {
+                pos += 1;
+                continue;
+            }
             if(c=='(' || c=='{' || c=='[')
                 depth += 1;
             if(c==')' || c=='}' || c==']')
@@ -245,6 +276,11 @@ private:
         value = parseOperator(variable, value, "/", "div");
         value = parseOperator(variable, value, "^", "pow");
         value = parseOperator(variable, value, "%", "mod");
+        if(value.size()==0) {
+            if(finalize) 
+                compiled += "FINAL # "+variable+"\n";
+            return;
+        }
 
         size_t pos = value.find('(');
         std::string symbolicVariable = variable;
@@ -264,14 +300,22 @@ private:
             value = parseChainedSymbols(value);
             if(value.size() && symbols.find(value) != symbols.end()) {
                 compiled += "copy "+variable+" "+value+"\n";
+                if(finalize) 
+                    compiled += "FINAL # "+variable+"\n";
                 return;
             }
-            if(value==":") {
-                compiled += "inline "+variable+" LAST\n";
+            /*if(value==":") {
+                if(variable=="#")
+                    variable = "#";// todo: fix
+                compiled += "inline "+variable+" LAST\n";  
+                if(finalize) 
+                    compiled += "FINAL # "+variable+"\n";
                 return;
-            }
+            }*/
             if(value.size() && value[value.size()-1]==':' && symbols.find(value.substr(0, value.size()-1)) != symbols.end()) {
                 compiled += "inline "+variable+" "+value.substr(0, value.size()-1)+"\n";
+                if(finalize) 
+                    compiled += "FINAL # "+variable+"\n";
                 return;
             }
             if(variable=="#" || value.size()==0) // flexible parsing for undeclared variables
@@ -370,9 +414,8 @@ private:
         if(variable!="#")
             symbols.insert(variable);
         compiled += postprocess;
-        if(finalize) {
+        if(finalize) 
             compiled += "FINAL # "+variable+"\n";
-        }
     }
 public:
     Parser() {
