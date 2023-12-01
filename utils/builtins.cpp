@@ -240,15 +240,79 @@ public:
             value->unlock();
             return nullptr;
         }
+        if(all.size()==2 && all[0]->getType()=="vec" && all[1]->getType()=="vec") {
+            std::shared_ptr<Vector> a1 = std::static_pointer_cast<Vector>(all[0]);
+            std::shared_ptr<Vector> a2 = std::static_pointer_cast<Vector>(all[1]);
+            bool order = true;
+            if(order){
+                a1->value->lock();
+                a2->value->lock();
+            }
+            else {
+                a2->value->lock();
+                a1->value->lock();
+            }
+            int n = a1->value->size;
+            if(a2->value->size!=n) {
+                std::cerr << "Vectors of different sizes: "+std::to_string(n)+" vs "+std::to_string(a1->value->size)+"\n";
+                return nullptr;
+            }
+            std::shared_ptr<RawVector> rawret = std::make_shared<RawVector>(n);
+            double* ret = rawret->data;
+            double* v1 = a1->value->data;
+            double* v2 = a2->value->data;
+            if(operation=="eq")
+                for(int i=0;i<n;i++)
+                    ret[i] = v1[i]==v2[i];
+            if(operation=="neq")
+                for(int i=0;i<n;i++)
+                    ret[i] = v1[i]!=v2[i];
+            if(operation=="lt")
+                for(int i=0;i<n;i++)
+                    ret[i] = v1[i]<v2[i];
+            if(operation=="le")
+                for(int i=0;i<n;i++)
+                    ret[i] = v1[i]<=v2[i];
+            if(operation=="gt")
+                for(int i=0;i<n;i++)
+                    ret[i] = v1[i]>v2[i];
+            if(operation=="ge")
+                for(int i=0;i<n;i++)
+                    ret[i] = v1[i]>=v2[i];
+            if(operation=="add")
+                for(int i=0;i<n;i++)
+                    ret[i] = v1[i]+v2[i];
+            if(operation=="sub")
+                for(int i=0;i<n;i++)
+                    ret[i] = v1[i]-v2[i];
+            if(operation=="pow")
+                for(int i=0;i<n;i++)
+                    ret[i] = pow(v1[i], v2[i]);
+            if(operation=="mul")
+                for(int i=0;i<n;i++)
+                    ret[i] = v1[i]*v2[i];
+            if(operation=="div")
+                for(int i=0;i<n;i++)
+                    ret[i] = v1[i]/v2[i];
+            if(order){
+                a2->value->unlock();
+                a1->value->unlock();
+            }
+            else {
+                a1->value->unlock();
+                a2->value->unlock();
+            }
+            return std::make_shared<Vector>(rawret);
+        }
         if(all.size()==2 
             && (all[0]->getType()=="vec" || all[0]->getType()=="float" || all[1]->getType()=="int") 
             && (all[1]->getType()=="vec" || all[1]->getType()=="float" || all[1]->getType()=="int")
             && ((all[0]->getType()=="vec")!=(all[1]->getType()=="vec"))) { 
-            value->lock();
             std::shared_ptr<RawVector> vec = all[0]->getType()=="vec"?std::static_pointer_cast<Vector>(all[0])->getValue():std::static_pointer_cast<Vector>(all[1])->getValue();
             std::shared_ptr<Data> uncastedother = all[0]->getType()=="vec"?all[1]:all[0];
             double v = uncastedother->getType()=="int"?std::static_pointer_cast<Integer>(uncastedother)->getValue():std::static_pointer_cast<Float>(uncastedother)->getValue();
-            int n = value->size;
+            vec->lock();
+            int n = vec->size;
             std::shared_ptr<RawVector> rawret = std::make_shared<RawVector>(n);
             double* ret = rawret->data;
             double* dat = value->data;
@@ -289,7 +353,7 @@ public:
                     for(int i=0;i<n;i++)
                         ret[i] = pow(v, dat[i]);
             }
-            value->unlock();
+            vec->unlock();
             return std::make_shared<Vector>(rawret);
         }
         throw Unimplemented();

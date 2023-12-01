@@ -21,7 +21,7 @@ private:
                 depth += 1;
             if(lhs[pos]==']' || lhs[pos]==')' || lhs[pos]=='}')
                 depth -= 1;
-            if(depth==0 && lhs[pos]=='=') {
+            if(depth==0 && lhs[pos]=='=' && lhs[pos+1]!='=' && lhs[pos-1]!='<' && lhs[pos-1]!='>' && lhs[pos-1]!='!') {
                 trim(accumulate);
                 return accumulate;
             }
@@ -35,10 +35,13 @@ private:
          * Get the string expression (this is guaranteed not to contain an assignee).
         */
         int pos = 0;
+        int depth = 0;
         while(pos<rhs.size()) {
-            if(rhs[pos]=='('||rhs[pos]=='{')
-                break;
-            if(rhs[pos]=='='){
+            if(rhs[pos]=='[' || rhs[pos]=='(' || rhs[pos]=='{')
+                depth += 1;
+            if(rhs[pos]==']' || rhs[pos]==')' || rhs[pos]=='}')
+                depth -= 1;
+            if(depth==0 && rhs[pos]=='=' && rhs[pos+1]!='=' && rhs[pos-1]!='<' && rhs[pos-1]!='>' && rhs[pos-1]!='!') {
                 rhs = rhs.substr(pos+1);
                 break;
             }
@@ -156,6 +159,57 @@ private:
         symbols.insert(tmp);
         return "set "+tmp+" "+rhs+" "+chain.substr(pos+1);
     }
+
+    std::string parseOperator(const std::string& var, const std::string& expr, const std::string& operand, const std::string& method) {
+        if(expr.length()==0)
+            return expr;
+        int pos = 0;
+        int depth = 0;
+        char operand0 = operand[0];
+        while(pos<expr.length()) {
+            char c = expr[pos];
+            if(c=='(' || c=='{' || c=='[')
+                depth += 1;
+            if(c==')' || c=='}' || c==']')
+                depth -= 1;
+            if(depth==0 && expr[pos]==operand0 && expr.substr(pos, operand.length())==operand)
+                break;
+            pos += 1;
+        }
+        if(pos==expr.length())
+            return expr;
+        std::string lhs = expr.substr(0, pos);
+        std::string rhs = expr.substr(pos+operand.length());
+        trim(lhs);
+        trim(rhs);
+
+        std::string tmp = "_anon"+std::to_string(topTemp);
+        topTemp += 1;
+        Parser lhsParser = Parser(symbols, topTemp);
+        lhsParser.parse(tmp+" = "+lhs+";");
+        if(lhsParser.toString().substr(0, 3) != "IS "){
+            compiled += lhsParser.toString();
+            lhs = tmp;
+        }
+        else
+            topTemp -=1;
+        
+        
+        tmp = "_anon"+std::to_string(topTemp);
+        topTemp += 1;
+        Parser rhsParser = Parser(symbols, topTemp);
+        rhsParser.parse(tmp+" = "+rhs+";");
+        if(rhsParser.toString().substr(0, 3) != "IS "){
+            compiled += rhsParser.toString();
+            rhs = tmp;
+        }
+        else
+            topTemp -=1;
+        
+        compiled += method+" "+var+" "+lhs+" "+rhs+"\n";
+        return "";
+    }
+
     void addCommand(std::string& command) {
         /**
          * Parses an indivual command found in a block of code. Called by parse.
@@ -164,12 +218,34 @@ private:
             return;
         std::string variable = getAssignee(command);
         std::string value = getValue(command);
+        
+        if(value[0]=='(') {
+            if(value[value.size()-1]!=')') 
+                std::cerr << "Imbalanced parenthesis\n";
+            else
+                value = value.substr(1, value.size()-2);
+        }
+
         bool finalize = false;
         if(variable.substr(0, 6)=="final ") {
             finalize = true;
             variable = variable.substr(6);
             trim(variable);
         }
+
+        value = parseOperator(variable, value, "==", "eq");
+        value = parseOperator(variable, value, "!=", "neq");
+        value = parseOperator(variable, value, "<=", "le");
+        value = parseOperator(variable, value, ">=", "ge");
+        value = parseOperator(variable, value, "<", "lt");
+        value = parseOperator(variable, value, ">", "gt");
+        value = parseOperator(variable, value, "+", "add");
+        value = parseOperator(variable, value, "-", "sub"); // TODO make sub and div same priority as add and mul
+        value = parseOperator(variable, value, "*", "mul");
+        value = parseOperator(variable, value, "/", "div");
+        value = parseOperator(variable, value, "^", "pow");
+        value = parseOperator(variable, value, "%", "mod");
+
         size_t pos = value.find('(');
         std::string symbolicVariable = variable;
         variable = parseChainedSymbolsVariable(symbolicVariable);
@@ -233,6 +309,8 @@ private:
                         compiled += tmpParser.toString();
                         argexpr = tmp;
                     }
+                    else
+                        topTemp -= 1;
                 }
                 compiled += "CALL "+variable+" "+argexpr+" "+value+"\n";
             }
@@ -271,6 +349,8 @@ private:
                                 accumulate = tmp;
                                 //topTemp = tmpParser.topTemp;
                             }
+                            else
+                                topTemp -= 1;
                         }
                         argexpr += " "+accumulate;
                         accumulate = "";
