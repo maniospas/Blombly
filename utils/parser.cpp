@@ -283,7 +283,10 @@ private:
             variable = variable.substr(6);
             trim(variable);
         }
-
+        
+        value = parseOperator(variable, value, " or ", "or");
+        value = parseOperator(variable, value, " and ", "and");
+        value = parseOperator(variable, value, " not ", "not");
         value = parseOperator(variable, value, "==", "eq");
         value = parseOperator(variable, value, "!=", "neq");
         value = parseOperator(variable, value, "<=", "le");
@@ -399,7 +402,7 @@ private:
                         i += 1;
                         continue;
                     }
-                    if(depth==0 && (args[i]==',' || i==args.size()-1)) {
+                    if(depth==0 && ((args[i]==',' || args[i]=='|') || i==args.size()-1)) {
                         trim(accumulate);
                         if(symbols.find(accumulate) == symbols.end()) {
                             if(value=="while" || value=="if")
@@ -456,6 +459,8 @@ public:
         int depth = 0;
         bool inString = false;
         bool inComment = false;
+        int inImpliedParenthesis = 0;
+        int expectNextBlocks = 0;
         while(pos<code.size()) {
             char c = code[pos];
             if(inComment) {
@@ -490,9 +495,9 @@ public:
                 depth -= 1;
             if(c==']')
                 depth -= 1;
-            if(depth==0 && c==',')
+            if(depth==inImpliedParenthesis && (c==',' || c=='|'))
                 c = ';'; // trick to parse method(x=1,y=2) as method(x=1;y=2) for symbol method
-            if(depth==0 && c=='{') {
+            if(depth==inImpliedParenthesis && c=='{') {
                 std::string variable = getAssignee(command);
                 if(variable.substr(0, 6)=="final "){
                     variable = variable.substr(6);
@@ -505,19 +510,51 @@ public:
                     symbols.insert(variable);
                 command = "";
             }
-            else if(depth==0 && c=='}') {
-                addCommand(command);
-                compiled += END+"\n";
-                command = "";
+            else if(depth==inImpliedParenthesis && c=='}') {
+                if(expectNextBlocks>0)
+                    expectNextBlocks -= 1;
+                if(expectNextBlocks==0) {
+                    for(int m=0;m<inImpliedParenthesis;m++)
+                        command += ')';
+                    inImpliedParenthesis = 0;
+                    depth = 0;
+                    addCommand(command);
+                    compiled += END+"\n";
+                    command = "";
+                }
+                else
+                    command += c;
             }
-            else if(depth==0 && c==':') {
+            else if(depth==inImpliedParenthesis && c==':') {
+                for(int m=0;m<inImpliedParenthesis;m++)
+                    command += ')';
+                inImpliedParenthesis = 0;
+                expectNextBlocks = 0;
+                depth = 0;
                 command += c;
                 addCommand(command);
                 command = "";
             }
-            else if(depth==0 && (c==';' || pos==code.size()-1)) {
+            else if(depth==inImpliedParenthesis && (c==';' || pos==code.size()-1)) {
+                for(int m=0;m<inImpliedParenthesis;m++)
+                    command += ')';
+                inImpliedParenthesis = 0;
+                expectNextBlocks = 0;
+                depth = 0;
                 addCommand(command);
                 command = "";
+            }
+            else if(depth==inImpliedParenthesis && c==' ') {
+                std::string comm(command);
+                trim(comm);
+                if(comm=="return") {
+                    expectNextBlocks += comm=="return"?1:2; // preparation for while
+                    command += "(";
+                    depth += 1;
+                    inImpliedParenthesis += 1;
+                }
+                else
+                    command += c;
             }
             else 
                 command += c;

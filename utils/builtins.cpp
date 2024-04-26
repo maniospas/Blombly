@@ -501,7 +501,7 @@ std::shared_ptr<Data> Vector::implement(const std::string& operation, std::vecto
         value->unlock();
         return nullptr;
     }
-    if(all.size()==3 && all[0]->getType()==VECTOR && all[1]->getType()==VECTOR && all[2]->getType()==FLOAT && operation=="put") {
+    if(all.size()==3 && all[0]->getType()==VECTOR && all[1]->getType()==INT && all[2]->getType()==FLOAT && operation=="put") {
         value->lock();
         int index = std::static_pointer_cast<Integer>(all[1])->getValue();
             for(int i=0;i<natdims;i++) {

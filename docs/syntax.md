@@ -1,8 +1,7 @@
 # Basic syntax
 
-This is the syntax of the `blombly` language. You can also create parsers
-that accept languages with different but equivalent syntax that compile to 
-the same virtual machine instruction set.
+This is the syntax of the `blombly` language. You can also create different
+languages that compile to the same virtual machine instruction set.
 
 1. [Code blocks](#code-blocks)
 2. [Final variables](#final-variables)
@@ -13,8 +12,8 @@ the same virtual machine instruction set.
 ## Code blocks
  
 The language's main structure are code blocks. These represent a series of computations
-to be executed on-demand by enclosing them in brackets. Blocks can be used like methods, 
-as shown bellow.
+to be executed on-demand by enclosing them in brackets. Blocks are assigned to 
+variables and can be used like methods, as shown bellow.
 
 ```java
 block = { 
@@ -25,9 +24,8 @@ block(); // prints
 block(); // prints again
 ```
 
-Unsafe variables, like the above (we will later see how to make them thread-safe by
-declaring their values as final or passing them as arguments)
-cannot be accessed anywhere in any other block. This lets blocks execute in parallel
+The variable declaration above are unsafe (we will later see how to make them thread-safe)
+and cannot be accessed anywhere in any other block. Safety features let blocks execute in parallel
 threads. You can transfer values as keyword arguments like so:
 
 ```java
@@ -82,14 +80,15 @@ print(inc()); // 0 - final value of x is used
 
 ## Final variables
 
-When you set a value to a variable you can set the assignment to be final.
-This indicates that the value will never be allowed to change in this scope
-in the future, which makes it *thread-safe* and can thus be visible by code
-blocks defined within the same scope. Here's an example:
+When you set a value, you can make it final.
+This indicates that the same name will keep referencing the same
+object/block in the future. Thus, it is *thread-safe* and becomes visible 
+from within code blocks defined within the same scope, even if they are
+executed later. Here's an example:
 
 ```java
 bias = 0; // is not yet final
-final bias = bias+1; // final after the assignement
+final bias = bias+1; // final after the assignement (cannot change anymore)
 final inc = {
     return(x+bias);
 }
@@ -104,14 +103,14 @@ need to make them final.
 
 :bulb: Passing final values to code blocks as arguments does not
 automatically make them final there too. Make the keyword argument 
-declarations final if you want to make sure that they are never
-changed internally like so:
+declarations final to make sure that they are never
+changed internally.
 
 ## Inline execution
 
 Sometimes, you may want to call a code block and let it
-access *and alter any of your scope's variables*s. 
-This is called *inline execution* and can be invoked by
+access *and alter* any of your scope's variables. 
+This is called inline execution, and can be invoked by
 the block's name ended with with a colon (:). When you do this,
 you can ommit the semicolon at the end of the command.
 For example, in the following snippet `result = inc_x:` 

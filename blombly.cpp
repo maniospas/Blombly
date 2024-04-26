@@ -251,6 +251,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 value = std::make_shared<Boolean>(command[2]=="Btrue");
             else
                 std::cerr << "Unable to understand builtin value: " << command[2] << std::endl;
+            
         }
         else if(command[0]==FINAL) {
             MEMGET(memory, command[2])->isMutable = false;
@@ -345,7 +346,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
         else if(command[0]==RETURN) {
             // make return copy the object (NOTE: copying only reallocates (and changes) wrapper properties like finality, not the internal value - internal memory of structs will be the same)
             value = MEMGET(memory, command[2]);
-            return value->shallowCopy(); 
+            return value?value->shallowCopy():value; 
         }
         else if(command[0]==GET) {
             value = MEMGET(memory, command[2]);
@@ -378,9 +379,9 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             else {
                 std::shared_ptr<Struct> obj = std::static_pointer_cast<Struct>(value);
                 std::shared_ptr<Data> setValue = MEMGET(memory, command[4]);
-                obj->lock();
+                //obj->lock(); // TODO
                 obj->getMemory()->set(command[3], setValue);
-                obj->unlock();
+                //obj->unlock(); // TODO
                 value = nullptr;
             }
         }
@@ -491,7 +492,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
         memory->set(command[1], value);
         prevValue = value;
     }
-    return prevValue;
+    return prevValue?prevValue->shallowCopy():prevValue;
 }
 
 

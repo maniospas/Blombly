@@ -1,0 +1,61 @@
+BEGINFINAL DynamicPoint
+copy x x
+copy y y
+END
+BEGINFINAL Increment
+BEGIN inc
+BEGIN _anon0
+BUILTIN value I1
+END
+default # _anon0
+get _anon2 self x
+copy _anon1 _anon2
+add z _anon1 value
+IS z _anon3
+set _anon2 self x _anon3
+return # self
+END
+END
+BEGINFINAL Normed2D
+BEGIN norm
+get _anon7 self x
+copy _anon6 _anon7
+pow _anon5 _anon6 q
+get _anon8 self y
+copy _anon7 _anon8
+pow _anon6 _anon7 q
+add _anon4 _anon5 _anon6
+return # _anon4
+END
+END
+BEGINFINAL Point
+BEGIN _anon5
+inline # DynamicPoint
+inline # Increment
+inline # Normed2D
+copy # self
+END
+new # _anon5
+END
+BEGIN _anon6
+BUILTIN x I1
+BUILTIN y I2
+END
+call point _anon6 Point
+get _anon8 point norm
+BEGIN _anon9
+BUILTIN q I2
+END
+call _anon7 _anon9 _anon8
+print # _anon7
+get _anon8 point inc
+call # # _anon8
+get _anon10 point x
+copy _anon9 _anon10
+print # _anon9
+get _anon11 point norm
+BEGIN _anon12
+BUILTIN q I2
+END
+call _anon10 _anon12 _anon11
+print # _anon10
