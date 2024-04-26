@@ -424,7 +424,8 @@ std::shared_ptr<Data> Integer::implement(const std::string& operation, std::vect
         if(operation=="mul")
             res = v1 * v2;
         if(operation=="div")
-            res = v1 / v2;
+            return std::make_shared<Float>(v1/(float)v2);
+            //res = v1 / v2;
         if(operation=="mod")
             res = v1 % v2;
         if(operation=="pow")

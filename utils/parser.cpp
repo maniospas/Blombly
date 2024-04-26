@@ -397,7 +397,7 @@ private:
                 if((value=="new" || value=="default" || value=="safe") && args[0]!='{')
                     args = "{"+args.substr(0, args.size()-1)+"})";
                 if(value=="new") // automatically return self if no other return in new
-                    args = args.substr(0, args.size()-2)+";self;})";
+                    args = args.substr(0, args.size()-2)+";this;})";
                 if(value=="safe")
                     args = "new";
                 std::string argexpr;
@@ -455,7 +455,7 @@ private:
 public:
     Parser() {
         topTemp = 0;
-        symbols.insert("self");
+        symbols.insert("this");
     }
     Parser(std::unordered_set<std::string>& symbs, int topTemps) {
         symbols = symbs;

@@ -1,13 +1,19 @@
-final DynamicPoint = {x=x;y=y;} // need to declare statics for calling from within blocks
+final DynamicPoint = {
+    this.x=x;
+    this.y=y;
+} // need to declare statics for calling from within blocks
 final Increment = {
     inc = {
         default(value=1);
-        self.x = self.x+value;
-        return(self);  // need to return self to enable the synchronization pattern
+        this.x = this.x+value;
+        return this;  // need to return itself to enable the synchronization pattern
     }
 }
 final Normed2D = {
-    norm = {return(self.x^q+self.y^q);}  // need to use self. to "see" non-final variables
+    norm = {
+        base = this.x^q+this.y^q;
+        return base^(1/q);
+    }  // need to use fhis. to "see" non-final variables
 }
 final Point = {
     new(

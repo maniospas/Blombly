@@ -102,12 +102,12 @@ public:
     }
     void pull(std::shared_ptr<Memory> other) {
         for (auto it = other->data.begin(); it != other->data.end(); it++)
-            if(it->first!="self")
+            if(it->first!="this")
                 set(it->first, it->second);
     }
     void replaceMissing(std::shared_ptr<Memory> other) {
         for (auto it = other->data.begin(); it != other->data.end(); it++)
-            if(it->first!="self")
+            if(it->first!="this")
                 if(!data[it->first])
                     set(it->first, it->second);
     }
@@ -328,7 +328,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             std::shared_ptr<Code> code = std::static_pointer_cast<Code>(execute);
             // reframe which memory is self
             newMemory->detach(code->getDeclarationMemory());
-            newMemory->set("self", std::make_shared<Struct>(code->getDeclarationMemory()));
+            newMemory->set("this", std::make_shared<Struct>(code->getDeclarationMemory()));
             // execute the called code in the new memory
             //pthread_t thread_id;
             //ThreadData* data = new ThreadData();
@@ -476,7 +476,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             }
             else {
                 std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
-                newMemory->set("self", std::make_shared<Struct>(newMemory));
+                newMemory->set("this", std::make_shared<Struct>(newMemory));
                 newMemory->set("locals", std::make_shared<Struct>(newMemory));
                 std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
                 value = executeBlock(program, code->getStart(), code->getEnd(), newMemory);
@@ -520,7 +520,7 @@ int vm(const std::string& fileName, int numThreads) {
 
     // initialize memory and execute the assembly commands
     std::shared_ptr<Memory> memory = std::make_shared<Memory>();
-    memory->set("self", std::make_shared<Struct>(memory));
+    memory->set("this", std::make_shared<Struct>(memory));
     memory->set("locals", std::make_shared<Struct>(memory));
     executeBlock(&program, 0, program.size()-1, memory);
 

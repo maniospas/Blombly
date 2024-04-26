@@ -1,6 +1,11 @@
-final DynamicPoint = {x=x;y=y;} // need to declare statics for calling from within blocks
+final DynamicPoint = {
+    this.x=x; // could also be x=x
+    this.y=y;
+}
 final Normed2D = {
-    norm = {return(self.x^q+self.y^q);}  // need to use self. to "see" non-final variables
+    norm = {
+        return (this.x^q+this.y^q;
+    }  // need to use this. to "see" non-final variables (othewise it would get them from the calling scope)
 }
 final Point = {
     new(

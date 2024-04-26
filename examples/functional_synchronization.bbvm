@@ -1,60 +1,65 @@
 BEGINFINAL DynamicPoint
-copy x x
-copy y y
+IS x _anon1
+set _anon0 this x _anon1
+IS y _anon3
+set _anon2 this y _anon3
 END
 BEGINFINAL Increment
 BEGIN inc
-BEGIN _anon0
+BEGIN _anon4
 BUILTIN value I1
 END
-default # _anon0
-get _anon2 self x
-copy _anon1 _anon2
-add _anon3 _anon1 value
-set _anon2 self x _anon3
-return # self
+default # _anon4
+get _anon6 this x
+copy _anon5 _anon6
+add _anon7 _anon5 value
+set _anon6 this x _anon7
+return # this
 END
 END
 BEGINFINAL Normed2D
 BEGIN norm
-get _anon7 self x
-copy _anon6 _anon7
-pow _anon5 _anon6 q
-get _anon8 self y
-copy _anon7 _anon8
-pow _anon6 _anon7 q
-add _anon4 _anon5 _anon6
-return # _anon4
+get _anon10 this x
+copy _anon9 _anon10
+pow _anon8 _anon9 q
+get _anon11 this y
+copy _anon10 _anon11
+pow _anon9 _anon10 q
+add base _anon8 _anon9
+BUILTIN _anon12 I1
+div _anon11 _anon12 q
+pow _anon10 base _anon11
+return # _anon10
 END
 END
 BEGINFINAL Point
-BEGIN _anon5
+BEGIN _anon11
 inline # DynamicPoint
 inline # Increment
 inline # Normed2D
-copy # self
+copy # this
 END
-new # _anon5
+new # _anon11
 END
-BEGIN _anon6
+BEGIN _anon12
 BUILTIN x I1
 BUILTIN y I2
 END
-call point _anon6 Point
-get _anon8 point norm
-BEGIN _anon9
+call point _anon12 Point
+get _anon14 point norm
+BEGIN _anon15
 BUILTIN q I2
 END
-call _anon7 _anon9 _anon8
-print # _anon7
-get _anon8 point inc
-call point # _anon8
-get _anon10 point x
-copy _anon9 _anon10
-print # _anon9
-get _anon11 point norm
-BEGIN _anon12
+call _anon13 _anon15 _anon14
+print # _anon13
+get _anon14 point inc
+call point # _anon14
+get _anon16 point x
+copy _anon15 _anon16
+print # _anon15
+get _anon17 point norm
+BEGIN _anon18
 BUILTIN q I2
 END
-call _anon10 _anon12 _anon11
-print # _anon10
+call _anon16 _anon18 _anon17
+print # _anon16
