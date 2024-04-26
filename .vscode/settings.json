@@ -1,6 +1,7 @@
 {
     "cmake.configureOnOpen": false,
     "files.associations": {
+        "*.bb": "java",
         "fstream": "cpp",
         "unordered_map": "cpp",
         "array": "cpp",
@@ -56,6 +57,7 @@
         "mutex": "cpp",
         "semaphore": "cpp",
         "stop_token": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "future": "cpp"
     }
 }

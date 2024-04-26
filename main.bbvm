@@ -1,31 +1,27 @@
-BEGIN StaticPoint
-copy x x
-FINAL # x
-copy y y
-FINAL # y
-END
-BEGIN Normed2D
-BEGIN norm
-copy _anon2 x
-pow _anon1 _anon2 q
-copy _anon3 y
-pow _anon2 _anon3 q
-add _anon0 _anon1 _anon2
-return # _anon0
-END
-END
-BUILTIN extx I1
+BEGINFINAL fib
+BUILTIN res I1
+BEGIN recur
 BEGIN _anon1
-copy x extx
-BUILTIN y I2
-inline # StaticPoint
-inline # Normed2D
-copy # self
+BUILTIN _anon2 I1
+sub n n _anon2
 END
-new point _anon1
-get _anon3 point norm
-BEGIN _anon4
-BUILTIN q I2
+call _anon0 _anon1 fib
+BEGIN _anon2
+BUILTIN _anon3 I2
+sub n n _anon3
 END
-CALL _anon2 _anon4 _anon3
-print # _anon2
+call _anon1 _anon2 fib
+add res _anon0 _anon1
+END
+BEGIN _anon2
+BUILTIN _anon3 I1
+ge # n _anon3
+END
+if # _anon2 recur
+return # res
+END
+BEGIN _anon3
+BUILTIN n I6
+END
+call res _anon3 fib
+print # res

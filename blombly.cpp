@@ -32,13 +32,11 @@
 #include <functional>
 #include <thread>
 #include <cmath>
+#include <future>
 #include "utils/stringtrim.cpp"
-#include "utils/threadpool.cpp"
 #include "utils/builtins.cpp"
 #include "utils/parser.cpp"
 
-
-ThreadPool* threads;
 
 
 class Command {
@@ -116,18 +114,32 @@ public:
     std::shared_ptr<Data> get(std::string item, bool allowMutable) {
         if(item=="#")
             return nullptr;
-        std::shared_ptr<Data> ret = data[item];
-        if(ret && ret->getType() == "future") {
-            ThreadReturn* result;
-            threads->join(std::static_pointer_cast<Future>(ret)->getThread(), (void**)&result);
+        std::shared_ptr<Data> ret;
+        lock();
+        ret = data[item];
+        unlock();
+        if(ret && ret->getType() == FUTURE) {
+            //ThreadReturn* result;
+            //int thread = std::static_pointer_cast<Future>(ret)->getThread();
+            //threads->join(thread, (void**)&result);
             //pthread_join(std::static_pointer_cast<Future>(ret)->getThread(), (void**)&result);
-            result->value->isMutable = ret->isMutable;
-            ret = result->value;
+            //if(result && result->value)
+            //    result->value->isMutable = ret->isMutable;
+            //if(result)
+             //   ret = result->value;
+            /*else {
+                std::cerr << "Method failed to return anything\n";
+                ret = nullptr;
+            }*/
+            ret = std::static_pointer_cast<Future>(ret)->getResult();
+            lock();
             data[item] = ret;
-            delete result;
+            unlock();
+            //if(result)
+            //    delete result;
         }
         if(ret && !allowMutable && ret->isMutable) {
-            std::cerr << "Mutable symbol can not be accessed from nested block (make it final or access it from self.): " + item << std::endl;
+            std::cerr << "Mutable symbol can not be accessed from nested block (make it final or access it from an object): " + item << std::endl;
             return nullptr;
         }
         if(!ret && parent)
@@ -139,11 +151,14 @@ public:
     void set(std::string item, std::shared_ptr<Data> value) {
         if(item=="#") 
             return;
+        lock();
         if(data[item]!=nullptr && !data[item]->isMutable) {
+            unlock();
             std::cerr << "Cannot overwrite final value: " + item << std::endl;
             return;
         } 
         data[item] = value;
+        unlock();
     }
     void detach() {
         allowMutables = false;
@@ -172,14 +187,14 @@ public:
     Struct(std::shared_ptr<Memory> mem) {
         memory=mem;
     }
-    std::string getType() const override {return "struct";}
+    int getType() const override {return STRUCT;}
     std::string toString() const override {return "struct";}
     std::shared_ptr<Memory>& getMemory() {return memory;}
     void lock() {memory->lock();}
     void unlock(){memory->unlock();}
     std::shared_ptr<Data> shallowCopy() const override {return std::make_shared<Struct>(memory);}
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
-        if(all.size()==1 && all[0]->getType()=="struct" && operation=="copy")
+        if(all.size()==1 && all[0]->getType()==STRUCT && operation=="copy")
             return std::make_shared<Struct>(memory);
         throw Unimplemented();
     }
@@ -195,7 +210,6 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
 
 void* thread_function(void *args){
     pthread_t self_id = pthread_self();
-
     ThreadData* data = (ThreadData*)args;
     std::shared_ptr<Data> value = executeBlock(
         data->program, 
@@ -204,8 +218,8 @@ void* thread_function(void *args){
         data->memory);
     delete data;
     ThreadReturn* ret = new ThreadReturn(value);
-    return ret;
     //pthread_exit(ret);
+    return ret;
 }
 
 
@@ -225,8 +239,8 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
     std::shared_ptr<Data> prevValue;
     for(int i=start;i<=end;i++) {
         auto command = program->at(i)->args;
-         std::shared_ptr<Data> value;
-        if(command[0]=="BUILTIN") {
+        std::shared_ptr<Data> value;
+        if(command[0]==BUILTIN) {
             if(command[2][0]=='"')
                 value = std::make_shared<BString>(command[2].substr(1, command[2].size()-2));
             else if(command[2][0]=='I')
@@ -238,24 +252,29 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             else
                 std::cerr << "Unable to understand builtin value: " << command[2] << std::endl;
         }
-        else if(command[0]=="FINAL") {
+        else if(command[0]==FINAL) {
             MEMGET(memory, command[2])->isMutable = false;
         }
-        else if(command[0]=="print")  {
-            std::string out = MEMGET(memory, command[2])->toString() + "\n";
-            pthread_mutex_lock(&printLock); 
-            std::cout << out;
-            pthread_mutex_unlock(&printLock);
+        else if(command[0]==PRINT)  {
+            std::shared_ptr<Data> printable = MEMGET(memory, command[2]);
+            if(!printable)
+                std::cerr << "Nothing to print" << std::endl;
+            else {
+                std::string out = printable->toString() + "\n";
+                pthread_mutex_lock(&printLock); 
+                std::cout << out;
+                pthread_mutex_unlock(&printLock);
+            }
         }
-        else if(command[0]=="BEGIN" || command[0]=="BEGINFINAL") {
+        else if(command[0]==BEGIN || command[0]==BEGINFINAL) {
             int pos = i+1;
             int depth = 0;
             std::string command_type;
             while(pos<=end) {
                 command_type = program->at(pos)->args[0];
-                if(command_type=="BEGIN" || command_type=="BEGINFINAL")
+                if(command_type==BEGIN || command_type==BEGINFINAL)
                     depth += 1;
-                if(command_type=="END") {
+                if(command_type==END) {
                     if(depth==0)
                         break;
                     depth -= 1;
@@ -265,11 +284,11 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             if(depth>0)
                 std::cerr << "Unclosed code block" << std::endl;
             value = std::make_shared<Code>(i+1, pos, memory);
-            if(command[0]=="BEGINFINAL")
+            if(command[0]==BEGINFINAL)
                 value->isMutable = false;
             i = pos;
         }
-        else if(command[0]=="END") {
+        else if(command[0]==END) {
             //return std::make_shared<MacroResult>(memory);
             break;
         }/*
@@ -289,20 +308,20 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             std::shared_ptr<Code> code = std::static_pointer_cast<Code>(execute);
             value = executeBlock(program, code->getStart(), code->getEnd(), newMemory);
         }*/
-        else if(command[0]=="CALL") {
+        else if(command[0]==CALL) {
             // create new writable memory under the current context
             std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
             newMemory->set("locals", std::make_shared<Struct>(newMemory));
             std::shared_ptr<Data> context = MEMGET(memory, command[2]);
             std::shared_ptr<Data> execute = MEMGET(memory, command[3]);
             // check if the call has some context, and if so, execute it in the new memory
-            if(context && context->getType()=="code") {
+            if(context && context->getType()==CODE) {
                 std::shared_ptr<Code> code = std::static_pointer_cast<Code>(context);
                 value = executeBlock(program, code->getStart(), code->getEnd(), newMemory);
                 //if(value) // show an error message if the context returned with anything other than END
                 //    std::cerr << "Code execution context should not return a value." << std::endl;
             }
-            else if(context && context->getType()=="struct")
+            else if(context && context->getType()==STRUCT)
                 newMemory->pull(std::static_pointer_cast<Struct>(context)->getMemory());
             // 
             std::shared_ptr<Code> code = std::static_pointer_cast<Code>(execute);
@@ -310,44 +329,52 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             newMemory->detach(code->getDeclarationMemory());
             newMemory->set("self", std::make_shared<Struct>(code->getDeclarationMemory()));
             // execute the called code in the new memory
-            pthread_t thread_id;
-            ThreadData* data = new ThreadData();
-            data->start = code->getStart();
-            data->end = code->getEnd();
-            data->program = program;
-            data->memory = newMemory;
-            thread_id = threads->enqueue(&thread_function, data);
+            //pthread_t thread_id;
+            //ThreadData* data = new ThreadData();
+            //data->start = code->getStart();
+            //data->end = code->getEnd();
+            //data->program = program;
+            //data->memory = newMemory;
+            //thread_id = threads->enqueue(&thread_function, data);
             //pthread_create(&thread_id, NULL, &thread_function, data);
-            value = std::make_shared<Future>(thread_id);
+
+            std::future<std::shared_ptr<Data>> val = std::async(executeBlock, program, code->getStart(), code->getEnd(), newMemory);
+            value = std::make_shared<Future>(std::move(val));
+
         }
-        else if(command[0]=="return") {
+        else if(command[0]==RETURN) {
             // make return copy the object (NOTE: copying only reallocates (and changes) wrapper properties like finality, not the internal value - internal memory of structs will be the same)
-            return MEMGET(memory, command[2])->shallowCopy(); 
-        }
-        else if(command[0]=="get") {
             value = MEMGET(memory, command[2]);
-            if(value->getType()!="struct") {
+            return value->shallowCopy(); 
+        }
+        else if(command[0]==GET) {
+            value = MEMGET(memory, command[2]);
+            if(value->getType()!=STRUCT) {
                 std::cerr << "Can only get fields from a struct" << std::endl;
                 value = nullptr;
             }
             else {
                 std::shared_ptr<Struct> obj = std::static_pointer_cast<Struct>(value);
-                obj->lock();
+                //obj->lock(); TODO
                 value = obj->getMemory()->get(command[3]);
-                obj->unlock();
+                //obj->unlock(); TODO
                 value = value->shallowCopy();
             }
         }
-        else if(command[0]=="set") {
+        else if(command[0]==IS) {
+            value = MEMGET(memory, command[1]);
+            memory->set(command[2], value);
+        }
+        else if(command[0]==SET) {
             value = MEMGET(memory, command[2]);
-            if(value->getType()!="struct") {
+            if(value->getType()!=STRUCT) {
                 std::cerr << "Can only set fields in a struct" << std::endl;
                 value = nullptr;
             }
-            else if(!value->isMutable) {
+            /*else if(!value->isMutable) {
                 std::cerr << "Can not set fields in a final struct" << std::endl;
                 value = nullptr;
-            }
+            }*/
             else {
                 std::shared_ptr<Struct> obj = std::static_pointer_cast<Struct>(value);
                 std::shared_ptr<Data> setValue = MEMGET(memory, command[4]);
@@ -357,19 +384,19 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 value = nullptr;
             }
         }
-        else if(command[0]=="while") {
+        else if(command[0]==WHILE) {
             std::shared_ptr<Data> condition = MEMGET(memory, command[2]);
             std::shared_ptr<Data> accept = MEMGET(memory, command[3]);
-            if(condition->getType()!="code") 
+            if(condition->getType()!=CODE) 
                 std::cerr << "Can only inline a non-called code block for while condition" << std::endl;
-            else if(accept->getType()!="code") 
+            else if(accept->getType()!=CODE) 
                 std::cerr << "Can only inline a non-called code block for while loop" << std::endl;
             else {
                 std::shared_ptr<Code> codeCondition = std::static_pointer_cast<Code>(condition);
                 std::shared_ptr<Code> codeAccept = accept?std::static_pointer_cast<Code>(accept):nullptr;
                 while(true) {
                     std::shared_ptr<Data> check = executeBlock(program, codeCondition->getStart(), codeCondition->getEnd(), memory);
-                    if(check->getType()!="bool") {
+                    if(check->getType()!=BOOL) {
                         std::cerr << "Logical condition failed to evaluate to bool" << std::endl;
                         break;
                     }
@@ -380,22 +407,22 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 }
             }
         }
-        else if(command[0]=="if") {
+        else if(command[0]==IF) {
             std::shared_ptr<Data> condition = MEMGET(memory, command[2]);
             std::shared_ptr<Data> accept = MEMGET(memory, command[3]);
             std::shared_ptr<Data> reject = command.size()>4?MEMGET(memory, command[4]):nullptr;
-            if(condition->getType()!="code") 
+            if(condition->getType()!=CODE) 
                 std::cerr << "Can only inline a non-called code block for if condition" << std::endl;
-            else if(accept->getType()!="code") 
+            else if(accept->getType()!=CODE) 
                 std::cerr << "Can only inline a non-called code block for if acceptance" << std::endl;
-            else if(reject && reject->getType()!="code") 
+            else if(reject && reject->getType()!=CODE) 
                 std::cerr << "Can only inline a non-called code block for if rejection" << std::endl;
             else {
                 std::shared_ptr<Code> codeCondition = std::static_pointer_cast<Code>(condition);
                 std::shared_ptr<Code> codeAccept = accept?std::static_pointer_cast<Code>(accept):nullptr;
                 std::shared_ptr<Code> codeReject = reject?std::static_pointer_cast<Code>(reject):nullptr;
                 std::shared_ptr<Data> check = executeBlock(program, codeCondition->getStart(), codeCondition->getEnd(), memory);
-                if(check->getType()!="bool")
+                if(check->getType()!=BOOL)
                     std::cerr << "Logical condition failed to evaluate to bool" << std::endl;
                 else if(std::static_pointer_cast<Boolean>(check)->getValue()) {
                     if(codeAccept)
@@ -407,13 +434,13 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 }
             }
         }
-        else if(command[0]=="inline") {
+        else if(command[0]==INLINE) {
             value = MEMGET(memory, command[2]);
-            if(value->getType()=="struct") {
+            if(value->getType()==STRUCT) {
                 std::shared_ptr<Struct> code = std::static_pointer_cast<Struct>(value);
                 memory->pull(code->getMemory());
             }
-            else if(value->getType()!="code") {
+            else if(value->getType()!=CODE) {
                 std::cerr << "Can only inline a non-called code block or struct" << std::endl;
                 value = nullptr;
             }
@@ -422,13 +449,13 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 value = executeBlock(program, code->getStart(), code->getEnd(), memory);
             }
         }
-        else if(command[0]=="default") {
+        else if(command[0]==DEFAULT) {
             value = MEMGET(memory, command[2]);
-            if(value->getType()=="struct") {
+            if(value->getType()==STRUCT) {
                 std::shared_ptr<Struct> code = std::static_pointer_cast<Struct>(value);
                 memory->replaceMissing(code->getMemory());
             }
-            else if(value->getType()!="code") {
+            else if(value->getType()!=CODE) {
                 std::cerr << "Can only inline a non-called code block or struct" << std::endl;
                 value = nullptr;
             }
@@ -440,9 +467,9 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 memory->replaceMissing(newMemory);
             }
         }
-        else if(command[0]=="new") {
+        else if(command[0]==NEW) {
             value = MEMGET(memory, command[2]);
-            if(value->getType()!="code") {
+            if(value->getType()!=CODE) {
                 std::cerr << "Can only inline a non-called code block" << std::endl;
                 value = nullptr;
             }
@@ -476,8 +503,6 @@ int vm(const std::string& fileName, int numThreads) {
      * @return 0 if execution completed successfully
     */
 
-    threads = new ThreadPool(numThreads);
-
     // open the blombly assembly file
     std::ifstream inputFile(fileName);
     std::vector<std::shared_ptr<Command>> program;
@@ -497,8 +522,6 @@ int vm(const std::string& fileName, int numThreads) {
     memory->set("self", std::make_shared<Struct>(memory));
     memory->set("locals", std::make_shared<Struct>(memory));
     executeBlock(&program, 0, program.size()-1, memory);
-    
-    delete threads;
 
     return 0;
 }

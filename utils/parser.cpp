@@ -4,6 +4,26 @@
 #include "stringtrim.cpp"
 
 
+const std::string BUILTIN="BUILTIN";
+const std::string BEGIN="BEGIN";
+const std::string BEGINFINAL="BEGINFINAL";
+const std::string END="END";
+const std::string RETURN="return";
+const std::string FINAL="final";
+const std::string AT="at";
+const std::string IS="IS";
+const std::string CALL="call";
+const std::string GET="get";
+const std::string SET="set";
+const std::string WHILE="while";
+const std::string IF="if";
+const std::string INLINE="inline";
+const std::string DEFAULT="default";
+const std::string NEW="new";
+const std::string PRINT="print";
+const std::string COPY="copy";
+
+
 class Parser {
 private:
     std::string compiled;
@@ -118,7 +138,7 @@ private:
                     accumulate = tmp;
                     //topTemp = tmpParser.topTemp;
                 }
-                compiled += "at "+tmp+" "+rhs+" "+accumulate+"\n";
+                compiled += AT+" "+tmp+" "+rhs+" "+accumulate+"\n";
                 symbols.insert(tmp);
                 return tmp;
             }
@@ -273,6 +293,7 @@ private:
         value = parseOperator(variable, value, "+", "add");
         value = parseOperator(variable, value, "-", "sub"); // TODO make sub and div same priority as add and mul
         value = parseOperator(variable, value, "*", "mul");
+        value = parseOperator(variable, value, "@", "mmul");
         value = parseOperator(variable, value, "/", "div");
         value = parseOperator(variable, value, "^", "pow");
         value = parseOperator(variable, value, "%", "mod");
@@ -299,9 +320,9 @@ private:
         if(pos == std::string::npos) {
             value = parseChainedSymbols(value);
             if(value.size() && symbols.find(value) != symbols.end()) {
-                compiled += "copy "+variable+" "+value+"\n";
+                compiled += COPY+" "+variable+" "+value+"\n";
                 if(finalize) 
-                    compiled += "FINAL # "+variable+"\n";
+                    compiled += FINAL+" # "+variable+"\n";
                 return;
             }
             /*if(value==":") {
@@ -313,23 +334,23 @@ private:
                 return;
             }*/
             if(value.size() && value[value.size()-1]==':' && symbols.find(value.substr(0, value.size()-1)) != symbols.end()) {
-                compiled += "inline "+variable+" "+value.substr(0, value.size()-1)+"\n";
+                compiled += INLINE+" "+variable+" "+value.substr(0, value.size()-1)+"\n";
                 if(finalize) 
-                    compiled += "FINAL # "+variable+"\n";
+                    compiled += FINAL+" # "+variable+"\n";
                 return;
             }
             if(variable=="#" || value.size()==0) // flexible parsing for undeclared variables
                 return;
             if(isString(value))
-                compiled += "BUILTIN "+variable+" "+value+"\n";
+                compiled += BUILTIN+" "+variable+" "+value+"\n";
             else if(isBool(value))
-                compiled += "BUILTIN "+variable+" B"+value+"\n";
+                compiled += BUILTIN+" "+variable+" B"+value+"\n";
             else if(isInt(value))
-                compiled += "BUILTIN "+variable+" I"+value+"\n";
+                compiled += BUILTIN+" "+variable+" I"+value+"\n";
             else if(isFloat(value))
-                compiled += "BUILTIN "+variable+" F"+value+"\n";
+                compiled += BUILTIN+" "+variable+" F"+value+"\n";
             else if(variable==value) 
-                compiled += "copy "+variable+" "+value+"\n";
+                compiled += COPY+" "+variable+" "+value+"\n";
             else
                 compiled += "IS "+value+" "+variable+"\n"; // this is not an actual assembly command but is used to indicate that parsed text is just a varlabe that should be obtained from future usages
         } else {
@@ -356,7 +377,7 @@ private:
                     else
                         topTemp -= 1;
                 }
-                compiled += "CALL "+variable+" "+argexpr+" "+value+"\n";
+                compiled += CALL+" "+variable+" "+argexpr+" "+value+"\n";
             }
             else {
                 if((value=="new" || value=="default" || value=="safe") && args[0]!='{')
@@ -415,7 +436,7 @@ private:
             symbols.insert(variable);
         compiled += postprocess;
         if(finalize) 
-            compiled += "FINAL # "+variable+"\n";
+            compiled += FINAL+" # "+variable+"\n";
     }
 public:
     Parser() {
@@ -476,17 +497,17 @@ public:
                 if(variable.substr(0, 6)=="final "){
                     variable = variable.substr(6);
                     trim(variable);
-                    compiled += "BEGINFINAL "+variable+"\n";
+                    compiled += BEGINFINAL+" "+variable+"\n";
                 }
                 else
-                    compiled += "BEGIN "+variable+"\n";
+                    compiled += BEGIN+" "+variable+"\n";
                 if(variable!="#")
                     symbols.insert(variable);
                 command = "";
             }
             else if(depth==0 && c=='}') {
                 addCommand(command);
-                compiled += "END\n";
+                compiled += END+"\n";
                 command = "";
             }
             else if(depth==0 && c==':') {

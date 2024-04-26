@@ -1,12 +1,11 @@
-StaticPoint = {final x=x;final y=y} // ensure that x, y are immutable
-Normed2D = {
-    norm = {return(x^q+y^q);}
+final fib = {
+    res = 1;
+    recur = {
+        res = fib(n=n-1) + fib(n=n-2);
+    }
+    if(n>=1, recur);
+    return(res);
 }
-extx = 1;
-point = new(
-    x=extx;
-    y=2;
-    StaticPoint:
-    Normed2D:
-); // created object will not store extx (only locally declared variables are kept)
-print(point.norm(q=2));
+
+res = fib(n=6);
+print(res);
