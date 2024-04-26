@@ -204,7 +204,7 @@ private:
         return "set "+tmp+" "+rhs+" "+chain.substr(pos+1);
     }
 
-    std::string parseOperator(const std::string& var, const std::string& expr, const std::string& operand, const std::string& method) {
+    std::string parseOperator(std::string var, const std::string& expr, const std::string& operand, const std::string& method) {
         if(expr.length()==0)
             return expr;
         int pos = 0;
@@ -256,8 +256,19 @@ private:
         }
         else
             topTemp -=1;
-        
-        compiled += method+" "+var+" "+lhs+" "+rhs+"\n";
+
+        // handle complex assignees here (TODO find how to de-duplicate this fragment)
+        std::string symbolicVariable = var;
+        var = parseChainedSymbolsVariable(symbolicVariable);
+        std::string postprocess = "";
+        if(var!=symbolicVariable) {
+            std::string tmp = "_anon"+std::to_string(topTemp);
+            topTemp += 1;
+            postprocess = var+" "+tmp+"\n";
+            var = tmp;
+        }
+        compiled += method+" "+var+" "+lhs+" "+rhs+"\n"; // the actual assignment
+        compiled += postprocess; 
         return "";
     }
 

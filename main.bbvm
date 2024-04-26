@@ -1,30 +1,45 @@
 BEGINFINAL fib
-BEGIN _anon0
-BUILTIN _anon1 I2
-lt # n _anon1
-END
-BEGIN _anon1
+BUILTIN _anon0 I1
+add n n _anon0
+Vector res n
+BUILTIN _anon1 I0
 BUILTIN _anon2 I1
-return # _anon2
-END
-BEGIN _anon2
+put _anon1 res _anon1 _anon2
+BUILTIN _anon3 I1
+BUILTIN _anon4 I1
+put _anon3 res _anon3 _anon4
+BUILTIN i I2
 BEGIN _anon5
-BUILTIN _anon6 I1
-sub n n _anon6
+copy _anon6 i
+lt # _anon6 n
 END
-call _anon4 _anon5 fib
 BEGIN _anon6
-BUILTIN _anon7 I2
-sub n n _anon7
+copy _anon9 i
+BUILTIN _anon10 I2
+sub _anon8 _anon9 _anon10
+at _anon8 res _anon8
+copy _anon7 _anon8
+copy _anon10 i
+BUILTIN _anon11 I1
+sub _anon9 _anon10 _anon11
+at _anon9 res _anon9
+copy _anon8 _anon9
+copy _anon9 i
+add _anon10 _anon7 _anon8
+put _anon9 res _anon9 _anon10
+copy _anon11 i
+BUILTIN _anon12 I1
+add i _anon11 _anon12
 END
-call _anon5 _anon6 fib
-add _anon3 _anon4 _anon5
-return # _anon3
+while # _anon5 _anon6
+BUILTIN _anon9 I1
+sub _anon8 n _anon9
+at _anon8 res _anon8
+copy _anon7 _anon8
+return # _anon7
 END
-if # _anon0 _anon1 _anon2
-END
-BEGIN _anon4
+BEGIN _anon9
 BUILTIN n I9
 END
-call _anon3 _anon4 fib
-print # _anon3
+call _anon8 _anon9 fib
+print # _anon8

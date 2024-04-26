@@ -24,9 +24,8 @@ BUILTIN _anon11 I1
 sub _anon9 _anon10 _anon11
 at _anon9 res _anon9
 copy _anon8 _anon9
-add f _anon7 _anon8
 copy _anon9 i
-IS f _anon10
+add _anon10 _anon7 _anon8
 put _anon9 res _anon9 _anon10
 copy _anon11 i
 BUILTIN _anon12 I1

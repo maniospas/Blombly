@@ -2,8 +2,7 @@ final DynamicPoint = {x=x;y=y;} // need to declare statics for calling from with
 final Increment = {
     inc = {
         default(value=1);
-        z = self.x+value;
-        self.x = z;
+        self.x = self.x+value;
         return(self);  // need to return self to enable the synchronization pattern
     }
 }

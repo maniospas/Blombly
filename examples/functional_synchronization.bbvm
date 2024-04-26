@@ -10,8 +10,7 @@ END
 default # _anon0
 get _anon2 self x
 copy _anon1 _anon2
-add z _anon1 value
-IS z _anon3
+add _anon3 _anon1 value
 set _anon2 self x _anon3
 return # self
 END
@@ -49,7 +48,7 @@ END
 call _anon7 _anon9 _anon8
 print # _anon7
 get _anon8 point inc
-call # # _anon8
+call point # _anon8
 get _anon10 point x
 copy _anon9 _anon10
 print # _anon9

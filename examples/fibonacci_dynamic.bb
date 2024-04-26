@@ -5,8 +5,7 @@ final fib = {
     res[1] = 1;
     i = 2;
     while(i<n,
-        f = res[i-2]+res[i-1];
-        res[i] = f;
+        res[i] = res[i-2]+res[i-1];
         i = i+1;
     );
     return(res[n-1]);
