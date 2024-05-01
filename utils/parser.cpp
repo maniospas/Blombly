@@ -295,6 +295,8 @@ private:
             trim(variable);
         }
         
+        value = parseOperator(variable, value, "<<", "push");
+        value = parseOperator(variable, value, ">>", "pop");
         value = parseOperator(variable, value, " or ", "or");
         value = parseOperator(variable, value, " and ", "and");
         value = parseOperator(variable, value, " not ", "not");
@@ -332,7 +334,20 @@ private:
             variable = tmp;
         }
         if(pos == std::string::npos) {
+            std::string original_value = value;
             value = parseChainedSymbols(value);
+            if(value.size() && value[value.size()-1]==':' && symbols.find(value.substr(0, value.size()-1)) != symbols.end()) {
+                compiled += INLINE+" "+variable+" "+value.substr(0, value.size()-1)+"\n";
+                if(finalize) 
+                    compiled += FINAL+" # "+variable+"\n";
+                return;
+            }
+            if(value.size() && original_value[original_value.size()-1]==':'){// && symbols.find(value.substr(0, value.size()-1)) != symbols.end()) {
+                compiled += INLINE+" "+variable+" "+value+"\n";
+                if(finalize) 
+                    compiled += FINAL+" # "+variable+"\n";
+                return;
+            }
             if(value.size() && symbols.find(value) != symbols.end()) {
                 compiled += COPY+" "+variable+" "+value+"\n";
                 if(finalize) 
@@ -347,12 +362,6 @@ private:
                     compiled += "FINAL # "+variable+"\n";
                 return;
             }*/
-            if(value.size() && value[value.size()-1]==':' && symbols.find(value.substr(0, value.size()-1)) != symbols.end()) {
-                compiled += INLINE+" "+variable+" "+value.substr(0, value.size()-1)+"\n";
-                if(finalize) 
-                    compiled += FINAL+" # "+variable+"\n";
-                return;
-            }
             if(variable=="#" || value.size()==0) // flexible parsing for undeclared variables
                 return;
             if(isString(value))
@@ -558,8 +567,8 @@ public:
             else if(depth==inImpliedParenthesis && c==' ') {
                 std::string comm(command);
                 trim(comm);
-                if(comm=="return") {
-                    expectNextBlocks += comm=="return"?1:2; // preparation for while
+                if(comm=="return" || comm=="default" || comm=="inline") {
+                    expectNextBlocks += 1; // preparation for while
                     command += "(";
                     depth += 1;
                     inImpliedParenthesis += 1;

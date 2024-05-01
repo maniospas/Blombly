@@ -1,45 +1,88 @@
-BEGINFINAL fib
 BUILTIN _anon0 I1
-add n n _anon0
-Vector res n
-BUILTIN _anon1 I0
-BUILTIN _anon2 I1
-put _anon1 res _anon1 _anon2
-BUILTIN _anon3 I1
-BUILTIN _anon4 I1
-put _anon3 res _anon3 _anon4
-BUILTIN i I2
-BEGIN _anon5
-copy _anon6 i
-lt # _anon6 n
-END
+BUILTIN _anon1 I2
+BUILTIN _anon2 I3
+BUILTIN _anon3 I5
+BUILTIN _anon4 I6
+BUILTIN _anon5 I7
+List z _anon0 _anon1 _anon2 _anon3 _anon4 _anon5
+BEGINFINAL search
 BEGIN _anon6
-copy _anon9 i
-BUILTIN _anon10 I2
-sub _anon8 _anon9 _anon10
-at _anon8 res _anon8
-copy _anon7 _anon8
-copy _anon10 i
-BUILTIN _anon11 I1
-sub _anon9 _anon10 _anon11
-at _anon9 res _anon9
-copy _anon8 _anon9
-copy _anon9 i
-add _anon10 _anon7 _anon8
-put _anon9 res _anon9 _anon10
-copy _anon11 i
+BUILTIN start I0
+len _anon7 list
+BUILTIN _anon8 I1
+sub end _anon7 _anon8
+END
+default # _anon6
+BEGIN _anon7
+gt # start end
+END
+BEGIN _anon8
+BEGIN _anon10
+BUILTIN found Bfalse
 BUILTIN _anon12 I1
-add i _anon11 _anon12
+sub pos _anon11 _anon12
+copy # this
 END
-while # _anon5 _anon6
-BUILTIN _anon9 I1
-sub _anon8 n _anon9
-at _anon8 res _anon8
-copy _anon7 _anon8
-return # _anon7
+new _anon9 _anon10
+return # _anon9
 END
-BEGIN _anon9
-BUILTIN n I9
+if # _anon7 _anon8
+add middle start end
+BUILTIN _anon10 I2
+div _anon9 middle _anon10
+int middle _anon9
+BEGIN _anon10
+copy _anon12 middle
+at _anon12 list _anon12
+copy _anon11 _anon12
+eq # _anon11 query
 END
-call _anon8 _anon9 fib
-print # _anon8
+BEGIN _anon11
+BEGIN _anon13
+BUILTIN found Btrue
+copy pos middle
+copy # this
+END
+new _anon12 _anon13
+return # _anon12
+END
+if # _anon10 _anon11
+BEGIN _anon12
+copy _anon14 middle
+at _anon14 list _anon14
+copy _anon13 _anon14
+lt # _anon13 query
+END
+BEGIN _anon13
+copy _anon14 middle
+BUILTIN _anon15 I1
+add start _anon14 _anon15
+END
+BEGIN _anon14
+copy _anon15 middle
+BUILTIN _anon16 I1
+sub end _anon15 _anon16
+END
+if # _anon12 _anon13 _anon14
+inline # search
+END
+BEGIN _anon15
+BUILTIN query I7
+copy list z
+END
+call res _anon15 search
+BEGIN _anon16
+get _anon17 res found
+copy # _anon17
+END
+BEGIN _anon17
+BUILTIN _anon18 "Query found at index"
+get _anon20 res pos
+copy _anon19 _anon20
+print # _anon18 _anon19
+END
+BEGIN _anon18
+BUILTIN _anon19 "Query not found"
+print # _anon19
+END
+if # _anon16 _anon17 _anon18

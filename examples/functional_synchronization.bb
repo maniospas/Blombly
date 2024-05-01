@@ -4,7 +4,7 @@ final DynamicPoint = {
 } // need to declare statics for calling from within blocks
 final Increment = {
     inc = {
-        default(value=1);
+        default value=1;
         this.x = this.x+value;
         return this;  // need to return itself to enable the synchronization pattern
     }

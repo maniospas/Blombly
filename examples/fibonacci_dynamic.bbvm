@@ -1,7 +1,7 @@
 BEGINFINAL fib
-BUILTIN _anon0 I1
-add n n _anon0
-Vector res n
+BUILTIN _anon1 I1
+add _anon0 n _anon1
+Vector res _anon0
 BUILTIN _anon1 I0
 BUILTIN _anon2 I1
 put _anon1 res _anon1 _anon2
@@ -11,7 +11,7 @@ put _anon3 res _anon3 _anon4
 BUILTIN i I2
 BEGIN _anon5
 copy _anon6 i
-lt # _anon6 n
+le # _anon6 n
 END
 BEGIN _anon6
 copy _anon9 i
@@ -32,9 +32,7 @@ BUILTIN _anon12 I1
 add i _anon11 _anon12
 END
 while # _anon5 _anon6
-BUILTIN _anon9 I1
-sub _anon8 n _anon9
-at _anon8 res _anon8
+at _anon8 res n
 copy _anon7 _anon8
 return # _anon7
 END

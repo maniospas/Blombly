@@ -15,6 +15,7 @@
 #include <functional>
 #include <thread>
 #include <cmath>
+#include <future>
 
 # define POS(v, i, j) (i*v+j)
 
@@ -31,14 +32,14 @@ public:
 
 
 
-enum Datatype {FUTURE, BOOL, INT, FLOAT, VECTOR, ROW, STRING, CODE, STRUCT};
+enum Datatype {FUTURE, BOOL, INT, FLOAT, VECTOR, LIST, STRING, CODE, STRUCT};
 static const char *datatypeName[] = { 
     "future", 
     "bool", 
     "int", 
     "float", 
     "vector", 
-    "row",
+    "list",
     "string",
     "code",
     "struct"
@@ -95,16 +96,24 @@ public:
 };
 */
 
+class FutureData {
+public:
+    std::future<std::shared_ptr<Data>> thread;
+    FutureData(std::future<std::shared_ptr<Data>>&& threadid):thread(std::move(threadid)) {}
+};
+
 class Future: public Data {
 private:
-    std::future<std::shared_ptr<Data>> thread;
+    std::shared_ptr<FutureData> data;
 public:
-    Future(std::future<std::shared_ptr<Data>>&& threadid):thread(std::move(threadid)) {}
+    Future(std::shared_ptr<FutureData> data):data(data) {}
     int getType() const override {return FUTURE;}
     std::string toString() const override {return "future";}
-    std::shared_ptr<Data> shallowCopy() const override {throw Unimplemented();}
+    std::shared_ptr<Data> shallowCopy() const override {
+        return std::make_shared<Future>(data);
+    }//throw Unimplemented();}
     std::shared_ptr<Data> getResult() {
-        return thread.get();
+        return data->thread.get();
     }
 };
 
@@ -163,6 +172,8 @@ public:
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         if(all.size()==1 && all[0]->getType()==FLOAT && operation=="copy")
             return std::make_shared<Float>(value);
+        if(all.size()==1 && all[0]->getType()==FLOAT && operation=="int")
+            return std::make_shared<Integer>((int)value);
         if(all.size()==2 
             && (all[0]->getType()==FLOAT|| all[0]->getType()==INT) 
             && (all[1]->getType()==FLOAT || all[1]->getType()==INT)) { 
@@ -221,6 +232,50 @@ public:
     }
 };
 
+
+class ListContents {
+private:
+    pthread_mutex_t memoryLock; 
+public:
+    std::vector<std::shared_ptr<Data>> contents;
+    ListContents() {
+        if (pthread_mutex_init(&memoryLock, NULL) != 0) 
+            std::cerr << "Failed to create a mutex for list read/write" << std::endl;
+    }
+    void lock() {
+        pthread_mutex_lock(&memoryLock);
+    }
+    void unlock(){
+        pthread_mutex_unlock(&memoryLock);
+    }
+};
+
+
+class List : public Data {
+public:
+    std::shared_ptr<ListContents> contents;
+    List() {
+        contents = std::make_shared<ListContents>();
+    }
+    List(std::shared_ptr<ListContents> cont): contents(cont) {
+    }
+    
+    std::shared_ptr<Data> shallowCopy() const override {return std::make_shared<List>(contents);}
+    virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all);
+
+    int getType() const override {return LIST;}
+    std::string toString() const override {
+        contents->lock();
+        std::string ret = "[";
+        for(const auto& element : contents->contents) {
+            if(ret.size()>1)
+                ret += ", ";
+            ret += element->toString();
+        }
+        contents->unlock();
+        return ret+"]";
+    }
+};
 
 
 class Vector : public Data {
@@ -317,40 +372,6 @@ public:
     }
     std::shared_ptr<RawVector> getValue() const {return value;}
     std::shared_ptr<Data> shallowCopy() const override {return std::make_shared<Vector>(value, this);}
-    virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all);
-};
-
-
-class MatrixRow : public Data {
-private:
-    int row;
-    std::shared_ptr<Vector> parent;
-public:
-    MatrixRow(std::shared_ptr<Vector> par, int r) {
-       parent = par;
-       row = r;
-    }
-    int getType() const override {return ROW;}
-    std::string toString() const override {
-        parent->value->lock();
-        auto data = parent->value->data;
-        int ncols = parent->dims[1];
-        std::string ret = "[";
-        for(int i=0;i<parent->value->size;i++) {
-            if(ret.size()>1)
-                ret += ", ";
-            ret += std::to_string(data[POS(ncols, row, i)]);
-        }
-        parent->value->unlock();
-        return ret+"]";
-    }
-    std::shared_ptr<Data> shallowCopy() const override {
-        int ncols = parent->dims[1];
-        auto ret = std::make_shared<Vector>(ncols);
-        for(int i=0;i<ncols;i++)
-            ret->value->data[i] = parent->value->data[i];
-        return ret;
-    }
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all);
 };
 
@@ -653,6 +674,66 @@ std::shared_ptr<Data> Vector::implement(const std::string& operation, std::vecto
         }
         vec->unlock();
         return std::make_shared<Vector>(rawret, this);
+    }
+    throw Unimplemented();
+}
+
+
+
+std::shared_ptr<Data> List::implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
+    if(all.size()==1 && all[0]->getType()==LIST && operation=="copy")
+        return std::make_shared<List>(contents);
+    if(all.size()==1 && all[0]->getType()==LIST && operation=="len")
+        return std::make_shared<Integer>(contents->contents.size());
+    if(all.size()==2 && all[0]->getType()==LIST && all[1]->getType()==INT && operation=="at") {
+        contents->lock();
+        int index = std::static_pointer_cast<Integer>(all[1])->getValue();
+        if(index < 0 || index>=contents->contents.size()) {
+            std::cerr << "Index out of range\n";
+            contents->unlock();
+            return nullptr;
+        }
+        std::shared_ptr<Data> ret = contents->contents[index];
+        contents->unlock();
+        return ret;
+    }
+    if(all.size()==2 && all[0]->getType()==LIST && operation=="push") {
+        contents->lock();
+        contents->contents.push_back(all[1]);
+        contents->unlock();
+        return all[0];
+    }
+    if(all.size()==2 && all[1]->getType()==LIST && operation=="pop") {
+        contents->lock();
+        contents->contents.push_back(all[0]);
+        contents->unlock();
+        return all[1];
+    }
+    if(all.size()==1 && all[0]->getType()==LIST && operation=="pop") {
+        contents->lock();
+        std::shared_ptr<Data> ret = contents->contents.size()?contents->contents[contents->contents.size()-1]:nullptr;
+        if(contents->contents.size())
+            contents->contents.pop_back();
+        contents->unlock();
+        return ret;
+    }
+    if(all.size()==1 && all[0]->getType()==LIST && operation=="pop") {
+        contents->lock();
+        std::shared_ptr<Data> ret = contents->contents.size()?contents->contents[contents->contents.size()-1]:nullptr;
+        if(contents->contents.size())
+            contents->contents.pop_back();
+        contents->unlock();
+        return ret;
+    }
+    if(all.size()==3 && all[0]->getType()==LIST && all[1]->getType()==INT && operation=="put") {
+        contents->lock();
+        int index = std::static_pointer_cast<Integer>(all[1])->getValue();
+        int diff = index-contents->contents.size();
+        for(int i=0;i<=diff;i++)
+            contents->contents.push_back(nullptr);
+        contents->contents[index] = all[2];
+        contents->unlock();
+        return nullptr;
     }
     throw Unimplemented();
 }

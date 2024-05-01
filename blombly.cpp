@@ -205,7 +205,8 @@ public:
 std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* program,
                   int start, 
                   int end,
-                  const std::shared_ptr<Memory>& memory);
+                  const std::shared_ptr<Memory>& memory, 
+                  bool *returnSignal);
 
 
 void* thread_function(void *args){
@@ -215,7 +216,8 @@ void* thread_function(void *args){
         data->program, 
         data->start, 
         data->end, 
-        data->memory);
+        data->memory,
+        nullptr);
     delete data;
     ThreadReturn* ret = new ThreadReturn(value);
     //pthread_exit(ret);
@@ -227,7 +229,8 @@ pthread_mutex_t printLock;
 std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* program,
                   int start, 
                   int end,
-                  const std::shared_ptr<Memory>& memory) {
+                  const std::shared_ptr<Memory>& memory,
+                  bool *returnSignal) {
     /**
      * Executes a block of code from within a list of commands.
      * @param program The list of command pointers.
@@ -236,6 +239,12 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
      * @param memory A pointer to the read and write memory.
      * @return A Data shared pointer holding the code block's outcome. This is nullptr if nothing is returned.
     */
+    bool returnSignalHandler = false;
+    if(!returnSignal) {
+        returnSignal = new bool[1];
+        *returnSignal = false;
+        returnSignalHandler = true;
+    }
     std::shared_ptr<Data> prevValue;
     for(int i=start;i<=end;i++) {
         auto command = program->at(i)->args;
@@ -257,15 +266,18 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             MEMGET(memory, command[2])->isMutable = false;
         }
         else if(command[0]==PRINT)  {
-            std::shared_ptr<Data> printable = MEMGET(memory, command[2]);
-            if(!printable)
-                std::cerr << "Nothing to print" << std::endl;
-            else {
-                std::string out = printable->toString() + "\n";
-                pthread_mutex_lock(&printLock); 
-                std::cout << out;
-                pthread_mutex_unlock(&printLock);
+            for(int i=2;i<command.size();i++) {
+                std::shared_ptr<Data> printable = MEMGET(memory, command[i]);
+                if(printable) {
+                    std::string out = printable->toString();
+                    pthread_mutex_lock(&printLock);
+                    std::cout << out << " ";
+                    pthread_mutex_unlock(&printLock);
+                }
             }
+            pthread_mutex_lock(&printLock); 
+            std::cout << "\n";
+            pthread_mutex_unlock(&printLock);
         }
         else if(command[0]==BEGIN || command[0]==BEGINFINAL) {
             int pos = i+1;
@@ -318,7 +330,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             // check if the call has some context, and if so, execute it in the new memory
             if(context && context->getType()==CODE) {
                 std::shared_ptr<Code> code = std::static_pointer_cast<Code>(context);
-                value = executeBlock(program, code->getStart(), code->getEnd(), newMemory);
+                value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, nullptr);
                 //if(value) // show an error message if the context returned with anything other than END
                 //    std::cerr << "Code execution context should not return a value." << std::endl;
             }
@@ -338,15 +350,17 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             //data->memory = newMemory;
             //thread_id = threads->enqueue(&thread_function, data);
             //pthread_create(&thread_id, NULL, &thread_function, data);
-
-            std::future<std::shared_ptr<Data>> val = std::async(executeBlock, program, code->getStart(), code->getEnd(), newMemory);
-            value = std::make_shared<Future>(std::move(val));
-
+            std::future<std::shared_ptr<Data>> val = std::async(executeBlock, program, code->getStart(), code->getEnd(), newMemory, nullptr);
+            std::shared_ptr<FutureData> futureData = std::make_shared<FutureData>(std::move(val));
+            value = std::make_shared<Future>(futureData);
         }
         else if(command[0]==RETURN) {
             // make return copy the object (NOTE: copying only reallocates (and changes) wrapper properties like finality, not the internal value - internal memory of structs will be the same)
             value = MEMGET(memory, command[2]);
-            return value?value->shallowCopy():value; 
+            *returnSignal = true;
+            if(returnSignalHandler)
+                delete returnSignal;
+            return value?value->shallowCopy():value;
         }
         else if(command[0]==GET) {
             value = MEMGET(memory, command[2]);
@@ -359,7 +373,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 //obj->lock(); TODO
                 value = obj->getMemory()->get(command[3]);
                 //obj->unlock(); TODO
-                value = value->shallowCopy();
+                value = value?value->shallowCopy():value;
             }
         }
         else if(command[0]==IS) {
@@ -396,15 +410,25 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 std::shared_ptr<Code> codeCondition = std::static_pointer_cast<Code>(condition);
                 std::shared_ptr<Code> codeAccept = accept?std::static_pointer_cast<Code>(accept):nullptr;
                 while(true) {
-                    std::shared_ptr<Data> check = executeBlock(program, codeCondition->getStart(), codeCondition->getEnd(), memory);
+                    std::shared_ptr<Data> check = executeBlock(program, codeCondition->getStart(), codeCondition->getEnd(), memory, returnSignal);
+                    if(*returnSignal) {
+                        if(returnSignalHandler)
+                            delete returnSignal;
+                        return check->shallowCopy();
+                    }
                     if(check->getType()!=BOOL) {
                         std::cerr << "Logical condition failed to evaluate to bool" << std::endl;
                         break;
                     }
                     else if(std::static_pointer_cast<Boolean>(check)->getValue()) 
-                        value = executeBlock(program, codeAccept->getStart(), codeAccept->getEnd(), memory);
+                        value = executeBlock(program, codeAccept->getStart(), codeAccept->getEnd(), memory, returnSignal);
                     else
                         break;
+                    if(*returnSignal) {
+                        if(returnSignalHandler)
+                            delete returnSignal;
+                        return value->shallowCopy();
+                    }
                 }
             }
         }
@@ -422,16 +446,26 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 std::shared_ptr<Code> codeCondition = std::static_pointer_cast<Code>(condition);
                 std::shared_ptr<Code> codeAccept = accept?std::static_pointer_cast<Code>(accept):nullptr;
                 std::shared_ptr<Code> codeReject = reject?std::static_pointer_cast<Code>(reject):nullptr;
-                std::shared_ptr<Data> check = executeBlock(program, codeCondition->getStart(), codeCondition->getEnd(), memory);
+                std::shared_ptr<Data> check = executeBlock(program, codeCondition->getStart(), codeCondition->getEnd(), memory, returnSignal);
+                if(*returnSignal) {
+                    if(returnSignalHandler)
+                        delete returnSignal;
+                    return check->shallowCopy();
+                }
                 if(check->getType()!=BOOL)
                     std::cerr << "Logical condition failed to evaluate to bool" << std::endl;
                 else if(std::static_pointer_cast<Boolean>(check)->getValue()) {
                     if(codeAccept)
-                        value = executeBlock(program, codeAccept->getStart(), codeAccept->getEnd(), memory);
+                        value = executeBlock(program, codeAccept->getStart(), codeAccept->getEnd(), memory, returnSignal);
                 }
                 else {
                     if(codeReject)
-                        value = executeBlock(program, codeReject->getStart(), codeReject->getEnd(), memory);
+                        value = executeBlock(program, codeReject->getStart(), codeReject->getEnd(), memory, returnSignal);
+                }
+                if(*returnSignal) {
+                    if(returnSignalHandler)
+                        delete returnSignal;
+                    return value->shallowCopy();
                 }
             }
         }
@@ -447,7 +481,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             }
             else {
                 std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
-                value = executeBlock(program, code->getStart(), code->getEnd(), memory);
+                value = executeBlock(program, code->getStart(), code->getEnd(), memory, returnSignal);
             }
         }
         else if(command[0]==DEFAULT) {
@@ -464,8 +498,13 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
                 newMemory->set("locals", std::make_shared<Struct>(newMemory));
                 std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
-                value = executeBlock(program, code->getStart(), code->getEnd(), newMemory);
+                value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, returnSignal);
                 memory->replaceMissing(newMemory);
+                if(*returnSignal){
+                    if(returnSignalHandler)
+                        delete returnSignal;
+                    return value->shallowCopy();
+                }
             }
         }
         else if(command[0]==NEW) {
@@ -479,9 +518,15 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 newMemory->set("this", std::make_shared<Struct>(newMemory));
                 newMemory->set("locals", std::make_shared<Struct>(newMemory));
                 std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
-                value = executeBlock(program, code->getStart(), code->getEnd(), newMemory);
+                value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, nullptr);
                 newMemory->detach();
             }
+        }
+        else if(command[0]=="List") {
+            std::shared_ptr<List> list = std::make_shared<List>();
+            for(int i=2;i<command.size();i++)
+                list->contents->contents.push_back(MEMGET(memory, command[i]));
+            value = list;
         }
         else  {
             std::vector<std::shared_ptr<Data>> args;
@@ -492,6 +537,8 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
         memory->set(command[1], value);
         prevValue = value;
     }
+    if(returnSignalHandler)
+        delete returnSignal;
     return prevValue?prevValue->shallowCopy():prevValue;
 }
 
@@ -522,7 +569,7 @@ int vm(const std::string& fileName, int numThreads) {
     std::shared_ptr<Memory> memory = std::make_shared<Memory>();
     memory->set("this", std::make_shared<Struct>(memory));
     memory->set("locals", std::make_shared<Struct>(memory));
-    executeBlock(&program, 0, program.size()-1, memory);
+    executeBlock(&program, 0, program.size()-1, memory, nullptr);
 
     return 0;
 }

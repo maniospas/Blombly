@@ -4,7 +4,8 @@ final DynamicPoint = {
 }
 final Normed2D = {
     norm = {
-        return (this.x^q+this.y^q;
+        default q = 2;
+        return this.x^q+this.y^q;
     }  // need to use this. to "see" non-final variables (othewise it would get them from the calling scope)
 }
 final Point = {
