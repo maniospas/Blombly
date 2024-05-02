@@ -6,7 +6,7 @@ final search = {
     if(start>end, return new(found=false, pos=-1));
     middle = start + end;
     middle = int(middle/2);
-    if(eq(list[middle], query), return new(found=true, pos=middle));
+    if(list[middle]==query, return new(found=true, pos=middle));
     if(list[middle]<query, start=middle+1, end=middle-1);
     search:  // inline recursion
 }

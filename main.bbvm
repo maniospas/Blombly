@@ -1,32 +1,10 @@
+BUILTIN a I1
 BEGIN _anon0
-BUILTIN _anon2 I0
+copy _anon2 a
 set _anon1 this x _anon2
-BEGIN inc
-BEGIN _anon3
-BUILTIN value I1
-END
-default # _anon3
-get _anon5 this x
-copy _anon4 _anon5
-add _anon6 _anon4 value
-set _anon5 this x _anon6
-END
-BEGIN sync
-return # this
-END
 copy # this
 END
-new a _anon0
-get _anon1 a inc
-BEGIN _anon2
-BUILTIN value I2
-END
-call # _anon2 _anon1
-get _anon4 a x
-copy _anon3 _anon4
-print # _anon3
-get _anon4 a sync
-call a # _anon4
-get _anon6 a x
-copy _anon5 _anon6
-print # _anon5
+new obj _anon0
+get _anon2 obj x
+copy _anon1 _anon2
+print # _anon1

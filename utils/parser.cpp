@@ -46,7 +46,7 @@ private:
                 depth += 1;
             if(lhs[pos]==']' || lhs[pos]==')' || lhs[pos]=='}')
                 depth -= 1;
-            if(depth==0 && lhs[pos]=='=' && lhs[pos+1]!='=' && lhs[pos-1]!='<' && lhs[pos-1]!='>' && lhs[pos-1]!='!') {
+            if(depth==0 && lhs[pos]=='=' && lhs[pos-1]!='=' && lhs[pos+1]!='=' && lhs[pos-1]!='<' && lhs[pos-1]!='>' && lhs[pos-1]!='!') {
                 trim(accumulate);
                 return accumulate;
             }
@@ -71,7 +71,7 @@ private:
                 depth += 1;
             if(rhs[pos]==']' || rhs[pos]==')' || rhs[pos]=='}')
                 depth -= 1;
-            if(depth==0 && rhs[pos]=='=' && rhs[pos+1]!='=' && rhs[pos-1]!='<' && rhs[pos-1]!='>' && rhs[pos-1]!='!') {
+            if(depth==0 && rhs[pos]=='=' && rhs[pos-1]!='=' && rhs[pos+1]!='=' && rhs[pos-1]!='<' && rhs[pos-1]!='>' && rhs[pos-1]!='!') {
                 rhs = rhs.substr(pos+1);
                 break;
             }
@@ -245,7 +245,6 @@ private:
         else
             topTemp -=1;
         
-        
         tmp = "_anon"+std::to_string(topTemp);
         topTemp += 1;
         Parser rhsParser = Parser(symbols, topTemp);
@@ -340,18 +339,21 @@ private:
                 compiled += INLINE+" "+variable+" "+value.substr(0, value.size()-1)+"\n";
                 if(finalize) 
                     compiled += FINAL+" # "+variable+"\n";
+                compiled += postprocess;
                 return;
             }
             if(value.size() && original_value[original_value.size()-1]==':'){// && symbols.find(value.substr(0, value.size()-1)) != symbols.end()) {
                 compiled += INLINE+" "+variable+" "+value+"\n";
                 if(finalize) 
                     compiled += FINAL+" # "+variable+"\n";
+                compiled += postprocess;
                 return;
             }
             if(value.size() && symbols.find(value) != symbols.end()) {
                 compiled += COPY+" "+variable+" "+value+"\n";
                 if(finalize) 
                     compiled += FINAL+" # "+variable+"\n";
+                compiled += postprocess;
                 return;
             }
             /*if(value==":") {
@@ -372,7 +374,7 @@ private:
                 compiled += BUILTIN+" "+variable+" I"+value+"\n";
             else if(isFloat(value))
                 compiled += BUILTIN+" "+variable+" F"+value+"\n";
-            else if(variable==value) 
+            else if(variable==value)  
                 compiled += COPY+" "+variable+" "+value+"\n";
             else
                 compiled += "IS "+value+" "+variable+"\n"; // this is not an actual assembly command but is used to indicate that parsed text is just a varlabe that should be obtained from future usages

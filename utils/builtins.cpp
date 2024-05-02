@@ -63,17 +63,19 @@ public:
     static std::shared_ptr<Data> run(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         std::shared_ptr<Data> ret;
         for(const std::shared_ptr<Data>& implementer : all)
-            try {
-                return implementer->implement(operation, all);
-            } 
-            catch(Unimplemented) { // TODO: catch only Unimplemented exceptions
-            }
+            if(implementer)
+                try {
+                    return implementer->implement(operation, all);
+                } 
+                catch(Unimplemented) { // TODO: catch only Unimplemented exceptions
+                }
         std::string err = "No valid builtin implementation for this method: "+operation+"(";
         int i = 0;
         for(const std::shared_ptr<Data>& arg : all) {
             if(i)
                 err += ",";
-            err += datatypeName[arg->getType()];
+            if(arg!=nullptr)
+                err += datatypeName[arg->getType()];
             i++;
         }
         err += ")";
