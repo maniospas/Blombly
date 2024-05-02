@@ -1,5 +1,5 @@
 final search = {
-    default(start = 0; end = len(list)-1;);
+    default(start = 0, end = len(list)-1);
     if(start>end, return new(found=false, pos=-1));
     middle = start + end;
     middle = int(middle/2);

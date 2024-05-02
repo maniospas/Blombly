@@ -138,7 +138,7 @@ Control flow statements (conditions and loops) also perform inline execution.
 
 Conditions and loops can run as shown in the following snippet. Their arguments
 are code blocks, which are executed inline once the conditions are performed. This
-means that execution is sequential in the same thread.
+means that execution takes place in the same thread sequentially.
 
 ```java
 x = 1;
@@ -190,7 +190,8 @@ print(x); // still 0
 print(point.x); // 1
 ```
 
-:warning: Similarly to inline execution, `new` runs sequentially in the same thread.
+:warning: `new` runs sequentially in the same thread, but any internal return statement
+does not escape it.
 
 :bulb: Inline execution lets you use code blocks as constructors. With this syntax,
 you can declare objects that use multiple constructors, like in the following example.
@@ -212,8 +213,8 @@ print(point.norm(q=2));
 
 When calling a code block that is obrained from a data structure,
 final variables of the structure are still visible alongside the
-`self` reference to the structure. This reference can let you
-get and set non-final members of `self` using the dot operator.
+`this` reference to the structure. This reference can let you
+get and set non-final members of `this` using the dot operator.
 
 :bulb: Getting and setting on the same base data structure can be
 a means of continuous communication between functions. The operations

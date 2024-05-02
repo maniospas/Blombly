@@ -1,88 +1,28 @@
-BUILTIN _anon0 I1
-BUILTIN _anon1 I2
-BUILTIN _anon2 I3
-BUILTIN _anon3 I5
-BUILTIN _anon4 I6
-BUILTIN _anon5 I7
-List z _anon0 _anon1 _anon2 _anon3 _anon4 _anon5
-BEGINFINAL search
-BEGIN _anon6
-BUILTIN start I0
-len _anon7 list
-BUILTIN _anon8 I1
-sub end _anon7 _anon8
+BEGIN ret
+BEGIN _anon0
+copy x x
+final # x
+copy y y
+final # y
+BEGIN _anon1
+copy _anon2 x
+BUILTIN _anon3 I0
+lt # _anon2 _anon3
 END
-default # _anon6
-BEGIN _anon7
-gt # start end
+BEGIN _anon2
+BUILTIN _anon3 "error"
+return # _anon3
 END
-BEGIN _anon8
-BEGIN _anon10
-BUILTIN found Bfalse
-BUILTIN _anon12 I1
-sub pos _anon11 _anon12
+if # _anon1 _anon2
 copy # this
 END
-new _anon9 _anon10
-return # _anon9
+new # _anon0
 END
-if # _anon7 _anon8
-add middle start end
-BUILTIN _anon10 I2
-div _anon9 middle _anon10
-int middle _anon9
-BEGIN _anon10
-copy _anon12 middle
-at _anon12 list _anon12
-copy _anon11 _anon12
-eq # _anon11 query
+BEGIN _anon2
+BUILTIN _anon3 I0
+BUILTIN _anon4 I1
+sub x _anon3 _anon4
+BUILTIN y I2
 END
-BEGIN _anon11
-BEGIN _anon13
-BUILTIN found Btrue
-copy pos middle
-copy # this
-END
-new _anon12 _anon13
-return # _anon12
-END
-if # _anon10 _anon11
-BEGIN _anon12
-copy _anon14 middle
-at _anon14 list _anon14
-copy _anon13 _anon14
-lt # _anon13 query
-END
-BEGIN _anon13
-copy _anon14 middle
-BUILTIN _anon15 I1
-add start _anon14 _anon15
-END
-BEGIN _anon14
-copy _anon15 middle
-BUILTIN _anon16 I1
-sub end _anon15 _anon16
-END
-if # _anon12 _anon13 _anon14
-inline # search
-END
-BEGIN _anon15
-BUILTIN query I7
-copy list z
-END
-call res _anon15 search
-BEGIN _anon16
-get _anon17 res found
-copy # _anon17
-END
-BEGIN _anon17
-BUILTIN _anon18 "Query found at index"
-get _anon20 res pos
-copy _anon19 _anon20
-print # _anon18 _anon19
-END
-BEGIN _anon18
-BUILTIN _anon19 "Query not found"
-print # _anon19
-END
-if # _anon16 _anon17 _anon18
+call _anon1 _anon2 ret
+print # _anon1
