@@ -15,5 +15,7 @@ final Point = {
     )
 }
 
-point = Point(x=1,y=2); // , is the same as ; for calling
+
+args = {x=1;y=2}
+point = Point(args); // , is the same as ; for calling
 print(point.norm(q=2));

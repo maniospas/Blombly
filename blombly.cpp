@@ -102,12 +102,12 @@ public:
     }
     void pull(std::shared_ptr<Memory> other) {
         for (auto it = other->data.begin(); it != other->data.end(); it++)
-            if(it->first!="this")
+            //if(it->first!="this")
                 set(it->first, it->second);
     }
     void replaceMissing(std::shared_ptr<Memory> other) {
         for (auto it = other->data.begin(); it != other->data.end(); it++)
-            if(it->first!="this")
+            //if(it->first!="this")
                 if(!data[it->first])
                     set(it->first, it->second);
     }
@@ -153,8 +153,10 @@ public:
             return;
         lock();
         if(data[item]!=nullptr && !data[item]->isMutable) {
+            bool couldBeShallowCopy = data[item]->couldBeShallowCopy(value);
             unlock();
-            std::cerr << "Cannot overwrite final value: " + item << std::endl;
+            if(!couldBeShallowCopy)
+                std::cerr << "Cannot overwrite final value: " + item << std::endl;
             return;
         } 
         data[item] = value;
@@ -187,6 +189,9 @@ public:
     Struct(std::shared_ptr<Memory> mem) {
         memory=mem;
     }
+    /*virtual bool couldBeShallowCopy(std::shared_ptr<Data> data) {
+        return data->getType()==STRUCT && std::static_pointer_cast<Struct>(data)->memory==memory;
+    }*/
     int getType() const override {return STRUCT;}
     std::string toString() const override {return "struct";}
     std::shared_ptr<Memory>& getMemory() {return memory;}
@@ -340,7 +345,8 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             std::shared_ptr<Code> code = std::static_pointer_cast<Code>(execute);
             // reframe which memory is self
             newMemory->detach(code->getDeclarationMemory());
-            newMemory->set("this", std::make_shared<Struct>(code->getDeclarationMemory()));
+            //newMemory->set("this", std::make_shared<Struct>(code->getDeclarationMemory()));
+            
             // execute the called code in the new memory
             //pthread_t thread_id;
             //ThreadData* data = new ThreadData();
@@ -482,6 +488,11 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             else {
                 std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
                 value = executeBlock(program, code->getStart(), code->getEnd(), memory, returnSignal);
+                if(*returnSignal){
+                    if(returnSignalHandler)
+                        delete returnSignal;
+                    return value->shallowCopy();
+                }
             }
         }
         else if(command[0]==DEFAULT) {
@@ -515,7 +526,9 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             }
             else {
                 std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
-                newMemory->set("this", std::make_shared<Struct>(newMemory));
+                std::shared_ptr<Struct> thisObj = std::make_shared<Struct>(newMemory);
+                thisObj->isMutable = false;
+                newMemory->set("this", thisObj);
                 newMemory->set("locals", std::make_shared<Struct>(newMemory));
                 std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
                 value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, nullptr);
@@ -567,7 +580,9 @@ int vm(const std::string& fileName, int numThreads) {
 
     // initialize memory and execute the assembly commands
     std::shared_ptr<Memory> memory = std::make_shared<Memory>();
-    memory->set("this", std::make_shared<Struct>(memory));
+    std::shared_ptr<Struct> thisObj = std::make_shared<Struct>(memory);
+    thisObj->isMutable = false;
+    memory->set("this", thisObj);
     memory->set("locals", std::make_shared<Struct>(memory));
     executeBlock(&program, 0, program.size()-1, memory, nullptr);
 

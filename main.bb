@@ -1,7 +1,12 @@
-ret = {new(
-    final x = x;
-    final y = y;
-    if(x<0, return "error");
-)};
-
-print(ret(x=0-1, y=2));
+a = new(
+    this.x = 0;
+    inc = {
+        default value=1; 
+        this.x = this.x+value;
+    }
+    sync = {return this;}
+);
+a.inc(value=2);
+print(a.x); // still 0 probably because inc is running in parallel
+a = a.sync(); // this pattern forces synchronization
+print(a.x); // 2

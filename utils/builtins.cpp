@@ -56,6 +56,9 @@ public:
     virtual std::string toString() const = 0;
     virtual int getType() const = 0;
     virtual std::shared_ptr<Data> shallowCopy() const = 0;
+    virtual bool couldBeShallowCopy(std::shared_ptr<Data> data) {
+        return false;
+    }
     virtual ~Data() = default;
     static std::shared_ptr<Data> run(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         std::shared_ptr<Data> ret;
