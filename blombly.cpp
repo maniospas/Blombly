@@ -344,7 +344,8 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             // 
             std::shared_ptr<Code> code = std::static_pointer_cast<Code>(execute);
             // reframe which memory is self
-            newMemory->detach(code->getDeclarationMemory());
+            if(newMemory!=nullptr)
+                newMemory->detach(code->getDeclarationMemory());
             //newMemory->set("this", std::make_shared<Struct>(code->getDeclarationMemory()));
             
             // execute the called code in the new memory

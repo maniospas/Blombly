@@ -1,10 +1,77 @@
-BUILTIN a I1
+BEGINFINAL normalize
 BEGIN _anon0
-copy _anon2 a
-set _anon1 this x _anon2
-copy # this
+BUILTIN q I2
 END
-new obj _anon0
-get _anon2 obj x
-copy _anon1 _anon2
-print # _anon1
+default # _anon0
+pow _anon2 value q
+sum _anon1 _anon2
+BUILTIN _anon3 I1
+div _anon2 _anon3 q
+pow norm _anon1 _anon2
+div _anon3 value norm
+return # _anon3
+END
+BEGINFINAL dot
+mul _anon5 x y
+sum _anon4 _anon5
+return # _anon4
+END
+BEGINFINAL list2vector
+len n list
+Vector vector n
+BUILTIN i I0
+BEGIN _anon5
+lt # i n
+END
+BEGIN _anon6
+at _anon9 list i
+IS _anon9 _anon8
+put _anon7 vector i _anon8
+BUILTIN _anon10 I1
+add i i _anon10
+END
+while # _anon5 _anon6
+return # vector
+END
+BEGINFINAL similarity
+BEGIN _anon7
+inline # config
+IS x value
+END
+call x _anon7 normalize
+BEGIN _anon8
+inline # config
+IS y value
+END
+call y _anon8 normalize
+BEGIN _anon10
+inline # config
+copy x x
+copy y y
+END
+call _anon9 _anon10 sim
+return # _anon9
+END
+BEGIN _anon10
+BUILTIN _anon11 I1
+BUILTIN _anon12 I1
+List list _anon11 _anon12
+END
+call x _anon10 list2vector
+BEGIN _anon11
+BUILTIN _anon12 I1
+BUILTIN _anon13 I1
+List list _anon12 _anon13
+END
+call y _anon11 list2vector
+BEGIN L2
+BUILTIN q I2
+END
+BEGIN _anon12
+copy x x
+copy y y
+IS L2 config
+IS dot sim
+END
+call ret _anon12 similarity
+print # ret

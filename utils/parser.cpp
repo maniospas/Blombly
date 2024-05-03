@@ -25,9 +25,12 @@ const std::string COPY="copy";
 
 
 class Parser {
+    std::unordered_set<std::string> symbols;
+    bool hasSymbol(const std::string& symbol) {
+        return symbols.find(symbol) == symbols.end();
+    }
 private:
     std::string compiled;
-    std::unordered_set<std::string> symbols;
     int topTemp;
     std::string getAssignee(std::string lhs) {
         /**
@@ -139,7 +142,7 @@ private:
                     //topTemp = tmpParser.topTemp;
                 }
                 compiled += AT+" "+tmp+" "+rhs+" "+accumulate+"\n";
-                symbols.insert(tmp);
+                //symbols.insert(tmp);
                 return tmp;
             }
             if(depth==0 && c=='.')
@@ -151,7 +154,7 @@ private:
         std::string tmp = "_anon"+std::to_string(topTemp);
         topTemp += 1;
         compiled += "get "+tmp+" "+rhs+" "+chain.substr(pos+1)+"\n";
-        symbols.insert(tmp);
+        //symbols.insert(tmp);
         return tmp; 
     }
     
@@ -189,7 +192,7 @@ private:
                     accumulate = tmp;
                     //topTemp = tmpParser.topTemp;
                 }
-                symbols.insert(tmp);
+                //symbols.insert(tmp);
                 return "put "+tmp+" "+rhs+" "+accumulate;
             }
             if(depth==0 && c=='.')
@@ -198,10 +201,11 @@ private:
                 return chain;
         }
         std::string rhs = parseChainedSymbols(chain.substr(0, pos));
-        std::string tmp = "_anon"+std::to_string(topTemp);
-        topTemp += 1;
-        symbols.insert(tmp);
-        return "set "+tmp+" "+rhs+" "+chain.substr(pos+1);
+        //std::string tmp = "_anon"+std::to_string(topTemp);
+        //topTemp += 1;
+        //symbols.insert(tmp);
+        //return "set "+tmp+" "+rhs+" "+chain.substr(pos+1);
+        return "set # "+rhs+" "+chain.substr(pos+1);
     }
 
     std::string parseOperator(std::string var, const std::string& expr, const std::string& operand, const std::string& method) {
@@ -280,10 +284,20 @@ private:
         std::string variable = getAssignee(command);
         std::string value = getValue(command);
         
-        if(value[0]=='(') {
-            if(value[value.size()-1]!=')') 
-                std::cerr << "Imbalanced parenthesis\n";
-            else
+        if(value[0]=='(' && value[value.size()-1]==')') {
+            int depth = 1;
+            bool t = true;
+            for(int i=1;i<value.size();i++) {
+                if(value[i]=='(')
+                    depth += 1;
+                if(value[i]==')')
+                    depth += 1;
+                if(value[i]=='(' && depth==1) {
+                    t = false;
+                    break;
+                }
+            }
+            if(t)
                 value = value.substr(1, value.size()-2);
         }
 
@@ -296,9 +310,8 @@ private:
         
         value = parseOperator(variable, value, "<<", "push");
         value = parseOperator(variable, value, ">>", "pop");
-        value = parseOperator(variable, value, " or ", "or");
-        value = parseOperator(variable, value, " and ", "and");
-        value = parseOperator(variable, value, " not ", "not");
+        value = parseOperator(variable, value, "||", "or");
+        value = parseOperator(variable, value, "&&", "and");
         value = parseOperator(variable, value, "==", "eq");
         value = parseOperator(variable, value, "!=", "neq");
         value = parseOperator(variable, value, "<=", "le");
@@ -335,7 +348,7 @@ private:
         if(pos == std::string::npos) {
             std::string original_value = value;
             value = parseChainedSymbols(value);
-            if(value.size() && value[value.size()-1]==':' && symbols.find(value.substr(0, value.size()-1)) != symbols.end()) {
+            if(value.size() && value[value.size()-1]==':' && hasSymbol(value.substr(0, value.size()-1))) {
                 compiled += INLINE+" "+variable+" "+value.substr(0, value.size()-1)+"\n";
                 if(finalize) 
                     compiled += FINAL+" # "+variable+"\n";
@@ -343,19 +356,20 @@ private:
                 return;
             }
             if(value.size() && original_value[original_value.size()-1]==':'){// && symbols.find(value.substr(0, value.size()-1)) != symbols.end()) {
-                compiled += INLINE+" "+variable+" "+value+"\n";
+                compiled += INLINE+" "+variable+" "+original_value.substr(0, original_value.size()-1)+"\n";
                 if(finalize) 
                     compiled += FINAL+" # "+variable+"\n";
                 compiled += postprocess;
                 return;
             }
-            if(value.size() && symbols.find(value) != symbols.end()) {
+
+            /*if(value.size() && hasSymbol(value)) {
                 compiled += COPY+" "+variable+" "+value+"\n";
                 if(finalize) 
                     compiled += FINAL+" # "+variable+"\n";
                 compiled += postprocess;
                 return;
-            }
+            }*/
             /*if(value==":") {
                 if(variable=="#")
                     variable = "#";// todo: fix
@@ -377,18 +391,18 @@ private:
             else if(variable==value)  
                 compiled += COPY+" "+variable+" "+value+"\n";
             else
-                compiled += "IS "+value+" "+variable+"\n"; // this is not an actual assembly command but is used to indicate that parsed text is just a varlabe that should be obtained from future usages
+                compiled += IS+" "+value+" "+variable+"\n"; // this is not an actual assembly command but is used to indicate that parsed text is just a varlabe that should be obtained from future usages
         } else {
             std::string args = value.substr(pos+1); // leaving the right parenthesis to be removed during further computations
             value = value.substr(0, pos);
             trim(value);
             value = parseChainedSymbols(value);
-            if(symbols.find(value) != symbols.end()) {
+            if(hasSymbol(value)) {
                 std::string argexpr = args.substr(0, args.size()-1);
                 trim(argexpr);
                 if(argexpr=="")
                     argexpr = "#";
-                else if(symbols.find(argexpr) == symbols.end()) {
+                else {
                     if(argexpr[0]!='{')
                         argexpr = "{"+argexpr+"}";
                     std::string tmp = "_anon"+std::to_string(topTemp);
@@ -408,7 +422,7 @@ private:
                 if((value=="new" || value=="default" || value=="safe") && args[0]!='{')
                     args = "{"+args.substr(0, args.size()-1)+"})";
                 if(value=="new") // automatically return self if no other return in new
-                    args = args.substr(0, args.size()-2)+";this;})";
+                    args = args.substr(0, args.size()-2)+";return this;})";
                 if(value=="safe")
                     args = "new";
                 std::string argexpr;
@@ -424,9 +438,11 @@ private:
                         i += 1;
                         continue;
                     }
-                    if(depth==0 && ((args[i]==',' || args[i]=='|') || i==args.size()-1)) {
+                    if(depth==0 && ((args[i]==',') || i==args.size()-1)) {
                         trim(accumulate);
-                        if(symbols.find(accumulate) == symbols.end()) {
+                        std::string prev_accumulate = accumulate;
+                        //if(!hasSymbol(accumulate)) 
+                        {
                             if(value=="while" || value=="if")
                                 if(accumulate[0]!='{')
                                     accumulate = "{"+accumulate+"}";
@@ -457,8 +473,8 @@ private:
                 compiled += value+" "+variable+argexpr+"\n";
             }
         }
-        if(variable!="#")
-            symbols.insert(variable);
+        //if(variable!="#")
+        //    symbols.insert(variable);
         compiled += postprocess;
         if(finalize) 
             compiled += FINAL+" # "+variable+"\n";
@@ -466,7 +482,26 @@ private:
 public:
     Parser() {
         topTemp = 0;
-        symbols.insert("this");
+        symbols.insert("Vector");
+        symbols.insert("List");
+        symbols.insert("push");
+        symbols.insert("pop");
+        symbols.insert("poll");
+        symbols.insert("int");
+        symbols.insert("float");
+        symbols.insert("bool");
+        symbols.insert("string");
+        symbols.insert("final");
+        symbols.insert("return");
+        symbols.insert("new");
+        symbols.insert("default");
+        symbols.insert("while");
+        symbols.insert("if");
+        symbols.insert("sum");
+        symbols.insert("max");
+        symbols.insert("min");
+        symbols.insert("len");
+        symbols.insert("print");
     }
     Parser(std::unordered_set<std::string>& symbs, int topTemps) {
         symbols = symbs;
@@ -517,7 +552,7 @@ public:
                 depth -= 1;
             if(c==']')
                 depth -= 1;
-            if(depth==inImpliedParenthesis && (c==',' || c=='|'))
+            if(depth==inImpliedParenthesis && (c==','))
                 c = ';'; // trick to parse method(x=1,y=2) as method(x=1;y=2) for symbol method
             if(depth==inImpliedParenthesis && c=='{') {
                 std::string variable = getAssignee(command);
@@ -528,8 +563,8 @@ public:
                 }
                 else
                     compiled += BEGIN+" "+variable+"\n";
-                if(variable!="#")
-                    symbols.insert(variable);
+                //if(variable!="#")
+                //    symbols.insert(variable);
                 command = "";
             }
             else if(depth==inImpliedParenthesis && c=='}') {

@@ -135,6 +135,8 @@ public:
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         if(all.size()==1 && all[0]->getType()==BOOL && operation=="copy")
             return std::make_shared<Boolean>(value);
+        if(all.size()==1 && all[0]->getType()==BOOL )
+            return std::make_shared<Boolean>(!value);
         if(all.size()==2 && all[0]->getType()==BOOL && all[1]->getType()==BOOL) {
             bool v1 = std::static_pointer_cast<Boolean>(all[0])->getValue();
             bool v2 = std::static_pointer_cast<Boolean>(all[1])->getValue();
@@ -392,6 +394,12 @@ public:
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         if(all.size()==1 && all[0]->getType()==STRING && operation=="copy")
             return std::make_shared<BString>(value);
+        if(all.size()==2 && all[0]->getType()==STRING && all[1]->getType()==STRING && operation=="eq")
+            return std::make_shared<Boolean>(std::static_pointer_cast<BString>(all[0])->value==std::static_pointer_cast<BString>(all[1])->value);
+        if(all.size()==2 && all[0]->getType()==STRING && all[1]->getType()==STRING && operation=="neq")
+            return std::make_shared<Boolean>(std::static_pointer_cast<BString>(all[0])->value!=std::static_pointer_cast<BString>(all[1])->value);
+        if(all.size()==2 && all[0]->getType()==STRING && all[1]->getType()==STRING && operation=="add")
+            return std::make_shared<BString>(std::static_pointer_cast<BString>(all[0])->value+std::static_pointer_cast<BString>(all[1])->value);
         throw Unimplemented();
     }
 };
@@ -528,6 +536,54 @@ std::shared_ptr<Data> Vector::implement(const std::string& operation, std::vecto
         value->unlock();
         return nullptr;
     }
+    if(all.size()==1 && all[0]->getType()==VECTOR && operation=="sum") {
+        value->lock();
+        std::shared_ptr<Vector> a = std::static_pointer_cast<Vector>(all[0]);
+        if(a->getValue()->size==0) {
+            value->unlock();
+            std::cout << "Cannot apply sum on empty vector\n";
+            return nullptr;
+        }
+        double ret = 0;
+        for(int i=0;i<a->getValue()->size;i++)
+            ret += a->getValue()->data[i];
+        value->unlock();
+        return std::make_shared<Float>(ret);
+    }
+    if(all.size()==1 && all[0]->getType()==VECTOR && operation=="max") {
+        value->lock();
+        std::shared_ptr<Vector> a = std::static_pointer_cast<Vector>(all[0]);
+        if(a->getValue()->size==0) {
+            value->unlock();
+            std::cout << "Cannot apply sum on empty vector\n";
+            return nullptr;
+        }
+        double ret = a->getValue()->data[0];
+        for(int i=1;i<a->getValue()->size;i++) {
+            double element = a->getValue()->data[i];
+            if(element>ret)
+                ret = element;
+        }
+        value->unlock();
+        return std::make_shared<Float>(ret);
+    }
+    if(all.size()==1 && all[0]->getType()==VECTOR && operation=="min") {
+        value->lock();
+        std::shared_ptr<Vector> a = std::static_pointer_cast<Vector>(all[0]);
+        if(a->getValue()->size==0) {
+            value->unlock();
+            std::cout << "Cannot apply sum on empty vector\n";
+            return nullptr;
+        }
+        double ret = a->getValue()->data[0];
+        for(int i=1;i<a->getValue()->size;i++) {
+            double element = a->getValue()->data[i];
+            if(element<ret)
+                ret = element;
+        }
+        value->unlock();
+        return std::make_shared<Float>(ret);
+    }
     if(all.size()==3 && all[0]->getType()==VECTOR && all[1]->getType()==INT && all[2]->getType()==FLOAT && operation=="put") {
         value->lock();
         int index = std::static_pointer_cast<Integer>(all[1])->getValue();
@@ -548,10 +604,12 @@ std::shared_ptr<Data> Vector::implement(const std::string& operation, std::vecto
         bool order = true;
         if(order){
             a1->value->lock();
-            a2->value->lock();
+            if(a1->value!=a2->value)
+                a2->value->lock();
         }
         else {
-            a2->value->lock();
+            if(a1->value!=a2->value)
+                a2->value->lock();
             a1->value->lock();
         }
         int n = a1->value->size;
@@ -619,12 +677,14 @@ std::shared_ptr<Data> Vector::implement(const std::string& operation, std::vecto
             }
         }
         if(order){
-            a2->value->unlock();
+            if(a1->value!=a2->value)
+                a2->value->unlock();
             a1->value->unlock();
         }
         else {
             a1->value->unlock();
-            a2->value->unlock();
+            if(a1->value!=a2->value)
+                a2->value->unlock();
         }
         return retret;
     }
@@ -719,6 +779,14 @@ std::shared_ptr<Data> List::implement(const std::string& operation, std::vector<
         std::shared_ptr<Data> ret = contents->contents.size()?contents->contents[contents->contents.size()-1]:nullptr;
         if(contents->contents.size())
             contents->contents.pop_back();
+        contents->unlock();
+        return ret;
+    }
+    if(all.size()==1 && all[0]->getType()==LIST && operation=="poll") {
+        contents->lock();
+        std::shared_ptr<Data> ret = contents->contents.size()?contents->contents[0]:nullptr;
+        if(contents->contents.size())
+            contents->contents.erase( contents->contents.begin());
         contents->unlock();
         return ret;
     }
