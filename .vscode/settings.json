@@ -59,6 +59,12 @@
         "stop_token": "cpp",
         "thread": "cpp",
         "future": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "charconv": "cpp",
+        "chrono": "cpp",
+        "format": "cpp",
+        "iomanip": "cpp",
+        "span": "cpp",
+        "variant": "cpp"
     }
 }

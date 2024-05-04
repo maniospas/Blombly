@@ -33,10 +33,15 @@
 #include <thread>
 #include <cmath>
 #include <future>
+#include <ctime>
+#include <ratio>
+#include <chrono>
 #include "utils/stringtrim.cpp"
 #include "utils/builtins.cpp"
 #include "utils/parser.cpp"
 
+
+std::chrono::steady_clock::time_point program_start;
 
 
 class Command {
@@ -76,6 +81,7 @@ private:
     bool allowMutables;
     pthread_mutex_t memoryLock; 
 public:
+    std::vector<std::shared_ptr<Future>> attached_threads;
     Memory() {
         parent=nullptr;
         allowMutables=true;
@@ -86,6 +92,10 @@ public:
         allowMutables=true;
         if (pthread_mutex_init(&memoryLock, NULL) != 0) 
             std::cerr << "Failed to create a mutex for struct read/write" << std::endl;
+    }
+    ~Memory() {
+        for(std::shared_ptr<Future> thread : attached_threads)
+            thread->getResult();    
     }
     void lock() {
         pthread_mutex_lock(&memoryLock);
@@ -229,6 +239,15 @@ void* thread_function(void *args){
     return ret;
 }
 
+void threadExecute(std::vector<std::shared_ptr<Command>>* program,
+                  int start, 
+                  int end,
+                  const std::shared_ptr<Memory>& memory,
+                  bool *returnSignal,
+                  std::shared_ptr<ThreadResult> result) {
+        result->value = executeBlock(program, start, end, memory, returnSignal);
+}
+
 
 pthread_mutex_t printLock; 
 std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* program,
@@ -346,20 +365,19 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             // reframe which memory is self
             if(newMemory!=nullptr)
                 newMemory->detach(code->getDeclarationMemory());
-            //newMemory->set("this", std::make_shared<Struct>(code->getDeclarationMemory()));
             
-            // execute the called code in the new memory
-            //pthread_t thread_id;
-            //ThreadData* data = new ThreadData();
-            //data->start = code->getStart();
-            //data->end = code->getEnd();
-            //data->program = program;
-            //data->memory = newMemory;
-            //thread_id = threads->enqueue(&thread_function, data);
-            //pthread_create(&thread_id, NULL, &thread_function, data);
-            std::future<std::shared_ptr<Data>> val = std::async(executeBlock, program, code->getStart(), code->getEnd(), newMemory, nullptr);
-            std::shared_ptr<FutureData> futureData = std::make_shared<FutureData>(std::move(val));
-            value = std::make_shared<Future>(futureData);
+            std::shared_ptr<FutureData> data = std::make_shared<FutureData>();
+            data->result = std::make_shared<ThreadResult>();
+            data->thread = std::thread(threadExecute, 
+                                        program, 
+                                        code->getStart(), 
+                                        code->getEnd(), 
+                                        newMemory, 
+                                        nullptr, 
+                                        data->result);
+            std::shared_ptr<Future> future = std::make_shared<Future>(data);
+            value = future;
+            newMemory->attached_threads.push_back(future);
         }
         else if(command[0]==RETURN) {
             // make return copy the object (NOTE: copying only reallocates (and changes) wrapper properties like finality, not the internal value - internal memory of structs will be the same)
@@ -536,6 +554,10 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 newMemory->detach();
             }
         }
+        else if(command[0]=="time") {
+            std::chrono::steady_clock::time_point time = std::chrono::steady_clock::now();
+            value = std::make_shared<Float>(std::chrono::duration_cast<std::chrono::duration<double>>(time-program_start).count());
+        }
         else if(command[0]=="List") {
             std::shared_ptr<List> list = std::make_shared<List>();
             for(int i=2;i<command.size();i++)
@@ -586,6 +608,12 @@ int vm(const std::string& fileName, int numThreads) {
     memory->set("this", thisObj);
     memory->set("locals", std::make_shared<Struct>(memory));
     executeBlock(&program, 0, program.size()-1, memory, nullptr);
+    // finish executing all running threads
+    /*while(all_threads.size()) {
+        std::shared_ptr<Future> future = all_threads[all_threads.size()-1];
+        all_threads.pop_back();
+        future->getResult();
+    }*/
 
     return 0;
 }
@@ -619,6 +647,7 @@ int main(int argc, char* argv[]) {
         return 1; 
     } 
 
+    program_start = std::chrono::steady_clock::now();
     // run the assembly file in the virtual machine
     return vm(fileName, threads);
 }

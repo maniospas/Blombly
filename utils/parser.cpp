@@ -153,7 +153,15 @@ private:
         std::string rhs = parseChainedSymbols(chain.substr(0, pos));
         std::string tmp = "_anon"+std::to_string(topTemp);
         topTemp += 1;
-        compiled += "get "+tmp+" "+rhs+" "+chain.substr(pos+1)+"\n";
+
+        std::string ch = rhs+"."+chain.substr(pos+1);
+        if(isFloat(ch)) {
+            std::string tmp = "_anon"+std::to_string(topTemp);
+            topTemp += 1;
+            compiled += BUILTIN+" "+tmp+" F"+ch+"\n";
+            return tmp;
+        }
+        compiled += GET+" "+tmp+" "+rhs+" "+chain.substr(pos+1)+"\n";
         //symbols.insert(tmp);
         return tmp; 
     }
@@ -227,7 +235,7 @@ private:
                 depth += 1;
             if(c==')' || c=='}' || c==']')
                 depth -= 1;
-            if(depth==0 && expr[pos]==operand0 && expr.substr(pos, operand.length())==operand)
+            if(depth==0 && expr[pos]==operand0 && expr.substr(pos, operand.length())==operand)// && (operand0!='-' || pos<2 || expr[pos-1]!='E'|| expr[pos-2]!='.'))
                 break;
             pos += 1;
         }
@@ -430,6 +438,7 @@ private:
                 int i = 0;
                 bool inString = false;
                 std::string accumulate;
+                if(args.size()>1)
                 while(i<args.size()) {
                     if(args[i]=='"')
                         inString = !inString;
@@ -482,15 +491,17 @@ private:
 public:
     Parser() {
         topTemp = 0;
+        symbols.insert("Matrix");
         symbols.insert("Vector");
         symbols.insert("List");
         symbols.insert("push");
         symbols.insert("pop");
         symbols.insert("poll");
+        symbols.insert("time");
         symbols.insert("int");
         symbols.insert("float");
         symbols.insert("bool");
-        symbols.insert("string");
+        symbols.insert("str");
         symbols.insert("final");
         symbols.insert("return");
         symbols.insert("new");

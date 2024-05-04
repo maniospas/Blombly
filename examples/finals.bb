@@ -1,6 +1,6 @@
 StaticPoint = {final x=x;final y=y;} // ensure that x, y are immutable
 Normed2D = {
-    norm = {return x^q+y^q;}
+    normsq = {return x^q+y^q;}
 }
 extx = 1;
 point = new(
@@ -9,4 +9,4 @@ point = new(
     StaticPoint:
     Normed2D:
 ); // created object will not store extx (only locally declared variables are kept)
-print(point.norm(q=2));
+print(point.normsq(q=2));  // 5

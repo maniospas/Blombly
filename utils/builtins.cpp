@@ -101,10 +101,20 @@ public:
 };
 */
 
+class ThreadResult {
+public:
+    std::shared_ptr<Data> value;
+    ThreadResult() {}
+};
+
 class FutureData {
 public:
-    std::future<std::shared_ptr<Data>> thread;
-    FutureData(std::future<std::shared_ptr<Data>>&& threadid):thread(std::move(threadid)) {}
+    //std::future<std::shared_ptr<Data>> thread;
+    //FutureData(std::future<std::shared_ptr<Data>>&& threadid):thread(std::move(threadid)) {}
+    std::thread thread;
+    std::shared_ptr<ThreadResult> result;
+    FutureData() {}
+    ~FutureData() {if(thread.joinable())thread.join();}
 };
 
 class Future: public Data {
@@ -118,7 +128,10 @@ public:
         return std::make_shared<Future>(data);
     }//throw Unimplemented();}
     std::shared_ptr<Data> getResult() {
-        return data->thread.get();
+        if(data->thread.joinable())
+            data->thread.join();
+        return data->result->value;
+        //return data->thread.get();
     }
 };
 
@@ -176,43 +189,7 @@ public:
     std::string toString() const override {return std::to_string(value);}
     double getValue() const {return value;}
     std::shared_ptr<Data> shallowCopy() const override {return std::make_shared<Float>(value);}
-    virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
-        if(all.size()==1 && all[0]->getType()==FLOAT && operation=="copy")
-            return std::make_shared<Float>(value);
-        if(all.size()==1 && all[0]->getType()==FLOAT && operation=="int")
-            return std::make_shared<Integer>((int)value);
-        if(all.size()==2 
-            && (all[0]->getType()==FLOAT|| all[0]->getType()==INT) 
-            && (all[1]->getType()==FLOAT || all[1]->getType()==INT)) { 
-            double v1 = all[0]->getType()==INT?std::static_pointer_cast<Integer>(all[0])->getValue():std::static_pointer_cast<Float>(all[0])->getValue();
-            double v2 = all[1]->getType()==INT?std::static_pointer_cast<Integer>(all[1])->getValue():std::static_pointer_cast<Float>(all[1])->getValue();
-            if(operation=="eq")
-                return std::make_shared<Boolean>(v1 == v2);
-            if(operation=="neq")
-                return std::make_shared<Boolean>(v1 != v2);
-            if(operation=="lt")
-                return std::make_shared<Boolean>(v1 < v2);
-            if(operation=="le")
-                return std::make_shared<Boolean>(v1 <= v2);
-            if(operation=="gt")
-                return std::make_shared<Boolean>(v1 > v2);
-            if(operation=="ge")
-                return std::make_shared<Boolean>(v1 >= v2);
-            double res;
-            if(operation=="add")
-                res = v1 + v2;
-            if(operation=="sub")
-                res = v1 - v2;
-            if(operation=="mul")
-                res = v1 * v2;
-            if(operation=="div")
-                res = v1 / v2;
-            if(operation=="pow")
-                res = pow(v1, v2);
-            return std::make_shared<Float>(res);
-        }
-        throw Unimplemented();
-    }
+    virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all);
 };
 
 
@@ -400,6 +377,13 @@ public:
             return std::make_shared<Boolean>(std::static_pointer_cast<BString>(all[0])->value!=std::static_pointer_cast<BString>(all[1])->value);
         if(all.size()==2 && all[0]->getType()==STRING && all[1]->getType()==STRING && operation=="add")
             return std::make_shared<BString>(std::static_pointer_cast<BString>(all[0])->value+std::static_pointer_cast<BString>(all[1])->value);
+        
+        if(all.size()==1 && all[0]->getType()==STRING && operation=="int")
+            return std::make_shared<Integer>(std::atoi(std::static_pointer_cast<BString>(all[0])->value.c_str()));
+        if(all.size()==1 && all[0]->getType()==STRING && operation=="float")
+            return std::make_shared<Float>(std::atof(std::static_pointer_cast<BString>(all[0])->value.c_str()));
+        if(all.size()==1 && all[0]->getType()==STRING && operation=="float")
+            return std::make_shared<Boolean>(std::static_pointer_cast<BString>(all[0])->value.c_str()=="true"); 
         throw Unimplemented();
     }
 };
@@ -431,6 +415,12 @@ public:
 std::shared_ptr<Data> Integer::implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
     if(all.size()==1 && all[0]->getType()==INT && operation=="copy")
         return std::make_shared<Integer>(std::static_pointer_cast<Integer>(all[0])->getValue());
+    if(all.size()==1 && all[0]->getType()==INT && operation=="int")
+        return std::make_shared<Integer>(std::static_pointer_cast<Integer>(all[0])->getValue());
+    if(all.size()==1 && all[0]->getType()==INT && operation=="float")
+        return std::make_shared<Float>(std::static_pointer_cast<Integer>(all[0])->getValue());
+    if(all.size()==1 && all[0]->getType()==INT && operation=="str")
+        return std::make_shared<BString>(std::to_string(std::static_pointer_cast<Integer>(all[0])->getValue()));
     if(all.size()==1 && all[0]->getType()==INT && operation=="Vector")
         return std::make_shared<Vector>(std::static_pointer_cast<Integer>(all[0])->getValue(), true);
     if(all.size()==2 && all[0]->getType()==INT && all[1]->getType()==INT && operation=="Matrix")
@@ -807,6 +797,50 @@ std::shared_ptr<Data> List::implement(const std::string& operation, std::vector<
         contents->contents[index] = all[2];
         contents->unlock();
         return nullptr;
+    }
+    throw Unimplemented();
+}
+
+
+std::shared_ptr<Data> Float::implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
+    if(all.size()==1 && all[0]->getType()==FLOAT && operation=="copy")
+        return std::make_shared<Float>(value);
+    if(all.size()==1 && all[0]->getType()==FLOAT && operation=="int")
+        return std::make_shared<Integer>((int)value);
+    if(all.size()==1 && all[0]->getType()==FLOAT && operation=="float")
+        return std::make_shared<Float>(std::static_pointer_cast<Float>(all[0])->getValue());
+    if(all.size()==1 && all[0]->getType()==FLOAT && operation=="str")
+        return std::make_shared<BString>(std::to_string(std::static_pointer_cast<Float>(all[0])->getValue()));
+    
+    if(all.size()==2 
+        && (all[0]->getType()==FLOAT|| all[0]->getType()==INT) 
+        && (all[1]->getType()==FLOAT || all[1]->getType()==INT)) { 
+        double v1 = all[0]->getType()==INT?std::static_pointer_cast<Integer>(all[0])->getValue():std::static_pointer_cast<Float>(all[0])->getValue();
+        double v2 = all[1]->getType()==INT?std::static_pointer_cast<Integer>(all[1])->getValue():std::static_pointer_cast<Float>(all[1])->getValue();
+        if(operation=="eq")
+            return std::make_shared<Boolean>(v1 == v2);
+        if(operation=="neq")
+            return std::make_shared<Boolean>(v1 != v2);
+        if(operation=="lt")
+            return std::make_shared<Boolean>(v1 < v2);
+        if(operation=="le")
+            return std::make_shared<Boolean>(v1 <= v2);
+        if(operation=="gt")
+            return std::make_shared<Boolean>(v1 > v2);
+        if(operation=="ge")
+            return std::make_shared<Boolean>(v1 >= v2);
+        double res;
+        if(operation=="add")
+            res = v1 + v2;
+        if(operation=="sub")
+            res = v1 - v2;
+        if(operation=="mul")
+            res = v1 * v2;
+        if(operation=="div")
+            res = v1 / v2;
+        if(operation=="pow")
+            res = pow(v1, v2);
+        return std::make_shared<Float>(res);
     }
     throw Unimplemented();
 }
