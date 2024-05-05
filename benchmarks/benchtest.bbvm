@@ -1,0 +1,8 @@
+BUILTIN n I10000000
+Vector a n
+Vector b n
+time tic
+add c a b
+time _anon1
+sub _anon0 _anon1 tic
+print # _anon0

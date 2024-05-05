@@ -1,0 +1,24 @@
+BUILTIN n I100000
+Vector a n
+Vector b n
+time tic
+Vector c n
+BUILTIN i I0
+len n c
+BEGIN _anon0
+lt # i n
+END
+BEGIN _anon1
+at _anon3 a i
+IS _anon3 _anon2
+at _anon4 b i
+IS _anon4 _anon3
+add _anon5 _anon2 _anon3
+put _anon4 c i _anon5
+BUILTIN _anon6 I1
+add i i _anon6
+END
+while # _anon0 _anon1
+time _anon3
+sub _anon2 _anon3 tic
+print # _anon2

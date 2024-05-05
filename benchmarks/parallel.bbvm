@@ -1,6 +1,8 @@
 BEGINFINAL Zeros
 BEGIN _anon0
-BUILTIN step I10000
+BUILTIN _anon2 I4
+div _anon1 n _anon2
+int step _anon1
 END
 default # _anon0
 copy step step
@@ -64,36 +66,34 @@ return # _anon9
 END
 BEGINFINAL add
 poll other args
-IS list a
-get _anon10 other list
-IS _anon10 b
 List ret
 BEGIN adder
-at _anon12 a i
+at _anon11 a i
+IS _anon11 _anon10
+at _anon12 b i
 IS _anon12 _anon11
-at _anon13 b i
-IS _anon13 _anon12
-add _anon14 _anon11 _anon12
-put _anon13 c i _anon14
+add _anon13 _anon10 _anon11
+put _anon12 c i _anon13
 END
 BUILTIN i I0
-BEGIN _anon15
-len _anon16 a
-lt # i _anon16
+BEGIN _anon14
+len _anon15 list
+lt # i _anon15
 END
+BEGIN _anon15
 BEGIN _anon16
-BEGIN _anon17
-copy a a
-copy b b
+IS list a
+get _anon17 other list
+IS _anon17 b
 IS ret c
 copy i i
 END
-call # _anon17 adder
-BUILTIN _anon18 I1
-add i i _anon18
+call # _anon16 adder
+BUILTIN _anon17 I1
+add i i _anon17
 END
-while # _anon15 _anon16
-BEGIN _anon17
+while # _anon14 _anon15
+BEGIN _anon16
 IS ret list
 final # list
 copy step step
@@ -103,38 +103,37 @@ final # n
 inline # PVector
 return # this
 END
-new ret _anon17
+new ret _anon16
 return # ret
 END
 END
+BUILTIN n I10000000
+BUILTIN pos I5
+BEGIN _anon17
+copy n n
+inline # Zeros
+inline # PVector
+return # this
+END
+new a _anon17
 BEGIN _anon18
-BUILTIN n I1000000
+copy n n
 inline # Zeros
 inline # PVector
 return # this
 END
-new a _anon18
-BEGIN _anon19
-BUILTIN n I1000000
-inline # Zeros
-inline # PVector
-return # this
-END
-new b _anon19
-BUILTIN _anon20 I100000
-BUILTIN _anon23 F1.2
-IS _anon23 _anon21
-put _anon20 a _anon20 _anon21
-BUILTIN _anon25 I100000
-at _anon25 a _anon25
-IS _anon25 _anon24
-print # _anon24
+new b _anon18
+BUILTIN _anon22 F1.2
+IS _anon22 _anon20
+put _anon19 a pos _anon20
+at _anon24 a pos
+IS _anon24 _anon23
+print # _anon23
 time tic
 add c a b
-BUILTIN _anon26 I100000
-at _anon26 c _anon26
-IS _anon26 _anon25
+at _anon25 c pos
+IS _anon25 _anon24
+print # _anon24
+time _anon26
+sub _anon25 _anon26 tic
 print # _anon25
-time _anon27
-sub _anon26 _anon27 tic
-print # _anon26

@@ -97,6 +97,7 @@ public:
         }
         err += ")";
         std::cerr << err << std::endl;
+        exit(1);
         return nullptr;
     }
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
@@ -145,8 +146,15 @@ public:
         return std::make_shared<Future>(data);
     }//throw Unimplemented();}
     std::shared_ptr<Data> getResult() {
-        if(data->thread.joinable())
-            data->thread.join();
+        if(data->thread.joinable()) {
+            try {
+                data->thread.join();
+            }
+            catch(...) {
+                std::cerr<<"Failed to join thread\n";
+                exit(1);
+            }
+        }
         return data->result->value;
         //return data->thread.get();
     }
@@ -219,8 +227,10 @@ public:
     RawVector(int siz) {
         size = siz;
         data = new double[size];
-        if (pthread_mutex_init(&memoryLock, NULL) != 0) 
+        if (pthread_mutex_init(&memoryLock, NULL) != 0) {
             std::cerr << "Failed to create a mutex for vector read/write" << std::endl;
+            exit(1);
+        }
     }
     ~RawVector() {
         delete data;
@@ -240,8 +250,10 @@ private:
 public:
     std::vector<std::shared_ptr<Data>> contents;
     ListContents() {
-        if (pthread_mutex_init(&memoryLock, NULL) != 0) 
+        if (pthread_mutex_init(&memoryLock, NULL) != 0) {
             std::cerr << "Failed to create a mutex for list read/write" << std::endl;
+            exit(1);
+        }
     }
     void lock() {
         pthread_mutex_lock(&memoryLock);
@@ -504,8 +516,9 @@ std::shared_ptr<Data> Vector::implement(const std::string& operation, std::vecto
                 index += atdims[i];
             }
             if(index < 0 || index>=value->size) {
-                std::cerr << "Index out of range\n";
+                std::cerr << "Vector index "<<index<<" out of range [0,"<<value->size<<")\n";
                 value->unlock();
+                exit(1);
                 return nullptr;
             }
             int pos = 0;
@@ -521,8 +534,9 @@ std::shared_ptr<Data> Vector::implement(const std::string& operation, std::vecto
                 index += atdims[i];
             }
             if(index < 0 || index>=value->size) {
-                std::cerr << "Index out of range\n";
+                std::cerr << "Vector index "<<index<<" out of range [0,"<<value->size<<")\n";
                 value->unlock();
+                exit(1);
                 return nullptr;
             }
             std::shared_ptr<Vector> ret = std::make_shared<Vector>(value, this, index);
@@ -538,8 +552,10 @@ std::shared_ptr<Data> Vector::implement(const std::string& operation, std::vecto
                 index += atdims[i];
             }
         int newValue = std::static_pointer_cast<Integer>(all[2])->getValue();
-        if(index < 0 || index>=value->size) 
-            std::cerr << "Index out of range\n";
+        if(index < 0 || index>=value->size)  {
+            std::cerr << "Index "<<index<<" out of range [0,"<<value->size<<")\n";
+            exit(1);
+        }
         else
             value->data[index] = newValue;
         value->unlock();
@@ -564,7 +580,7 @@ std::shared_ptr<Data> Vector::implement(const std::string& operation, std::vecto
         std::shared_ptr<Vector> a = std::static_pointer_cast<Vector>(all[0]);
         if(a->getValue()->size==0) {
             value->unlock();
-            std::cout << "Cannot apply sum on empty vector\n";
+            std::cout << "Cannot apply max on empty vector\n";
             return nullptr;
         }
         double ret = a->getValue()->data[0];
@@ -581,7 +597,7 @@ std::shared_ptr<Data> Vector::implement(const std::string& operation, std::vecto
         std::shared_ptr<Vector> a = std::static_pointer_cast<Vector>(all[0]);
         if(a->getValue()->size==0) {
             value->unlock();
-            std::cout << "Cannot apply sum on empty vector\n";
+            std::cout << "Cannot apply min on empty vector\n";
             return nullptr;
         }
         double ret = a->getValue()->data[0];
@@ -601,8 +617,10 @@ std::shared_ptr<Data> Vector::implement(const std::string& operation, std::vecto
                 index += atdims[i];
             }
         double newValue = std::static_pointer_cast<Float>(all[2])->getValue();
-        if(index < 0 || index>=value->size) 
-            std::cerr << "Index out of range\n";
+        if(index < 0 || index>=value->size) {
+            std::cerr << "Index "<<index<<" out of range [0,"<<value->size<<")\n";
+            exit(1);
+        }
         value->data[index] = newValue;
         value->unlock();
         return nullptr;
@@ -624,11 +642,13 @@ std::shared_ptr<Data> Vector::implement(const std::string& operation, std::vecto
         int n = a1->value->size;
         if(a2->value->size!=n && operation!="mmul") {
             std::cerr << "Vectors of different sizes: "+std::to_string(a1->value->size)+" vs "+std::to_string(a2->value->size)+"\n";
+            exit(1);
             return nullptr;
         }
         
         if(operation=="mmul" && (a1->ndims!=2 || a2->ndims!=2 || a1->dims[1]!=a2->dims[0])) {
             std::cerr << "Cannot multiply given matrices\n";
+            exit(1);
             return nullptr;
         }
         std::shared_ptr<RawVector> rawret = operation=="mmul"?std::make_shared<RawVector>(a1->dims[0]*a2->dims[1]):std::make_shared<RawVector>(a1->value->size);
@@ -763,8 +783,9 @@ std::shared_ptr<Data> List::implement(const std::string& operation, std::vector<
         contents->lock();
         int index = std::static_pointer_cast<Integer>(all[1])->getValue();
         if(index < 0 || index>=contents->contents.size()) {
-            std::cerr << "Index out of range\n";
+            std::cerr << "List index "<<index<<" out of range [0,"<<contents->contents.size()<<")\n";
             contents->unlock();
+            exit(1);
             return nullptr;
         }
         std::shared_ptr<Data> ret = contents->contents[index];
