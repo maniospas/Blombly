@@ -22,6 +22,7 @@ const std::string DEFAULT="default";
 const std::string NEW="new";
 const std::string PRINT="print";
 const std::string COPY="copy";
+const std::string ANON = "_anon";
 
 
 class Parser {
@@ -130,7 +131,7 @@ private:
                 depth -= 1;
             if(depth==0 && c=='[') {
                 std::string rhs = parseChainedSymbols(chain.substr(0, pos));
-                std::string tmp = "_anon"+std::to_string(topTemp);
+                std::string tmp = ANON+std::to_string(topTemp);
                 topTemp += 1;
                 Parser tmpParser = Parser(symbols, topTemp);
                 std::string accumulate = chain.substr(pos+1, endBracket-pos-1);
@@ -151,12 +152,12 @@ private:
                 return chain;
         }
         std::string rhs = parseChainedSymbols(chain.substr(0, pos));
-        std::string tmp = "_anon"+std::to_string(topTemp);
+        std::string tmp = ANON+std::to_string(topTemp);
         topTemp += 1;
 
         std::string ch = rhs+"."+chain.substr(pos+1);
         if(isFloat(ch)) {
-            std::string tmp = "_anon"+std::to_string(topTemp);
+            std::string tmp = ANON+std::to_string(topTemp);
             topTemp += 1;
             compiled += BUILTIN+" "+tmp+" F"+ch+"\n";
             return tmp;
@@ -189,7 +190,7 @@ private:
                 depth -= 1;
             if(depth==0 && c=='[') {
                 std::string rhs = parseChainedSymbols(chain.substr(0, pos));
-                std::string tmp = "_anon"+std::to_string(topTemp);
+                std::string tmp = ANON+std::to_string(topTemp);
                 topTemp += 1;
                 Parser tmpParser = Parser(symbols, topTemp);
                 std::string accumulate = chain.substr(pos+1, endBracket-pos-1);
@@ -209,7 +210,7 @@ private:
                 return chain;
         }
         std::string rhs = parseChainedSymbols(chain.substr(0, pos));
-        //std::string tmp = "_anon"+std::to_string(topTemp);
+        //std::string tmp = ANON+std::to_string(topTemp);
         //topTemp += 1;
         //symbols.insert(tmp);
         //return "set "+tmp+" "+rhs+" "+chain.substr(pos+1);
@@ -246,7 +247,7 @@ private:
         trim(lhs);
         trim(rhs);
 
-        std::string tmp = "_anon"+std::to_string(topTemp);
+        std::string tmp = ANON+std::to_string(topTemp);
         topTemp += 1;
         Parser lhsParser = Parser(symbols, topTemp);
         lhsParser.parse(tmp+" = "+lhs+";");
@@ -257,7 +258,7 @@ private:
         else
             topTemp -=1;
         
-        tmp = "_anon"+std::to_string(topTemp);
+        tmp = ANON+std::to_string(topTemp);
         topTemp += 1;
         Parser rhsParser = Parser(symbols, topTemp);
         rhsParser.parse(tmp+" = "+rhs+";");
@@ -273,7 +274,7 @@ private:
         var = parseChainedSymbolsVariable(symbolicVariable);
         std::string postprocess = "";
         if(var!=symbolicVariable) {
-            std::string tmp = "_anon"+std::to_string(topTemp);
+            std::string tmp = ANON+std::to_string(topTemp);
             topTemp += 1;
             postprocess = var+" "+tmp+"\n";
             var = tmp;
@@ -344,7 +345,7 @@ private:
         variable = parseChainedSymbolsVariable(symbolicVariable);
         std::string postprocess = "";
         if(variable!=symbolicVariable) {
-            std::string tmp = "_anon"+std::to_string(topTemp);
+            std::string tmp = ANON+std::to_string(topTemp);
             topTemp += 1;
             postprocess = variable+" "+tmp+"\n";
             if(finalize) {
@@ -413,7 +414,7 @@ private:
                 else {
                     if(argexpr[0]!='{')
                         argexpr = "{"+argexpr+"}";
-                    std::string tmp = "_anon"+std::to_string(topTemp);
+                    std::string tmp = ANON+std::to_string(topTemp);
                     topTemp += 1;
                     Parser tmpParser = Parser(symbols, topTemp);
                     tmpParser.parse(tmp+" = "+argexpr+";");
@@ -455,7 +456,7 @@ private:
                             if(value=="while" || value=="if")
                                 if(accumulate[0]!='{')
                                     accumulate = "{"+accumulate+"}";
-                            std::string tmp = "_anon"+std::to_string(topTemp);
+                            std::string tmp = ANON+std::to_string(topTemp);
                             topTemp += 1;
                             Parser tmpParser = Parser(symbols, topTemp);
                             tmpParser.parse(tmp+" = "+accumulate+";");

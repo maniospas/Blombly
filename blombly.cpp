@@ -129,24 +129,10 @@ public:
         ret = data[item];
         unlock();
         if(ret && ret->getType() == FUTURE) {
-            //ThreadReturn* result;
-            //int thread = std::static_pointer_cast<Future>(ret)->getThread();
-            //threads->join(thread, (void**)&result);
-            //pthread_join(std::static_pointer_cast<Future>(ret)->getThread(), (void**)&result);
-            //if(result && result->value)
-            //    result->value->isMutable = ret->isMutable;
-            //if(result)
-             //   ret = result->value;
-            /*else {
-                std::cerr << "Method failed to return anything\n";
-                ret = nullptr;
-            }*/
             ret = std::static_pointer_cast<Future>(ret)->getResult();
             lock();
             data[item] = ret;
             unlock();
-            //if(result)
-            //    delete result;
         }
         if(ret && !allowMutable && ret->isMutable) {
             std::cerr << "Mutable symbol can not be accessed from nested block (make it final or access it from an object): " + item << std::endl;
@@ -158,6 +144,29 @@ public:
             std::cerr << "Missing value: " + item << std::endl;
         return ret;
     }
+    
+    std::shared_ptr<Data> getOrNull(std::string item, bool allowMutable) {
+        if(item=="#")
+            return nullptr;
+        std::shared_ptr<Data> ret;
+        lock();
+        ret = data[item];
+        unlock();
+        if(ret && ret->getType() == FUTURE) {
+            ret = std::static_pointer_cast<Future>(ret)->getResult();
+            lock();
+            data[item] = ret;
+            unlock();
+        }
+        if(ret && !allowMutable && ret->isMutable) {
+            std::cerr << "Mutable symbol can not be accessed from nested block (make it final or access it from an object): " + item << std::endl;
+            return nullptr;
+        }
+        if(!ret && parent)
+            ret = parent->getOrNull(item, allowMutables);
+        return ret;
+    }
+    
     void set(std::string item, std::shared_ptr<Data> value) {
         if(item=="#") 
             return;
@@ -192,6 +201,13 @@ public:
 };
 
 
+std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* program,
+                  int start, 
+                  int end,
+                  const std::shared_ptr<Memory>& memory, 
+                  bool *returnSignal);
+
+
 class Struct: public Data {
 private:
     std::shared_ptr<Memory> memory;
@@ -211,18 +227,29 @@ public:
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         if(all.size()==1 && all[0]->getType()==STRUCT && operation=="copy")
             return std::make_shared<Struct>(memory);
+        std::shared_ptr<Data> implementation = memory->getOrNull(operation, true);
+        if(implementation==nullptr)
+            throw Unimplemented();
+        std::shared_ptr<List> args = std::make_shared<List>();
+        for(std::shared_ptr<Data> arg : all)
+            if(arg.get()!=this)
+                args->contents->contents.push_back(arg);  // TODO: investigate if shallow copy is needed
+        if(implementation->getType()==CODE) {
+            std::shared_ptr<Code> code = std::static_pointer_cast<Code>(implementation);
+            std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
+            newMemory->set("locals", std::make_shared<Struct>(newMemory));
+            newMemory->set("args", args);
+            newMemory->detach(code->getDeclarationMemory());
+            std::shared_ptr<FutureData> data = std::make_shared<FutureData>();
+            data->result = std::make_shared<ThreadResult>();
+            std::vector<std::shared_ptr<Command>>* program = (std::vector<std::shared_ptr<Command>>*)code->getProgram();
+            return executeBlock(program, code->getStart(), code->getEnd(), newMemory, nullptr);
+        }
+        else 
+            std::cout<<operation<<" is not a method\n";
         throw Unimplemented();
     }
 };
-
-
-
-std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* program,
-                  int start, 
-                  int end,
-                  const std::shared_ptr<Memory>& memory, 
-                  bool *returnSignal);
-
 
 void* thread_function(void *args){
     pthread_t self_id = pthread_self();
@@ -320,7 +347,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             }
             if(depth>0)
                 std::cerr << "Unclosed code block" << std::endl;
-            value = std::make_shared<Code>(i+1, pos, memory);
+            value = std::make_shared<Code>(program, i+1, pos, memory);
             if(command[0]==BEGINFINAL)
                 value->isMutable = false;
             i = pos;
@@ -403,7 +430,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
         }
         else if(command[0]==IS) {
             value = MEMGET(memory, command[1]);
-            memory->set(command[2], value);
+            memory->set(command[2], value->shallowCopy());
         }
         else if(command[0]==SET) {
             value = MEMGET(memory, command[2]);

@@ -1,9 +1,140 @@
-BUILTIN _anon0 I500000
-Vector x _anon0
-BUILTIN _anon1 I500000
-Vector y _anon1
+BEGINFINAL Zeros
+BEGIN _anon0
+BUILTIN step I10000
+END
+default # _anon0
+copy step step
+final # step
+List list
+final # list
+copy n n
+final # n
+div _anon1 n step
+int num _anon1
+BUILTIN i I0
+BEGIN _anon2
+lt # i num
+END
+BEGIN _anon3
+mul start i step
+BEGIN _anon4
+BUILTIN _anon6 I1
+add _anon5 i _anon6
+mul end _anon5 step
+gt # end n
+END
+BEGIN _anon5
+IS n end
+END
+if # _anon4 _anon5
+sub _anon7 end start
+Vector _anon6 _anon7
+push # list _anon6
+BUILTIN _anon7 I1
+add i i _anon7
+END
+while # _anon2 _anon3
+END
+BEGINFINAL PVector
+copy PVector PVector
+final # PVector
+BEGINFINAL put
+poll pos args
+div _anon4 pos step
+int id _anon4
+at _anon5 list id
+mul _anon7 id step
+sub _anon6 pos _anon7
+poll _anon7 args
+put _anon6 _anon5 _anon6 _anon7
+END
+BEGINFINAL len
+return # n
+END
+BEGINFINAL at
+poll pos args
+div _anon8 pos step
+int id _anon8
+at _anon10 list id
+mul _anon12 id step
+sub _anon11 pos _anon12
+at _anon11 _anon10 _anon11
+IS _anon11 _anon9
+return # _anon9
+END
+BEGINFINAL add
+poll other args
+IS list a
+get _anon10 other list
+IS _anon10 b
+List ret
+BEGIN adder
+at _anon12 a i
+IS _anon12 _anon11
+at _anon13 b i
+IS _anon13 _anon12
+add _anon14 _anon11 _anon12
+put _anon13 c i _anon14
+END
+BUILTIN i I0
+BEGIN _anon15
+len _anon16 a
+lt # i _anon16
+END
+BEGIN _anon16
+BEGIN _anon17
+copy a a
+copy b b
+IS ret c
+copy i i
+END
+call # _anon17 adder
+BUILTIN _anon18 I1
+add i i _anon18
+END
+while # _anon15 _anon16
+BEGIN _anon17
+IS ret list
+final # list
+copy step step
+final # step
+copy n n
+final # n
+inline # PVector
+return # this
+END
+new ret _anon17
+return # ret
+END
+END
+BEGIN _anon18
+BUILTIN n I1000000
+inline # Zeros
+inline # PVector
+return # this
+END
+new a _anon18
+BEGIN _anon19
+BUILTIN n I1000000
+inline # Zeros
+inline # PVector
+return # this
+END
+new b _anon19
+BUILTIN _anon20 I100000
+BUILTIN _anon23 F1.2
+IS _anon23 _anon21
+put _anon20 a _anon20 _anon21
+BUILTIN _anon25 I100000
+at _anon25 a _anon25
+IS _anon25 _anon24
+print # _anon24
 time tic
-add z x y
-time _anon3
-sub _anon2 _anon3 tic
-print # _anon2
+add c a b
+BUILTIN _anon26 I100000
+at _anon26 c _anon26
+IS _anon26 _anon25
+print # _anon25
+time _anon27
+sub _anon26 _anon27 tic
+print # _anon26

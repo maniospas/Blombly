@@ -45,6 +45,23 @@ static const char *datatypeName[] = {
     "struct"
 };
 
+std::string AND = "and";
+std::string OR  = "or";
+std::string EQ = "eq";
+std::string LE = "le";
+std::string GE = "ge";
+std::string LT = "lt";
+std::string GT = "gt";
+std::string ADD  = "add";
+std::string SUB  = "sub";
+std::string MUL  = "mul";
+std::string MMUL  = "mmul";
+std::string DIV  = "div";
+std::string POW  = "pow";
+std::string LOG  = "log";
+std::string PUSH  = "push";
+std::string POP  = "pop";
+std::string POLL  = "poll";
 
 
 class Data {
@@ -394,16 +411,18 @@ class Code : public Data {
 private:
     int start, end;
     std::shared_ptr<Memory> declarationMemory;
+    void* program;
 public:
-    Code(int startAt, int endAt, std::shared_ptr<Memory> declMemory) : start(startAt), end(endAt) {declarationMemory = declMemory;}
+    Code(void* programAt, int startAt, int endAt, std::shared_ptr<Memory> declMemory) : program(programAt), start(startAt), end(endAt) {declarationMemory = declMemory;}
     int getType() const override {return CODE;}
     std::string toString() const override {return "code from "+std::to_string(start)+" to "+std::to_string(end);}
     int getStart() const {return start;}
     int getEnd() const {return end;}
-    std::shared_ptr<Data> shallowCopy() const override {return std::make_shared<Code>(start, end, declarationMemory);}
+    void* getProgram() const {return program;}
+    std::shared_ptr<Data> shallowCopy() const override {return std::make_shared<Code>(program, start, end, declarationMemory);}
     virtual std::shared_ptr<Data> implement(const std::string& operation, std::vector<std::shared_ptr<Data>>& all) {
         if(all.size()==1 && all[0]->getType()==CODE && operation=="copy")
-            return std::make_shared<Code>(start, end, declarationMemory);
+            return std::make_shared<Code>(program, start, end, declarationMemory);
         throw Unimplemented();
     }
     std::shared_ptr<Memory>& getDeclarationMemory() {
