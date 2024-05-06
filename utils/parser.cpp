@@ -401,7 +401,7 @@ private:
             else if(variable==value)  
                 compiled += PARSER_COPY+" "+variable+" "+value+"\n";
             else
-                compiled += PARSER_IS+" "+value+" "+variable+"\n"; // this is not an actual assembly command but is used to indicate that parsed text is just a varlabe that should be obtained from future usages
+                compiled += PARSER_IS+" "+variable+" "+value+"\n"; // this is not an actual assembly command but is used to indicate that parsed text is just a varlabe that should be obtained from future usages
         } else {
             std::string args = value.substr(pos+1); // leaving the right parenthesis to be removed during further computations
             value = value.substr(0, pos);
@@ -419,7 +419,7 @@ private:
                     topTemp += 1;
                     Parser tmpParser = Parser(symbols, topTemp);
                     tmpParser.parse(tmp+" = "+argexpr+";");
-                    if(tmpParser.toString().substr(0, 3) != "IS "){
+                    if(tmpParser.toString().substr(0, 3) != PARSER_IS+" "){
                         compiled += tmpParser.toString();
                         argexpr = tmp;
                     }

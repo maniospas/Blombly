@@ -1,136 +1,124 @@
-BUILTIN threads I4
-final # threads
-BEGINFINAL Zeros
-div _bb0 n threads
-int step _bb0
-final # step
-List list
-final # list
-copy n n
-final # n
-div _bb1 n step
-int num _bb1
-BUILTIN i I0
-BEGIN _bb2
-lt # i num
+BEGIN 0
+BEGIN 1
+BUILTIN 2 I1
+BUILTIN 3 I1
+neq # 2 3
 END
-BEGIN _bb3
-mul start i step
-BEGIN _bb4
-BUILTIN _bb6 I1
-add _bb5 i _bb6
-mul end _bb5 step
-gt # end n
+BEGIN 2
+BUILTIN 3 Bfalse
+return # 3
 END
-BEGIN _bb5
-IS n end
+if # 1 2
+BEGIN 3
+BUILTIN 4 I1
+BUILTIN 5 I2
+eq # 4 5
 END
-if # _bb4 _bb5
-sub _bb7 end start
-Vector _bb6 _bb7
-push # list _bb6
-BUILTIN _bb7 I1
-add i i _bb7
+BEGIN 4
+BUILTIN 5 Bfalse
+return # 5
 END
-while # _bb2 _bb3
+if # 3 4
+BEGIN 5
+BUILTIN 6 I1
+BUILTIN 7 I4
+BUILTIN 8 I2
+div 9 7 8
+add 10 6 9
+BUILTIN 6 I3
+neq # 10 6
 END
-BEGINFINAL PVector
-copy PVector PVector
-final # PVector
-BEGINFINAL put
-poll pos args
-div _bb4 pos step
-int id _bb4
-at _bb5 list id
-mul _bb7 id step
-sub _bb6 pos _bb7
-poll _bb7 args
-put _bb6 _bb5 _bb6 _bb7
+BEGIN 10
+BUILTIN 6 Bfalse
+return # 6
 END
-BEGINFINAL len
-return # n
+if # 5 10
+BEGIN 6
+BUILTIN 8 I2
+BUILTIN 11 I4
+add 7 8 11
+BUILTIN 8 I2
+div 9 7 8
+BUILTIN 7 I3
+neq # 9 7
 END
-BEGINFINAL at
-poll pos args
-div _bb8 pos step
-int id _bb8
-at _bb10 list id
-mul _bb12 id step
-sub _bb11 pos _bb12
-at _bb11 _bb10 _bb11
-IS _bb11 _bb9
-return # _bb9
+BEGIN 9
+BUILTIN 7 Bfalse
+return # 7
 END
-BEGINFINAL add
-poll other args
-List ret
-BEGIN adder
-at _bb11 a i
-IS _bb11 _bb10
-at _bb12 b i
-IS _bb12 _bb11
-add _bb13 _bb10 _bb11
-put _bb12 c i _bb13
+if # 6 9
+BEGIN 7
+BUILTIN 8 I1
+BUILTIN 11 I2
+gt # 8 11
 END
-BUILTIN i I0
-BEGIN _bb14
-len _bb15 list
-lt # i _bb15
+BEGIN 8
+BUILTIN 11 Bfalse
+return # 11
 END
-BEGIN _bb15
-BEGIN _bb16
-IS list a
-get _bb17 other list
-IS _bb17 b
-IS ret c
-copy i i
+if # 7 8
+BEGIN 11
+BUILTIN 12 I1
+BUILTIN 13 I2
+ge # 12 13
 END
-call # _bb16 adder
-BUILTIN _bb17 I1
-add i i _bb17
+BEGIN 12
+BUILTIN 13 Bfalse
+return # 13
 END
-while # _bb14 _bb15
-BEGIN _bb16
-IS ret list
-final # list
-copy step step
-final # step
-copy n n
-final # n
-inline # PVector
-return # this
+if # 11 12
+BEGIN 13
+BUILTIN 14 I1
+BUILTIN 15 I0
+le # 14 15
 END
-new ret _bb16
-return # ret
+BEGIN 14
+BUILTIN 15 Bfalse
+return # 15
 END
+if # 13 14
+BEGIN 15
+BUILTIN 16 I1
+BUILTIN 17 I0
+lt # 16 17
 END
-BUILTIN n I10000000
-BUILTIN pos I5
-BEGIN _bb17
-copy n n
-inline # Zeros
-inline # PVector
-return # this
+BEGIN 16
+BUILTIN 17 Bfalse
+return # 17
 END
-new a _bb17
-BEGIN _bb18
-copy n n
-inline # Zeros
-inline # PVector
-return # this
+if # 15 16
+BEGIN 17
+BUILTIN 18 I1
+BUILTIN 19 I1
+eq 20 18 19
+BUILTIN 19 I1
+BUILTIN 21 I1
+lt 18 19 21
+and # 20 18
 END
-new b _bb18
-BUILTIN _bb22 F1.2
-IS _bb22 _bb20
-put _bb19 a pos _bb20
-at _bb24 a pos
-IS _bb24 _bb23
-print # _bb23
-time tic
-add c a b
-at _bb25 c pos
-IS _bb25 _bb24
-print # _bb24
-time _bb26
-sub _bb25 _bb26 tic
-print # _bb25
+BEGIN 20
+BUILTIN 18 Bfalse
+return # 18
+END
+if # 17 20
+BEGIN 18
+BUILTIN 21 I1
+BUILTIN 22 I1
+lt 19 21 22
+BUILTIN 22 I1
+BUILTIN 23 I1
+eq 21 22 23
+and # 19 21
+END
+BEGIN 19
+BUILTIN 21 Bfalse
+return # 21
+END
+if # 18 19
+BUILTIN 21 "all tests passed"
+return # 21
+END
+call 23 # 0
+BUILTIN 24 "failed"
+neq 22 23 24
+print # 22

@@ -38,6 +38,7 @@
 #include <chrono>
 #include "utils/stringtrim.cpp"
 #include "utils/parser.cpp"
+#include "utils/optimizer.cpp"
 // include data types
 #include "include/common.h"
 #include "include/Boolean.h"
@@ -249,7 +250,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 // create new writable memory under the current context
                 std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
                 newMemory->set("locals", std::make_shared<Struct>(newMemory));
-                std::shared_ptr<Data> context = MEMGET(memory, command[2]);
+                std::shared_ptr<Data> context = command[2]=="#"?nullptr:MEMGET(memory, command[2]);
                 std::shared_ptr<Data> execute = MEMGET(memory, command[3]);
                 // check if the call has some context, and if so, execute it in the new memory
                 if(context && context->getType()==CODE) {
@@ -308,8 +309,8 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
                 }
             break;
             case IS:
-                value = MEMGET(memory, command[1]);
-                memory->set(command[2], value->shallowCopy());
+                value = MEMGET(memory, command[2]);
+                memory->set(command[1], value->shallowCopy());
             break;
             case SET:
                 value = MEMGET(memory, command[2]);
@@ -379,7 +380,7 @@ std::shared_ptr<Data> executeBlock(std::vector<std::shared_ptr<Command>>* progra
             case IF:{
                 std::shared_ptr<Data> condition = MEMGET(memory, command[2]);
                 std::shared_ptr<Data> accept = MEMGET(memory, command[3]);
-                std::shared_ptr<Data> reject = command.size()>4?MEMGET(memory, command[4]):nullptr;
+                std::shared_ptr<Data> reject = command.size()>4?(command[4]=="#"?nullptr:MEMGET(memory, command[4])):nullptr;
                 if(condition->getType()!=CODE) {
                     std::cerr << "Can only inline a non-called code block for if condition" << std::endl;
                     exit(1);
@@ -585,6 +586,8 @@ int main(int argc, char* argv[]) {
     // it into an assembly file (.bbvm)
     if(fileName.substr(fileName.size()-3, 3)==".bb") {
         if(compile(fileName, fileName+"vm"))
+            return false;
+        if(optimize(fileName+"vm", fileName+"vm"))
             return false;
         fileName = fileName+"vm";
     }

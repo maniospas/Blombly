@@ -50,13 +50,12 @@ std::shared_ptr<Data> Memory::get(const std::string& item) {
 
 // Get a data item, optionally allowing mutable values
 std::shared_ptr<Data> Memory::get(const std::string& item, bool allowMutable) {
-    if (item == "#") {
-        return nullptr;
-    }
+    //if (item == "#") {
+    //    return nullptr;
+    //}
 
-    std::shared_ptr<Data> ret;
     lock();
-    ret = data[item];
+    std::shared_ptr<Data> ret = data[item];
     unlock();
 
     // Handle future values

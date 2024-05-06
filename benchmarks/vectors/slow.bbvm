@@ -1,0 +1,22 @@
+BUILTIN 0 I1000000
+Vector 1 0
+Vector 2 0
+time 3
+Vector 4 0
+BUILTIN 5 I0
+len 0 4
+BEGIN 6
+lt # 5 0
+END
+BEGIN 7
+at 8 1 5
+at 9 2 5
+add 11 8 9
+put 10 4 5 11
+BUILTIN 12 I1
+add 5 5 12
+END
+while # 6 7
+time 9
+sub 8 9 3
+print # 8
