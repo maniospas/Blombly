@@ -1,28 +1,28 @@
 BEGINFINAL fib
-BEGIN _anon1
-BUILTIN _anon2 I2
-lt # n _anon2
+BEGIN _bb0
+BUILTIN _bb1 I2
+lt # n _bb1
 END
-BEGIN _anon2
+BEGIN _bb1
+BUILTIN _bb2 I1
+return # _bb2
 END
-BEGIN _anon3
-BEGIN _anon5
-BUILTIN _anon6 I1
-sub n n _anon6
+if # _bb0 _bb1
+BEGIN _bb4
+BUILTIN _bb5 I1
+sub n n _bb5
 END
-call _anon4 _anon5 fib
-BEGIN _anon6
-BUILTIN _anon7 I2
-sub n n _anon7
+call _bb3 _bb4 fib
+BEGIN _bb5
+BUILTIN _bb6 I2
+sub n n _bb6
 END
-call _anon5 _anon6 fib
-add # _anon4 _anon5
+call _bb4 _bb5 fib
+add _bb2 _bb3 _bb4
+return # _bb2
 END
-if _anon0 _anon1 _anon2 _anon3
-return # _anon0
-END
-BEGIN _anon2
+BEGIN _bb4
 BUILTIN n I9
 END
-call _anon1 _anon2 fib
-print # _anon1
+call _bb3 _bb4 fib
+print # _bb3

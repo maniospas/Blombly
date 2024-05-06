@@ -26,7 +26,7 @@ mul end _bb5 step
 gt # end n
 END
 BEGIN _bb5
-IS n end
+IS end n
 END
 if # _bb4 _bb5
 sub _bb7 end start
@@ -60,18 +60,15 @@ int id _bb8
 at _bb10 list id
 mul _bb12 id step
 sub _bb11 pos _bb12
-at _bb11 _bb10 _bb11
-IS _bb11 _bb9
+at _bb9 _bb10 _bb11
 return # _bb9
 END
 BEGINFINAL add
 poll other args
 List ret
 BEGIN adder
-at _bb11 a i
-IS _bb11 _bb10
-at _bb12 b i
-IS _bb12 _bb11
+at _bb10 a i
+at _bb11 b i
 add _bb13 _bb10 _bb11
 put _bb12 c i _bb13
 END
@@ -82,10 +79,9 @@ lt # i _bb15
 END
 BEGIN _bb15
 BEGIN _bb16
-IS list a
-get _bb17 other list
-IS _bb17 b
-IS ret c
+IS a list
+get b other list
+IS c ret
 copy i i
 END
 call # _bb16 adder
@@ -94,8 +90,7 @@ add i i _bb17
 END
 while # _bb14 _bb15
 BEGIN _bb16
-IS ret list
-final # list
+final # ret
 copy step step
 final # step
 copy n n
@@ -123,13 +118,11 @@ inline # PVector
 return # this
 END
 new b _bb18
-BUILTIN _bb22 F1.2
-IS _bb22 _bb20
+BUILTIN _bb20 F1.2
 put _bb19 a pos _bb20
 time tic
 add c a b
-at _bb23 c pos
-IS _bb23 result
+at result c pos
 time _bb25
 sub _bb24 _bb25 tic
 print # _bb24

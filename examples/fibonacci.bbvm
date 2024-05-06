@@ -1,43 +1,35 @@
 BEGINFINAL fib
-BUILTIN _anon1 I1
-add _anon0 n _anon1
-Vector res _anon0
-BUILTIN _anon1 I0
-BUILTIN _anon2 I1
-put _anon1 res _anon1 _anon2
-BUILTIN _anon3 I1
-BUILTIN _anon4 I1
-put _anon3 res _anon3 _anon4
+BUILTIN _bb1 I1
+add _bb0 n _bb1
+Vector res _bb0
+BUILTIN _bb1 I0
+BUILTIN _bb2 I1
+put _bb1 res _bb1 _bb2
+BUILTIN _bb3 I1
+BUILTIN _bb4 I1
+put _bb3 res _bb3 _bb4
 BUILTIN i I2
-BEGIN _anon5
-copy _anon6 i
-le # _anon6 n
+BEGIN _bb5
+le # i n
 END
-BEGIN _anon6
-copy _anon9 i
-BUILTIN _anon10 I2
-sub _anon8 _anon9 _anon10
-at _anon8 res _anon8
-copy _anon7 _anon8
-copy _anon10 i
-BUILTIN _anon11 I1
-sub _anon9 _anon10 _anon11
-at _anon9 res _anon9
-copy _anon8 _anon9
-copy _anon9 i
-add _anon10 _anon7 _anon8
-put _anon9 res _anon9 _anon10
-copy _anon11 i
-BUILTIN _anon12 I1
-add i _anon11 _anon12
+BEGIN _bb6
+BUILTIN _bb9 I2
+sub _bb8 i _bb9
+at _bb7 res _bb8
+BUILTIN _bb10 I1
+sub _bb9 i _bb10
+at _bb8 res _bb9
+add _bb10 _bb7 _bb8
+put _bb9 res i _bb10
+BUILTIN _bb11 I1
+add i i _bb11
 END
-while # _anon5 _anon6
-at _anon8 res n
-copy _anon7 _anon8
-return # _anon7
+while # _bb5 _bb6
+at _bb7 res n
+return # _bb7
 END
-BEGIN _anon9
+BEGIN _bb9
 BUILTIN n I9
 END
-call _anon8 _anon9 fib
-print # _anon8
+call _bb8 _bb9 fib
+print # _bb8

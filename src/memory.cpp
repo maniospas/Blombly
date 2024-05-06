@@ -3,6 +3,8 @@
 #include "common.h"
 #include "Future.h"
 
+extern VariableManager variableManager;
+
 // Default constructor
 Memory::Memory() : parent(nullptr), allowMutables(true) {
     if (pthread_mutex_init(&memoryLock, nullptr) != 0) {
@@ -44,19 +46,19 @@ void Memory::unlock() {
 }
 
 // Get a data item with mutability check
-std::shared_ptr<Data> Memory::get(const std::string& item) {
+std::shared_ptr<Data> Memory::get(int item) {
     return get(item, true);
 }
 
 // Get a data item, optionally allowing mutable values
-std::shared_ptr<Data> Memory::get(const std::string& item, bool allowMutable) {
+std::shared_ptr<Data> Memory::get(int item, bool allowMutable) {
     //if (item == "#") {
     //    return nullptr;
     //}
 
-    lock();
+    //lock();
     std::shared_ptr<Data> ret = data[item];
-    unlock();
+    //unlock();
 
     // Handle future values
     if (ret && ret->getType() == FUTURE) {
@@ -68,7 +70,7 @@ std::shared_ptr<Data> Memory::get(const std::string& item, bool allowMutable) {
 
     // Handle mutability restrictions
     if (ret && !allowMutable && ret->isMutable) {
-        std::cerr << "Mutable symbol cannot be accessed from a nested block: " + item << std::endl;
+        std::cerr << "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item) << std::endl;
         exit(1);
         return nullptr;
     }
@@ -80,7 +82,7 @@ std::shared_ptr<Data> Memory::get(const std::string& item, bool allowMutable) {
 
     // Missing value error
     if (!ret) {
-        std::cerr << "Missing value: " + item << std::endl;
+        std::cerr << "Missing value: " + variableManager.getSymbol(item) << std::endl;
         exit(1);
     }
 
@@ -88,22 +90,22 @@ std::shared_ptr<Data> Memory::get(const std::string& item, bool allowMutable) {
 }
 
 // Get a data item or return nullptr if not found
-std::shared_ptr<Data> Memory::getOrNull(const std::string& item, bool allowMutable) {
-    if (item == "#") {
-        return nullptr;
-    }
+std::shared_ptr<Data> Memory::getOrNull(int item, bool allowMutable) {
+    //if (item == "#") {
+    //    return nullptr;
+    //}
 
     std::shared_ptr<Data> ret;
-    lock();
+    //lock();
     ret = data[item];
-    unlock();
+    //unlock();
 
     // Handle future values
     if (ret && ret->getType() == FUTURE) {
         ret = std::static_pointer_cast<Future>(ret)->getResult();
-        lock();
+        //lock();
         data[item] = ret;
-        unlock();
+        //unlock();
     }
 
     // Handle mutability restrictions
@@ -122,23 +124,23 @@ std::shared_ptr<Data> Memory::getOrNull(const std::string& item, bool allowMutab
 }
 
 // Set a data item, ensuring mutability rules are followed
-void Memory::set(const std::string& item, std::shared_ptr<Data> value) {
-    if (item == "#") {
-        return;
-    }
+void Memory::set(int item, std::shared_ptr<Data> value) {
+    //if (item == "#") {
+    //    return;
+    //}
 
-    lock();
+    //lock();
     if (data[item] != nullptr && !data[item]->isMutable) {
         bool couldBeShallowCopy = data[item]->couldBeShallowCopy(value);
-        unlock();
+        //unlock();
         if (!couldBeShallowCopy) {
-            std::cerr << "Cannot overwrite final value: " + item << std::endl;
+            std::cerr << "Cannot overwrite final value: " + variableManager.getSymbol(item) << std::endl;
             exit(1);
         }
         return;
     }
     data[item] = value;
-    unlock();
+    //unlock();
 }
 
 // Pull data from another Memory object

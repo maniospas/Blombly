@@ -127,12 +127,12 @@ int optimize(const std::string& source, const std::string& destination) {
                 symbols[command->args[j]] = symbols.size();
     }
     // anonymize
-    for(int i=0;i<program.size();i++) {
+    /*for(int i=0;i<program.size();i++) {
         std::shared_ptr<OptimizerCommand> command = program[i];
         for(int j=1;j<command->args.size();j++)
             if(command->args[j]!="#" && command->args[j]!="LAST" && (command->args[0]!="BUILTIN" || j==1))
                 command->args[j] = std::to_string(symbols[command->args[j]]);
-    }
+    }*/
 
 
 

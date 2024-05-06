@@ -8,7 +8,7 @@ with open(path) as file:
         if line[0] == "END":
             tab -= 1
             allcode.append((tab*"   ")+"}")
-            anons.pop()
+            #anons.pop()
             continue
         if line[1] != "#":
             code = line[1] + " = "
@@ -18,18 +18,19 @@ with open(path) as file:
             code += "{"
             allcode.append(tab*"   "+code)
             tab += 1
-            anons.append(dict())
+            #anons.append(dict())
             continue
         elif line[0] == "BUILTIN":
             if line[2][0] == "\"":
                 code += " ".join(line[2:])+";"
             else:
                 code += line[2][1:]+";"
-        elif line[0] == "FINALBEGIN":
+        elif line[0] == "BEGINFINAL":
             code = "final "+code+"{"
             allcode.append(tab*"   "+code)
             tab += 1
-            anons.append(dict())
+            continue
+            #anons.append(dict())
         elif line[0] == "copy":
             code += line[2]+";"
         elif line[0] == "inline":

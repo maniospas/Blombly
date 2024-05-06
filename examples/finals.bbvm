@@ -5,27 +5,25 @@ copy y y
 final # y
 END
 BEGIN Normed2D
-BEGIN norm
-copy _anon2 x
-pow _anon1 _anon2 q
-copy _anon3 y
-pow _anon2 _anon3 q
-add _anon0 _anon1 _anon2
-return # _anon0
+BEGIN normsq
+pow _bb1 x q
+pow _bb2 y q
+add _bb0 _bb1 _bb2
+return # _bb0
 END
 END
 BUILTIN extx I1
-BEGIN _anon1
-copy x extx
+BEGIN _bb1
+IS x extx
 BUILTIN y I2
 inline # StaticPoint
 inline # Normed2D
-copy # self
+return # this
 END
-new point _anon1
-get _anon3 point norm
-BEGIN _anon4
+new point _bb1
+get _bb3 point normsq
+BEGIN _bb4
 BUILTIN q I2
 END
-call _anon2 _anon4 _anon3
-print # _anon2
+call _bb2 _bb4 _bb3
+print # _bb2

@@ -1,88 +1,81 @@
 BEGINFINAL search
-BEGIN _anon0
+BEGIN _bb0
 BUILTIN start I0
-len _anon1 list
-BUILTIN _anon2 I1
-sub end _anon1 _anon2
 END
-default # _anon0
-BEGIN _anon1
+default # _bb0
+BEGIN _bb1
+len _bb2 list
+BUILTIN _bb3 I1
+sub end _bb2 _bb3
+END
+default # _bb1
+BEGIN _bb2
 gt # start end
 END
-BEGIN _anon2
-BEGIN _anon4
+BEGIN _bb3
+BEGIN _bb5
 BUILTIN found Bfalse
-BUILTIN _anon6 I1
-sub pos _anon5 _anon6
-copy # this
+return # this
 END
-new _anon3 _anon4
-return # _anon3
+new _bb4 _bb5
+return # _bb4
 END
-if # _anon1 _anon2
-add middle start end
-BUILTIN _anon4 I2
-div _anon3 middle _anon4
-int middle _anon3
-BEGIN _anon4
-copy _anon6 middle
-at _anon6 list _anon6
-copy _anon5 _anon6
-eq # _anon5 query
+if # _bb2 _bb3
+add _bb5 start end
+BUILTIN _bb6 I2
+div _bb4 _bb5 _bb6
+int middle _bb4
+BEGIN _bb5
+at _bb6 list middle
+eq # _bb6 query
 END
-BEGIN _anon5
-BEGIN _anon7
+BEGIN _bb6
+BEGIN _bb8
 BUILTIN found Btrue
-copy pos middle
-copy # this
+IS pos middle
+return # this
 END
-new _anon6 _anon7
-return # _anon6
+new _bb7 _bb8
+return # _bb7
 END
-if # _anon4 _anon5
-BEGIN _anon6
-copy _anon8 middle
-at _anon8 list _anon8
-copy _anon7 _anon8
-lt # _anon7 query
+if # _bb5 _bb6
+BEGIN _bb7
+at _bb8 list middle
+lt # _bb8 query
 END
-BEGIN _anon7
-copy _anon8 middle
-BUILTIN _anon9 I1
-add start _anon8 _anon9
+BEGIN _bb8
+BUILTIN _bb9 I1
+add start middle _bb9
 END
-BEGIN _anon8
-copy _anon9 middle
-BUILTIN _anon10 I1
-sub end _anon9 _anon10
+BEGIN _bb9
+BUILTIN _bb10 I1
+sub end middle _bb10
 END
-if # _anon6 _anon7 _anon8
+if # _bb7 _bb8 _bb9
 inline # search
 END
-BUILTIN _anon9 I1
-BUILTIN _anon10 I2
-BUILTIN _anon11 I3
-BUILTIN _anon12 I5
-BUILTIN _anon13 I6
-BUILTIN _anon14 I7
-List z _anon9 _anon10 _anon11 _anon12 _anon13 _anon14
-BEGIN _anon15
+BUILTIN _bb10 I1
+BUILTIN _bb11 I2
+BUILTIN _bb12 I3
+BUILTIN _bb13 I5
+BUILTIN _bb14 I6
+BUILTIN _bb15 I7
+List z _bb10 _bb11 _bb12 _bb13 _bb14 _bb15
+BEGIN _bb16
+IS list z
 BUILTIN query I7
-copy list z
 END
-call res _anon15 search
-BEGIN _anon16
-get _anon17 res found
-copy # _anon17
+call res _bb16 search
+BEGIN _bb17
+get _bb18 res found
 END
-BEGIN _anon17
-BUILTIN _anon18 "Query found at index"
-get _anon20 res pos
-copy _anon19 _anon20
-print # _anon18 _anon19
+BEGIN _bb18
+BUILTIN _bb19 "Query found at index"
+get _bb20 res pos
+print # _bb19 _bb20
 END
-BEGIN _anon18
-BUILTIN _anon19 "Query not found"
-print # _anon19
+BEGIN _bb19
+BUILTIN _bb20 "Query not found"
+print # _bb20
 END
-if # _anon16 _anon17 _anon18
+if # _bb17 _bb18 _bb19

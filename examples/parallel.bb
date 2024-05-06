@@ -1,5 +1,5 @@
 final Zeros = {
-    default step = 10000;
+    default step = int(n/4);
     final step = step;
     final list = List();
     final n = n;
@@ -31,31 +31,31 @@ final PVector = {
     }
     final add = {
         other = poll(args);
-        a = list;
-        b = other.list;
         ret = List();
-        adder = {c[i] = a[i]+b[i]};
+        adder = {c[i] = a[i]+b[i]}
         i = 0;
-        while(i<len(a),
-            adder(a=a, b=b, c=ret, i=i);
+        while(i<len(list),
+            adder(a=list, b=other.list, c=ret, i=i);
             i = i+1;
         );
         ret = new(
-            final list=ret;
+            list=ret;  // TODO: this is necessary right now to avoid an error
+            final list=list;
             final step=step;
             final n=n;
             PVector:
         );
-        return ret; // synchronize computations
+        return ret;
     }
 }
 
-a = new(n=1000000;Zeros:PVector:);
-b = new(n=1000000;Zeros:PVector:);
+n = 10000000;
+pos = 5;
+a = new(n=n;Zeros:PVector:);
+b = new(n=n;Zeros:PVector:);
 
-a[100000] = 1.2;
-print(a[100000]);
+a[pos] = 1.2;
 tic = time();
 c = a+b;
-print(c[100000]);
+result = c[pos];
 print(time()-tic);
