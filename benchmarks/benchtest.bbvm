@@ -3,6 +3,6 @@ Vector a n
 Vector b n
 time tic
 add c a b
-time _anon1
-sub _anon0 _anon1 tic
-print # _anon0
+time _bb1
+sub _bb0 _bb1 tic
+print # _bb0

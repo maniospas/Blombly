@@ -54,8 +54,7 @@ a = new(n=n;Zeros:PVector:);
 b = new(n=n;Zeros:PVector:);
 
 a[pos] = 1.2;
-print(a[pos]);
 tic = time();
 c = a+b;
-print(c[pos]);
+result = c[pos];
 print(time()-tic);

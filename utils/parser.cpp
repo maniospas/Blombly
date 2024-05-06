@@ -4,25 +4,26 @@
 #include "stringtrim.cpp"
 
 
-const std::string BUILTIN="BUILTIN";
-const std::string BEGIN="BEGIN";
-const std::string BEGINFINAL="BEGINFINAL";
-const std::string END="END";
-const std::string RETURN="return";
-const std::string FINAL="final";
-const std::string AT="at";
-const std::string IS="IS";
-const std::string CALL="call";
-const std::string GET="get";
-const std::string SET="set";
-const std::string WHILE="while";
-const std::string IF="if";
-const std::string INLINE="inline";
-const std::string DEFAULT="default";
-const std::string NEW="new";
-const std::string PRINT="print";
-const std::string COPY="copy";
-const std::string ANON = "_anon";
+const std::string PARSER_BUILTIN="BUILTIN";
+const std::string PARSER_BEGIN="BEGIN";
+const std::string PARSER_BEGINFINAL="BEGINFINAL";
+const std::string PARSER_END="END";
+const std::string PARSER_RETURN="return";
+const std::string PARSER_FINAL="final";
+const std::string PARSER_AT="at";
+const std::string PARSER_IS="IS";
+const std::string PARSER_CALL="call";
+const std::string PARSER_GET="get";
+const std::string PARSER_SET="set";
+const std::string PARSER_PUT="put";
+const std::string PARSER_WHILE="while";
+const std::string PARSER_IF="if";
+const std::string PARSER_INLINE="inline";
+const std::string PARSER_DEFAULT="default";
+const std::string PARSER_NEW="new";
+const std::string PARSER_PRINT="print";
+const std::string PARSER_COPY="copy";
+const std::string ANON = "_bb";
 
 
 class Parser {
@@ -142,7 +143,7 @@ private:
                     accumulate = tmp;
                     //topTemp = tmpParser.topTemp;
                 }
-                compiled += AT+" "+tmp+" "+rhs+" "+accumulate+"\n";
+                compiled += PARSER_AT+" "+tmp+" "+rhs+" "+accumulate+"\n";
                 //symbols.insert(tmp);
                 return tmp;
             }
@@ -159,10 +160,10 @@ private:
         if(isFloat(ch)) {
             std::string tmp = ANON+std::to_string(topTemp);
             topTemp += 1;
-            compiled += BUILTIN+" "+tmp+" F"+ch+"\n";
+            compiled += PARSER_BUILTIN+" "+tmp+" F"+ch+"\n";
             return tmp;
         }
-        compiled += GET+" "+tmp+" "+rhs+" "+chain.substr(pos+1)+"\n";
+        compiled += PARSER_GET+" "+tmp+" "+rhs+" "+chain.substr(pos+1)+"\n";
         //symbols.insert(tmp);
         return tmp; 
     }
@@ -202,7 +203,7 @@ private:
                     //topTemp = tmpParser.topTemp;
                 }
                 //symbols.insert(tmp);
-                return "put "+tmp+" "+rhs+" "+accumulate;
+                return PARSER_PUT+" "+tmp+" "+rhs+" "+accumulate;
             }
             if(depth==0 && c=='.')
                 break;
@@ -214,7 +215,7 @@ private:
         //topTemp += 1;
         //symbols.insert(tmp);
         //return "set "+tmp+" "+rhs+" "+chain.substr(pos+1);
-        return "set # "+rhs+" "+chain.substr(pos+1);
+        return PARSER_SET+" # "+rhs+" "+chain.substr(pos+1);
     }
 
     std::string parseOperator(std::string var, const std::string& expr, const std::string& operand, const std::string& method) {
@@ -251,7 +252,7 @@ private:
         topTemp += 1;
         Parser lhsParser = Parser(symbols, topTemp);
         lhsParser.parse(tmp+" = "+lhs+";");
-        if(lhsParser.toString().substr(0, 3) != "IS "){
+        if(lhsParser.toString().substr(0, 3) != PARSER_IS+" "){
             compiled += lhsParser.toString();
             lhs = tmp;
         }
@@ -358,16 +359,16 @@ private:
             std::string original_value = value;
             value = parseChainedSymbols(value);
             if(value.size() && value[value.size()-1]==':' && hasSymbol(value.substr(0, value.size()-1))) {
-                compiled += INLINE+" "+variable+" "+value.substr(0, value.size()-1)+"\n";
+                compiled += PARSER_INLINE+" "+variable+" "+value.substr(0, value.size()-1)+"\n";
                 if(finalize) 
-                    compiled += FINAL+" # "+variable+"\n";
+                    compiled += PARSER_FINAL+" # "+variable+"\n";
                 compiled += postprocess;
                 return;
             }
             if(value.size() && original_value[original_value.size()-1]==':'){// && symbols.find(value.substr(0, value.size()-1)) != symbols.end()) {
-                compiled += INLINE+" "+variable+" "+original_value.substr(0, original_value.size()-1)+"\n";
+                compiled += PARSER_INLINE+" "+variable+" "+original_value.substr(0, original_value.size()-1)+"\n";
                 if(finalize) 
-                    compiled += FINAL+" # "+variable+"\n";
+                    compiled += PARSER_FINAL+" # "+variable+"\n";
                 compiled += postprocess;
                 return;
             }
@@ -390,17 +391,17 @@ private:
             if(variable=="#" || value.size()==0) // flexible parsing for undeclared variables
                 return;
             if(isString(value))
-                compiled += BUILTIN+" "+variable+" "+value+"\n";
+                compiled += PARSER_BUILTIN+" "+variable+" "+value+"\n";
             else if(isBool(value))
-                compiled += BUILTIN+" "+variable+" B"+value+"\n";
+                compiled += PARSER_BUILTIN+" "+variable+" B"+value+"\n";
             else if(isInt(value))
-                compiled += BUILTIN+" "+variable+" I"+value+"\n";
+                compiled += PARSER_BUILTIN+" "+variable+" I"+value+"\n";
             else if(isFloat(value))
-                compiled += BUILTIN+" "+variable+" F"+value+"\n";
+                compiled += PARSER_BUILTIN+" "+variable+" F"+value+"\n";
             else if(variable==value)  
-                compiled += COPY+" "+variable+" "+value+"\n";
+                compiled += PARSER_COPY+" "+variable+" "+value+"\n";
             else
-                compiled += IS+" "+value+" "+variable+"\n"; // this is not an actual assembly command but is used to indicate that parsed text is just a varlabe that should be obtained from future usages
+                compiled += PARSER_IS+" "+value+" "+variable+"\n"; // this is not an actual assembly command but is used to indicate that parsed text is just a varlabe that should be obtained from future usages
         } else {
             std::string args = value.substr(pos+1); // leaving the right parenthesis to be removed during further computations
             value = value.substr(0, pos);
@@ -425,7 +426,7 @@ private:
                     else
                         topTemp -= 1;
                 }
-                compiled += CALL+" "+variable+" "+argexpr+" "+value+"\n";
+                compiled += PARSER_CALL+" "+variable+" "+argexpr+" "+value+"\n";
             }
             else {
                 if((value=="new" || value=="default" || value=="safe") && args[0]!='{')
@@ -453,14 +454,14 @@ private:
                         std::string prev_accumulate = accumulate;
                         //if(!hasSymbol(accumulate)) 
                         {
-                            if(value=="while" || value=="if")
+                            if(value==PARSER_WHILE || value==PARSER_IF)
                                 if(accumulate[0]!='{')
                                     accumulate = "{"+accumulate+"}";
                             std::string tmp = ANON+std::to_string(topTemp);
                             topTemp += 1;
                             Parser tmpParser = Parser(symbols, topTemp);
                             tmpParser.parse(tmp+" = "+accumulate+";");
-                            if(tmpParser.toString().substr(0, 3) != "IS "){
+                            if(tmpParser.toString().substr(0, 3) != PARSER_IS+" "){
                                 compiled += tmpParser.toString();
                                 accumulate = tmp;
                                 //topTemp = tmpParser.topTemp;
@@ -487,7 +488,7 @@ private:
         //    symbols.insert(variable);
         compiled += postprocess;
         if(finalize) 
-            compiled += FINAL+" # "+variable+"\n";
+            compiled += PARSER_FINAL+" # "+variable+"\n";
     }
 public:
     Parser() {
@@ -571,10 +572,10 @@ public:
                 if(variable.substr(0, 6)=="final "){
                     variable = variable.substr(6);
                     trim(variable);
-                    compiled += BEGINFINAL+" "+variable+"\n";
+                    compiled += PARSER_BEGINFINAL+" "+variable+"\n";
                 }
                 else
-                    compiled += BEGIN+" "+variable+"\n";
+                    compiled += PARSER_BEGIN+" "+variable+"\n";
                 //if(variable!="#")
                 //    symbols.insert(variable);
                 command = "";
@@ -588,7 +589,7 @@ public:
                     inImpliedParenthesis = 0;
                     depth = 0;
                     addCommand(command);
-                    compiled += END+"\n";
+                    compiled += PARSER_END+"\n";
                     command = "";
                 }
                 else

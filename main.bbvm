@@ -1,11 +1,8 @@
+BUILTIN threads I4
+final # threads
 BEGINFINAL Zeros
-BEGIN _bb0
-BUILTIN _bb2 I4
-div _bb1 n _bb2
-int step _bb1
-END
-default # _bb0
-copy step step
+div _bb0 n threads
+int step _bb0
 final # step
 List list
 final # list
@@ -126,10 +123,14 @@ new b _bb18
 BUILTIN _bb22 F1.2
 IS _bb22 _bb20
 put _bb19 a pos _bb20
+at _bb24 a pos
+IS _bb24 _bb23
+print # _bb23
 time tic
 add c a b
-at _bb23 c pos
-IS _bb23 result
-time _bb25
-sub _bb24 _bb25 tic
+at _bb25 c pos
+IS _bb25 _bb24
 print # _bb24
+time _bb26
+sub _bb25 _bb26 tic
+print # _bb25
