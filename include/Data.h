@@ -13,6 +13,7 @@ struct BuiltinArgs {
     std::shared_ptr<Data> arg1;
     std::shared_ptr<Data> arg2;
     int size;
+    std::shared_ptr<Data> preallocResult;
 };
 
 // Abstract base class for all data types

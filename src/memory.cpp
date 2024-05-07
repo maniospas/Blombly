@@ -31,10 +31,10 @@ Memory::~Memory() {
 
 // Lock the memory for thread-safe access
 void Memory::lock() {
-    pthread_mutex_lock(&memoryLock);
     if (parent) {
         parent->lock();
     }
+    pthread_mutex_lock(&memoryLock);
 }
 
 // Unlock the memory
@@ -63,9 +63,9 @@ std::shared_ptr<Data> Memory::get(int item, bool allowMutable) {
     // Handle future values
     if (ret && ret->getType() == FUTURE) {
         ret = std::static_pointer_cast<Future>(ret)->getResult();
-        lock();
+        //lock();
         data[item] = ret;
-        unlock();
+        //unlock();
     }
 
     // Handle mutability restrictions

@@ -22,9 +22,9 @@ public:
     int lastId;
     int noneId;
     VariableManager() {
+        lastId = getId("LAST");
         thisId = getId("this");
         argsId = getId("args");
-        lastId = getId("LAST");
         noneId = getId("#");
     }
     int getId(const std::string& symbol) {
@@ -50,6 +50,7 @@ private:
 
 public:
     std::vector<std::shared_ptr<Future>> attached_threads;
+    std::unordered_map<int, std::shared_ptr<Data>> locals;
 
     // Constructors and destructor
     Memory();

@@ -1,0 +1,27 @@
+BEGINFINAL factorial
+BEGIN _bb0
+BUILTIN _bb1 I1
+eq # n _bb1
+END
+BEGIN _bb1
+BUILTIN _bb2 F1.0
+return # _bb2
+END
+if # _bb0 _bb1
+BEGIN _bb4
+BUILTIN _bb5 I1
+sub n n _bb5
+END
+call _bb3 _bb4 factorial
+mul _bb2 n _bb3
+return # _bb2
+END
+time tic
+BEGIN _bb3
+BUILTIN n I100
+END
+call f _bb3 factorial
+copy f f
+time _bb5
+sub _bb4 _bb5 tic
+print # _bb4

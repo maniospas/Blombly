@@ -20,6 +20,10 @@ public:
 
     std::shared_ptr<Data> shallowCopy() const override;
     std::shared_ptr<Data> implement(const OperationType operation, const BuiltinArgs& args) override;
+
+    friend class Integer; 
+    friend class Float; 
+    friend class String; 
 };
 
 #endif // BOOLEAN_H

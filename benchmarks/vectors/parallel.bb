@@ -39,12 +39,13 @@ final PVector = {
             i = i+1;
         );
         ret = new(
-            final list=ret;
+            list=ret;  // TODO: this is necessary right now to avoid an error
+            final list=list;
             final step=step;
             final n=n;
             PVector:
         );
-        return ret; // synchronize computations
+        return ret;
     }
 }
 

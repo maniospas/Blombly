@@ -6,5 +6,8 @@ tic = time();
 c = Vector(n);
 i = 0;
 n = len(c);
-while(i<n, c[i]=a[i]+b[i];i=i+1);
+while(i<n, 
+    c[i]=a[i]+b[i];
+    i=i+1
+);
 print(time()-tic);

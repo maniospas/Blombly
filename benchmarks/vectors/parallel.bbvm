@@ -90,7 +90,8 @@ add i i _bb17
 END
 while # _bb14 _bb15
 BEGIN _bb16
-final # ret
+copy list ret
+final # list
 copy step step
 final # step
 copy n n

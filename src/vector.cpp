@@ -158,7 +158,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
     if(operation==AT && args.size==2 && args.arg0->getType()==VECTOR && args.arg1->getType()==INT) {
         if(ndims==natdims+1) {
             value->lock();
-            int index = std::static_pointer_cast<Integer>(args.arg1)->getValue();
+            int index = ((Integer*)args.arg1.get())->getValue();
             for(int i=0;i<natdims;i++) {
                 index *= dims[i+1];
                 index += atdims[i];
@@ -176,7 +176,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
         }
         else {
             value->lock();
-            int index = std::static_pointer_cast<Integer>(args.arg1)->getValue();
+            int index = ((Integer*)args.arg1.get())->getValue();
             for(int i=0;i<natdims;i++) {
                 index *= dims[i+1];
                 index += atdims[i];
@@ -194,12 +194,12 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
     }
     if(operation==PUT && args.size==3 && args.arg0->getType()==VECTOR && args.arg1->getType()==INT && args.arg2->getType()==FLOAT) {
         value->lock();
-        int index = std::static_pointer_cast<Integer>(args.arg1)->getValue();
+        int index = ((Integer*)args.arg1.get())->getValue();
             for(int i=0;i<natdims;i++) {
                 index *= dims[i+1];
                 index += atdims[i];
             }
-        double newValue = std::static_pointer_cast<Float>(args.arg2)->getValue();
+        double newValue = ((Float*)args.arg2.get())->getValue();
         if(index < 0 || index>=value->size) {
             std::cerr << "Index "<<index<<" out of range [0,"<<value->size<<")\n";
             exit(1);
@@ -210,12 +210,12 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
     }
     if(operation==PUT && args.size==3 && args.arg0->getType()==VECTOR && args.arg1->getType()==INT && args.arg2->getType()==INT) {
         value->lock();
-        int index = std::static_pointer_cast<Integer>(args.arg1)->getValue();
+        int index = ((Integer*)args.arg1.get())->getValue();
             for(int i=0;i<natdims;i++) {
                 index *= dims[i+1];
                 index += atdims[i];
             }
-        int newValue = std::static_pointer_cast<Integer>(args.arg2)->getValue();
+        int newValue = ((Integer*)args.arg2.get())->getValue();
         if(index < 0 || index>=value->size)  {
             std::cerr << "Index "<<index<<" out of range [0,"<<value->size<<")\n";
             exit(1);
@@ -225,48 +225,45 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
         value->unlock();
         return nullptr;
     }
-    if(operation==SUM && args.size==1 && args.arg0->getType()==VECTOR) {
+    if(operation==SUM && args.size==1) {
         value->lock();
-        std::shared_ptr<Vector> a = std::static_pointer_cast<Vector>(args.arg0);
-        if(a->getValue()->size==0) {
+        if(value->size==0) {
             value->unlock();
             std::cout << "Cannot apply sum on empty vector\n";
             return nullptr;
         }
         double ret = 0;
-        for(int i=0;i<a->getValue()->size;i++)
-            ret += a->getValue()->data[i];
+        for(int i=0;i<value->size;i++)
+            ret += value->data[i];
         value->unlock();
         return std::make_shared<Float>(ret);
     }
-    if(operation==MAX && args.size==1 && args.arg0->getType()==VECTOR) {
+    if(operation==MAX && args.size==1) {
         value->lock();
-        std::shared_ptr<Vector> a = std::static_pointer_cast<Vector>(args.arg0);
-        if(a->getValue()->size==0) {
+        if(value->size==0) {
             value->unlock();
             std::cout << "Cannot apply max on empty vector\n";
             return nullptr;
         }
-        double ret = a->getValue()->data[0];
-        for(int i=1;i<a->getValue()->size;i++) {
-            double element = a->getValue()->data[i];
+        double ret = value->data[0];
+        for(int i=1;i<value->size;i++) {
+            double element = value->data[i];
             if(element>ret)
                 ret = element;
         }
         value->unlock();
         return std::make_shared<Float>(ret);
     }
-    if(operation==MIN && args.size==1 && args.arg0->getType()==VECTOR) {
+    if(operation==MIN && args.size==1) {
         value->lock();
-        std::shared_ptr<Vector> a = std::static_pointer_cast<Vector>(args.arg0);
-        if(a->getValue()->size==0) {
+        if(value->size==0) {
             value->unlock();
             std::cout << "Cannot apply min on empty vector\n";
             return nullptr;
         }
-        double ret = a->getValue()->data[0];
-        for(int i=1;i<a->getValue()->size;i++) {
-            double element = a->getValue()->data[i];
+        double ret = value->data[0];
+        for(int i=1;i<value->size;i++) {
+            double element = value->data[i];
             if(element<ret)
                 ret = element;
         }
@@ -274,8 +271,8 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
         return std::make_shared<Float>(ret);
     }
     if(args.size==2 && args.arg0->getType()==VECTOR && args.arg1->getType()==VECTOR) {
-        std::shared_ptr<Vector> a1 = std::static_pointer_cast<Vector>(args.arg0);
-        std::shared_ptr<Vector> a2 = std::static_pointer_cast<Vector>(args.arg1);
+        Vector* a1 = (Vector*)args.arg0.get();
+        Vector* a2 = (Vector*)args.arg1.get();
         bool order = true;
         if(order){
             a1->value->lock();
