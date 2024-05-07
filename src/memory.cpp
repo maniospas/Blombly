@@ -89,6 +89,11 @@ std::shared_ptr<Data> Memory::get(int item, bool allowMutable) {
     return ret;
 }
 
+
+std::shared_ptr<Data> Memory::getOrNullShallow(int item) {
+    return data[item];
+}
+
 // Get a data item or return nullptr if not found
 std::shared_ptr<Data> Memory::getOrNull(int item, bool allowMutable) {
     //if (item == "#") {
@@ -124,7 +129,7 @@ std::shared_ptr<Data> Memory::getOrNull(int item, bool allowMutable) {
 }
 
 // Set a data item, ensuring mutability rules are followed
-void Memory::set(int item, std::shared_ptr<Data> value) {
+void Memory::set(int item, const std::shared_ptr<Data>& value) {
     //if (item == "#") {
     //    return;
     //}

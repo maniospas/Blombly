@@ -52,8 +52,9 @@
 
 
 std::chrono::steady_clock::time_point program_start;
-VariableManager variableManager; // .lastId will always be 0
-#define MEMGET(memory, arg) (command->args[arg]?(command->knownLocal[arg]?memory->locals[command->args[arg]]:memory->get(command->args[arg])):prevValue)
+VariableManager variableManager; // .lastId will always be 0 (currently it is disabled)
+//#define MEMGET(memory, arg) (command->args[arg]?(command->knownLocal[arg]?memory->locals[command->args[arg]]:memory->get(command->args[arg])):prevValue)
+#define MEMGET(memory, arg) (command->knownLocal[arg]?memory->locals[command->args[arg]]:memory->get(command->args[arg]))
 
 
 class Command {
@@ -209,36 +210,45 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
         *returnSignal = false;
         returnSignalHandler = true;
     }
-    std::shared_ptr<Data> prevValue;
+    //std::shared_ptr<Data> prevValue;
     BuiltinArgs args;
     int cmdSize;
+    std::shared_ptr<Data> value;
     for(int i=start;i<=end;i++) {
         auto command = program->at(i);
-        std::shared_ptr<Data> value;
         //std::cout << command[0]<<"\n";
         switch(command->operation) {
             case BUILTIN:
-                value = command->value;
+                if(command->knownLocal[0]) {
+                    value = command->value;
+                    value->isMutable = false; 
+                    // since locals are get and set without any restriction,
+                    // setting them as immutable just prevents the actual internal 
+                    // value of builtins from being modified
+                }
+                else {
+                    value = command->value->shallowCopy(); // TODO: find ways to optimize this (adds +7% to runtime)
+                }
             break;
             case FINAL:
                 if(command->knownLocal[1]) {
                     std::cerr << "Cannot finalize a local variable (starting with _bb...)"<<std::endl;
                     exit(1);
                 }
-                MEMGET(memory, 1)->isMutable = false;
+                value = MEMGET(memory, 1);
+                value->isMutable = false;
             break;
             case PRINT:{
+                std::string printing("");
                 for(int i=1;i<command->nargs;i++) {
                     std::shared_ptr<Data> printable = MEMGET(memory, i);
                     if(printable) {
                         std::string out = printable->toString();
-                        pthread_mutex_lock(&printLock);
-                        std::cout << out << " ";
-                        pthread_mutex_unlock(&printLock);
+                        printing += out+" ";
                     }
                 }
                 pthread_mutex_lock(&printLock); 
-                std::cout << "\n";
+                std::cout << printing << std::endl;
                 pthread_mutex_unlock(&printLock);
             }
             break;
@@ -271,12 +281,15 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
             case END: 
                 if(returnSignalHandler) {
                     for(std::shared_ptr<Future> thread : memory->attached_threads)
-                        thread->getResult(); 
+                        thread->getResult();
                     delete returnSignal;
-                    if(prevValue)
-                        prevValue = prevValue->shallowCopy();
+                    //if(prevValue)
+                    //    prevValue = prevValue->shallowCopy();
+                    if(value)
+                        value = value->shallowCopy();
                 }
-                return prevValue;
+                //return prevValue;
+                return value;
             break;
             case CALL: {
                 // create new writable memory under the current context
@@ -360,7 +373,7 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                     value = nullptr;
                 }*/
                 else {
-                    std::shared_ptr<Struct> obj = std::static_pointer_cast<Struct>(value);
+                    Struct* obj = (Struct*)value.get();
                     std::shared_ptr<Data> setValue = MEMGET(memory, 3);
                     if(command->knownLocal[2]) {
                         std::cerr << "Cannot set a field that is a local variable (starting with _bb...)"<<std::endl;
@@ -384,8 +397,8 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                     exit(1);
                 }
                 else {
-                    std::shared_ptr<Code> codeCondition = std::static_pointer_cast<Code>(condition);
-                    std::shared_ptr<Code> codeAccept = accept?std::static_pointer_cast<Code>(accept):nullptr;
+                    Code* codeCondition = (Code*)condition.get();
+                    Code* codeAccept = accept?(Code*)accept.get():nullptr;
                     while(true) {
                         std::shared_ptr<Data> check = executeBlock(program, codeCondition->getStart(), codeCondition->getEnd(), memory, returnSignal);
                         if(*returnSignal) {
@@ -403,7 +416,7 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                             exit(1);
                             break;
                         }
-                        else if(std::static_pointer_cast<Boolean>(check)->getValue()) 
+                        else if(((Boolean*)check.get())->getValue()) 
                             value = executeBlock(program, codeAccept->getStart(), codeAccept->getEnd(), memory, returnSignal);
                         else
                             break;
@@ -438,9 +451,9 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                     exit(1);
                 }
                 else {
-                    std::shared_ptr<Code> codeCondition = std::static_pointer_cast<Code>(condition);
-                    std::shared_ptr<Code> codeAccept = accept?std::static_pointer_cast<Code>(accept):nullptr;
-                    std::shared_ptr<Code> codeReject = reject?std::static_pointer_cast<Code>(reject):nullptr;
+                    Code* codeCondition = (Code*)condition.get();
+                    Code* codeAccept = accept?(Code*)accept.get():nullptr;
+                    Code* codeReject = reject?(Code*)reject.get():nullptr;
                     std::shared_ptr<Data> check = executeBlock(program, codeCondition->getStart(), codeCondition->getEnd(), memory, returnSignal);
                     if(*returnSignal) {
                         if(returnSignalHandler)
@@ -454,7 +467,7 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                         std::cerr << "Logical condition failed to evaluate to bool" << std::endl;
                         exit(1);
                     }
-                    else if(std::static_pointer_cast<Boolean>(check)->getValue()) {
+                    else if(((Boolean*)check.get())->getValue()) {
                         if(codeAccept)
                             value = executeBlock(program, codeAccept->getStart(), codeAccept->getEnd(), memory, returnSignal);
                     }
@@ -485,7 +498,7 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                     value = nullptr;
                 }
                 else {
-                    std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
+                    Code* code = (Code*)value.get();
                     value = executeBlock(program, code->getStart(), code->getEnd(), memory, returnSignal);
                     if(*returnSignal){
                         if(returnSignalHandler)
@@ -501,7 +514,7 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
             case DEFAULT:{
                 value = MEMGET(memory, 1);
                 if(value->getType()==STRUCT) {
-                    std::shared_ptr<Struct> code = std::static_pointer_cast<Struct>(value);
+                    Struct* code = (Struct*)value.get();
                     memory->replaceMissing(code->getMemory());
                 }
                 else if(value->getType()!=CODE) {
@@ -512,7 +525,7 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                 else {
                     std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
                     //newMemory->set("locals", std::make_shared<Struct>(newMemory));
-                    std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
+                    Code* code = (Code*)value.get();
                     value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, returnSignal);
                     memory->replaceMissing(newMemory);
                     if(*returnSignal){
@@ -539,7 +552,7 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                     thisObj->isMutable = false;
                     newMemory->set(variableManager.thisId, thisObj);
                     //newMemory->set("locals", std::make_shared<Struct>(newMemory));
-                    std::shared_ptr<Code> code = std::static_pointer_cast<Code>(value);
+                    Code* code = (Code*)value.get();
                     value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, nullptr);
                     newMemory->detach();
                 }
@@ -566,8 +579,9 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                     args.arg1 = MEMGET(memory, 2);
                 if(cmdSize>3)
                     args.arg2 = MEMGET(memory, 3);
-                args.preallocResult = (command->args[0]?(command->knownLocal[0]?memory->locals[command->args[0]]:memory->getOrNull(command->args[0], true)):prevValue);
-                if(args.preallocResult && !args.preallocResult->isMutable)
+                //args.preallocResult = (command->args[0]?(command->knownLocal[0]?memory->locals[command->args[0]]:memory->getOrNull(command->args[0], true)):prevValue);
+                args.preallocResult = (command->knownLocal[0]?memory->locals[command->args[0]]:memory->getOrNullShallow(command->args[0]));
+                if(args.preallocResult && !args.preallocResult->isMutable) 
                     args.preallocResult = nullptr;
                 value = Data::run(command->operation, args);
             break;
@@ -578,16 +592,16 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
             else
                 memory->set(command->args[0], value);
         }
-        prevValue = value;
+        //prevValue = value;
     }
     if(returnSignalHandler) {
         for(std::shared_ptr<Future> thread : memory->attached_threads)
             thread->getResult(); 
         delete returnSignal;
-        if(prevValue)
-            prevValue = prevValue->shallowCopy(); // shallow copy only when not in inline execution
+        if(value)
+            value = value->shallowCopy(); // shallow copy only when not in inline execution
     }
-    return prevValue;
+    return value;
 }
 
 

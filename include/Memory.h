@@ -22,7 +22,7 @@ public:
     int lastId;
     int noneId;
     VariableManager() {
-        lastId = getId("LAST");
+        //lastId = getId("LAST");
         thisId = getId("this");
         argsId = getId("args");
         noneId = getId("#");
@@ -65,7 +65,8 @@ public:
     std::shared_ptr<Data> get(int item);
     std::shared_ptr<Data> get(int item, bool allowMutable);
     std::shared_ptr<Data> getOrNull(int item, bool allowMutable);
-    void set(int item, std::shared_ptr<Data> value);
+    std::shared_ptr<Data> getOrNullShallow(int item);
+    void set(int item, const std::shared_ptr<Data>& value);
 
     // Methods to manage inheritance and synchronization with other Memory objects
     void pull(std::shared_ptr<Memory> other);
