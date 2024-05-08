@@ -18,9 +18,9 @@ private:
     tsl::hopscotch_map<std::string, int> registeredSymbols;
     tsl::hopscotch_map<int, std::string> registeredIds;
 public:
-    int argsId;
+    //int lastId;
     int thisId;
-    int lastId;
+    int argsId;
     int noneId;
     VariableManager() {
         //lastId = getId("LAST");

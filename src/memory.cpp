@@ -183,7 +183,7 @@ void Memory::set(int item, const std::shared_ptr<Data>& value) {
 
     //lock();
     if (data[item] != nullptr && !data[item]->isMutable) {
-        bool couldBeShallowCopy = data[item]->couldBeShallowCopy(value);
+        bool couldBeShallowCopy = data[item]==value;//data[item]->couldBeShallowCopy(value);
         //unlock();
         if (!couldBeShallowCopy) {
             std::cerr << "Cannot overwrite final value: " + variableManager.getSymbol(item) << std::endl;
@@ -204,21 +204,21 @@ void Memory::pull(std::shared_ptr<Memory> other) {
 
 // Replace missing values with those from another Memory object
 void Memory::replaceMissing(std::shared_ptr<Memory> other) {
-    for (auto& it : other->data) {
-        if (!data[it.first]) {
-            set(it.first, it.second);
-        }
-    }
+    for (auto& it : other->data) 
+        if (!data[it.first]) 
+            data[it.first] = std::move(it.second);
 }
 
 // Detach this memory from its parent
 void Memory::detach() {
     allowMutables = false;
     parent = nullptr;
+    locals.clear();
 }
 
 // Detach this memory from its parent but retain reference
 void Memory::detach(std::shared_ptr<Memory> par) {
     allowMutables = false;
     parent = std::move(par);
+    locals.clear();
 }

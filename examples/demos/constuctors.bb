@@ -7,7 +7,7 @@ final PairAdder = {
         other = pop(args);
         x = x + other.x;
         y = y + other.y;
-        return new(x=x;y=y;class:); // inline constructor since our data structure is lightweight
+        return new(x=x;y=y;class:); // inline constructor
     }
 }
 final PairStr = {

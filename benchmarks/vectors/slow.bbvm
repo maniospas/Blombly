@@ -9,19 +9,14 @@ BEGIN _bb0
 lt _bbresult0 i n
 END
 BEGIN _bb1
-BEGIN _bb2
-BUILTIN _bb3 I1
-lt _bbresult1 i _bb3
-END
-BEGIN _bb4
-BUILTIN _bb5 "test"
-print # _bb5
-END
-if # _bb2 _bb4
-BUILTIN _bb6 I1
-add i i _bb6
+at _bb2 a i
+at _bb4 b i
+add _bb7 _bb2 _bb4
+put # c i _bb7
+BUILTIN _bb8 I1
+add i i _bb8
 END
 while # _bb0 _bb1
-time _bb8
-sub _bb7 _bb8 tic
-print # _bb7
+time _bb10
+sub _bb9 _bb10 tic
+print # _bb9

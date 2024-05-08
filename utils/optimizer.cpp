@@ -108,12 +108,12 @@ int optimize(const std::string& source, const std::string& destination) {
             program[declaration]->args[1] = to_replace;
             program[i]->enabled = false;
         }
-        else if(i<program.size()-1)
+        /*else if(i<program.size()-1)
             for(int k=2;k<program[i+1]->args.size();k++)
                 if(to_replace==program[i+1]->args[k]){
                     to_replace=program[i+1]->args[k] = symbol;
-                program[i]->enabled = false;
-            }
+                    program[i]->enabled = false;
+                }*/
     }
 
     
@@ -144,6 +144,8 @@ int optimize(const std::string& source, const std::string& destination) {
         && command->args[0]!="if" 
         && command->args[0]!="while" 
         && command->args[0]!="print"
+        && command->args[0]!="set"
+        && command->args[0]!="final"
         && command->args[0]!="push"
         && command->args[0]!="put") {
             command->args[1] = "_bbresult"+std::to_string(cacheNum);
@@ -154,7 +156,7 @@ int optimize(const std::string& source, const std::string& destination) {
     // remove put and push assignments
     for(int i=0;i<program.size();i++) {
         std::shared_ptr<OptimizerCommand> command = program[i];
-        if(command->args[0]=="put" || command->args[0]=="push") 
+        if(command->args[0]=="put" || command->args[0]=="push" || command->args[0]=="set"|| command->args[0]=="final") 
             command->args[1] = "#";
     }
 

@@ -6,16 +6,16 @@ int step _bb1
 END
 default _bbresult0 _bb0
 copy step step
-final _bbresult1 step
+final # step
 List list
-final _bbresult2 list
+final # list
 copy n n
-final _bbresult3 n
+final # n
 div _bb3 n step
 int num _bb3
 BUILTIN i I0
 BEGIN _bb4
-lt _bbresult4 i num
+lt _bbresult1 i num
 END
 BEGIN _bb5
 mul start i step
@@ -23,7 +23,7 @@ BEGIN _bb6
 BUILTIN _bb8 I1
 add _bb7 i _bb8
 mul end _bb7 step
-gt _bbresult5 end n
+gt _bbresult2 end n
 END
 BEGIN _bb9
 IS end n
@@ -39,7 +39,7 @@ while # _bb4 _bb5
 END
 BEGINFINAL PVector
 copy PVector PVector
-final _bbresult6 PVector
+final # PVector
 BEGINFINAL put
 poll this args
 poll pos args
@@ -52,7 +52,7 @@ poll _bb17 args
 put # _bb14 _bb15 _bb17
 END
 BEGINFINAL len
-return _bbresult7 n
+return _bbresult3 n
 END
 BEGINFINAL at
 poll this args
@@ -63,7 +63,7 @@ at _bb20 list id
 mul _bb22 id step
 sub _bb21 pos _bb22
 at _bb19 _bb20 _bb21
-return _bbresult8 _bb19
+return _bbresult4 _bb19
 END
 BEGINFINAL add
 poll this args
@@ -78,7 +78,7 @@ END
 BUILTIN i I0
 BEGIN _bb29
 len _bb30 list
-lt _bbresult9 i _bb30
+lt _bbresult5 i _bb30
 END
 BEGIN _bb31
 BEGIN _bb32
@@ -87,39 +87,40 @@ get b other list
 IS c ret
 copy i i
 END
-call _bbresult10 _bb32 adder
+call _bbresult6 _bb32 adder
 BUILTIN _bb34 I1
 add i i _bb34
 END
 while # _bb29 _bb31
 BEGIN _bb35
-copy list ret
-final _bbresult11 list
+IS list ret
+copy list list
+final # list
 copy step step
-final _bbresult12 step
+final # step
 copy n n
-final _bbresult13 n
-inline _bbresult14 PVector
-return _bbresult15 this
+final # n
+inline _bbresult7 PVector
+return _bbresult8 this
 END
 new ret _bb35
-return _bbresult16 ret
+return _bbresult9 ret
 END
 END
 BUILTIN n I10000000
 BUILTIN pos I5
 BEGIN _bb36
 copy n n
-inline _bbresult17 Zeros
-inline _bbresult18 PVector
-return _bbresult19 this
+inline _bbresult10 Zeros
+inline _bbresult11 PVector
+return _bbresult12 this
 END
 new a _bb36
 BEGIN _bb37
 copy n n
-inline _bbresult20 Zeros
-inline _bbresult21 PVector
-return _bbresult22 this
+inline _bbresult13 Zeros
+inline _bbresult14 PVector
+return _bbresult15 this
 END
 new b _bb37
 BUILTIN _bb39 F1.2

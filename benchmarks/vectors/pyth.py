@@ -11,6 +11,7 @@ i = 0
 while i<n:
     if i<1:
         print("test")
+    #z[i] = x[i]+y[i]
     i = i+1
 toc = time.time()
 print(toc-tic)

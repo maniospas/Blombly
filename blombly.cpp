@@ -177,12 +177,13 @@ public:
             std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
             //newMemory->set("locals", std::make_shared<Struct>(newMemory));
             newMemory->set(variableManager.argsId, args);
-            newMemory->detach(code->getDeclarationMemory());
+            //memory->detach(code->getDeclarationMemory()); // MEMORY HIERARCHY FROM PARENT TO CHILD: code->getDeclarationMemory() -> memory (struct data) -> newMemory (function scope)
             std::shared_ptr<FutureData> data = std::make_shared<FutureData>();
             data->result = std::make_shared<ThreadResult>();
             std::vector<Command*>* program = (std::vector<Command*>*)code->getProgram();
             std::shared_ptr<Data> value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, 
                 nullptr, nullptr);
+            //memory->detach();
             //for(std::shared_ptr<Future> thread : memory->attached_threads)
             //    thread->getResult();
             return value;
@@ -420,8 +421,8 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                 }
             break;
             case WHILE: {
-                std::shared_ptr<Data> condition = MEMGET(memory, 1);
-                std::shared_ptr<Data> accept = MEMGET(memory, 2);
+                Data* condition = MEMGET(memory, 1).get();
+                Data* accept = MEMGET(memory, 2).get();
                 if(condition->getType()!=CODE) {
                     std::cerr << "Can only inline a non-called code block for while condition" << std::endl;
                     exit(1);
@@ -431,8 +432,8 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                     exit(1);
                 }
                 else {
-                    Code* codeCondition = (Code*)condition.get();
-                    Code* codeAccept = accept?(Code*)accept.get():nullptr;
+                    Code* codeCondition = (Code*)condition;
+                    Code* codeAccept = (Code*)accept;
                     int codeConditionStart = codeCondition->getStart();
                     int codeConditionEnd = codeCondition->getEnd();
                     int codeAcceptStart = codeAccept->getStart();
@@ -475,9 +476,9 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
             }
             break;
             case IF:{
-                std::shared_ptr<Data> condition = MEMGET(memory, 1);
-                std::shared_ptr<Data> accept = MEMGET(memory, 2);
-                std::shared_ptr<Data> reject = command->nargs>3?(MEMGET(memory, 3)):nullptr;
+                Data* condition = MEMGET(memory, 1).get();
+                Data* accept = MEMGET(memory, 2).get();
+                Data*reject = command->nargs>3?(MEMGET(memory, 3).get()):nullptr;
                 if(condition->getType()!=CODE) {
                     std::cerr << "Can only inline a non-called code block for if condition" << std::endl;
                     exit(1);
@@ -491,9 +492,9 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                     exit(1);
                 }
                 else {
-                    Code* codeCondition = (Code*)condition.get();
-                    Code* codeAccept = accept?(Code*)accept.get():nullptr;
-                    Code* codeReject = reject?(Code*)reject.get():nullptr;
+                    Code* codeCondition = (Code*)condition;
+                    Code* codeAccept = (Code*)accept;
+                    Code* codeReject = (Code*)reject;
                     std::shared_ptr<Data> check = executeBlock(program, codeCondition->getStart(), codeCondition->getEnd(), memory, returnSignal, args);
                     
                     if(*returnSignal) {
