@@ -1,24 +1,56 @@
-BUILTIN x I1
-BEGIN sign
-BEGIN _bb0
-BUILTIN _bb1 I0
-gt _bbresult0 x _bb1
-END
-BEGIN _bb2
-BUILTIN _bb3 I1
-return _bbresult1 _bb3
-END
-BEGIN _bb4
-BUILTIN _bb7 I1
-sub _bb5 _bb6 _bb7
-return _bbresult2 _bb5
-END
-if # _bb0 _bb2 _bb4
-END
-BEGIN _bb10
+BEGINFINAL Vector
+copy Vector Vector
+final _bbresult0 Vector
 copy x x
+final _bbresult1 x
+copy y y
+final _bbresult2 y
+BEGINFINAL add
+poll this args
+poll other args
+BEGIN _bb1
+get _bb2 other x
+add _bb4 x _bb2
+set _bbresult3 this x _bb4
+get _bb5 other y
+add _bb7 y _bb5
+set _bbresult4 this y _bb7
+inline _bbresult5 Vector
+return _bbresult6 this
 END
-call _bb9 _bb10 sign
-BUILTIN _bb11 I1
-add _bb8 _bb9 _bb11
-print # _bb8
+new _bb0 _bb1
+return _bbresult7 _bb0
+END
+BEGINFINAL str
+BUILTIN _bb8 "{"
+get _bb11 this x
+str _bb10 _bb11
+BUILTIN _bb14 ","
+get _bb17 this y
+str _bb16 _bb17
+BUILTIN _bb19 "}"
+add _bb15 _bb16 _bb19
+add _bb13 _bb14 _bb15
+add _bb9 _bb10 _bb13
+add ret _bb8 _bb9
+return _bbresult8 ret
+END
+END
+BEGIN _bb20
+BUILTIN x I1
+BUILTIN y I2
+inline _bbresult9 Vector
+return _bbresult10 this
+END
+new a _bb20
+BEGIN _bb21
+BUILTIN x I31
+BUILTIN y I42
+inline _bbresult11 Vector
+return _bbresult12 this
+END
+new b _bb21
+add c a b
+BUILTIN _bb22 "+"
+BUILTIN _bb23 "="
+print # a _bb22 b _bb23 c

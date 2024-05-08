@@ -140,7 +140,18 @@ public:
         return data->getType()==STRUCT && std::static_pointer_cast<Struct>(data)->memory==memory;
     }*/
     int getType() const override {return STRUCT;}
-    std::string toString() const override {return "struct";}
+    std::string toString() const override {
+        try{
+            BuiltinArgs args;
+            args.size = 1;
+            args.arg0 = (Data*)this;
+            std::shared_ptr<Data> repr = Data::run(TOSTR, &args);
+            return repr->toString();
+        }
+        catch(Unimplemented){
+        }
+        return "struct";
+    }
     std::shared_ptr<Memory>& getMemory() {return memory;}
     void lock() {memory->lock();}
     void unlock(){memory->unlock();}
@@ -155,11 +166,11 @@ public:
         std::shared_ptr<BList> args = std::make_shared<BList>();
         args->contents->contents.reserve(4);
          // TODO: investigate if shallow copy is needed bellow (update: needed for new version of BuiltinArgs)
-        if(args_->size>0 && args_->arg0!=this)
+        if(args_->size>0)
             args->contents->contents.push_back(args_->arg0->shallowCopy()); 
-        if(args_->size>1 && args_->arg1!=this)
+        if(args_->size>1)
             args->contents->contents.push_back(args_->arg1->shallowCopy()); 
-        if(args_->size>2 && args_->arg2!=this)
+        if(args_->size>2)
             args->contents->contents.push_back(args_->arg2->shallowCopy()); 
         if(implementation->getType()==CODE) {
             Code* code = (Code*)implementation.get();
