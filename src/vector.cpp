@@ -121,7 +121,7 @@ std::shared_ptr<Data> Vector::shallowCopy() const {
 }
 
 
-std::shared_ptr<Data> Vector::implement(const OperationType operation, const BuiltinArgs& args)  {
+std::shared_ptr<Data> Vector::implement(const OperationType operation, const BuiltinArgs* args)  {
     /*switch(operation) {
         case TOCOPY:
             return std::make_shared<Vector>(value, this);
@@ -140,25 +140,25 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
             
         }
     }*/
-    if(operation==TOCOPY && args.size==1 && args.arg0->getType()==VECTOR)
+    if(operation==TOCOPY && args->size==1 && args->arg0->getType()==VECTOR)
         return std::make_shared<Vector>(value, this);
-    if(operation==LEN && args.size==1 && args.arg0->getType()==VECTOR)
+    if(operation==LEN && args->size==1 && args->arg0->getType()==VECTOR)
         return std::make_shared<Integer>(value->size);
-    if(operation==TOSTR && args.size==1 && args.arg0->getType()==VECTOR) {
+    if(operation==TOSTR && args->size==1 && args->arg0->getType()==VECTOR) {
         std::string ret = toString();
         return std::make_shared<BString>(ret);
     }
-    if(operation==SHAPE && args.size==1 && args.arg0->getType()==VECTOR) {
+    if(operation==SHAPE && args->size==1 && args->arg0->getType()==VECTOR) {
         int n = ndims;
         std::shared_ptr<Vector> ret = std::make_shared<Vector>(n);
         for(int i=0;i<n;i++)
             ret->value->data[i] = dims[i];
         return ret;
     }
-    if(operation==AT && args.size==2 && args.arg0->getType()==VECTOR && args.arg1->getType()==INT) {
+    if(operation==AT && args->size==2 && args->arg0->getType()==VECTOR && args->arg1->getType()==INT) {
         if(ndims==natdims+1) {
             value->lock();
-            int index = ((Integer*)args.arg1.get())->getValue();
+            int index = ((Integer*)args->arg1)->getValue();
             for(int i=0;i<natdims;i++) {
                 index *= dims[i+1];
                 index += atdims[i];
@@ -176,7 +176,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
         }
         else {
             value->lock();
-            int index = ((Integer*)args.arg1.get())->getValue();
+            int index = ((Integer*)args->arg1)->getValue();
             for(int i=0;i<natdims;i++) {
                 index *= dims[i+1];
                 index += atdims[i];
@@ -192,14 +192,14 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
             return ret;
         }
     }
-    if(operation==PUT && args.size==3 && args.arg0->getType()==VECTOR && args.arg1->getType()==INT && args.arg2->getType()==FLOAT) {
+    if(operation==PUT && args->size==3 && args->arg0->getType()==VECTOR && args->arg1->getType()==INT && args->arg2->getType()==FLOAT) {
         value->lock();
-        int index = ((Integer*)args.arg1.get())->getValue();
+        int index = ((Integer*)args->arg1)->getValue();
             for(int i=0;i<natdims;i++) {
                 index *= dims[i+1];
                 index += atdims[i];
             }
-        double newValue = ((Float*)args.arg2.get())->getValue();
+        double newValue = ((Float*)args->arg2)->getValue();
         if(index < 0 || index>=value->size) {
             std::cerr << "Index "<<index<<" out of range [0,"<<value->size<<")\n";
             exit(1);
@@ -208,14 +208,14 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
         value->unlock();
         return nullptr;
     }
-    if(operation==PUT && args.size==3 && args.arg0->getType()==VECTOR && args.arg1->getType()==INT && args.arg2->getType()==INT) {
+    if(operation==PUT && args->size==3 && args->arg0->getType()==VECTOR && args->arg1->getType()==INT && args->arg2->getType()==INT) {
         value->lock();
-        int index = ((Integer*)args.arg1.get())->getValue();
+        int index = ((Integer*)args->arg1)->getValue();
             for(int i=0;i<natdims;i++) {
                 index *= dims[i+1];
                 index += atdims[i];
             }
-        int newValue = ((Integer*)args.arg2.get())->getValue();
+        int newValue = ((Integer*)args->arg2)->getValue();
         if(index < 0 || index>=value->size)  {
             std::cerr << "Index "<<index<<" out of range [0,"<<value->size<<")\n";
             exit(1);
@@ -225,7 +225,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
         value->unlock();
         return nullptr;
     }
-    if(operation==SUM && args.size==1) {
+    if(operation==SUM && args->size==1) {
         value->lock();
         if(value->size==0) {
             value->unlock();
@@ -238,7 +238,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
         value->unlock();
         return std::make_shared<Float>(ret);
     }
-    if(operation==MAX && args.size==1) {
+    if(operation==MAX && args->size==1) {
         value->lock();
         if(value->size==0) {
             value->unlock();
@@ -254,7 +254,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
         value->unlock();
         return std::make_shared<Float>(ret);
     }
-    if(operation==MIN && args.size==1) {
+    if(operation==MIN && args->size==1) {
         value->lock();
         if(value->size==0) {
             value->unlock();
@@ -270,9 +270,9 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
         value->unlock();
         return std::make_shared<Float>(ret);
     }
-    if(args.size==2 && args.arg0->getType()==VECTOR && args.arg1->getType()==VECTOR) {
-        Vector* a1 = (Vector*)args.arg0.get();
-        Vector* a2 = (Vector*)args.arg1.get();
+    if(args->size==2 && args->arg0->getType()==VECTOR && args->arg1->getType()==VECTOR) {
+        Vector* a1 = (Vector*)args->arg0;
+        Vector* a2 = (Vector*)args->arg1;
         bool order = true;
         if(order){
             a1->value->lock();
@@ -362,19 +362,19 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
         }
         return retret;
     }
-    if(args.size==2 
-        && (args.arg0->getType()==VECTOR || args.arg0->getType()==FLOAT || args.arg0->getType()==INT) 
-        && (args.arg1->getType()==VECTOR || args.arg1->getType()==FLOAT || args.arg1->getType()==INT)
-        && ((args.arg0->getType()==VECTOR)!=(args.arg1->getType()==VECTOR))) { 
-        std::shared_ptr<RawVector> vec = args.arg0->getType()==VECTOR?std::static_pointer_cast<Vector>(args.arg0)->getValue():std::static_pointer_cast<Vector>(args.arg1)->getValue();
-        std::shared_ptr<Data> uncastedother = args.arg0->getType()==VECTOR?args.arg1:args.arg0;
-        double v = uncastedother->getType()==INT?std::static_pointer_cast<Integer>(uncastedother)->getValue():std::static_pointer_cast<Float>(uncastedother)->getValue();
+    if(args->size==2 
+        && (args->arg0->getType()==VECTOR || args->arg0->getType()==FLOAT || args->arg0->getType()==INT) 
+        && (args->arg1->getType()==VECTOR || args->arg1->getType()==FLOAT || args->arg1->getType()==INT)
+        && ((args->arg0->getType()==VECTOR)!=(args->arg1->getType()==VECTOR))) { 
+        std::shared_ptr<RawVector> vec = args->arg0->getType()==VECTOR?((Vector*)args->arg0)->getValue():((Vector*)args->arg1)->getValue();
+        Data* uncastedother = args->arg0->getType()==VECTOR?args->arg1:args->arg0;
+        double v = uncastedother->getType()==INT?((Integer*)uncastedother)->getValue():((Float*)uncastedother)->getValue();
         vec->lock();
         int n = vec->size;
         std::shared_ptr<RawVector> rawret = std::make_shared<RawVector>(n);
         double* ret = rawret->data;
         double* dat = value->data;
-        bool left = args.arg0->getType()==VECTOR;
+        bool left = args->arg0->getType()==VECTOR;
         if(operation==EQ) 
             for(int i=0;i<n;i++)
                 ret[i] = dat[i]==v;

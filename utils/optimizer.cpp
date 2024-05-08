@@ -134,7 +134,16 @@ int optimize(const std::string& source, const std::string& destination) {
                 command->args[j] = std::to_string(symbols[command->args[j]]);
     }*/
 
-
+    
+    // add outcome caches (these prevent re-initialization of shared pointers that have been previously computed)
+    int cacheNum = 0;
+    for(int i=0;i<program.size();i++) {
+        std::shared_ptr<OptimizerCommand> command = program[i];
+        if(command->args[1]=="#" && command->args[0]!="if" && command->args[0]!="while" && command->args[0]!="print") {
+            command->args[1] = "_bbcache"+std::to_string(cacheNum);
+            cacheNum += 1;
+        }
+    }
 
     // save the compiled code to the destination file
     std::ofstream outputFile(destination);

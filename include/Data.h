@@ -9,9 +9,9 @@
 
 class Data;
 struct BuiltinArgs {
-    std::shared_ptr<Data> arg0;
-    std::shared_ptr<Data> arg1;
-    std::shared_ptr<Data> arg2;
+    Data* arg0;
+    Data* arg1;
+    Data* arg2;
     int size;
     std::shared_ptr<Data> preallocResult;
 };
@@ -28,8 +28,8 @@ public:
         return false;
     }
     virtual ~Data() = default;
-    static std::shared_ptr<Data> run(const OperationType operation, const BuiltinArgs& args);
-    virtual std::shared_ptr<Data> implement(const OperationType operation, const BuiltinArgs& args) {
+    static std::shared_ptr<Data> run(const OperationType operation, const BuiltinArgs* args);
+    virtual std::shared_ptr<Data> implement(const OperationType operation, const BuiltinArgs* args) {
         throw Unimplemented();
     }
 };

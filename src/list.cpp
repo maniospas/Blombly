@@ -51,14 +51,14 @@ std::shared_ptr<Data> List::shallowCopy() const {
 }
 
 // Implement the specified operation
-std::shared_ptr<Data> List::implement(const OperationType operation, const BuiltinArgs& args) {
-    if(args.size==1 && args.arg0->getType()==LIST && operation==TOCOPY)
+std::shared_ptr<Data> List::implement(const OperationType operation, const BuiltinArgs* args) {
+    if(args->size==1 && args->arg0->getType()==LIST && operation==TOCOPY)
         return std::make_shared<List>(contents);
-    if(args.size==1 && args.arg0->getType()==LIST && operation==LEN)
+    if(args->size==1 && args->arg0->getType()==LIST && operation==LEN)
         return std::make_shared<Integer>(contents->contents.size());
-    if(args.size==2 && args.arg0->getType()==LIST && args.arg1->getType()==INT && operation==AT) {
+    if(args->size==2 && args->arg0->getType()==LIST && args->arg1->getType()==INT && operation==AT) {
         contents->lock();
-        int index = std::static_pointer_cast<Integer>(args.arg1)->getValue();
+        int index = ((Integer*)args->arg1)->getValue();
         if(index < 0 || index>=contents->contents.size()) {
             std::cerr << "List index "<<index<<" out of range [0,"<<contents->contents.size()<<")\n";
             contents->unlock();
@@ -69,19 +69,7 @@ std::shared_ptr<Data> List::implement(const OperationType operation, const Built
         contents->unlock();
         return ret;
     }
-    if(args.size==2 && args.arg0->getType()==LIST && operation==PUSH) {
-        contents->lock();
-        contents->contents.push_back(args.arg1);
-        contents->unlock();
-        return args.arg0;
-    }
-    if(args.size==2 && args.arg1->getType()==LIST && operation==POP) {
-        contents->lock();
-        contents->contents.push_back(args.arg0);
-        contents->unlock();
-        return args.arg1;
-    }
-    if(args.size==1 && args.arg0->getType()==LIST && operation==POP) {
+    if(args->size==1 && args->arg0->getType()==LIST && operation==POP) {
         contents->lock();
         std::shared_ptr<Data> ret = contents->contents.size()?contents->contents[contents->contents.size()-1]:nullptr;
         if(contents->contents.size())
@@ -89,7 +77,7 @@ std::shared_ptr<Data> List::implement(const OperationType operation, const Built
         contents->unlock();
         return ret;
     }
-    if(args.size==1 && args.arg0->getType()==LIST && operation==POLL) {
+    if(args->size==1 && args->arg0->getType()==LIST && operation==POLL) {
         contents->lock();
         std::shared_ptr<Data> ret = contents->contents.size()?contents->contents[0]:nullptr;
         if(contents->contents.size())
@@ -97,7 +85,7 @@ std::shared_ptr<Data> List::implement(const OperationType operation, const Built
         contents->unlock();
         return ret;
     }
-    if(args.size==1 && args.arg0->getType()==LIST && operation==POP) {
+    if(args->size==1 && args->arg0->getType()==LIST && operation==POP) {
         contents->lock();
         std::shared_ptr<Data> ret = contents->contents.size()?contents->contents[contents->contents.size()-1]:nullptr;
         if(contents->contents.size())
@@ -105,13 +93,13 @@ std::shared_ptr<Data> List::implement(const OperationType operation, const Built
         contents->unlock();
         return ret;
     }
-    if(args.size==3 && args.arg0->getType()==LIST && args.arg1->getType()==INT && operation==PUT) {
+    if(args->size==3 && args->arg0->getType()==LIST && args->arg1->getType()==INT && operation==PUT) {
         contents->lock();
-        int index = std::static_pointer_cast<Integer>(args.arg1)->getValue();
+        int index = ((Integer*)args->arg1)->getValue();
         int diff = index-contents->contents.size();
         for(int i=0;i<=diff;i++)
             contents->contents.push_back(nullptr);
-        contents->contents[index] = args.arg2;
+        contents->contents[index] = args->arg2->shallowCopy();
         contents->unlock();
         return nullptr;
     }

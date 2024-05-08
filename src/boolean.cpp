@@ -26,9 +26,9 @@ std::shared_ptr<Data> Boolean::shallowCopy() const {
 }
 
 // Implement the specified operation
-std::shared_ptr<Data> Boolean::implement(const OperationType operation, const BuiltinArgs& args) {
+std::shared_ptr<Data> Boolean::implement(const OperationType operation, const BuiltinArgs* args) {
     // Single Boolean argument operations
-    if (args.size == 1) {
+    if (args->size == 1) {
         if (operation == TOCOPY || operation == TOBOOL) {
             return std::make_shared<Boolean>(value);
         } 
@@ -39,9 +39,9 @@ std::shared_ptr<Data> Boolean::implement(const OperationType operation, const Bu
     }
 
     // Two Boolean argument operations
-    if (args.size == 2 && args.arg0->getType() == BOOL && args.arg1->getType() == BOOL) {
-        bool v1 = ((Boolean*)args.arg0.get())->getValue();
-        bool v2 = ((Boolean*)args.arg1.get())->getValue();
+    if (args->size == 2 && args->arg0->getType() == BOOL && args->arg1->getType() == BOOL) {
+        bool v1 = ((Boolean*)args->arg0)->getValue();
+        bool v2 = ((Boolean*)args->arg1)->getValue();
         switch(operation) {
             case AND: return std::make_shared<Boolean>(v1 && v2);
             case OR: return std::make_shared<Boolean>(v1 || v2);

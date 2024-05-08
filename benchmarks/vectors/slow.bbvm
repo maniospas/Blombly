@@ -6,15 +6,11 @@ Vector c n
 BUILTIN i I0
 len n c
 BEGIN _bb0
-lt # i n
+lt _bbcache0 i n
 END
 BEGIN _bb1
-at _bb2 a i
-at _bb3 b i
-add _bb5 _bb2 _bb3
-put _bb4 c i _bb5
-BUILTIN _bb6 I1
-add i i _bb6
+BUILTIN _bb2 I1
+add i i _bb2
 END
 while # _bb0 _bb1
 time _bb3

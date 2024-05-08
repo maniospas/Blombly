@@ -47,7 +47,34 @@ void Memory::unlock() {
 
 // Get a data item with mutability check
 std::shared_ptr<Data> Memory::get(int item) {
-    return get(item, true);
+    //if (item == "#") {
+    //    return nullptr;
+    //}
+
+    //lock();
+    std::shared_ptr<Data> ret = data[item];
+    //unlock();
+
+    // Handle future values
+    if (ret && ret->getType() == FUTURE) {
+        ret = std::static_pointer_cast<Future>(ret)->getResult();
+        //lock();
+        data[item] = ret;
+        //unlock();
+    }
+
+    // If not found locally, check parent memory
+    if (!ret && parent) {
+        ret = parent->get(item, allowMutables);
+    }
+
+    // Missing value error
+    if (!ret) {
+        std::cerr << "Missing value: " + variableManager.getSymbol(item) << std::endl;
+        exit(1);
+    }
+
+    return ret;
 }
 
 // Get a data item, optionally allowing mutable values

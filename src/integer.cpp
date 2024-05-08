@@ -30,9 +30,9 @@ std::shared_ptr<Data> Integer::shallowCopy() const {
 }
 
 // Implement the specified operation
-std::shared_ptr<Data> Integer::implement(const OperationType operation, const BuiltinArgs& args) {
+std::shared_ptr<Data> Integer::implement(const OperationType operation, const BuiltinArgs* args) {
     // Single argument operations
-    if (args.size == 1) {
+    if (args->size == 1) {
         switch(operation) {
             case TOCOPY:
             case TOINT: return std::make_shared<Integer>(value);
@@ -44,81 +44,81 @@ std::shared_ptr<Data> Integer::implement(const OperationType operation, const Bu
     }
 
     // Two-argument operations
-    if (args.size == 2 && args.arg0->getType() == INT && args.arg1->getType() == INT) {
-        int v1 = ((Integer*)args.arg0.get())->getValue();
-        int v2 = ((Integer*)args.arg1.get())->getValue();
+    if (args->size == 2 && args->arg0->getType() == INT && args->arg1->getType() == INT) {
+        int v1 = ((Integer*)args->arg0)->getValue();
+        int v2 = ((Integer*)args->arg1)->getValue();
 
         switch(operation) {
             case EQ: 
-                if(args.preallocResult && args.preallocResult->getType()==BOOL) {
-                    ((Boolean*)args.preallocResult.get())->value = v1==v2;
-                    return args.preallocResult;
+                if(args->preallocResult && args->preallocResult->getType()==BOOL) {
+                    ((Boolean*)args->preallocResult.get())->value = v1==v2;
+                    return args->preallocResult;
                 }
                 return std::make_shared<Boolean>(v1 == v2);
             case NEQ: 
-                if(args.preallocResult && args.preallocResult->getType()==BOOL) {
-                    ((Boolean*)args.preallocResult.get())->value = v1!=v2;
-                    return args.preallocResult;
+                if(args->preallocResult && args->preallocResult->getType()==BOOL) {
+                    ((Boolean*)args->preallocResult.get())->value = v1!=v2;
+                    return args->preallocResult;
                 }
                 return std::make_shared<Boolean>(v1 != v2);
             case LT: 
-                if(args.preallocResult && args.preallocResult->getType()==BOOL) {
-                    ((Boolean*)args.preallocResult.get())->value = v1<v2;
-                    return args.preallocResult;
+                if(args->preallocResult && args->preallocResult->getType()==BOOL) {
+                    ((Boolean*)args->preallocResult.get())->value = v1<v2;
+                    return args->preallocResult;
                 }
                 return std::make_shared<Boolean>(v1 < v2);
             case LE:
-                if(args.preallocResult && args.preallocResult->getType()==BOOL) {
-                    ((Boolean*)args.preallocResult.get())->value = v1<=v2;
-                    return args.preallocResult;
+                if(args->preallocResult && args->preallocResult->getType()==BOOL) {
+                    ((Boolean*)args->preallocResult.get())->value = v1<=v2;
+                    return args->preallocResult;
                 }
                 return std::make_shared<Boolean>(v1 <= v2);
             case GT: 
-                if(args.preallocResult && args.preallocResult->getType()==BOOL) {
-                    ((Boolean*)args.preallocResult.get())->value = v1>v2;
-                    return args.preallocResult;
+                if(args->preallocResult && args->preallocResult->getType()==BOOL) {
+                    ((Boolean*)args->preallocResult.get())->value = v1>v2;
+                    return args->preallocResult;
                 }
                 return std::make_shared<Boolean>(v1 > v2);
             case GE: 
-                if(args.preallocResult && args.preallocResult->getType()==BOOL) {
-                    ((Boolean*)args.preallocResult.get())->value = v1>=v2;
-                    return args.preallocResult;
+                if(args->preallocResult && args->preallocResult->getType()==BOOL) {
+                    ((Boolean*)args->preallocResult.get())->value = v1>=v2;
+                    return args->preallocResult;
                 }
                 return std::make_shared<Boolean>(v1 >= v2);
             case ADD: 
-                if(args.preallocResult && args.preallocResult->getType()==INT) {
-                    ((Integer*)args.preallocResult.get())->value = v1+v2;
-                    return args.preallocResult;
+                if(args->preallocResult && args->preallocResult->getType()==INT) {
+                    ((Integer*)args->preallocResult.get())->value = v1+v2;
+                    return args->preallocResult;
                 }
                 return std::make_shared<Integer>(v1+v2);
             case SUB: 
-                if(args.preallocResult && args.preallocResult->getType()==INT) {
-                    ((Integer*)args.preallocResult.get())->value = v1-v2;
-                    return args.preallocResult;
+                if(args->preallocResult && args->preallocResult->getType()==INT) {
+                    ((Integer*)args->preallocResult.get())->value = v1-v2;
+                    return args->preallocResult;
                 }
                 return std::make_shared<Integer>(v1-v2);
             case MUL: 
-                if(args.preallocResult && args.preallocResult->getType()==INT) {
-                    ((Integer*)args.preallocResult.get())->value = v1*v2;
-                    return args.preallocResult;
+                if(args->preallocResult && args->preallocResult->getType()==INT) {
+                    ((Integer*)args->preallocResult.get())->value = v1*v2;
+                    return args->preallocResult;
                 }
                 return std::make_shared<Integer>(v1*v2);
             case MOD: 
-                if(args.preallocResult && args.preallocResult->getType()==INT) {
-                    ((Integer*)args.preallocResult.get())->value = v1%v2;
-                    return args.preallocResult;
+                if(args->preallocResult && args->preallocResult->getType()==INT) {
+                    ((Integer*)args->preallocResult.get())->value = v1%v2;
+                    return args->preallocResult;
                 }
                 return std::make_shared<Integer>(v1%v2);
             case POW: 
-                if(args.preallocResult && args.preallocResult->getType()==INT) {
-                    ((Integer*)args.preallocResult.get())->value = static_cast<int>(std::pow(v1, v2));
-                    return args.preallocResult;
+                if(args->preallocResult && args->preallocResult->getType()==INT) {
+                    ((Integer*)args->preallocResult.get())->value = static_cast<int>(std::pow(v1, v2));
+                    return args->preallocResult;
                 }
                 return std::make_shared<Integer>(static_cast<int>(std::pow(v1, v2)));
             case DIV:
-                if(args.preallocResult && args.preallocResult->getType()==INT) {
-                    ((Integer*)args.preallocResult.get())->value = v1 / static_cast<float>(v2);
-                    return args.preallocResult;
+                if(args->preallocResult && args->preallocResult->getType()==FLOAT) {
+                    ((Integer*)args->preallocResult.get())->value = v1 / static_cast<float>(v2);
+                    return args->preallocResult;
                 }
                 return std::make_shared<Float>(v1 / static_cast<float>(v2));
         }

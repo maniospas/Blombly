@@ -27,7 +27,7 @@ public:
     std::shared_ptr<Memory>& getDeclarationMemory();
 
     std::shared_ptr<Data> shallowCopy() const override;
-    std::shared_ptr<Data> implement(const OperationType operation, const BuiltinArgs& args) override;
+    std::shared_ptr<Data> implement(const OperationType operation, const BuiltinArgs* args) override;
 };
 
 #endif // CODE_H

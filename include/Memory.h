@@ -10,12 +10,13 @@
 #include <pthread.h>
 #include "Data.h"
 #include "Future.h"
+#include "tsl/hopscotch_map.h"
 
 
 class VariableManager {
 private:
-    std::unordered_map<std::string, int> registeredSymbols;
-    std::unordered_map<int, std::string> registeredIds;
+    tsl::hopscotch_map<std::string, int> registeredSymbols;
+    tsl::hopscotch_map<int, std::string> registeredIds;
 public:
     int argsId;
     int thisId;
@@ -44,13 +45,13 @@ public:
 class Memory {
 private:
     std::shared_ptr<Memory> parent;
-    std::unordered_map<int, std::shared_ptr<Data>> data;
+    tsl::hopscotch_map<int, std::shared_ptr<Data>> data;
     bool allowMutables;
     pthread_mutex_t memoryLock;
 
 public:
     std::vector<std::shared_ptr<Future>> attached_threads;
-    std::unordered_map<int, std::shared_ptr<Data>> locals;
+    tsl::hopscotch_map<int, std::shared_ptr<Data>> locals;
 
     // Constructors and destructor
     Memory();

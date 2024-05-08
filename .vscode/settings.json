@@ -65,6 +65,9 @@
         "format": "cpp",
         "iomanip": "cpp",
         "span": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "dense_hash_map": "cpp",
+        "cstdarg": "cpp",
+        "cinttypes": "cpp"
     }
 }

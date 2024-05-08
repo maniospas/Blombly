@@ -19,7 +19,7 @@ public:
     double getValue() const;
 
     std::shared_ptr<Data> shallowCopy() const override;
-    std::shared_ptr<Data> implement(const OperationType operation, const BuiltinArgs& args) override;
+    std::shared_ptr<Data> implement(const OperationType operation, const BuiltinArgs* args) override;
 };
 
 #endif // FLOAT_H

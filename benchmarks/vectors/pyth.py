@@ -9,7 +9,7 @@ z = np.zeros((n,))
 i = 0
 #z = x+y
 while i<n:
-    z[i] = x[i]+y[i]
+    #z[i] = x[i]+y[i]
     i = i+1
 toc = time.time()
 print(toc-tic)
