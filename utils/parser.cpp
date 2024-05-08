@@ -44,8 +44,11 @@ private:
         while(pos<lhs.size()) {
             if(lhs[pos]=='"')
                 inString = !inString;
-            if(inString)
+            if(inString || lhs[pos]=='"') {
+                accumulate += lhs[pos];
+                pos += 1;
                 continue;
+            }
             if(lhs[pos]=='[' || lhs[pos]=='(' || lhs[pos]=='{')
                 depth += 1;
             if(lhs[pos]==']' || lhs[pos]==')' || lhs[pos]=='}')
@@ -69,8 +72,10 @@ private:
         while(pos<rhs.size()) {
             if(rhs[pos]=='"')
                 inString = !inString;
-            if(inString)
+            if(inString || rhs[pos]=='"') {
+                pos += 1;
                 continue;
+            }
             if(rhs[pos]=='[' || rhs[pos]=='(' || rhs[pos]=='{')
                 depth += 1;
             if(rhs[pos]==']' || rhs[pos]==')' || rhs[pos]=='}')
@@ -120,7 +125,7 @@ private:
             char c = chain[pos];
             if(c=='"')
                 inString = !inString;
-            if(inString && pos>=0) 
+            if((inString || c=='"') && pos>=0) 
                 continue;
             if(c=='}' || c==']' || c==')') {
                 if(depth==0)
@@ -179,7 +184,7 @@ private:
             char c = chain[pos];
             if(c=='"')
                 inString = !inString;
-            if(inString && pos>=0) 
+            if((inString||c=='"') && pos>=0) 
                 continue;
             if(c=='}' || c==']' || c==')') {
                 if(depth==0)
@@ -228,7 +233,7 @@ private:
             char c = expr[pos];
             if(c=='"')
                 inString = !inString;
-            if(inString) {
+            if(inString || c=='"') {
                 pos += 1;
                 continue;
             }
@@ -296,7 +301,12 @@ private:
         if(value[0]=='(' && value[value.size()-1]==')') {
             int depth = 1;
             bool t = true;
+            bool inString = false;
             for(int i=1;i<value.size();i++) {
+                if(value[i]=='"')
+                    inString = !inString;
+                if(inString || value[i]=='"') 
+                    continue;
                 if(value[i]=='(')
                     depth += 1;
                 if(value[i]==')')
@@ -340,7 +350,22 @@ private:
             return;
         }
 
-        size_t pos = value.find('(');
+        size_t pos = 0;
+        bool inString = false;
+        while(pos<value.size()) {
+            if(value[pos]=='"')
+                inString = !inString;
+            if(inString || value[pos]=='"') {
+                pos += 1;
+                continue;
+            }
+            if(value[pos]=='(')
+                break;
+            pos += 1;
+        }
+        if(pos>=value.size())
+            pos = std::string::npos;
+
         std::string symbolicVariable = variable;
         variable = parseChainedSymbolsVariable(symbolicVariable);
         std::string postprocess = "";
@@ -443,7 +468,7 @@ private:
                 while(i<args.size()) {
                     if(args[i]=='"')
                         inString = !inString;
-                    if(inString) {
+                    if(inString || args[i]=='"') {
                         accumulate += args[i];
                         i += 1;
                         continue;
@@ -542,7 +567,7 @@ public:
             }
             if(c=='"')
                 inString = !inString;
-            if(inString) {
+            if(inString || c=='"') {
                 command += c;
                 pos += 1;
                 continue;

@@ -414,7 +414,7 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                         exit(1);
                     }
                     //obj->lock(); // TODO
-                    obj->getMemory()->set(command->args[2], setValue);
+                    obj->getMemory()->set(command->args[2], setValue->shallowCopy()); 
                     //obj->unlock(); // TODO
                     value = nullptr;
                 }

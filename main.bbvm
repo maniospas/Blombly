@@ -22,35 +22,35 @@ new _bb0 _bb1
 return _bbresult7 _bb0
 END
 BEGINFINAL str
-BUILTIN _bb8 "{"
-get _bb11 this x
-str _bb10 _bb11
-BUILTIN _bb14 ","
-get _bb17 this y
-str _bb16 _bb17
-BUILTIN _bb19 "}"
-add _bb15 _bb16 _bb19
-add _bb13 _bb14 _bb15
-add _bb9 _bb10 _bb13
-add ret _bb8 _bb9
-return _bbresult8 ret
+BUILTIN _bb9 "("
+get _bb12 this x
+str _bb11 _bb12
+BUILTIN _bb15 ","
+get _bb18 this y
+str _bb17 _bb18
+BUILTIN _bb20 ")"
+add _bb16 _bb17 _bb20
+add _bb14 _bb15 _bb16
+add _bb10 _bb11 _bb14
+add _bb8 _bb9 _bb10
+return _bbresult8 _bb8
 END
 END
-BEGIN _bb20
+BEGIN _bb21
 BUILTIN x I1
 BUILTIN y I2
 inline _bbresult9 Vector
 return _bbresult10 this
 END
-new a _bb20
-BEGIN _bb21
+new a _bb21
+BEGIN _bb22
 BUILTIN x I31
 BUILTIN y I42
 inline _bbresult11 Vector
 return _bbresult12 this
 END
-new b _bb21
+new b _bb22
 add c a b
-BUILTIN _bb22 "+"
-BUILTIN _bb23 "="
-print # a _bb22 b _bb23 c
+BUILTIN _bb23 "+"
+BUILTIN _bb24 "="
+print # a _bb23 b _bb24 c
