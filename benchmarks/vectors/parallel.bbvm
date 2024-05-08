@@ -4,18 +4,18 @@ BUILTIN _bb2 I4
 div _bb1 n _bb2
 int step _bb1
 END
-default # _bb0
+default _bbresult0 _bb0
 copy step step
-final # step
+final _bbresult1 step
 List list
-final # list
+final _bbresult2 list
 copy n n
-final # n
+final _bbresult3 n
 div _bb1 n step
 int num _bb1
 BUILTIN i I0
 BEGIN _bb2
-lt # i num
+lt _bbresult4 i num
 END
 BEGIN _bb3
 mul start i step
@@ -23,7 +23,7 @@ BEGIN _bb4
 BUILTIN _bb6 I1
 add _bb5 i _bb6
 mul end _bb5 step
-gt # end n
+gt _bbresult5 end n
 END
 BEGIN _bb5
 IS end n
@@ -39,7 +39,7 @@ while # _bb2 _bb3
 END
 BEGINFINAL PVector
 copy PVector PVector
-final # PVector
+final _bbresult6 PVector
 BEGINFINAL put
 poll pos args
 div _bb4 pos step
@@ -48,10 +48,10 @@ at _bb5 list id
 mul _bb7 id step
 sub _bb6 pos _bb7
 poll _bb7 args
-put _bb6 _bb5 _bb6 _bb7
+put # _bb5 _bb6 _bb7
 END
 BEGINFINAL len
-return # n
+return _bbresult7 n
 END
 BEGINFINAL at
 poll pos args
@@ -61,7 +61,7 @@ at _bb10 list id
 mul _bb12 id step
 sub _bb11 pos _bb12
 at _bb9 _bb10 _bb11
-return # _bb9
+return _bbresult8 _bb9
 END
 BEGINFINAL add
 poll other args
@@ -70,12 +70,12 @@ BEGIN adder
 at _bb10 a i
 at _bb11 b i
 add _bb13 _bb10 _bb11
-put _bb12 c i _bb13
+put # c i _bb13
 END
 BUILTIN i I0
 BEGIN _bb14
 len _bb15 list
-lt # i _bb15
+lt _bbresult9 i _bb15
 END
 BEGIN _bb15
 BEGIN _bb16
@@ -84,43 +84,43 @@ get b other list
 IS c ret
 copy i i
 END
-call # _bb16 adder
+call _bbresult10 _bb16 adder
 BUILTIN _bb17 I1
 add i i _bb17
 END
 while # _bb14 _bb15
 BEGIN _bb16
 copy list ret
-final # list
+final _bbresult11 list
 copy step step
-final # step
+final _bbresult12 step
 copy n n
-final # n
-inline # PVector
-return # this
+final _bbresult13 n
+inline _bbresult14 PVector
+return _bbresult15 this
 END
 new ret _bb16
-return # ret
+return _bbresult16 ret
 END
 END
 BUILTIN n I10000000
 BUILTIN pos I5
 BEGIN _bb17
 copy n n
-inline # Zeros
-inline # PVector
-return # this
+inline _bbresult17 Zeros
+inline _bbresult18 PVector
+return _bbresult19 this
 END
 new a _bb17
 BEGIN _bb18
 copy n n
-inline # Zeros
-inline # PVector
-return # this
+inline _bbresult20 Zeros
+inline _bbresult21 PVector
+return _bbresult22 this
 END
 new b _bb18
 BUILTIN _bb20 F1.2
-put _bb19 a pos _bb20
+put # a pos _bb20
 time tic
 add c a b
 at result c pos

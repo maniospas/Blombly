@@ -17,14 +17,14 @@ private:
     void* program;
 
 public:
-    Code(void* programAt, int startAt, int endAt, std::shared_ptr<Memory> declMemory);
+    Code(void* programAt, int startAt, int endAt, const std::shared_ptr<Memory>& declMemory);
 
     int getType() const override;
     std::string toString() const override;
     int getStart() const;
     int getEnd() const;
     void* getProgram() const;
-    std::shared_ptr<Memory>& getDeclarationMemory();
+    std::shared_ptr<Memory> getDeclarationMemory();
 
     std::shared_ptr<Data> shallowCopy() const override;
     std::shared_ptr<Data> implement(const OperationType operation, const BuiltinArgs* args) override;

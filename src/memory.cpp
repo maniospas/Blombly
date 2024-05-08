@@ -117,8 +117,22 @@ std::shared_ptr<Data> Memory::get(int item, bool allowMutable) {
 }
 
 
+std::shared_ptr<Data> Memory::getLocal(int item) {
+    std::shared_ptr<Data> ret = locals[item];
+    if (ret && ret->getType() == FUTURE) {
+        ret = std::static_pointer_cast<Future>(ret)->getResult();
+        locals[item] = ret;
+    }
+    return ret;
+}
+
 std::shared_ptr<Data> Memory::getOrNullShallow(int item) {
-    return data[item];
+    std::shared_ptr<Data> ret = data[item];
+    if (ret && ret->getType() == FUTURE) {
+        ret = std::static_pointer_cast<Future>(ret)->getResult();
+        data[item] = ret;
+    }
+    return ret;
 }
 
 // Get a data item or return nullptr if not found
@@ -153,6 +167,12 @@ std::shared_ptr<Data> Memory::getOrNull(int item, bool allowMutable) {
     }
 
     return ret;
+}
+
+
+// Set a data item, ensuring mutability rules are followed
+void Memory::setLocal(int item, const std::shared_ptr<Data>& value) {
+    locals[item] = value;
 }
 
 // Set a data item, ensuring mutability rules are followed

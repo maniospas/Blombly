@@ -25,7 +25,6 @@ const std::string PARSER_PRINT="print";
 const std::string PARSER_COPY="copy";
 const std::string ANON = "_bb";
 
-
 class Parser {
     std::unordered_set<std::string> symbols;
     bool hasSymbol(const std::string& symbol) {
@@ -33,7 +32,7 @@ class Parser {
     }
 private:
     std::string compiled;
-    int topTemp;
+    static int topTemp;
     std::string getAssignee(std::string lhs) {
         /**
          * Get the symbol on which the expression assigns a value.
@@ -638,6 +637,8 @@ public:
         return compiled;
     }
 };
+
+int Parser::topTemp = 0;
 
 
 

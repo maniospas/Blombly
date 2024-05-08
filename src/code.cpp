@@ -3,8 +3,8 @@
 #include "common.h"
 
 // Constructor to initialize Code object with program segment details
-Code::Code(void* programAt, int startAt, int endAt, std::shared_ptr<Memory> declMemory)
-    : program(programAt), start(startAt), end(endAt), declarationMemory(std::move(declMemory)) {}
+Code::Code(void* programAt, int startAt, int endAt, const std::shared_ptr<Memory>& declMemory)
+    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory) {}
 
 // Return the type ID
 int Code::getType() const {
@@ -32,7 +32,7 @@ void* Code::getProgram() const {
 }
 
 // Get the memory declarations associated with this code
-std::shared_ptr<Memory>& Code::getDeclarationMemory() {
+std::shared_ptr<Memory> Code::getDeclarationMemory() {
     return declarationMemory;
 }
 
@@ -43,10 +43,9 @@ std::shared_ptr<Data> Code::shallowCopy() const {
 
 // Implement the specified operation for the Code class
 std::shared_ptr<Data> Code::implement(const OperationType operation, const BuiltinArgs* args)  {
-    if (args->size == 1 && operation == TOCOPY) {
+    if (args->size == 1) 
         return std::make_shared<Code>(program, start, end, declarationMemory);
-    }
-
+    
     // Unimplemented operation
     throw Unimplemented();
 }

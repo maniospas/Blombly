@@ -46,12 +46,12 @@ class Memory {
 private:
     std::shared_ptr<Memory> parent;
     tsl::hopscotch_map<int, std::shared_ptr<Data>> data;
+    tsl::hopscotch_map<int, std::shared_ptr<Data>> locals;
     bool allowMutables;
     pthread_mutex_t memoryLock;
 
 public:
     std::vector<std::shared_ptr<Future>> attached_threads;
-    tsl::hopscotch_map<int, std::shared_ptr<Data>> locals;
 
     // Constructors and destructor
     Memory();
@@ -64,10 +64,12 @@ public:
 
     // Methods to get and set data
     std::shared_ptr<Data> get(int item);
+    std::shared_ptr<Data> getLocal(int item);
     std::shared_ptr<Data> get(int item, bool allowMutable);
     std::shared_ptr<Data> getOrNull(int item, bool allowMutable);
     std::shared_ptr<Data> getOrNullShallow(int item);
     void set(int item, const std::shared_ptr<Data>& value);
+    void setLocal(int item, const std::shared_ptr<Data>& value);
 
     // Methods to manage inheritance and synchronization with other Memory objects
     void pull(std::shared_ptr<Memory> other);

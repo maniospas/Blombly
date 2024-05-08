@@ -20,13 +20,14 @@ public:
 };
 
 // List class representing a list of data items
-class List : public Data {
+class BList : public Data {
 private:
 
 public:
     std::shared_ptr<ListContents> contents;
-    List();
-    explicit List(std::shared_ptr<ListContents> cont);
+    explicit BList();
+    explicit BList(int reserve);
+    explicit BList(std::shared_ptr<ListContents> cont);
 
     int getType() const override;
     std::string toString() const override;

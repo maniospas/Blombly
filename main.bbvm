@@ -1,18 +1,24 @@
-BUILTIN n I10000000
-Vector a n
-Vector b n
-time tic
-Vector c n
-BUILTIN i I0
-len n c
+BUILTIN x I1
+BEGIN sign
 BEGIN _bb0
-lt _bbcache0 i n
+BUILTIN _bb1 I0
+gt _bbresult0 x _bb1
 END
-BEGIN _bb1
-BUILTIN _bb2 I1
-add i i _bb2
+BEGIN _bb2
+BUILTIN _bb3 I1
+return _bbresult1 _bb3
 END
-while # _bb0 _bb1
-time _bb3
-sub _bb2 _bb3 tic
-print # _bb2
+BEGIN _bb4
+BUILTIN _bb7 I1
+sub _bb5 _bb6 _bb7
+return _bbresult2 _bb5
+END
+if # _bb0 _bb2 _bb4
+END
+BEGIN _bb10
+copy x x
+END
+call _bb9 _bb10 sign
+BUILTIN _bb11 I1
+add _bb8 _bb9 _bb11
+print # _bb8

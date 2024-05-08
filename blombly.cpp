@@ -54,7 +54,7 @@
 std::chrono::steady_clock::time_point program_start;
 VariableManager variableManager; // .lastId will always be 0 (currently it is disabled)
 //#define MEMGET(memory, arg) (command->args[arg]?(command->knownLocal[arg]?memory->locals[command->args[arg]]:memory->get(command->args[arg])):prevValue)
-#define MEMGET(memory, arg) (command->knownLocal[arg]?memory->locals[command->args[arg]]:memory->get(command->args[arg]))
+#define MEMGET(memory, arg) (command->knownLocal[arg]?memory->getLocal(command->args[arg]):memory->get(command->args[arg]))
 
 
 class Command {
@@ -71,6 +71,7 @@ public:
 
     Command(std::string command) {
         std::vector<std::string> argNames;
+        argNames.reserve(4);
         std::string accumulate;
         int pos = 0;
         bool inString = false;
@@ -151,7 +152,8 @@ public:
         std::shared_ptr<Data> implementation = memory->getOrNull(variableManager.getId(operation), true);
         if(implementation==nullptr)
             throw Unimplemented();
-        std::shared_ptr<List> args = std::make_shared<List>();
+        std::shared_ptr<BList> args = std::make_shared<BList>();
+        args->contents->contents.reserve(4);
          // TODO: investigate if shallow copy is needed bellow (update: needed for new version of BuiltinArgs)
         if(args_->size>0 && args_->arg0!=this)
             args->contents->contents.push_back(args_->arg0->shallowCopy()); 
@@ -262,7 +264,12 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
             case BEGIN:
             case BEGINFINAL: {
                 if(command->value) {
-                    value = command->value->shallowCopy();
+                    Code* code = (Code*)command->value.get();
+                    // it is important to make a new object here, as we need the new memory (the program, start, and end are the same)
+                    value = std::make_shared<Code>(program, code->getStart(), code->getEnd(), memory);
+                    i = code->getEnd();
+                    if(command->operation==BEGINFINAL)
+                        value->isMutable = false;
                     break;
                 }
                 int pos = i+1;
@@ -420,7 +427,7 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                     int codeAcceptStart = codeAccept->getStart();
                     int codeAcceptEnd = codeAccept->getEnd();
                     while(true) {
-                        std::shared_ptr<Data> check = std::move(executeBlock(program, codeConditionStart, codeConditionEnd, memory, returnSignal, args));
+                        std::shared_ptr<Data> check = executeBlock(program, codeConditionStart, codeConditionEnd, memory, returnSignal, args);
                         if(*returnSignal) {
                             if(returnSignalHandler) {
                                 for(std::shared_ptr<Future> thread : memory->attached_threads)
@@ -477,6 +484,7 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                     Code* codeAccept = accept?(Code*)accept.get():nullptr;
                     Code* codeReject = reject?(Code*)reject.get():nullptr;
                     std::shared_ptr<Data> check = executeBlock(program, codeCondition->getStart(), codeCondition->getEnd(), memory, returnSignal, args);
+                    
                     if(*returnSignal) {
                         if(returnSignalHandler){
                             for(std::shared_ptr<Future> thread : memory->attached_threads)
@@ -590,7 +598,7 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
             }
             break;
             case TOLIST:{
-                std::shared_ptr<List> list = std::make_shared<List>();
+                std::shared_ptr<BList> list = std::make_shared<BList>();
                 for(int i=1;i<command->nargs;i++)
                     list->contents->contents.push_back(MEMGET(memory, i));
                 value = list;
@@ -606,19 +614,28 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                 if(cmdSize>3)
                     args->arg2 = MEMGET(memory, 3).get();
                 //args->preallocResult = (command->args[0]?(command->knownLocal[0]?memory->locals[command->args[0]]:memory->getOrNull(command->args[0], true)):prevValue);
-                args->preallocResult = std::move(command->knownLocal[0]?memory->locals[command->args[0]]:memory->getOrNullShallow(command->args[0]));
+                args->preallocResult = std::move(command->knownLocal[0]?memory->getLocal(command->args[0]):memory->getOrNullShallow(command->args[0]));
                 if(args->preallocResult && !args->preallocResult->isMutable) 
                     args->preallocResult = nullptr;
                 value = std::move(Data::run(command->operation, args));
-                if(args->preallocResult==value) // ignore expensive setting (that would need to hash for a map)
+                if(args->preallocResult==value && value) // ignore expensive setting (this would need a redundant map insert)
                     continue;
             break;
         }
         if(command->args[0]!=variableManager.noneId) {
-            if(command->knownLocal[0])
-                memory->locals[command->args[0]] = value;
-            else
-                memory->set(command->args[0], value);
+            /*if(i<end-1) {
+                // TODO: test that this if branch does not hang programs
+                if(command->knownLocal[0])
+                    memory->locals[command->args[0]] = std::move(value);
+                else
+                    memory->set(command->args[0], std::move(value));
+            }
+            else {*/
+                if(command->knownLocal[0])
+                    memory->setLocal(command->args[0], value);
+                else
+                    memory->set(command->args[0], value);
+            //}
         }
         //prevValue = value;
     }

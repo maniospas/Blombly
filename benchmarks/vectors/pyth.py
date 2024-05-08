@@ -4,12 +4,13 @@ import time
 n = 1000000
 x = np.zeros((n,))+0.1
 y = np.zeros((n,))+0.1
-tic = time.time()
 z = np.zeros((n,))
+tic = time.time()
 i = 0
 #z = x+y
 while i<n:
-    #z[i] = x[i]+y[i]
+    if i<1:
+        print("test")
     i = i+1
 toc = time.time()
 print(toc-tic)

@@ -157,8 +157,8 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
     }
     if(operation==AT && args->size==2 && args->arg0->getType()==VECTOR && args->arg1->getType()==INT) {
         if(ndims==natdims+1) {
-            value->lock();
             int index = ((Integer*)args->arg1)->getValue();
+            value->lock();
             for(int i=0;i<natdims;i++) {
                 index *= dims[i+1];
                 index += atdims[i];
@@ -172,6 +172,10 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
             int pos = 0;
             double val = value->data[index];
             value->unlock();
+            if(args->preallocResult && args->preallocResult->getType()==FLOAT) {
+                ((Float*)args->preallocResult.get())->value = val;
+                return args->preallocResult;
+            }
             return std::make_shared<Float>(val);
         }
         else {

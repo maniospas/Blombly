@@ -20,6 +20,8 @@ public:
 
     std::shared_ptr<Data> shallowCopy() const override;
     std::shared_ptr<Data> implement(const OperationType operation, const BuiltinArgs* args) override;
+
+    friend class Vector;
 };
 
 #endif // FLOAT_H

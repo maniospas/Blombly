@@ -126,6 +126,7 @@ int optimize(const std::string& source, const std::string& destination) {
                  && symbols.find(command->args[j])==symbols.end())
                 symbols[command->args[j]] = symbols.size();
     }
+
     // anonymize
     /*for(int i=0;i<program.size();i++) {
         std::shared_ptr<OptimizerCommand> command = program[i];
@@ -139,11 +140,26 @@ int optimize(const std::string& source, const std::string& destination) {
     int cacheNum = 0;
     for(int i=0;i<program.size();i++) {
         std::shared_ptr<OptimizerCommand> command = program[i];
-        if(command->args[1]=="#" && command->args[0]!="if" && command->args[0]!="while" && command->args[0]!="print") {
-            command->args[1] = "_bbcache"+std::to_string(cacheNum);
+        if(command->args[1]=="#" 
+        && command->args[0]!="if" 
+        && command->args[0]!="while" 
+        && command->args[0]!="print"
+        && command->args[0]!="push"
+        && command->args[0]!="put") {
+            command->args[1] = "_bbresult"+std::to_string(cacheNum);
             cacheNum += 1;
         }
     }
+
+    // remove put and push assignments
+    for(int i=0;i<program.size();i++) {
+        std::shared_ptr<OptimizerCommand> command = program[i];
+        if(command->args[0]=="put" || command->args[0]=="push") 
+            command->args[1] = "#";
+    }
+
+    // add local symbol cache (just check that every symbol is not final)
+    // TODO
 
     // save the compiled code to the destination file
     std::ofstream outputFile(destination);

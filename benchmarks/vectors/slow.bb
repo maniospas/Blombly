@@ -1,16 +1,14 @@
 n = 1000000;
 a = Vector(n);
 b = Vector(n);
+c = Vector(n);
 
 tic = time();
-c = Vector(n);
 i = 0;
 n = len(c);
 while(i<n,
     //c[i]=a[i]+b[i];
-    i = i+1;
-    i = i+1;
-    i = i+1;
+    if(i<1, print("test"));
     i = i+1;
 );
 print(time()-tic);
