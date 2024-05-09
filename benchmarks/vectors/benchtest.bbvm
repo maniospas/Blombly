@@ -2,11 +2,11 @@ BUILTIN n I10000000
 Vector _bb0 n
 BUILTIN _bb1 F0.1
 add a _bb0 _bb1
-Vector _bb2 n
-BUILTIN _bb3 F0.1
-add b _bb2 _bb3
+Vector _bb4 n
+BUILTIN _bb5 F0.1
+add b _bb4 _bb5
 time tic
 add c a b
-time _bb5
-sub _bb4 _bb5 tic
-print # _bb4
+time _bb9
+sub _bb8 _bb9 tic
+print # _bb8

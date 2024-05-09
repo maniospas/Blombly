@@ -175,11 +175,8 @@ public:
         if(implementation->getType()==CODE) {
             Code* code = (Code*)implementation.get();
             std::shared_ptr<Memory> newMemory = std::make_shared<Memory>(memory);
-            //newMemory->set("locals", std::make_shared<Struct>(newMemory));
             newMemory->set(variableManager.argsId, args);
             //memory->detach(code->getDeclarationMemory()); // MEMORY HIERARCHY FROM PARENT TO CHILD: code->getDeclarationMemory() -> memory (struct data) -> newMemory (function scope)
-            std::shared_ptr<FutureData> data = std::make_shared<FutureData>();
-            data->result = std::make_shared<ThreadResult>();
             std::vector<Command*>* program = (std::vector<Command*>*)code->getProgram();
             std::shared_ptr<Data> value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, 
                 nullptr, nullptr);
@@ -344,6 +341,7 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                 if(newMemory!=nullptr)
                     newMemory->detach(code->getDeclarationMemory()); // basically reattaches the new memory on the declarati9n memory
                 
+                
                 std::shared_ptr<FutureData> data = std::make_shared<FutureData>();
                 data->result = std::make_shared<ThreadResult>();
                 data->thread = std::thread(threadExecute, 
@@ -354,10 +352,11 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                                             nullptr, 
                                             nullptr,
                                             data->result);
-                //std::cout<<"thread started: "<<command[3]<<"\n";
                 std::shared_ptr<Future> future = std::make_shared<Future>(data);
                 memory->attached_threads.push_back(future);
                 value = std::move(future);
+                
+                //value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, nullptr, nullptr);
             }
             break;
             case RETURN:

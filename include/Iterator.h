@@ -16,10 +16,12 @@ public:
     int size;
     std::shared_ptr<Data> object;
     std::shared_ptr<Integer> pos;
+    int locked;
     
     IteratorContents(const std::shared_ptr<Data>& object);
     void lock();
     void unlock();
+    void unsafeUnlock();
 };
 
 // List class representing a list of data items
@@ -29,6 +31,7 @@ private:
 
 public:
     explicit Iterator(const std::shared_ptr<IteratorContents>& cont);
+    ~Iterator();
 
     int getType() const override;
     std::string toString() const override;

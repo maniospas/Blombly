@@ -1,15 +1,16 @@
 #include "Data.h"
 
 std::shared_ptr<Data> Data::run(const OperationType operation, BuiltinArgs* args) {
-    if (args->size>0) {
-        try {
-            return args->arg0->implement(operation, args);
-        }
-        catch (Unimplemented) {
-            // Handle unimplemented methods
-        }
+    // size will always be >1
+    try {
+        return args->arg0->implement(operation, args);
     }
-    if (args->size>1) {
+    catch (Unimplemented) {
+        // Handle unimplemented methods
+    }
+    int size = args->size;
+    size--;
+    if (size) {
         try {
             return args->arg1->implement(operation, args);
         }
@@ -17,7 +18,8 @@ std::shared_ptr<Data> Data::run(const OperationType operation, BuiltinArgs* args
             // Handle unimplemented methods
         }
     }
-    if (args->size>2) {
+    size--;
+    if (size) {
         try {
             return args->arg2->implement(operation, args);
         }

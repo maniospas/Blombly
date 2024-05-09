@@ -3,4 +3,6 @@ final fib = {
     return fib(n=n-1)+fib(n=n-2);
 }
 
-print(fib(n=9)); // 55
+tic = time();
+print("Result", fib(n=9));
+print("Time", time()-tic);

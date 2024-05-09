@@ -3,20 +3,15 @@ Vector a n
 Vector b n
 Vector c n
 time tic
-BUILTIN i I0
-len n c
+iter it a
+BUILTIN s I0
 BEGIN _bb0
-lt _bbresult0 i n
+next i it
 END
 BEGIN _bb1
-at _bb2 a i
-at _bb4 b i
-add _bb7 _bb2 _bb4
-put # c i _bb7
-BUILTIN _bb8 I1
-add i i _bb8
+add s s i
 END
 while # _bb0 _bb1
-time _bb10
-sub _bb9 _bb10 tic
-print # _bb9
+time _bb3
+sub _bb2 _bb3 tic
+print # _bb2

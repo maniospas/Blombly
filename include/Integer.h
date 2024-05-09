@@ -23,6 +23,8 @@ public:
     std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
 
     friend class Iterator;
+    friend class Float;
+    friend class Boolean;
 };
 
 #endif // INTEGER_H

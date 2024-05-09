@@ -1,17 +1,8 @@
-n = 1000000;
-a = Vector(n)+0.1;
+final fib = {
+    if(n<2, return 1); 
+    return fib(n=n-1)+fib(n=n-2);
+}
 
 tic = time();
-//i = 0;
-//n = len(c);
-//while(i<n,
-    //c[i]=a[i]+b[i];
-    //if(i<1, print("test"));
-    //i = i+1;
-//);
-it = iter(a);
-s = 0;
-while(i=next(it),
-    s = s+i;
-);
-print(time()-tic);
+print("Result", fib(n=18));
+print("Time", time()-tic);

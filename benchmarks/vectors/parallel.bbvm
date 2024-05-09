@@ -41,22 +41,22 @@ BEGINFINAL PVector
 copy PVector PVector
 final # PVector
 BEGINFINAL put
-poll this args
-poll pos args
+next this args
+next pos args
 div _bb13 pos step
 int id _bb13
 at _bb14 list id
 mul _bb16 id step
 sub _bb15 pos _bb16
-poll _bb17 args
+next _bb17 args
 put # _bb14 _bb15 _bb17
 END
 BEGINFINAL len
 return _bbresult3 n
 END
 BEGINFINAL at
-poll this args
-poll pos args
+next this args
+next pos args
 div _bb18 pos step
 int id _bb18
 at _bb20 list id
@@ -66,8 +66,8 @@ at _bb19 _bb20 _bb21
 return _bbresult4 _bb19
 END
 BEGINFINAL add
-poll this args
-poll other args
+next this args
+next other args
 List ret
 BEGIN adder
 at _bb23 a i

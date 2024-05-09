@@ -21,6 +21,8 @@ public:
     std::shared_ptr<Data> shallowCopy() const override;
     std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
 
+    friend class Integer;
+    friend class Boolean;
     friend class Vector;
 };
 

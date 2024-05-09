@@ -14,6 +14,7 @@
 RawVector::RawVector(int siz) {
     size = siz;
     data = new double[size];
+    lockable = 0;
     if (pthread_mutex_init(&memoryLock, nullptr) != 0) {
         std::cerr << "Failed to create a mutex for vector read/write" << std::endl;
         exit(1);
@@ -25,10 +26,16 @@ RawVector::~RawVector() {
 }
 
 void RawVector::lock() {
-    pthread_mutex_lock(&memoryLock);
+    if(lockable)
+        pthread_mutex_lock(&memoryLock);
 }
 
 void RawVector::unlock() {
+    if(lockable)
+        pthread_mutex_unlock(&memoryLock);
+}
+
+void RawVector::unsafeUnlock() {
     pthread_mutex_unlock(&memoryLock);
 }
 
@@ -93,6 +100,11 @@ Vector::Vector(std::shared_ptr<RawVector> val, int size1, int size2) {
 }
 
 Vector::~Vector() {
+    bool shouldUnlock = value->lockable;
+    value->lock();
+    value->lockable -= 1;
+    if(shouldUnlock)
+        value->unsafeUnlock();
     delete[] dims;
 }
 
@@ -118,7 +130,13 @@ std::shared_ptr<RawVector> Vector::getValue() const {
 }
 
 std::shared_ptr<Data> Vector::shallowCopy() const {
-    return std::make_shared<Vector>(value, this);
+    value->lock();
+    std::shared_ptr<Vector> ret = std::make_shared<Vector>(value, this);
+    bool shouldUnlock = value->lockable;
+    value->lockable += 1;
+    if(shouldUnlock)
+        value->unsafeUnlock();
+    return ret;
 }
 
 
@@ -141,46 +159,26 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
             
         }
     }*/
-    if(operation==TOCOPY && args->size==1 && args->arg0->getType()==VECTOR)
-        return std::make_shared<Vector>(value, this);
-    if(operation==LEN && args->size==1 && args->arg0->getType()==VECTOR)
-        return std::make_shared<Integer>(value->size);
-    if(operation==TOSTR && args->size==1 && args->arg0->getType()==VECTOR) {
-        std::string ret = toString();
-        return std::make_shared<BString>(ret);
-    }
-    if(args->size==1 && operation==TOITER) {
-        value->lock();
-        std::shared_ptr<Data> ret = std::make_shared<Iterator>(std::make_shared<IteratorContents>(shallowCopy()));
-        value->unlock();
-        return ret;
-    }
-    if(operation==SHAPE && args->size==1 && args->arg0->getType()==VECTOR) {
-        int n = ndims;
-        std::shared_ptr<Vector> ret = std::make_shared<Vector>(n);
-        for(int i=0;i<n;i++)
-            ret->value->data[i] = dims[i];
-        return ret;
-    }
     if(operation==AT && args->size==2 && args->arg0->getType()==VECTOR && args->arg1->getType()==INT) {
         if(ndims==natdims+1) {
             int index = ((Integer*)args->arg1)->getValue();
             value->lock();
-            for(int i=0;i<natdims;i++) {
-                index *= dims[i+1];
-                index += atdims[i];
-            }
+            if(natdims)
+                for(int i=0;i<natdims;i++) {
+                    index *= dims[i+1];
+                    index += atdims[i];
+                }
             if(index < 0 || index>=value->size) {
                 std::cerr << "Vector index "<<index<<" out of range [0,"<<value->size<<")\n";
                 value->unlock();
                 exit(1);
                 return nullptr;
             }
-            int pos = 0;
             double val = value->data[index];
             value->unlock();
-            if(args->preallocResult && args->preallocResult->getType()==FLOAT) {
-                ((Float*)args->preallocResult.get())->value = val;
+            Data* preallocResult = args->preallocResult.get();
+            if(preallocResult && preallocResult->getType()==FLOAT) {
+                ((Float*)preallocResult)->value = val;
                 return args->preallocResult;
             }
             return std::make_shared<Float>(val);
@@ -188,10 +186,11 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
         else {
             value->lock();
             int index = ((Integer*)args->arg1)->getValue();
-            for(int i=0;i<natdims;i++) {
-                index *= dims[i+1];
-                index += atdims[i];
-            }
+            if(natdims)
+                for(int i=0;i<natdims;i++) {
+                    index *= dims[i+1];
+                    index += atdims[i];
+                }
             if(index < 0 || index>=value->size) {
                 std::cerr << "Vector index "<<index<<" out of range [0,"<<value->size<<")\n";
                 value->unlock();
@@ -199,7 +198,10 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
                 return nullptr;
             }
             std::shared_ptr<Vector> ret = std::make_shared<Vector>(value, this, index);
-            value->unlock();
+            bool shouldUnlock = value->lockable;
+            value->lockable += 1;
+            if(shouldUnlock)
+                value->unsafeUnlock();
             return ret;
         }
     }
@@ -424,6 +426,27 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
         }
         vec->unlock();
         return std::make_shared<Vector>(rawret, this);
+    }
+    if(operation==TOCOPY && args->size==1 && args->arg0->getType()==VECTOR)
+        return shallowCopy();
+    if(operation==LEN && args->size==1 && args->arg0->getType()==VECTOR)
+        return std::make_shared<Integer>(value->size);
+    if(operation==TOSTR && args->size==1 && args->arg0->getType()==VECTOR) {
+        std::string ret = toString();
+        return std::make_shared<BString>(ret);
+    }
+    if(args->size==1 && operation==TOITER) {
+        value->lock();
+        std::shared_ptr<Data> ret = std::make_shared<Iterator>(std::make_shared<IteratorContents>(shallowCopy()));
+        value->unlock();
+        return ret;
+    }
+    if(operation==SHAPE && args->size==1 && args->arg0->getType()==VECTOR) {
+        int n = ndims;
+        std::shared_ptr<Vector> ret = std::make_shared<Vector>(n);
+        for(int i=0;i<n;i++)
+            ret->value->data[i] = dims[i];
+        return ret;
     }
     throw Unimplemented();
 }

@@ -53,23 +53,26 @@ std::shared_ptr<Data> Memory::get(int item) {
 
     //lock();
     std::shared_ptr<Data> ret = data[item];
+    Data* retted = ret.get();
     //unlock();
 
     // Handle future values
-    if (ret && ret->getType() == FUTURE) {
+    if (retted && retted->getType() == FUTURE) {
         ret = std::static_pointer_cast<Future>(ret)->getResult();
+        retted = ret.get();
         //lock();
         data[item] = ret;
         //unlock();
     }
 
     // If not found locally, check parent memory
-    if (!ret && parent) {
+    if (!retted && parent) {
         ret = parent->get(item, allowMutables);
+        retted = ret.get();
     }
 
     // Missing value error
-    if (!ret) {
+    if (!retted) {
         std::cerr << "Missing value: " + variableManager.getSymbol(item) << std::endl;
         exit(1);
     }
@@ -85,30 +88,33 @@ std::shared_ptr<Data> Memory::get(int item, bool allowMutable) {
 
     //lock();
     std::shared_ptr<Data> ret = data[item];
+    Data* retted = ret.get();
     //unlock();
 
     // Handle future values
-    if (ret && ret->getType() == FUTURE) {
+    if (retted && retted->getType() == FUTURE) {
         ret = std::static_pointer_cast<Future>(ret)->getResult();
+        retted = ret.get();
         //lock();
         data[item] = ret;
         //unlock();
     }
 
     // Handle mutability restrictions
-    if (ret && !allowMutable && ret->isMutable) {
+    if (retted && !allowMutable && retted->isMutable) {
         std::cerr << "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item) << std::endl;
         exit(1);
         return nullptr;
     }
 
     // If not found locally, check parent memory
-    if (!ret && parent) {
+    if (!retted && parent) {
         ret = parent->get(item, allowMutables);
+        retted = ret.get();
     }
 
     // Missing value error
-    if (!ret) {
+    if (!retted) {
         std::cerr << "Missing value: " + variableManager.getSymbol(item) << std::endl;
         exit(1);
     }
@@ -119,7 +125,8 @@ std::shared_ptr<Data> Memory::get(int item, bool allowMutable) {
 
 std::shared_ptr<Data> Memory::getLocal(int item) {
     std::shared_ptr<Data> ret = locals[item];
-    if (ret && ret->getType() == FUTURE) {
+    Data* retted = ret.get();
+    if (retted && retted->getType() == FUTURE) {
         ret = std::static_pointer_cast<Future>(ret)->getResult();
         locals[item] = ret;
     }
@@ -128,7 +135,8 @@ std::shared_ptr<Data> Memory::getLocal(int item) {
 
 std::shared_ptr<Data> Memory::getOrNullShallow(int item) {
     std::shared_ptr<Data> ret = data[item];
-    if (ret && ret->getType() == FUTURE) {
+    Data* retted = ret.get();
+    if (retted && retted->getType() == FUTURE) {
         ret = std::static_pointer_cast<Future>(ret)->getResult();
         data[item] = ret;
     }
@@ -145,24 +153,28 @@ std::shared_ptr<Data> Memory::getOrNull(int item, bool allowMutable) {
     //lock();
     ret = data[item];
     //unlock();
+    Data* retted = ret.get();
 
     // Handle future values
-    if (ret && ret->getType() == FUTURE) {
+    if (retted && retted->getType() == FUTURE) {
         ret = std::static_pointer_cast<Future>(ret)->getResult();
+        Data* prevRetted = retted;
+        retted = ret.get();
+        retted->isMutable = prevRetted->isMutable;
         //lock();
         data[item] = ret;
         //unlock();
     }
 
     // Handle mutability restrictions
-    if (ret && !allowMutable && ret->isMutable) {
+    if (retted && !allowMutable && retted->isMutable) {
         std::cerr << "Mutable symbol cannot be accessed from a nested block: " + item << std::endl;
         exit(1);
         return nullptr;
     }
 
     // If not found locally, check parent memory
-    if (!ret && parent) {
+    if (!retted && parent) {
         ret = parent->getOrNull(item, allowMutables);
     }
 
@@ -182,8 +194,9 @@ void Memory::set(int item, const std::shared_ptr<Data>& value) {
     //}
 
     //lock();
-    if (data[item] != nullptr && !data[item]->isMutable) {
-        bool couldBeShallowCopy = data[item]==value;//data[item]->couldBeShallowCopy(value);
+    Data* prev = data[item].get();
+    if (prev && !prev->isMutable) {
+        bool couldBeShallowCopy = prev==value.get();//data[item]->couldBeShallowCopy(value);
         //unlock();
         if (!couldBeShallowCopy) {
             std::cerr << "Cannot overwrite final value: " + variableManager.getSymbol(item) << std::endl;
@@ -219,6 +232,6 @@ void Memory::detach() {
 // Detach this memory from its parent but retain reference
 void Memory::detach(std::shared_ptr<Memory> par) {
     allowMutables = false;
-    parent = std::move(par);
+    parent = par;//std::move(par);
     locals.clear();
 }

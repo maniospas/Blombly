@@ -1,28 +1,34 @@
 BEGINFINAL fib
 BEGIN _bb0
 BUILTIN _bb1 I2
-lt # n _bb1
+lt _bbresult0 n _bb1
 END
-BEGIN _bb1
-BUILTIN _bb2 I1
-return # _bb2
+BEGIN _bb2
+BUILTIN _bb3 I1
+return _bbresult1 _bb3
 END
-if # _bb0 _bb1
-BEGIN _bb4
-BUILTIN _bb5 I1
-sub n n _bb5
+if # _bb0 _bb2
+BEGIN _bb6
+BUILTIN _bb7 I1
+sub n n _bb7
 END
-call _bb3 _bb4 fib
-BEGIN _bb5
-BUILTIN _bb6 I2
-sub n n _bb6
+call _bb5 _bb6 fib
+BEGIN _bb9
+BUILTIN _bb10 I2
+sub n n _bb10
 END
-call _bb4 _bb5 fib
-add _bb2 _bb3 _bb4
-return # _bb2
+call _bb8 _bb9 fib
+add _bb4 _bb5 _bb8
+return _bbresult2 _bb4
 END
-BEGIN _bb4
+time tic
+BUILTIN _bb11 "Result"
+BEGIN _bb13
 BUILTIN n I9
 END
-call _bb3 _bb4 fib
-print # _bb3
+call _bb12 _bb13 fib
+print # _bb11 _bb12
+BUILTIN _bb14 "Time"
+time _bb16
+sub _bb15 _bb16 tic
+print # _bb14 _bb15

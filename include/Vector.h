@@ -14,12 +14,14 @@ private:
 public:
     double* data;
     int size;
+    int lockable; // counts shared instances-1
 
     explicit RawVector(int siz);
     ~RawVector();
 
     void lock();
     void unlock();
+    void unsafeUnlock(); // used only in Vector's destructor
 };
 
 // Vector class representing a multidimensional array of double values

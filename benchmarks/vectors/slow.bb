@@ -13,7 +13,5 @@ tic = time();
 //);
 it = iter(a);
 s = 0;
-while(i=next(it),
-    s = s+i;
-);
+while(i=next(it), s = s+i);
 print(time()-tic);
