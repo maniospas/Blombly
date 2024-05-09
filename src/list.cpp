@@ -2,6 +2,7 @@
 #include "List.h"
 #include "Integer.h"
 #include "Boolean.h"
+#include "Iterator.h"
 #include "common.h"
 #include <iostream>
 
@@ -24,7 +25,7 @@ void ListContents::unlock() {
 // List constructors
 BList::BList() : contents(std::make_shared<ListContents>()) {}
 
-BList::BList(std::shared_ptr<ListContents> cont) : contents(cont) {}
+BList::BList(const std::shared_ptr<ListContents>& cont) : contents(cont) {}
 
 // Return the type ID
 int BList::getType() const {
@@ -51,7 +52,7 @@ std::shared_ptr<Data> BList::shallowCopy() const {
 }
 
 // Implement the specified operation
-std::shared_ptr<Data> BList::implement(const OperationType operation, const BuiltinArgs* args) {
+std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArgs* args) {
     if(args->size==1 && operation==TOCOPY)
         return std::make_shared<BList>(contents);
     if(args->size==1 && operation==LEN)
@@ -69,26 +70,26 @@ std::shared_ptr<Data> BList::implement(const OperationType operation, const Buil
         contents->unlock();
         return ret;
     }
-    if(args->size==1 && operation==POP) {
+    if(args->size==1 && operation==TOITER) {
         contents->lock();
-        std::shared_ptr<Data> ret = contents->contents.size()?contents->contents[contents->contents.size()-1]:nullptr;
-        if(contents->contents.size())
-            contents->contents.pop_back();
+        std::shared_ptr<Data> ret = std::make_shared<Iterator>(std::make_shared<IteratorContents>(shallowCopy()));
         contents->unlock();
         return ret;
     }
     if(args->size==1 && operation==NEXT) {
         contents->lock();
-        std::shared_ptr<Data> ret = contents->contents.size()?contents->contents[0]:nullptr;
-        if(contents->contents.size())
-            contents->contents.erase( contents->contents.begin());
+        bool hasElements = contents->contents.size();
+        std::shared_ptr<Data> ret = hasElements?std::move(contents->contents.front()):nullptr;
+        if(hasElements)
+            contents->contents.erase(contents->contents.begin());
         contents->unlock();
         return ret;
     }
     if(args->size==1 && operation==POP) {
         contents->lock();
-        std::shared_ptr<Data> ret = contents->contents.size()?contents->contents[contents->contents.size()-1]:nullptr;
-        if(contents->contents.size())
+        bool hasElements = contents->contents.size();
+        std::shared_ptr<Data> ret = hasElements?std::move(contents->contents.back()):nullptr;
+        if(hasElements)
             contents->contents.pop_back();
         contents->unlock();
         return ret;

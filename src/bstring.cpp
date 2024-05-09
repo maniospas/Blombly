@@ -24,7 +24,7 @@ std::shared_ptr<Data> BString::shallowCopy() const {
 }
 
 // Implement the specified operation
-std::shared_ptr<Data> BString::implement(const OperationType operation, const BuiltinArgs* args)  {
+std::shared_ptr<Data> BString::implement(const OperationType operation, BuiltinArgs* args)  {
     if (args->size == 1) {
         switch(operation) {
             case TOCOPY: 

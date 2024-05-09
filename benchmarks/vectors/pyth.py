@@ -8,10 +8,13 @@ z = np.zeros((n,))
 tic = time.time()
 i = 0
 #z = x+y
-while i<n:
-    if i<1:
-        print("test")
+#while i<n:
+    #if i<1:
+    #    print("test")
     #z[i] = x[i]+y[i]
-    i = i+1
+    #i = i+1
+s = 0
+for i in x:
+    s = s+i
 toc = time.time()
 print(toc-tic)

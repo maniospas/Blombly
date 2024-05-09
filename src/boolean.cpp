@@ -26,7 +26,7 @@ std::shared_ptr<Data> Boolean::shallowCopy() const {
 }
 
 // Implement the specified operation
-std::shared_ptr<Data> Boolean::implement(const OperationType operation, const BuiltinArgs* args) {
+std::shared_ptr<Data> Boolean::implement(const OperationType operation, BuiltinArgs* args) {
     // Single Boolean argument operations
     if (args->size == 1) {
         if (operation == TOCOPY || operation == TOBOOL) {

@@ -42,7 +42,7 @@ std::shared_ptr<Data> Code::shallowCopy() const {
 }
 
 // Implement the specified operation for the Code class
-std::shared_ptr<Data> Code::implement(const OperationType operation, const BuiltinArgs* args)  {
+std::shared_ptr<Data> Code::implement(const OperationType operation, BuiltinArgs* args)  {
     if (args->size == 1) 
         return std::make_shared<Code>(program, start, end, declarationMemory);
     

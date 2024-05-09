@@ -28,8 +28,8 @@ public:
         return false;
     }
     virtual ~Data() = default;
-    static std::shared_ptr<Data> run(const OperationType operation, const BuiltinArgs* args);
-    virtual std::shared_ptr<Data> implement(const OperationType operation, const BuiltinArgs* args) {
+    static std::shared_ptr<Data> run(const OperationType operation, BuiltinArgs* args);
+    virtual std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) {
         throw Unimplemented();
     }
 };

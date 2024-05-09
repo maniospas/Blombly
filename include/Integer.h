@@ -20,7 +20,9 @@ public:
     int getValue() const;
 
     std::shared_ptr<Data> shallowCopy() const override;
-    std::shared_ptr<Data> implement(const OperationType operation, const BuiltinArgs* args) override;
+    std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
+
+    friend class Iterator;
 };
 
 #endif // INTEGER_H

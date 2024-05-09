@@ -156,7 +156,7 @@ public:
     void lock() {memory->lock();}
     void unlock(){memory->unlock();}
     std::shared_ptr<Data> shallowCopy() const override {return std::make_shared<Struct>(memory);}
-    std::shared_ptr<Data> implement(const OperationType operation_, const BuiltinArgs* args_) override {
+    std::shared_ptr<Data> implement(const OperationType operation_, BuiltinArgs* args_) override {
         if(args_->size==1 && args_->arg0->getType()==STRUCT && operation_==TOCOPY)
             return std::make_shared<Struct>(memory);
         std::string operation = getOperationTypeName(operation_);
@@ -451,12 +451,12 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                             }
                             return check;
                         }
-                        if(check->getType()!=BOOL) {
-                            std::cerr << "Logical condition failed to evaluate to bool" << std::endl;
-                            exit(1);
+                        if(check==nullptr) {
+                            //td::cerr << "Logical condition failed to evaluate to bool" << std::endl;
+                            //exit(1);
                             break;
                         }
-                        else if(((Boolean*)check.get())->getValue()) 
+                        else if(check->getType()!=BOOL || ((Boolean*)check.get())->getValue()) 
                             value = std::move(executeBlock(program, codeAcceptStart, codeAcceptEnd, memory, returnSignal, args));
                         else
                             break;
@@ -504,13 +504,17 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
                             delete returnSignal;
                             delete args;
                         }
-                        return check->shallowCopy();
+                        if(check)
+                            check = check->shallowCopy();
+                        return check;
                     }
-                    if(check->getType()!=BOOL) {
-                        std::cerr << "Logical condition failed to evaluate to bool" << std::endl;
-                        exit(1);
+                    if(check==nullptr) {
+                        //std::cerr << "Logical condition failed to evaluate to bool" << std::endl;
+                        //exit(1);
+                        if(codeReject)
+                            value = executeBlock(program, codeReject->getStart(), codeReject->getEnd(), memory, returnSignal, args);
                     }
-                    else if(((Boolean*)check.get())->getValue()) {
+                    else if(check->getType()!=BOOL || ((Boolean*)check.get())->getValue()) {
                         if(codeAccept)
                             value = executeBlock(program, codeAccept->getStart(), codeAccept->getEnd(), memory, returnSignal, args);
                     }
@@ -612,7 +616,7 @@ std::shared_ptr<Data> inline executeBlock(std::vector<Command*>* program,
             case TOLIST:{
                 std::shared_ptr<BList> list = std::make_shared<BList>();
                 for(int i=1;i<command->nargs;i++)
-                    list->contents->contents.push_back(MEMGET(memory, i));
+                    list->contents->contents.push_back(MEMGET(memory, i)->shallowCopy());
                 value = list;
             }
             break;

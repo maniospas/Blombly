@@ -1,33 +1,34 @@
-// List.h
-#ifndef LIST_H
-#define LIST_H
+// Iterator.h
+#ifndef ITERATOR_H
+#define ITERATOR_H
 
 #include <memory>
 #include <vector>
 #include "Data.h"
+#include "Integer.h"
 
 // Thread-safe container for list contents
-class ListContents {
+class IteratorContents {
 private:
     pthread_mutex_t memoryLock;
 
 public:
-    std::vector<std::shared_ptr<Data>> contents;
-
-    ListContents();
+    int size;
+    std::shared_ptr<Data> object;
+    std::shared_ptr<Integer> pos;
+    
+    IteratorContents(const std::shared_ptr<Data>& object);
     void lock();
     void unlock();
 };
 
 // List class representing a list of data items
-class BList : public Data {
+class Iterator : public Data {
 private:
+    std::shared_ptr<IteratorContents> contents;
 
 public:
-    std::shared_ptr<ListContents> contents;
-    explicit BList();
-    explicit BList(int reserve);
-    explicit BList(const std::shared_ptr<ListContents>& cont);
+    explicit Iterator(const std::shared_ptr<IteratorContents>& cont);
 
     int getType() const override;
     std::string toString() const override;
@@ -35,4 +36,4 @@ public:
     std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
 };
 
-#endif // LIST_H
+#endif // ITERATOR_H

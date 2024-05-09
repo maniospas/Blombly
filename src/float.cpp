@@ -29,7 +29,7 @@ std::shared_ptr<Data> Float::shallowCopy() const {
 }
 
 // Implement the specified operation
-std::shared_ptr<Data> Float::implement(const OperationType operation, const BuiltinArgs* args)  {
+std::shared_ptr<Data> Float::implement(const OperationType operation, BuiltinArgs* args)  {
     // Single argument operations
     if (args->size == 1) {
         switch (operation) {

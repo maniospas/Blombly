@@ -4,6 +4,7 @@
 #include "Float.h"
 #include "BString.h"
 #include "common.h"
+#include "Iterator.h"
 #include <iostream>
 #include <cmath>
 # define POS(v, i, j) (i*v+j)
@@ -121,7 +122,7 @@ std::shared_ptr<Data> Vector::shallowCopy() const {
 }
 
 
-std::shared_ptr<Data> Vector::implement(const OperationType operation, const BuiltinArgs* args)  {
+std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinArgs* args)  {
     /*switch(operation) {
         case TOCOPY:
             return std::make_shared<Vector>(value, this);
@@ -147,6 +148,12 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, const Bui
     if(operation==TOSTR && args->size==1 && args->arg0->getType()==VECTOR) {
         std::string ret = toString();
         return std::make_shared<BString>(ret);
+    }
+    if(args->size==1 && operation==TOITER) {
+        value->lock();
+        std::shared_ptr<Data> ret = std::make_shared<Iterator>(std::make_shared<IteratorContents>(shallowCopy()));
+        value->unlock();
+        return ret;
     }
     if(operation==SHAPE && args->size==1 && args->arg0->getType()==VECTOR) {
         int n = ndims;

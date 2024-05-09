@@ -1,16 +1,17 @@
-BEGIN createInc
-BUILTIN bias I1
-final # bias
-BEGIN inc
-add _bb0 x bias
-return _bbresult0 _bb0
+BUILTIN n I1000000
+Vector _bb0 n
+BUILTIN _bb1 F0.1
+add a _bb0 _bb1
+time tic
+iter it a
+BUILTIN s I0
+BEGIN _bb4
+next i it
 END
-return _bbresult1 inc
+BEGIN _bb5
+add s s i
 END
-call inc # createInc
-BEGIN _bb2
-BUILTIN x I1
-END
-call _bb1 _bb2 inc
-print # _bb1
-print # bias
+while # _bb4 _bb5
+time _bb7
+sub _bb6 _bb7 tic
+print # _bb6

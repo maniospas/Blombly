@@ -539,6 +539,7 @@ public:
         symbols.insert("min");
         symbols.insert("len");
         symbols.insert("print");
+        symbols.insert("iter");
     }
     Parser(std::unordered_set<std::string>& symbs, int topTemps) {
         symbols = symbs;

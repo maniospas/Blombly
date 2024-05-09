@@ -17,7 +17,7 @@ public:
     int getType() const override;
     std::string toString() const override;
     std::shared_ptr<Data> shallowCopy() const override;
-    std::shared_ptr<Data> implement(const OperationType operation, const BuiltinArgs* args) override;
+    std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
 };
 
 #endif // BSTRING_H

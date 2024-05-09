@@ -4,11 +4,11 @@
 #include <string>
 
 // Enumeration of data types
-enum Datatype { FUTURE, BOOL, INT, FLOAT, VECTOR, LIST, STRING, CODE, STRUCT };
+enum Datatype { FUTURE, BOOL, INT, FLOAT, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR};
 
 // Array to map datatype enums to string representations
 static const char* datatypeName[] = { 
-    "future", "bool", "int", "float", "vector", "list", "string", "code", "struct"
+    "future", "bool", "int", "float", "vector", "list", "string", "code", "struct", "iterator"
 };
 
 // Global strings for different operations
@@ -17,7 +17,7 @@ enum OperationType {NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, 
                     SUM, MAX, MIN,
                     BUILTIN, BEGIN, BEGINFINAL, END, RETURN, FINAL, IS, 
                     CALL, WHILE, IF, NEW, PRINT, INLINE, GET, SET, DEFAULT,
-                    TIME};
+                    TIME, TOITER};
 static const std::string OperationTypeNames[] = {
     "not", "and", "or", "eq", "neq", "le", "ge", "lt", "gt", "add", "sub", "mul", "mmul", 
     "div", "mod", "len", "pow", "log", "push", "pop", "next", "put", "at", "shape", 
@@ -25,7 +25,7 @@ static const std::string OperationTypeNames[] = {
     "sum", "max", "min",
     "BUILTIN", "BEGIN", "BEGINFINAL", "END", "return", "final", "IS", 
     "call", "while", "if", "new", "print", "inline", "get", "set", "default",
-    "time"
+    "time", "iter"
 };
 
 void initializeOperationMapping();

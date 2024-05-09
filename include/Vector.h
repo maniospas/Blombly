@@ -45,7 +45,7 @@ public:
     std::string toString() const override;
     std::shared_ptr<RawVector> getValue() const;
     std::shared_ptr<Data> shallowCopy() const override;
-    std::shared_ptr<Data> implement(const OperationType operation, const BuiltinArgs* args) override;
+    std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
 };
 
 #endif // VECTOR_H
