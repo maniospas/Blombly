@@ -522,7 +522,7 @@ public:
         symbols.insert("List");
         symbols.insert("push");
         symbols.insert("pop");
-        symbols.insert("poll");
+        symbols.insert("next");
         symbols.insert("time");
         symbols.insert("int");
         symbols.insert("float");

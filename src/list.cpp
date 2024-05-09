@@ -77,7 +77,7 @@ std::shared_ptr<Data> BList::implement(const OperationType operation, const Buil
         contents->unlock();
         return ret;
     }
-    if(args->size==1 && operation==POLL) {
+    if(args->size==1 && operation==NEXT) {
         contents->lock();
         std::shared_ptr<Data> ret = contents->contents.size()?contents->contents[0]:nullptr;
         if(contents->contents.size())

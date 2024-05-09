@@ -13,14 +13,14 @@ static const char* datatypeName[] = {
 
 // Global strings for different operations
 enum OperationType {NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, DIV, MOD, LEN, POW, LOG, 
-                    PUSH, POP, POLL, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOINT, TOFLOAT, TOSTR, TOBOOL, TOCOPY,
+                    PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOINT, TOFLOAT, TOSTR, TOBOOL, TOCOPY,
                     SUM, MAX, MIN,
                     BUILTIN, BEGIN, BEGINFINAL, END, RETURN, FINAL, IS, 
                     CALL, WHILE, IF, NEW, PRINT, INLINE, GET, SET, DEFAULT,
                     TIME};
 static const std::string OperationTypeNames[] = {
     "not", "and", "or", "eq", "neq", "le", "ge", "lt", "gt", "add", "sub", "mul", "mmul", 
-    "div", "mod", "len", "pow", "log", "push", "pop", "poll", "put", "at", "shape", 
+    "div", "mod", "len", "pow", "log", "push", "pop", "next", "put", "at", "shape", 
     "Vector", "List", "int", "float", "str", "bool", "copy", 
     "sum", "max", "min",
     "BUILTIN", "BEGIN", "BEGINFINAL", "END", "return", "final", "IS", 

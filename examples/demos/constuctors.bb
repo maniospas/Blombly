@@ -4,16 +4,20 @@ final PairAdder = {
     add = { 
         // If blocks with specific names are declared within objects, they overload operators.
         // Otherwise call add(args=List(other)) given some local values x, y.
-        other = pop(args);
-        x = x + other.x;
-        y = y + other.y;
-        return new(x=x;y=y;class:); // inline constructor
+        this = next(args); // mostly for compatibility with usage outside objects
+        other = next(args);
+        x = this.x + other.x;
+        y = this.y + other.y;
+        return new(x=x;y=y;class:); // inline constructor since our data structure is lightweight
+    }
+    incx = {
+        default value=1; // the whole computation runs, but only values not existing in the context are kept 
+        this.x = this.x+value; // `this` is declared as final during new(...)
+        return this; // return this to allow functional synchronization
     }
 }
 final PairStr = {
-    str = {
-        return "("+str(x)+","+str(y)+")";
-    }
+    str = {"("+str(this.x)+","+str(this.y)+")"} // ommit any of the return or last questionmark for last block commands
 }
 
 final Vector = {
@@ -35,10 +39,11 @@ NewVector = {
     // Create a vector by calling this block.
     // requires the Adder, Pair, and Vector to be final so that they are visible 
     // when NewVector is used as a method.
-    new(x=x;y=y;Vector:)
+    return new(x=x;y=y;Vector:);
 }
 
 a = NewVector(x=1;y=2); // calls the constuctor code block - all block calls are parallelized
 b = new(x=2;y=3;Vector:); // inlines the object construction (no parallelization, but does not need Adder, Pair, Vector to be final)
 c = a+b;
+c = c.incx();
 print(c);

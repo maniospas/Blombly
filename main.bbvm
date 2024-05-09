@@ -1,66 +1,16 @@
-BEGINFINAL PairAdder
-BEGIN add
-pop other args
-get _bb0 other x
-add x x _bb0
-get _bb2 other y
-add y y _bb2
-BEGIN _bb5
-copy x x
-copy y y
-inline _bbresult0 class
-return _bbresult1 this
+BEGIN createInc
+BUILTIN bias I1
+final # bias
+BEGIN inc
+add _bb0 x bias
+return _bbresult0 _bb0
 END
-new _bb4 _bb5
-return _bbresult2 _bb4
+return _bbresult1 inc
 END
-END
-BEGINFINAL PairStr
-BEGIN str
-BUILTIN _bb7 "("
-str _bb9 x
-BUILTIN _bb11 ","
-str _bb13 y
-BUILTIN _bb14 ")"
-add _bb12 _bb13 _bb14
-add _bb10 _bb11 _bb12
-add _bb8 _bb9 _bb10
-add _bb6 _bb7 _bb8
-return _bbresult3 _bb6
-END
-END
-BEGINFINAL Vector
-copy PairAdder PairAdder
-final # PairAdder
-copy PairStr PairStr
-final # PairStr
-copy Vector Vector
-final # Vector
-IS class Vector
-final # class
-inline _bbresult4 PairAdder
-inline _bbresult5 PairStr
-END
-BEGIN NewVector
-BEGIN _bb15
-copy x x
-copy y y
-inline _bbresult6 Vector
-return _bbresult7 this
-END
-new _bbresult8 _bb15
-END
-BEGIN _bb16
+call inc # createInc
+BEGIN _bb2
 BUILTIN x I1
-BUILTIN y I2
 END
-call a _bb16 NewVector
-BEGIN _bb17
-BUILTIN x I2
-BUILTIN y I3
-inline _bbresult9 Vector
-return _bbresult10 this
-END
-new b _bb17
-add c a b
-print # c
+call _bb1 _bb2 inc
+print # _bb1
+print # bias

@@ -3,8 +3,8 @@ final Vector = {
     final x = x;
     final y = y;
     final add = {
-        this = poll(args);
-        other = poll(args);
+        this = next(args);
+        other = next(args);
         return new(this.x=x+other.x;this.y=y+other.y;Vector:);
     }
     final str = {

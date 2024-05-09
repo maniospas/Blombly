@@ -16,15 +16,15 @@ print(x/2);  // [0, 0.5, 2, 4.5, 8+]
 ```
 
 ## List management
-List len push pop poll []
+List len push pop next []
 
 ```java
 a = List(1, 2, 3);
 print(len(a)); // 3
 push(a, "any object");
 print(len(a)); // 4
-print(pop(a)); // "any object"
-print(poll(a)); // 1
+print(pop(a)); // "any object" (also removes it)
+print(next(a)); // 1 (also removes it)
 print(a[0]); // 2
 ```
 

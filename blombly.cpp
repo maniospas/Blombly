@@ -688,9 +688,9 @@ int vm(const std::string& fileName, int numThreads) {
 
     // initialize memory and execute the assembly commands
     std::shared_ptr<Memory> memory = std::make_shared<Memory>();
-    std::shared_ptr<Struct> thisObj = std::make_shared<Struct>(memory);
-    thisObj->isMutable = false;
-    memory->set(variableManager.thisId, thisObj);
+    //std::shared_ptr<Struct> thisObj = std::make_shared<Struct>(memory);
+    //thisObj->isMutable = false;
+    //memory->set(variableManager.thisId, thisObj);
     //memory->set("locals", std::make_shared<Struct>(memory));
     executeBlock(&program, 0, program.size()-1, memory, nullptr, nullptr);
     for(int i=0;i<program.size();i++)

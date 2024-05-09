@@ -17,23 +17,23 @@ final Zeros = {
 final PVector = {
     final PVector = PVector; // grant access of this struct to its children
     final put = {
-        this = poll(args);
-        pos = poll(args);
+        this = next(args);
+        pos = next(args);
         id = int(pos/step);
-        list[id][pos - id*step] = poll(args);
+        list[id][pos - id*step] = next(args);
     }
     final len = {
         return n;
     }
     final at = {
-        this = poll(args);
-        pos = poll(args);
+        this = next(args);
+        pos = next(args);
         id = int(pos/step);
         return list[id][pos - id*step];
     }
     final add = {
-        this = poll(args);
-        other = poll(args);
+        this = next(args);
+        other = next(args);
         ret = List();
         adder = {c[i] = a[i]+b[i]}
         i = 0;
