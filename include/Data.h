@@ -20,6 +20,7 @@ struct BuiltinArgs {
 class Data {
 public:
     bool isMutable = true;
+    bool isDestroyable = true;
 
     virtual std::string toString() const = 0;
     virtual int getType() const = 0;

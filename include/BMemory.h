@@ -57,7 +57,8 @@ public:
     std::stack<tsl::hopscotch_map<int, Data*>*> *mapPool;
 
     // Constructors and destructor=
-    explicit BMemory(const std::shared_ptr<BMemory>& par);
+    explicit BMemory(const std::shared_ptr<BMemory>& par, int expectedAssignments);
+    void release();
     ~BMemory();
 
     // Lock and unlock methods for thread safety
@@ -70,6 +71,9 @@ public:
     Data* getOrNull(int item, bool allowMutable);
     Data* getOrNullShallow(int item);
     void set(int item, Data* value) ;
+    void unsafeSet(int item, Data* value, Data* prev) ;
+    int size() const;
+    void removeWithoutDelete(int item);
 
     // Methods to manage inheritance and synchronization with other Memory objects
     void pull(const std::shared_ptr<BMemory>& other);

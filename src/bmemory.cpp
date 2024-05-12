@@ -5,19 +5,23 @@
 
 extern VariableManager variableManager;
 
-BMemory::BMemory(const std::shared_ptr<BMemory>& par) : parent(par), allowMutables(true) {
+BMemory::BMemory(const std::shared_ptr<BMemory>& par, int expectedAssignments) : parent(par), allowMutables(true) {
     if(parent) {
         mapPool = parent->mapPool;
         if(!mapPool->empty()) {
             data = mapPool->top();
             mapPool->pop();
+            data->reserve(expectedAssignments);
         }
-        else 
+        else {
             data = new tsl::hopscotch_map<int, Data*>();
+            data->reserve(expectedAssignments);
+        }
     }
     else {
         mapPool = new std::stack<tsl::hopscotch_map<int, Data*>*>();
         data = new tsl::hopscotch_map<int, Data*>();
+        data->reserve(expectedAssignments);
     }
     if (pthread_mutex_init(&memoryLock, nullptr) != 0) {
         std::cerr << "Failed to create a mutex for memory read/write" << std::endl;
@@ -25,16 +29,20 @@ BMemory::BMemory(const std::shared_ptr<BMemory>& par) : parent(par), allowMutabl
     }
 }
 
-// Destructor to ensure that all threads are finished
-BMemory::~BMemory() {
+void BMemory::release() {
     // automatically performed in the delete of locals/data
-    for (Future* thread : attached_threads) {
-        thread->getResult();
-    }
     for(const auto& element : *data)
-        if(element.second)
+        if(element.second && element.second->isDestroyable) 
             delete element.second;
     data->clear();
+    for(Future* thread : attached_threads)
+        thread->getResult();
+    attached_threads.clear();
+}
+
+// Destructor to ensure that all threads are finished
+BMemory::~BMemory() {
+    release(); // safety valve here (TODO: consider commenting this out)
     // transfer remainder map pool elements to the parent
     if(parent) {
         // do this afterwards so that recalling the same methods preallocates things correctly
@@ -45,10 +53,14 @@ BMemory::~BMemory() {
             delete mapPool->top();
             mapPool->pop();
         }
-        delete mapPool;
+        //delete mapPool; // TODO: without this line we have a memory leak, find why it crashes
         delete data;
     }
     pthread_mutex_destroy(&memoryLock);
+}
+
+int BMemory::size() const {
+    return data->size();
 }
 
 // Lock the memory for thread-safe access
@@ -136,7 +148,10 @@ Data* BMemory::getOrNullShallow(int item) {
     auto it = data->find(item);
     if(it==data->end())
         return nullptr;
-    return it->second;
+    Data* ret = it->second;
+    if(ret->getType()==FUTURE)
+        return ((Future*)ret)->getResult();
+    return ret;
    // Data* ret = (*data)[item];
     /*if (ret && ret->getType() == FUTURE) {
         Data* prevRet = ret;
@@ -179,14 +194,41 @@ Data* BMemory::getOrNull(int item, bool allowMutable) {
 }
 
 
+void BMemory::removeWithoutDelete(int item) {
+    (*data)[item] = nullptr;
+}
+
 // Set a data item, ensuring mutability rules are followed
 void BMemory::set(int item, Data*value) {
-    Data* prev = (*data)[item];
+    Data* prev = getOrNullShallow(item);
     if(prev==value) 
         return;
     if (prev) {
-        if(prev->isMutable) 
-            delete prev;
+        if(prev->isMutable) {
+           if(prev->isDestroyable)
+                delete prev;
+        }
+        else {
+            std::cerr << "Cannot overwrite final value: " + variableManager.getSymbol(item) << std::endl;
+            exit(1);
+            return;
+        }
+    }
+    //if(item==variableManager.noneId)
+    //    delete value;
+    //else
+        (*data)[item] = value;
+}
+
+// Set a data item, ensuring mutability rules are followed
+void BMemory::unsafeSet(int item, Data*value, Data* prev) {
+    if(prev==value)
+        return;
+    if (prev) {
+        if(prev->isMutable) {
+            if(prev->isDestroyable)
+                delete prev;
+        }
         else {
             std::cerr << "Cannot overwrite final value: " + variableManager.getSymbol(item) << std::endl;
             exit(1);

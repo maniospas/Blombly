@@ -5,7 +5,11 @@
 
 // Constructor to initialize Code object with program segment details
 Code::Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory)
-    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory) {}
+    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory) {
+    }
+    
+Code::~Code() {
+}
 
 // Return the type ID
 int Code::getType() const {

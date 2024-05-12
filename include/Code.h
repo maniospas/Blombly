@@ -17,7 +17,8 @@ private:
     void* program;
 
 public:
-    Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory);
+    explicit Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory);
+    ~Code();
 
     int getType() const override;
     std::string toString() const override;

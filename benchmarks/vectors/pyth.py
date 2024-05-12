@@ -1,7 +1,7 @@
 import numpy as np
 import time
 
-n = 10000000
+n = 1000000
 x = np.zeros((n,))+0.1
 y = np.zeros((n,))+0.1
 z = np.zeros((n,))

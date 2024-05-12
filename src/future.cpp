@@ -36,6 +36,7 @@ Data* Future::getResult() {
     if (data->thread.joinable()) {
         try {
             data->thread.join();
+            data->result->value->isMutable = isMutable;
         } catch (...) {
             std::cerr << "Failed to join thread\n";
             exit(1);
