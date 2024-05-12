@@ -42,4 +42,40 @@ public:
     }
 };
 
+
+#define STRING_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==STRING) { \
+                    ((BString*)args->preallocResult)->value = expr; \
+                    return args->preallocResult; \
+                } \
+                return new BString(expr)
+
+#define BOOLEAN_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==BOOL) { \
+                    ((Boolean*)args->preallocResult)->value = expr; \
+                    return args->preallocResult; \
+                } \
+                return new Boolean(expr)
+
+
+
+#define STRING_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==STRING) { \
+                    ((BString*)args->preallocResult)->value = expr; \
+                    return args->preallocResult; \
+                } \
+                return new BString(expr)
+
+#define INT_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==INT) { \
+                    ((Integer*)args->preallocResult)->value = expr; \
+                    return args->preallocResult; \
+                } \
+                return new Integer(expr)
+
+
+#define FLOAT_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==FLOAT) { \
+                    ((BFloat*)args->preallocResult)->value = expr; \
+                    return args->preallocResult; \
+                } \
+                return new BFloat(expr)
+
+
+
 #endif // COMMON_H

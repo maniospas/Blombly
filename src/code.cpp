@@ -1,9 +1,10 @@
 // Code.cpp
 #include "Code.h"
 #include "common.h"
+#include "BMemory.h"
 
 // Constructor to initialize Code object with program segment details
-Code::Code(void* programAt, int startAt, int endAt, const std::shared_ptr<Memory>& declMemory)
+Code::Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory)
     : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory) {}
 
 // Return the type ID
@@ -32,19 +33,19 @@ void* Code::getProgram() const {
 }
 
 // Get the memory declarations associated with this code
-std::shared_ptr<Memory> Code::getDeclarationMemory() {
+std::shared_ptr<BMemory> Code::getDeclarationMemory() const {
     return declarationMemory;
 }
 
 // Create a shallow copy of this Code object
-std::shared_ptr<Data> Code::shallowCopy() const {
-    return std::make_shared<Code>(program, start, end, declarationMemory);
+Data* Code::shallowCopy() const {
+    return new Code(program, start, end, declarationMemory);
 }
 
 // Implement the specified operation for the Code class
-std::shared_ptr<Data> Code::implement(const OperationType operation, BuiltinArgs* args)  {
+Data* Code::implement(const OperationType operation, BuiltinArgs* args)  {
     if (args->size == 1) 
-        return std::make_shared<Code>(program, start, end, declarationMemory);
+        return new Code(program, start, end, declarationMemory);
     
     // Unimplemented operation
     throw Unimplemented();

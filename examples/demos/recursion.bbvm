@@ -24,7 +24,7 @@ END
 time tic
 BUILTIN _bb11 "Result"
 BEGIN _bb13
-BUILTIN n I9
+BUILTIN n I6
 END
 call _bb12 _bb13 fib
 print # _bb11 _bb12

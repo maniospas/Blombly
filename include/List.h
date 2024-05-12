@@ -12,9 +12,10 @@ private:
     pthread_mutex_t memoryLock;
 
 public:
-    std::vector<std::shared_ptr<Data>> contents;
+    std::vector<Data*> contents;
 
     ListContents();
+    ~ListContents();
     void lock();
     void unlock();
 };
@@ -31,8 +32,8 @@ public:
 
     int getType() const override;
     std::string toString() const override;
-    std::shared_ptr<Data> shallowCopy() const override;
-    std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
+    Data* shallowCopy() const override;
+    Data* implement(const OperationType operation, BuiltinArgs* args) override;
 };
 
 #endif // LIST_H

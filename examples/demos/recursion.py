@@ -6,5 +6,5 @@ def fib(n):
     return fib(n-1) + fib(n-2)
 
 tic = time()
-print("Result", fib(n=18))
+print("Result", fib(n=21))
 print("Time", time()-tic)

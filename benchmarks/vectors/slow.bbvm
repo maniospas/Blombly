@@ -3,15 +3,19 @@ Vector a n
 Vector b n
 Vector c n
 time tic
-iter it a
-BUILTIN s I0
+BUILTIN i I0
 BEGIN _bb0
-next i it
+lt _bbresult0 i n
 END
 BEGIN _bb1
-add s s i
+at _bb2 b i
+at _bb4 c i
+add _bb7 _bb2 _bb4
+put # a i _bb7
+BUILTIN _bb8 I1
+add i i _bb8
 END
 while # _bb0 _bb1
-time _bb3
-sub _bb2 _bb3 tic
-print # _bb2
+time _bb10
+sub _bb9 _bb10 tic
+print # _bb9

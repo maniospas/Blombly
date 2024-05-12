@@ -1,6 +1,6 @@
 #include "Data.h"
 
-std::shared_ptr<Data> Data::run(const OperationType operation, BuiltinArgs* args) {
+Data* Data::run(const OperationType operation, BuiltinArgs* args) {
     // size will always be >1
     try {
         return args->arg0->implement(operation, args);

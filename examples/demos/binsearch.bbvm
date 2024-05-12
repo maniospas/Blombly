@@ -2,80 +2,80 @@ BEGINFINAL search
 BEGIN _bb0
 BUILTIN start I0
 END
-default # _bb0
+default _bbresult0 _bb0
 BEGIN _bb1
 len _bb2 list
 BUILTIN _bb3 I1
 sub end _bb2 _bb3
 END
-default # _bb1
-BEGIN _bb2
-gt # start end
+default _bbresult1 _bb1
+BEGIN _bb4
+gt _bbresult2 start end
 END
-BEGIN _bb3
 BEGIN _bb5
+BEGIN _bb7
 BUILTIN found Bfalse
-return # this
+return _bbresult3 this
 END
-new _bb4 _bb5
-return # _bb4
+new _bb6 _bb7
+return _bbresult4 _bb6
 END
-if # _bb2 _bb3
-add _bb5 start end
-BUILTIN _bb6 I2
-div _bb4 _bb5 _bb6
-int middle _bb4
-BEGIN _bb5
-at _bb6 list middle
-eq # _bb6 query
+if # _bb4 _bb5
+add _bb9 start end
+BUILTIN _bb10 I2
+div _bb8 _bb9 _bb10
+int middle _bb8
+BEGIN _bb11
+at _bb12 list middle
+eq _bbresult5 _bb12 query
 END
-BEGIN _bb6
-BEGIN _bb8
+BEGIN _bb14
+BEGIN _bb16
 BUILTIN found Btrue
 IS pos middle
-return # this
+return _bbresult6 this
 END
-new _bb7 _bb8
-return # _bb7
+new _bb15 _bb16
+return _bbresult7 _bb15
 END
-if # _bb5 _bb6
-BEGIN _bb7
-at _bb8 list middle
-lt # _bb8 query
+if # _bb11 _bb14
+BEGIN _bb17
+at _bb18 list middle
+lt _bbresult8 _bb18 query
 END
-BEGIN _bb8
-BUILTIN _bb9 I1
-add start middle _bb9
+BEGIN _bb20
+BUILTIN _bb21 I1
+add start middle _bb21
 END
-BEGIN _bb9
-BUILTIN _bb10 I1
-sub end middle _bb10
+BEGIN _bb22
+BUILTIN _bb23 I1
+sub end middle _bb23
 END
-if # _bb7 _bb8 _bb9
-inline # search
+if # _bb17 _bb20 _bb22
+inline _bbresult9 search
 END
-BUILTIN _bb10 I1
-BUILTIN _bb11 I2
-BUILTIN _bb12 I3
-BUILTIN _bb13 I5
-BUILTIN _bb14 I6
-BUILTIN _bb15 I7
-List z _bb10 _bb11 _bb12 _bb13 _bb14 _bb15
-BEGIN _bb16
+BUILTIN _bb24 I1
+BUILTIN _bb25 I2
+BUILTIN _bb26 I3
+BUILTIN _bb27 I5
+BUILTIN _bb28 I6
+BUILTIN _bb29 I7
+List z _bb24 _bb25 _bb26 _bb27 _bb28 _bb29
+BEGIN _bb30
 IS list z
 BUILTIN query I7
 END
-call res _bb16 search
-BEGIN _bb17
-get _bb18 res found
+call res _bb30 search
+BEGIN _bb31
+get _bb32 res found
 END
-BEGIN _bb18
-BUILTIN _bb19 "Query found at index"
-get _bb20 res pos
-print # _bb19 _bb20
+BEGIN _bb33
+BUILTIN _bb34 "Query found at index"
+get _bb35 res pos
+print # _bb34 _bb35
 END
-BEGIN _bb19
-BUILTIN _bb20 "Query not found"
-print # _bb20
+BEGIN _bb37
+BUILTIN _bb38 "Query not found"
+print # _bb38
 END
-if # _bb17 _bb18 _bb19
+if # _bb31 _bb33 _bb37

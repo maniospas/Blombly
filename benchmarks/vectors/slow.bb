@@ -4,14 +4,9 @@ b = Vector(n);
 c = Vector(n);
 
 tic = time();
-//i = 0;
-//n = len(c);
-//while(i<n,
-    //c[i]=a[i]+b[i];
-    //if(i<1, print("test"));
-    //i = i+1;
-//);
-it = iter(a);
-s = 0;
-while(i=next(it), s = s+i);
+i = 0;
+while(i<n, 
+    a[i] = b[i]+c[i];
+    i = i+1;
+);
 print(time()-tic);

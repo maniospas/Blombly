@@ -38,16 +38,18 @@ public:
     Vector(int size, bool setToZero);
     Vector(int size1, int size2);
     Vector(int size1, int size2, bool setToZero);
-    Vector(std::shared_ptr<RawVector> val, const Vector* prototype);
-    Vector(std::shared_ptr<RawVector> val, const Vector* prototype, int new_dim_access);
-    Vector(std::shared_ptr<RawVector> val, int size1, int size2);
+    Vector(const std::shared_ptr<RawVector>& val, const Vector* prototype);
+    Vector(const std::shared_ptr<RawVector>& val, const Vector* prototype, int new_dim_access);
+    Vector(const std::shared_ptr<RawVector>& val, int size1, int size2);
     ~Vector();
 
     int getType() const override;
     std::string toString() const override;
     std::shared_ptr<RawVector> getValue() const;
-    std::shared_ptr<Data> shallowCopy() const override;
-    std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
+    Data* shallowCopy() const override;
+    Data* implement(const OperationType operation, BuiltinArgs* args) override;
+
+    friend class BFloat;
 };
 
 #endif // VECTOR_H

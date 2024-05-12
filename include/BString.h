@@ -16,8 +16,12 @@ public:
 
     int getType() const override;
     std::string toString() const override;
-    std::shared_ptr<Data> shallowCopy() const override;
-    std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
+    Data* shallowCopy() const override;
+    Data* implement(const OperationType operation, BuiltinArgs* args) override;
+
+    friend class Boolean;
+    friend class BFloat;
+    friend class Integer;
 };
 
 #endif // BSTRING_H

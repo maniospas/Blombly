@@ -7,17 +7,23 @@
 #include <iostream>
 
 // ListContents constructor and methods
-IteratorContents::IteratorContents(const std::shared_ptr<Data>& object_):object(object_) {
+IteratorContents::IteratorContents(Data* object_):object(object_) {
     if (pthread_mutex_init(&memoryLock, nullptr) != 0) {
         std::cerr << "Failed to create a mutex for list read/write" << std::endl;
         exit(1);
     }
-    BuiltinArgs args;
-    args.arg0 = object_.get();
-    args.size = 1;
-    pos = std::make_shared<Integer>(0);
-    size = ((Integer*)Data::run(LEN, &args).get())->getValue();
+    BuiltinArgs* args = new BuiltinArgs();
+    args->arg0 = object;
+    args->size = 1;
+    pos = new Integer(0);
+    size = ((Integer*)object->implement(LEN, args))->getValue();
+    delete args;
     locked = -1; // start from -1 so that first object getting this goes to 0
+}
+
+IteratorContents::~IteratorContents() {
+    delete pos;
+    delete object;
 }
 
 void IteratorContents::lock() {
@@ -37,7 +43,7 @@ void IteratorContents::unsafeUnlock() {
 
 // List constructors
 
-Iterator::Iterator(const std::shared_ptr<IteratorContents>& object) : contents(object) {
+Iterator::Iterator(const std::shared_ptr<IteratorContents>& contents_) : contents(contents_) {
     contents->lock();
     bool shouldUnlock = contents->locked;
     contents->locked += 1;
@@ -64,12 +70,15 @@ std::string Iterator::toString() const {
 }
 
 // Create a shallow copy of this List
-std::shared_ptr<Data> Iterator::shallowCopy() const {
-    return std::make_shared<Iterator>(contents);
+Data* Iterator::shallowCopy() const {
+    std::shared_ptr<IteratorContents> newContents = std::make_shared<IteratorContents>(contents->object->shallowCopy());
+    newContents->pos = contents->pos;
+    newContents->size = contents->size;
+    return new Iterator(newContents);
 }
 
 // Implement the specified operation
-std::shared_ptr<Data> Iterator::implement(const OperationType operation, BuiltinArgs* args) {
+Data* Iterator::implement(const OperationType operation, BuiltinArgs* args) {
     if(args->size==1 && operation==NEXT) {
         contents->lock();
         int pos = contents->pos->value;
@@ -78,12 +87,12 @@ std::shared_ptr<Data> Iterator::implement(const OperationType operation, Builtin
             return nullptr;
         }
         // keep the return type as-is
-        args->arg0 = contents->object.get();
-        args->arg1 = contents->pos.get();
+        args->arg0 = contents->object;
+        args->arg1 = contents->pos;
         args->size = 2;
         contents->unlock();
 
-        std::shared_ptr<Data> ret = Data::run(AT, args); // run outside locks to prevent deadlocks
+        Data* ret = args->arg0->implement(AT, args);//Data::run(AT, args); // run outside locks to prevent deadlocks
 
         contents->lock();
         bool shouldUnlock = contents->locked;
@@ -93,11 +102,11 @@ std::shared_ptr<Data> Iterator::implement(const OperationType operation, Builtin
         return ret;
     }
     if(args->size==1 && operation==LEN)
-        return std::make_shared<Integer>(contents->size);
+        return new Integer(contents->size);
     if(args->size==1 && operation==TOCOPY)
-        return std::make_shared<Iterator>(contents);
+        return new Iterator(contents);
     if(args->size==1 && operation==TOITER) 
-        return std::make_shared<Iterator>(std::make_shared<IteratorContents>(contents->object));
+        return shallowCopy();//std::make_shared<Iterator>(std::make_shared<IteratorContents>(contents->object));
 
     throw Unimplemented();
 }

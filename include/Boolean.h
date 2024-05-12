@@ -18,12 +18,12 @@ public:
     std::string toString() const override;
     bool getValue() const;
 
-    std::shared_ptr<Data> shallowCopy() const override;
-    std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
+    Data* shallowCopy() const override;
+    Data* implement(const OperationType operation, BuiltinArgs* args) override;
 
     friend class Integer; 
-    friend class Float; 
-    friend class String; 
+    friend class BFloat; 
+    friend class BString; 
 };
 
 #endif // BOOLEAN_H

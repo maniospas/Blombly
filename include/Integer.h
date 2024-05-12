@@ -19,12 +19,14 @@ public:
     std::string toString() const override;
     int getValue() const;
 
-    std::shared_ptr<Data> shallowCopy() const override;
-    std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
+    Data* shallowCopy() const override;
+    Data* implement(const OperationType operation, BuiltinArgs* args) override;
 
     friend class Iterator;
-    friend class Float;
+    friend class BFloat;
     friend class Boolean;
+    friend class BString;
+    friend class Vector;
 };
 
 #endif // INTEGER_H

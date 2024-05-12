@@ -1,0 +1,40 @@
+BEGINFINAL fib
+BEGIN _bb0
+BUILTIN _bb1 I2
+lt _bbresult0 n _bb1
+END
+BEGIN _bb2
+BUILTIN _bb3 I1
+return _bbresult1 _bb3
+END
+if # _bb0 _bb2
+BEGIN _bb6
+BUILTIN _bb7 I1
+sub n n _bb7
+inline _bbresult2 fib
+return _bbresult3 this
+END
+new _bb5 _bb6
+BEGIN _bb9
+BUILTIN _bb10 I2
+sub n n _bb10
+inline _bbresult4 fib
+return _bbresult5 this
+END
+new _bb8 _bb9
+add _bb4 _bb5 _bb8
+return _bbresult6 _bb4
+END
+time tic
+BUILTIN _bb11 "Result"
+BEGIN _bb13
+BUILTIN n I21
+inline _bbresult7 fib
+return _bbresult8 this
+END
+new _bb12 _bb13
+print # _bb11 _bb12
+BUILTIN _bb14 "Time"
+time _bb16
+sub _bb15 _bb16 tic
+print # _bb14 _bb15

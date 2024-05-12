@@ -14,7 +14,7 @@ FutureData::~FutureData() {
 }
 
 // Future constructor
-Future::Future(std::shared_ptr<FutureData> data) : data(std::move(data)) {}
+Future::Future(const std::shared_ptr<FutureData>& data_) : data(std::move(data_)) {}
 
 // Return the data type
 int Future::getType() const {
@@ -27,12 +27,12 @@ std::string Future::toString() const {
 }
 
 // Create a shallow copy of this Future
-std::shared_ptr<Data> Future::shallowCopy() const {
-    return std::make_shared<Future>(data);
+Data* Future::shallowCopy() const {
+    return new Future(data);
 }
 
 // Get the result after joining the thread
-std::shared_ptr<Data> Future::getResult() {
+Data* Future::getResult() {
     if (data->thread.joinable()) {
         try {
             data->thread.join();

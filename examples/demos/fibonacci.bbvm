@@ -2,34 +2,34 @@ BEGINFINAL fib
 BUILTIN _bb1 I1
 add _bb0 n _bb1
 Vector res _bb0
-BUILTIN _bb1 I0
-BUILTIN _bb2 I1
-put _bb1 res _bb1 _bb2
+BUILTIN _bb2 I0
 BUILTIN _bb3 I1
+put # res _bb2 _bb3
 BUILTIN _bb4 I1
-put _bb3 res _bb3 _bb4
+BUILTIN _bb5 I1
+put # res _bb4 _bb5
 BUILTIN i I2
-BEGIN _bb5
-le # i n
-END
 BEGIN _bb6
-BUILTIN _bb9 I2
-sub _bb8 i _bb9
-at _bb7 res _bb8
-BUILTIN _bb10 I1
+le _bbresult0 i n
+END
+BEGIN _bb7
+BUILTIN _bb10 I2
 sub _bb9 i _bb10
 at _bb8 res _bb9
-add _bb10 _bb7 _bb8
-put _bb9 res i _bb10
-BUILTIN _bb11 I1
-add i i _bb11
+BUILTIN _bb13 I1
+sub _bb12 i _bb13
+at _bb11 res _bb12
+add _bb15 _bb8 _bb11
+put # res i _bb15
+BUILTIN _bb16 I1
+add i i _bb16
 END
-while # _bb5 _bb6
-at _bb7 res n
-return # _bb7
+while # _bb6 _bb7
+at _bb17 res n
+return _bbresult1 _bb17
 END
-BEGIN _bb9
+BEGIN _bb20
 BUILTIN n I9
 END
-call _bb8 _bb9 fib
-print # _bb8
+call _bb19 _bb20 fib
+print # _bb19

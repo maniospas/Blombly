@@ -1,0 +1,83 @@
+BEGINFINAL PairAdder
+BEGIN add
+next this args
+next other args
+get _bb0 this x
+get _bb2 other x
+add x _bb0 _bb2
+get _bb4 this y
+get _bb6 other y
+add y _bb4 _bb6
+BEGIN _bb9
+copy x x
+copy y y
+inline _bbresult0 class
+return _bbresult1 this
+END
+new _bb8 _bb9
+return _bbresult2 _bb8
+END
+BEGIN incx
+BEGIN _bb10
+BUILTIN value I1
+END
+default _bbresult3 _bb10
+get _bb11 this x
+add _bb13 _bb11 value
+set # this x _bb13
+return _bbresult4 this
+END
+END
+BEGINFINAL PairStr
+BEGIN str
+BUILTIN _bb14 "("
+get _bb17 this x
+str _bb16 _bb17
+BUILTIN _bb20 ","
+get _bb23 this y
+str _bb22 _bb23
+BUILTIN _bb25 ")"
+add _bb21 _bb22 _bb25
+add _bb19 _bb20 _bb21
+add _bb15 _bb16 _bb19
+add _bbresult5 _bb14 _bb15
+END
+END
+BEGINFINAL Vector
+copy PairAdder PairAdder
+final # PairAdder
+copy PairStr PairStr
+final # PairStr
+copy Vector Vector
+final # Vector
+IS class Vector
+final # class
+inline _bbresult6 PairAdder
+inline _bbresult7 PairStr
+END
+BEGIN NewVector
+BEGIN _bb27
+copy x x
+copy y y
+inline _bbresult8 Vector
+return _bbresult9 this
+END
+new _bb26 _bb27
+return _bbresult10 _bb26
+END
+BEGIN _bb28
+BUILTIN x I1
+BUILTIN y I2
+END
+call a _bb28 NewVector
+BEGIN _bb29
+BUILTIN x I2
+BUILTIN y I3
+inline _bbresult11 Vector
+return _bbresult12 this
+END
+new b _bb29
+add c a b
+get _bb30 c incx
+call c # _bb30
+print # c

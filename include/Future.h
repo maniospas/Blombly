@@ -9,7 +9,7 @@
 // ThreadResult class for holding thread execution results
 class ThreadResult {
 public:
-    std::shared_ptr<class Data> value;
+    Data* value;
     ThreadResult() = default;
 };
 
@@ -29,12 +29,12 @@ private:
     std::shared_ptr<FutureData> data;
 
 public:
-    explicit Future(std::shared_ptr<FutureData> data);
+    explicit Future(const std::shared_ptr<FutureData>& data);
 
     int getType() const override;
     std::string toString() const override;
-    std::shared_ptr<Data> shallowCopy() const override;
-    std::shared_ptr<Data> getResult();
+    Data* shallowCopy() const override;
+    Data* getResult();
 };
 
 #endif // FUTURE_H

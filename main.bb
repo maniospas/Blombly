@@ -1,8 +1,8 @@
 final fib = {
     if(n<2, return 1); 
-    return fib(n=n-1)+fib(n=n-2);
+    return new(n = n-1;fib:) + new(n = n-2;fib:);
 }
 
 tic = time();
-print("Result", fib(n=18));
+print("Result", new(n=21;fib:));
 print("Time", time()-tic);

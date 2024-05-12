@@ -14,11 +14,12 @@ private:
 
 public:
     int size;
-    std::shared_ptr<Data> object;
-    std::shared_ptr<Integer> pos;
+    Data* object;
+    Integer* pos;
     int locked;
     
-    IteratorContents(const std::shared_ptr<Data>& object);
+    IteratorContents(Data* object);
+    ~IteratorContents();
     void lock();
     void unlock();
     void unsafeUnlock();
@@ -30,13 +31,13 @@ private:
     std::shared_ptr<IteratorContents> contents;
 
 public:
-    explicit Iterator(const std::shared_ptr<IteratorContents>& cont);
+    explicit Iterator(const std::shared_ptr<IteratorContents>& contents_);
     ~Iterator();
 
     int getType() const override;
     std::string toString() const override;
-    std::shared_ptr<Data> shallowCopy() const override;
-    std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
+    Data* shallowCopy() const override;
+    Data* implement(const OperationType operation, BuiltinArgs* args) override;
 };
 
 #endif // ITERATOR_H

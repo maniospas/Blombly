@@ -2,6 +2,7 @@
 #include "Boolean.h"
 #include "common.h"
 
+
 // Constructor
 Boolean::Boolean(bool val) : value(val) {}
 
@@ -21,34 +22,34 @@ bool Boolean::getValue() const {
 }
 
 // Create a shallow copy of this Boolean
-std::shared_ptr<Data> Boolean::shallowCopy() const {
-    return std::make_shared<Boolean>(value);
+Data* Boolean::shallowCopy() const {
+    return new Boolean(value);
 }
 
 // Implement the specified operation
-std::shared_ptr<Data> Boolean::implement(const OperationType operation, BuiltinArgs* args) {
-    // Single Boolean argument operations
-    if (args->size == 1) {
-        if (operation == TOCOPY || operation == TOBOOL) {
-            return std::make_shared<Boolean>(value);
-        } 
-        if(operation==NOT) {
-            return std::make_shared<Boolean>(!value);
-        }
-        throw Unimplemented();
-    }
-
+Data* Boolean::implement(const OperationType operation, BuiltinArgs* args) {
     // Two Boolean argument operations
     if (args->size == 2 && args->arg0->getType() == BOOL && args->arg1->getType() == BOOL) {
         bool v1 = ((Boolean*)args->arg0)->getValue();
         bool v2 = ((Boolean*)args->arg1)->getValue();
         switch(operation) {
-            case AND: return std::make_shared<Boolean>(v1 && v2);
-            case OR: return std::make_shared<Boolean>(v1 || v2);
-            case EQ: return std::make_shared<Boolean>(v1 == v2);
-            case NEQ: return std::make_shared<Boolean>(v1 != v2);
+            case AND: BOOLEAN_RESULT(v1 && v2);
+            case OR: BOOLEAN_RESULT(v1 || v2);
+            case EQ: BOOLEAN_RESULT(v1 == v2);
+            case NEQ: BOOLEAN_RESULT(v1 != v2);
         }
     }
+
+    // Single Boolean argument operations
+    if (args->size == 1) {
+        switch(operation) {
+            case TOCOPY:
+            case TOBOOL: BOOLEAN_RESULT(value);
+            case NOT: BOOLEAN_RESULT(!value);
+        }
+        throw Unimplemented();
+    }
+
 
     // Unimplemented operation
     throw Unimplemented();

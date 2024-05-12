@@ -14,6 +14,12 @@ ListContents::ListContents() {
     }
 }
 
+ListContents::~ListContents() {
+    for(const Data* element : contents)
+        if(element)
+            delete element;
+}
+
 void ListContents::lock() {
     pthread_mutex_lock(&memoryLock);
 }
@@ -36,7 +42,7 @@ int BList::getType() const {
 std::string BList::toString() const {
     contents->lock();
     std::string result = "[";
-    for (const auto& element : contents->contents) {
+    for (Data* element : contents->contents) {
         if (result.size() > 1) {
             result += ", ";
         }
@@ -47,16 +53,16 @@ std::string BList::toString() const {
 }
 
 // Create a shallow copy of this List
-std::shared_ptr<Data> BList::shallowCopy() const {
-    return std::make_shared<BList>(contents);
+Data* BList::shallowCopy() const {
+    return new BList(contents);
 }
 
 // Implement the specified operation
-std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArgs* args) {
+Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
     if(args->size==1 && operation==TOCOPY)
-        return std::make_shared<BList>(contents);
+        return new BList(contents);
     if(args->size==1 && operation==LEN)
-        return std::make_shared<Integer>(contents->contents.size());
+        return new Integer(contents->contents.size());
     if(args->size==2 && args->arg0->getType()==LIST && args->arg1->getType()==INT && operation==AT) {
         contents->lock();
         int index = ((Integer*)args->arg1)->getValue();
@@ -66,32 +72,38 @@ std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArg
             exit(1);
             return nullptr;
         }
-        std::shared_ptr<Data> ret = contents->contents[index];
+        Data* ret = contents->contents[index];
         contents->unlock();
+        if(ret)
+            ret = ret->shallowCopy();
         return ret;
     }
     if(args->size==1 && operation==TOITER) {
         contents->lock();
-        std::shared_ptr<Data> ret = std::make_shared<Iterator>(std::make_shared<IteratorContents>(shallowCopy()));
+        Data* ret = new Iterator(std::make_shared<IteratorContents>(this));
         contents->unlock();
         return ret;
     }
     if(args->size==1 && operation==NEXT) {
         contents->lock();
         bool hasElements = contents->contents.size();
-        std::shared_ptr<Data> ret = hasElements?std::move(contents->contents.front()):nullptr;
+        Data* ret = hasElements?contents->contents.front():nullptr;
         if(hasElements)
             contents->contents.erase(contents->contents.begin());
         contents->unlock();
+        if(ret)
+            ret = ret->shallowCopy();
         return ret;
     }
     if(args->size==1 && operation==POP) {
         contents->lock();
         bool hasElements = contents->contents.size();
-        std::shared_ptr<Data> ret = hasElements?std::move(contents->contents.back()):nullptr;
+        Data* ret = hasElements?contents->contents.back():nullptr;
         if(hasElements)
             contents->contents.pop_back();
         contents->unlock();
+        if(ret)
+            ret = ret->shallowCopy();
         return ret;
     }
 

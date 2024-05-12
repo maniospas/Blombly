@@ -1,7 +1,7 @@
 // Vector.cpp
 #include "Vector.h"
 #include "Integer.h"
-#include "Float.h"
+#include "bFloat.h"
 #include "BString.h"
 #include "common.h"
 #include "Iterator.h"
@@ -69,7 +69,7 @@ Vector::Vector(int size1, int size2, bool setToZero) : Vector(size1, size2) {
     }
 }
 
-Vector::Vector(std::shared_ptr<RawVector> val, const Vector* prototype) {
+Vector::Vector(const std::shared_ptr<RawVector>& val, const Vector* prototype) {
     value = val;
     ndims = prototype->ndims;
     dims = new int[ndims];
@@ -78,7 +78,7 @@ Vector::Vector(std::shared_ptr<RawVector> val, const Vector* prototype) {
     natdims = prototype->natdims;
 }
 
-Vector::Vector(std::shared_ptr<RawVector> val, const Vector* prototype, int new_dim_access) {
+Vector::Vector(const std::shared_ptr<RawVector>& val, const Vector* prototype, int new_dim_access) {
     value = val;
     ndims = prototype->ndims;
     dims = new int[ndims];
@@ -89,7 +89,7 @@ Vector::Vector(std::shared_ptr<RawVector> val, const Vector* prototype, int new_
     natdims = prototype->natdims + 1;
 }
 
-Vector::Vector(std::shared_ptr<RawVector> val, int size1, int size2) {
+Vector::Vector(const std::shared_ptr<RawVector>& val, int size1, int size2) {
     value = val;
     dims = new int[2];
     dims[0] = size1;
@@ -129,9 +129,9 @@ std::shared_ptr<RawVector> Vector::getValue() const {
     return value;
 }
 
-std::shared_ptr<Data> Vector::shallowCopy() const {
+Data* Vector::shallowCopy() const {
     value->lock();
-    std::shared_ptr<Vector> ret = std::make_shared<Vector>(value, this);
+    Vector* ret = new Vector(value, this);
     bool shouldUnlock = value->lockable;
     value->lockable += 1;
     if(shouldUnlock)
@@ -140,25 +140,7 @@ std::shared_ptr<Data> Vector::shallowCopy() const {
 }
 
 
-std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinArgs* args)  {
-    /*switch(operation) {
-        case TOCOPY:
-            return std::make_shared<Vector>(value, this);
-        case LEN:
-            return std::make_shared<Integer>(value->size);
-        case TOSTR:
-            return std::make_shared<BString>(toString());
-        case SHAPE: {
-            int n = ndims;
-            std::shared_ptr<Vector> ret = std::make_shared<Vector>(n);
-            for(int i=0;i<n;i++)
-                ret->value->data[i] = dims[i];
-            return ret;
-        }
-        case AT: {
-            
-        }
-    }*/
+Data* Vector::implement(const OperationType operation, BuiltinArgs* args)  {
     if(operation==AT && args->size==2 && args->arg0->getType()==VECTOR && args->arg1->getType()==INT) {
         if(ndims==natdims+1) {
             int index = ((Integer*)args->arg1)->getValue();
@@ -176,12 +158,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
             }
             double val = value->data[index];
             value->unlock();
-            Data* preallocResult = args->preallocResult.get();
-            if(preallocResult && preallocResult->getType()==FLOAT) {
-                ((Float*)preallocResult)->value = val;
-                return args->preallocResult;
-            }
-            return std::make_shared<Float>(val);
+            FLOAT_RESULT(val);
         }
         else {
             value->lock();
@@ -197,7 +174,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
                 exit(1);
                 return nullptr;
             }
-            std::shared_ptr<Vector> ret = std::make_shared<Vector>(value, this, index);
+            Vector* ret = new Vector(value, this, index);
             bool shouldUnlock = value->lockable;
             value->lockable += 1;
             if(shouldUnlock)
@@ -212,7 +189,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
                 index *= dims[i+1];
                 index += atdims[i];
             }
-        double newValue = ((Float*)args->arg2)->getValue();
+        double newValue = ((BFloat*)args->arg2)->getValue();
         if(index < 0 || index>=value->size) {
             std::cerr << "Index "<<index<<" out of range [0,"<<value->size<<")\n";
             exit(1);
@@ -249,7 +226,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
         for(int i=0;i<value->size;i++)
             ret += value->data[i];
         value->unlock();
-        return std::make_shared<Float>(ret);
+        FLOAT_RESULT(ret);
     }
     if(operation==MAX && args->size==1) {
         value->lock();
@@ -265,7 +242,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
                 ret = element;
         }
         value->unlock();
-        return std::make_shared<Float>(ret);
+        FLOAT_RESULT(ret);
     }
     if(operation==MIN && args->size==1) {
         value->lock();
@@ -281,7 +258,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
                 ret = element;
         }
         value->unlock();
-        return std::make_shared<Float>(ret);
+        FLOAT_RESULT(ret);
     }
     if(args->size==2 && args->arg0->getType()==VECTOR && args->arg1->getType()==VECTOR) {
         Vector* a1 = (Vector*)args->arg0;
@@ -310,7 +287,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
             return nullptr;
         }
         std::shared_ptr<RawVector> rawret = operation==MMUL?std::make_shared<RawVector>(a1->dims[0]*a2->dims[1]):std::make_shared<RawVector>(a1->value->size);
-        std::shared_ptr<Vector> retret = operation==MMUL?std::make_shared<Vector>(rawret, a1->dims[0], a2->dims[1]):std::make_shared<Vector>(rawret, this);
+        Vector* retret = operation==MMUL?new Vector(rawret, a1->dims[0], a2->dims[1]):new Vector(rawret, this);
         double* ret = rawret->data;
         double* v1 = a1->value->data;
         double* v2 = a2->value->data;
@@ -381,7 +358,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
         && ((args->arg0->getType()==VECTOR)!=(args->arg1->getType()==VECTOR))) { 
         std::shared_ptr<RawVector> vec = args->arg0->getType()==VECTOR?((Vector*)args->arg0)->getValue():((Vector*)args->arg1)->getValue();
         Data* uncastedother = args->arg0->getType()==VECTOR?args->arg1:args->arg0;
-        double v = uncastedother->getType()==INT?((Integer*)uncastedother)->getValue():((Float*)uncastedother)->getValue();
+        double v = uncastedother->getType()==INT?((Integer*)uncastedother)->getValue():((BFloat*)uncastedother)->getValue();
         vec->lock();
         int n = vec->size;
         std::shared_ptr<RawVector> rawret = std::make_shared<RawVector>(n);
@@ -425,25 +402,24 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
                     ret[i] = pow(v, dat[i]);
         }
         vec->unlock();
-        return std::make_shared<Vector>(rawret, this);
+        return new Vector(rawret, this);
     }
     if(operation==TOCOPY && args->size==1 && args->arg0->getType()==VECTOR)
         return shallowCopy();
-    if(operation==LEN && args->size==1 && args->arg0->getType()==VECTOR)
-        return std::make_shared<Integer>(value->size);
+    if(operation==LEN && args->size==1 && args->arg0->getType()==VECTOR) {
+        INT_RESULT(value->size);
+    }
     if(operation==TOSTR && args->size==1 && args->arg0->getType()==VECTOR) {
         std::string ret = toString();
-        return std::make_shared<BString>(ret);
+        return new BString(ret);
     }
     if(args->size==1 && operation==TOITER) {
-        value->lock();
-        std::shared_ptr<Data> ret = std::make_shared<Iterator>(std::make_shared<IteratorContents>(shallowCopy()));
-        value->unlock();
+        Data* ret = new Iterator(std::make_shared<IteratorContents>(new Vector(value, this)));
         return ret;
     }
     if(operation==SHAPE && args->size==1 && args->arg0->getType()==VECTOR) {
         int n = ndims;
-        std::shared_ptr<Vector> ret = std::make_shared<Vector>(n);
+        Vector* ret = new Vector(n);
         for(int i=0;i<n;i++)
             ret->value->data[i] = dims[i];
         return ret;

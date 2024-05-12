@@ -11,22 +11,28 @@ if # _bb0 _bb2
 BEGIN _bb6
 BUILTIN _bb7 I1
 sub n n _bb7
+inline _bbresult2 fib
+return _bbresult3 this
 END
-call _bb5 _bb6 fib
+new _bb5 _bb6
 BEGIN _bb9
 BUILTIN _bb10 I2
 sub n n _bb10
+inline _bbresult4 fib
+return _bbresult5 this
 END
-call _bb8 _bb9 fib
+new _bb8 _bb9
 add _bb4 _bb5 _bb8
-return _bbresult2 _bb4
+return _bbresult6 _bb4
 END
 time tic
 BUILTIN _bb11 "Result"
 BEGIN _bb13
-BUILTIN n I18
+BUILTIN n I21
+inline _bbresult7 fib
+return _bbresult8 this
 END
-call _bb12 _bb13 fib
+new _bb12 _bb13
 print # _bb11 _bb12
 BUILTIN _bb14 "Time"
 time _bb16
