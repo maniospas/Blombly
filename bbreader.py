@@ -39,7 +39,7 @@ with open(path) as file:
             code += line[2]+"."+line[3]+";"
         elif line[0] == "set":
             code += line[2]+"."+line[3]+" = "+line[4]+";"
-        elif line[0] == "FINAL":
+        elif line[0] == "final":
             for j in range(len(allcode)-1, 0, -1):
                 if allcode[j].startswith(code):
                     allcode[j] = (" "*(len(allcode[j])-len(allcode[j].lstrip())))+"final "+allcode[j].lstrip()

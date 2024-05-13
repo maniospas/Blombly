@@ -1,14 +1,35 @@
-BEGIN adder
-BUILTIN x I1
-BUILTIN y I2
-BUILTIN _bb0 "here"
-print # _bb0
-add _bb1 x y
-return _bbresult0 _bb1
+List x
+time tic
+BUILTIN i I0
+BEGIN _bb0
+BUILTIN _bb1 I1000000
+lt _bbresult0 i _bb1
 END
-BEGIN _bb3
-BUILTIN x I1
-BUILTIN y I2
+BEGIN _bb2
+BUILTIN _bb3 I1
+add i i _bb3
+push # x i
 END
-call _bb2 _bb3 adder
-print # _bb2
+while # _bb0 _bb2
+time _bb5
+sub _bb4 _bb5 tic
+print # _bb4
+time tic
+BUILTIN s I0
+BUILTIN i I0
+BEGIN _bb6
+BUILTIN _bb7 I1000000
+lt _bbresult1 i _bb7
+END
+BEGIN _bb8
+at _bb10 x i
+BUILTIN _bb12 I10000
+div _bb9 _bb10 _bb12
+add s s _bb9
+BUILTIN _bb13 I1
+add i i _bb13
+END
+while # _bb6 _bb8
+time _bb15
+sub _bb14 _bb15 tic
+print # _bb14

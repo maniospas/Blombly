@@ -9,9 +9,10 @@
 #include <vector>
 #include <iostream>
 #include <pthread.h>
-#include "Data.h"
-#include "Future.h"
+#include "data/Data.h"
+#include "data/Future.h"
 #include "tsl/hopscotch_map.h"
+#include "tsl/hopscotch_set.h"
 
 
 class VariableManager {
@@ -53,8 +54,9 @@ private:
     pthread_mutex_t memoryLock;
 
 public:
-    std::vector<Future*> attached_threads;
+    tsl::hopscotch_set<Future*> attached_threads;
     std::stack<tsl::hopscotch_map<int, Data*>*> *mapPool;
+    bool isOrDerivedFrom(const std::shared_ptr<BMemory>& memory) const;
 
     // Constructors and destructor=
     explicit BMemory(const std::shared_ptr<BMemory>& par, int expectedAssignments);

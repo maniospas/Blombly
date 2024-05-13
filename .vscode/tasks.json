@@ -3,10 +3,13 @@
         {
             "type": "cppbuild",
             "label": "C/C++: g++.exe build active file",
-            "command": "gcc",
+            "command": "g++",
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
+                "${fileDirname}\\src\\*.cpp",
+                "${fileDirname}\\src\\data\\*.cpp",
+                "${fileDirname}\\src\\interpreter\\*.cpp",
                 "${file}",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",

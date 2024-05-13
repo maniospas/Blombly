@@ -1,8 +1,10 @@
 #include "common.h"
+#include "BMemory.h"
 #include <unordered_map>
 #include <iostream>
 
 
+VariableManager variableManager; // .lastId will always be 0 (currently it is disabled)
 std::unordered_map<std::string, OperationType> toOperationTypeMap;
 void initializeOperationMapping() {
     for (int i = 0; i < sizeof(OperationTypeNames) / sizeof(OperationTypeNames[0]); ++i) 

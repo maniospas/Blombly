@@ -40,179 +40,33 @@
 
 // include data types
 #include "include/common.h"
-#include "include/Boolean.h"
-#include "include/Integer.h"
-#include "include/BFloat.h"
-#include "include/Vector.h"
-#include "include/BString.h"
-#include "include/List.h"
-#include "include/Future.h"
-#include "include/Code.h"
+#include "include/data/Boolean.h"
+#include "include/data/Integer.h"
+#include "include/data/BFloat.h"
+#include "include/data/Vector.h"
+#include "include/data/BString.h"
+#include "include/data/List.h"
+#include "include/data/Future.h"
+#include "include/data/Code.h"
+#include "include/data/Struct.h"
 #include "include/BMemory.h"
-
-#define DEFAULT_LOCAL_EXPECTATION 16
-#define LOCAL_EXPACTATION_FROM_CODE(code) std::min((code->getEnd()-code->getStart())*2, DEFAULT_LOCAL_EXPECTATION)
-
+#include "include/interpreter/Command.h"
+#include "include/interpreter/thread.h"
 
 std::chrono::steady_clock::time_point program_start;
-VariableManager variableManager; // .lastId will always be 0 (currently it is disabled)
 //#define MEMGET(memory, arg) (command->knownLocal[arg]?memory->getLocal(command->args[arg]):memory->get(command->args[arg]))
 
 #define MEMGET(memory, arg) (command->knownLocal[arg]?memory->getOrNullShallow(command->args[arg]):memory->get(command->args[arg]))
 
-
-class Command {
-public:
-    OperationType operation;
-    int* args;
-    bool* knownLocal;
-    int nargs;
-    Data* value;
-
-    ~Command() {
-        delete args;
-        delete value;
-        delete knownLocal;
-    }
-
-    Command(std::string command) {
-        value = nullptr;
-        std::vector<std::string> argNames;
-        argNames.reserve(4);
-        std::string accumulate;
-        int pos = 0;
-        bool inString = false;
-        while(pos<command.size()){
-            if(command[pos]=='"')
-                inString = !inString;
-            if(!inString && (command[pos]==' ' || pos==command.size()-1)){
-                if(command[pos]!=' ')
-                    accumulate += command[pos];
-                argNames.push_back(accumulate);
-                accumulate = "";
-            }
-            else
-                accumulate += command[pos];
-            pos += 1;
-        }
-        operation = getOperationType(argNames[0]);
-        nargs = argNames.size()-1;
-
-        if(operation==BUILTIN) {
-            nargs -= 1;
-            std::string raw = argNames[2];
-            if(raw[0]=='"')
-                value = new BString(raw.substr(1, raw.size()-2));
-            else if(raw[0]=='I')
-                value = new Integer(std::atoi(raw.substr(1).c_str()));
-            else if(raw[0]=='F')
-                value = new BFloat(std::atof(raw.substr(1).c_str()));
-            else if(raw[0]=='B') 
-                value = new Boolean(raw=="Btrue");
-            else {
-                std::cerr << "Unable to understand builtin value: " << raw << std::endl;
-                exit(1);
-            }
-            value->isDestroyable = false;
-        }
-        
-        args = new int[nargs];
-        knownLocal = new bool[nargs];
-        for(int i=0;i<nargs;i++) {
-            knownLocal[i] = argNames[i+1].substr(0, 3)=="_bb";
-            //knownLocal[i] = false;
-            args[i] = variableManager.getId(argNames[i+1]);
-        }
-
-    }
-};
-
-
-Data* executeBlock(std::vector<Command*>* program,
-                  int start, 
-                  int end,
-                  const std::shared_ptr<BMemory>& memory, 
-                  bool *returnSignal,
-                  BuiltinArgs* allocatedBuiltins
-                  );
-
-
-class Struct: public Data {
-private:
-    std::shared_ptr<BMemory> memory;
-public:
-    Struct(const std::shared_ptr<BMemory>& mem) {
-        memory = mem;
-    }
-    /*virtual bool couldBeShallowCopy(std::shared_ptr<Data> data) {
-        return data->getType()==STRUCT && std::static_pointer_cast<Struct>(data)->memory==memory;
-    }*/
-    int getType() const override {return STRUCT;}
-    std::string toString() const override {
-        try{
-            BuiltinArgs args;
-            args.size = 1;
-            args.arg0 = (Data*)this;
-            Data* repr = Data::run(TOSTR, &args);
-            return repr->toString();
-        }
-        catch(Unimplemented){
-        }
-        return "struct";
-    }
-    std::shared_ptr<BMemory> getMemory() {return memory;}
-    void lock() {memory->lock();}
-    void unlock(){memory->unlock();}
-    Data* shallowCopy() const override {return new Struct(memory);}
-    Data* implement(const OperationType operation_, BuiltinArgs* args_) override {
-        if(args_->size==1 && args_->arg0->getType()==STRUCT && operation_==TOCOPY)
-            return new Struct(memory);
-        std::string operation = getOperationTypeName(operation_);
-        std::shared_ptr<BMemory> memory = this->memory;
-        Data* implementation = memory->getOrNull(variableManager.getId(operation), true);
-        if(!implementation)
-            throw Unimplemented();
-        BList* args = new BList();;
-        args->contents->contents.reserve(4);
-         // TODO: investigate if shallow copy is needed bellow (update: needed for new version of BuiltinArgs)
-        if(args_->size>0)
-            args->contents->contents.push_back(args_->arg0->shallowCopy()); 
-        if(args_->size>1)
-            args->contents->contents.push_back(args_->arg1->shallowCopy()); 
-        if(args_->size>2)
-            args->contents->contents.push_back(args_->arg2->shallowCopy()); 
-        if(implementation->getType()==CODE) {
-            Code* code = (Code*)implementation;
-            std::shared_ptr<BMemory> newMemory = std::make_shared<BMemory>(memory, LOCAL_EXPACTATION_FROM_CODE(code));
-            newMemory->set(variableManager.argsId, args);
-            //memory->detach(code->getDeclarationMemory()); // MEMORY HIERARCHY FROM PARENT TO CHILD: code->getDeclarationMemory() -> memory (struct data) -> newMemory (function scope)
-            std::vector<Command*>* program = (std::vector<Command*>*)code->getProgram();
-            Data* value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, nullptr, nullptr);
-            //memory->detach();
-            //for(std::shared_ptr<Future> thread : memory->attached_threads)
-            //    thread->getResult();
-            return value;
-        }
-        else {
-            std::cerr<<operation<<" is not a method\n";
-            exit(1);
-        }
-        throw Unimplemented();
-    }
-};
-
-void threadExecute(std::vector<Command*>* program,
-                  int start, 
-                  int end,
-                  const std::shared_ptr<BMemory>& memory,
-                  bool *returnSignal,
-                  BuiltinArgs* allocatedBuiltins,
-                  std::shared_ptr<ThreadResult> result) {
-        Data *ret = executeBlock(program, start, end, memory, returnSignal, allocatedBuiltins);
-        if(ret)
-            ret = ret->shallowCopy();
-        result->value = ret;
-}
+#define CHECK_FOR_RETURN(expr) if(*returnSignal) { \
+                        if(returnSignalHandler){ \
+                            memory->release(); \
+                            delete returnSignal; \
+                            delete args; \
+                        } \
+                        return expr; \
+                    }
+#define FILL_REPLACEMENT toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0])
 
 
 pthread_mutex_t printLock; 
@@ -252,14 +106,10 @@ Data* executeBlock(std::vector<Command*>* program,
         //std::cout << "COMMAND "<<memory_.use_count()<<" "<<command->operation<<getOperationTypeName(command->operation)<<"\n";
         switch(command->operation) {
             case BUILTIN:
-                {
-                    //if(command->value->couldBeShallowCopy(memory->getOrNullShallow(command->args[0])))
-                    //    continue;
-                    toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
-                    if(command->value==toReplace)
-                        continue;
-                    value = command->value;
-                }
+                FILL_REPLACEMENT;
+                if(command->value==toReplace)
+                    continue;
+                value = command->value;
             break;
             case FINAL:
                 // setting a memory content to final should alway be an attomic operation
@@ -271,7 +121,6 @@ Data* executeBlock(std::vector<Command*>* program,
                 memory->lock();
                 value->isMutable = false;
                 memory->unlock();
-                value = nullptr;
                 continue;
             break;
             case PRINT:{
@@ -294,9 +143,6 @@ Data* executeBlock(std::vector<Command*>* program,
             case BEGIN:
             case BEGINFINAL: {
                 if(command->value) {
-                    //if(command->value==memory->getOrNullShallow(command->args[0])))
-                    //    break;
-                    
                     Code* code = (Code*)command->value;
                     Code* codeCommand = (Code*)command->value;
                     if(command->operation==BEGINFINAL 
@@ -304,7 +150,6 @@ Data* executeBlock(std::vector<Command*>* program,
                         && code->getStart()==codeCommand->getStart()
                         && code->getEnd()==codeCommand->getEnd()
                         && code->getDeclarationMemory().get()==memory_.get()) {
-                        //value = command->value;
                         continue;
                     }
                     else {
@@ -329,10 +174,7 @@ Data* executeBlock(std::vector<Command*>* program,
                     }
                     pos += 1;
                 }
-                if(depth>0) {
-                    std::cerr << "Unclosed code block" << std::endl;
-                    exit(1);
-                }
+                bbassert(depth>=0, "Code block never ended");
                 value = new Code(program, i+1, pos, memory_);
                 if(command->operation==BEGINFINAL)
                     value->isMutable = false;
@@ -342,12 +184,12 @@ Data* executeBlock(std::vector<Command*>* program,
             }
             break;
             case END: 
-                if(returnSignalHandler) {
+                // does not create a return signal
+                if(returnSignalHandler){
                     memory->release();
                     delete returnSignal;
                     delete args;
                 }
-                //return prevValue;
                 return value;
             break;
             case CALL: {
@@ -358,21 +200,34 @@ Data* executeBlock(std::vector<Command*>* program,
                 std::shared_ptr<BMemory> newMemory;
                 // check if the call has some context, and if so, execute it in the new memory
                 if(context && context->getType()==CODE) {
+                    // define a return signal and args for the call, to prevent it from releasing the memory, which should be cleaned up after the block finishes executing
+                    bool* call_returnSignal = new bool(false);
+                    BuiltinArgs* call_args = new BuiltinArgs();
+
                     Code* code = (Code*)context;
-                    newMemory = std::move(std::make_shared<BMemory>(memory_, LOCAL_EXPACTATION_FROM_CODE(code)));
-                    value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, nullptr, nullptr);
-                    //if(value) // show an error message if the context returned with anything other than END
-                    //    std::cerr << "Code execution context should not return a value." << std::endl;
+                    newMemory = std::make_shared<BMemory>(memory_, LOCAL_EXPACTATION_FROM_CODE(code));
+                    value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, 
+                                         call_returnSignal, args);
+
+                    delete call_args;
+                    delete call_returnSignal;
+                    
+                    // still wait for threads to execute on the new memory
+                    //for(Future* thread : newMemory->attached_threads)
+                    //    thread->getResult();
+                    //newMemory->attached_threads.clear();
                 }
                 else if(context && context->getType()==STRUCT) {
-                    newMemory = std::move(std::make_shared<BMemory>(memory_, ((Struct*)context)->getMemory()->size()));
+                    newMemory = std::make_shared<BMemory>(memory_, ((Struct*)context)->getMemory()->size());
                     newMemory->pull(((Struct*)context)->getMemory());
                 }
+                else
+                    newMemory = std::make_shared<BMemory>(memory_, DEFAULT_LOCAL_EXPECTATION);
                 // 
                 Code* code = (Code*)execute;
                 // reframe which memory is this
                 if(newMemory!=nullptr)
-                    newMemory->detach(code->getDeclarationMemory()); // reattaches the new memory on the declarati9n memory
+                    newMemory->detach(code->getDeclarationMemory()); // reattaches the new memory on the declaration memory
                 
                 std::shared_ptr<FutureData> data = std::make_shared<FutureData>();
                 data->result = std::make_shared<ThreadResult>();
@@ -385,121 +240,67 @@ Data* executeBlock(std::vector<Command*>* program,
                                             nullptr,
                                             data->result);
                 Future* future = new Future(data);
-                memory->attached_threads.push_back(future);
+                memory->attached_threads.insert(future);
                 value = future;
                 toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
-                //value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, nullptr, nullptr);
             }
             break;
             case RETURN:
-                // make return copy the object (NOTE: copying only reallocates (and changes) wrapper properties like finality, not the internal value - internal memory of structs will be the same)
-                if(command->args[1]==variableManager.noneId)
-                    value = nullptr;
-                else
-                    value = MEMGET(memory, 1);
-                //std::cout << memory<<" "<<memory_.use_count()<<" returning\n";
-                if(returnSignalHandler) {
-                    memory->release();
-                    delete args;
-                    delete returnSignal;
-                }
-                else  
-                    *returnSignal = true;
-                return value;
+                value = command->args[1]==variableManager.noneId?nullptr:MEMGET(memory, 1);
+                *returnSignal = true;
+                CHECK_FOR_RETURN(value);
             break;
-            case GET:
+            case GET:{
                 value = MEMGET(memory, 1);
-                toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
-                if(value->getType()!=STRUCT) {
-                    std::cerr << "Can only get fields from a struct" << std::endl;
-                    exit(1);
-                    value = nullptr;
-                }
-                else {
-                    Struct* obj = (Struct*)value;
-                    if(command->knownLocal[2]) {
-                        std::cerr << "Cannot get a field that is a local variable (starting with _bb...)"<<std::endl;
-                        exit(1);
-                    }
-                    value = obj->getMemory()->get(command->args[2]);
-                }
+                bbassert(value->getType()==STRUCT, "Can only get fields from a struct");
+                bbassert(!command->knownLocal[2], "Cannot get a field that is a local variable (starting with _bb...)");
+                FILL_REPLACEMENT;
+                Struct* obj = (Struct*)value;
+                value = obj->getMemory()->get(command->args[2])->shallowCopyIfNeeded();
+            }
             break;
             case IS:
-                value = MEMGET(memory, 1);
-                toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
-                value = value->shallowCopy();
+                value = MEMGET(memory, 1)->shallowCopy();
+                FILL_REPLACEMENT;
             break;
-            case SET:
+            case SET:{
                 value = MEMGET(memory, 1);
-                if(value->getType()!=STRUCT) {
-                    std::cerr << "Can only set fields in a struct" << std::endl;
+                bbassert(value->getType()==STRUCT, "Can only set fields in a struct" );
+                Struct* obj = (Struct*)value;
+                Data* setValue = MEMGET(memory, 3);
+                bbassert(!command->knownLocal[2], "Cannot set a field that is a local variable (starting with _bb...)");
+                if(setValue && setValue->getType()==CODE && ((Code*)setValue)->getDeclarationMemory()->isOrDerivedFrom(obj->getMemory())) {
+                    std::cerr << "Cannot set a code block to a struct field from a scope that is not internal to the code scope's definition"<<std::endl;
                     exit(1);
-                    value = nullptr;
                 }
-                /*else if(!value->isMutable) {
-                    std::cerr << "Can not set fields in a final struct" << std::endl;
-                    value = nullptr;
-                }*/
-                else {
-                    Struct* obj = (Struct*)value;
-                    Data* setValue = MEMGET(memory, 3);
-                    if(command->knownLocal[2]) {
-                        std::cerr << "Cannot set a field that is a local variable (starting with _bb...)"<<std::endl;
-                        exit(1);
-                    }
-                    //obj->lock(); // TODO
-                    obj->getMemory()->set(command->args[2], setValue->shallowCopy()); 
-                    //obj->unlock(); // TODO
-                    value = nullptr;
-                    continue;
-                }
+                obj->getMemory()->set(command->args[2], setValue->shallowCopyIfNeeded()); 
+                continue;
+            }
             break;
             case WHILE: {
                 Data* condition = MEMGET(memory, 1);
                 Data* accept = MEMGET(memory, 2);
-                if(condition->getType()!=CODE) {
-                    std::cerr << "Can only inline a non-called code block for while condition" << std::endl;
-                    exit(1);
-                }
-                else if(accept->getType()!=CODE) {
-                    std::cerr << "Can only inline a non-called code block for while loop" << std::endl;
-                    exit(1);
-                }
-                else {
-                    Code* codeCondition = (Code*)condition;
-                    Code* codeAccept = (Code*)accept;
-                    int codeConditionStart = codeCondition->getStart();
-                    int codeConditionEnd = codeCondition->getEnd();
-                    int codeAcceptStart = codeAccept->getStart();
-                    int codeAcceptEnd = codeAccept->getEnd();
-                    while(true) {
-                        Data* check = executeBlock(program, codeConditionStart, codeConditionEnd, memory_, returnSignal, args);
-                        if(*returnSignal) {
-                            if(returnSignalHandler) {
-                                memory->release();
-                                delete returnSignal;
-                                delete args;
-                            }
-                            return check;
-                        }
-                        if(check==nullptr) {
-                            //td::cerr << "Logical condition failed to evaluate to bool" << std::endl;
-                            //exit(1);
-                            break;
-                        }
-                        else if(check->getType()!=BOOL || ((Boolean*)check)->getValue()) 
-                            value = executeBlock(program, codeAcceptStart, codeAcceptEnd, memory_, returnSignal, args);
-                        else
-                            break;
-                        if(*returnSignal) {
-                            if(returnSignalHandler) {
-                                memory->release();
-                                delete returnSignal;
-                                delete args;
-                            }
-                            return value;
-                        }
-                    }
+                bbassert(condition->getType()==CODE, "Can only inline a non-called code block for while condition");
+                bbassert(accept->getType()==CODE, "Can only inline a non-called code block for while loop");
+
+                // hash the outcome of getting code properties
+                Code* codeCondition = (Code*)condition;
+                Code* codeAccept = (Code*)accept;
+                int conditionStart = codeCondition->getStart();
+                int conditionEnd = codeCondition->getEnd();
+                std::vector<Command*>* conditionProgram = (std::vector<Command*>*)codeCondition->getProgram();
+                int acceptStart = codeAccept->getStart();
+                int acceptEnd = codeAccept->getEnd();
+                std::vector<Command*>* acceptProgram = (std::vector<Command*>*)codeAccept->getProgram();
+
+                // implement the loop
+                while(true) {
+                    Data* check = executeBlock(conditionProgram, conditionStart, conditionEnd, memory_, returnSignal, args);
+                    CHECK_FOR_RETURN(check);
+                    if(check==nullptr || (check->getType()==BOOL && !((Boolean*)check)->getValue()))
+                        break;
+                    value = executeBlock(acceptProgram, acceptStart, acceptEnd, memory_, returnSignal, args);
+                    CHECK_FOR_RETURN(value);
                 }
                 continue;
             }
@@ -508,54 +309,23 @@ Data* executeBlock(std::vector<Command*>* program,
                 Data* condition = MEMGET(memory, 1);
                 Data* accept = MEMGET(memory, 2);
                 Data*reject = command->nargs>3?MEMGET(memory, 3):nullptr;
-                if(condition->getType()!=CODE) {
-                    std::cerr << "Can only inline a non-called code block for if condition" << std::endl;
-                    exit(1);
+                bbassert(condition->getType()==CODE, "Can only inline a non-called code block for if condition");
+                bbverify(accept, accept->getType()==CODE, "Can only inline a non-called code block for if acceptance");
+                bbverify(reject, reject->getType()==CODE, "Can only inline a non-called code block for if rejection");
+                Code* codeCondition = (Code*)condition;
+                Code* codeAccept = (Code*)accept;
+                Code* codeReject = (Code*)reject;
+                Data* check = executeBlock((std::vector<Command*>*)codeCondition->getProgram(), codeCondition->getStart(), codeCondition->getEnd(), memory_, returnSignal, args);
+                CHECK_FOR_RETURN(check);
+                if(check && (check->getType()!=BOOL || ((Boolean*)check)->getValue())) {
+                    if(codeAccept) {
+                        value = executeBlock(program, codeAccept->getStart(), codeAccept->getEnd(), memory_, returnSignal, args);
+                        CHECK_FOR_RETURN(value);
+                    }
                 }
-                else if(accept->getType()!=CODE) {
-                    std::cerr << "Can only inline a non-called code block for if acceptance" << std::endl;
-                    exit(1);
-                }
-                else if(reject && reject->getType()!=CODE) {
-                    std::cerr << "Can only inline a non-called code block for if rejection" << std::endl;
-                    exit(1);
-                }
-                else {
-                    Code* codeCondition = (Code*)condition;
-                    Code* codeAccept = (Code*)accept;
-                    Code* codeReject = (Code*)reject;
-                    Data* check = executeBlock(program, codeCondition->getStart(), codeCondition->getEnd(), memory_, returnSignal, args);
-                    
-                    if(*returnSignal) {
-                        if(returnSignalHandler){
-                            memory->release();
-                            delete returnSignal;
-                            delete args;
-                        }
-                        return check;
-                    }
-                    if(check==nullptr) {
-                        //std::cerr << "Logical condition failed to evaluate to bool" << std::endl;
-                        //exit(1);
-                        if(codeReject)
-                            value = executeBlock(program, codeReject->getStart(), codeReject->getEnd(), memory_, returnSignal, args);
-                    }
-                    else if(check->getType()!=BOOL || ((Boolean*)check)->getValue()) {
-                        if(codeAccept)
-                            value = executeBlock(program, codeAccept->getStart(), codeAccept->getEnd(), memory_, returnSignal, args);
-                    }
-                    else {
-                        if(codeReject)
-                            value = executeBlock(program, codeReject->getStart(), codeReject->getEnd(), memory_, returnSignal, args);
-                    }
-                    if(*returnSignal) {
-                        if(returnSignalHandler){
-                            memory->release();
-                            delete returnSignal;
-                            delete args;
-                        }
-                        return value;
-                    }
+                else if(codeReject) {
+                    value = executeBlock(program, codeReject->getStart(), codeReject->getEnd(), memory_, returnSignal, args);
+                    CHECK_FOR_RETURN(value);
                 }
                 continue;
             }
@@ -601,6 +371,7 @@ Data* executeBlock(std::vector<Command*>* program,
                     std::shared_ptr<BMemory> newMemory = std::make_shared<BMemory>(memory_, LOCAL_EXPACTATION_FROM_CODE(code));
                     value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, returnSignal, args);
                     memory->replaceMissing(newMemory);
+                    newMemory->release();
                     if(*returnSignal){
                         if(returnSignalHandler){
                             memory->release();
@@ -621,36 +392,41 @@ Data* executeBlock(std::vector<Command*>* program,
                 }
                 else {
                     Code* code = (Code*)value;
-                    //std::cout << memory<<" "<<memory_.use_count()<<" new\n";
                     std::shared_ptr<BMemory> newMemory = std::make_shared<BMemory>(memory_, LOCAL_EXPACTATION_FROM_CODE(code));
                     Struct* thisObj = new Struct(newMemory);
                     thisObj->isMutable = false;
+                    thisObj->isDestroyable = false;
                     newMemory->set(variableManager. thisId, thisObj);
-                    //std::cout << memory<<" "<<memory_.use_count()<<" created\n";
-                    value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, nullptr, nullptr);
-                    //if(value)
-                    //    std::cout<<value->toString()<<"\n";
-                    //else
-                    //    std::cout<<"null\n";
+                    bool* call_returnSignal = new bool(false);
+                    BuiltinArgs* call_args = new BuiltinArgs();
+                    value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, 
+                                         call_returnSignal, call_args);
+                    delete call_returnSignal;
+                    delete call_args;
                     if(value) {
-                        value = value->shallowCopy();
+                        // free up the memory only if we returned neither this nor some code defined within that mamory (we don't need to check for the memory's parrents recursively, as we then detach the memory)
+                        if(value!=thisObj 
+                            && (value->getType()!=CODE || ((Code*)value)->getDeclarationMemory()->isOrDerivedFrom(newMemory))) {
+                            value = value->shallowCopy();
+                            newMemory->release(); // release only after the copy, as the release will delet the original value stored internally
+                        }
+                        else
+                            value = value;
                     }
-                    //std::cout << memory<<" "<<memory_.use_count()<<" detaching child\n";
+                    else
+                        newMemory->release();
                     newMemory->detach();
-                    //std::cout << memory<<" "<<memory_.use_count()<<" detached child\n";
                 }
                 toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
             }
             break;
-            case TIME:{
-                std::chrono::steady_clock::time_point time = std::chrono::steady_clock::now();
-                value = new BFloat(std::chrono::duration_cast<std::chrono::duration<double>>(time-program_start).count());
-            }
+            case TIME:
+                value = new BFloat(std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now()-program_start).count());
             break;
             case TOLIST:{
                 BList* list = new BList();
                 for(int i=1;i<command->nargs;i++)
-                    list->contents->contents.push_back(MEMGET(memory, i)->shallowCopy());
+                    list->contents->contents.push_back(MEMGET(memory, i)->shallowCopyIfNeeded());
                 value = list;
                 toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
             }

@@ -346,7 +346,7 @@ private:
         value = parseOperator(variable, value, "%", "mod");
         if(value.size()==0) {
             if(finalize) 
-                compiled += "FINAL # "+variable+"\n";
+                compiled += "final # "+variable+"\n";
             return;
         }
 
@@ -374,7 +374,7 @@ private:
             topTemp += 1;
             postprocess = variable+" "+tmp+"\n";
             if(finalize) {
-                postprocess += "FINAL # "+variable+";\n";
+                postprocess += "final # "+variable+";\n";
                 finalize = false;
             }
             variable = tmp;
@@ -409,7 +409,7 @@ private:
                     variable = "#";// todo: fix
                 compiled += "inline "+variable+" LAST\n";  
                 if(finalize) 
-                    compiled += "FINAL # "+variable+"\n";
+                    compiled += "final # "+variable+"\n";
                 return;
             }*/
             if(variable=="#" || value.size()==0) // flexible parsing for undeclared variables
