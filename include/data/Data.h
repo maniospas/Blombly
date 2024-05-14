@@ -19,7 +19,7 @@ struct BuiltinArgs {
 // Abstract base class for all data types
 class Data {
 public:
-    bool isMutable = true;
+    //bool isMutable = true;
     bool isDestroyable = true;
 
     virtual std::string toString() const = 0;

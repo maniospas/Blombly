@@ -51,7 +51,7 @@ Data* Integer::implement(const OperationType operation, BuiltinArgs* args) {
                 case MUL: INT_RESULT(v1*v2);
                 case MOD: INT_RESULT(v1%v2);
                 case POW: INT_RESULT(static_cast<int>(std::pow(v1, v2)));
-                case DIV: INT_RESULT(v1/static_cast<float>(v2));
+                case DIV: FLOAT_RESULT(v1/static_cast<float>(v2));
             }
         }
         else if ((type0 == FLOAT || type0 == INT) && (type1 == FLOAT || type1 == INT)) {

@@ -9,21 +9,21 @@ BEGIN normsq
 pow _bb1 x q
 pow _bb2 y q
 add _bb0 _bb1 _bb2
-return # _bb0
+return _bbresult0 _bb0
 END
 END
 BUILTIN extx I1
-BEGIN _bb1
+BEGIN _bb3
 IS x extx
 BUILTIN y I2
-inline # StaticPoint
-inline # Normed2D
-return # this
+inline _bbresult1 StaticPoint
+inline _bbresult2 Normed2D
+return _bbresult3 this
 END
-new point _bb1
-get _bb3 point normsq
-BEGIN _bb4
+new point _bb3
+get _bb5 point normsq
+BEGIN _bb6
 BUILTIN q I2
 END
-call _bb2 _bb4 _bb3
-print # _bb2
+call _bb4 _bb6 _bb5
+print # _bb4

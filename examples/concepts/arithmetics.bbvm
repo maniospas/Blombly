@@ -2,123 +2,123 @@ BEGIN result
 BEGIN _bb0
 BUILTIN _bb1 I1
 BUILTIN _bb2 I1
-neq # _bb1 _bb2
-END
-BEGIN _bb1
-BUILTIN _bb2 Bfalse
-return # _bb2
-END
-if # _bb0 _bb1
-BEGIN _bb2
-BUILTIN _bb3 I1
-BUILTIN _bb4 I2
-eq # _bb3 _bb4
+neq _bbresult0 _bb1 _bb2
 END
 BEGIN _bb3
 BUILTIN _bb4 Bfalse
-return # _bb4
+return _bbresult1 _bb4
 END
-if # _bb2 _bb3
-BEGIN _bb4
-BUILTIN _bb6 I1
-BUILTIN _bb8 I4
-BUILTIN _bb9 I2
-div _bb7 _bb8 _bb9
-add _bb5 _bb6 _bb7
-BUILTIN _bb6 I3
-neq # _bb5 _bb6
-END
+if # _bb0 _bb3
 BEGIN _bb5
-BUILTIN _bb6 Bfalse
-return # _bb6
+BUILTIN _bb6 I1
+BUILTIN _bb7 I2
+eq _bbresult2 _bb6 _bb7
 END
-if # _bb4 _bb5
-BEGIN _bb6
-BUILTIN _bb9 I2
-BUILTIN _bb10 I4
-add _bb8 _bb9 _bb10
-BUILTIN _bb9 I2
-div _bb7 _bb8 _bb9
-BUILTIN _bb8 I3
-neq # _bb7 _bb8
-END
-BEGIN _bb7
-BUILTIN _bb8 Bfalse
-return # _bb8
-END
-if # _bb6 _bb7
 BEGIN _bb8
-BUILTIN _bb9 I1
-BUILTIN _bb10 I2
-gt # _bb9 _bb10
+BUILTIN _bb9 Bfalse
+return _bbresult3 _bb9
 END
-BEGIN _bb9
-BUILTIN _bb10 Bfalse
-return # _bb10
-END
-if # _bb8 _bb9
+if # _bb5 _bb8
 BEGIN _bb10
-BUILTIN _bb11 I1
-BUILTIN _bb12 I2
-ge # _bb11 _bb12
-END
-BEGIN _bb11
-BUILTIN _bb12 Bfalse
-return # _bb12
-END
-if # _bb10 _bb11
-BEGIN _bb12
-BUILTIN _bb13 I1
-BUILTIN _bb14 I0
-le # _bb13 _bb14
-END
-BEGIN _bb13
-BUILTIN _bb14 Bfalse
-return # _bb14
-END
-if # _bb12 _bb13
-BEGIN _bb14
-BUILTIN _bb15 I1
-BUILTIN _bb16 I0
-lt # _bb15 _bb16
-END
-BEGIN _bb15
-BUILTIN _bb16 Bfalse
-return # _bb16
-END
-if # _bb14 _bb15
-BEGIN _bb16
-BUILTIN _bb18 I1
-BUILTIN _bb19 I1
-eq _bb17 _bb18 _bb19
-BUILTIN _bb19 I1
-BUILTIN _bb20 I1
-lt _bb18 _bb19 _bb20
-and # _bb17 _bb18
+BUILTIN _bb12 I1
+BUILTIN _bb14 I4
+BUILTIN _bb15 I2
+div _bb13 _bb14 _bb15
+add _bb11 _bb12 _bb13
+BUILTIN _bb16 I3
+neq _bbresult4 _bb11 _bb16
 END
 BEGIN _bb17
 BUILTIN _bb18 Bfalse
-return # _bb18
+return _bbresult5 _bb18
 END
-if # _bb16 _bb17
-BEGIN _bb18
-BUILTIN _bb20 I1
-BUILTIN _bb21 I1
-lt _bb19 _bb20 _bb21
-BUILTIN _bb21 I1
-BUILTIN _bb22 I1
-eq _bb20 _bb21 _bb22
-and # _bb19 _bb20
-END
+if # _bb10 _bb17
 BEGIN _bb19
-BUILTIN _bb20 Bfalse
-return # _bb20
+BUILTIN _bb22 I2
+BUILTIN _bb23 I4
+add _bb21 _bb22 _bb23
+BUILTIN _bb24 I2
+div _bb20 _bb21 _bb24
+BUILTIN _bb25 I3
+neq _bbresult6 _bb20 _bb25
 END
-if # _bb18 _bb19
-BUILTIN _bb20 "all tests passed"
-return # _bb20
+BEGIN _bb26
+BUILTIN _bb27 Bfalse
+return _bbresult7 _bb27
 END
-call _bb22 # result
-BUILTIN _bb23 "failed"
-neq _bb21 _bb22 _bb23
-print # _bb21
+if # _bb19 _bb26
+BEGIN _bb28
+BUILTIN _bb29 I1
+BUILTIN _bb30 I2
+gt _bbresult8 _bb29 _bb30
+END
+BEGIN _bb31
+BUILTIN _bb32 Bfalse
+return _bbresult9 _bb32
+END
+if # _bb28 _bb31
+BEGIN _bb33
+BUILTIN _bb34 I1
+BUILTIN _bb35 I2
+ge _bbresult10 _bb34 _bb35
+END
+BEGIN _bb36
+BUILTIN _bb37 Bfalse
+return _bbresult11 _bb37
+END
+if # _bb33 _bb36
+BEGIN _bb38
+BUILTIN _bb39 I1
+BUILTIN _bb40 I0
+le _bbresult12 _bb39 _bb40
+END
+BEGIN _bb41
+BUILTIN _bb42 Bfalse
+return _bbresult13 _bb42
+END
+if # _bb38 _bb41
+BEGIN _bb43
+BUILTIN _bb44 I1
+BUILTIN _bb45 I0
+lt _bbresult14 _bb44 _bb45
+END
+BEGIN _bb46
+BUILTIN _bb47 Bfalse
+return _bbresult15 _bb47
+END
+if # _bb43 _bb46
+BEGIN _bb48
+BUILTIN _bb50 I1
+BUILTIN _bb51 I1
+eq _bb49 _bb50 _bb51
+BUILTIN _bb53 I1
+BUILTIN _bb54 I1
+lt _bb52 _bb53 _bb54
+and _bbresult16 _bb49 _bb52
+END
+BEGIN _bb55
+BUILTIN _bb56 Bfalse
+return _bbresult17 _bb56
+END
+if # _bb48 _bb55
+BEGIN _bb57
+BUILTIN _bb59 I1
+BUILTIN _bb60 I1
+lt _bb58 _bb59 _bb60
+BUILTIN _bb62 I1
+BUILTIN _bb63 I1
+eq _bb61 _bb62 _bb63
+and _bbresult18 _bb58 _bb61
+END
+BEGIN _bb64
+BUILTIN _bb65 Bfalse
+return _bbresult19 _bb65
+END
+if # _bb57 _bb64
+BUILTIN _bb66 "all tests passed"
+return _bbresult20 _bb66
+END
+call _bb68 # result
+BUILTIN _bb69 "failed"
+neq _bb67 _bb68 _bb69
+print # _bb67

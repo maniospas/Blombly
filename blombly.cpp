@@ -119,7 +119,8 @@ Data* executeBlock(std::vector<Command*>* program,
                 }
                 value = MEMGET(memory, 1);
                 memory->lock();
-                value->isMutable = false;
+                memory->setFinal(command->args[0]);
+                //value->isMutable = false;
                 memory->unlock();
                 continue;
             break;
@@ -155,7 +156,9 @@ Data* executeBlock(std::vector<Command*>* program,
                     else {
                         toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
                         value = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory_);
-                        value->isMutable = command->operation!=BEGINFINAL;
+                        //value->isMutable = command->operation!=BEGINFINAL;
+                        if(command->operation==BEGINFINAL)
+                            memory->setFinal(command->args[0]);
                     }
                     i = code->getEnd();
                     break;
@@ -177,7 +180,8 @@ Data* executeBlock(std::vector<Command*>* program,
                 bbassert(depth>=0, "Code block never ended");
                 value = new Code(program, i+1, pos, memory_);
                 if(command->operation==BEGINFINAL)
-                    value->isMutable = false;
+                    memory->setFinal(command->args[0]);
+                    //value->isMutable = false;
                 i = pos;
                 command->value = value->shallowCopy();
                 toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
@@ -213,9 +217,9 @@ Data* executeBlock(std::vector<Command*>* program,
                     delete call_returnSignal;
                     
                     // still wait for threads to execute on the new memory
-                    //for(Future* thread : newMemory->attached_threads)
-                    //    thread->getResult();
-                    //newMemory->attached_threads.clear();
+                    for(Future* thread : newMemory->attached_threads)
+                        thread->getResult();
+                    newMemory->attached_threads.clear();
                 }
                 else if(context && context->getType()==STRUCT) {
                     newMemory = std::make_shared<BMemory>(memory_, ((Struct*)context)->getMemory()->size());
@@ -260,7 +264,7 @@ Data* executeBlock(std::vector<Command*>* program,
             }
             break;
             case IS:
-                value = MEMGET(memory, 1)->shallowCopy();
+                value = MEMGET(memory, 1)->shallowCopyIfNeeded();
                 FILL_REPLACEMENT;
             break;
             case SET:{
@@ -385,38 +389,31 @@ Data* executeBlock(std::vector<Command*>* program,
             break;
             case NEW:{
                 value = MEMGET(memory, 1);
-                if(value->getType()!=CODE) {
-                    std::cerr << "Can only inline a non-called code block" << std::endl;
-                    exit(1);
-                    value = nullptr;
-                }
-                else {
-                    Code* code = (Code*)value;
-                    std::shared_ptr<BMemory> newMemory = std::make_shared<BMemory>(memory_, LOCAL_EXPACTATION_FROM_CODE(code));
-                    Struct* thisObj = new Struct(newMemory);
-                    thisObj->isMutable = false;
-                    thisObj->isDestroyable = false;
-                    newMemory->set(variableManager. thisId, thisObj);
-                    bool* call_returnSignal = new bool(false);
-                    BuiltinArgs* call_args = new BuiltinArgs();
-                    value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, 
-                                         call_returnSignal, call_args);
-                    delete call_returnSignal;
-                    delete call_args;
-                    if(value) {
-                        // free up the memory only if we returned neither this nor some code defined within that mamory (we don't need to check for the memory's parrents recursively, as we then detach the memory)
-                        if(value!=thisObj 
-                            && (value->getType()!=CODE || ((Code*)value)->getDeclarationMemory()->isOrDerivedFrom(newMemory))) {
-                            value = value->shallowCopy();
-                            newMemory->release(); // release only after the copy, as the release will delet the original value stored internally
-                        }
-                        else
-                            value = value;
+                bbassert(value->getType()==CODE, "Can only inline a non-called code block" );
+                Code* code = (Code*)value;
+                std::shared_ptr<BMemory> newMemory = std::make_shared<BMemory>(memory_, LOCAL_EXPACTATION_FROM_CODE(code));
+                Struct* thisObj = new GlobalStruct(newMemory);
+                //thisObj->isMutable = false;
+                thisObj->isDestroyable = false;
+                newMemory->set(variableManager. thisId, thisObj);
+                newMemory->setFinal(variableManager.thisId);
+                bool* call_returnSignal = new bool(false);
+                BuiltinArgs* call_args = new BuiltinArgs();
+                value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, call_returnSignal, call_args);
+                delete call_returnSignal;
+                delete call_args;
+                if(value) {
+                    // free up the memory only if we returned neither this nor some code defined within that mamory (we don't need to check for the memory's parrents recursively, as we then detach the memory)
+                    if(value==thisObj)
+                        value = value;//->shallowCopy(); // creates a global struct (because *this* is final, but we don't need the returned object to be set as a final value)
+                    else if(value->getType()!=CODE || ((Code*)value)->getDeclarationMemory()->isOrDerivedFrom(newMemory)) {
+                        value = value->shallowCopyIfNeeded();
+                        newMemory->release(); // release only after the copy, as the release will delete the original value stored internally
                     }
-                    else
-                        newMemory->release();
-                    newMemory->detach();
                 }
+                else
+                    newMemory->release();
+                newMemory->detach();
                 toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
             }
             break;
@@ -432,7 +429,7 @@ Data* executeBlock(std::vector<Command*>* program,
             }
             break;
             default:
-                toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
+                FILL_REPLACEMENT;
                 cmdSize = command->nargs;
                 args->size = cmdSize-1;
                 if(cmdSize>1)
@@ -441,13 +438,11 @@ Data* executeBlock(std::vector<Command*>* program,
                     args->arg1 = MEMGET(memory, 2);
                 if(cmdSize>3)
                     args->arg2 = MEMGET(memory, 3);
-                //args->preallocResult = (command->args[0]?(command->knownLocal[0]?memory->locals[command->args[0]]:memory->getOrNull(command->args[0], true)):prevValue);
                 args->preallocResult = toReplace;
-                if(args->preallocResult && !(args->preallocResult->isMutable && args->preallocResult->isDestroyable)) 
+                // locals are never final
+                if((!command->knownLocal[0] && memory->isFinal(command->args[0])) || (args->preallocResult && !args->preallocResult->isDestroyable))
                     args->preallocResult = nullptr;
                 value = Data::run(command->operation, args);
-                //if(value && value==args->preallocResult)
-                //    continue;
             break;
         }
         memory->unsafeSet(command->args[0], value, toReplace);

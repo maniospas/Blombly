@@ -118,6 +118,15 @@ Data* BMemory::get(int item) {
     return ret;
 }
 
+
+void BMemory::setFinal(int item) {
+    finals.insert(item);
+}
+
+bool BMemory::isFinal(int item) const {
+    return finals.find(item)!=finals.end();
+}
+
 // Get a data item, optionally allowing mutable values
 Data* BMemory::get(int item, bool allowMutable) {
     Data* ret = (*data)[item];
@@ -134,7 +143,7 @@ Data* BMemory::get(int item, bool allowMutable) {
 
     if(ret) {
         // Handle mutability restrictions
-        if (!allowMutable && ret->isMutable) {
+        if (!allowMutable && !isFinal(item)) {
             std::cerr << "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item) << std::endl;
             exit(1);
             return nullptr;
@@ -188,7 +197,7 @@ Data* BMemory::getOrNull(int item, bool allowMutable) {
     }
 
     // Handle mutability restrictions
-    if (ret && !allowMutable && ret->isMutable) {
+    if (ret && !allowMutable && !isFinal(item)) {
         std::cerr << "Mutable symbol cannot be accessed from a nested block: " + item << std::endl;
         exit(1);
         return nullptr;
@@ -213,7 +222,7 @@ void BMemory::set(int item, Data*value) {
     if(prev==value) 
         return;
     if (prev) {
-        if(prev->isMutable) {
+        if(!isFinal(item)) {
            if(prev->isDestroyable)
                 delete prev;
         }
@@ -234,7 +243,7 @@ void BMemory::unsafeSet(int item, Data*value, Data* prev) {
     if(prev==value)
         return;
     if (prev) {
-        if(prev->isMutable) {
+        if(!isFinal(item)) {
             if(prev->isDestroyable)
                 delete prev;
         }

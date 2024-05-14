@@ -1,59 +1,61 @@
 BEGINFINAL DynamicPoint
-set # this x x
-set # this y y
+IS _bb0 x
+set # this x _bb0
+IS _bb1 y
+set # this y _bb1
 END
 BEGINFINAL Increment
 BEGIN inc
 BEGIN _bb2
 BUILTIN value I1
 END
-default # _bb2
+default _bbresult0 _bb2
 get _bb3 this x
-add _bb4 _bb3 value
-set # this x _bb4
-return # this
+add _bb5 _bb3 value
+set # this x _bb5
+return _bbresult1 this
 END
 END
 BEGINFINAL Normed2D
 BEGIN norm
-get _bb6 this x
-pow _bb5 _bb6 q
-get _bb7 this y
+get _bb7 this x
 pow _bb6 _bb7 q
-add base _bb5 _bb6
-BUILTIN _bb9 I1
-div _bb8 _bb9 q
-pow _bb7 base _bb8
-return # _bb7
+get _bb10 this y
+pow _bb9 _bb10 q
+add base _bb6 _bb9
+BUILTIN _bb14 I1
+div _bb13 _bb14 q
+pow _bb12 base _bb13
+return _bbresult2 _bb12
 END
 END
 BEGINFINAL Point
-BEGIN _bb8
-inline # DynamicPoint
-inline # Increment
-inline # Normed2D
-return # this
+BEGIN _bb15
+inline _bbresult3 DynamicPoint
+inline _bbresult4 Increment
+inline _bbresult5 Normed2D
+return _bbresult6 this
 END
-new # _bb8
+new _bbresult7 _bb15
 END
-BEGIN _bb9
+BEGIN _bb16
 BUILTIN x I1
 BUILTIN y I2
 END
-call point _bb9 Point
-get _bb11 point norm
-BEGIN _bb12
+call point _bb16 Point
+get _bb18 point norm
+BEGIN _bb19
 BUILTIN q I2
 END
-call _bb10 _bb12 _bb11
-print # _bb10
-get _bb11 point inc
-call point # _bb11
-get _bb12 point x
-print # _bb12
-get _bb14 point norm
-BEGIN _bb15
+call _bb17 _bb19 _bb18
+print # _bb17
+get _bb20 point inc
+call point # _bb20
+get _bb21 point x
+print # _bb21
+get _bb24 point norm
+BEGIN _bb25
 BUILTIN q I2
 END
-call _bb13 _bb15 _bb14
-print # _bb13
+call _bb23 _bb25 _bb24
+print # _bb23

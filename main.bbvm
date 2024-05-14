@@ -1,5 +1,4 @@
-List x
-time tic
+BEGINFINAL fib
 BUILTIN i I0
 BEGIN _bb0
 BUILTIN _bb1 I1000000
@@ -8,28 +7,38 @@ END
 BEGIN _bb2
 BUILTIN _bb3 I1
 add i i _bb3
-push # x i
 END
 while # _bb0 _bb2
-time _bb5
-sub _bb4 _bb5 tic
-print # _bb4
-time tic
-BUILTIN s I0
-BUILTIN i I0
+BEGIN _bb4
+BUILTIN _bb5 I2
+lt _bbresult1 n _bb5
+END
 BEGIN _bb6
-BUILTIN _bb7 I1000000
-lt _bbresult1 i _bb7
+BUILTIN _bb7 I1
+return _bbresult2 _bb7
 END
-BEGIN _bb8
-at _bb10 x i
-BUILTIN _bb12 I10000
-div _bb9 _bb10 _bb12
-add s s _bb9
-BUILTIN _bb13 I1
-add i i _bb13
+if # _bb4 _bb6
+BEGIN _bb10
+BUILTIN _bb11 I1
+sub n n _bb11
 END
-while # _bb6 _bb8
-time _bb15
-sub _bb14 _bb15 tic
-print # _bb14
+call _bb9 _bb10 fib
+BEGIN _bb13
+BUILTIN _bb14 I2
+sub n n _bb14
+END
+call _bb12 _bb13 fib
+add _bb8 _bb9 _bb12
+return _bbresult3 _bb8
+END
+time tic
+BUILTIN _bb15 "Result"
+BEGIN _bb17
+BUILTIN n I12
+END
+call _bb16 _bb17 fib
+print # _bb15 _bb16
+BUILTIN _bb18 "Time"
+time _bb20
+sub _bb19 _bb20 tic
+print # _bb18 _bb19

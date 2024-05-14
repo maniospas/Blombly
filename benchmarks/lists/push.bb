@@ -11,7 +11,7 @@ tic = time();
 s = 0;
 i = 0;
 while(i<1000000,
-    i = i+1;
     s = s+x[i];
+    i = i+1;
 );
 print(time()-tic);

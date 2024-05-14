@@ -52,6 +52,7 @@ private:
     tsl::hopscotch_map<int, Data*> *data;
     bool allowMutables;
     pthread_mutex_t memoryLock;
+    tsl::hopscotch_set<int> finals;
 
 public:
     tsl::hopscotch_set<Future*> attached_threads;
@@ -76,6 +77,8 @@ public:
     void unsafeSet(int item, Data* value, Data* prev) ;
     int size() const;
     void removeWithoutDelete(int item);
+    void setFinal(int item) ;
+    bool isFinal(int item) const;
 
     // Methods to manage inheritance and synchronization with other Memory objects
     void pull(const std::shared_ptr<BMemory>& other);

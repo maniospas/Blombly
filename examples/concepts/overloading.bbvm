@@ -1,0 +1,56 @@
+BEGINFINAL Vector
+copy Vector Vector
+final # Vector
+copy x x
+final # x
+copy y y
+final # y
+BEGINFINAL add
+next this args
+next other args
+BEGIN _bb1
+get _bb2 other x
+add _bb4 x _bb2
+set # this x _bb4
+get _bb5 other y
+add _bb7 y _bb5
+set # this y _bb7
+inline _bbresult0 Vector
+return _bbresult1 this
+END
+new _bb0 _bb1
+return _bbresult2 _bb0
+END
+BEGINFINAL str
+BUILTIN _bb9 "("
+get _bb12 this x
+str _bb11 _bb12
+BUILTIN _bb15 ","
+get _bb18 this y
+str _bb17 _bb18
+BUILTIN _bb20 ")"
+add _bb16 _bb17 _bb20
+add _bb14 _bb15 _bb16
+add _bb10 _bb11 _bb14
+add _bb8 _bb9 _bb10
+return _bbresult3 _bb8
+END
+END
+BEGIN _bb21
+BUILTIN x I1
+BUILTIN y I2
+inline _bbresult4 Vector
+return _bbresult5 this
+END
+new a _bb21
+BEGIN _bb22
+BUILTIN x I31
+BUILTIN y I42
+inline _bbresult6 Vector
+return _bbresult7 this
+END
+new b _bb22
+add c a b
+BUILTIN _bb23 "+"
+BUILTIN _bb24 "="
+print # a _bb23 b _bb24 c

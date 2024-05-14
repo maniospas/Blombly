@@ -1,17 +1,9 @@
-x = List();
-tic = time();
-i = 0;
-while(i<1000000,
-    i = i+1;
-    push(x, i);
-);
-print(time()-tic);
+final fib = {
+    i = 0; while(i<1000000, i=i+1); // create delays to check that synchronization works
+    if(n<2, return 1); 
+    return fib(n=n-1)+fib(n=n-2);
+}
 
 tic = time();
-s = 0;
-i = 0;
-while(i<1000000,
-    s = s+x[i]/10000;
-    i = i+1;
-);
-print(time()-tic);
+print("Result", fib(n=12));
+print("Time", time()-tic);

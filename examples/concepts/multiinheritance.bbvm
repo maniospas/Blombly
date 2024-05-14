@@ -1,41 +1,43 @@
 BEGINFINAL DynamicPoint
-set # this x x
-set # this y y
+IS _bb0 x
+set # this x _bb0
+IS _bb1 y
+set # this y _bb1
 END
 BEGINFINAL Normed2D
 BEGIN norm
 BEGIN _bb2
 BUILTIN q I2
 END
-default # _bb2
+default _bbresult0 _bb2
 get _bb5 this x
 pow _bb4 _bb5 q
-get _bb6 this y
-pow _bb5 _bb6 q
-add _bb3 _bb4 _bb5
-return # _bb3
+get _bb8 this y
+pow _bb7 _bb8 q
+add _bb3 _bb4 _bb7
+return _bbresult1 _bb3
 END
 END
 BEGINFINAL Point
 print # x
-BEGIN _bb4
-inline # DynamicPoint
-inline # Normed2D
-return # this
+BEGIN _bb10
+inline _bbresult2 DynamicPoint
+inline _bbresult3 Normed2D
+return _bbresult4 this
 END
-new # _bb4
+new _bbresult5 _bb10
 END
 BEGIN args
 BUILTIN x I1
 BUILTIN y I2
 END
-BEGIN _bb5
-inline # args
+BEGIN _bb11
+inline _bbresult6 args
 END
-call point _bb5 Point
-get _bb7 point norm
-BEGIN _bb8
+call point _bb11 Point
+get _bb13 point norm
+BEGIN _bb14
 BUILTIN q I2
 END
-call _bb6 _bb8 _bb7
-print # _bb6
+call _bb12 _bb14 _bb13
+print # _bb12

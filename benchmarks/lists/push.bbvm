@@ -2,7 +2,7 @@ List x
 time tic
 BUILTIN i I0
 BEGIN _bb0
-BUILTIN _bb1 I100000
+BUILTIN _bb1 I1000000
 lt _bbresult0 i _bb1
 END
 BEGIN _bb2
@@ -14,3 +14,20 @@ while # _bb0 _bb2
 time _bb5
 sub _bb4 _bb5 tic
 print # _bb4
+time tic
+BUILTIN s I0
+BUILTIN i I0
+BEGIN _bb6
+BUILTIN _bb7 I1000000
+lt _bbresult1 i _bb7
+END
+BEGIN _bb8
+at _bb9 x i
+add s s _bb9
+BUILTIN _bb11 I1
+add i i _bb11
+END
+while # _bb6 _bb8
+time _bb13
+sub _bb12 _bb13 tic
+print # _bb12

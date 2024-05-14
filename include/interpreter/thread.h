@@ -28,11 +28,11 @@ void threadExecute(std::vector<Command*>* program,
         if(value) {
             if((value->getType()!=CODE || !((Code*)value)->getDeclarationMemory()->isOrDerivedFrom(memory))
             && (value->getType()!=STRUCT || !((Struct*)value)->getMemory()->isOrDerivedFrom(memory))) {
-                value = value->shallowCopy();
+                value = value->shallowCopyIfNeeded();
                 memory->release(); // release only after the copy, as the release will delet the original value stored internally
             }
             else {
-                value = value->shallowCopy();
+                value = value->shallowCopyIfNeeded();
             }
         }
         else
