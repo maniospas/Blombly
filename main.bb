@@ -1,9 +1,7 @@
-final fib = {
-    i = 0; while(i<1000000, i=i+1); // create delays to check that synchronization works
-    if(n<2, return 1); 
-    return fib(n=n-1)+fib(n=n-2);
-}
+n = 100000000;
+a = Vector(n)+0.1;
+b = Vector(n)+0.1;
 
 tic = time();
-print("Result", fib(n=12));
-print("Time", time()-tic);
+c = a+b;
+print(time()-tic);

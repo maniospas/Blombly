@@ -1,6 +1,6 @@
 BEGINFINAL Zeros
 BEGIN _bb0
-BUILTIN _bb2 I4
+BUILTIN _bb2 I8
 div _bb1 n _bb2
 int step _bb1
 END
@@ -107,7 +107,7 @@ new ret _bb35
 return _bbresult9 ret
 END
 END
-BUILTIN n I10000000
+BUILTIN n I100000000
 BUILTIN pos I5
 BEGIN _bb36
 copy n n

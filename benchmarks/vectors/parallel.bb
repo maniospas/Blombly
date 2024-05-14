@@ -1,5 +1,5 @@
 final Zeros = {
-    default step = int(n/4);
+    default step = int(n/8);
     final step = step;
     final list = List();
     final n = n;
@@ -52,7 +52,7 @@ final PVector = {
     }
 }
 
-n = 10000000;
+n = 100000000;
 pos = 5;
 a = new(n=n;Zeros:PVector:);
 b = new(n=n;Zeros:PVector:);

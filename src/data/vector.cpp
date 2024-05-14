@@ -7,16 +7,35 @@
 #include "data/Iterator.h"
 #include <iostream>
 #include <cmath>
-# define POS(v, i, j) (i*v+j)
+#include <xmmintrin.h>
 
+#define POS(v, i, j) (i*v+j)
+
+const std::size_t alignment = 32;
+
+
+RawVector::RawVector(double* data_, int siz) {
+    size = siz;
+    data = data_;
+    lockable = 0;
+    if (pthread_mutex_init(&memoryLock, nullptr) != 0) {
+        std::cerr << "Failed to create a mutex for vector read/write\n";
+        exit(1);
+    }
+}
 
 // RawVector constructor and destructor
 RawVector::RawVector(int siz) {
     size = siz;
-    data = new double[size];
+    //data = new double[size];
+    data = new double[siz];
+    if (!data) {
+        std::cerr << "Failed to allocate memory\n";
+        exit(1);
+    }
     lockable = 0;
     if (pthread_mutex_init(&memoryLock, nullptr) != 0) {
-        std::cerr << "Failed to create a mutex for vector read/write" << std::endl;
+        std::cerr << "Failed to create a mutex for vector read/write\n";
         exit(1);
     }
 }
@@ -115,12 +134,14 @@ int Vector::getType() const {
 std::string Vector::toString() const {
     value->lock();
     std::string result = "[";
-    for (int i = 0; i < value->size; i++) {
+    for (std::size_t i = 0; i < std::min(value->size,10); ++i) {
         if (result.size() > 1) {
             result += ", ";
         }
         result += std::to_string(value->data[i]);
     }
+    if(value->size>10)
+        result += ", ...";
     value->unlock();
     return result + "]";
 }
@@ -146,7 +167,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args)  {
             int index = ((Integer*)args->arg1)->getValue();
             value->lock();
             if(natdims)
-                for(int i=0;i<natdims;i++) {
+                for(int i=0;i<natdims;++i) {
                     index *= dims[i+1];
                     index += atdims[i];
                 }
@@ -164,7 +185,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args)  {
             value->lock();
             int index = ((Integer*)args->arg1)->getValue();
             if(natdims)
-                for(int i=0;i<natdims;i++) {
+                for(int i=0;i<natdims;++i) {
                     index *= dims[i+1];
                     index += atdims[i];
                 }
@@ -185,7 +206,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args)  {
     if(operation==PUT && args->size==3 && args->arg1->getType()==INT && args->arg2->getType()==FLOAT) {
         value->lock();
         int index = ((Integer*)args->arg1)->getValue();
-            for(int i=0;i<natdims;i++) {
+            for(int i=0;i<natdims;++i) {
                 index *= dims[i+1];
                 index += atdims[i];
             }
@@ -201,7 +222,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args)  {
     if(operation==PUT && args->size==3 && args->arg1->getType()==INT && args->arg2->getType()==INT) {
         value->lock();
         int index = ((Integer*)args->arg1)->getValue();
-            for(int i=0;i<natdims;i++) {
+            for(int i=0;i<natdims;++i) {
                 index *= dims[i+1];
                 index += atdims[i];
             }
@@ -241,43 +262,48 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args)  {
             exit(1);
             return nullptr;
         }
-        std::shared_ptr<RawVector> rawret = operation==MMUL?std::make_shared<RawVector>(a1->dims[0]*a2->dims[1]):std::make_shared<RawVector>(a1->value->size);
+        std::size_t rawRetSize = operation==MMUL?a1->dims[0]*a2->dims[1]:a1->value->size;
+        std::shared_ptr<RawVector> rawret = std::make_shared<RawVector>((double*)malloc(sizeof(double)*rawRetSize), rawRetSize);
         Vector* retret = operation==MMUL?new Vector(rawret, a1->dims[0], a2->dims[1]):new Vector(rawret, this);
         double* ret = rawret->data;
         double* v1 = a1->value->data;
         double* v2 = a2->value->data;
+        int i = 0;
         if(operation==EQ)
-            for(int i=0;i<n;i++)
+            for(;i<n;++i)
                 ret[i] = v1[i]==v2[i];
         if(operation==NEQ)
-            for(int i=0;i<n;i++)
+            for(;i<n;++i)
                 ret[i] = v1[i]!=v2[i];
         if(operation==LT)
-            for(int i=0;i<n;i++)
+            for(;i<n;++i)
                 ret[i] = v1[i]<v2[i];
         if(operation==LE)
-            for(int i=0;i<n;i++)
+            for(;i<n;++i)
                 ret[i] = v1[i]<=v2[i];
         if(operation==GT)
-            for(int i=0;i<n;i++)
+            for(;i<n;++i)
                 ret[i] = v1[i]>v2[i];
         if(operation==GE)
-            for(int i=0;i<n;i++)
+            for(;i<n;++i)
                 ret[i] = v1[i]>=v2[i];
-        if(operation==ADD)
-            for(int i=0;i<n;i++)
+        if(operation==ADD) 
+            for(;i<n;++i){
+                //_mm_prefetch((const char*)&v1[i + 16], _MM_HINT_T0);
+                //_mm_prefetch((const char*)&v2[i + 16], _MM_HINT_T0);
                 ret[i] = v1[i]+v2[i];
+            }
         if(operation==SUB)
-            for(int i=0;i<n;i++)
+            for(;i<n;++i)
                 ret[i] = v1[i]-v2[i];
         if(operation==POW)
-            for(int i=0;i<n;i++)
+            for(;i<n;++i)
                 ret[i] = pow(v1[i], v2[i]);
         if(operation==MUL)
-            for(int i=0;i<n;i++)
+            for(;i<n;++i)
                 ret[i] = v1[i]*v2[i];
         if(operation==DIV)
-            for(int i=0;i<n;i++)
+            for(;i<n;++i)
                 ret[i] = v1[i]/v2[i];
         if(operation==MMUL) {
             for(int k=0;k<rawret->size;k++)
@@ -316,44 +342,46 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args)  {
         double v = uncastedother->getType()==INT?((Integer*)uncastedother)->getValue():((BFloat*)uncastedother)->getValue();
         vec->lock();
         int n = vec->size;
-        std::shared_ptr<RawVector> rawret = std::make_shared<RawVector>(n);
+        std::size_t rawRetSize = n;
+        std::shared_ptr<RawVector> rawret = std::make_shared<RawVector>((double*)malloc(rawRetSize*sizeof(double)), n);
         double* ret = rawret->data;
         double* dat = value->data;
         bool left = args->arg0->getType()==VECTOR;
+        int i=0;
         if(operation==EQ) 
-            for(int i=0;i<n;i++)
+            for(;i<n;++i)
                 ret[i] = dat[i]==v;
         if(operation==NEQ)
-            for(int i=0;i<n;i++)
+            for(;i<n;++i)
                 ret[i] = dat[i]!=v;
         if(operation==ADD)
-            for(int i=0;i<n;i++)
+            for(;i<n;++i)
                 ret[i] = dat[i]+v;
         if(operation==SUB){
             if(left)
-                for(int i=0;i<n;i++)
+                for(;i<n;++i)
                     ret[i] = dat[i]-v;
             else
-                for(int i=0;i<n;i++)
+                for(;i<n;++i)
                     ret[i] = v-dat[i];
         }
         if(operation==MUL)
-            for(int i=0;i<n;i++)
+            for(;i<n;++i)
                 ret[i] = dat[i]*v;
         if(operation==DIV){
             if(left)
-                for(int i=0;i<n;i++)
+                for(;i<n;++i)
                     ret[i] = dat[i]/v;
             else
-                for(int i=0;i<n;i++)
+                for(;i<n;++i)
                     ret[i] = v/dat[i];
         }
         if(operation==POW){
             if(left)
-                for(int i=0;i<n;i++)
+                for(;i<n;++i)
                     ret[i] = pow(dat[i], v);
             else
-                for(int i=0;i<n;i++)
+                for(;i<n;++i)
                     ret[i] = pow(v, dat[i]);
         }
         vec->unlock();
@@ -368,7 +396,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args)  {
             case SHAPE: {
                 int n = ndims;
                 Vector* ret = new Vector(n);
-                for(int i=0;i<n;i++)
+                for(int i=0;i<n;++i)
                     ret->value->data[i] = dims[i];
                 return ret;
             }
@@ -380,7 +408,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args)  {
                     return nullptr;
                 }
                 double ret = 0;
-                for(int i=0;i<value->size;i++)
+                for(int i=0;i<value->size;++i)
                     ret += value->data[i];
                 value->unlock();
                 FLOAT_RESULT(ret);
@@ -393,7 +421,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args)  {
                     return nullptr;
                 }
                 double ret = value->data[0];
-                for(int i=1;i<value->size;i++) {
+                for(int i=1;i<value->size;++i) {
                     double element = value->data[i];
                     if(element>ret)
                         ret = element;
@@ -409,7 +437,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args)  {
                     return nullptr;
                 }
                 double ret = value->data[0];
-                for(int i=1;i<value->size;i++) {
+                for(int i=1;i<value->size;++i) {
                     double element = value->data[i];
                     if(element<ret)
                         ret = element;

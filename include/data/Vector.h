@@ -17,6 +17,7 @@ public:
     int lockable; // counts shared instances-1
 
     explicit RawVector(int siz);
+    RawVector(double* data_, int siz);
     ~RawVector();
 
     void lock();
