@@ -19,8 +19,7 @@ RawVector::RawVector(double* data_, int siz) {
     data = data_;
     lockable = 0;
     if (pthread_mutex_init(&memoryLock, nullptr) != 0) {
-        std::cerr << "Failed to create a mutex for vector read/write\n";
-        exit(1);
+        bberror("Failed to create a mutex for vector read/write");
     }
 }
 
@@ -30,13 +29,11 @@ RawVector::RawVector(int siz) {
     //data = new double[size];
     data = new double[siz];
     if (!data) {
-        std::cerr << "Failed to allocate memory\n";
-        exit(1);
+        bberror("Failed to allocate memory");
     }
     lockable = 0;
     if (pthread_mutex_init(&memoryLock, nullptr) != 0) {
-        std::cerr << "Failed to create a mutex for vector read/write\n";
-        exit(1);
+        bberror("Failed to create a mutex for vector read/write");
     }
 }
 
@@ -172,9 +169,9 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args)  {
                     index += atdims[i];
                 }
             if(index < 0 || index>=value->size) {
-                std::cerr << "Vector index "<<index<<" out of range [0,"<<value->size<<")\n";
+                int endsize = value->size;
                 value->unlock();
-                exit(1);
+                bberror("Vector index "+std::to_string(index)+" out of range [0,"+std::to_string(endsize)+")");
                 return nullptr;
             }
             double val = value->data[index];
@@ -190,9 +187,9 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args)  {
                     index += atdims[i];
                 }
             if(index < 0 || index>=value->size) {
-                std::cerr << "Vector index "<<index<<" out of range [0,"<<value->size<<")\n";
+                int endsize = value->size;
                 value->unlock();
-                exit(1);
+                bberror("Vector index "+std::to_string(index)+" out of range [0,"+std::to_string(endsize)+")");
                 return nullptr;
             }
             Vector* ret = new Vector(value, this, index);
@@ -212,8 +209,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args)  {
             }
         double newValue = ((BFloat*)args->arg2)->getValue();
         if(index < 0 || index>=value->size) {
-            std::cerr << "Index "<<index<<" out of range [0,"<<value->size<<")\n";
-            exit(1);
+            bberror("Vector index "+std::to_string(index)+" out of range [0,"+std::to_string(value->size)+")");
         }
         value->data[index] = newValue;
         value->unlock();
@@ -228,8 +224,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args)  {
             }
         int newValue = ((Integer*)args->arg2)->getValue();
         if(index < 0 || index>=value->size)  {
-            std::cerr << "Index "<<index<<" out of range [0,"<<value->size<<")\n";
-            exit(1);
+            bberror("Vector index "+std::to_string(index)+" out of range [0,"+std::to_string(value->size)+")");
         }
         else
             value->data[index] = newValue;
@@ -252,14 +247,12 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args)  {
         }
         int n = a1->value->size;
         if(a2->value->size!=n && operation!=MMUL) {
-            std::cerr << "Vectors of different sizes: "+std::to_string(a1->value->size)+" vs "+std::to_string(a2->value->size)+"\n";
-            exit(1);
+            bberror("Vectors of different sizes: "+std::to_string(a1->value->size)+" vs "+std::to_string(a2->value->size));
             return nullptr;
         }
         
         if(operation==MMUL && (a1->ndims!=2 || a2->ndims!=2 || a1->dims[1]!=a2->dims[0])) {
-            std::cerr << "Cannot multiply given matrices\n";
-            exit(1);
+            bberror("Cannot multiply given matrices");
             return nullptr;
         }
         std::size_t rawRetSize = operation==MMUL?a1->dims[0]*a2->dims[1]:a1->value->size;

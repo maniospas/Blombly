@@ -1,0 +1,109 @@
+BEGINFINAL Zeros
+BEGIN _bb0
+BUILTIN _bb2 I8
+div _bb1 n _bb2
+int step _bb1
+END
+default _bbresult0 _bb0
+copy step step
+final # step
+List list
+final # list
+copy n n
+final # n
+div _bb3 n step
+int num _bb3
+BUILTIN i I0
+BEGIN _bb4
+lt _bbresult1 i num
+END
+BEGIN _bb5
+mul start i step
+BEGIN _bb6
+BUILTIN _bb8 I1
+add _bb7 i _bb8
+mul end _bb7 step
+gt _bbresult2 end n
+END
+BEGIN _bb9
+IS end n
+END
+if # _bb6 _bb9
+sub _bb11 end start
+Vector _bb10 _bb11
+push # list _bb10
+BUILTIN _bb12 I1
+add i i _bb12
+END
+while # _bb4 _bb5
+END
+BEGINFINAL PVector
+copy PVector PVector
+final # PVector
+BEGINFINAL put
+next this args
+next pos args
+div _bb13 pos step
+int id _bb13
+at _bb14 list id
+mul _bb16 id step
+sub _bb15 pos _bb16
+next _bb17 args
+put # _bb14 _bb15 _bb17
+END
+BEGINFINAL len
+return _bbresult3 n
+END
+BEGINFINAL at
+next this args
+next pos args
+div _bb18 pos step
+int id _bb18
+at _bb20 list id
+mul _bb22 id step
+sub _bb21 pos _bb22
+at _bb19 _bb20 _bb21
+return _bbresult4 _bb19
+END
+BEGINFINAL add
+next this args
+next other args
+List ret
+BEGIN adder
+at _bb23 a i
+at _bb25 b i
+add _bb28 _bb23 _bb25
+put # c i _bb28
+END
+BUILTIN i I0
+BEGIN _bb29
+len _bb30 list
+lt _bbresult5 i _bb30
+END
+BEGIN _bb31
+BEGIN _bb32
+IS a list
+get b other list
+IS c ret
+copy i i
+END
+call _bbresult6 _bb32 adder
+BUILTIN _bb34 I1
+add i i _bb34
+END
+while # _bb29 _bb31
+BEGIN _bb35
+IS list ret
+copy list list
+final # list
+copy step step
+final # step
+copy n n
+final # n
+inline _bbresult7 PVector
+return _bbresult8 this
+END
+new ret _bb35
+return _bbresult9 ret
+END
+END

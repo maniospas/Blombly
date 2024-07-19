@@ -48,8 +48,7 @@ Data* Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
         Data* value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, nullptr, nullptr);
         return value;
     } else {
-        std::cerr << operation << " is not a method\n";
-        exit(1);
+        bberror(operation + " is not a method");
         delete args;  // Note: This line will never be executed due to exit.
     }
     throw Unimplemented();

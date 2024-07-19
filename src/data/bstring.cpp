@@ -3,6 +3,7 @@
 #include "data/Boolean.h"
 #include "data/Integer.h"
 #include "data/BFloat.h"
+#include "data/BFile.h"
 #include "common.h"
 
 // Constructor
@@ -44,6 +45,7 @@ Data* BString::implement(const OperationType operation, BuiltinArgs* args)  {
             case TOINT: INT_RESULT(std::atoi(value.c_str()));
             case TOFLOAT: FLOAT_RESULT(std::atof(value.c_str()));
             case TOBOOL: BOOLEAN_RESULT(value == "true");
+            case TOFILE: return new BFile(value);
         }
         throw Unimplemented();
     }

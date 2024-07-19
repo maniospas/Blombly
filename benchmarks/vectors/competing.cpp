@@ -20,4 +20,10 @@ int main(int argc, char* argv[]) {
     }
     std::chrono::steady_clock::time_point toc = std::chrono::steady_clock::now();
     std::cout<<std::chrono::duration_cast<std::chrono::duration<double>>(toc-tic).count()<<" sec\n";
+
+    double d = 0;
+    for(int i=0;i<n;i++) {
+        d += c[i];
+    }
+    std::cout<<"ignore this: "<<d<<"\n";
 }

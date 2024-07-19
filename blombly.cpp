@@ -34,6 +34,7 @@
 #include <ctime>
 #include <ratio>
 #include <chrono>
+#include <filesystem>
 #include "utils/stringtrim.cpp"
 #include "utils/parser.cpp"
 #include "utils/optimizer.cpp"
@@ -49,9 +50,42 @@
 #include "include/data/Future.h"
 #include "include/data/Code.h"
 #include "include/data/Struct.h"
+#include "include/data/BFile.h"
 #include "include/BMemory.h"
 #include "include/interpreter/Command.h"
 #include "include/interpreter/thread.h"
+
+
+namespace Terminal {
+    #ifdef _WIN32
+    #include <windows.h>
+
+    // Function to enable virtual terminal processing and set UTF-8 encoding
+    void enableVirtualTerminalProcessing() {
+        // Enable Virtual Terminal Processing on Windows
+        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (hOut == INVALID_HANDLE_VALUE) {
+            return;
+        }
+
+        DWORD dwMode = 0;
+        if (!GetConsoleMode(hOut, &dwMode)) {
+            return;
+        }
+
+        dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+        if (!SetConsoleMode(hOut, dwMode)) {
+            return;
+        }
+
+        // Set console output to UTF-8
+        SetConsoleOutputCP(CP_UTF8);
+    }
+    #else
+    void enableVirtualTerminalProcessing(){}
+    #endif
+}
+
 
 std::chrono::steady_clock::time_point program_start;
 //#define MEMGET(memory, arg) (command->knownLocal[arg]?memory->getLocal(command->args[arg]):memory->get(command->args[arg]))
@@ -70,6 +104,55 @@ std::chrono::steady_clock::time_point program_start;
 
 
 pthread_mutex_t printLock; 
+pthread_mutex_t compileLock; 
+
+
+Code* compileAndLoad(std::string fileName, const std::shared_ptr<BMemory> currentMemory) {
+    pthread_mutex_lock(&compileLock); 
+
+    // compile and optimize
+    if(fileName.substr(fileName.size()-3, 3)==".bb") {
+        if(compile(fileName, fileName+"vm")) {
+            bberror("Failed to compile file: " + fileName +"vm");
+        }
+        if(optimize(fileName+"vm", fileName+"vm")) {
+            bberror("Failed to optimize file: " + fileName + "vm");
+        }
+        fileName = fileName+"vm";
+    }
+
+    // open the blombly assembly file
+    std::ifstream inputFile(fileName);
+    if (!inputFile.is_open())  {
+        bberror("Unable to open file: " + fileName);
+        return nullptr;
+    }
+
+    // organize each line to a new assembly command
+    std::vector<Command*>* program = new std::vector<Command*>();
+    //SourceFile* source = new SourceFile(fileName);
+    SourceFile* source = new SourceFile(fileName.substr(0, fileName.size()));
+    std::string line;
+    std::string originalName = fileName.substr(0, fileName.size()-2);
+    int i = 1;
+    CommandContext* descriptor = nullptr;//std::filesystem::exists(originalName)?new CommandContext(originalName+" line 1"):nullptr;
+    while (std::getline(inputFile, line)) {
+        if(line[0]=='%') {
+            if(descriptor)
+                descriptor = new CommandContext(originalName+" "+line.substr(1));
+        }
+        else 
+            program->push_back(new Command(line, source, i, descriptor));
+        ++i;
+    }
+    inputFile.close();
+    
+    // create the code
+    pthread_mutex_unlock(&compileLock);
+    return new Code(program, 0, program->size()-1, currentMemory);
+}
+
+
 Data* executeBlock(std::vector<Command*>* program,
                   int start, 
                   int end,
@@ -100,68 +183,33 @@ Data* executeBlock(std::vector<Command*>* program,
     //std::shared_ptr<Data> prevValue;
     int cmdSize;
     Data* value;
+    
     for(int i=start;i<=end;i++) {
         Command* command = program->at(i);
+        try {
         Data* toReplace;
         //std::cout << "COMMAND "<<memory_.use_count()<<" "<<command->operation<<getOperationTypeName(command->operation)<<"\n";
         switch(command->operation) {
-            case BUILTIN:
-                FILL_REPLACEMENT;
-                if(command->value==toReplace)
-                    continue;
-                value = command->value;
-            break;
-            case FINAL:
-                // setting a memory content to final should alway be an attomic operation
-                if(command->knownLocal[1]) {
-                    std::cerr << "Cannot finalize a local variable (starting with _bb...)"<<std::endl;
-                    exit(1);
-                }
-                value = MEMGET(memory, 1);
-                memory->lock();
-                memory->setFinal(command->args[0]);
-                //value->isMutable = false;
-                memory->unlock();
-                continue;
-            break;
-            case PRINT:{
-                std::string printing("");
-                for(int i=1;i<command->nargs;i++) {
-                    Data* printable = MEMGET(memory, i);
-                    if(printable) {
-                        std::string out = printable->toString();
-                        printing += out+" ";
-                    }
-                }
-                printing += "\n";
-                pthread_mutex_lock(&printLock); 
-                std::cout << printing;
-                pthread_mutex_unlock(&printLock);
-                value = nullptr;
-                continue;
-            }
-            break;
             case BEGIN:
+            case BEGINCACHED:
             case BEGINFINAL: {
                 if(command->value) {
                     Code* code = (Code*)command->value;
-                    Code* codeCommand = (Code*)command->value;
-                    if(command->operation==BEGINFINAL 
-                        && code->getProgram()==codeCommand->getProgram()
-                        && code->getStart()==codeCommand->getStart()
-                        && code->getEnd()==codeCommand->getEnd()
-                        && code->getDeclarationMemory().get()==memory_.get()) {
-                        continue;
+                    //Code* codeCommand = (Code*)command->value;
+                    if(command->operation==BEGINFINAL && 
+                        //&& code->getProgram()==codeCommand->getProgram()
+                        //&& code->getStart()==codeCommand->getStart()
+                        //&& code->getEnd()==codeCommand->getEnd()
+                        code->getDeclarationMemory()==memory_) {
+                        i = code->getEnd();
+                        continue;  // also skip the assignment
                     }
-                    else {
-                        toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
-                        value = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory_);
-                        //value->isMutable = command->operation!=BEGINFINAL;
-                        if(command->operation==BEGINFINAL)
-                            memory->setFinal(command->args[0]);
-                    }
+                    toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
+                    value = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory_);
+                    if(command->operation==BEGINFINAL)
+                        memory->setFinal(command->args[0]);
                     i = code->getEnd();
-                    break;
+                    break; // break the switch
                 }
                 int pos = i+1;
                 int depth = 0;
@@ -186,15 +234,6 @@ Data* executeBlock(std::vector<Command*>* program,
                 command->value = value->shallowCopy();
                 toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
             }
-            break;
-            case END: 
-                // does not create a return signal
-                if(returnSignalHandler){
-                    memory->release();
-                    delete returnSignal;
-                    delete args;
-                }
-                return value;
             break;
             case CALL: {
                 //newMemory->set("locals", std::make_shared<Struct>(newMemory));
@@ -242,7 +281,8 @@ Data* executeBlock(std::vector<Command*>* program,
                                             newMemory, 
                                             nullptr, 
                                             nullptr,
-                                            data->result);
+                                            data->result,
+                                            command);
                 Future* future = new Future(data);
                 memory->attached_threads.insert(future);
                 value = future;
@@ -274,8 +314,7 @@ Data* executeBlock(std::vector<Command*>* program,
                 Data* setValue = MEMGET(memory, 3);
                 bbassert(!command->knownLocal[2], "Cannot set a field that is a local variable (starting with _bb...)");
                 if(setValue && setValue->getType()==CODE && ((Code*)setValue)->getDeclarationMemory()->isOrDerivedFrom(obj->getMemory())) {
-                    std::cerr << "Cannot set a code block to a struct field from a scope that is not internal to the code scope's definition"<<std::endl;
-                    exit(1);
+                    bberror("Cannot set a code block to a struct field from a scope that is not internal to the code scope's definition");
                 }
                 obj->getMemory()->set(command->args[2], setValue->shallowCopyIfNeeded()); 
                 continue;
@@ -336,17 +375,27 @@ Data* executeBlock(std::vector<Command*>* program,
             break;
             case INLINE:{
                 value = MEMGET(memory, 1);
+                if(value->getType()==FILETYPE) {
+                    if(command->value) {
+                        Code* code = (Code*)command->value;
+                        value = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory_);
+                    }
+                    else {
+                        value = compileAndLoad(((BFile*)value)->getPath(), memory_);
+                        command->value = value;
+                        command->value->isDestroyable = false;
+                    }
+                }
                 if(value->getType()==STRUCT) {
                     memory->pull(((Struct*)value)->getMemory());
                 }
                 else if(value->getType()!=CODE) {
-                    std::cerr << "Can only inline a non-called code block or struct" << std::endl;
-                    exit(1);
+                    bberror("Can only inline a non-called code block or struct");
                     value = nullptr;
                 }
                 else {
                     Code* code = (Code*)value;
-                    value = executeBlock(program, code->getStart(), code->getEnd(), memory_, returnSignal, args);
+                    value = executeBlock((std::vector<Command*>*)code->getProgram(), code->getStart(), code->getEnd(), memory_, returnSignal, args);
                     if(*returnSignal){
                         if(returnSignalHandler){
                             memory->release();
@@ -365,8 +414,7 @@ Data* executeBlock(std::vector<Command*>* program,
                     memory->replaceMissing(((Struct*)value)->getMemory());
                 }
                 else if(value->getType()!=CODE) {
-                    std::cerr << "Can only inline a non-called code block or struct" << std::endl;
-                    exit(1);
+                    bberror("Can only inline a non-called code block or struct");
                     value = nullptr;
                 }
                 else {
@@ -417,6 +465,51 @@ Data* executeBlock(std::vector<Command*>* program,
                 toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
             }
             break;
+            case BUILTIN:
+                FILL_REPLACEMENT;
+                if(command->value==toReplace)
+                    continue;
+                value = command->value;
+            break;
+            case FINAL:
+                // setting a memory content to final should alway be an attomic operation
+                if(command->knownLocal[1]) {
+                    bberror("Cannot finalize a local variable (starting with _bb...)");
+                }
+                //value = MEMGET(memory, 1);
+                memory->lock();
+                memory->setFinal(command->args[1]);
+                //std::cout << memory->isFinal(command->args[1]) << variableManager.getSymbol(command->args[1]);
+                //value->isMutable = false;
+                memory->unlock();
+                continue; // completely ignore any setting
+            break;
+            case PRINT:{
+                std::string printing("");
+                for(int i=1;i<command->nargs;i++) {
+                    Data* printable = MEMGET(memory, i);
+                    if(printable) {
+                        std::string out = printable->toString();
+                        printing += out+" ";
+                    }
+                }
+                printing += "\n";
+                pthread_mutex_lock(&printLock); 
+                std::cout << printing;
+                pthread_mutex_unlock(&printLock);
+                value = nullptr;
+                continue;
+            }
+            break;
+            case END: 
+                // does not create a return signal
+                if(returnSignalHandler){
+                    memory->release();
+                    delete returnSignal;
+                    delete args;
+                }
+                return value;
+            break;
             case TIME:
                 value = new BFloat(std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now()-program_start).count());
             break;
@@ -438,14 +531,21 @@ Data* executeBlock(std::vector<Command*>* program,
                     args->arg1 = MEMGET(memory, 2);
                 if(cmdSize>3)
                     args->arg2 = MEMGET(memory, 3);
-                args->preallocResult = toReplace;
                 // locals are never final
-                if((!command->knownLocal[0] && memory->isFinal(command->args[0])) || (args->preallocResult && !args->preallocResult->isDestroyable))
+                if((!command->knownLocal[0] && memory->isFinal(command->args[0])) || (toReplace && !toReplace->isDestroyable))
                     args->preallocResult = nullptr;
+                else
+                    args->preallocResult = toReplace;
                 value = Data::run(command->operation, args);
             break;
         }
         memory->unsafeSet(command->args[0], value, toReplace);
+        }
+        catch(const BBError& e) {
+            std::string comm = command->toString();
+            comm.resize(40, ' ');
+            throw BBError(e.what()+(u8"\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
+        }
     }
     if(returnSignalHandler) {
         memory->release();
@@ -463,30 +563,46 @@ int vm(const std::string& fileName, int numThreads) {
      * @param fileName The path to the file.
      * @return 0 if execution completed successfully
     */
+   
+    try {
+        // open the blombly assembly file
+        std::ifstream inputFile(fileName);
+        std::vector<Command*> program;
+        if (!inputFile.is_open())  
+            bberror("Unable to open file: " + fileName);
 
-    // open the blombly assembly file
-    std::ifstream inputFile(fileName);
-    std::vector<Command*> program;
-    if (!inputFile.is_open())  {
-        std::cerr << "Unable to open file: " << fileName << std::endl;
-        exit(1);
+        // organizes each line to a new assembly command
+        //SourceFile* source = new SourceFile(fileName);
+        SourceFile* source = new SourceFile(fileName);
+        std::string line;
+        std::string originalName = fileName.substr(0, fileName.size()-2);
+        int i = 1;
+        CommandContext* descriptor = nullptr;//std::filesystem::exists(originalName)?new CommandContext(originalName+" line 1"):nullptr;
+        while (std::getline(inputFile, line)) {
+            if(line[0]=='%') {
+                if(descriptor)
+                    descriptor = new CommandContext(originalName+" "+line.substr(1));
+            }
+            else 
+                program.push_back(new Command(line, source, i, descriptor));
+            ++i;
+        }
+        inputFile.close();
+
+        // initialize memory and execute the assembly commands
+        std::shared_ptr<BMemory> memory = std::make_shared<BMemory>(nullptr, DEFAULT_LOCAL_EXPECTATION);
+        executeBlock(&program, 0, program.size()-1, memory, nullptr, nullptr);
+    }
+    catch(const BBError& e) {
+        std::cout << e.what() << "\n";
         return 1;
     }
-
-    // organizes each line to a new assembly command
-    std::string line;
-    while (std::getline(inputFile, line)) 
-        program.push_back(new Command(line));
-    inputFile.close();
-
-    // initialize memory and execute the assembly commands
-    std::shared_ptr<BMemory> memory = std::make_shared<BMemory>(nullptr, DEFAULT_LOCAL_EXPECTATION);
-    executeBlock(&program, 0, program.size()-1, memory, nullptr, nullptr);
     return 0;
 }
 
 
 int main(int argc, char* argv[]) {
+    Terminal::enableVirtualTerminalProcessing();
     initializeOperationMapping();
     // parse file to run
     std::string fileName = "main.bb";
@@ -500,10 +616,16 @@ int main(int argc, char* argv[]) {
     // if the file has a blombly source code format (.bb) compile 
     // it into an assembly file (.bbvm)
     if(fileName.substr(fileName.size()-3, 3)==".bb") {
-        if(compile(fileName, fileName+"vm"))
+        if(compile(fileName, fileName+"vm")) {
+            std::cout << " \033[0m(\x1B[31m FAIL \033[0m) Compilation\n";
             return false;
-        if(optimize(fileName+"vm", fileName+"vm"))
+        }
+        std::cout << " \033[0m(\x1B[32m OK \033[0m) Compilation\n";
+        if(optimize(fileName+"vm", fileName+"vm")) {
+            std::cout << " \033[0m(\x1B[31m FAIL \033[0m) Optimization\n";
             return false;
+        }
+        std::cout << " \033[0m(\x1B[32m OK \033[0m) Optimization\n";
         fileName = fileName+"vm";
     }
 
@@ -517,6 +639,11 @@ int main(int argc, char* argv[]) {
         return 1; 
     }
 
+    // initialize mutexes
+    if (pthread_mutex_init(&compileLock, NULL) != 0) {
+        printf("\nPrint mutex init failed\n"); 
+        return 1; 
+    }
     program_start = std::chrono::steady_clock::now();
     // run the assembly file in the virtual machine
     return vm(fileName, threads);

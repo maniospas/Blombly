@@ -28,8 +28,7 @@ std::string Future::toString() const {
 
 // Create a shallow copy of this Future
 Data* Future::shallowCopy() const {
-    std::cerr << "Internal error: threads can not be copied\n";
-    exit(1);
+    bberror("Internal error: threads can not be copied");
     return getResult()->shallowCopy();
     //return new Future(data);
 }
@@ -40,8 +39,10 @@ Data* Future::getResult() const {
         if (data->thread.joinable()) 
             data->thread.join();
     } catch (...) {
-        std::cerr << "Failed to join thread\n";
-        exit(1);
+        bberror("Failed to join thread");
     }
-    return data->result->value;
+    auto res = data->result;
+    if(res->error)
+        throw *res->error;
+    return res->value;
 }

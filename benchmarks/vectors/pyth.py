@@ -6,10 +6,10 @@ x = np.zeros((n,))+0.1
 y = np.zeros((n,))+0.1
 z = np.zeros((n,))
 tic = time.time()
-i = 0
 #z = x+y
-while i<n:
-    z[i] = x[i]+y[i]
-    i = i+1
+for i in range(n):
+    temp = x[i]+y[i]
+    if temp>0:
+        z[i] = temp
 toc = time.time()
 print(toc-tic)

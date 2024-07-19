@@ -68,6 +68,8 @@
         "variant": "cpp",
         "dense_hash_map": "cpp",
         "cstdarg": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "cstring": "cpp",
+        "codecvt": "cpp"
     }
 }

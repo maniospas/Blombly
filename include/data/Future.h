@@ -10,7 +10,8 @@
 class ThreadResult {
 public:
     Data* value;
-    ThreadResult() = default;
+    BBError* error;
+    ThreadResult():value(nullptr), error(nullptr) {};
 };
 
 // FutureData class holding thread and result information

@@ -24,6 +24,7 @@ public:
     friend class Integer;
     friend class Vector;
     friend class BList;
+    friend class BFile;
 };
 
 #endif // BSTRING_H

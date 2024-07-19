@@ -9,8 +9,7 @@
 // ListContents constructor and methods
 IteratorContents::IteratorContents(Data* object_):object(object_) {
     if (pthread_mutex_init(&memoryLock, nullptr) != 0) {
-        std::cerr << "Failed to create a mutex for list read/write" << std::endl;
-        exit(1);
+        bberror("Failed to create a mutex for list read/write");
     }
     BuiltinArgs* args = new BuiltinArgs();
     args->arg0 = object;
@@ -23,21 +22,22 @@ IteratorContents::IteratorContents(Data* object_):object(object_) {
 
 IteratorContents::~IteratorContents() {
     delete pos;
-    delete object;
+    //if(locked) // basically locked!=0 
+    //    delete object;
 }
 
 void IteratorContents::lock() {
-    if(locked)
-        pthread_mutex_lock(&memoryLock);
+    //if(locked)
+    //    pthread_mutex_lock(&memoryLock);
 }
 
 void IteratorContents::unlock() {
-    if(locked)
-        pthread_mutex_unlock(&memoryLock);
+    //if(locked)
+    //    pthread_mutex_unlock(&memoryLock);
 }
 
 void IteratorContents::unsafeUnlock() {
-    pthread_mutex_unlock(&memoryLock);
+    //pthread_mutex_unlock(&memoryLock);
 }
 
 
@@ -71,10 +71,15 @@ std::string Iterator::toString() const {
 
 // Create a shallow copy of this List
 Data* Iterator::shallowCopy() const {
+    bberror("Iterators cannot be returned outside of scope");
+    /*
+    contents->lock();
     std::shared_ptr<IteratorContents> newContents = std::make_shared<IteratorContents>(contents->object->shallowCopy());
     newContents->pos = contents->pos;
     newContents->size = contents->size;
-    return new Iterator(newContents);
+    newContents->locked = -1;
+    contents->unlock();
+    return new Iterator(newContents);*/
 }
 
 // Implement the specified operation
@@ -92,7 +97,7 @@ Data* Iterator::implement(const OperationType operation, BuiltinArgs* args) {
         args->size = 2;
         contents->unlock();
 
-        Data* ret = args->arg0->implement(AT, args);//Data::run(AT, args); // run outside locks to prevent deadlocks
+        Data* ret = contents->object->implement(AT, args);//Data::run(AT, args); // run outside locks to prevent deadlocks
 
         contents->lock();
         bool shouldUnlock = contents->locked;
@@ -104,7 +109,7 @@ Data* Iterator::implement(const OperationType operation, BuiltinArgs* args) {
     if(args->size==1 && operation==LEN)
         return new Integer(contents->size);
     if(args->size==1 && operation==TOCOPY)
-        return new Iterator(contents);
+        return shallowCopy();
     if(args->size==1 && operation==TOITER) 
         return shallowCopy();//std::make_shared<Iterator>(std::make_shared<IteratorContents>(contents->object));
 

@@ -24,8 +24,7 @@ BMemory::BMemory(const std::shared_ptr<BMemory>& par, int expectedAssignments) :
         data->reserve(expectedAssignments);
     }
     if (pthread_mutex_init(&memoryLock, nullptr) != 0) {
-        std::cerr << "Failed to create a mutex for memory read/write" << std::endl;
-        exit(1);
+        bberror("Failed to create a mutex for memory read/write");
     }
 }
 
@@ -47,6 +46,7 @@ void BMemory::release() {
             //std::cout << "deleting\n";
             //std::cout << "#"<<element.second << "\n";
             //std::cout << element.second->toString() << "\n";
+            element.second->isDestroyable = false;
             delete element.second;
         }
     data->clear();
@@ -111,8 +111,7 @@ Data* BMemory::get(int item) {
 
     // Missing value error
     if (!ret) {
-        std::cerr << "Missing value: " +variableManager.getSymbol(item) << std::endl;
-        exit(1);
+        bberror("Missing value: " +variableManager.getSymbol(item));
     }
 
     return ret;
@@ -144,21 +143,20 @@ Data* BMemory::get(int item, bool allowMutable) {
     if(ret) {
         // Handle mutability restrictions
         if (!allowMutable && !isFinal(item)) {
-            std::cerr << "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item) << std::endl;
-            exit(1);
+            bberror("Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item)
+                    +"\n   \033[33m!!!\033[0m Either declare this in the current scope or make it final.");
             return nullptr;
         }
     }
     else {
         // If not found locally, check parent memory
         if (parent) 
-            ret = parent->get(item, allowMutables);
+            ret = parent->get(item, allowMutables && allowMutable);
     }
 
     // Missing value error
     if (!ret) {
-        std::cerr << "Missing value: " + variableManager.getSymbol(item) << std::endl;
-        exit(1);
+        bberror("Missing value: " + variableManager.getSymbol(item));
     }
 
     return ret;
@@ -198,14 +196,14 @@ Data* BMemory::getOrNull(int item, bool allowMutable) {
 
     // Handle mutability restrictions
     if (ret && !allowMutable && !isFinal(item)) {
-        std::cerr << "Mutable symbol cannot be accessed from a nested block: " + item << std::endl;
-        exit(1);
+        bberror("Mutable symbol cannot be accessed from a nested block: "+variableManager.getSymbol(item)
+                +"\n   \033[33m!!!\033[0m Either declare this in the current scope or make its original declaration final.");
         return nullptr;
     }
 
     // If not found locally, check parent memory
     if (!ret && parent) {
-        ret = parent->getOrNull(item, allowMutables);
+        ret = parent->getOrNull(item, allowMutables && allowMutable);
     }
 
     return ret;
@@ -227,8 +225,7 @@ void BMemory::set(int item, Data*value) {
                 delete prev;
         }
         else {
-            std::cerr << "Cannot overwrite final value: " + variableManager.getSymbol(item) << std::endl;
-            exit(1);
+            bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
             return;
         }
     }
@@ -248,8 +245,7 @@ void BMemory::unsafeSet(int item, Data*value, Data* prev) {
                 delete prev;
         }
         else {
-            std::cerr << "Cannot overwrite final value: " + variableManager.getSymbol(item) << std::endl;
-            exit(1);
+            bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
             return;
         }
     }

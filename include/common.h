@@ -5,32 +5,48 @@
 #include <vector>
 #include <memory>
 #include <iostream>
+#include <cstring>
+#include <stdexcept>
+
+// Exception classes
+class Unimplemented : public std::exception {
+public:
+    const char* what() const noexcept override {
+        return "Unimplemented method.";
+    }
+};
+
+class BBError : public std::runtime_error {
+public:
+    explicit BBError(const std::string& message) : std::runtime_error(message) {}
+};
 
 // custom error messages
-#define bbassert(expr, msg) if(!(expr)) {std::cerr<<msg<<"\n";exit(1);}
+#define bberror(msg) throw BBError(std::string(" \033[0m(\x1B[31m ERROR \033[0m) ")+(msg)) //std::cout<<" \033[0m(\x1B[31m ERROR \033[0m) "<<(msg)<<"\n";exit(1); 
+#define bbassert(expr, msg) if(!(expr)) {bberror(msg);}
 #define bbverify(precondition, expr, msg) if(precondition && !(expr)) {std::cerr<<msg<<"\n";exit(1);}
 
 // Enumeration of data types
-enum Datatype { FUTURE, BOOL, INT, FLOAT, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR};
+enum Datatype {FUTURE, BOOL, INT, FLOAT, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE};
 
 // Array to map datatype enums to string representations
 static const char* datatypeName[] = { 
-    "future", "bool", "int", "float", "vector", "list", "string", "code", "struct", "iterator"
+    "future", "bool", "int", "float", "vector", "list", "string", "code", "struct", "iterator", "file"
 };
 
 // Global strings for different operations
 enum OperationType {NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, DIV, MOD, LEN, POW, LOG, 
-                    PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOINT, TOFLOAT, TOSTR, TOBOOL, TOCOPY,
+                    PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOINT, TOFLOAT, TOSTR, TOBOOL, TOCOPY, TOFILE,
                     SUM, MAX, MIN,
-                    BUILTIN, BEGIN, BEGINFINAL, END, RETURN, FINAL, IS, 
+                    BUILTIN, BEGIN, BEGINFINAL, BEGINCACHED, END, RETURN, FINAL, IS, 
                     CALL, WHILE, IF, NEW, PRINT, INLINE, GET, SET, DEFAULT,
                     TIME, TOITER};
 static const std::string OperationTypeNames[] = {
     "not", "and", "or", "eq", "neq", "le", "ge", "lt", "gt", "add", "sub", "mul", "mmul", 
     "div", "mod", "len", "pow", "log", "push", "pop", "next", "put", "at", "shape", 
-    "Vector", "List", "int", "float", "str", "bool", "copy", 
+    "Vector", "List", "int", "float", "str", "bool", "copy", "File",
     "sum", "max", "min",
-    "BUILTIN", "BEGIN", "BEGINFINAL", "END", "return", "final", "IS", 
+    "BUILTIN", "BEGIN", "BEGINFINAL", "BEGINCACHED", "END", "return", "final", "IS", 
     "call", "while", "if", "new", "print", "inline", "get", "set", "default",
     "time", "iter"
 };
@@ -39,14 +55,6 @@ static const std::string OperationTypeNames[] = {
 void initializeOperationMapping();
 OperationType getOperationType(const std::string &str);
 std::string getOperationTypeName(OperationType type);
-
-// Exception class
-class Unimplemented : public std::exception {
-public:
-    const char* what() const noexcept override {
-        return "Unimplemented method.";
-    }
-};
 
 
 // block execution declarations
@@ -81,14 +89,7 @@ Data* executeBlock(std::vector<Command*>* program,
                     return args->preallocResult; \
                 } \
                 return new Boolean(expr)
-
-
-
-#define STRING_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==STRING) { \
-                    ((BString*)args->preallocResult)->value = expr; \
-                    return args->preallocResult; \
-                } \
-                return new BString(expr)
+                
 
 #define INT_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==INT) { \
                     ((Integer*)args->preallocResult)->value = expr; \

@@ -46,7 +46,6 @@ Data* Data::run(const OperationType operation, BuiltinArgs* args) {
         if (arg != nullptr) err += datatypeName[arg->getType()];
     }
     err += ")";
-    std::cerr << err << std::endl;
-    exit(1);
+    bberror(err);
     return nullptr;
 }

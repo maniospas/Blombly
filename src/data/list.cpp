@@ -9,8 +9,7 @@
 // ListContents constructor and methods
 ListContents::ListContents(): lockable(0) {
     if (pthread_mutex_init(&memoryLock, nullptr) != 0) {
-        std::cerr << "Failed to create a mutex for list read/write" << std::endl;
-        exit(1);
+        bberror("Failed to create a mutex for list read/write");
     }
 }
 
@@ -109,9 +108,9 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
         contents->lock();
         int index = ((Integer*)args->arg1)->getValue();
         if(index < 0 || index>=contents->contents.size()) {
-            std::cerr << "List index "<<index<<" out of range [0,"<<contents->contents.size()<<")\n";
+            int endcontents = contents->contents.size();
             contents->unlock();
-            exit(1);
+            bberror("List index "+std::to_string(index)+" out of range [0,"+std::to_string(endcontents)+")");
             return nullptr;
         }
         Data* ret = contents->contents[index];

@@ -520,6 +520,7 @@ public:
         symbols.insert("Matrix");
         symbols.insert("Vector");
         symbols.insert("List");
+        symbols.insert("File");
         symbols.insert("push");
         symbols.insert("pop");
         symbols.insert("next");
@@ -556,8 +557,22 @@ public:
         bool inComment = false;
         int inImpliedParenthesis = 0;
         int expectNextBlocks = 0;
+        int linenum = 1;
+        //std::string start;
+        //bool juststartedsegment = false;
         while(pos<code.size()) {
             char c = code[pos];
+            /*if(c=='\n') {
+                linenum += 1;
+                compiled += "%line "+std::to_string(linenum)+" : "+start+"\n";
+                start = "";
+                juststartedsegment = false;
+            }
+            else {
+                if(c!=' ' && c!='\t')
+                    juststartedsegment = true;
+                start += c;
+            }*/
             if(inComment) {
                 if(c=='\n' || pos==code.size()-1) 
                     inComment = false;

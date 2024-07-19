@@ -1,9 +1,13 @@
-BEGINFINAL Zeros
-BEGIN _bb0
+BUILTIN _bb39 F1.2
+BUILTIN _bb34 I1
+BUILTIN _bb12 I1
+BUILTIN _bb8 I1
 BUILTIN _bb2 I8
+BEGIN _bb0
 div _bb1 n _bb2
 int step _bb1
 END
+BEGINFINAL Zeros
 default _bbresult0 _bb0
 copy step step
 final # step
@@ -20,7 +24,6 @@ END
 BEGIN _bb5
 mul start i step
 BEGIN _bb6
-BUILTIN _bb8 I1
 add _bb7 i _bb8
 mul end _bb7 step
 gt _bbresult2 end n
@@ -32,7 +35,6 @@ if # _bb6 _bb9
 sub _bb11 end start
 Vector _bb10 _bb11
 push # list _bb10
-BUILTIN _bb12 I1
 add i i _bb12
 END
 while # _bb4 _bb5
@@ -88,7 +90,6 @@ IS c ret
 copy i i
 END
 call _bbresult6 _bb32 adder
-BUILTIN _bb34 I1
 add i i _bb34
 END
 while # _bb29 _bb31
@@ -123,7 +124,6 @@ inline _bbresult14 PVector
 return _bbresult15 this
 END
 new b _bb37
-BUILTIN _bb39 F1.2
 put # a pos _bb39
 time tic
 add c a b

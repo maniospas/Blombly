@@ -1,10 +1,10 @@
-List x
-time tic
-BUILTIN i I0
 BEGIN _bb0
 BUILTIN _bb1 I1000000
 lt _bbresult0 i _bb1
 END
+List x
+time tic
+BUILTIN i I0
 BEGIN _bb2
 BUILTIN _bb3 I1
 add i i _bb3

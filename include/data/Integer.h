@@ -28,6 +28,7 @@ public:
     friend class BString;
     friend class Vector;
     friend class BList;
+    friend class BFile;
 };
 
 #endif // INTEGER_H

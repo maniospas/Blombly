@@ -38,6 +38,16 @@ public:
 };
 
 
+void moveRangeToFront(std::vector<std::shared_ptr<OptimizerCommand>>& program, size_t i, size_t j, size_t front) {
+    if (i > j || j >= program.size() || front >= program.size()) {
+        throw std::out_of_range("Invalid indices");
+    }
+    std::vector<std::shared_ptr<OptimizerCommand>> temp(program.begin() + i, program.begin() + j + 1);
+    program.erase(program.begin() + i, program.begin() + j + 1);
+    program.insert(program.begin()+front, temp.begin(), temp.end());
+}
+
+
 
 int optimize(const std::string& source, const std::string& destination) {
     std::ifstream inputFile(source);
@@ -162,6 +172,68 @@ int optimize(const std::string& source, const std::string& destination) {
 
     // add local symbol cache (just check that every symbol is not final)
     // TODO
+
+    // optimize local code blocks
+    for(int i=0;i<program.size();++i) {
+        std::shared_ptr<OptimizerCommand> command = program[i];
+        if(command->args[0]!="BEGIN" || !command->enabled)
+            continue;
+        if(command->args.size()<2 || command->args[1].substr(0, 3)!="_bb")
+            continue;
+        command->args[0] = "BEGINFINAL";
+    }
+
+    // flatten nested code blocks (move begin-end declarations to the beginning of the program)
+    /*int front = 0;
+    for(int i=0;i<program.size();++i) {
+        std::shared_ptr<OptimizerCommand> command = program[i];
+        if((command->args[0]!="BEGIN" && command->args[0]!="BEGINFINAL") || !command->enabled)
+            continue;
+        if(command->args.size()<2 || command->args[1].substr(0, 3)!="_bb")
+            continue;
+        int depth = 0;
+        int block_end = i;
+        bool has_finals = false;
+        int j;
+        for(j=i+1;j<program.size();++j) {
+            if(program[j]->args.size()==0 || !program[j]->enabled)
+                continue;
+            // stop if code block ends or something is assigned
+            if(program[j]->args[0]=="FINAL" || command->args[1]=="BEGINFINAL") 
+                has_finals = true;
+            if(program[j]->args[0]=="BEGIN" || command->args[1]=="BEGINFINAL") {
+                depth += 1;
+                if(!has_finals)
+                    break;
+            }
+            if(program[j]->args[0]=="END") {
+                depth -= 1;
+                if(depth<0) {
+                    block_end = j;
+                    break;
+                }
+            }
+        }
+        if(has_finals) {
+            i = j;
+        }
+        else if(block_end!=i) {
+            moveRangeToFront(program, i, block_end, front);
+        }
+    }
+
+    // move all builtins at the beginning
+    /*for(int i=1;i<program.size();++i) {
+        std::shared_ptr<OptimizerCommand> command = program[i];
+        if(command->args[0]!="BUILTIN" || !command->enabled || command->args.size()<2)
+            continue;
+        if(command->args[1].substr(0, 3)=="_bb") {
+            moveRangeToFront(program, i, i);
+            --i;
+        }
+    }*/
+
+
 
     // save the compiled code to the destination file
     std::ofstream outputFile(destination);

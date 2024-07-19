@@ -13,7 +13,7 @@
                 "${file}",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
-                "-O3",
+                "-O2",
                 "-I./include"
             ],
             "options": {

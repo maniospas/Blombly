@@ -8,7 +8,8 @@
 #include "BMemory.h" // for variable manager
 
 
-Command::Command(std::string command) {
+Command::Command(const std::string& command, SourceFile* source, int line, CommandContext* descriptor): 
+    source(source), line(line), descriptor(descriptor) {
     value = nullptr;
     std::vector<std::string> argNames;
     argNames.reserve(4);
@@ -43,15 +44,14 @@ Command::Command(std::string command) {
         else if (raw[0] == 'B')
             value = new Boolean(raw == "Btrue");
         else {
-            std::cerr << "Unable to understand builtin value: " << raw << std::endl;
-            exit(1);
+            bberror("Unable to understand builtin value prefix (should be one of I,F,B,\"): " + raw);
         }
         value->isDestroyable = false;
     }
 
     args = new int[nargs];
     knownLocal = new bool[nargs];
-    for (int i = 0; i < nargs; i++) {
+    for (int i = 0; i < nargs; ++i) {
         knownLocal[i] = argNames[i+1].substr(0, 3) == "_bb";
         args[i] = variableManager.getId(argNames[i+1]);
     }
@@ -62,3 +62,15 @@ Command::~Command() {
     delete value;
     delete[] knownLocal;
 }
+
+std::string Command::toString() const {
+    if(descriptor)
+        return descriptor->source;
+    std::string ret = getOperationTypeName(operation);
+    for(int i=0;i<nargs;++i) 
+        ret += " "+variableManager.getSymbol(args[i]);
+    return ret;
+}
+
+SourceFile::SourceFile(const std::string& path): path(path) {}
+CommandContext::CommandContext(const std::string& source): source(source) {}
