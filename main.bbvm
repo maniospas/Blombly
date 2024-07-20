@@ -1,62 +1,49 @@
-BEGINFINAL Point
-BEGIN norm2d
 BEGINFINAL _bb0
-BUILTIN exp F0.5
+BEGINFINAL _bb1
+get _bb3 this y
+get _bb4 this x
+add _bb2 _bb4 _bb3
+return _bbresult0 _bb2
 END
-default _bbresult0 _bb0
-get _bb6 this x
-BUILTIN _bb8 I2
-pow _bb5 _bb6 _bb8
-get _bb10 this y
-BUILTIN _bb12 I2
-pow _bb9 _bb10 _bb12
-add _bb4 _bb5 _bb9
-pow _bb3 _bb4 exp
-return _bbresult1 _bb3
-END
-BUILTIN is3d Bfalse
+IS norm2d _bb1
+final # norm2d
 IS norm norm2d
 END
-BEGINFINAL Point3d
-BEGIN norm3d
-BEGINFINAL _bb13
-BUILTIN exp F0.5
+IS Point2d _bb0
+final # Point2d
+BEGINFINAL _bb5
+BEGINFINAL _bb6
+get _bb8 this z
+get _bb10 this y
+get _bb11 this x
+add _bb9 _bb11 _bb10
+add _bb7 _bb9 _bb8
+return _bbresult1 _bb7
 END
-default _bbresult2 _bb13
-get _bb16 this norm2d
-BEGINFINAL _bb17
-BUILTIN exp I1
-END
-call d _bb17 _bb16
-get _bb21 this z
-BUILTIN _bb23 I2
-pow _bb20 _bb21 _bb23
-add _bb19 d _bb20
-pow _bb18 _bb19 exp
-return _bbresult3 _bb18
-END
-inline _bbresult4 Point
-BUILTIN is3d Btrue
+IS norm3d _bb6
+final # norm3d
 IS norm norm3d
 END
-BEGINFINAL _bb24
-inline _bbresult5 Point3d
+IS Point3d _bb5
+final # Point3d
+BEGINFINAL _bb14
+BEGINFINAL _bb17
+inline _bb18 Point2d
+inline _bb19 Point3d
 BUILTIN x I1
 BUILTIN y I2
-BUILTIN z I1
-return _bbresult6 this
+BUILTIN z I0
+return _bbresult2 this
 END
-new p _bb24
-BEGINFINAL _bb25
-get _bb26 p is3d
+new p _bb17
+return _bbresult3 this
 END
-BEGINFINAL _bb27
-get _bb29 p norm
-call _bb28 # _bb29
-print # _bb28
-END
-BEGINFINAL _bb30
-BUILTIN _bb31 "2d"
-print # _bb31
-END
-if # _bb25 _bb27 _bb30
+new x _bb14
+get _bb25 x p
+get _bb24 _bb25 norm
+call p # _bb24
+BUILTIN _bb27 F1.2
+str _bb28 _bb27
+BUILTIN _bb29 "result "
+add _bb26 _bb29 _bb28
+print # _bb26

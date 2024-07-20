@@ -113,7 +113,7 @@ int optimize(const std::string& source, const std::string& destination) {
         std::string to_replace = command->args[1];
         std::string symbol = command->args[2];
         int declaration = i-1; // for the time being this issue can arise only by adding an IS after an immediate command
-        if(declaration>0 && program[declaration]->args.size()>1 && program[declaration]->args[0]!="IS"
+        if(declaration>=0 && program[declaration]->args.size()>1 && program[declaration]->args[0]!="IS"
             && program[declaration]->args[1] == symbol) {
             program[declaration]->args[1] = to_replace;
             program[i]->enabled = false;

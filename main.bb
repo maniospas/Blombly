@@ -1,25 +1,20 @@
-final Point = {
-    norm2d = {
-        default(exp=0.5);
-        return (this.x^2+this.y^2)^exp;
-    }
-    is3d = false;
+final Point2d = {
+    final norm2d = {return this.x+this.y;}
     norm = norm2d;
 }
-
 final Point3d = {
-    norm3d = {
-        default(exp=0.5);
-        d = this.norm2d(exp=1);
-        return (d+this.z^2)^exp;
-    }
-    Point:
-    is3d = true;
+    final norm3d = {return this.x+this.y+this.z;}
     norm = norm3d;
 }
 
-p = new(Point3d:x=1;y=2;z=1);
-if(p.is3d,
-    print(p.norm());,
-    print("2d");
-);
+x = new {
+    p = new {
+        Point2d:
+        Point3d:
+        x=1;
+        y=2;
+        z=0;
+    }
+}
+p = x.p.norm();
+print("result "+str 1.2);

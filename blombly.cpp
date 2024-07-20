@@ -112,12 +112,8 @@ Code* compileAndLoad(std::string fileName, const std::shared_ptr<BMemory> curren
 
     // compile and optimize
     if(fileName.substr(fileName.size()-3, 3)==".bb") {
-        if(compile(fileName, fileName+"vm")) {
-            bberror("Failed to compile file: " + fileName +"vm");
-        }
-        if(optimize(fileName+"vm", fileName+"vm")) {
-            bberror("Failed to optimize file: " + fileName + "vm");
-        }
+        compile(fileName, fileName+"vm");
+        optimize(fileName+"vm", fileName+"vm");
         fileName = fileName+"vm";
     }
 
@@ -362,15 +358,31 @@ Data* executeBlock(std::vector<Command*>* program,
                 CHECK_FOR_RETURN(check);
                 if(check && (check->getType()!=BOOL || ((Boolean*)check)->getValue())) {
                     if(codeAccept) {
-                        value = executeBlock(program, codeAccept->getStart(), codeAccept->getEnd(), memory_, returnSignal, args);
+                        value = executeBlock((std::vector<Command*>*)codeAccept->getProgram(), codeAccept->getStart(), codeAccept->getEnd(), memory_, returnSignal, args);
                         CHECK_FOR_RETURN(value);
                     }
                 }
                 else if(codeReject) {
-                    value = executeBlock(program, codeReject->getStart(), codeReject->getEnd(), memory_, returnSignal, args);
+                    value = executeBlock((std::vector<Command*>*)codeReject->getProgram(), codeReject->getStart(), codeReject->getEnd(), memory_, returnSignal, args);
                     CHECK_FOR_RETURN(value);
                 }
                 continue;
+            }
+            break;
+            case TRY:{
+                try {
+                    Data* condition = MEMGET(memory, 1);
+                    bbassert(condition->getType()==CODE, "Can only inline a non-called code block for try condition");
+                    Code* codeCondition = (Code*)condition;
+                    value = executeBlock((std::vector<Command*>*)codeCondition->getProgram(), codeCondition->getStart(), codeCondition->getEnd(), memory_, returnSignal, args);
+                    value = new Boolean(true);
+                }
+                catch(const BBError& e) {
+                    std::string comm = command->toString();
+                    comm.resize(40, ' ');
+                    value = new Boolean(false);
+                    //new BString(e.what()+(u8"\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
+                }
             }
             break;
             case INLINE:{
@@ -613,19 +625,28 @@ int main(int argc, char* argv[]) {
         fileName = argv[1];
     if (argc > 2)  
         threads = atoi(argv[2]);
+
     // if the file has a blombly source code format (.bb) compile 
     // it into an assembly file (.bbvm)
     if(fileName.substr(fileName.size()-3, 3)==".bb") {
-        if(compile(fileName, fileName+"vm")) {
-            std::cout << " \033[0m(\x1B[31m FAIL \033[0m) Compilation\n";
-            return false;
+        try {
+            compile(fileName, fileName+"vm");
+            std::cout << " \033[0m(\x1B[32m OK \033[0m) Compilation\n";
         }
-        std::cout << " \033[0m(\x1B[32m OK \033[0m) Compilation\n";
-        if(optimize(fileName+"vm", fileName+"vm")) {
-            std::cout << " \033[0m(\x1B[31m FAIL \033[0m) Optimization\n";
-            return false;
+        catch(const BBError& e) {
+            std::cout << e.what() << " in " << fileName << "\n";
+            //std::cout << " \033[0m(\x1B[31m FAIL \033[0m) Compilation\n";
+            return 1;
         }
-        std::cout << " \033[0m(\x1B[32m OK \033[0m) Optimization\n";
+        try {
+            optimize(fileName+"vm", fileName+"vm");
+            std::cout << " \033[0m(\x1B[32m OK \033[0m) Optimization\n";
+        }
+        catch(const BBError& e) {
+            std::cout << e.what() << " in " << fileName << "\n";
+            //std::cout << " \033[0m(\x1B[31m FAIL \033[0m) Optimization\n";
+            return 1;
+        }
         fileName = fileName+"vm";
     }
 
