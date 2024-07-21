@@ -316,7 +316,7 @@ Data* executeBlock(std::vector<Command*>* program,
                 Data* setValue = MEMGET(memory, 3);
                 bbassert(!command->knownLocal[2], "Cannot set a field that is a local variable (starting with _bb...)");
                 if(setValue && setValue->getType()==CODE && ((Code*)setValue)->getDeclarationMemory()->isOrDerivedFrom(obj->getMemory())) {
-                    bberror("Cannot set a code block to a struct field from a scope that is not internal to the code scope's definition");
+                    bberror("Cannot set a code block to a struct field here.\n    This is only possible from blocks defined inside the struct scope's definition");
                 }
                 obj->getMemory()->set(command->args[2], setValue->shallowCopyIfNeeded()); 
                 continue;

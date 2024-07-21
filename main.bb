@@ -1,15 +1,12 @@
-Point2d = {
-    this.norm2d = {
-        return this.x+this.y;
-    }
-    norm = norm2d;
+final zbias = 0;
+y = 2;
+point = new {
+  x = 1;
+  y = y;         // get the value from the parent scope and then set it locally
+  z = x+y+zbias; // gets the locally set values of x and y, zbias from the parent scope
 }
-
-Point3d = {
-    norm3d = {
-        return this.x+this.y+this.z;
-    }
-    norm = this.norm3d;
-}
-
-print("Hello world!");
+point.x = 4;
+print(point.x);  // 4
+print(point.y);  // 2
+print(point.z);  // 3
+print(point.zbias); // CREATES AN ERROR

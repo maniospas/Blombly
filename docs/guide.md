@@ -9,6 +9,7 @@
 2.2 [Code blocks & inline](#22-code-blocks--inline)<br>
 2.3 [Calling blocks](#23-calling-blocks)<br>
 2.4 [Structs](#24-structs)<br>
+2.5 [Return from new](#25-return-from-new)<br>
 
 # 1 Set things up
 
@@ -76,7 +77,7 @@ doing.
    → print ( "Hello" + ) ;                       main.bb line 1
 ```
 
-Let us now see what a logical error looks like too. Try
+Let us see what a logical error looks like too. Try
 to print a variable that does not exist in the following code:
 
 ```java
@@ -224,10 +225,114 @@ test: // block code directly runs here
 
 ## 2.4 Structs
 
-You can create a data structure by using the `new {...}` syntax, 
-where the interior of the code blocks. 
+You can create a data structure (aka object) with the 
+`new {...}` syntax. This creates a new scope that can see 
+its parent's values but keeps all new assignments. 
+A struct holding new's assignments as fields is returned.
+Struct fields can be accessed via the dot `.` operator 
+afterwards. Here is an example:
+
+```java
+zbias = 0;
+y = 2;
+point = new {
+  x = 1;
+  y = y; // get y from the parent scope because it is not set locally, then set it locally
+  z = x+y+zbias; // x and y from local scope, zbias from the parent scope 
+}
+point.x = 4;
+print(point.x);
+print(point.y);
+print(point.z);
+print(point.zbias); // CREATES AN ERROR
+```
+
+Running the above code yields the following output.
+An error is created because `new `only retains the
+assignments inside; the resulting struct is detached 
+from the creator scope and cannot "see" the variable
+`zbias`.
+
+```
+ ( OK ) Compilation
+ ( OK ) Optimization
+4 
+2
+3
+ ( ERROR ) Missing value: zbias
+   → get _bb12 point zbias                       main.bbvm line 20  
+```
 
 
-:warning: To prevent a wide range of code smells, the compiler
-does not allow you to write `new B` where `B` is a code block. 
-Instead, inline it.
+Blocks declared within `new` have access to 
+an immutable (`final`) variable called  `this`
+that holds the struct. This becomes accessible 
+only after the struct is created. For example, here
+is a definition of a code block that is to be 
+used as a method:
+
+```java
+point = new {
+  sum2d = {return this.x+this.y;}
+  sum3d = {return this.sum2d()+this.z;}
+  x = 1;
+  y = 2;
+  z = 3;
+}
+print(point.sum3d());
+```
+
+:bulb: Normal variable visibility rules apply; to
+let a struct's code blocks call each other, either
+make them `final` or access them from `this` as 
+above.
+
+In blombly, inlining can be used to treat code blocks
+as part of constructors, which is a generalization of
+multi-inheritance. For example, you may inline the
+declatation of member functions like so:
+
+```java
+Point = {
+  norm = {return (this.x^2+this.y^2)^0.5} 
+}
+XYSetter = {
+  setx = {default{value=0} this.x = value;}
+  sety = {default{value=0} this.y = value;}
+}
+point = new {
+  Point:
+  XYSetter:
+  x = 0;
+  y = 0;
+}
+point.setx();
+point.sety(value=2);
+
+print(point.x);
+print(point.y);
+```
+
+:warning: To prevent code smells, the compiler does not 
+allow you to write `new B` where `B` is a code block. 
+Instead, inline it per `new {B:}`.
+
+
+## 2.5 Return from new
+
+Return statements from within `new {...}` stop its
+execution and change the obtained value. This can
+be used to replace block calls with a forced 
+single-threaded recursion that does not modify
+the parent context. For example:
+
+```java
+final fib = {  // make final so that it can see its declation
+    if(n<2){return 1;} 
+    return new{n = n-1;fib:} + new{n = n-2;fib:};
+}
+
+tic = time();
+print("Result", fib(n=21));
+print("Time", time()-tic);
+```

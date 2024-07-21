@@ -377,7 +377,16 @@ void sanitize(std::vector<Token>& tokens) {
                 bberror("The syntax }; is invalid because both symbols terminate expressions. Use only } at line "+std::to_string(tokens[i].line));
             else if(tokens[i + 1].name == ":")
                 bberror("The syntax }: is invalid because running inline a just-declared code block\n    is equivalent to running its code immediately.\n    Consider removing the brackets at line "+std::to_string(tokens[i].line));
-            else if(tokens[i + 1].name != "." && tokens[i + 1].name != ")" && tokens[i + 1].name != "else")
+            else if(tokens[i + 1].name != "." 
+                    && tokens[i + 1].name != ")" 
+                    && tokens[i + 1].name != ","
+                    && tokens[i + 1].name != "+"
+                    && tokens[i + 1].name != "-"
+                    && tokens[i + 1].name != "*"
+                    && tokens[i + 1].name != "/"
+                    && tokens[i + 1].name != "^"
+                    && tokens[i + 1].name != "%"
+                    && tokens[i + 1].name != "else")
                 updatedTokens.push_back(Token(";", tokens[i].line, false));
         }
         else 
