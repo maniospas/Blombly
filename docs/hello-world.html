@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blombly Companion - Hello World</title>
+    <link rel="stylesheet" rel="prefetch" href="style.css">
+    <link rel="stylesheet" rel="prefetch" href="prism.css">
+</head>
+<body>
+<div class="sidebar">
+    <h2>Blombly Companion</h2>
+    <a rel="prefetch" href="introduction.html">Introduction</a>
+    <p><strong>Set things up</strong></p>
+    <a rel="prefetch" href="hello-world.html" style="color: orange;">1.1 Hello world!</a>
+    <a rel="prefetch" href="errors.html">1.2 Errors</a>
+    <p><strong>Basic features</strong></p>
+    <a rel="prefetch" href="vars-operations-comments.html">2.1 Vars, operations, comments</a>
+    <a rel="prefetch" href="code-blocks-inline.html">2.2 Code blocks & inline</a>
+    <a rel="prefetch" href="calling-blocks.html">2.3 Calling blocks</a>
+    <a rel="prefetch" href="structs.html">2.4 Structs</a>
+    <p><strong>Advanced features</strong></p>
+    <a rel="prefetch" href="return-from-new.html">3.1 Return from new</a>
+    <a rel="prefetch" href="overloading.html">3.2 Overloading</a>
+</div>
+
+<h1>Hello world!</h1>
+
+<p>Let us create a first program to show a compilation and interpretation process.
+Create an empty text file <code>main.bb</code> with the following contents:</p>
+
+<pre><code class="language-java">print("Hello world!");</code></pre>
+
+<p>Careful to not forget the trailing semicolon. In general, use a Java syntax highlighter
+(not a syntax checker), as it shares many keywords. To run this file, download blombly's
+executable from the <a rel="prefetch" href="./downloads.md">downloads</a> and add it to the filepath.
+Run <code>blombly main.bb</code> to compile and run it. This will create the following
+output in the console:</p>
+
+<pre class="code-output">
+(<span class="ok"> OK </span>) Compilation
+(<span class="ok"> OK </span>) Optimization
+Hello world!
+</pre>
+
+<p>Compilation creates an intermediate representation to the language's virtual machine in
+the file <code>main.bbvm</code>. It also applies some optimizations for faster execution.
+You can directly run <code>.bbvm</code> files to avoid compiling and optimizing again.</p>
+
+<p>:bulb: The script <code>bbreader.py</code> converts compiled code to the main
+language.</p>
+
+<script src="prism.min.js"></script>
+<script src="prism-java.min.js"></script>
+</body>
+</html>

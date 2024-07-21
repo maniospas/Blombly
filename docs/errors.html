@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blombly Companion - Errors</title>
+    <link rel="stylesheet" rel="prefetch" href="style.css">
+    <link rel="stylesheet" rel="prefetch" href="prism.css">
+</head>
+<body>
+<div class="sidebar">
+    <h2>Blombly Companion</h2>
+    <a rel="prefetch" href="introduction.html">Introduction</a>
+    <p><strong>Set things up</strong></p>
+    <a rel="prefetch" href="hello-world.html">1.1 Hello world!</a>
+    <a rel="prefetch" href="errors.html" style="color: orange;">1.2 Errors</a>
+    <p><strong>Basic features</strong></p>
+    <a rel="prefetch" href="vars-operations-comments.html">2.1 Vars, operations, comments</a>
+    <a rel="prefetch" href="code-blocks-inline.html">2.2 Code blocks & inline</a>
+    <a rel="prefetch" href="calling-blocks.html">2.3 Calling blocks</a>
+    <a rel="prefetch" href="structs.html">2.4 Structs</a>
+    <p><strong>Advanced features</strong></p>
+    <a rel="prefetch" href="return-from-new.html">3.1 Return from new</a>
+    <a rel="prefetch" href="overloading.html">3.2 Overloading</a>
+</div>
+
+<h1>Errors</h1>
+
+<p>Before moving on, let us take a peek at errors that blombly may create. Broadly, there
+are syntax errors, which are identified by the compiler and make it halt, and logical
+errors that occur at runtime and can be caught with appropriate try clauses (see later).
+To see what a syntax error looks like, let us try to execute the following invalid code:</p>
+
+<pre><code class="language-java">print("Hello"+);  // CREATES AN ERROR</code></pre>
+
+<p>We get the following error, from which we can see that the <code>+</code> operation for
+string concatenation (see later) is added with no right-hand side. Notice that the compiler
+shows the full deconstruction process into an abstract syntax tree, to help understand what
+it's doing.</p>
+
+<pre class="code-output">
+(<span class="error"> ERROR </span>) Empty expression
+  <span class="arrow">→</span>                                             main.bb line 1
+  <span class="arrow">→</span> "Hello" +                                   main.bb line 1
+  <span class="arrow">→</span> ( "Hello" + )                               main.bb line 1
+  <span class="arrow">→</span> print ( "Hello" + )                         main.bb line 1
+  <span class="arrow">→</span> print ( "Hello" + ) ;                       main.bb line 1
+</pre>
+
+<p>Let us see what a logical error looks like too. Try to print a variable that does not
+exist in the following code:</p>
+
+<pre><code class="language-java">print(x);  // CREATES AN ERROR</code></pre>
+
+<p>This creates the following error during runtime. It points to the stack trace of both
+compiled code and the original source. If the source file is missing, you will still get
+to see where the error's lines, for example to make sense of stack traces reported by
+others.</p>
+
+<pre class="code-output">
+(<span class="ok"> OK </span>) Compilation
+(<span class="ok"> OK </span>) Optimization
+(<span class="error"> ERROR </span>) Missing value: x
+  <span class="arrow">→</span> print # x                                   main.bbvm line 1
+</pre>
+
+<p>If the error was more complicated, the virtual machine would show the full stack trace
+leading to the failure. Errors maintain a full stack trace even if segments of the code
+run in threads.</p>
+
+<p>:bulb: There are metadata properties that can obfuscate code and error tracking.</p>
+
+<script src="prism.min.js"></script>
+<script src="prism-java.min.js"></script>
+</body>
+</html>

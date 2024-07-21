@@ -1,0 +1,52 @@
+body {
+    background-color: #2c2c2c;
+    color: #ffffff;
+    font-size: 16px;
+    font-family: Arial;
+    margin-left: 300px; /* Adjust margin to accommodate the sidebar */
+    margin-right: 40px;
+}
+p {
+    color: #ffffffcd;
+}
+.code-output .ok {
+    color: rgb(14, 186, 14);
+}
+.code-output .error {
+    color: red;
+}
+.code-output .arrow {
+    color: rgb(139, 205, 255);
+}
+.code-output {
+    background-color: #161616;
+    padding: 10px;
+    border-radius: 5px;
+    overflow: auto;
+    line-height:1.3;
+}
+pre {
+    font-family:Consolas,Monaco,'Andale Mono','Ubuntu Mono',monospace;
+    font-size: 14px; /* Smaller code size */
+}
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 260px;
+    height: 100%;
+    padding-left: 20px;
+    background-color: #1e1e1e;
+    padding-top: 20px;
+    overflow-y: auto;
+}
+.sidebar a {
+    display: block;
+    color: rgb(139, 205, 255); /* Same color as the arrow */
+    padding: 8px;
+    text-decoration: none;
+    font-size: 16px;
+}
+.sidebar a:hover {
+    background-color: #575757;
+}

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blombly Companion - Code Blocks & Inline</title>
+    <link rel="stylesheet" rel="prefetch" href="style.css">
+    <link rel="stylesheet" rel="prefetch" href="prism.css">
+</head>
+<body>
+<div class="sidebar">
+    <h2>Blombly Companion</h2>
+    <a rel="prefetch" href="introduction.html">Introduction</a>
+    <p><strong>Set things up</strong></p>
+    <a rel="prefetch" href="hello-world.html">1.1 Hello world!</a>
+    <a rel="prefetch" href="errors.html">1.2 Errors</a>
+    <p><strong>Basic features</strong></p>
+    <a rel="prefetch" href="vars-operations-comments.html">2.1 Vars, operations, comments</a>
+    <a rel="prefetch" href="code-blocks-inline.html" style="color: orange;">2.2 Code blocks & inline</a>
+    <a rel="prefetch" href="calling-blocks.html">2.3 Calling blocks</a>
+    <a rel="prefetch" href="structs.html">2.4 Structs</a>
+    <p><strong>Advanced features</strong></p>
+    <a rel="prefetch" href="return-from-new.html">3.1 Return from new</a>
+    <a rel="prefetch" href="overloading.html">3.2 Overloading</a>
+</div>
+
+<h1>Code blocks & inline</h1>
+
+<p>The main logic compartmentalization mechanism in blombly are code blocks; these can be
+treated as methods, used to define various control flows, or called inline. Here we start
+with basic code block definition and inline execution.</p>
+<p>Code blocks are declared by enclosing them in brackets and then assigning them to a
+variable, like below. Notice that there is no trailing semicolon (the compiler will create
+an error for you if you try to add one). The declaration can also be <code>final</code>.</p>
+
+<pre><code class="language-java">test = {
+  print("Hello world");
+}</code></pre>
+
+<p>The declaration itself does not run any code. You can effectively "paste" a block's
+internal code to the current position by performing inline execution like below. The
+expression ends with double colon <code>:</code> instead of a semicolon to perform inlining
+on its result:</p>
+
+<pre><code class="language-java">test:</code></pre>
+
+<p>We will tackle usage of code blocks as methods in the next segment. For now, we focus
+on how to also declare and retrieve block metadata with the dot <code>.</code> notation
+like structs/objects in most languages. Block metadata are set as immutable values, and
+thus you need to prepend the <code>final</code> keyword or an error will occur. Here is an
+example of setting block metadata.</p>
+
+<pre><code class="language-java">final test = { // ensure that this does not change in current scope
+  print("Hello world! I am a running code block.");
+}
+final test.version = 1.0;  // setting metadata is always final
+final test.license = "CC0";
+
+print("Running test version "+str(test.version)
+     +" under "+test.license+" license...");
+
+test: // block code directly runs here</code></pre>
+
+<script src="prism.min.js"></script>
+<script src="prism-java.min.js"></script>
+</body>
+</html>

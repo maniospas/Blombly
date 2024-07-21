@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blombly Companion - Vars, Operations, Comments</title>
+    <link rel="stylesheet" rel="prefetch" href="style.css">
+    <link rel="stylesheet" rel="prefetch" href="prism.css">
+</head>
+<body>
+<div class="sidebar">
+    <h2>Blombly Companion</h2>
+    <a rel="prefetch" href="introduction.html">Introduction</a>
+    <p><strong>Set things up</strong></p>
+    <a rel="prefetch" href="hello-world.html">1.1 Hello world!</a>
+    <a rel="prefetch" href="errors.html">1.2 Errors</a>
+    <p><strong>Basic features</strong></p>
+    <a rel="prefetch" href="vars-operations-comments.html" style="color: orange;">2.1 Vars, operations, comments</a>
+    <a rel="prefetch" href="code-blocks-inline.html">2.2 Code blocks & inline</a>
+    <a rel="prefetch" href="calling-blocks.html">2.3 Calling blocks</a>
+    <a rel="prefetch" href="structs.html">2.4 Structs</a>
+    <p><strong>Advanced features</strong></p>
+    <a rel="prefetch" href="return-from-new.html">3.1 Return from new</a>
+    <a rel="prefetch" href="overloading.html">3.2 Overloading</a>
+</div>
+
+<h1>Vars, operations, comments</h1>
+
+<p>Blombly only has line comments that start <code>//</code> and stop at the end of the
+current line. Set variables by assigning to them, like below. Builtin types are int, float,
+bool, str, struct, code. Here is an example with the first four, where the other two will be
+covered later (structs can also customly implement operations).</p>
+
+<pre><code class="language-java">i = 1;     // int
+f = 1.2;   // float
+b = false; // bool
+s = "this is a string literal";</code></pre>
+
+<p>The numeric types int and float accept the typical arithmetics <code>+-*/</code>, the
+exponent <code>^</code>, modulo between ints <code>%</code>, and inequalities with bool
+outcomes <code>&lt; &gt; &lt;= &gt;=</code>. Comparisons <code>== !=</code> can compare
+any types. Operations for bools are <code>and</code> and <code>or</code>, and str can be
+concatenated with <code>+</code>.</p>
+<p>Convert between types with their names like so:</p>
+
+<pre><code class="language-java">x = int("1");
+y = float("0.5");
+print("Sum is "+str(x+y));</code></pre>
+
+<p>Running this creates the following output in the console:</p>
+
+<pre class="code-output">
+(<span class="ok"> OK </span>) Compilation
+(<span class="ok"> OK </span>) Optimization
+Result is 1.500000
+</pre>
+
+<p>Lastly, variables can be made immutable by prepending the <code>final</code> keyword
+to the assignment. This prevents any overwriting of their value and exposes them outside
+the current scope, for example in dependent code blocks calls later. Here is an example
+where there is an attempt to set a final variable:</p>
+
+<pre><code class="language-java">final x = 0;
+x = x+1;  // CREATES AN ERROR</code></pre>
+
+<p>When running the above, the code safety of the final keyword lets us create an error
+message instead of erroneously overwriting the value:</p>
+
+<pre class="code-output">
+(<span class="ok"> OK </span>) Compilation
+(<span class="ok"> OK </span>) Optimization
+(<span class="error"> ERROR </span>) Cannot overwrite final value: x
+  <span class="arrow">→</span> add x x _bb2                                main.bbvm line 4
+</pre>
+
+<script src="prism.min.js"></script>
+<script src="prism-java.min.js"></script>
+</body>
+</html>

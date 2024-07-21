@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blombly Companion - Structs</title>
+    <link rel="stylesheet" rel="prefetch" href="style.css">
+    <link rel="stylesheet" rel="prefetch" href="prism.css">
+</head>
+<body>
+<div class="sidebar">
+    <h2>Blombly Companion</h2>
+    <a rel="prefetch" href="introduction.html">Introduction</a>
+    <p><strong>Set things up</strong></p>
+    <a rel="prefetch" href="hello-world.html">1.1 Hello world!</a>
+    <a rel="prefetch" href="errors.html">1.2 Errors</a>
+    <p><strong>Basic features</strong></p>
+    <a rel="prefetch" href="vars-operations-comments.html">2.1 Vars, operations, comments</a>
+    <a rel="prefetch" href="code-blocks-inline.html">2.2 Code blocks & inline</a>
+    <a rel="prefetch" href="calling-blocks.html">2.3 Calling blocks</a>
+    <a rel="prefetch" href="structs.html" style="color: orange;">2.4 Structs</a>
+    <p><strong>Advanced features</strong></p>
+    <a rel="prefetch" href="return-from-new.html">3.1 Return from new</a>
+    <a rel="prefetch" href="overloading.html">3.2 Overloading</a>
+</div>
+
+<h1>Structs</h1>
+
+<p>You can create a data structure (aka object) with the <code>new {...}</code> syntax.
+This creates a new scope that can see its parent's values but keeps all new assignments.
+A struct holding new's assignments as fields is returned. Struct fields can be accessed
+via the dot <code>.</code> operator afterwards. Here is an example:</p>
+
+<pre><code class="language-java">zbias = 0;
+y = 2;
+point = new {
+  x = 1;
+  y = y; // get y from the parent scope because it is not set locally, then set it locally
+  z = x+y+zbias; // x and y from local scope, zbias from the parent scope 
+}
+point.x = 4;
+print(point.x);
+print(point.y);
+print(point.z);
+print(point.zbias); // CREATES AN ERROR</code></pre>
+
+<p>Running the above code yields the following output. An error is created because
+<code>new</code> only retains the assignments inside; the resulting struct is detached
+from the creator scope and cannot "see" the variable <code>zbias</code>.</p>
+
+<pre class="code-output">
+(<span class="ok"> OK </span>) Compilation
+(<span class="ok"> OK </span>) Optimization
+4 
+2
+3
+(<span class="error"> ERROR </span>) Missing value: zbias
+  <span class="arrow">→</span> get _bb12 point zbias                       main.bbvm line 20  
+</pre>
+
+<p>Blocks declared within <code>new</code> have access to an immutable (<code>final</code>)
+variable called <code>this</code> that holds the struct. This becomes accessible only after
+the struct is created. For example, here is a definition of a code block that is to be used
+as a method:</p>
+
+<pre><code class="language-java">point = new {
+  sum2d = {return this.x+this.y;}
+  sum3d = {return this.sum2d()+this.z;}
+  x = 1;
+  y = 2;
+  z = 3;
+}
+print(point.sum3d());</code></pre>
+
+<p>:bulb: Normal variable visibility rules apply; to let a struct's code blocks call each
+other, either make them <code>final</code> or access them from <code>this</code> as
+above.</p>
+<p>In blombly, inlining can be used to treat code blocks as part of constructors, which is
+a generalization of multi-inheritance. For example, you may inline the declaration of
+member functions like so:</p>
+
+<pre><code class="language-java">Point = {
+  norm = {return (this.x^2+this.y^2)^0.5} 
+}
+XYSetter = {
+  setx = {default{value=0} this.x = value;}
+  sety = {default{value=0} this.y = value;}
+}
+point = new {
+  Point:
+  XYSetter:
+  x = 0;
+  y = 0;
+}
+point.setx();
+point.sety(value=2);
+
+print(point.x);
+print(point.y);</code></pre>
+
+<p>:warning: To prevent code smells, the compiler does not allow you to write
+<code>new B</code> where <code>B</code> is a code block. Instead, inline it per
+<code>new {B:}</code>.</p>
+
+<script src="prism.min.js"></script>
+<script src="prism-java.min.js"></script>
+</body>
+</html>
