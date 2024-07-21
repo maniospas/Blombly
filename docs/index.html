@@ -3,336 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blombly Guide</title>
-    <link rel="prefetch" href="themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <title>Blombly</title>
     <style>
         body {
             background-color: #2c2c2c;
             color: #ffffff;
             font-size: 16px;
             font-family: Arial;
-            margin-left: 300px; /* Adjust margin to accommodate the sidebar */
+            margin-left: 40px;
             margin-right: 40px;
         }
-        .code-output .ok {
-            color: rgb(14, 186, 14);
+        p {
+            color: #ffffffcd;
         }
-        .code-output .error {
-            color: red;
+        h1 {
+            color: #ffffff;
+            font-size: 4.5em; /* Larger font size for the title */
+            margin-right: 100px;
+            margin-bottom:  40px;
         }
-        .code-output .arrow {
-            color: rgb(139, 205, 255);
+        .features-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 3px;
+            margin-top: 100px;
         }
-        .code-output {
-            background-color: #161616;
+        .feature {
+            flex: 1 1 calc(20%);
             padding: 10px;
-            border-radius: 5px;
-            overflow: auto;
+            background: #3c3c3c;
+            border-radius: 10px;
+            margin: 0px;
+            box-sizing: border-box;
+            text-align: center;
         }
-        pre {
-            font-size: 14px; /* Smaller code size */
+        .feature p {
+            font-size: 1.2em;
+            margin: 0;
         }
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 260px;
-            height: 100%;
-            padding-left: 20px;
-            background-color: #1e1e1e;
-            padding-top: 20px;
-            overflow-y: auto;
+        .material {
+            margin-top: 20px;
         }
-        .sidebar a {
-            display: block;
-            color: rgb(139, 205, 255); /* Same color as the arrow */
-            padding: 8px;
+        .material a {
+            color: #007bff;
             text-decoration: none;
-            font-size: 16px;
         }
-        .sidebar a:hover {
-            background-color: #575757;
+        .material a:hover {
+            text-decoration: underline;
+        }
+        .credits {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #ffffffcd;
+        }
+        .credits a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .credits a:hover {
+            text-decoration: underline;
+        }
+        .button-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .button {
+            background-color: rgb(234, 152, 0);
+            color: white;
+            padding: 15px 25px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 1.5em;
+            border-radius: 5px;
+            margin-right: 20px;
+        }
+        .button:hover {
+            background-color: rgb(205, 133, 0);
         }
     </style>
 </head>
 <body>
-
-<div class="sidebar">
-    <h2>Blombly Companion</h2>
-    <a rel="prefetch" href="#0-introduction"">Introduction</a>
-    <p><strong>Set things up</strong></p>
-    <a rel="prefetch" href="#11-hello-world">1.1 Hello world!</a>
-    <a rel="prefetch" href="#12-errors">1.2 Errors</a>
-    <p><strong>Basic features</strong></p>
-    <a rel="prefetch" href="#21-vars-operations-comments">2.1 Vars, operations, comments</a>
-    <a rel="prefetch" href="#22-code-blocks--inline">2.2 Code blocks & inline</a>
-    <a rel="prefetch" href="#23-calling-blocks">2.3 Calling blocks</a>
-    <a rel="prefetch" href="#24-structs">2.4 Structs</a>
-    <p><strong>Advanced features</strong></p>
-    <a rel="prefetch" href="#31-return-from-new">3.1 Return from new</a>
-    <a rel="prefetch" href="#32-overloading">3.2 Overloading</a>
-</div>
-
-<h1>Blombly Companion</h1>
-
-<h2 id="0-introduction">Introduction</h2>
-
-<h2 id="11-hello-world">1.1 Hello world!</h2>
-
-<p>Let us create a first program to show a compilation and interpretation process.
-Create an empty text file <code>main.bb</code> with the following contents:</p>
-
-<pre><code class="language-java">print("Hello world!");</code></pre>
-
-<p>Careful to not forget the trailing semicolon. In general, use a Java syntax highlighter
-(not a syntax checker), as it shares many keywords. To run this file, download blombly's
-executable from the <a rel="prefetch" href="./downloads.md">downloads</a> and add it to the filepath.
-Run <code>blombly main.bb</code> to compile and run it. This will create the following
-output in the console:</p>
-
-<pre class="code-output">
-(<span class="ok"> OK </span>) Compilation
-(<span class="ok"> OK </span>) Optimization
-Hello world!
-</pre>
-
-<p>Compilation creates an intermediate representation to the language's virtual machine in
-the file <code>main.bbvm</code>. It also applies some optimizations for faster execution.
-You can directly run <code>.bbvm</code> files to avoid compiling and optimizing again.</p>
-
-<p>:bulb: The script <code>bbreader.py</code> converts compiled code to the main
-language.</p>
-
-<h2 id="12-errors">1.2 Errors</h2>
-
-<p>Before moving on, let us take a peek at errors that blombly may create. Broadly, there
-are syntax errors, which are identified by the compiler and make it halt, and logical
-errors that occur at runtime and can be caught with appropriate try clauses (see later).
-To see what a syntax error looks like, let us try to execute the following invalid code:</p>
-
-<pre><code class="language-java">print("Hello"+);  // CREATES AN ERROR</code></pre>
-
-<p>We get the following error, from which we can see that the <code>+</code> operation for
-string concatenation (see later) is added with no right-hand side. Notice that the compiler
-shows the full deconstruction process into an abstract syntax tree, to help understand what
-it's doing.</p>
-
-<pre class="code-output">
-(<span class="error"> ERROR </span>) Empty expression
-  <span class="arrow">→</span>                                             main.bb line 1
-  <span class="arrow">→</span> "Hello" +                                   main.bb line 1
-  <span class="arrow">→</span> ( "Hello" + )                               main.bb line 1
-  <span class="arrow">→</span> print ( "Hello" + )                         main.bb line 1
-  <span class="arrow">→</span> print ( "Hello" + ) ;                       main.bb line 1
-</pre>
-
-<p>Let us see what a logical error looks like too. Try to print a variable that does not
-exist in the following code:</p>
-
-<pre><code class="language-java">print(x);  // CREATES AN ERROR</code></pre>
-
-<p>This creates the following error during runtime. It points to the stack trace of both
-compiled code and the original source. If the source file is missing, you will still get
-to see where the error's lines, for example to make sense of stack traces reported by
-others.</p>
-
-<pre class="code-output">
-(<span class="ok"> OK </span>) Compilation
-(<span class="ok"> OK </span>) Optimization
-(<span class="error"> ERROR </span>) Missing value: x
-  <span class="arrow">→</span> print # x                                   main.bbvm line 1
-</pre>
-
-<p>If the error was more complicated, the virtual machine would show the full stack trace
-leading to the failure. Errors maintain a full stack trace even if segments of the code
-run in threads.</p>
-
-<p>:bulb: There are metadata properties that can obfuscate code and error tracking.</p>
-
-<h2 id="21-vars-operations-comments">2.1 Vars, operations, comments</h2>
-
-<p>Blombly only has line comments that start <code>//</code> and stop at the end of the
-current line. Set variables by assigning to them, like below. Builtin types are int, float,
-bool, str, struct, code. Here is an example with the first four, where the other two will be
-covered later (structs can also customly implement operations).</p>
-
-<pre><code class="language-java">i = 1;     // int
-f = 1.2;   // float
-b = false; // bool
-s = "this is a string literal";</code></pre>
-
-<p>The numeric types int and float accept the typical arithmetics <code>+-*/</code>, the
-exponent <code>^</code>, modulo between ints <code>%</code>, and inequalities with bool
-outcomes <code>&lt; &gt; &lt;= &gt;=</code>. Comparisons <code>== !=</code> can compare
-any types. Operations for bools are <code>and</code> and <code>or</code>, and str can be
-concatenated with <code>+</code>.</p>
-<p>Convert between types with their names like so:</p>
-
-<pre><code class="language-java">x = int("1");
-y = float("0.5");
-print("Sum is "+str(x+y));</code></pre>
-
-<p>Running this creates the following output in the console:</p>
-
-<pre class="code-output">
-(<span class="ok"> OK </span>) Compilation
-(<span class="ok"> OK </span>) Optimization
-Result is 1.500000
-</pre>
-
-<p>Lastly, variables can be made immutable by prepending the <code>final</code> keyword
-to the assignment. This prevents any overwriting of their value and exposes them outside
-the current scope, for example in dependent code blocks calls later. Here is an example
-where there is an attempt to set a final variable:</p>
-
-<pre><code class="language-java">final x = 0;
-x = x+1;  // CREATES AN ERROR</code></pre>
-
-<p>When running the above, the code safety of the final keyword lets us create an error
-message instead of erroneously overwriting the value:</p>
-
-<pre class="code-output">
-(<span class="ok"> OK </span>) Compilation
-(<span class="ok"> OK </span>) Optimization
-(<span class="error"> ERROR </span>) Cannot overwrite final value: x
-  <span class="arrow">→</span> add x x _bb2                                main.bbvm line 4
-</pre>
-
-<h2 id="22-code-blocks--inline">2.2 Code blocks & inline</h2>
-
-<p>The main logic compartmentalization mechanism in blombly are code blocks; these can be
-treated as methods, used to define various control flows, or called inline. Here we start
-with basic code block definition and inline execution.</p>
-<p>Code blocks are declared by enclosing them in brackets and then assigning them to a
-variable, like below. Notice that there is no trailing semicolon (the compiler will create
-an error for you if you try to add one). The declaration can also be <code>final</code>.</p>
-
-<pre><code class="language-java">test = {
-  print("Hello world");
-}</code></pre>
-
-<p>The declaration itself does not run any code. You can effectively "paste" a block's
-internal code to the current position by performing inline execution like below. The
-expression ends with double colon <code>:</code> instead of a semicolon to perform inlining
-on its result:</p>
-
-<pre><code class="language-java">test:</code></pre>
-
-<p>We will tackle usage of code blocks as methods in the next segment. For now, we focus
-on how to also declare and retrieve block metadata with the dot <code>.</code> notation
-like structs/objects in most languages. Block metadata are set as immutable values, and
-thus you need to prepend the <code>final</code> keyword or an error will occur. Here is an
-example of setting block metadata.</p>
-
-<pre><code class="language-java">final test = { // ensure that this does not change in current scope
-  print("Hello world! I am a running code block.");
-}
-final test.version = 1.0;  // setting metadata is always final
-final test.license = "CC0";
-
-print("Running test version "+str(test.version)
-     +" under "+test.license+" license...");
-
-test: // block code directly runs here</code></pre>
-
-<h2 id="23-calling-blocks">2.3 Calling blocks</h2>
-
-<p>[To be added]</p>
-
-<h2 id="24-structs">2.4 Structs</h2>
-
-<p>You can create a data structure (aka object) with the <code>new {...}</code> syntax.
-This creates a new scope that can see its parent's values but keeps all new assignments.
-A struct holding new's assignments as fields is returned. Struct fields can be accessed
-via the dot <code>.</code> operator afterwards. Here is an example:</p>
-
-<pre><code class="language-java">zbias = 0;
-y = 2;
-point = new {
-  x = 1;
-  y = y; // get y from the parent scope because it is not set locally, then set it locally
-  z = x+y+zbias; // x and y from local scope, zbias from the parent scope 
-}
-point.x = 4;
-print(point.x);
-print(point.y);
-print(point.z);
-print(point.zbias); // CREATES AN ERROR</code></pre>
-
-<p>Running the above code yields the following output. An error is created because
-<code>new</code> only retains the assignments inside; the resulting struct is detached
-from the creator scope and cannot "see" the variable <code>zbias</code>.</p>
-
-<pre class="code-output">
-(<span class="ok"> OK </span>) Compilation
-(<span class="ok"> OK </span>) Optimization
-4 
-2
-3
-(<span class="error"> ERROR </span>) Missing value: zbias
-  <span class="arrow">→</span> get _bb12 point zbias                       main.bbvm line 20  
-</pre>
-
-<p>Blocks declared within <code>new</code> have access to an immutable (<code>final</code>)
-variable called <code>this</code> that holds the struct. This becomes accessible only after
-the struct is created. For example, here is a definition of a code block that is to be used
-as a method:</p>
-
-<pre><code class="language-java">point = new {
-  sum2d = {return this.x+this.y;}
-  sum3d = {return this.sum2d()+this.z;}
-  x = 1;
-  y = 2;
-  z = 3;
-}
-print(point.sum3d());</code></pre>
-
-<p>:bulb: Normal variable visibility rules apply; to let a struct's code blocks call each
-other, either make them <code>final</code> or access them from <code>this</code> as
-above.</p>
-<p>In blombly, inlining can be used to treat code blocks as part of constructors, which is
-a generalization of multi-inheritance. For example, you may inline the declaration of
-member functions like so:</p>
-
-<pre><code class="language-java">Point = {
-  norm = {return (this.x^2+this.y^2)^0.5} 
-}
-XYSetter = {
-  setx = {default{value=0} this.x = value;}
-  sety = {default{value=0} this.y = value;}
-}
-point = new {
-  Point:
-  XYSetter:
-  x = 0;
-  y = 0;
-}
-point.setx();
-point.sety(value=2);
-
-print(point.x);
-print(point.y);</code></pre>
-
-<p>:warning: To prevent code smells, the compiler does not allow you to write
-<code>new B</code> where <code>B</code> is a code block. Instead, inline it per
-<code>new {B:}</code>.</p>
-
-<h2 id="31-return-from-new">3.1 Return from new</h2>
-
-<p>Return statements from within <code>new {...}</code> stop its execution and change the
-obtained value. This can be used to replace block calls with a forced single-threaded
-recursion that does not modify the parent context. For example:</p>
-
-<pre><code class="language-java">final fib = {  // make final so that it can see its declaration
-    if(n&lt;2){return 1;} 
-    return new{n = n-1;fib:} + new{n = n-2;fib:};
-}
-
-tic = time();
-print("Result", fib(n=21));
-print("Time", time()-tic);</code></pre>
-
-<script src="prism.min.js"></script>
-<script src="prism-java.min.js"></script>
+    <h1>Blombly</h1>
+    <div>
+        <a href="introduction.html" class="button">Get started</a>
+        <a href="docs/downloads.md" style="color: rgb(139, 205, 255); text-decoration: none; font-size: 1.2em; margin-top:20px;">Downloads</a>
+    </div>
+    <div class="features-container">
+        <div class="feature">
+            <p>💻 <br>Fast onboarding</p>
+        </div>
+        <div class="feature">
+            <p>🦆 <br>Duck typing</p>
+        </div>
+        <div class="feature">
+            <p>🚀 <br>Parallel</p>
+        </div>
+        <div class="feature">
+            <p>🕶️ <br>Memory safety</p>
+        </div>
+    </div>
 </body>
 </html>
