@@ -155,6 +155,7 @@ int optimize(const std::string& source, const std::string& destination) {
         && command->args[0]!="while" 
         && command->args[0]!="print"
         && command->args[0]!="set"
+        && command->args[0]!="setfinal"
         && command->args[0]!="final"
         && command->args[0]!="push"
         && command->args[0]!="put") {
@@ -166,7 +167,7 @@ int optimize(const std::string& source, const std::string& destination) {
     // remove put and push assignments
     for(int i=0;i<program.size();i++) {
         std::shared_ptr<OptimizerCommand> command = program[i];
-        if(command->args[0]=="put" || command->args[0]=="push" || command->args[0]=="set"|| command->args[0]=="final") 
+        if(command->args[0]=="put" || command->args[0]=="push" || command->args[0]=="setfinal" || command->args[0]=="set" || command->args[0]=="final") 
             command->args[1] = "#";
     }
 

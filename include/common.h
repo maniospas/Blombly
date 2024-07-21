@@ -39,7 +39,7 @@ enum OperationType {NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, 
                     PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOINT, TOFLOAT, TOSTR, TOBOOL, TOCOPY, TOFILE,
                     SUM, MAX, MIN,
                     BUILTIN, BEGIN, BEGINFINAL, BEGINCACHED, END, RETURN, FINAL, IS, 
-                    CALL, WHILE, IF, NEW, PRINT, INLINE, GET, SET, DEFAULT,
+                    CALL, WHILE, IF, NEW, PRINT, INLINE, GET, SET, SETFINAL, DEFAULT,
                     TIME, TOITER, TRY};
 static const std::string OperationTypeNames[] = {
     "not", "and", "or", "eq", "neq", "le", "ge", "lt", "gt", "add", "sub", "mul", "mmul", 
@@ -47,7 +47,7 @@ static const std::string OperationTypeNames[] = {
     "Vector", "List", "int", "float", "str", "bool", "copy", "File",
     "sum", "max", "min",
     "BUILTIN", "BEGIN", "BEGINFINAL", "BEGINCACHED", "END", "return", "final", "IS", 
-    "call", "while", "if", "new", "print", "inline", "get", "set", "default",
+    "call", "while", "if", "new", "print", "inline", "get", "set", "setfinal", "default",
     "time", "iter", "try"
 };
 

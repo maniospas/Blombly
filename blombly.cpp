@@ -292,11 +292,17 @@ Data* executeBlock(std::vector<Command*>* program,
             break;
             case GET:{
                 value = MEMGET(memory, 1);
-                bbassert(value->getType()==STRUCT, "Can only get fields from a struct");
+                bbassert(value->getType()==STRUCT || value->getType()==CODE, "Can only get fields from a struct or metadata from code");
                 bbassert(!command->knownLocal[2], "Cannot get a field that is a local variable (starting with _bb...)");
                 FILL_REPLACEMENT;
-                Struct* obj = (Struct*)value;
-                value = obj->getMemory()->get(command->args[2])->shallowCopyIfNeeded();
+                if(value->getType()==CODE) {
+                    Code* obj = (Code*)value;
+                    value = obj->getMetadata(command->args[2])->shallowCopyIfNeeded();
+                }
+                else {
+                    Struct* obj = (Struct*)value;
+                    value = obj->getMemory()->get(command->args[2])->shallowCopyIfNeeded();
+                }
             }
             break;
             case IS:
@@ -305,7 +311,7 @@ Data* executeBlock(std::vector<Command*>* program,
             break;
             case SET:{
                 value = MEMGET(memory, 1);
-                bbassert(value->getType()==STRUCT, "Can only set fields in a struct" );
+                bbassert(value->getType()==STRUCT, "Can only set fields (with the non-final setter) in a struct" );
                 Struct* obj = (Struct*)value;
                 Data* setValue = MEMGET(memory, 3);
                 bbassert(!command->knownLocal[2], "Cannot set a field that is a local variable (starting with _bb...)");
@@ -313,6 +319,16 @@ Data* executeBlock(std::vector<Command*>* program,
                     bberror("Cannot set a code block to a struct field from a scope that is not internal to the code scope's definition");
                 }
                 obj->getMemory()->set(command->args[2], setValue->shallowCopyIfNeeded()); 
+                continue;
+            }
+            break;
+            case SETFINAL:{
+                value = MEMGET(memory, 1);
+                bbassert(value->getType()==CODE, "Can only set set metadata (with the final setter) in a code block" );
+                Code* obj = (Code*)value;
+                Data* setValue = MEMGET(memory, 3);
+                bbassert(!command->knownLocal[2], "Cannot set a metadata that is a local variable (starting with _bb...)");
+                obj->setMetadata(command->args[2], setValue->shallowCopyIfNeeded());
                 continue;
             }
             break;

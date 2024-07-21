@@ -5,10 +5,38 @@
 
 // Constructor to initialize Code object with program segment details
 Code::Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory)
-    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory) {
+    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(nullptr) {
     }
     
 Code::~Code() {
+    if(metadata){
+        for(const auto& element : *metadata)
+            if(element.second && element.second->isDestroyable) {
+                //std::cout << "deleting\n";
+                //std::cout << "#"<<element.second << "\n";
+                //std::cout << element.second->toString() << "\n";
+                element.second->isDestroyable = false;
+                delete element.second;
+            }
+        delete metadata;
+    }
+}
+
+void Code::setMetadata(int id, Data* data) {
+    if(metadata==nullptr)
+        metadata = new tsl::hopscotch_map<int, Data*>();
+    if((*metadata)[id]!=nullptr)
+        bberror(toString()+" already has the metadata entry: "+variableManager.getSymbol(id));
+    (*metadata)[id] = data;
+}
+
+Data* Code::getMetadata(int id) {
+    if(metadata==nullptr)
+        bberror(toString()+" has no declared metadata");
+    Data* ret = (*metadata)[id];
+    if(ret==nullptr)
+        bberror(toString()+" has no metadata entry: "+variableManager.getSymbol(id));
+    return ret;
 }
 
 // Return the type ID

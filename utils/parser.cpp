@@ -100,9 +100,11 @@ public:
         // check if final or empty expression
         bool is_final = tokens[start].name=="final";
         bbassert(start<=end, "Empty expression");
+        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here\n    because this is not the top-level expression of a code block.");
         if(is_final)
             start += 1;
         bbassert(start<=end, "Empty final expression");
+        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here\n    because this is not the top-level expression of a code block.");
 
         // expresion parsing that is basically just a variable name
         std::string first_name = tokens[start].name;
@@ -144,6 +146,14 @@ public:
         int assignment = find_end(start, end, "=");
         if(assignment!=MISSING) {
             bbassert(assignment!=start, "Missing variable to assign to");
+            int start_assignment = find_last_end(start, assignment, ".");
+            if(start_assignment!=-1) {
+                bbassert(start_assignment>=start+1, "Assignment expression can not start with `.`.");
+                std::string obj = parse_expression(start, start_assignment-1);
+                bbassert(obj!="#", "Empty expression before last get membership");
+                ret += (is_final?"setfinal # ":"set # ")+obj+" "+parse_expression(start_assignment+1, assignment-1)+" "+parse_expression(assignment+1, end)+"\n";
+                return "#";
+            }   
             bbassert(assignment==start+1, "Can only assign to one variable");
             // TODO: do not allow assignment to keywords
             ret += PARSER_IS+" "+first_name+" "+parse_expression(assignment+1,end)+"\n";
@@ -152,6 +162,8 @@ public:
             return "#";
         }
         bbassert(!is_final, "Only assignments to variables can be final");
+        bbassert(tokens[start].name!="#", "Only assignments can start with `#`\n    because this sets code block properties after its declaration.");
+
 
         if(first_name=="print" 
             || first_name=="return" 
@@ -337,6 +349,8 @@ public:
 void sanitize(std::vector<Token>& tokens) {
     std::vector<Token> updatedTokens;
     for (size_t i = 0; i < tokens.size(); ++i) {
+        if(tokens[i].name.size()>=3 && tokens[i].name.substr(0, 3)=="_bb")
+            bberror("Variable name "+tokens[i].name+" cannot start with _bb, as this is reserved for VM local temporaries.");
         if(tokens[i].builtintype==3 && i<tokens.size()-2 && tokens[i+1].name=="." && tokens[i+2].builtintype==3) {
             tokens[i].name += "."+tokens[i+2].name;
             tokens[i].builtintype = 4;

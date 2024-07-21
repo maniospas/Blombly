@@ -92,7 +92,7 @@ std::vector<Token> tokenize(const std::string& text) {
         if(c==' ' || c=='\t' || c=='\n' 
             || c=='(' || c==')' || c=='[' || c==']' || c=='{' || c=='}'|| c=='=' || c==':' || c==';'|| c==',' || c=='.'
             || c=='*' || c=='+' || c=='^' || c=='-' || c=='/' || c=='%' || c=='&' || c=='|' || c=='!' || c=='<' || c=='>'
-            || c=='/') {
+            || c=='/' || c=='#') {
             if(word.size())
                 ret.push_back(Token(word, line));
             word = "";
