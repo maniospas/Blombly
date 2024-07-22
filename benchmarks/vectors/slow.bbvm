@@ -1,33 +1,19 @@
-BEGINFINAL _bb16
-IS _bb18 temp
-put # a i _bb18
-END
-BEGINFINAL _bb9
-at _bb10 b i
-at _bb12 c i
-add temp _bb10 _bb12
-BEGINFINAL _bb14
-BUILTIN _bb15 I0
-gt _bbresult1 temp _bb15
-END
-BEGINFINAL _bb8
-lt _bbresult0 i n
-END
 BUILTIN n I1000000
-Vector _bb0 n
-BUILTIN _bb1 F0.1
-add a _bb0 _bb1
-Vector _bb4 n
-BUILTIN _bb5 F0.1
-add b _bb4 _bb5
-Vector c n
 time tic
 BUILTIN i I0
-if # _bb14 _bb16
-BUILTIN _bb19 I1
-add i i _bb19
+lt _bb3 i n
+BEGINFINAL _bb4
+BUILTIN _bb6 I1
+add i i _bb6
+BUILTIN j I1
+BUILTIN _bb9 I0
+gt _bb8 j _bb9
+BEGINFINAL _bb10
+BUILTIN j I0
 END
-while # _bb8 _bb9
-time _bb21
-sub _bb20 _bb21 tic
-print # _bb20
+if # _bb8 _bb10
+lt _bb3 i n
+END
+while # _bb3 _bb4
+time _bb12
+print # _bb12

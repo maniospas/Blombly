@@ -168,12 +168,18 @@ public:
             int start_if_body = find_end(start+1, end, "{");
             bbassert(start_if_body!=MISSING, first_name+" statement has no starting bracket");
             bbassert(start_if_body!=start+1, first_name+" statement has no condition");
+            int condition_start_in_ret = ret.size();
             std::string condition = parse_expression(start+1, start_if_body-1);
+            std::string condition_text;
+            if(first_name=="while" && ret.substr(condition_start_in_ret, 5)!="BEGIN")
+                condition_text = ret.substr(condition_start_in_ret);
             bbassert(condition!="#", " condition does not evaluate to anything");
             int body_end = find_end(start_if_body+1, end, "}");
             std::string bodyvar = create_temp();
             ret += "BEGIN "+bodyvar+"\n";
             parse(start_if_body+1, body_end-1);
+            if(first_name=="while")
+                ret += condition_text;
             ret += "END\n";
             if(first_name=="if" && body_end<=end-2 && tokens[body_end+1].name=="else") {
                 bbassert(tokens[body_end+2].name=="{", "else statement is not immediately followed by a bracket");
@@ -191,6 +197,15 @@ public:
             ret += first_name+" # "+condition+" "+bodyvar+"\n";
             return "#";
         }
+        
+        
+        if(first_name=="time" || first_name=="random") {
+            bbassert(tokens[start+1].name=="(", "Missing ( after "+first_name);
+            bbassert(tokens[start+2].name==")", first_name+" accepts no arguments");
+            std::string var = create_temp();
+            ret += first_name+" "+var+"\n";
+            return var;
+        }
 
         if(first_name=="print" 
             || first_name=="return" 
@@ -204,7 +219,7 @@ public:
             || first_name=="pop"
             || first_name=="File"
             //|| first_name=="List"
-            || first_name=="Vec") {
+            || first_name=="Vector") {
             //if(first_name!="return")
             //    bbassert(tokens[start+1].name=="(", "Missing ( just after "+first_name);
             std::string parsed = parse_expression(start+1, end);
@@ -395,11 +410,15 @@ void sanitize(std::vector<Token>& tokens) {
             continue;
         }
         updatedTokens.push_back(tokens[i]);
-        if (tokens[i].name == "default" || tokens[i].name == "new" || tokens[i].name == "try") {
-            if (i < tokens.size()-1 && tokens[i+1].name!="{")
-                bberror("A { symbol should always follow `"+tokens[i].name+"` but `"+tokens[i+1].name+"` found.\n    To aply one a code block variable (which is a code smell), inline like this `"+tokens[i].name+" {block:}`.\n    Apply the fix at line "+std::to_string(tokens[i].line)); 
-        }
-        else if (tokens[i].name == "}") {
+
+        if((tokens[i].name=="while" || tokens[i].name=="if")  
+            && i<tokens.size()-1 && tokens[i+1].name!="(") 
+            bberror("A ( should always follow `"+tokens[i].name+"` but "+tokens[i+1].name+" found at line "+std::to_string(tokens[i].line));
+        if ((tokens[i].name == "default" || tokens[i].name == "new" || tokens[i].name == "try")
+             && i < tokens.size()-1 && tokens[i+1].name!="{")
+            bberror("A { symbol should always follow `"+tokens[i].name+"` but `"+tokens[i+1].name+"` found.\n    To aply one a code block variable (which is a code smell), inline like this `"+tokens[i].name+" {block:}`.\n    Apply the fix at line "+std::to_string(tokens[i].line)); 
+        
+        if (tokens[i].name == "}") {
             if (i >= tokens.size()-1) 
                 updatedTokens.push_back(Token(";", tokens[i].line, false));
             else if(tokens[i + 1].name == ";")

@@ -1,9 +1,19 @@
+BUILTIN n I1000000
+time tic
 BUILTIN i I0
-BUILTIN _bb2 I10
-lt _bb1 i _bb2
-BEGINFINAL _bb3
-BUILTIN _bb5 I1
-add i i _bb5
-print # i
+lt _bb3 i n
+BEGINFINAL _bb4
+BUILTIN _bb6 I1
+add i i _bb6
+BUILTIN j I1
+BUILTIN _bb9 I0
+gt _bb8 j _bb9
+BEGINFINAL _bb10
+BUILTIN j I0
 END
-while # _bb1 _bb3
+if # _bb8 _bb10
+lt _bb3 i n
+END
+while # _bb3 _bb4
+time _bb12
+print # _bb12

@@ -333,20 +333,39 @@ Data* executeBlock(std::vector<Command*>* program,
             }
             break;
             case WHILE: {
+                // get params
                 Data* condition = MEMGET(memory, 1);
                 Data* accept = MEMGET(memory, 2);
-                bbassert(condition->getType()==CODE, "Can only inline a non-called code block for while condition");
-                bbassert(accept->getType()==CODE, "Can only inline a non-called code block for while loop");
 
-                // hash the outcome of getting code properties
-                Code* codeCondition = (Code*)condition;
+                // get body
+                bbassert(accept->getType()==CODE, "While body can only be a code block");
                 Code* codeAccept = (Code*)accept;
-                int conditionStart = codeCondition->getStart();
-                int conditionEnd = codeCondition->getEnd();
-                std::vector<Command*>* conditionProgram = (std::vector<Command*>*)codeCondition->getProgram();
                 int acceptStart = codeAccept->getStart();
                 int acceptEnd = codeAccept->getEnd();
                 std::vector<Command*>* acceptProgram = (std::vector<Command*>*)codeAccept->getProgram();
+                
+                // if condition is boolean do a different kind of loop where it is re-evaluated continuously
+                if(condition==nullptr || condition->getType()==BOOL) {
+                    // implement the loop
+                    while(true) {
+                        Data* check = condition;
+                        if(check==nullptr)
+                            break;
+                        bbassert(check->getType()==BOOL, "While condition variable that started off as bool was changed to something else midway");
+                        if(!((Boolean*)check)->getValue())
+                            break;
+                        value = executeBlock(acceptProgram, acceptStart, acceptEnd, memory_, returnSignal, args);
+                        CHECK_FOR_RETURN(value);
+                        condition = MEMGET(memory, 1);
+                    }
+                    continue;
+                }
+                bbassert(condition->getType()==CODE, "While condition can only be a bool or a code block that evaluates to bool");
+                // hash the outcome of getting code properties
+                Code* codeCondition = (Code*)condition;
+                int conditionStart = codeCondition->getStart();
+                int conditionEnd = codeCondition->getEnd();
+                std::vector<Command*>* conditionProgram = (std::vector<Command*>*)codeCondition->getProgram();
 
                 // implement the loop
                 while(true) {
