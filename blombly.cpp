@@ -363,14 +363,19 @@ Data* executeBlock(std::vector<Command*>* program,
             case IF:{
                 Data* condition = MEMGET(memory, 1);
                 Data* accept = MEMGET(memory, 2);
-                Data*reject = command->nargs>3?MEMGET(memory, 3):nullptr;
-                bbassert(condition->getType()==CODE, "Can only inline a non-called code block for if condition");
+                Data* reject = command->nargs>3?MEMGET(memory, 3):nullptr;
                 bbverify(accept, accept->getType()==CODE, "Can only inline a non-called code block for if acceptance");
                 bbverify(reject, reject->getType()==CODE, "Can only inline a non-called code block for if rejection");
-                Code* codeCondition = (Code*)condition;
+                Data* check;
+                if(condition->getType()==BOOL) 
+                    check = condition;
+                else {
+                    bbassert(condition->getType()==CODE, "Can only have a bool or a code block for if condition");
+                    Code* codeCondition = (Code*)condition;
+                    check = executeBlock((std::vector<Command*>*)codeCondition->getProgram(), codeCondition->getStart(), codeCondition->getEnd(), memory_, returnSignal, args);
+                }
                 Code* codeAccept = (Code*)accept;
                 Code* codeReject = (Code*)reject;
-                Data* check = executeBlock((std::vector<Command*>*)codeCondition->getProgram(), codeCondition->getStart(), codeCondition->getEnd(), memory_, returnSignal, args);
                 CHECK_FOR_RETURN(check);
                 if(check && (check->getType()!=BOOL || ((Boolean*)check)->getValue())) {
                     if(codeAccept) {

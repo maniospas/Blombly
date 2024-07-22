@@ -32,6 +32,7 @@ are syntax errors, which are identified by the compiler and make it halt, and lo
 errors that occur at runtime and can be caught with appropriate try clauses (see later).
 To see what a syntax error looks like, let us try to execute the following invalid code:</p>
 
+<i>main.bb</i>
 <pre><code class="language-java">print("Hello"+);  // CREATES AN ERROR</code></pre>
 
 <p>We get the following error, from which we can see that the <code>+</code> operation for
@@ -39,7 +40,7 @@ string concatenation (see later) is added with no right-hand side. Notice that t
 shows the full deconstruction process into an abstract syntax tree, to help understand what
 it's doing.</p>
 
-<pre class="code-output">
+<pre class="code-output">> blombly main.bb
 (<span class="error"> ERROR </span>) Empty expression
   <span class="arrow">→</span>                                             main.bb line 1
   <span class="arrow">→</span> "Hello" +                                   main.bb line 1
@@ -51,6 +52,7 @@ it's doing.</p>
 <p>Let us see what a logical error looks like too. Try to print a variable that does not
 exist in the following code:</p>
 
+<i>main.bb</i>
 <pre><code class="language-java">print(x);  // CREATES AN ERROR</code></pre>
 
 <p>This creates the following error during runtime. It points to the stack trace of both
@@ -58,7 +60,7 @@ compiled code and the original source. If the source file is missing, you will s
 to see where the error's lines, for example to make sense of stack traces reported by
 others.</p>
 
-<pre class="code-output">
+<pre class="code-output">> blombly main.bb
 (<span class="ok"> OK </span>) Compilation
 (<span class="ok"> OK </span>) Optimization
 (<span class="error"> ERROR </span>) Missing value: x

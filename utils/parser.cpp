@@ -164,6 +164,33 @@ public:
         bbassert(!is_final, "Only assignments to variables can be final");
         bbassert(tokens[start].name!="#", "Only assignments can start with `#`\n    because this sets code block properties after its declaration.");
 
+        if(first_name=="if" || first_name=="while") {
+            int start_if_body = find_end(start+1, end, "{");
+            bbassert(start_if_body!=MISSING, first_name+" statement has no starting bracket");
+            bbassert(start_if_body!=start+1, first_name+" statement has no condition");
+            std::string condition = parse_expression(start+1, start_if_body-1);
+            bbassert(condition!="#", " condition does not evaluate to anything");
+            int body_end = find_end(start_if_body+1, end, "}");
+            std::string bodyvar = create_temp();
+            ret += "BEGIN "+bodyvar+"\n";
+            parse(start_if_body+1, body_end-1);
+            ret += "END\n";
+            if(first_name=="if" && body_end<=end-2 && tokens[body_end+1].name=="else") {
+                bbassert(tokens[body_end+2].name=="{", "else statement is not immediately followed by a bracket");
+                int else_end = find_end(body_end+3, end, "}", true);
+                bbassert(else_end==end, "else statement body ends before statement");
+                body_end = find_end(start_if_body+1, end, "}");
+                std::string endvar = create_temp();
+                ret += "BEGIN "+endvar+"\n";
+                parse(body_end+3, else_end-1);
+                ret += "END\n";
+                bodyvar += " "+endvar;
+                body_end = else_end;
+            }
+            bbassert(body_end==end, first_name+" statement body terminated before end of expression");
+            ret += first_name+" # "+condition+" "+bodyvar+"\n";
+            return "#";
+        }
 
         if(first_name=="print" 
             || first_name=="return" 

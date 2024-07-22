@@ -27,45 +27,78 @@
 
 <h1>Vars, operations, comments</h1>
 
-<p>Blombly only has line comments that start <code>//</code> and stop at the end of the
-current line. Set variables by assigning to them, like below. Builtin types are int, float,
-bool, str, struct, code. Here is an example with the first four, where the other two will be
-covered later (structs can also customly implement operations).</p>
+<p>Blombly only has line comments that start with <code>//</code>. 
+However, it supports multi-line strings (the str type), and thus
+can create documentation for code blocks by creating 
+metadata properties in the way described in the 
+<a rel="prefetch" href="code-blocks-inline.html">next section</a>. Below is a first take of 
+what this looks like in your programs. The <code>#</code> symbol at the beginning shows
+that <i>doc</i> is not a variable but a metadata property to be assigned to the code block.</p>
 
+<i>main.bb</i>
+<pre><code class="language-java">//Each file is considered a code block
+#doc = "Here is multiline documentation
+ that describes the current code block.";
+print("Hellow world!");
+</code></pre>
+
+<p>Assign values to variables with the <code>=</code>operator, like below. If a variable 
+with the same name already exists in the current scope, its value is overwritten.
+Otherwise, a new variable is created. Subsequent code in the same scope will 
+retrieve thet assigned value when using the variable. From this description,
+we also get a first intuition of what scopes are: they refer to isolated
+execution contexts in which subsequent code can overwrite variable values. Each program
+starts from one initial scope, but new ones are created when calling code blocks, for
+example with the code patterns described in 
+<a rel="prefetch" href="calling-blocks.html">section 2.3</a>. For the time being,
+all our code remains in the same scope.</p>
+
+
+<p>There are several builtin data types that are directly created by the compiler.
+These are int, float, bool, str, code. Although variables can switch type when assigning 
+to, code that retains the same builtin type for each variable 
+(which is a typical coding pattern) executes faster. Here is an example with the first 
+four builtin types - the last one will be covered in the 
+<a rel="prefetch" href="code-blocks-inline.html">next section</a>.</p>
+
+<i>main.bb</i>
 <pre><code class="language-java">i = 1;     // int
 f = 1.2;   // float
 b = false; // bool
 s = "this is a string literal";</code></pre>
 
-<p>The numeric types int and float accept the typical arithmetics <code>+-*/</code>, the
-exponent <code>^</code>, modulo between ints <code>%</code>, and inequalities with bool
-outcomes <code>&lt; &gt; &lt;= &gt;=</code>. Comparisons <code>== !=</code> can compare
-any types. Operations for bools are <code>and</code> and <code>or</code>, and str can be
-concatenated with <code>+</code>.</p>
-<p>Convert between types with their names like so:</p>
+<p>The numeric types int and float accept the arithmetics <code>+-*/</code> that are common
+across most programming languages, where division always yields a float. The
+exponent <code>^</code> is defined for both numeric types, and the modulo <code>%</code>
+is defined between ints. Also similarly to most languages, and inequalities with bool
+outcomes <code>&lt; &gt; &lt;= &gt;=</code> are provided. 
+Furthermore <code>== !=</code> can compare any types for equality and inequality respectively.
+Operations between bools are <i>and</i> and <i>or</i>. Finally, str can be
+concatenated with <code>+</code>. Convert between types with their names like so:</p>
 
+<i>main.bb</i>
 <pre><code class="language-java">x = int("1");
 y = float("0.5");
 print("Sum is "+str(x+y));</code></pre>
 
 <p>Running this creates the following output in the console:</p>
 
-<pre class="code-output">
+<pre class="code-output">> blombly main.bb
 (<span class="ok"> OK </span>) Compilation
 (<span class="ok"> OK </span>) Optimization
 Result is 1.500000
 </pre>
 
-<p>Lastly, variables can be made immutable by prepending the <code>final</code> keyword
+<p>Lastly, variables can be made immutable by prepending the <i>final</i> keyword
 to the assignment. This prevents any overwriting of their value and exposes them outside
 the current scope, for example in dependent code blocks calls later. Here is an example
-where there is an attempt to set a final variable:</p>
+where there is an attempt to overwrite a final variable, which is invalid syntax.</p>
 
 <pre><code class="language-java">final x = 0;
 x = x+1;  // CREATES AN ERROR</code></pre>
 
 <p>When running the above, the code safety of the final keyword lets us create an error
-message instead of erroneously overwriting the value:</p>
+message:</p>
 
 <pre class="code-output">
 (<span class="ok"> OK </span>) Compilation

@@ -28,16 +28,31 @@
 <h1>Introduction</h1>
 
 <p>
-Blombly is a programming language with a reduced instruction set and algorithm-only semantics.
-This means that its instruction set is limited to a few but powerful operations that cover a
-broad range of scenarios. At the same time, the coder is asked to only design algorithms, with
-the language automating tasks like memory management and parallelization.
+There are a lot of programming languages out there offering the ability to create dynamic 
+yet safe code - maybe you are already thinking of your favorite one. A common
+characteristic of these languages is that they require extensive familiarization and their
+safety features may be harder to work with compared to unsafe features or languages. 
+For example, memory safety typically requires modifications to pure algorithmic logic, 
+where the programmer needs to worry about non-functional code characteristics, 
+like deadlocks and race conditions, that would be absent from single-threaded unsafe languages.
 </p>
-
 <p>
-The language is compiled into an interpreted intermediate respresentation; you can share 
-compilation outcomes that pack all dependencies in one file for direct execution. The
-virtual machine running the representation is highly 
+Blombly is a programming language with a reduced instruction set and algorithm-only semantics.
+This means that it is limited to a few but powerful operations that cover a
+broad range of scenarios. At the same time, tasks like memory management and parallelization 
+are automated under-the-hood. The main language is compiled into an intermediate respresentation 
+that is interpreted by an accompanying 
+<i><strong>BLO</strong>ck ase<strong>MBLY</strong> <strong>V</strong>irtual <strong>M</strong>achine</i> 
+(blomblyVM). The latter parses block-based assembly instructions that ensure reliability through
+the absense of jump statements; flow constrol is performed through code blocks of asembly instructions 
+that are easier to apply safety constraints on.
+</p>
+<p>
+So, who is this language for? It may be a good idea to look at blombly if your aim is one of the following:<br><br>
+
+✅ Quickly learn a dynamic (duck-typed) scripting language.<br>
+✅ Write sequential code that runs in parallel.<br>
+✅ Ensure memory safety by design.<br>
 </p>
 
 
