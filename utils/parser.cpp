@@ -349,8 +349,10 @@ public:
 void sanitize(std::vector<Token>& tokens) {
     std::vector<Token> updatedTokens;
     for (size_t i = 0; i < tokens.size(); ++i) {
+        if(tokens[i].name=="\\")
+            bberror("A stray `\\` was found at line "+std::to_string(tokens[i].line));
         if(tokens[i].name.size()>=3 && tokens[i].name.substr(0, 3)=="_bb")
-            bberror("Variable name "+tokens[i].name+" cannot start with _bb, as this is reserved for VM local temporaries.");
+            bberror("Variable name "+tokens[i].name+" cannot start with _bb, as this is reserved for VM local temporaries. Found at line "+std::to_string(tokens[i].line));
         if(tokens[i].builtintype==3 && i<tokens.size()-2 && tokens[i+1].name=="." && tokens[i+2].builtintype==3) {
             tokens[i].name += "."+tokens[i+2].name;
             tokens[i].builtintype = 4;

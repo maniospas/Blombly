@@ -2,6 +2,7 @@
 #include <unordered_set>
 #include <map>
 #include <vector>
+#include "common.h"
 
 
 bool isString(const std::string& value) {
@@ -110,6 +111,8 @@ std::vector<Token> tokenize(const std::string& text) {
         }
         word += c;
     }
+    if(inString)
+        bberror("Missing `\"`. The file ended without closing the string: "+word);
     if(word.size())
         ret.push_back(Token(word, line));
 

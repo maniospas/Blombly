@@ -40,6 +40,10 @@ pre {
     padding-top: 20px;
     overflow-y: auto;
 }
+a {
+    color: rgb(139, 205, 255); /* Same color as the arrow */
+    text-decoration: none;
+}
 .sidebar a {
     display: block;
     color: rgb(139, 205, 255); /* Same color as the arrow */
@@ -47,6 +51,6 @@ pre {
     text-decoration: none;
     font-size: 16px;
 }
-.sidebar a:hover {
+a:hover {
     background-color: #575757;
 }

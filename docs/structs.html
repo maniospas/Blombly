@@ -10,6 +10,7 @@
 <body>
 <div class="sidebar">
     <h2>Blombly Companion</h2>
+    <a rel="prefetch" href="index.html">Home</a>
     <a rel="prefetch" href="introduction.html">Introduction</a>
     <p><strong>Set things up</strong></p>
     <a rel="prefetch" href="hello-world.html">1.1 Hello world!</a>
@@ -72,7 +73,7 @@ as a method:</p>
 }
 print(point.sum3d());</code></pre>
 
-<p>:bulb: Normal variable visibility rules apply; to let a struct's code blocks call each
+<p>💡 Normal variable visibility rules apply; to let a struct's code blocks call each
 other, either make them <code>final</code> or access them from <code>this</code> as
 above.</p>
 <p>In blombly, inlining can be used to treat code blocks as part of constructors, which is
@@ -80,7 +81,7 @@ a generalization of multi-inheritance. For example, you may inline the declarati
 member functions like so:</p>
 
 <pre><code class="language-java">Point = {
-  norm = {return (this.x^2+this.y^2)^0.5} 
+  norm = {return (this.x^2+this.y^2)^0.5;} 
 }
 XYSetter = {
   setx = {default{value=0} this.x = value;}
@@ -92,11 +93,9 @@ point = new {
   x = 0;
   y = 0;
 }
-point.setx();
-point.sety(value=2);
+point.sety(value=4);
 
-print(point.x);
-print(point.y);</code></pre>
+print(point.norm());</code></pre>
 
 <p>:warning: To prevent code smells, the compiler does not allow you to write
 <code>new B</code> where <code>B</code> is a code block. Instead, inline it per

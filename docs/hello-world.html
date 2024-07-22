@@ -10,6 +10,7 @@
 <body>
 <div class="sidebar">
     <h2>Blombly Companion</h2>
+    <a rel="prefetch" href="index.html">Home</a>
     <a rel="prefetch" href="introduction.html">Introduction</a>
     <p><strong>Set things up</strong></p>
     <a rel="prefetch" href="hello-world.html" style="color: orange;">1.1 Hello world!</a>
@@ -27,31 +28,60 @@
 <h1>Hello world!</h1>
 
 <p>Let us create a first program to show a compilation and interpretation process.
-Create an empty text file <code>main.bb</code> with the following contents:</p>
+Create the following example file, where the <i>.bb</i> extension is associated
+with blombly source code. Careful to not forget the trailing 
+semicolon, as this would create an error when trying to compile and execute the file. 
+In general, there is enforcement of unambiguous
+code syntax that prevents code smells and has a unique way of implementing every
+functionality. Use a Java syntax highlighter (but not a syntax checker), as the
+two languages share many keywords. </p>
 
+<i>main.bb</i>
 <pre><code class="language-java">print("Hello world!");</code></pre>
 
-<p>Careful to not forget the trailing semicolon. In general, use a Java syntax highlighter
-(not a syntax checker), as it shares many keywords. To run this file, download blombly's
-executable from <a href="https://github.com/maniospas/BlomblyVM">here</a> and add it to 
-the filepath.
-Run <code>blombly main.bb</code> to compile and run it. This will create the following
-output in the console:</p>
+
+<p>To run this file, download the blombly
+executable from the language's <a href="https://github.com/maniospas/BlomblyVM">GitHub</a> 
+page and add it to the filepath. Then run the following console command:</p>
 
 <pre class="code-output">
+> blombly main.bb
 (<span class="ok"> OK </span>) Compilation
 (<span class="ok"> OK </span>) Optimization
 Hello world!
 </pre>
 
-<p>Compilation creates an intermediate representation to the language's virtual machine in
-the file <code>main.bbvm</code>. It also applies some optimizations for faster execution.
-You can directly run <code>.bbvm</code> files to avoid compiling and optimizing again.</p>
+<p>Success! If a message that starts with 
+<span class="code-output" style="font-size:0.7em;">(<span class="error"> ERROR </span>)</span>
+appeared, the language was set up properly, but there was some syntax or logic error:
+there may be a missing file or semicolon, usage of the wrong type of brackets, or some other
+infraction. In this case, read the error's details carefully, as they are curated to be highly 
+descriptive. More information on errors is provided in the <a rel="prefetch" href="errors.html">next 
+section</a>. If another type of console error message appeared, please make sure that the blombly 
+executable is compatible with your operating system and properly added in the file path.
+</p>
+    
+<p>Compilation creates an abstract syntax tree and converts it into the blomlyVM 
+intermediate representation language, shown below, which can also run directly.
+BlomblyVM files always have the <i>.bbvm</i> extension and look like assembly code.
+Temporary variables starting with <i>_bb</i> are also created. Often, compilation also optimizes
+the code to take advantage of language features like caching memory locations for result
+outcomes and declaring temporary code blocks as final to avoid redefinition during loops.
+As a final remark, blomblyVM files pack all necessary dependencies internally, and can
+therefore be shared for direct execution. </p>
 
-<p>:bulb: The script <code>bbreader.py</code> converts compiled code to the main
-language.</p>
+<i>main.bbvm</i>
+<pre><code class="language-bbvm">BUILTIN _bb0 "Hello world!"
+print # _bb0    
+</code></pre>
+
+<p>The script <i>bbreader.py</i> (written in Python) converts compiled code to the main language
+for easier reading, although without removing the compilation's intemediate variables.</p>
+
+
 
 <script src="prism.min.js"></script>
 <script src="prism-java.min.js"></script>
+<script src="prism-bbvm.min.js"></script>
 </body>
 </html>

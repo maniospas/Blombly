@@ -1,3 +1,20 @@
+
+.token.control {
+    color: rgb(139, 205, 255); /* Example color for control keywords */
+}
+
+.token.arithmetic {
+    color: #cc7700; /* Example color for arithmetic/logic operators */
+}
+
+.token.tempvar {
+    color: #e4e4e46a; /* Example color for arithmetic/logic operators */
+}
+
+.token.number {
+    color: #009859; /* Example color for arithmetic/logic operators */
+}
+
 code[class*=language-],pre[class*=language-]{
     color:#ccc;
     background:0 0;

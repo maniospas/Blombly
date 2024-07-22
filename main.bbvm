@@ -1,21 +1,2 @@
-BUILTIN zbias I0
-final # zbias
-BUILTIN y I2
-BEGINFINAL _bb4
-BUILTIN x I1
-IS y y
-add _bb7 x y
-add z _bb7 zbias
-return _bbresult0 this
-END
-new point _bb4
-BUILTIN _bb8 I4
-set # point x _bb8
-get _bb9 point x
-print # _bb9
-get _bb10 point y
-print # _bb10
-get _bb11 point z
-print # _bb11
-get _bb12 point zbias
-print # _bb12
+BUILTIN _bb0 "Hello world!"
+print # _bb0
