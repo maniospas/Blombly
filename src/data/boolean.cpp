@@ -11,6 +11,10 @@ int Boolean::getType() const {
     return BOOL;
 }
 
+bool Boolean::isTrue() const {
+    return value;
+}
+
 // Convert to string representation
 std::string Boolean::toString() const {
     return value ? "true" : "false";

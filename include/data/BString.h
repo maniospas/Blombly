@@ -25,6 +25,7 @@ public:
     friend class Vector;
     friend class BList;
     friend class BFile;
+    friend class BError;
 };
 
 #endif // BSTRING_H

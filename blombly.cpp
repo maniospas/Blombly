@@ -51,6 +51,7 @@
 #include "include/data/Code.h"
 #include "include/data/Struct.h"
 #include "include/data/BFile.h"
+#include "include/data/BError.h"
 #include "include/BMemory.h"
 #include "include/interpreter/Command.h"
 #include "include/interpreter/thread.h"
@@ -179,7 +180,7 @@ Data* executeBlock(std::vector<Command*>* program,
     //std::shared_ptr<Data> prevValue;
     int cmdSize;
     Data* value;
-    
+    try {
     for(int i=start;i<=end;i++) {
         Command* command = program->at(i);
         try {
@@ -350,15 +351,14 @@ Data* executeBlock(std::vector<Command*>* program,
                 std::vector<Command*>* acceptProgram = (std::vector<Command*>*)codeAccept->getProgram();
                 
                 // if condition is boolean do a different kind of loop where it is re-evaluated continuously
-                if(condition==nullptr || condition->getType()==BOOL) {
+                bbassert(condition, "while condition's expression did not evaluate to anything");
+                if(condition->getType()==BOOL) {
                     // implement the loop
-                    while(true) {
-                        Data* check = condition;
-                        if(check==nullptr)
-                            break;
-                        bbassert(check->getType()==BOOL, "While condition variable that started off as bool was changed to something else midway");
-                        if(!((Boolean*)check)->getValue())
-                            break;
+                    while(condition->isTrue()) {
+                        //bbassert(check, "while condition's expression did not evaluate to anything");
+                        //bbassert(check->getType()==BOOL, "While condition variable that started as bool was changed to something else midway");
+                        //if(!condition->isTrue())
+                        //    break;
                         value = executeBlock(acceptProgram, acceptStart, acceptEnd, memory_, returnSignal, args);
                         CHECK_FOR_RETURN(value);
                         condition = MEMGET(memory, 1);
@@ -376,7 +376,9 @@ Data* executeBlock(std::vector<Command*>* program,
                 while(true) {
                     Data* check = executeBlock(conditionProgram, conditionStart, conditionEnd, memory_, returnSignal, args);
                     CHECK_FOR_RETURN(check);
-                    if(check==nullptr || (check->getType()==BOOL && !((Boolean*)check)->getValue()))
+                    //bbassert(check, "while condition's expression did not evaluate to anything");
+                    //bbassert(check->getType()==BOOL, "while condition's expression did not evaluate to bool");
+                    if(!check->isTrue())
                         break;
                     value = executeBlock(acceptProgram, acceptStart, acceptEnd, memory_, returnSignal, args);
                     CHECK_FOR_RETURN(value);
@@ -388,20 +390,19 @@ Data* executeBlock(std::vector<Command*>* program,
                 Data* condition = MEMGET(memory, 1);
                 Data* accept = MEMGET(memory, 2);
                 Data* reject = command->nargs>3?MEMGET(memory, 3):nullptr;
-                bbverify(accept, accept->getType()==CODE, "Can only inline a non-called code block for if acceptance");
-                bbverify(reject, reject->getType()==CODE, "Can only inline a non-called code block for if rejection");
-                Data* check;
-                if(condition->getType()==BOOL) 
-                    check = condition;
-                else {
-                    bbassert(condition->getType()==CODE, "Can only have a bool or a code block for if condition");
+                //bbverify(accept, accept->getType()==CODE, "Can only inline a non-called code block for if acceptance");
+                //bbverify(reject, reject->getType()==CODE, "Can only inline a non-called code block for if rejection");
+                if(condition->getType()!=BOOL) {
+                    //bbassert(condition->getType()==CODE, "Can only have a bool or a code block for if condition");
                     Code* codeCondition = (Code*)condition;
-                    check = executeBlock((std::vector<Command*>*)codeCondition->getProgram(), codeCondition->getStart(), codeCondition->getEnd(), memory_, returnSignal, args);
+                    condition = executeBlock((std::vector<Command*>*)codeCondition->getProgram(), codeCondition->getStart(), codeCondition->getEnd(), memory_, returnSignal, args);
                 }
                 Code* codeAccept = (Code*)accept;
                 Code* codeReject = (Code*)reject;
-                CHECK_FOR_RETURN(check);
-                if(check && (check->getType()!=BOOL || ((Boolean*)check)->getValue())) {
+                //bbassert(check, "if condition's expression did not evaluate to anything");
+                CHECK_FOR_RETURN(condition);
+                //bbassert(check->getType()==BOOL, "If condition did not evaluate to bool");
+                if(condition->isTrue()) {
                     if(codeAccept) {
                         value = executeBlock((std::vector<Command*>*)codeAccept->getProgram(), codeAccept->getStart(), codeAccept->getEnd(), memory_, returnSignal, args);
                         CHECK_FOR_RETURN(value);
@@ -420,13 +421,32 @@ Data* executeBlock(std::vector<Command*>* program,
                     bbassert(condition->getType()==CODE, "Can only inline a non-called code block for try condition");
                     Code* codeCondition = (Code*)condition;
                     value = executeBlock((std::vector<Command*>*)codeCondition->getProgram(), codeCondition->getStart(), codeCondition->getEnd(), memory_, returnSignal, args);
-                    value = new Boolean(true);
+                    *returnSignal = false;
                 }
                 catch(const BBError& e) {
                     std::string comm = command->toString();
                     comm.resize(40, ' ');
-                    value = new Boolean(false);
-                    //new BString(e.what()+(u8"\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
+                    value = new BError(e.what()+(u8"\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
+                }
+            }
+            break;
+            case CATCH:{
+                Data* condition = MEMGET(memory, 1);
+                Data* accept = MEMGET(memory, 2);
+                Data* reject = command->nargs>3?MEMGET(memory, 3):nullptr;
+                bbverify(accept, accept->getType()==CODE, "Can only inline a non-called code block for if acceptance");
+                bbverify(reject, reject->getType()==CODE, "Can only inline a non-called code block for if rejection");
+                Code* codeAccept = (Code*)accept;
+                Code* codeReject = (Code*)reject;
+                if(condition->getType()==ERRORTYPE) {
+                    if(codeAccept) {
+                        value = executeBlock((std::vector<Command*>*)codeAccept->getProgram(), codeAccept->getStart(), codeAccept->getEnd(), memory_, returnSignal, args);
+                        CHECK_FOR_RETURN(value);
+                    }
+                }
+                else if(codeReject) {
+                    value = executeBlock((std::vector<Command*>*)codeReject->getProgram(), codeReject->getStart(), codeReject->getEnd(), memory_, returnSignal, args);
+                    CHECK_FOR_RETURN(value);
                 }
             }
             break;
@@ -545,6 +565,14 @@ Data* executeBlock(std::vector<Command*>* program,
                 memory->unlock();
                 continue; // completely ignore any setting
             break;
+            case FAIL:{
+                value = MEMGET(memory, 1);
+                std::string comm = command->toString();
+                comm.resize(40, ' ');
+                throw BBError(value->toString()+(u8"\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
+                continue;
+            }
+            break;
             case PRINT:{
                 std::string printing("");
                 for(int i=1;i<command->nargs;i++) {
@@ -607,6 +635,15 @@ Data* executeBlock(std::vector<Command*>* program,
             comm.resize(40, ' ');
             throw BBError(e.what()+(u8"\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
         }
+    }
+    }
+    catch(const BBError& e) {
+        if(returnSignalHandler) {
+            memory->release();
+            delete returnSignal;
+            delete args;
+        }
+        throw e;
     }
     if(returnSignalHandler) {
         memory->release();

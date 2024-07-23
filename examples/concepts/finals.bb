@@ -1,6 +1,6 @@
 StaticPoint = {final x=x;final y=y;} // ensure that x, y are immutable
 Normed2D = {
-    normsq = {return x^q+y^q;}
+    norm = {return x^q+y^q;}
 }
 extx = 1;
 point = new(

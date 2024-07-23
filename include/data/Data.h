@@ -25,6 +25,8 @@ public:
     virtual std::string toString() const = 0;
     virtual int getType() const = 0;
     virtual Data* shallowCopy() const = 0;
+    virtual bool isTrue() const {return false;}
+
     virtual bool couldBeShallowCopy(Data* data) {
         return false;
     }
