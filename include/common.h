@@ -44,7 +44,7 @@ enum OperationType {NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, 
 static const std::string OperationTypeNames[] = {
     "not", "and", "or", "eq", "neq", "le", "ge", "lt", "gt", "add", "sub", "mul", "mmul", 
     "div", "mod", "len", "pow", "log", "push", "pop", "next", "put", "at", "shape", 
-    "Vector", "List", "int", "float", "str", "bool", "copy", "File",
+    "vector", "list", "int", "float", "str", "bool", "copy", "file",
     "sum", "max", "min",
     "BUILTIN", "BEGIN", "BEGINFINAL", "BEGINCACHED", "END", "return", "final", "IS", 
     "call", "while", "if", "new", "print", "inline", "get", "set", "setfinal", "default",
@@ -58,7 +58,7 @@ std::string getOperationTypeName(OperationType type);
 
 
 // block execution declarations
-#define DEFAULT_LOCAL_EXPECTATION 16
+#define DEFAULT_LOCAL_EXPECTATION 8
 #define LOCAL_EXPACTATION_FROM_CODE(code) std::min((code->getEnd()-code->getStart())*2, DEFAULT_LOCAL_EXPECTATION)
 
 class Data;

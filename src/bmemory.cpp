@@ -162,7 +162,6 @@ Data* BMemory::get(int item, bool allowMutable) {
     return ret;
 }
 
-
 Data* BMemory::getOrNullShallow(int item) {
     auto it = data->find(item);
     if(it==data->end())

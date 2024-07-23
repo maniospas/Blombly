@@ -28,6 +28,7 @@ public:
     SourceFile* source;
     int line;
     CommandContext* descriptor;
+    BMemory* lastCalled;
 
     Command(const std::string& command, SourceFile* source, int line, CommandContext* descriptor);
     ~Command();

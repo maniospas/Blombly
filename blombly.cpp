@@ -189,6 +189,11 @@ Data* executeBlock(std::vector<Command*>* program,
             case BEGIN:
             case BEGINCACHED:
             case BEGINFINAL: {
+                if(command->lastCalled==memory && command->knownLocal[0]) {
+                    i = ((Code*)command->value)->getEnd();
+                    continue;
+                }
+                command->lastCalled = memory;
                 if(command->value) {
                     Code* code = (Code*)command->value;
                     //Code* codeCommand = (Code*)command->value;
@@ -518,6 +523,10 @@ Data* executeBlock(std::vector<Command*>* program,
             }
             break;
             case BUILTIN:
+                // if there is already a local variable value for the builtin, skip setting it
+                if(command->lastCalled==memory && command->knownLocal[0]) 
+                    continue;
+                command->lastCalled = memory;
                 FILL_REPLACEMENT;
                 if(command->value==toReplace)
                     continue;

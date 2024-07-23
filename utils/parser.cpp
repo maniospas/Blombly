@@ -147,10 +147,20 @@ public:
         if(assignment!=MISSING) {
             bbassert(assignment!=start, "Missing variable to assign to");
             int start_assignment = find_last_end(start, assignment, ".");
-            if(start_assignment!=-1) {
+            int start_entry = find_last_end((start_assignment==MISSING?start:start_assignment)+1, assignment, "[");
+            if(start_entry!=MISSING) {
+                int end_entry = find_end(start_entry+1, assignment, "]", true);
+                bbassert(end_entry==assignment-1, "Non-empty expression between last closing ] and =");
+                std::string obj = parse_expression(start, start_entry-1);
+                bbassert(obj!="#", "Empty expression before last entry notation");
+                bbassert(!is_final, "Entries cannot be final.");
+                ret += "put # "+obj+" "+parse_expression(start_entry+1, end_entry-1)+" "+parse_expression(assignment+1, end)+"\n";
+                return "#";
+            }
+            if(start_assignment!=MISSING) {
                 bbassert(start_assignment>=start+1, "Assignment expression can not start with `.`.");
                 std::string obj = parse_expression(start, start_assignment-1);
-                bbassert(obj!="#", "Empty expression before last get membership");
+                bbassert(obj!="#", "Empty expression before last membership");
                 ret += (is_final?"setfinal # ":"set # ")+obj+" "+parse_expression(start_assignment+1, assignment-1)+" "+parse_expression(assignment+1, end)+"\n";
                 return "#";
             }   
@@ -208,18 +218,7 @@ public:
         }
 
         if(first_name=="print" 
-            || first_name=="return" 
-            || first_name=="len" 
-            || first_name=="iter"
-            || first_name=="int"
-            || first_name=="float"
-            || first_name=="str"
-            || first_name=="bool"
-            || first_name=="push"
-            || first_name=="pop"
-            || first_name=="File"
-            //|| first_name=="List"
-            || first_name=="Vector") {
+            || first_name=="return") {
             //if(first_name!="return")
             //    bbassert(tokens[start+1].name=="(", "Missing ( just after "+first_name);
             std::string parsed = parse_expression(start+1, end);
@@ -339,6 +338,27 @@ public:
             return var;
         }
 
+        
+        if(first_name=="len" 
+            || first_name=="iter"
+            || first_name=="int"
+            || first_name=="float"
+            || first_name=="str"
+            || first_name=="bool"
+            || first_name=="push"
+            || first_name=="pop"
+            || first_name=="File"
+            //|| first_name=="list"
+            || first_name=="vector") {
+            bbassert(tokens[start+1].name=="(", "Missing ( just after "+first_name);
+            std::string parsed = parse_expression(start+1, end);
+            bbassert(parsed!="#", "An expression that computes no value was given to "+first_name);
+            std::string var = create_temp();
+            ret += first_name+" "+var+" "+parsed+"\n";
+            return var;
+        }
+        
+
         int call = find_last_end(start, end, "(");
         if(call!=MISSING && find_end(call+1, end, ")", true)==end) {
             //bbassert(find_end(start+1, end, ")")==end, "Imbalanced method call parenthesis at line "+std::to_string(tokens[start].line));
@@ -354,6 +374,16 @@ public:
         if(access!=MISSING) {
             std::string var = create_temp();
             ret += "get "+var+" "+parse_expression(start, access-1)+" "+parse_expression(access+1, end)+"\n";
+            return var;
+        }
+
+        
+        int arrayaccess = find_last_end(start, end, "[");
+        if(arrayaccess!=MISSING) {
+            int arrayend = find_end(arrayaccess+1, end, "]", true);
+            bbassert(arrayend==end, "Array access ] ended before expression end");
+            std::string var = create_temp();
+            ret += "at "+var+" "+parse_expression(start, arrayaccess-1)+" "+parse_expression(arrayaccess+1, arrayend-1)+"\n";
             return var;
         }
 

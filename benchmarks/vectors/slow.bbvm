@@ -6,14 +6,8 @@ BEGINFINAL _bb4
 BUILTIN _bb6 I1
 add i i _bb6
 BUILTIN j I1
-BUILTIN _bb9 I0
-gt _bb8 j _bb9
-BEGINFINAL _bb10
-BUILTIN j I0
-END
-if # _bb8 _bb10
 lt _bb3 i n
 END
 while # _bb3 _bb4
-time _bb12
-print # _bb12
+time _bb8
+print # _bb8

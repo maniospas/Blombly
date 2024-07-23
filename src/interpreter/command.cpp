@@ -9,7 +9,7 @@
 
 
 Command::Command(const std::string& command, SourceFile* source, int line, CommandContext* descriptor): 
-    source(source), line(line), descriptor(descriptor) {
+    source(source), line(line), descriptor(descriptor), lastCalled(nullptr) {
     value = nullptr;
     std::vector<std::string> argNames;
     argNames.reserve(4);
