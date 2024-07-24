@@ -64,7 +64,10 @@ being that it checks whether condition is an error (instead of checking a boolea
 An example usage of this statement  is demonstrated in the example below. In this, the
 <i>try</i> statement is responsible for intercepting the returned value of <i>i</i>,
 which stops the loop immediately.
-If no value was returned, <i>try</i> assigns an error value to the result. The code
+If no value was returned, <i>try</i> assigns an error value to the result. 
+</p>
+<p>
+The code
 then uses <i>catch</i> to handle error scenarios, where the 
 <i>fail</i> statement creates an improved description for the error signal. 
 If another type of value was encountered (anything other than an error) the
@@ -78,9 +81,9 @@ values without worrying about catch clauses unrelated to this functionality.</p>
 <i>main.bb</i>
 <pre><code class="language-java">least = 4;
 i = 0;
-result = try while (i<=100) {
+result = try while (i&lt;=100) {
     i = i + 3;
-    if (i>=least) 
+    if (i&gt;=least) 
         return i;
 }
 print("Finished searching.");

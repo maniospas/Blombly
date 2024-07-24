@@ -143,38 +143,6 @@ public:
             return requested_var;
         }
 
-        // assignment
-        int assignment = find_end(start, end, "=");
-        if(assignment!=MISSING) {
-            bbassert(assignment!=start, "Missing variable to assign to");
-            int start_assignment = find_last_end(start, assignment, ".");
-            int start_entry = find_last_end((start_assignment==MISSING?start:start_assignment)+1, assignment, "[");
-            if(start_entry!=MISSING) {
-                int end_entry = find_end(start_entry+1, assignment, "]", true);
-                bbassert(end_entry==assignment-1, "Non-empty expression between last closing ] and =");
-                std::string obj = parse_expression(start, start_entry-1);
-                bbassert(obj!="#", "Empty expression before last entry notation");
-                bbassert(!is_final, "Entries cannot be final.");
-                ret += "put # "+obj+" "+parse_expression(start_entry+1, end_entry-1)+" "+parse_expression(assignment+1, end)+"\n";
-                return "#";
-            }
-            if(start_assignment!=MISSING) {
-                bbassert(start_assignment>=start+1, "Assignment expression can not start with `.`.");
-                std::string obj = parse_expression(start, start_assignment-1);
-                bbassert(obj!="#", "Empty expression before last membership");
-                ret += (is_final?"setfinal # ":"set # ")+obj+" "+parse_expression(start_assignment+1, assignment-1)+" "+parse_expression(assignment+1, end)+"\n";
-                return "#";
-            }   
-            bbassert(assignment==start+1, "Can only assign to one variable");
-            // TODO: do not allow assignment to keywords
-            ret += PARSER_IS+" "+first_name+" "+parse_expression(assignment+1,end)+"\n";
-            if(is_final)
-                ret += "final # "+first_name+"\n";
-            return "#";
-        }
-        bbassert(!is_final, "Only assignments to variables can be final");
-        bbassert(tokens[start].name!="#", "Only assignments can start with `#`\n    because this sets code block properties after its declaration.");
-
         if(first_name=="if" || first_name=="catch" || first_name=="while") {
             // sanitizer has already made sure that there is a parenthesis just after the command
             int start_parenthesis = find_end(start, end, "(");
@@ -233,6 +201,53 @@ public:
             ret += first_name+" "+var+"\n";
             return var;
         }
+
+
+        // 
+        if(first_name=="new" || first_name=="default" || first_name=="try") {
+            std::string var = first_name=="default"?"#":create_temp();
+            std::string called = create_temp();
+            std::string parsed = parse_expression(start+1, end, tokens[start+1].name != "{");
+            if(first_name=="new" && ret.substr(ret.size()-4)=="END\n")
+                ret = ret.substr(0, ret.size()-4)+"return # this\nEND\n";  // new should return this by default 
+            bbassert(parsed!="#", "An expression that computes no value was given to "+first_name);
+            ret += first_name+" "+var+" "+parsed+"\n";
+            return var;
+        }
+
+
+        // assignment
+        int assignment = find_end(start, end, "=");
+        if(assignment!=MISSING) {
+            bbassert(assignment!=start, "Missing variable to assign to");
+            int start_assignment = find_last_end(start, assignment, ".");
+            int start_entry = find_last_end((start_assignment==MISSING?start:start_assignment)+1, assignment, "[");
+            if(start_entry!=MISSING) {
+                int end_entry = find_end(start_entry+1, assignment, "]", true);
+                bbassert(end_entry==assignment-1, "Non-empty expression between last closing ] and =");
+                std::string obj = parse_expression(start, start_entry-1);
+                bbassert(obj!="#", "Empty expression before last entry notation");
+                bbassert(!is_final, "Entries cannot be final.");
+                ret += "put # "+obj+" "+parse_expression(start_entry+1, end_entry-1)+" "+parse_expression(assignment+1, end)+"\n";
+                return "#";
+            }
+            if(start_assignment!=MISSING) {
+                bbassert(start_assignment>=start+1, "Assignment expression can not start with `.`.");
+                std::string obj = parse_expression(start, start_assignment-1);
+                bbassert(obj!="#", "Empty expression before last membership");
+                ret += (is_final?"setfinal # ":"set # ")+obj+" "+parse_expression(start_assignment+1, assignment-1)+" "+parse_expression(assignment+1, end)+"\n";
+                return "#";
+            }   
+            bbassert(assignment==start+1, "Can only assign to one variable");
+            // TODO: do not allow assignment to keywords
+            ret += PARSER_IS+" "+first_name+" "+parse_expression(assignment+1,end)+"\n";
+            if(is_final)
+                ret += "final # "+first_name+"\n";
+            return "#";
+        }
+        bbassert(!is_final, "Only assignments to variables can be final");
+        bbassert(tokens[start].name!="#", "Only assignments can start with `#`\n    because this sets code block properties after its declaration.");
+
 
         if(first_name=="print" 
             || first_name=="return"
@@ -335,18 +350,6 @@ public:
         if(pow!=MISSING) {
             std::string var = create_temp();
             ret += "pow "+var+" "+parse_expression(start, pow-1)+" "+parse_expression(pow+1, end)+"\n";
-            return var;
-        }
-
-        // 
-        if(first_name=="new" || first_name=="default" || first_name=="try") {
-            std::string var = first_name=="default"?"#":create_temp();
-            std::string called = create_temp();
-            std::string parsed = parse_expression(start+1, end, tokens[start+1].name != "{");
-            if(first_name=="new" && ret.substr(ret.size()-4)=="END\n")
-                ret = ret.substr(0, ret.size()-4)+"return # this\nEND\n";  // new should return this by default 
-            bbassert(parsed!="#", "An expression that computes no value was given to "+first_name);
-            ret += first_name+" "+var+" "+parsed+"\n";
             return var;
         }
 

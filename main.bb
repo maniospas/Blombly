@@ -1,4 +1,4 @@
-least = 400;
+least = 4;
 i = 0;
 result = try while (i<=100) {
     i = i + 3;
