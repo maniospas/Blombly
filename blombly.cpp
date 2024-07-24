@@ -407,11 +407,14 @@ Data* executeBlock(std::vector<Command*>* program,
                         value = executeBlock((std::vector<Command*>*)codeAccept->getProgram(), codeAccept->getStart(), codeAccept->getEnd(), memory_, returnSignal, args);
                         CHECK_FOR_RETURN(value);
                     }
+                    value = nullptr;
                 }
                 else if(codeReject) {
                     value = executeBlock((std::vector<Command*>*)codeReject->getProgram(), codeReject->getStart(), codeReject->getEnd(), memory_, returnSignal, args);
                     CHECK_FOR_RETURN(value);
                 }
+                else
+                    value = nullptr;
                 continue;
             }
             break;
@@ -421,7 +424,11 @@ Data* executeBlock(std::vector<Command*>* program,
                     bbassert(condition->getType()==CODE, "Can only inline a non-called code block for try condition");
                     Code* codeCondition = (Code*)condition;
                     value = executeBlock((std::vector<Command*>*)codeCondition->getProgram(), codeCondition->getStart(), codeCondition->getEnd(), memory_, returnSignal, args);
-                    *returnSignal = false;
+                    if(value==nullptr || !*returnSignal) {
+                        *returnSignal = false;
+                        value = new BError("No return or fail signal was intercepted");
+                    }
+                    FILL_REPLACEMENT;
                 }
                 catch(const BBError& e) {
                     std::string comm = command->toString();
@@ -639,7 +646,7 @@ Data* executeBlock(std::vector<Command*>* program,
     }
     catch(const BBError& e) {
         if(returnSignalHandler) {
-            memory->release();
+            //memory->release();
             delete returnSignal;
             delete args;
         }

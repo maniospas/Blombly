@@ -1,15 +1,11 @@
-n = 1000000;
-a = vector(n)+0.1;
-b = vector(n)+0.1;
-c = vector(n);
-
-tic = time();
+least = 400;
 i = 0;
-while (i<n) { 
-    temp = b[i]+c[i];
-    if(temp>0) {
-        c[i] = temp;
-    }
-    i = i+1;
+result = try while (i<=100) {
+    i = i + 3;
+    if (i>=least) 
+        return i;
 }
-print(time()-tic);
+print("Finished searching.");
+catch (result) 
+    fail("Found nothing: "+str(result));
+print("The least multiple of 3 in range ["+str(least)+", 100] is: "+str(result));

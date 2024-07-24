@@ -21,6 +21,7 @@
     <a rel="prefetch" href="code-blocks-inline.html">2.3 Code blocks & inline</a>
     <a rel="prefetch" href="calling-blocks.html">2.4 Calling blocks</a>
     <a rel="prefetch" href="structs.html">2.5 Structs</a>
+    <a rel="prefetch" href="success-fail.html">2.6 Success-error handling</a>
     <p><strong>Advanced features</strong></p>
     <a rel="prefetch" href="return-from-new.html">3.1 Return from new</a>
     <a rel="prefetch" href="overloading.html">3.2 Overloading</a>
@@ -30,7 +31,10 @@
 
 <p>Before moving on, let us take a peek at errors that blombly may create. Broadly, there
 are syntax errors, which are identified by the compiler and make it halt, and logical
-errors that occur at runtime and can be caught with appropriate try clauses (see later).
+errors that occur at runtime and can be caught with appropriate try clauses to avoid
+program termination. This mechanism is described fully in 
+<a rel="prefetch" href="success-fail.html">section 2.6</a>, but for now it suffices to 
+get a sense of what errors look like and how they may be interpeted.
 To see what a syntax error looks like, let us try to execute the following invalid code:</p>
 
 <i>main.bb</i>

@@ -21,6 +21,7 @@
     <a rel="prefetch" href="code-blocks-inline.html">2.3 Code blocks & inline</a>
     <a rel="prefetch" href="calling-blocks.html">2.4 Calling blocks</a>
     <a rel="prefetch" href="structs.html">2.5 Structs</a>
+    <a rel="prefetch" href="success-fail.html">2.6 Success-error handling</a>
     <p><strong>Advanced features</strong></p>
     <a rel="prefetch" href="return-from-new.html">3.1 Return from new</a>
     <a rel="prefetch" href="overloading.html">3.2 Overloading</a>
@@ -28,19 +29,24 @@
 
 <h1>Control Flow</h1>
 
-<p>Control flow in blombly follows the familiar structure of most programming 
-languages to alter which code statements are executed next. Aside from
-inling and calling code blocks, which are described in the
-<a rel="prefetch" href="code-blocks-inline.html">next section</a> and
-<a rel="prefetch" href="calling-blocks.html">section 2.4</a> respctively,
-the main control flows are the <i>if</i> and <i>while</i> statements, which
-implement conditional branching and loops respectively. Here we also describe
-blombly's success-error handling mechanism that further enriches control flow.
-This is a little more unique.
+<p>Control flow expressions alter which code segments are executed next.
+Blombly offers similar options to most programming languages in terms of
+condititional branching, loops, and method calling. The first two are descibed
+in this section, whereas method calling in <a rel="prefetch" href="calling-blocks.html">section 2.4</a>. 
+However, the language also provides more dynamic options, namely the ability to 
+"paste" code by diretly inlining it, which we introduce in
+<a rel="prefetch" href="code-blocks-inline.html">next section</a>
+and success-error handling that intercepts return values, which is detailed in
+<a rel="prefetch" href="calling-blocks.html">section 2.6</a>. Intercepting
+success values can also create advanced versions of conditional branching and loops
+that are also described here for completeness.
 </p>
 
 
-<p>Conditional statements evaluate expressions within the current context
+<p>
+The <i>if</i> and <i>while</i> statements implement conditional branching 
+and loops respectively. Of these, 
+conditional statements evaluate expressions within the current context
 and execute the associated code block if the outcome is <i>true</i>.
 There may also be an optional <i>else</i> branch that is executed if the
 expression evaluates to <i>false</i>.</p>
@@ -54,18 +60,20 @@ else {
 </code></pre>
 
 
-<p>The <i>while</i> statement continuously executes a code block as long as the expression evaluates to <i>true</i>,
+<p>The <i>while</i> statement continuously executes a code block as long 
+as the expression evaluates to <i>true</i>,
 where the expression is re-evaluated at each repetition. 
-This creates a loop that can run indefinitely if the condition never becomes false. The syntax is as follows:</p>
+This creates a loop that can run indefinitely if the condition never becomes
+false. The syntax is as follows:</p>
 
 <pre><code class="language-java">while (expression) {
     // code to be executed as long as expression is true
 }</code></pre>
 
-<p>Here is an example where loop runs as long as the condition <i>counter &lt; 5</i> 
+<p>Here is an example where loop runs as long as the condition <i>counter &lt; 10</i> 
 holds <i>true</i>. During each iteration, the loop prints the current value of the
-<i>counter</i> and increments it by 1. Once that value becomes 5, 
-the condition evaluates <i>false</i>, and the loop terminates.</p>
+<i>counter</i> and increments it by 1. Once that value becomes 10, 
+the condition evaluates to <i>false</i>, and the loop terminates.</p>
 
 <i>main.bb</i>
 <pre><code class="language-java">counter = 0;
@@ -74,64 +82,56 @@ while (counter&lt;10) {
     counter = counter + 1;
 }</code></pre>
 
-
-<h1>Success-error handling</h1>
-
-<p>This is a mechanism that consists of two parts. First is a <i>try</i>
-statement, which is applied on a block of code to obtain the outcome
-of any internal <i>return</i> or <i>fail</i> signals; these are otherwise
-ways of escaping calling methods by immediately returning values or
-creating errors, but <i>try</i> ensures that any such signals are intercepted.
-Its outcome is the intercepted signal and can be assigned to a variable for
-further handling, like so:
-</p>
-
-<i>main.bb</i>
-<pre><code class="language-java">result = try {
-    x = x+1;  // invalid code that creates an error (missing variable x)
-}
-print(result); 
-print("Successfully intercepted the above error");
-</code></pre>
-
-<p>Similarly to other control flow statements, brackets
-are optional for a <i>try</i> that is applied to only one statement.
-For example, this can be used to create syntactic variation of
-other control flow statements to effectively let them compute
-values, break loops, or detect if loops where not broken. As a 
-simple example, here is an one-liner that computes the sign 
+<p>
+Blombly consiously avoids implementing any break and continue keywords,
+because these can be substituted by a mixture of the <i>try</i> and <i>return</i> 
+statements. These are covered in detail in 
+<a rel="prefetch" href="calling-blocks.html">section 2.6</a>,
+but here we get a first taste. The first is broadly responsible for
+intercepting any returning (or error) values so that they can be assigned 
+to variables, whereas the second for stopping code execution with a returning 
+value. The usage associated with code execution is to use <i>try</i>
+before control flow statements so as to assign their returning outcome.
+As a simple example, here is an one-liner that computes the sign 
 of a variable <i>x</i>.</p>
 
 <pre><code class="language-java">sgn = try if(x>=0) return 1 else return -1;
 </code></pre>
 
-<p>You will typically want to differentiate between those <i>try</i> results
-that hold errors and those that do not. This is achieved through the <i>catch</i>
-statement; this is near-identical to a conditional statement with the only difference 
-being that it checks whether condition is an error (instead of checking a boolean value). 
-An example usage of this statement  is demonstrated in the example below. In this, the
-<i>try</i> statement is responsible for extracting the found value of <i>i</i> obtained
-from the <i>return</i> statement inside the loop, which also stops the loops immediately.
-If no value was returned, <i>try</i> assigns an error to the result saying so. The code
-then uses <i>catch</i> to handle that scenario differently by manually creating a new
-error using the <i>fail</i> statement. Notice that there can be more code between trying
-and catching errors in a result.</p> 
+<p>
+Use a similar syntax to break from loops, though handling missing
+return values will not be described for now. What should be mentioned
+is that, constrary to errors, intercepting returning values is lightweight.
+</p>
 
-<i>main.bb</i>
-<pre><code class="language-java">least = 4;
-i = 0;
-result = try while (counter&lt;=100) {
-    i = i + 3;
-    if (i&gt;=least) 
-        return i;
+<pre><code class="language-java">counter = 0;
+try while (true) {
+    print("Counter is: " + str(counter));
+    counter = counter + 1;
+    if(counter==10)
+        return;
 }
-print("Finished searching.");
-catch (result) 
-    fail("Failed to find value");
-print("The least multiple of 3 in range ["+str(least)+", 100] is: "+str(result));
 </code></pre>
 
- 
+<p>
+Finally, prepend <i>try</i> to the loop body's opening
+bracket to intercept return
+values there. Notice that this syntax only allows one
+among breaking, continuing, or triggering an unconstrained
+return (e.g., that would return from a method) 
+in the same loop. This helps write simple
+code that is easy to understand by bringing only one
+modification to each loop.
+</p>
+
+<pre><code class="language-java">counter = 0;
+while (counter&lt;10) try {
+    if (counter % 2==0)
+        return;
+    print("Odd value: " + str(counter));
+    counter = counter + 1;
+}
+</code></pre>
 
 
 <script src="prism.min.js"></script>

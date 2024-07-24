@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blombly Companion - Success-Error Handling</title>
+    <link rel="stylesheet" rel="prefetch" href="style.css">
+    <link rel="stylesheet" rel="prefetch" href="prism.css">
+</head>
+<body>
+<div class="sidebar">
+    <h2>Blombly Companion</h2>
+    <a rel="prefetch" href="index.html">Home</a>
+    <a rel="prefetch" href="introduction.html">Introduction</a>
+    <p><strong>Set things up</strong></p>
+    <a rel="prefetch" href="hello-world.html">1.1 Hello world!</a>
+    <a rel="prefetch" href="errors.html">1.2 Errors</a>
+    <p><strong>Basic features</strong></p>
+    <a rel="prefetch" href="vars-operations-comments.html">2.1 Vars, operations, comments</a>
+    <a rel="prefetch" href="control-flow.html">2.2 Control flow</a>
+    <a rel="prefetch" href="code-blocks-inline.html">2.3 Code blocks & inline</a>
+    <a rel="prefetch" href="calling-blocks.html"">2.4 Calling blocks</a>
+    <a rel="prefetch" href="structs.html">2.5 Structs</a>
+    <a rel="prefetch" href="success-fail.html"  style="color: orange;">2.6 Success-error handling</a>
+    <p><strong>Advanced features</strong></p>
+    <a rel="prefetch" href="return-from-new.html">3.1 Return from new</a>
+    <a rel="prefetch" href="overloading.html">3.2 Overloading</a>
+</div>
+
+<h1>Success-error handling</h1>
+
+<p>This is a mechanism that consists of two parts. First is a <i>try</i>
+statement, which is applied on a block of code to obtain the outcome
+of any internal <i>return</i> or <i>fail</i> signals; these are otherwise
+ways of escaping calling methods by immediately returning values or
+creating errors, but <i>try</i> ensures that any such signals are intercepted.
+Its outcome is the intercepted signal and can be assigned to a variable for
+further handling, like so:
+</p>
+
+<i>main.bb</i>
+<pre><code class="language-java">result = try {
+    x = x+1;  // invalid code that creates an error (missing variable x)
+}
+print(result); 
+print("Successfully intercepted the above error");
+</code></pre>
+
+<p>Similarly to other control flow statements, brackets
+are optional for a <i>try</i> that is applied to only one statement.
+For example, this can be used to create syntactic variation of
+other control flow statements to effectively let them compute
+values, break loops, or detect if loops where not broken. As a 
+simple example, here is an one-liner that computes the sign 
+of a variable <i>x</i>.</p>
+
+<pre><code class="language-java">sgn = try if(x>=0) return 1 else return -1;
+</code></pre>
+
+<p>You will typically want to differentiate between those <i>try</i> results
+that hold errors and those that do not. This is achieved through the <i>catch</i>
+statement; this is near-identical to a conditional statement with the only difference 
+being that it checks whether condition is an error (instead of checking a boolean value). 
+An example usage of this statement  is demonstrated in the example below. In this, the
+<i>try</i> statement is responsible for intercepting the returned value of <i>i</i>,
+which stops the loop immediately.
+If no value was returned, <i>try</i> assigns an error value to the result. The code
+then uses <i>catch</i> to handle error scenarios, where the 
+<i>fail</i> statement creates an improved description for the error signal. 
+If another type of value was encountered (anything other than an error) the
+<i>catch</i> clause is ommited and code ontinues per normal.
+Notice that there can be more code between trying some code and catching 
+its resulting errors. However, if an error value that has been intercepted
+is never caught.</p> 
+
+<i>main.bb</i>
+<pre><code class="language-java">least = 4;
+i = 0;
+result = try while (i<=100) {
+    i = i + 3;
+    if (i>=least) 
+        return i;
+}
+print("Finished searching.");
+catch (result) 
+    fail("Found nothing: "+str(result));
+print("The least multiple of 3 in range ["+str(least)+", 100] is: "+str(result));
+</code></pre>
+
+<script src="prism.min.js"></script>
+<script src="prism-java.min.js"></script>
+</body>
+</html>

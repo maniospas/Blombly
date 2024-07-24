@@ -1,28 +1,36 @@
-BUILTIN n I1000000
-BUILTIN _bb2 F0.1
-vector _bb3 n
-add a _bb3 _bb2
-BUILTIN _bb5 F0.1
-vector _bb6 n
-add b _bb6 _bb5
-vector c n
-time tic
+BUILTIN least I400
 BUILTIN i I0
-lt _bb10 i n
+BEGINFINAL _bb4
+BUILTIN _bb6 I100
+le _bb5 i _bb6
+BEGINFINAL _bb7
+BUILTIN _bb9 I3
+add i i _bb9
+ge _bb10 i least
 BEGINFINAL _bb11
-at _bb13 c i
-at _bb14 b i
-add temp _bb14 _bb13
-BUILTIN _bb16 I0
-gt _bb15 temp _bb16
-BEGINFINAL _bb17
-put # c i temp
+return _bbresult0 i
 END
-if # _bb15 _bb17
-BUILTIN _bb19 I1
-add i i _bb19
-lt _bb10 i n
+if # _bb10 _bb11
+BUILTIN _bb6 I100
+le _bb5 i _bb6
 END
-while # _bb10 _bb11
-time _bb20
-print # _bb20
+while # _bb5 _bb7
+END
+try result _bb4
+BUILTIN _bb12 "Finished searching."
+print # _bb12
+BEGINFINAL _bb13
+str _bb15 result
+BUILTIN _bb16 "Found nothing: "
+add _bb14 _bb16 _bb15
+fail _bbresult1 _bb14
+END
+catch _bbresult2 result _bb13
+str _bb18 result
+BUILTIN _bb20 ", 100] is: "
+str _bb22 least
+BUILTIN _bb23 "The least multiple of 3 in range ["
+add _bb21 _bb23 _bb22
+add _bb19 _bb21 _bb20
+add _bb17 _bb19 _bb18
+print # _bb17

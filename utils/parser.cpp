@@ -125,19 +125,20 @@ public:
             return first_name;
         }
 
-        // code block declaration
-        if(request_block) {
-            std::string requested_var = create_temp();
-            ret += "BEGIN "+requested_var+"\n";
-            parse(start, end);  // important to do a full parse
-            ret += "END\n";
-            return requested_var;
-        }
         if(first_name=="{" && find_end(start+1, end, "}", true)==end) {
             bbassert(!is_final, "Code block declarations cannot be final (only variables holding the blocks can be final)");
             std::string requested_var = create_temp();
             ret += "BEGIN "+requested_var+"\n";
             parse(start+1, end-1);  // important to do a full parse
+            ret += "END\n";
+            return requested_var;
+        }
+
+        // code block declaration if there is no { and a code block is requested
+        if(request_block) {
+            std::string requested_var = create_temp();
+            ret += "BEGIN "+requested_var+"\n";
+            parse(start, end);  // important to do a full parse
             ret += "END\n";
             return requested_var;
         }
@@ -175,31 +176,46 @@ public:
         bbassert(tokens[start].name!="#", "Only assignments can start with `#`\n    because this sets code block properties after its declaration.");
 
         if(first_name=="if" || first_name=="catch" || first_name=="while") {
-            int start_if_body = find_end(start+1, end, "{");
-            bbassert(start_if_body!=MISSING, first_name+" statement has no starting bracket");
-            bbassert(start_if_body!=start+1, first_name+" statement has no condition");
+            // sanitizer has already made sure that there is a parenthesis just after the command
+            int start_parenthesis = find_end(start, end, "(");
+            int start_if_body = find_end(start_parenthesis+1, end, ")", true)+1;
             int condition_start_in_ret = ret.size();
             std::string condition = parse_expression(start+1, start_if_body-1);
             std::string condition_text;
             if(first_name=="while" && ret.substr(condition_start_in_ret, 5)!="BEGIN")
                 condition_text = ret.substr(condition_start_in_ret);
-            bbassert(condition!="#", " condition does not evaluate to anything");
-            int body_end = find_end(start_if_body+1, end, "}");
+            bbassert(condition!="#", first_name+" condition does not evaluate to anything");
+            int body_end = first_name=="while"?MISSING:find_end(start_if_body, end, "else");
+            if(body_end==MISSING) 
+                body_end = end;
             std::string bodyvar = create_temp();
             ret += "BEGIN "+bodyvar+"\n";
-            parse(start_if_body+1, body_end-1);
+            if(tokens[start_if_body].name=="{") {
+                bbassert(find_end(start_if_body+1, body_end, "}", true)==body_end, "there is leftover code after closing }");
+                parse(start_if_body+1, body_end-1);
+            }
+            else if(tokens[body_end].name=="else") 
+                parse(start_if_body, body_end-1);
+            else 
+                parse(start_if_body, body_end);
             if(first_name=="while")
                 ret += condition_text;
             ret += "END\n";
-            if(body_end<=end-2 && tokens[body_end+1].name=="else") {
+            if(body_end<=end-1 && tokens[body_end].name=="else") {
                 bbassert(first_name!="while", "while expression cannot have an else branch");
-                bbassert(tokens[body_end+2].name=="{", "else statement is not immediately followed by a bracket");
-                int else_end = find_end(body_end+3, end, "}", true);
-                bbassert(else_end==end, "else statement body ends before statement");
-                body_end = find_end(start_if_body+1, end, "}");
+                //bbassert(tokens[body_end+2].name=="{", "else statement is not immediately followed by a bracket");
+                //std::cout << "ending\n";
+                int else_end = end;
+                if(tokens[body_end+1].name=="{") {
+                    else_end = find_end(body_end+2, end, "}", true);
+                    bbassert(else_end==end, "else statement body ends before statement");
+                }
                 std::string endvar = create_temp();
                 ret += "BEGIN "+endvar+"\n";
-                parse(body_end+3, else_end-1);
+                if(tokens[body_end+1].name=="{")
+                    parse(body_end+2, else_end-1);
+                else
+                    parse(body_end+1, else_end);
                 ret += "END\n";
                 bodyvar += " "+endvar;
                 body_end = else_end;
@@ -326,7 +342,7 @@ public:
         if(first_name=="new" || first_name=="default" || first_name=="try") {
             std::string var = first_name=="default"?"#":create_temp();
             std::string called = create_temp();
-            std::string parsed = parse_expression(start+1, end);
+            std::string parsed = parse_expression(start+1, end, tokens[start+1].name != "{");
             if(first_name=="new" && ret.substr(ret.size()-4)=="END\n")
                 ret = ret.substr(0, ret.size()-4)+"return # this\nEND\n";  // new should return this by default 
             bbassert(parsed!="#", "An expression that computes no value was given to "+first_name);
@@ -442,11 +458,12 @@ void sanitize(std::vector<Token>& tokens) {
             continue;
         }
         updatedTokens.push_back(tokens[i]);
-
-        if((tokens[i].name=="while" || tokens[i].name=="if")  
+        if(tokens[i].name=="else" && i>0 && tokens[i-1].name==";")
+            bberror("`else` cannot be the next statement after `;`. You may have failed to close brackets\n    or are using a bracketless if, which should not have `;` after its first statement \n    Found at line "+std::to_string(tokens[i].line));
+        if((tokens[i].name=="while" || tokens[i].name=="if" || tokens[i].name=="catch")  
             && i<tokens.size()-1 && tokens[i+1].name!="(") 
             bberror("A ( should always follow `"+tokens[i].name+"` but "+tokens[i+1].name+" found at line "+std::to_string(tokens[i].line));
-        if ((tokens[i].name == "default" || tokens[i].name == "new" || tokens[i].name == "try")
+        if ((tokens[i].name == "default" || tokens[i].name == "new")// || tokens[i].name == "try")
              && i < tokens.size()-1 && tokens[i+1].name!="{")
             bberror("A { symbol should always follow `"+tokens[i].name+"` but `"+tokens[i+1].name+"` found.\n    To aply one a code block variable (which is a code smell), inline like this `"+tokens[i].name+" {block:}`.\n    Apply the fix at line "+std::to_string(tokens[i].line)); 
         

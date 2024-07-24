@@ -85,6 +85,8 @@ std::vector<Token> tokenize(const std::string& text) {
             continue;
         }
         if(inString) {
+            if(c=='\n' || c=='\t')
+                c = ' ';
             word += c;
             continue;
         }
