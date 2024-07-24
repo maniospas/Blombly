@@ -70,8 +70,10 @@ then uses <i>catch</i> to handle error scenarios, where the
 If another type of value was encountered (anything other than an error) the
 <i>catch</i> clause is ommited and code ontinues per normal.
 Notice that there can be more code between trying some code and catching 
-its resulting errors. However, if an error value that has been intercepted
-is never caught.</p> 
+its resulting errors. To prevent code smells, 
+dangling errors that are never caught create errors when their scope ends.
+This means that you can safely use try an interceptor for <i>return</i>
+values without worrying about catch clauses unrelated to this functionality.</p> 
 
 <i>main.bb</i>
 <pre><code class="language-java">least = 4;
