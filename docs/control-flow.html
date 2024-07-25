@@ -26,7 +26,7 @@
     <a rel="prefetch" href="return-from-new.html">3.1 Return from new</a>
     <a rel="prefetch" href="overloading.html">3.2 Overloading</a>
 </div>
-
+<button class="toggle-button" onclick="toggleSidebar()">☰</button>
 <h1>Control Flow</h1>
 
 <p>Control flow expressions alter which code segments are executed next.
@@ -42,7 +42,7 @@ success values can also create advanced versions of conditional branching and lo
 that are also described here for completeness.
 </p>
 
-
+<h3>Conditions</h3>
 <p>
 The <i>if</i> and <i>while</i> statements implement conditional branching 
 and loops respectively. Of these, 
@@ -59,6 +59,27 @@ else {
 }
 </code></pre>
 
+<p>If code blocks comprise only one statement, you may replace brackets with 
+that statement. In this case, a semicolon must be placed only at the end
+of the condition to separate it from the rest of code. If you accidentally
+pout a semicolon before an <i>else</i> statement, the compiler will
+create an error message for you. For example, 
+the following code has valid syntax for both the first branch to print
+"positive" and the the nested condition that creates an <i>else if</i> clause.
+Given the option, avoid this type of nesting conditions, as they may
+create memory bloat. Instead, rely on <i>try</i> statements described
+below.
+</p>
+
+<i>main.bb</i>
+<pre><code class="language-java">x = 1;
+if (x&gt;0) 
+    print("positive")
+else if(x&lt;0)
+    print("negative");
+</code></pre>
+
+<h3>Loops</h3>
 
 <p>The <i>while</i> statement continuously executes a code block as long 
 as the expression evaluates to <i>true</i>,
@@ -82,12 +103,13 @@ while (counter&lt;10) {
     counter = counter + 1;
 }</code></pre>
 
+<h3>Introduction to signal interception</h3>
 <p>
-Blombly consiously avoids implementing any break and continue keywords,
+Blombly does not implement break and continue keywords,
 because these can be substituted by a mixture of the <i>try</i> and <i>return</i> 
-statements. These are covered in detail in 
-<a rel="prefetch" href="calling-blocks.html">section 2.6</a>,
-but here we get a first taste. The first is broadly responsible for
+statements. The latter create a type of signal interception pattern of those
+detailed in <a rel="prefetch" href="calling-blocks.html">section 2.6</a>;
+here, we get a first taste. The first is broadly responsible for
 intercepting any returning (or error) values so that they can be assigned 
 to variables, whereas the second for stopping code execution with a returning 
 value. The usage associated with code execution is to use <i>try</i>
@@ -136,5 +158,10 @@ while (counter&lt;10) try {
 
 <script src="prism.min.js"></script>
 <script src="prism-java.min.js"></script>
+<script>
+    function toggleSidebar() {
+        document.body.classList.toggle('show-sidebar');
+    }
+</script>
 </body>
 </html>

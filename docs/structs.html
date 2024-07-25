@@ -26,7 +26,7 @@
     <a rel="prefetch" href="return-from-new.html">3.1 Return from new</a>
     <a rel="prefetch" href="overloading.html">3.2 Overloading</a>
 </div>
-
+<button class="toggle-button" onclick="toggleSidebar()">☰</button>
 <h1>Structs</h1>
 
 <p>You can create a data structure (aka object) with the <code>new {...}</code> syntax.
@@ -105,5 +105,10 @@ print(point.norm());</code></pre>
 
 <script src="prism.min.js"></script>
 <script src="prism-java.min.js"></script>
+<script>
+    function toggleSidebar() {
+        document.body.classList.toggle('show-sidebar');
+    }
+</script>
 </body>
 </html>

@@ -26,7 +26,7 @@
     <a rel="prefetch" href="return-from-new.html">3.1 Return from new</a>
     <a rel="prefetch" href="overloading.html">3.2 Overloading</a>
 </div>
-
+<button class="toggle-button" onclick="toggleSidebar()">☰</button>
 <h1>Introduction</h1>
 
 <p>
@@ -60,5 +60,10 @@ So, who is this language for? It may be a good idea to look at blombly if your a
 
 <script src="prism.min.js"></script>
 <script src="prism-java.min.js"></script>
+<script>
+    function toggleSidebar() {
+        document.body.classList.toggle('show-sidebar');
+    }
+</script>
 </body>
 </html>

@@ -26,7 +26,7 @@
     <a rel="prefetch" href="return-from-new.html">3.1 Return from new</a>
     <a rel="prefetch" href="overloading.html">3.2 Overloading</a>
 </div>
-
+<button class="toggle-button" onclick="toggleSidebar()">☰</button>
 <h1>Hello world!</h1>
 
 <p>Let us create a first program to show a compilation and interpretation process.
@@ -84,6 +84,11 @@ for easier reading, although without removing the compilation's intemediate vari
 
 <script src="prism.min.js"></script>
 <script src="prism-java.min.js"></script>
+<script>
+    function toggleSidebar() {
+        document.body.classList.toggle('show-sidebar');
+    }
+</script>
 <script src="prism-bbvm.min.js"></script>
 </body>
 </html>

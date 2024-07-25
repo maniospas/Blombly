@@ -424,6 +424,7 @@ Data* executeBlock(std::vector<Command*>* program,
                     bbassert(condition->getType()==CODE, "Can only inline a non-called code block for try condition");
                     Code* codeCondition = (Code*)condition;
                     value = executeBlock((std::vector<Command*>*)codeCondition->getProgram(), codeCondition->getStart(), codeCondition->getEnd(), memory_, returnSignal, args);
+                    
                     if(value==nullptr || !*returnSignal) {
                         *returnSignal = false;
                         value = new BError("No return or fail signal was intercepted");

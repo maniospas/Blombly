@@ -386,7 +386,10 @@ public:
             if(call==start) // if it's just a redundant parenthesis
                 return parse_expression(start+1, end-1);
             std::string var = create_temp();
-            ret += "call "+var+" "+(call+1<end-1?parse_expression(call+1, end-1):"#")+" "+parse_expression(start, call-1)+"\n";
+            if(tokens[call+1].name=="{")
+                bbassert(find_end(call+1, end, "}", true)!=end-1, "Cannot directly enclose brackets inside method call's parenthesis to avoid code smells.");
+            bbassert(call+1!=end-2, "Cannot have only one code block argument in a method call, because it is already a code bracket. For clarity, use inlining of the argument");
+            ret += "call "+var+" "+(call+1<=end-1?parse_expression(call+1, end-1, true):"#")+" "+parse_expression(start, call-1)+"\n";
             return var;
         }
         
@@ -466,7 +469,7 @@ void sanitize(std::vector<Token>& tokens) {
         if((tokens[i].name=="while" || tokens[i].name=="if" || tokens[i].name=="catch")  
             && i<tokens.size()-1 && tokens[i+1].name!="(") 
             bberror("A ( should always follow `"+tokens[i].name+"` but "+tokens[i+1].name+" found at line "+std::to_string(tokens[i].line));
-        if ((tokens[i].name == "default" || tokens[i].name == "new")// || tokens[i].name == "try")
+        if ((tokens[i].name == "new")//|| tokens[i].name == "default" // || tokens[i].name == "try")
              && i < tokens.size()-1 && tokens[i+1].name!="{")
             bberror("A { symbol should always follow `"+tokens[i].name+"` but `"+tokens[i+1].name+"` found.\n    To aply one a code block variable (which is a code smell), inline like this `"+tokens[i].name+" {block:}`.\n    Apply the fix at line "+std::to_string(tokens[i].line)); 
         

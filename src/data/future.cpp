@@ -38,7 +38,8 @@ Data* Future::getResult() const {
     try {
         if (data->thread.joinable()) 
             data->thread.join();
-    } catch (...) {
+    } 
+    catch (...) {
         bberror("Failed to join thread");
     }
     auto res = data->result;

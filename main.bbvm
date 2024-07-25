@@ -1,36 +1,17 @@
-BUILTIN least I4
-BUILTIN i I0
-BEGINFINAL _bb4
-BUILTIN _bb6 I100
-le _bb5 i _bb6
-BEGINFINAL _bb7
-BUILTIN _bb9 I3
-add i i _bb9
-ge _bb10 i least
-BEGINFINAL _bb11
-return _bbresult0 i
+BUILTIN x I1
+BUILTIN _bb2 I0
+gt _bb1 x _bb2
+BEGINFINAL _bb3
+BUILTIN _bb4 "positive"
+print # _bb4
 END
-if # _bb10 _bb11
-BUILTIN _bb6 I100
-le _bb5 i _bb6
+BEGINFINAL _bb5
+BUILTIN _bb7 I0
+lt _bb6 x _bb7
+BEGINFINAL _bb8
+BUILTIN _bb9 "negative"
+print # _bb9
 END
-while # _bb5 _bb7
+if # _bb6 _bb8
 END
-try result _bb4
-BUILTIN _bb12 "Finished searching."
-print # _bb12
-BEGINFINAL _bb13
-str _bb15 result
-BUILTIN _bb16 "Found nothing: "
-add _bb14 _bb16 _bb15
-fail _bbresult1 _bb14
-END
-catch _bbresult2 result _bb13
-str _bb18 result
-BUILTIN _bb20 ", 100] is: "
-str _bb22 least
-BUILTIN _bb23 "The least multiple of 3 in range ["
-add _bb21 _bb23 _bb22
-add _bb19 _bb21 _bb20
-add _bb17 _bb19 _bb18
-print # _bb17
+if # _bb1 _bb3 _bb5

@@ -26,7 +26,7 @@
     <a rel="prefetch" href="return-from-new.html">3.1 Return from new</a>
     <a rel="prefetch" href="overloading.html">3.2 Overloading</a>
 </div>
-
+<button class="toggle-button" onclick="toggleSidebar()">☰</button>
 <h1>Success-error handling</h1>
 
 <p>This is a mechanism that consists of two parts. First is a <i>try</i>
@@ -94,5 +94,10 @@ print("The least multiple of 3 in range ["+str(least)+", 100] is: "+str(result))
 
 <script src="prism.min.js"></script>
 <script src="prism-java.min.js"></script>
+<script>
+    function toggleSidebar() {
+        document.body.classList.toggle('show-sidebar');
+    }
+</script>
 </body>
 </html>
