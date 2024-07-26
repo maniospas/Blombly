@@ -1,17 +1,15 @@
-BUILTIN x I1
-BUILTIN _bb2 I0
-gt _bb1 x _bb2
+BEGINFINAL _bb0
+pop x args
+pop y args
+add _bb1 x y
+return _bbresult0 _bb1
+END
+IS add _bb0
+final # add
 BEGINFINAL _bb3
-BUILTIN _bb4 "positive"
-print # _bb4
+BUILTIN _bb4 I1
+BUILTIN _bb5 I2
+list args _bb4 _bb5
 END
-BEGINFINAL _bb5
-BUILTIN _bb7 I0
-lt _bb6 x _bb7
-BEGINFINAL _bb8
-BUILTIN _bb9 "negative"
-print # _bb9
-END
-if # _bb6 _bb8
-END
-if # _bb1 _bb3 _bb5
+call ret _bb3 add
+print # ret

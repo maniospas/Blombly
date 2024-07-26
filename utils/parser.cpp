@@ -35,6 +35,7 @@ private:
     std::vector<Token> tokens;
     int tmp_var;
     std::string ret;
+    std::string code_block_prepend;
     int find_end(int start, int end, const std::string& end_string, bool missing_error=false) {
         int depth = 0;
         for(int i=start;i<=end;++i) {
@@ -109,6 +110,7 @@ public:
         // expresion parsing that is basically just a variable name
         std::string first_name = tokens[start].name;
         if(start==end) {
+            bbassert(code_block_prepend.size()==0, "Positional arguments were declared on an assignment's left-hand-side but the right-hand-side did not evaluate to a code block");
             int type = tokens[start].builtintype;
             if(type) {
                 std::string var = create_temp();
@@ -129,10 +131,13 @@ public:
             bbassert(!is_final, "Code block declarations cannot be final (only variables holding the blocks can be final)");
             std::string requested_var = create_temp();
             ret += "BEGIN "+requested_var+"\n";
+            ret += code_block_prepend;
+            code_block_prepend = "";
             parse(start+1, end-1);  // important to do a full parse
             ret += "END\n";
             return requested_var;
         }
+        bbassert(code_block_prepend.size()==0, "Positional arguments were declared on an assignment's left-hand-side but the right-hand-side did not evaluate to a code block");
 
         // code block declaration if there is no { and a code block is requested
         if(request_block) {
@@ -226,21 +231,92 @@ public:
                 int end_entry = find_end(start_entry+1, assignment, "]", true);
                 bbassert(end_entry==assignment-1, "Non-empty expression between last closing ] and =");
                 std::string obj = parse_expression(start, start_entry-1);
-                bbassert(obj!="#", "Empty expression before last entry notation");
+                bbassert(obj!="#", "There is no expression outcome to assign to");
                 bbassert(!is_final, "Entries cannot be final.");
                 ret += "put # "+obj+" "+parse_expression(start_entry+1, end_entry-1)+" "+parse_expression(assignment+1, end)+"\n";
                 return "#";
             }
             if(start_assignment!=MISSING) {
                 bbassert(start_assignment>=start+1, "Assignment expression can not start with `.`.");
-                std::string obj = parse_expression(start, start_assignment-1);
-                bbassert(obj!="#", "Empty expression before last membership");
+                int parenthesis_start = find_end(start+1, assignment-1, "(");
+                std::string obj = parse_expression(start, (parenthesis_start==MISSING?assignment:parenthesis_start)-1);
+                bbassert(obj!="#", "There is no expression outcome to assign to");
+                if(parenthesis_start!=MISSING) {
+                    code_block_prepend = "";
+                    int parenthesis_end = find_end(parenthesis_start+1, assignment-1, ")", true);
+                    bbassert(parenthesis_end==assignment-1, "Inappropriately placed code after last parenthesis in assignment's left hand side");
+                    for(int j=parenthesis_start+1;j<parenthesis_end;++j) {
+                        if(tokens[j].name!=",") {
+                            code_block_prepend += "pop "+tokens[j].name+" args\n";
+                        }
+                    }
+                }
                 ret += (is_final?"setfinal # ":"set # ")+obj+" "+parse_expression(start_assignment+1, assignment-1)+" "+parse_expression(assignment+1, end)+"\n";
                 return "#";
             }   
-            bbassert(assignment==start+1, "Can only assign to one variable");
-            // TODO: do not allow assignment to keywords
+            int parenthesis_start = find_end(start+1, assignment-1, "(");
+            bbassert(parenthesis_start==MISSING?assignment==start+1:parenthesis_start==start+1, "Can only assign to one variable");
+            first_name = parse_expression(start, (parenthesis_start==MISSING?assignment:parenthesis_start)-1);
+            if(first_name=="int" 
+                || first_name=="float" 
+                || first_name=="str" 
+                || first_name=="file"
+                || first_name=="list"
+                || first_name=="pop"
+                || first_name=="push"
+                || first_name=="len"
+                || first_name=="next"
+                || first_name=="vector"
+                || first_name=="default"
+                || first_name=="print"
+                || first_name=="try"
+                || first_name=="new"
+                || first_name=="return"
+                || first_name=="if"
+                || first_name=="else"
+                || first_name=="while"
+                || first_name=="iter"
+                //|| first_name=="args"
+                || first_name=="="
+                || first_name=="+"
+                || first_name=="-"
+                || first_name=="*"
+                || first_name=="^"
+                || first_name=="/"
+                || first_name=="%"
+                || first_name=="=="
+                || first_name=="<="
+                || first_name==">="
+                || first_name=="!="
+                || first_name=="and"
+                || first_name=="or"
+                || first_name=="not"
+                || first_name=="("
+                || first_name==")"
+                || first_name=="{"
+                || first_name=="}"
+                || first_name=="["
+                || first_name=="]"
+                || first_name=="."
+                || first_name==","
+                || first_name==":"
+                || first_name==";"
+                || first_name=="#")
+                bberror("Cannot assign to blombly keyword `"+first_name+"`.\n    This is for safety reasons (all keywords are considered final).\n    Most operations can be overloaded in struct definitions.");
+            
+            if(parenthesis_start!=MISSING) {
+                code_block_prepend = "";
+                int parenthesis_end = find_end(parenthesis_start+1, assignment-1, ")", true);
+                bbassert(parenthesis_end==assignment-1, "Inappropriately placed code after last parenthesis in assignment's left hand side");
+                for(int j=parenthesis_start+1;j<parenthesis_end;++j) {
+                    if(tokens[j].name!=",") {
+                        code_block_prepend += "pop "+tokens[j].name+" args\n";
+                    }
+                }
+            }
+
             ret += PARSER_IS+" "+first_name+" "+parse_expression(assignment+1,end)+"\n";
+
             if(is_final)
                 ret += "final # "+first_name+"\n";
             return "#";
@@ -272,6 +348,23 @@ public:
         if(eor!=MISSING) {
             std::string var = create_temp();
             ret += "or "+var+" "+parse_expression(start, eor-1)+" "+parse_expression(eor+1, end)+"\n";
+            return var;
+        }
+
+        // generate list from commas
+        int listgen = find_end(start, end, ",");
+        if(listgen!=MISSING) {
+            std::string list_vars = parse_expression(start, listgen-1);
+            while(listgen!=MISSING) {
+                int next = find_end(listgen+1, end, ",");
+                if(next==MISSING)
+                    list_vars += " "+parse_expression(listgen+1, end);
+                else
+                    list_vars += " "+parse_expression(listgen+1, next-1);
+                listgen = next;
+            }
+            std::string var = create_temp();
+            ret += "list "+var+" "+list_vars+"\n";
             return var;
         }
 
@@ -368,7 +461,8 @@ public:
             || first_name=="bool"
             || first_name=="push"
             || first_name=="pop"
-            || first_name=="File"
+            || first_name=="file"
+            || first_name=="next"
             //|| first_name=="list"
             || first_name=="vector") {
             bbassert(tokens[start+1].name=="(", "Missing ( just after "+first_name);
@@ -388,7 +482,6 @@ public:
             std::string var = create_temp();
             if(tokens[call+1].name=="{")
                 bbassert(find_end(call+1, end, "}", true)!=end-1, "Cannot directly enclose brackets inside method call's parenthesis to avoid code smells.");
-            bbassert(call+1!=end-2, "Cannot have only one code block argument in a method call, because it is already a code bracket. For clarity, use inlining of the argument");
             ret += "call "+var+" "+(call+1<=end-1?parse_expression(call+1, end-1, true):"#")+" "+parse_expression(start, call-1)+"\n";
             return var;
         }

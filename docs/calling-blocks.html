@@ -29,7 +29,57 @@
 <button class="toggle-button" onclick="toggleSidebar()">☰</button>
 <h1>Calling blocks</h1>
 
-<p>[To be added]</p>
+<p>
+Code blocks defined in blombly can be called like methods by injecting values 
+as keyword arguments separated by semicolons (because in truth the arguments
+constitute a bracketless code block, but more on this later). 
+The last argument may be a list (values separated by commas), which the 
+intepreter assign to the <i>args</i> keyword.  
+When not transforming data, it is recommended to
+stick to keywords for better readability and maintainability 
+per the principles of forward-oriented programming that blombly follows. 
+For example, keyword arguments create a sense of the functional
+role of each argument for those reading code.
+</p>
+<p>
+All calls run in parallel, but details of this orchestration are purposefully 
+hidden so that you can write code as if all method calls were fully sequential 
+instead. In addition to their arguments, running code blocks can access <i>final</i> 
+values from the scope of their declaration.
+</p>
+
+<p>
+The <i>return</i> keyword ends block execution with the corrosponding returning 
+value. That value are intercepted by the block call in the scope of this section.
+However, the return signal may also intercepted by the <i>new</i> mechanism of the 
+<a rel="prefetch" href="structs.html">next section</a> and the <i>try</i> mechanism 
+of <a rel="prefetch" href="success-fail.html">section 2.6</a>. 
+Beware the inlining such blocks transfers their return statements to parent blocks too.
+</p>
+
+<p>
+The example below defines a simple addition block and calls it with 
+pecific values for <i>x</i> and <i>y</i>: The particular declaration is made <i>final</i>
+for logic safety, but this does not need to always be the case.
+</p>
+
+<i>main.bb</i>
+<pre><code class="language-java">final add = {
+    return x + y;
+}
+
+ret = add(x=1; y=2);
+print(ret);
+</code></pre>
+
+
+<p>
+In fact, you can have any code block there (by exception, it does not need brackets) and it 
+will run without affecting the current scope while keeping any assignments to be prepended to the block's
+execution.
+</p>
+    
+    
 
 <script src="prism.min.js"></script>
 <script src="prism-java.min.js"></script>

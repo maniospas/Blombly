@@ -1,5 +1,5 @@
-x = 1;
-if (x>0) 
-    print("positive")
-else if(x<0)
-    print("negative");
+final add(x,y) = {
+    return x+y;
+}
+ret = add(args=1,2);
+print(ret);
