@@ -16,10 +16,16 @@
     <a rel="prefetch" href="hello-world.html">1.1 Hello world!</a>
     <a rel="prefetch" href="errors.html">1.2 Errors</a>
     <p><strong>Basic features</strong></p>
-    <a rel="prefetch" href="vars-operations-comments.html">2.1 Vars, operations, comments</a>
+    <a rel="prefetch" href="vars-operations-comments.html">
+        2.1 Vars, operations, comments
+    </a>
     <a rel="prefetch" href="control-flow.html">2.2 Control flow</a>
-    <a rel="prefetch" href="code-blocks-inline.html">2.3 Code blocks & inline</a>
-    <a rel="prefetch" href="calling-blocks.html"  style="color: orange;">2.4 Calling blocks</a>
+    <a rel="prefetch" href="code-blocks-inline.html">
+        2.3 Code blocks & inline
+    </a>
+    <a rel="prefetch" href="calling-blocks.html" style="color: orange;">
+        2.4 Calling blocks
+    </a>
     <a rel="prefetch" href="structs.html">2.5 Structs</a>
     <a rel="prefetch" href="success-fail.html">2.6 Success-error handling</a>
     <p><strong>Advanced features</strong></p>
@@ -28,76 +34,92 @@
 </div>
 <button class="toggle-button" onclick="toggleSidebar()">☰</button>
 <h1>Calling blocks</h1>
-
 <p>
-here are two mechanisms for creating callable code blocks (aka methods)
-in blombly. The first relies on directly calling defined blocks by passing
-variables as keyword arguments. The second modifies block definitions so
-that they accept positional arguments too (or only keyword arguments).
-
-All calls other than builtin methods and overloading of builtin methods 
-run in parallel, but details of this orchestration are purposefully 
-hidden so that you can write code as if all method calls were fully sequential 
-instead. In addition to their arguments, running code blocks can access <i>final</i> 
-values from the scope of their declaration.
+    There are two mechanisms for creating callable code blocks (aka methods) in 
+    Blombly. The first relies on directly calling defined blocks by passing 
+    variables as keyword arguments. The second modifies block definitions so 
+    that they accept positional arguments, or a mix of positional and keyword
+    arguments.
+    Calls to blocks other than builtin methods (or those overloading builtin methods
+    in structs) run in parallel. Details of this orchestration are purposefully hidden 
+    so that you can write code as if all calls were sequential instead. 
+    In addition to their arguments, called blocks can access <i>final</i> values from the 
+    scope of their declaration.
 </p>
-
 <h3>Calling with keyword arguments</h3>
-
 <p>
-Code blocks defined in blombly can be called like methods by injecting values 
-as keyword arguments separated by semicolons (the arguments
-constitute a bracketless code block, but more on this later). 
-When not transforming data, it is recommended to
-stick to keywords for better readability and maintainability 
-per the principles of forward-oriented programming that blombly follows. 
-For example, keyword arguments create a sense of the functional
-role of each argument for those reading code.
+    Code blocks defined in Blombly can be called like methods by injecting 
+    values as keyword arguments separated by semicolons. Actually, the
+    arguments constitute a bracketless code block that runs in an interim
+    new context whose assignments are transferred to the code call. When not 
+    transforming data, it is recommended to stick to keywords for better 
+    readability and maintainability per the principles of forward-oriented 
+    programming that Blombly follows. For example, keyword arguments create a 
+    sense of the functional role of each argument for those reading code.
 </p>
-
 <p>
-The <i>return</i> keyword ends block execution with the corrosponding returning 
-value. That value are intercepted by the block call in the scope of this section.
-However, the return signal may also intercepted by the <i>new</i> mechanism of the 
-<a rel="prefetch" href="structs.html">next section</a> and the <i>try</i> mechanism 
-of <a rel="prefetch" href="success-fail.html">section 2.6</a>. 
-Beware the inlining such blocks transfers their return statements to parent blocks too.
+    The <i>return</i> keyword ends block execution with the corresponding 
+    returning value. That value is intercepted by the block call in the scope 
+    of this section. However, the return signal may also be intercepted by the 
+    <i>new</i> mechanism of the <a rel="prefetch" href="structs.html">next 
+    section</a> and the <i>try</i> mechanism of <a rel="prefetch" 
+    href="success-fail.html">section 2.6</a>. Beware that inlining such blocks 
+    transfers their return statements to parent blocks too. There is only one
+    returned value, but as always you can use commas between several values
+    to create lists of returned values.
 </p>
-
 <p>
-The example below defines a simple addition block and calls it with 
-pecific values for <i>x</i> and <i>y</i>: The particular declaration is made <i>final</i>
-for logic safety, but this does not need to always be the case.
+    The example below defines a simple block and calls it with 
+    specific values for that inputs it needs to execute: The particular 
+    declaration is made <i>final</i> for logic safety, but this does not 
+    need to always be the case.
 </p>
-
 <i>main.bb</i>
 <pre><code class="language-java">final add = {
     return x + y;
 }
 
-result = add(x=1; y=2);
+result = add(x=1;y=2);
+print(result);
+</code></pre>
+<p>
+    It was already mentioned that the space reserved for
+    keyword arguments in block calls can in
+    general be any other code block (without the brackets,
+    as it requires fewer symbols to write and the range 
+    is obvious from the call's parentheses). This means that
+    you can also inline other blocks that serve as configuration
+    for multiple calls. This pattern is demonstrated below, 
+    alongside usage of the default keyword to set variables if 
+    not already declared.
+</p>
+
+<i>main.bb</i>
+
+<pre><code class="language-java">final add = {
+    default scale = 1;
+    return ((x/scale) + (y/scale))*scale;
+}
+config = {scale=2}
+result = add(config:x=1;y=2);
 print(result);
 </code></pre>
 
 
-<p>
-In fact, you can have any code block there (by exception, it does not need brackets) and it 
-will run without affecting the current scope while keeping any assignments to be prepended to the block's
-execution.
-</p>
-
 <h3>Calling with positional arguments</h3>
-
 <p>
-Blombly also supports calling blocks using comma-separated positional arguments.
-This is a familiar programming language pattern, and there are two ways to enable it
-by retrieving positional values withing called blocks. The lower-level option is to make 
-use of the  <code>args</code> variable generated by the compiler, which expressly holds 
-positional arguments as a list. You can then access list elements or use <code>next</code> 
-to obtain their values (reminder that this pops the first list element, contrary to pop that
-pos the last). An example of this coding pattern is shown below.
+    Blombly also supports calling blocks using comma-separated positional 
+    arguments. This is a common programming language pattern, and there are 
+    two ways to enable it; both tackle how to retrieving positional values 
+    from within called blocks. 
+    The lower-level option is to make use of the <code>args</code> variable 
+    generated by the compiler, which expressly holds positional arguments as a 
+    list. For code safety, this is considered a language keyword and you are not
+    allowed to assign to it.
+    You can then access list elements or use <code>next</code> to obtain 
+    their values (reminder that this pops the first list element, contrary to 
+    pop that pops the last). An example of this coding pattern is shown below.
 </p>
-
 <i>main.bb</i>
 <pre><code class="language-java">final add = {
     x = next(args);
@@ -108,19 +130,19 @@ pos the last). An example of this coding pattern is shown below.
 result = add(1, 2);
 print(result);
 </code></pre>
-
 <p>
-A second and higher-level way of preparing code blocks for calling with positional arguments
-is to add argument names inside a parenethesis next to the block's name, separated by comma. 
-This does not modify the block's name and the latter be assigned to other variables per normal
-or used for inlining (provided a local <code>args</code> variable).
-The following example is equivalent to the previous one. Although <code>next</code> removes
-the two entries of the provided arguments, you can still access the rest if more are provided
-in the call.
+    A second and higher-level way of parsing positional arguments is to add their
+    names inside a parenthesis next to the block's name, separated by commas. 
+    This is a shorthand and still lets the block be be assigned to other variables 
+    per normal. Blocks declared this way can be inlined directly within other called 
+    blocks (because they must user ther scope's <i>args</i>). 
+    The following example is equivalent to the previous one. Finally, the implicit
+    <code>next</code> remove the first entries from the arguments, you can still 
+    access the rest if more are provided in the call.
 </p>
-
 <i>main.bb</i>
-<pre><code class="language-java">final add(x, y) = { // shorthand for front-popping these values with next
+<pre><code class="language-java">final add(x, y) = { 
+    // shorthand for front-popping these values with next
     return x + y;
 }
 test = add; // can still transfer the definition this way
@@ -128,30 +150,24 @@ test = add; // can still transfer the definition this way
 result = test(1, 2);
 print(result);
 </code></pre>
-
-
 <h3>Mixing the two types of arguments</h3>
-
-
 <p>
-Blombly allows mixing of positional and "keyword" arguments in a single call
-with a pattern that reads similarly to conditional probabilities <code>name(args | kwargs)</code>
-where args are the positional arguments and kwargs the bracketless code block that is used
-to generate the keyword arguments. Positional arguments are generated
-first from the calling scope, and can therefore modify the <Code>args</Code> if needed.
+    Blombly allows mixing of positional and "keyword" arguments in a single 
+    call with a pattern that reads similarly to conditional probabilities 
+    <code>name(args | kwargs)</code> where args are the positional arguments and 
+    kwargs the bracketless code block that is used to generate the keyword 
+    arguments. Positional arguments are generated first from the calling scope, 
+    and can therefore modify the <code>args</code> if needed.
 </p>
-
 <p>
-In the following example, the block <code>add</code> is defined with two parameters, 
-<code>x</code> and <code>y</code>, and two default parameters, <code>wx</code> and <code>wy</code>. 
-When calling <code>add</code>, we pass the numbers <code>1</code> and <code>2</code> as positional 
-arguments, which are internally matched to <code>x</code> and <code>y</code>. Knowing
-the details about default parameters is not necessary at the point where the decision to use the
-block is made.
+    In the following example, the block <code>add</code> is defined with two 
+    parameters, <code>x</code> and <code>y</code>, and two default parameters, 
+    <code>wx</code> and <code>wy</code>. When calling <code>add</code>, we pass 
+    the numbers <code>1</code> and <code>2</code> as positional arguments, which 
+    are internally matched to <code>x</code> and <code>y</code>. Knowing the 
+    details about default parameters is not necessary at the point where the 
+    decision to use the block is made.
 </p>
-
-    
-
 <i>main.bb</i>
 <pre><code class="language-java">final add(x, y) = {
     default wx = 1;
@@ -162,8 +178,6 @@ block is made.
 result = add(1,2 | wx=1;wy=2);
 print(result);
 </code></pre>
-    
-
 <script src="prism.min.js"></script>
 <script src="prism-java.min.js"></script>
 <script>

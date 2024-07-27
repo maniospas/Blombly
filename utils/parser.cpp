@@ -279,7 +279,7 @@ public:
                 || first_name=="else"
                 || first_name=="while"
                 || first_name=="iter"
-                //|| first_name=="args"
+                || first_name=="args"
                 || first_name=="="
                 || first_name=="+"
                 || first_name=="-"
