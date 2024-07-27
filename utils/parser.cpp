@@ -100,7 +100,7 @@ public:
         try{
         // check if final or empty expression
         bool is_final = tokens[start].name=="final";
-        bbassert(start<=end, "Empty expression");
+        bbassert(start<=end || (request_block && code_block_prepend.size()), "Empty expression");
         bbassert(tokens[start].name!="#", "Expression cannot start with `#` here\n    because this is not the top-level expression of a code block.");
         if(is_final)
             start += 1;
@@ -137,16 +137,19 @@ public:
             ret += "END\n";
             return requested_var;
         }
-        bbassert(code_block_prepend.size()==0, "Positional arguments were declared on an assignment's left-hand-side but the right-hand-side did not evaluate to a code block");
-
         // code block declaration if there is no { and a code block is requested
         if(request_block) {
             std::string requested_var = create_temp();
             ret += "BEGIN "+requested_var+"\n";
-            parse(start, end);  // important to do a full parse
+            ret += code_block_prepend;
+            code_block_prepend = "";
+            if(start<=end)
+                parse(start, end);  // important to do a full parse
             ret += "END\n";
             return requested_var;
         }
+        bbassert(code_block_prepend.size()==0, "Positional arguments were declared on an assignment's left-hand-side but the right-hand-side did not evaluate to a code block");
+
 
         if(first_name=="if" || first_name=="catch" || first_name=="while") {
             // sanitizer has already made sure that there is a parenthesis just after the command
@@ -247,7 +250,7 @@ public:
                     bbassert(parenthesis_end==assignment-1, "Inappropriately placed code after last parenthesis in assignment's left hand side");
                     for(int j=parenthesis_start+1;j<parenthesis_end;++j) {
                         if(tokens[j].name!=",") {
-                            code_block_prepend += "pop "+tokens[j].name+" args\n";
+                            code_block_prepend += "next "+tokens[j].name+" args\n";
                         }
                     }
                 }
@@ -482,7 +485,26 @@ public:
             std::string var = create_temp();
             if(tokens[call+1].name=="{")
                 bbassert(find_end(call+1, end, "}", true)!=end-1, "Cannot directly enclose brackets inside method call's parenthesis to avoid code smells.");
-            ret += "call "+var+" "+(call+1<=end-1?parse_expression(call+1, end-1, true):"#")+" "+parse_expression(start, call-1)+"\n";
+            int conditional = find_end(call+1, end, "|");
+            std::string parsed_args;
+            if(conditional==MISSING) {
+                if(find_end(call+1, end, "=")) // if there are equalities, we are on kwarg mode
+                    parsed_args = parse_expression(call+1, end-1, true);
+                else {
+                    parsed_args = create_temp();
+                    ret += "BEGIN "+parsed_args+"\n";
+                    ret += "IS args "+parse_expression(call+1, end-1)+"\n";
+                    ret += "END\n";
+                }
+            }
+            else {
+                parsed_args = create_temp();
+                ret += "BEGIN "+parsed_args+"\n";
+                ret += "IS args "+parse_expression(call+1, conditional-1)+"\n";
+                parse(conditional+1, end-1);
+                ret += "END\n";
+            }
+            ret += "call "+var+" "+parsed_args+" "+parse_expression(start, call-1)+"\n";
             return var;
         }
         

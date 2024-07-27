@@ -1,5 +1,6 @@
 final add(x,y) = {
-    return x+y;
+    default bias = 0;
+    return x+y+bias;
 }
-ret = add(args=1,2);
+ret = add(1,2|bias=1);
 print(ret);
