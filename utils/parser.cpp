@@ -96,7 +96,9 @@ public:
         
     }*/
 
-    std::string parse_expression(int start, int end, bool request_block=false) {
+    std::string parse_expression(int start, int end, bool request_block=false, bool ignore_empty=false) {
+        if(ignore_empty && start>=end)
+            return "#";
         try{
         // check if final or empty expression
         bool is_final = tokens[start].name=="final";
@@ -313,7 +315,7 @@ public:
                 bbassert(parenthesis_end==assignment-1, "Inappropriately placed code after last parenthesis in assignment's left hand side");
                 for(int j=parenthesis_start+1;j<parenthesis_end;++j) {
                     if(tokens[j].name!=",") {
-                        code_block_prepend += "pop "+tokens[j].name+" args\n";
+                        code_block_prepend += "next "+tokens[j].name+" args\n";
                     }
                 }
             }
@@ -489,7 +491,7 @@ public:
             std::string parsed_args;
             if(conditional==MISSING) {
                 if(find_end(call+1, end, "=")) // if there are equalities, we are on kwarg mode
-                    parsed_args = parse_expression(call+1, end-1, true);
+                    parsed_args = parse_expression(call+1, end-1, true, true);
                 else {
                     parsed_args = create_temp();
                     ret += "BEGIN "+parsed_args+"\n";

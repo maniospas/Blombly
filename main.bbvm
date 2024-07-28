@@ -1,21 +1,50 @@
 BEGINFINAL _bb0
-pop x args
-pop y args
-BEGINFINAL _bb2
-BUILTIN bias I0
-END
-default _bbresult0 _bb2
-add _bb5 x y
-add _bb4 _bb5 bias
-return _bbresult1 _bb4
-END
-IS add _bb0
-final # add
-BEGINFINAL _bb7
-BUILTIN _bb8 I1
+BEGINFINAL _bb1
+BUILTIN _bb3 F0.5
+BUILTIN _bb6 I2
+get _bb7 this y
+pow _bb5 _bb7 _bb6
 BUILTIN _bb9 I2
-list args _bb8 _bb9
-BUILTIN bias I1
+get _bb10 this x
+pow _bb8 _bb10 _bb9
+add _bb4 _bb8 _bb5
+pow _bb2 _bb4 _bb3
+return _bbresult0 _bb2
 END
-call ret _bb7 add
-print # ret
+IS norm2d _bb1
+final # norm2d
+IS norm norm2d
+END
+IS Point2d _bb0
+final # Point2d
+BEGINFINAL _bb11
+BEGINFINAL _bb12
+BUILTIN _bb14 F0.5
+BUILTIN _bb17 I2
+get _bb18 this z
+pow _bb16 _bb18 _bb17
+BUILTIN _bb20 I2
+call _bb21 # norm2d
+pow _bb19 _bb21 _bb20
+add _bb15 _bb19 _bb16
+pow _bb13 _bb15 _bb14
+return _bbresult1 _bb13
+END
+IS norm3d _bb12
+final # norm3d
+IS norm norm3d
+END
+IS Point3d _bb11
+final # Point3d
+BEGINFINAL _bb24
+inline _bb25 Point2d
+inline _bb26 Point3d
+BUILTIN x I1
+BUILTIN y I2
+BUILTIN z I3
+return _bbresult2 this
+END
+new p _bb24
+get _bb31 p norm
+call _bb30 # _bb31
+print # _bb30

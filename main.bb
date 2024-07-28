@@ -1,6 +1,18 @@
-final add(x,y) = {
-    default bias = 0;
-    return x+y+bias;
+final Point2d = {
+    final norm2d = {return (this.x^2+this.y^2)^0.5;}
+    norm = norm2d;
 }
-ret = add(1,2|bias=1);
-print(ret);
+final Point3d = {
+    final norm3d = {return (norm2d()^2+this.z^2)^0.5;}
+    norm = norm3d;
+}
+
+p = new {
+    Point2d:
+    Point3d:
+    x = 1;
+    y = 2;
+    z = 3;
+}
+
+print(p.norm());

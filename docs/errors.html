@@ -29,7 +29,7 @@
 <button class="toggle-button" onclick="toggleSidebar()">☰</button>
 <h1>Errors</h1>
 
-<p>Before moving on, let us take a peek at errors that blombly may create. Broadly, there
+<p>Before moving to coding, let us take a peek at errors that blombly may create. Broadly, there
 are syntax errors, which are identified by the compiler and make it halt, and logical
 errors that occur at runtime and can be caught with appropriate try clauses to avoid
 program termination. This mechanism is described fully in 
@@ -55,7 +55,7 @@ it's doing.</p>
 </pre>
 
 <p>Let us see what a logical error looks like too. Try to print a variable that does not
-exist in the following code:</p>
+exist with the following code:</p>
 
 <i>main.bb</i>
 <pre><code class="language-java">print(x);  // CREATES AN ERROR</code></pre>
@@ -72,11 +72,9 @@ others.</p>
   <span class="arrow">→</span> print # x                                   main.bbvm line 1
 </pre>
 
-<p>If the error was more complicated, the virtual machine would show the full stack trace
+<p>For more complicated errors, the virtual machine shows the full stack trace
 leading to the failure. Errors maintain a full stack trace even if segments of the code
 run in threads.</p>
-
-<p>💡 There are metadata properties that can obfuscate code and error tracking.</p>
 
 <script src="prism.min.js"></script>
 <script src="prism-java.min.js"></script>
