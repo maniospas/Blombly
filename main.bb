@@ -1,18 +1,29 @@
-final Point2d = {
-    final norm2d = {return (this.x^2+this.y^2)^0.5;}
-    norm = norm2d;
-}
-final Point3d = {
-    final norm3d = {return (norm2d()^2+this.z^2)^0.5;}
-    norm = norm3d;
+!macro (class @name {@code}) -> (final @name = {@code});
+!macro (fn @name(@args){@code}) -> (final @name(@args) = {@code});
+!macro (module @name {@code}) -> (final @name = new {@code});
+
+class Finder {
+    fn contains(number) {
+        i = 2;
+        i_max = int(number^0.5);
+        while (i <= i_max) {
+            if (number%i==0) 
+                return false;
+            i = i + 1;
+        }
+        return true;
+    }
+
+    fn next() {
+        while(true) {
+            this.number = this.number + 1;
+            if (this.contains(number)) 
+                return this.number;
+        }
+    }
 }
 
-p = new {
-    Point2d:
-    Point3d:
-    x = 1;
-    y = 2;
-    z = 3;
-}
+finder = new {Finder:umber = 10;}
 
-print(p.norm());
+print(next(finder));
+print(next(finder));

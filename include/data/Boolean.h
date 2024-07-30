@@ -27,6 +27,7 @@ public:
     friend class BString; 
     friend class BList;
     friend class Vector;
+    friend class BError;
 };
 
 #endif // BOOLEAN_H

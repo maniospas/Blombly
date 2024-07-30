@@ -103,11 +103,11 @@ public:
         // check if final or empty expression
         bool is_final = tokens[start].name=="final";
         bbassert(start<=end || (request_block && code_block_prepend.size()), "Empty expression");
-        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here\n    because this is not the top-level expression of a code block.");
+        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n      with `#property = value;` or `final #property = value;`\n      only before any other block commands and only when declaring\n      and immediately assigning a block. Metadata are not inlined.");
         if(is_final)
             start += 1;
         bbassert(start<=end, "Empty final expression");
-        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here\n    because this is not the top-level expression of a code block.");
+        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n      with `#property = value;` or `final #property = value;`\n      only before any other block commands and only\n      and immediately assigning a block. Metadata are not inlined.");
 
         // expresion parsing that is basically just a variable name
         std::string first_name = tokens[start].name;
@@ -232,7 +232,7 @@ public:
             bbassert(assignment!=start, "Missing variable to assign to");
             int start_assignment = find_last_end(start, assignment, ".");
             int start_entry = find_last_end((start_assignment==MISSING?start:start_assignment)+1, assignment, "[");
-            if(start_entry!=MISSING) {
+            if(start_entry!=MISSING && start_entry>start_assignment) {
                 int end_entry = find_end(start_entry+1, assignment, "]", true);
                 bbassert(end_entry==assignment-1, "Non-empty expression between last closing ] and =");
                 std::string obj = parse_expression(start, start_entry-1);
@@ -243,8 +243,8 @@ public:
             }
             if(start_assignment!=MISSING) {
                 bbassert(start_assignment>=start+1, "Assignment expression can not start with `.`.");
-                int parenthesis_start = find_end(start+1, assignment-1, "(");
-                std::string obj = parse_expression(start, (parenthesis_start==MISSING?assignment:parenthesis_start)-1);
+                int parenthesis_start = find_end(start_assignment+1, assignment-1, "(");
+                std::string obj = parse_expression(start, start_assignment-1);
                 bbassert(obj!="#", "There is no expression outcome to assign to");
                 if(parenthesis_start!=MISSING) {
                     code_block_prepend = "";
@@ -256,14 +256,16 @@ public:
                         }
                     }
                 }
-                ret += (is_final?"setfinal # ":"set # ")+obj+" "+parse_expression(start_assignment+1, assignment-1)+" "+parse_expression(assignment+1, end)+"\n";
+                else
+                    parenthesis_start = assignment;
+                ret += (is_final?"setfinal # ":"set # ")+obj+" "+parse_expression(start_assignment+1, parenthesis_start-1)+" "+parse_expression(assignment+1, end)+"\n";
                 return "#";
             }   
             int parenthesis_start = find_end(start+1, assignment-1, "(");
             bbassert(parenthesis_start==MISSING?assignment==start+1:parenthesis_start==start+1, "Can only assign to one variable");
             first_name = parse_expression(start, (parenthesis_start==MISSING?assignment:parenthesis_start)-1);
             if(first_name=="int" 
-                || first_name=="float" 
+                /*|| first_name=="float" 
                 || first_name=="str" 
                 || first_name=="file"
                 || first_name=="list"
@@ -271,7 +273,7 @@ public:
                 || first_name=="push"
                 || first_name=="len"
                 || first_name=="next"
-                || first_name=="vector"
+                || first_name=="vector"*/
                 || first_name=="default"
                 || first_name=="print"
                 || first_name=="try"
@@ -293,9 +295,9 @@ public:
                 || first_name=="<="
                 || first_name==">="
                 || first_name=="!="
-                || first_name=="and"
-                || first_name=="or"
-                || first_name=="not"
+                //|| first_name=="and"
+                //|| first_name=="or"
+                //|| first_name=="not"
                 || first_name=="("
                 || first_name==")"
                 || first_name=="{"
@@ -327,7 +329,7 @@ public:
             return "#";
         }
         bbassert(!is_final, "Only assignments to variables can be final");
-        bbassert(tokens[start].name!="#", "Only assignments can start with `#`\n    because this sets code block properties after its declaration.");
+        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n      with `#property = value;` or `final #property = value;`\n      only before any other block commands and only\n      and immediately assigning a block. Metadata are not inlined.");
 
 
         if(first_name=="print" 
@@ -490,8 +492,14 @@ public:
             int conditional = find_end(call+1, end, "|");
             std::string parsed_args;
             if(conditional==MISSING) {
-                if(find_end(call+1, end, "=")) // if there are equalities, we are on kwarg mode
+                if(find_end(call+1, end, "=")!=MISSING) // if there are equalities, we are on kwarg mode 
                     parsed_args = parse_expression(call+1, end-1, true, true);
+                else if(find_end(call+1, end, ",")==MISSING && find_end(call+1, end, ":")==MISSING && find_end(call+1, end, ";")==MISSING) { // if there is a list of only one element 
+                    parsed_args = create_temp();
+                    ret += "BEGIN "+parsed_args+"\n";
+                    ret += "list args "+parse_expression(call+1, end-1)+"\n";
+                    ret += "END\n";
+                }
                 else {
                     parsed_args = create_temp();
                     ret += "BEGIN "+parsed_args+"\n";

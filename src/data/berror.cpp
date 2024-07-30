@@ -1,10 +1,19 @@
 // BString.cpp
 #include "data/BError.h"
 #include "data/BString.h"
+#include "data/Boolean.h"
 #include "common.h"
 
 // Constructor
-BError::BError(const std::string& val) : value(val) {}
+BError::BError(const std::string& val) : value(val), consumed(false) {}
+
+void BError::consume() {
+    consumed = true;
+}
+
+bool BError::isConsumed() const {
+    return consumed;
+}
 
 // Return the type ID
 int BError::getType() const {
@@ -18,7 +27,7 @@ std::string BError::toString() const {
 
 // Create a shallow copy of this BString
 Data* BError::shallowCopy() const {
-    return new BError(value);
+    bberror("Cannot copy error messages.");
 }
 
 // Implement the specified operation
@@ -26,7 +35,8 @@ Data* BError::implement(const OperationType operation, BuiltinArgs* args)  {
     if (args->size == 1) {
         switch(operation) {
             //case TOCOPY: return shallowCopy();
-            case TOSTR: STRING_RESULT(value);
+            case TOSTR: consumed=true;STRING_RESULT(value);
+            case TOBOOL: consumed=true;BOOLEAN_RESULT(true);
         }
         throw Unimplemented();
     }

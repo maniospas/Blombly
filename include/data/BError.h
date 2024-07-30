@@ -10,9 +10,12 @@
 class BError : public Data {
 private:
     std::string value;
+    bool consumed;
 
 public:
     explicit BError(const std::string& val);
+    void consume();
+    bool isConsumed() const;
 
     int getType() const override;
     std::string toString() const override;

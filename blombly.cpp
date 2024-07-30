@@ -427,7 +427,12 @@ Data* executeBlock(std::vector<Command*>* program,
                     
                     if(value==nullptr || !*returnSignal) {
                         *returnSignal = false;
-                        value = new BError("No return or fail signal was intercepted");
+                        std::string comm = command->toString();
+                        comm.resize(40, ' ');
+                        BError* error = new BError(" No return or fail signal was intercepted.\n   \033[33m!!!\033[0m Code enclosed in `try` should use either `return value`\n      or `error(\"message\")` to respectfully generate return and error signals.\n      This error was created because no such signal was obtained."
+                                            +(u8"\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
+                        error->consume();  // this is not enough to make the code block to fail
+                        value = error;
                     }
                     FILL_REPLACEMENT;
                 }
@@ -447,6 +452,7 @@ Data* executeBlock(std::vector<Command*>* program,
                 Code* codeAccept = (Code*)accept;
                 Code* codeReject = (Code*)reject;
                 if(condition->getType()==ERRORTYPE) {
+                    ((BError*)condition)->consume();
                     if(codeAccept) {
                         value = executeBlock((std::vector<Command*>*)codeAccept->getProgram(), codeAccept->getStart(), codeAccept->getEnd(), memory_, returnSignal, args);
                         CHECK_FOR_RETURN(value);
@@ -695,9 +701,10 @@ int vm(const std::string& fileName, int numThreads) {
         }
         inputFile.close();
 
-        // initialize memory and execute the assembly commands
         std::shared_ptr<BMemory> memory = std::make_shared<BMemory>(nullptr, DEFAULT_LOCAL_EXPECTATION);
         executeBlock(&program, 0, program.size()-1, memory, nullptr, nullptr);
+        memory->release();
+        
     }
     catch(const BBError& e) {
         std::cout << e.what() << "\n";
