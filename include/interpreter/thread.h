@@ -44,7 +44,7 @@ void threadExecute(std::vector<Command*>* program,
         catch(const BBError& e) {
             std::string comm = command->toString();
             comm.resize(40, ' ');
-            result->error = new BBError(e.what()+(u8"\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
+            result->error = new BBError(e.what()+("\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
         }
 }
 

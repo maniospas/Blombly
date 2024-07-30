@@ -544,7 +544,7 @@ public:
                 throw e;
             std::string linestr = to_string(start, end);
             linestr.resize(40, ' ');
-            throw BBError(e.what()+(u8"\n   \x1B[34m\u2192\033[0m "+linestr+" \t\x1B[90m "+"at"+" line "+std::to_string(tokens[start].line)));
+            throw BBError(e.what()+("\n   \x1B[34m\u2192\033[0m "+linestr+" \t\x1B[90m "+"at"+" line "+std::to_string(tokens[start].line)));
         }
     }
     void parse(int start, int end) {
@@ -561,7 +561,7 @@ public:
         catch(const BBError& e) {
             std::string linestr = to_string(start, end);
             linestr.resize(40, ' ');
-            throw BBError(e.what()+(u8"\n   \x1B[34m\u2192\033[0m "+linestr+" \t\x1B[90m "+"at"+" line "+std::to_string(tokens[start].line)));
+            throw BBError(e.what()+("\n   \x1B[34m\u2192\033[0m "+linestr+" \t\x1B[90m "+"at"+" line "+std::to_string(tokens[start].line)));
         }
     }
 

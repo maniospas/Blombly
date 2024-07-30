@@ -7,7 +7,7 @@
 #include "data/Iterator.h"
 #include <iostream>
 #include <cmath>
-#include <xmmintrin.h>
+//#include <xmmintrin.h>
 
 #define POS(v, i, j) (i*v+j)
 

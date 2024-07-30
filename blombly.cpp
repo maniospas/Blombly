@@ -430,7 +430,7 @@ Data* executeBlock(std::vector<Command*>* program,
                         std::string comm = command->toString();
                         comm.resize(40, ' ');
                         BError* error = new BError(" No return or fail signal was intercepted.\n   \033[33m!!!\033[0m Code enclosed in `try` should use either `return value`\n      or `error(\"message\")` to respectfully generate return and error signals.\n      This error was created because no such signal was obtained."
-                                            +(u8"\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
+                                            +("\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
                         error->consume();  // this is not enough to make the code block to fail
                         value = error;
                     }
@@ -439,7 +439,7 @@ Data* executeBlock(std::vector<Command*>* program,
                 catch(const BBError& e) {
                     std::string comm = command->toString();
                     comm.resize(40, ' ');
-                    value = new BError(e.what()+(u8"\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
+                    value = new BError(e.what()+("\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
                 }
             }
             break;
@@ -583,7 +583,7 @@ Data* executeBlock(std::vector<Command*>* program,
                 value = MEMGET(memory, 1);
                 std::string comm = command->toString();
                 comm.resize(40, ' ');
-                throw BBError(value->toString()+(u8"\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
+                throw BBError(value->toString()+("\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
                 continue;
             }
             break;
@@ -647,7 +647,7 @@ Data* executeBlock(std::vector<Command*>* program,
         catch(const BBError& e) {
             std::string comm = command->toString();
             comm.resize(40, ' ');
-            throw BBError(e.what()+(u8"\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
+            throw BBError(e.what()+("\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
         }
     }
     }
