@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include "stringtrim.cpp"
+#include "common.h"
 #include <unordered_map> 
 
 
@@ -49,12 +50,10 @@ void moveRangeToFront(std::vector<std::shared_ptr<OptimizerCommand>>& program, s
 
 
 
-int optimize(const std::string& source, const std::string& destination) {
+void optimize(const std::string& source, const std::string& destination) {
     std::ifstream inputFile(source);
-    if (!inputFile.is_open())  {
-        std::cerr << "Unable to open file: " << source << std::endl;
-        return 1;
-    }
+    if (!inputFile.is_open())  
+        bberror("Unable to open file: " + source);
     std::vector<std::shared_ptr<OptimizerCommand>> program;
     std::string line;
     while (std::getline(inputFile, line)) 
@@ -150,6 +149,8 @@ int optimize(const std::string& source, const std::string& destination) {
     int cacheNum = 0;
     for(int i=0;i<program.size();i++) {
         std::shared_ptr<OptimizerCommand> command = program[i];
+        if(command->args.size()<2)
+            continue;
         if(command->args[1]=="#" 
         && command->args[0]!="if" 
         && command->args[0]!="while" 
@@ -167,6 +168,8 @@ int optimize(const std::string& source, const std::string& destination) {
     // remove put and push assignments
     for(int i=0;i<program.size();i++) {
         std::shared_ptr<OptimizerCommand> command = program[i];
+        if(command->args.size()<2)
+            continue;
         if(command->args[0]=="put" || command->args[0]=="push" || command->args[0]=="setfinal" || command->args[0]=="set" || command->args[0]=="final") 
             command->args[1] = "#";
     }
@@ -177,7 +180,7 @@ int optimize(const std::string& source, const std::string& destination) {
     // optimize local code blocks
     for(int i=0;i<program.size();++i) {
         std::shared_ptr<OptimizerCommand> command = program[i];
-        if(command->args[0]!="BEGIN" || !command->enabled)
+        if(command->args.size()==0 || command->args[0]!="BEGIN" || !command->enabled)
             continue;
         if(command->args.size()<2 || command->args[1].substr(0, 3)!="_bb")
             continue;
@@ -238,14 +241,9 @@ int optimize(const std::string& source, const std::string& destination) {
 
     // save the compiled code to the destination file
     std::ofstream outputFile(destination);
-    if (!outputFile.is_open())  {
-        std::cerr << "Unable to write to file: " << source << std::endl;
-        return 1;
-    }
+    if (!outputFile.is_open())  
+        bberror("Unable to write to file: " + source);
     for(int i=0;i<program.size();i++) 
         outputFile << program[i]->toString();
-    outputFile.close();
-
-    // return success code if no errors have occured
-    return 0;    
+    outputFile.close(); 
 }

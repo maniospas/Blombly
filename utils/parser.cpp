@@ -202,15 +202,6 @@ public:
             ret += first_name+" # "+condition+" "+bodyvar+"\n";
             return "#";
         }
-        
-        
-        if(first_name=="time" || first_name=="random") {
-            bbassert(tokens[start+1].name=="(", "Missing ( after "+first_name);
-            bbassert(tokens[start+2].name==")", first_name+" accepts no arguments");
-            std::string var = create_temp();
-            ret += first_name+" "+var+"\n";
-            return var;
-        }
 
 
         // 
@@ -480,6 +471,14 @@ public:
             return var;
         }
         
+        
+        if(first_name=="time" || first_name=="random") {
+            bbassert(tokens[start+1].name=="(", "Missing ( after "+first_name);
+            bbassert(tokens[start+2].name==")", first_name+" accepts no arguments");
+            std::string var = create_temp();
+            ret += first_name+" "+var+"\n";
+            return var;
+        }
 
         int call = find_last_end(start, end, "(");
         if(call!=MISSING && find_end(call+1, end, ")", true)==end) {
@@ -536,8 +535,8 @@ public:
             return var;
         }
 
-        return "#";
-        //bberror("Unknown type of command at line "+std::to_string(tokens[start].line));
+        //return "#";
+        bberror("Unknown type of command at line "+std::to_string(tokens[start].line));
         }
         catch(const BBError& e) {
             if(tokens[start].line!=tokens[end].line)

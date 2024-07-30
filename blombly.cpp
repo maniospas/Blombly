@@ -614,6 +614,7 @@ Data* executeBlock(std::vector<Command*>* program,
                 return value;
             break;
             case TIME:
+                FILL_REPLACEMENT;
                 value = new BFloat(std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now()-program_start).count());
             break;
             case TOLIST:{

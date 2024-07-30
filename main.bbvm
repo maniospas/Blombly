@@ -1,4 +1,13 @@
-BUILTIN x I1
-BUILTIN y I2
-add _bb2 x y
-print # _bb2
+time tic
+BUILTIN n I100000
+BUILTIN i I0
+lt _bb3 i n
+BEGINFINAL _bb4
+BUILTIN _bb6 I1
+add i i _bb6
+lt _bb3 i n
+END
+while # _bb3 _bb4
+time _bb8
+sub _bb7 _bb8 tic
+print # _bb7

@@ -7,12 +7,12 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${fileDirname}\\src\\*.cpp",
-                "${fileDirname}\\src\\data\\*.cpp",
-                "${fileDirname}\\src\\interpreter\\*.cpp",
+                "${fileDirname}/src/*.cpp",
+                "${fileDirname}/src/data/*.cpp",
+                "${fileDirname}/src/interpreter/*.cpp",
                 "${file}",
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "${fileDirname}/${fileBasenameNoExtension}.exe",
                 "-O2",
                 "-I./include"
             ],
