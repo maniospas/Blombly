@@ -1,0 +1,18 @@
+tasks:
+  python:
+    extensions: [py]
+    highlighter: python
+    command: python {path}{file}{ext}
+  compile:
+    extensions: [cpp, h]
+    highlighter: cpp
+    command: g++ -std=c++20 -pthread -I./include src/*.cpp src/data/*.cpp src/interpreter/*.cpp blombly.cpp -o blombly -O2 -fdiagnostics-color
+  blombly:
+    extensions: [bb, bbvm]
+    highlighter: rust
+    command: cmd /C "blombly.exe" {path}{file}{ext}
+  git:
+    extensions: [gitignore]
+    highlighter: txt
+    command: cmd /C git add . && git commit -m "test commit" && git push
+  

@@ -1,33 +1,33 @@
-BEGIN _bb0
-BUILTIN _bb1 I1000000
-lt _bbresult0 i _bb1
-END
-List x
+list x
 time tic
 BUILTIN i I0
-BEGIN _bb2
-BUILTIN _bb3 I1
-add i i _bb3
+BUILTIN _bb4 I1000000
+lt _bb3 i _bb4
+BEGINFINAL _bb5
+BUILTIN _bb7 I1
+add i i _bb7
 push # x i
+BUILTIN _bb4 I1000000
+lt _bb3 i _bb4
 END
-while # _bb0 _bb2
-time _bb5
-sub _bb4 _bb5 tic
-print # _bb4
+while # _bb3 _bb5
+time _bb9
+sub _bb8 _bb9 tic
+print # _bb8
 time tic
 BUILTIN s I0
 BUILTIN i I0
-BEGIN _bb6
-BUILTIN _bb7 I1000000
-lt _bbresult1 i _bb7
+BUILTIN _bb14 I1000000
+lt _bb13 i _bb14
+BEGINFINAL _bb15
+at _bb17 x i
+add s s _bb17
+BUILTIN _bb19 I1
+add i i _bb19
+BUILTIN _bb14 I1000000
+lt _bb13 i _bb14
 END
-BEGIN _bb8
-at _bb9 x i
-add s s _bb9
-BUILTIN _bb11 I1
-add i i _bb11
-END
-while # _bb6 _bb8
-time _bb13
-sub _bb12 _bb13 tic
-print # _bb12
+while # _bb13 _bb15
+time _bb21
+sub _bb20 _bb21 tic
+print # _bb20

@@ -1,9 +1,10 @@
 final factorial = {
-    if(n==1, return 1.0);
-    return n*factorial(n=n-1);
+    if(n==1)
+    		return 1.0;
+    return n*new{n=n-1;factorial:}
 }
 
 tic = time();
 f = factorial(n=100);
-f = f;
+print(f);
 print(time()-tic);

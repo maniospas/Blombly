@@ -1,27 +1,29 @@
-BEGINFINAL factorial
-BEGIN _bb0
-BUILTIN _bb1 I1
-eq # n _bb1
+BEGINFINAL _bb0
+BUILTIN _bb2 I1
+eq _bb1 n _bb2
+BEGINFINAL _bb3
+BUILTIN _bb4 F1.0
+return _bbresult0 _bb4
 END
-BEGIN _bb1
-BUILTIN _bb2 F1.0
-return # _bb2
+if # _bb1 _bb3
+BEGINFINAL _bb8
+BUILTIN _bb10 I1
+sub n n _bb10
+inline _bb11 factorial
+return _bbresult1 this
 END
-if # _bb0 _bb1
-BEGIN _bb4
-BUILTIN _bb5 I1
-sub n n _bb5
+new _bb6 _bb8
+mul _bb5 n _bb6
+return _bbresult2 _bb5
 END
-call _bb3 _bb4 factorial
-mul _bb2 n _bb3
-return # _bb2
-END
+IS factorial _bb0
+final # factorial
 time tic
-BEGIN _bb3
-BUILTIN n I100
+BEGINFINAL _bb14
+BUILTIN n I1000
 END
-call f _bb3 factorial
-copy f f
-time _bb5
-sub _bb4 _bb5 tic
-print # _bb4
+call f _bb14 factorial
+print # f
+time _bb17
+sub _bb16 _bb17 tic
+print # _bb16

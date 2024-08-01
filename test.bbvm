@@ -1,0 +1,7 @@
+BUILTIN x I1
+BUILTIN y I2
+add _bb3 x y
+str _bb4 _bb3
+BUILTIN _bb5 "Result: "
+add _bb2 _bb5 _bb4
+print # _bb2
