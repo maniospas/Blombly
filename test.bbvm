@@ -1,7 +1,48 @@
-BUILTIN x I1
-BUILTIN y I2
-add _bb3 x y
-str _bb4 _bb3
-BUILTIN _bb5 "Result: "
-add _bb2 _bb5 _bb4
-print # _bb2
+BEGINFINAL _bb0
+BEGINFINAL _bb2
+BUILTIN scale I1
+END
+default _bbresult0 _bb2
+BUILTIN _bb5 I0
+le _bb4 scale _bb5
+BEGINFINAL _bb6
+BEGINFINAL _bb8
+str _bb10 scale
+BUILTIN _bb11 "Scale should be greater than zero, but another value was given: "
+add _bb9 _bb11 _bb10
+list args _bb9
+END
+call _bb7 _bb8 error
+END
+if # _bb4 _bb6
+END
+IS scaler _bb0
+final # scaler
+BEGINFINAL _bb12
+next x args
+next y args
+BEGINFINAL _bb15
+inline _bb16 scaler
+END
+try signal _bb15
+BEGINFINAL _bb17
+BUILTIN _bb18 I0
+return _bbresult1 _bb18
+END
+catch _bbresult2 signal _bb17
+add _bb20 x y
+mul _bb19 _bb20 scale
+return _bbresult3 _bb19
+END
+IS add _bb12
+final # add
+BEGINFINAL _bb22
+BUILTIN _bb23 I1
+BUILTIN _bb24 I2
+list args _bb23 _bb24
+BUILTIN _bb27 I10
+BUILTIN _bb28 I0
+sub scale _bb28 _bb27
+END
+call result _bb22 add
+print # result

@@ -58,16 +58,53 @@ So, who is this language for? It may be a good idea to look at blombly if your a
 </p>
 
 
-<h3>A full example</h3>
-We will now follow a full example that uses blombly to create a simple command line interface for greetings:
+<h3>A short demo</h3>
+<p>
+Below is a small blombly program that showcases several language features.
+First, there is a code block that creates a <code>scale</code> variable with a provided default,
+if it does not already exist (we will see momentarily how it might exist). Then, the code block
+creates an error message if a non-positive scale is provided. The code block declaration does not run any code, 
+but only creates a variable holding the block for future use. It is made <code>final</code> so that it 
+cannot be modified. Similarly, a code block that performs addition and multiplication with some scale is provided.
+This takes as input two positional arguments <code>x,y</code>.
+This block also uses the <code>scaler:</code> symbol to inline the namesake. Inlining constitutes of 
+immediately calling the other block's code, as if it were pasted already.
+</p>
 
-<pre><code class="language-java">final add = {
-    x = next(args);
-    y = next(args);
-    return x + y;
+<p>
+Inlining is further enriched by enclosing it an a <code>try</code> statement (the brackets can be inferred
+by the language, but they are there for clarity). This statement is responsible for intercepting errors and inline return
+values, and then places the intercepted values in the variable <code>signal</code>. The <code>catch</code>
+catch mechanism is the equivalent of <code>if</code>, with the difference that it is entered if it encounters an error
+instead of boolean truth. For safety, unhandled error values create further errors if they are never handled.
+</p>
+
+<p>
+The code block is called like a method. It takes positional arguments per normal, but there can also be
+programming statements to create more variables after a <code>|</code> separator. These statements
+look like positional variables separated by semicolons, but by being fully fleshed code they offer greater flexibility.
+For example, they can inline the same configuration code block across several methods. Any variables created after 
+<code>|</code> are transferred to the called <code>add</code> block together with the positional arguments. Blocks can be called
+with only or no positional arguments too. They are also scheduled to run in autonomous execution in threads, from where
+they have access only to their positional arguments, transferred variables, and <code>final</code> variables.
+</p>
+
+<pre><code class="language-java">final scaler = {
+    default scale = 1;
+    if(scale&lt;=0)
+       error("Scale should be greater than zero, but another value was given: "+str(scale));
 }
 
-result = add(1, 2);
+final add(x,y) = {
+    signal = try{scaler:}
+    catch(signal) {
+        print("handled an error");
+        return 0;
+    }
+    return (x + y)*scale;
+}
+
+result = add(1, 2 | scale=0);
 print(result);
 </code></pre>
 
