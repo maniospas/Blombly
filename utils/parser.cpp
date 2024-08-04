@@ -650,15 +650,48 @@ public:
 	std::vector<Token> to;
 	Macro() {}
 };
-
-
-void macros(std::vector<Token>& tokens) {
+void macros(std::vector<Token>& tokens, const std::string& first_source) {
     std::vector<Token> updatedTokens;
-    std::vector<std::shared_ptr<Macro>> macros; 
-    
+    std::vector<std::shared_ptr<Macro>> macros;
+    std::unordered_set<std::string> previousImports;
+    previousImports.insert(source);
+
     for (size_t i = 0; i < tokens.size(); ++i) {
-        if (tokens[i].name == "#" && i < tokens.size() - 4 && tokens[i + 1].name == "macro") {
-            bbassert(tokens[i + 2].name == "(", "Macros should follow the specific pattern #macro (expression) = (replacement); Found at line " + std::to_string(tokens[i].line));
+        if (tokens[i].name == "#" && i < tokens.size() - 2 && tokens[i + 1].name == "include") {
+            bbassert(tokens[i + 2].name[0] == '"', "Include statement should have the form `#include \"libname\"`. Found at line " + std::to_string(tokens[i].line));
+            bbassert(tokens[i + 3].name[0] != ';', "Include statements should not have ; at their end. Found at line " + std::to_string(tokens[i].line));
+            std::string source = tokens[i + 2].name.substr(1, tokens[i + 2].name.size() - 2) + ".bb";
+
+            if (previousImports.find(source) != previousImports.end()) {
+                // File already imported, skip this include directive
+                tokens.erase(tokens.begin() + i, tokens.begin() + i + 3);
+                i -= 1;
+                continue;
+            }
+
+            std::ifstream inputFile(source);
+            if (!inputFile.is_open()) {
+                bberror("Unable to open file: " + source + "\n    This issue makes it impossible to complete the include statement at line " + std::to_string(tokens[i].line));
+            }
+
+            std::string code = "";
+            std::string line;
+            while (std::getline(inputFile, line)) {
+                code += line + "\n";
+            }
+            inputFile.close();
+
+            std::vector<Token> newTokens = tokenize(code);
+            sanitize(newTokens);
+
+            previousImports.insert(source);
+
+            tokens.erase(tokens.begin() + i, tokens.begin() + i + 3);
+            tokens.insert(tokens.begin() + i, newTokens.begin(), newTokens.end());
+            i -= 1;
+        }
+        else if (tokens[i].name == "#" && i < tokens.size() - 4 && tokens[i + 1].name == "macro") {
+            bbassert(tokens[i + 2].name == "(", "Macros should follow the specific pattern `#macro (expression) = (replacement);` Found at line " + std::to_string(tokens[i].line));
             int macro_start = i + 2;
             int macro_end = macro_start;
             int depth = 0;
@@ -666,7 +699,7 @@ void macros(std::vector<Token>& tokens) {
             for (size_t pos = macro_start; pos < tokens.size(); ++pos) {
                 if (tokens[pos].name == "=" && depth == 0) {
                     bbassert(decl_end == macro_start, "Macro cannot have a second = symbol. Found at line " + std::to_string(tokens[i].line));
-                    bbassert(tokens[pos - 1].name == ")" && pos < tokens.size() - 1 && tokens[pos + 1].name == "(", "Macros should follow the specific pattern #macro (expression) = (replacement); Found at line " + std::to_string(tokens[i].line));
+                    bbassert(tokens[pos - 1].name == ")" && pos < tokens.size() - 1 && tokens[pos + 1].name == "(", "Macros should follow the specific pattern #macro (@expression) = (@replacement); Found at line " + std::to_string(tokens[i].line));
                     decl_end = pos;
                 }
                 else if (tokens[pos].name == ";" && depth == 0) {
@@ -678,6 +711,8 @@ void macros(std::vector<Token>& tokens) {
                 else if (tokens[pos].name == ")" || tokens[pos].name == "]" || tokens[pos].name == "}") {
                     depth -= 1;
                 }
+                if(depth>2 && macro_start==decl_end)
+                	bberror("Cannot nest parentheses or brackets in the expression part of macro definitions at line "+ std::to_string(tokens[i].line));
                 bbassert(depth>=0, "Parentheses or brackets closed prematurely at macro definition at line " + std::to_string(tokens[i].line));
             }
             bbassert(depth==0, "Imbalanced parentheses or brackets at macro definition at line " + std::to_string(tokens[i].line));
@@ -776,7 +811,8 @@ void compile(const std::string& source, const std::string& destination) {
     // create a compiled version of the code
     std::vector<Token> tokens = tokenize(code);
     sanitize(tokens);
-    macros(tokens);
+    macros(tokens, source);
+    std::cout << " \033[0m(\x1B[32m OK \033[0m) Preprocessing\n";
     Parser parser(tokens);
     parser.parse(0, tokens.size()-1);
     std::string compiled = parser.get();

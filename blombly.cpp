@@ -735,7 +735,7 @@ int main(int argc, char* argv[]) {
     if(fileName.substr(fileName.size()-3, 3)==".bb") {
         try {
             compile(fileName, fileName+"vm");
-            std::cout << " \033[0m(\x1B[32m OK \033[0m) Compilation (to .bbvm)\n";
+            std::cout << " \033[0m(\x1B[32m OK \033[0m) Compilation\n";
         }
         catch(const BBError& e) {
             std::cout << e.what() << " in " << fileName << "\n";
@@ -744,7 +744,7 @@ int main(int argc, char* argv[]) {
         }
         try {
             optimize(fileName+"vm", fileName+"vm");
-            std::cout << " \033[0m(\x1B[32m OK \033[0m) Optimization (of .bbvm)\n";
+            std::cout << " \033[0m(\x1B[32m OK \033[0m) Optimization\n";
         }
         catch(const BBError& e) {
             std::cout << e.what() << " in " << fileName << "\n";

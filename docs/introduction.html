@@ -31,26 +31,25 @@
 
 <p>
 There are a lot of programming languages out there offering the ability to create dynamic 
-yet safe code - maybe you are already thinking of your favorite one. A common
+yet safe code. Maybe you already have a favorite one! A common
 characteristic of these languages is that they require extensive familiarization and their
-safety features may be harder to work with compared to unsafe features or languages. 
-For example, memory safety typically requires modifications to pure algorithmic logic, 
-where the programmer needs to worry about non-functional code characteristics, 
-like deadlocks and race conditions, that would be absent from single-threaded unsafe languages.
+safety features may be harder to work with compared to unsafe alternatives. 
+For example, memory safety typically requires modifications to pure algorithmic logic
+that worry about non-functional code characteristics, like deadlocks and race conditions.
 </p>
 <p>
-Blombly is a programming language with a reduced instruction set and algorithm-only semantics.
-This means that it is limited to a few but powerful operations that cover a
-broad range of scenarios. At the same time, tasks like memory management and parallelization 
+Blombly is a language with small instruction set and algorithm-only semantics.
+This means that it is limited to a few operations that cover a
+broad range of scenarios, whereas non-algorithmic tasks like memory management and parallelization 
 are automated under-the-hood. The main language is compiled into an intermediate respresentation 
-that is interpreted by an accompanying 
+and is interpreted by an accompanying 
 <i><strong>BLO</strong>ck ase<strong>MBLY</strong> <strong>V</strong>irtual <strong>M</strong>achine</i> 
 (blomblyVM). The latter parses block-based assembly instructions that ensure reliability through
 the absense of jump statements; flow constrol is performed through code blocks of asembly instructions 
 that are easier to apply safety constraints on.
 </p>
 <p>
-So, who is this language for? It may be a good idea to look at blombly if your aim is one of the following:<br><br>
+So, who is blombly for? It may be a nice tool if your aim is one of the following:<br><br>
 
 ✅ Quickly learn a dynamic (duck-typed) scripting language.<br>
 ✅ Write sequential code that runs in parallel.<br>
@@ -60,7 +59,7 @@ So, who is this language for? It may be a good idea to look at blombly if your a
 
 <h3>A short demo</h3>
 <p>
-Below is a small blombly program that showcases several language features.
+Below is a small blombly program that showcases several base language features.
 First, there is a code block that creates a <code>scale</code> variable with a provided default,
 if it does not already exist (we will see momentarily how it might exist). Then, the code block
 creates an error message if a non-positive scale is provided. The code block declaration does not run any code, 
@@ -80,13 +79,13 @@ instead of boolean truth. For safety, unhandled error values create further erro
 </p>
 
 <p>
-The code block is called like a method. It takes positional arguments per normal, but there can also be
-programming statements to create more variables after a <code>|</code> separator. These statements
+The code block is called like a function with positional arguments. But there can also be
+statements that create more variables after a <code>|</code> separator. These statements
 look like positional variables separated by semicolons, but by being fully fleshed code they offer greater flexibility.
 For example, they can inline the same configuration code block across several methods. Any variables created after 
 <code>|</code> are transferred to the called <code>add</code> block together with the positional arguments. Blocks can be called
-with only or no positional arguments too. They are also scheduled to run in autonomous execution in threads, from where
-they have access only to their positional arguments, transferred variables, and <code>final</code> variables.
+with one or no positional arguments too. They may be also scheduled to run in autonomous execution in threads.
+While running, they have access only to their positional arguments, transferred variables, and <code>final</code> variables.
 </p>
 
 <pre><code class="language-java">final scaler = {
