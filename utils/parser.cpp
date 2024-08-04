@@ -103,11 +103,11 @@ public:
         // check if final or empty expression
         bool is_final = tokens[start].name=="final";
         bbassert(start<=end || (request_block && code_block_prepend.size()), "Empty expression");
-        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n      with `#property = value;` or `final #property = value;`\n      only before any other block commands and only when declaring\n      and immediately assigning a block. Metadata are not inlined.");
+        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n      with `@property = value;` or `final @property = value;`\n      only before any other block commands and only when declaring\n      and immediately assigning a block. Metadata are not inlined.");
         if(is_final)
             start += 1;
         bbassert(start<=end, "Empty final expression");
-        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n      with `#property = value;` or `final #property = value;`\n      only before any other block commands and only\n      and immediately assigning a block. Metadata are not inlined.");
+        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n      with `@property = value;` or `final @property = value;`\n      only before any other block commands and only\n      and immediately assigning a block. Metadata are not inlined.");
 
         // expresion parsing that is basically just a variable name
         std::string first_name = tokens[start].name;
@@ -320,7 +320,7 @@ public:
             return "#";
         }
         bbassert(!is_final, "Only assignments to variables can be final");
-        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n      with `#property = value;` or `final #property = value;`\n      only before any other block commands and only\n      and immediately assigning a block. Metadata are not inlined.");
+        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n      with `@property = value;` or `final @property = value;`\n      only before any other block commands and only\n      and immediately assigning a block. Metadata are not inlined.");
 
 
         if(first_name=="print" 
@@ -551,7 +551,7 @@ public:
         }
 
         //return "#";
-        bberror("Unknown type of command at line "+std::to_string(tokens[start].line));
+        bberror("Unknown type of command at "+tokens[start].name+" at line "+std::to_string(tokens[start].line));
         }
         catch(const BBError& e) {
             if(tokens[start].line!=tokens[end].line)
@@ -587,7 +587,7 @@ void sanitize(std::vector<Token>& tokens) {
         if(tokens[i].name=="\\")
             bberror("A stray `\\` was found at line "+std::to_string(tokens[i].line));
         if(tokens[i].name.size()>=3 && tokens[i].name.substr(0, 3)=="_bb")
-            bberror("Variable name "+tokens[i].name+" cannot start with _bb, as this is reserved for VM local temporaries. Found at line "+std::to_string(tokens[i].line));
+            bberror("Variable name "+tokens[i].name+" cannot start with _bb.\n   \033[33m!!!\033[0m This is reserved for VM local temporaries. Found at line "+std::to_string(tokens[i].line));
         if(tokens[i].builtintype==3 && i<tokens.size()-2 && tokens[i+1].name=="." && tokens[i+2].builtintype==3) {
             tokens[i].name += "."+tokens[i+2].name;
             tokens[i].builtintype = 4;
@@ -604,13 +604,13 @@ void sanitize(std::vector<Token>& tokens) {
         }
         updatedTokens.push_back(tokens[i]);
         if(tokens[i].name=="else" && i>0 && tokens[i-1].name==";")
-            bberror("`else` cannot be the next statement after `;`. You may have failed to close brackets\n    or are using a bracketless if, which should not have `;` after its first statement \n    Found at line "+std::to_string(tokens[i].line));
+            bberror("`else` cannot be the next statement after `;`. \n   \033[33m!!!\033[0m You may have failed to close brackets\n    or are using a bracketless if, which should not have `;` after its first statement \n    Found at line "+std::to_string(tokens[i].line));
         if((tokens[i].name=="while" || tokens[i].name=="if" || tokens[i].name=="catch")  
             && i<tokens.size()-1 && tokens[i+1].name!="(") 
             bberror("A ( should always follow `"+tokens[i].name+"` but "+tokens[i+1].name+" found at line "+std::to_string(tokens[i].line));
         if ((tokens[i].name == "new")//|| tokens[i].name == "default" // || tokens[i].name == "try")
              && i < tokens.size()-1 && tokens[i+1].name!="{")
-            bberror("A { symbol should always follow `"+tokens[i].name+"` but `"+tokens[i+1].name+"` found.\n    To aply one a code block variable (which is a code smell), inline like this `"+tokens[i].name+" {block:}`.\n    Apply the fix at line "+std::to_string(tokens[i].line)); 
+            bberror("A { symbol should always follow `"+tokens[i].name+"` but `"+tokens[i+1].name+"` found.\n   \033[33m!!!\033[0m To aply one a code block variable (which is a code smell), inline like this `"+tokens[i].name+" {block:}`.\n    Apply the fix at line "+std::to_string(tokens[i].line)); 
         
         if (tokens[i].name == "}") {
             if (i >= tokens.size()-1) 
@@ -644,6 +644,123 @@ void sanitize(std::vector<Token>& tokens) {
     tokens = std::move(updatedTokens);
 }
 
+class Macro {
+public:
+	std::vector<Token> from;
+	std::vector<Token> to;
+	Macro() {}
+};
+
+
+void macros(std::vector<Token>& tokens) {
+    std::vector<Token> updatedTokens;
+    std::vector<std::shared_ptr<Macro>> macros; 
+    
+    for (size_t i = 0; i < tokens.size(); ++i) {
+        if (tokens[i].name == "#" && i < tokens.size() - 4 && tokens[i + 1].name == "macro") {
+            bbassert(tokens[i + 2].name == "(", "Macros should follow the specific pattern #macro (expression) = (replacement); Found at line " + std::to_string(tokens[i].line));
+            int macro_start = i + 2;
+            int macro_end = macro_start;
+            int depth = 0;
+            int decl_end = macro_start;
+            for (size_t pos = macro_start; pos < tokens.size(); ++pos) {
+                if (tokens[pos].name == "=" && depth == 0) {
+                    bbassert(decl_end == macro_start, "Macro cannot have a second = symbol. Found at line " + std::to_string(tokens[i].line));
+                    bbassert(tokens[pos - 1].name == ")" && pos < tokens.size() - 1 && tokens[pos + 1].name == "(", "Macros should follow the specific pattern #macro (expression) = (replacement); Found at line " + std::to_string(tokens[i].line));
+                    decl_end = pos;
+                }
+                else if (tokens[pos].name == ";" && depth == 0) {
+                    macro_end = pos;
+                    break;
+                }
+                else if (tokens[pos].name == "(" || tokens[pos].name == "[" || tokens[pos].name == "{")
+                    depth += 1;
+                else if (tokens[pos].name == ")" || tokens[pos].name == "]" || tokens[pos].name == "}") {
+                    depth -= 1;
+                }
+                bbassert(depth>=0, "Parentheses or brackets closed prematurely at macro definition at line " + std::to_string(tokens[i].line));
+            }
+            bbassert(depth==0, "Imbalanced parentheses or brackets at macro definition at line " + std::to_string(tokens[i].line));
+            bbassert(macro_end != macro_start, "Macro was never closed. Started at line " + std::to_string(tokens[i].line));
+            bbassert(decl_end != macro_start, "Macros should follow the specific pattern #macro (expression) = (replacement); Found at line " + std::to_string(tokens[i].line));
+            std::shared_ptr<Macro> macro = std::make_shared<Macro>();
+            for (int pos = macro_start + 1; pos < decl_end - 1; ++pos)
+                macro->from.push_back(tokens[pos]);
+            for (int pos = decl_end + 2; pos < macro_end - 1; ++pos)
+                macro->to.push_back(tokens[pos]);
+            bbassert(macro->from[0].name[0] != '@', "The first token of a macro's expression cannot be a variable starting with @");
+            //bbassert(macro->from[macro->from.size()-1].name[0] != '@', "The last token of a macro's expression cannot be a variable starting with @");
+            macros.push_back(macro);
+            i = macro_end;
+        }
+        else {
+            bool macro_found = false;
+            for (const auto& macro : macros) {
+                if (tokens[i].name == macro->from[0].name) {
+                    std::unordered_map<std::string, std::vector<Token>> replacement;
+                    bool match = true;
+                    size_t j = 0;
+                    size_t k = i;
+                    int depth = 0;
+                    while (j < macro->from.size()) {
+                        if (k >= tokens.size()) {
+                            match = false;
+                            break;
+                        }
+                        if (macro->from[j].name[0] == '@') {
+                            std::string placeholder = macro->from[j].name;
+                            while (k < tokens.size() && (depth>0 || tokens[k].name!=";"|| tokens[k].name!="}"|| tokens[k].name!="]"|| tokens[k].name!=")") && (j == macro->from.size() - 1 || (tokens[k].name != macro->from[j + 1].name || depth > 0))) {
+                                if (tokens[k].name == "(" || tokens[k].name == "[" || tokens[k].name == "{") {
+                                    depth += 1;
+                                } 
+                                else if (tokens[k].name == ")" || tokens[k].name == "]" || tokens[k].name == "}") {
+                                    depth -= 1;
+                                }
+                                replacement[placeholder].push_back(tokens[k]);
+                                k++;
+                            }
+                            j++;
+                        }
+                        else if (macro->from[j].name != tokens[k].name) {
+                            match = false;
+                            break;
+                        }
+                        else {
+                            j++;
+                            k++;
+                        }
+                    }
+
+                    if (match) {
+                        std::vector<Token> newTokens;
+                        for (const auto& token : macro->to) {
+                            if (token.name[0] == '@') {
+                                for (const auto& rep_token : replacement[token.name]) 
+                                    newTokens.push_back(rep_token);
+                            }
+                            else {
+                                newTokens.push_back(token);
+                            }
+                        }
+                        tokens.erase(tokens.begin() + i, tokens.begin() + k);
+                        tokens.insert(tokens.begin() + i, newTokens.begin(), newTokens.end());
+                        i -= 1;
+                        //i += newTokens.size() - 1;
+                        macro_found = true;
+                        break;
+                    }
+                }
+            }
+            if (!macro_found) {
+                updatedTokens.push_back(tokens[i]);
+            }
+        }
+    }
+
+    tokens = std::move(updatedTokens);
+}
+
+
 
 void compile(const std::string& source, const std::string& destination) {
     // load the source code from the source file
@@ -659,6 +776,7 @@ void compile(const std::string& source, const std::string& destination) {
     // create a compiled version of the code
     std::vector<Token> tokens = tokenize(code);
     sanitize(tokens);
+    macros(tokens);
     Parser parser(tokens);
     parser.parse(0, tokens.size()-1);
     std::string compiled = parser.get();

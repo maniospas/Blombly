@@ -1,6 +1,6 @@
-#COMPILE (class @name {@code}) = (final @name = {@code});
-#COMPILE (fn @name(@args){@code}) = (final @name(@args) = {@code});
-#COMPILE (module @name {@code}) = (final @name = new {@code});
+#macro (class @name {@code}) = (final @name = {@code});
+#macro (fn @name(@args){@code}) = (final @name(@args) = {@code});
+#macro (module @name {@code}) = (final @name = new {@code});
 
 class Finder { 
     fn contains(number) {

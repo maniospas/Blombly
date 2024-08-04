@@ -1,9 +1,0 @@
-BUILTIN i I0
-BUILTIN _bb2 I10
-lt _bb1 i _bb2
-BEGINFINAL _bb3
-print # i
-BUILTIN _bb5 I1
-add i i _bb5
-END
-if # _bb1 _bb3
