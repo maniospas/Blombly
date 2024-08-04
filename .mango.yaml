@@ -1,0 +1,51 @@
+!!Tasks
+tasks:
+  Blombly:
+    command: cmd /C "blombly.exe" {path}{file}{ext}
+    extensions: [bb, bbvm]
+    highlighter: text/java
+  view:
+    command: cmd /C start "" "{path}{file}{ext}"
+    extensions: [html]
+    highlighter: text/html
+  git pull:
+    command: cmd /C git pull
+    extensions: [gitignore]
+    highlighter: text/plain
+  Pull:
+    command: cmd /C git pull
+    extensions: [gitignore]
+    highlighter: text/plain
+  python run:
+    command: python {path}{file}{ext}
+    extensions: [py]
+    highlighter: text/python
+  view page:
+    command: cmd /C start "" "{path}{file}{ext}"
+    extensions: [html]
+    highlighter: text/html
+  git push:
+    command: cmd /C git add . && git commit -m "{commit message}" && git push
+    extensions: [gitignore]
+    highlighter: text/plain
+  Compile:
+    command: g++ -std=c++20 -pthread -I./include src/*.cpp src/data/*.cpp src/interpreter/*.cpp
+      blombly.cpp -o blombly -O2
+    extensions: [cpp, h]
+    highlighter: text/cpp
+  Push:
+    command: cmd /C git add . && git commit -m "{commit message}" && git push
+    extensions: [gitignore]
+    highlighter: text/plain
+  c program:
+    command: gcc -o "{path}{file}" "{path}{file}{ext}"
+    extensions: [c]
+    highlighter: text/c
+  Executable:
+    command: cmd /C "{path}{file}"
+    extensions: [exe]
+    highlighter: text/plain
+  Python:
+    command: python {path}{file}{ext}
+    extensions: [py]
+    highlighter: text/python
