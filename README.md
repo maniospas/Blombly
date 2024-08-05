@@ -5,7 +5,7 @@
 :rocket: Parallel<br/> 
 :goggles: Memory safety<br/> 
 
-[Learn more...](https://maniospas.github.io/BlomblyVM/) 
+[Learn more...](maniospas.github.io/Blombly/) 
 
 # Downloads 
 - [Windows executable](../blombly.exe) 
