@@ -21,10 +21,11 @@
     <a rel="prefetch" href="code-blocks-inline.html">2.3 Code blocks & inline</a>
     <a rel="prefetch" href="calling-blocks.html">2.4 Calling blocks</a>
     <a rel="prefetch" href="structs.html">2.5 Structs</a>
-    <a rel="prefetch" href="success-fail.html">2.6 Success-error handling</a>
     <p><strong>Advanced features</strong></p>
-    <a rel="prefetch" href="return-from-new.html">3.1 Return from new</a>
-    <a rel="prefetch" href="overloading.html">3.2 Overloading</a>
+    <a rel="prefetch" href="preprocessor.html">3.1 Preprocess (include, macro)</a>
+    <a rel="prefetch" href="success-fail.html">3.2 Signals (try, return)</a>
+    <a rel="prefetch" href="return-from-new.html">3.3 Return from new</a>
+    <a rel="prefetch" href="overloading.html">3.4 Overloading</a>
 </div>
 <button class="toggle-button" onclick="toggleSidebar()">☰</button>
 <h1>Control Flow</h1>
@@ -37,12 +38,12 @@ However, the language also provides more dynamic options, namely the ability to
 "paste" code by diretly inlining it, which we introduce in
 <a rel="prefetch" href="code-blocks-inline.html">next section</a>,
 and success-error handling that intercepts return values, which is detailed in
-<a rel="prefetch" href="calling-blocks.html">section 2.6</a>. Intercepting
+<a rel="prefetch" href="calling-blocks.html">section 3.2</a>. Intercepting
 success values can also create advanced versions of conditional branching and loops,
 and some patterns are described in this section for completeness.
 </p>
 
-<h3>Conditions</h3>
+<h3>2.2.a Conditions</h3>
 <p>
 The <i>if</i> and <i>while</i> statements implement conditional branching 
 and loops respectively. Of these, 
@@ -79,7 +80,7 @@ else if(x&lt;0)
     print("negative");
 </code></pre>
 
-<h3>Loops</h3>
+<h3>2.2.b Loops</h3>
 
 <p>The <i>while</i> statement continuously executes a code block as long 
 as the expression evaluates to <i>true</i>,
@@ -103,12 +104,12 @@ while (counter&lt;10) {
     counter = counter + 1;
 }</code></pre>
 
-<h3>Introduction to signal interception</h3>
+<h3>2.2.c Introduction to signals</h3>
 <p>
 Blombly does not implement break and continue keywords,
 because these can be substituted by a mixture of the <i>try</i> and <i>return</i> 
 statements. The latter create a type of signal interception pattern of those
-detailed in <a rel="prefetch" href="calling-blocks.html">section 2.6</a>;
+detailed in <a rel="prefetch" href="calling-blocks.html">section 3.2</a>;
 here, we get a first taste. The first is broadly responsible for
 intercepting any returning (or error) values so that they can be assigned 
 to variables, whereas the second for stopping code execution with a returning 

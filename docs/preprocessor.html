@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blombly Companion - Overloading</title>
+    <link rel="stylesheet" rel="prefetch" href="style.css">
+    <link rel="stylesheet" rel="prefetch" href="prism.css">
+</head>
+<body>
+<div class="sidebar">
+    <h2>Blombly Companion</h2>
+    <a rel="prefetch" href="index.html">Home</a>
+    <a rel="prefetch" href="introduction.html">Introduction</a>
+    <p><strong>Set things up</strong></p>
+    <a rel="prefetch" href="hello-world.html">1.1 Hello world!</a>
+    <a rel="prefetch" href="errors.html">1.2 Errors</a>
+    <p><strong>Basic features</strong></p>
+    <a rel="prefetch" href="vars-operations-comments.html">2.1 Vars, operations, comments</a>
+    <a rel="prefetch" href="control-flow.html">2.2 Control flow</a>
+    <a rel="prefetch" href="control-flow.html">2.3 Code blocks & inline</a>
+    <a rel="prefetch" href="calling-blocks.html">2.4 Calling blocks</a>
+    <a rel="prefetch" href="structs.html">2.5 Structs</a>
+    <p><strong>Advanced features</strong></p>
+    <a rel="prefetch" href="preprocessor.html" style="color: orange;">3.1 Preprocess (include, macro)</a>
+    <a rel="prefetch" href="success-fail.html">3.2 Signals (try, return)</a>
+    <a rel="prefetch" href="return-from-new.html">3.3 Return from new</a>
+    <a rel="prefetch" href="overloading.html">3.4 Overloading</a>
+
+</div>
+<button class="toggle-button" onclick="toggleSidebar()">☰</button>
+<h1>Preprocess (include, macro)</h1>
+
+<p>Blombly's preprocessor can understand several instructions that transform the source code before compilation into <i>.bbvm</i> files.
+Two transformations are available: dependencies that make a source code file include another's codes and macros that add to the language's
+grammar with higher-level expressions.
+Dependencies are defined like below, where the dependent file's contents are directly inlined. Use them to modularize your code
+or load libraries created by others. The following example shows how to obtain the content of <i>oop.bb</i> file, including its
+own dependecies and macros. Circular dependencies are resolved by skipping those already included.</p>
+
+<pre><code class="language-java">#include "oop"</code></pre>
+
+<p>Macros are transformations for reducing boilerplate code in the form of <code>#macro (@expression)=(@transformation);</code>,
+where both the expression and transformation consist of fixed "keyword" tokens and named wildcard tokens, prepended with <code>@</code>. 
+Expressions matched to code segments convert the latter to transformations by transferring the matched wildcard tokens. To support
+faster compilation and improve comprehension, the first token of the expression needs to be a keyword.
+Three example follow.</p>
+
+<i>oop.bb</i>
+<pre><code class="language-java">#macro (class @name {@code}) = (final @name = {@code});
+#macro (fn @name(@args){@code}) = (final @name(@args) = {@code});
+#macro (module @name {@code}) = (final @name = new {@code});</code></pre>
+
+<p>Let's break the examples down:</p>
+
+<ul>
+    <li>The first macro defines a class. The <code>@name</code> placeholder is replaced by the class name, and <code>{@code}</code> is replaced by the class body.</li>
+    <li>The second macro defines a function. The <code>@name</code> placeholder is replaced by the function name, <code>@args</code> by the function arguments, and <code>{@code}</code> by the function body.</li>
+    <li>The third macroo defines a module. The <code>@name</code> placeholder is replaced by the module name, and <code>{@code}</code> by the module content.</li>
+</ul>
+
+<p>Below is an example of how these macros can be used in a Blombly program.
+This defineds a <i>Finder</i> class using the <code>class</code> macro and two functions <code>contains</code> and <code>next</code> using the <code>fn</code> macro. 
+The <code>Finder</code> class contains methods to check if a number is prime and to find the next prime number. The instance of <code>Finder</code> is created with an initial number of 10, 
+and the <code>next</code> function is called twice to find the next prime numbers.</p>
+
+<i>main.bb</i>
+<pre><code class="language-java">#include "oop"
+
+class Finder { 
+    fn contains(number) {
+        i = 2;
+        i_max = int(number^0.5);
+        while (i <= i_max) {
+            if (number % i == 0) 
+                return false;
+            i = i + 1;
+        }
+        return true;
+    }
+
+    fn next() {
+        while (true) {
+            this.number = this.number + 1;
+            if (this.contains(number)) 
+                return this.number;
+        }
+    }
+}
+
+finder = new {Finder:number = 10;}
+
+print(next(finder));
+print(next(finder));</code></pre>
+
+
+
+<script src="prism.min.js"></script>
+<script src="prism-java.min.js"></script>
+<script>
+    function toggleSidebar() {
+        document.body.classList.toggle('show-sidebar');
+    }
+</script>
+</body>
+</html>
