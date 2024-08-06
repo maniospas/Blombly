@@ -25,6 +25,8 @@ public:
     friend class Boolean;
     friend class Vector;
     friend class BString;
+    friend class BList;
+
 };
 
 #endif // BFLOAT_H

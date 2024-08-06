@@ -9,7 +9,7 @@ Data* Data::run(const OperationType operation, BuiltinArgs* args) {
         // Handle unimplemented methods
     }
     int size = args->size;
-    size--;
+    --size;
     if (size) {
         try {
             return args->arg1->implement(operation, args);
@@ -17,7 +17,7 @@ Data* Data::run(const OperationType operation, BuiltinArgs* args) {
         catch (Unimplemented) {
             // Handle unimplemented methods
         }
-        size--;
+        --size;
         if (size) {
             try {
                 return args->arg2->implement(operation, args);

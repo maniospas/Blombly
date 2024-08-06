@@ -3,7 +3,7 @@ tasks:
   Blombly:
     command: cmd /C "blombly.exe" {path}{file}{ext}
     extensions: [bb, bbvm]
-    highlighter: text/java
+    highlighter: text/rust
   view:
     command: cmd /C start "" "{path}{file}{ext}"
     extensions: [html]

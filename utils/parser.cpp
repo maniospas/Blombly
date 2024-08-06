@@ -654,7 +654,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
     std::vector<Token> updatedTokens;
     std::vector<std::shared_ptr<Macro>> macros;
     std::unordered_set<std::string> previousImports;
-    previousImports.insert(source);
+    previousImports.insert(first_source);
 
     for (size_t i = 0; i < tokens.size(); ++i) {
         if (tokens[i].name == "#" && i < tokens.size() - 2 && tokens[i + 1].name == "include") {

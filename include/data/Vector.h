@@ -51,6 +51,7 @@ public:
     Data* implement(const OperationType operation, BuiltinArgs* args) override;
 
     friend class BFloat;
+    friend class BList;
 };
 
 #endif // VECTOR_H

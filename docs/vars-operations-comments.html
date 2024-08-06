@@ -30,6 +30,16 @@
 <button class="toggle-button" onclick="toggleSidebar()">☰</button>
 <h1>Vars, operations, comments</h1>
 
+<p>This section covers blombly's most basic commands.
+These are comments, which include a first taste of metadata, and builtin variables types 
+and their operations. A separate subsection is also dedicated to the <code>list</code> 
+and <code>vector</code> types, for which several operations are defined. 
+In addition to familiar concepts, there is a first introduction to metadata attributes 
+and final (immutable) assignments. The reader is encouraged to skim
+through the text, even if they are familiar with builtin datatypes of other languages.</p>
+
+<h2>2.1.a Comments</h2>
+
 <p>Blombly only has line comments that start with <code>//</code>. 
 However, it supports multi-line strings (the str type), and thus
 can create documentation for code blocks by creating 
@@ -44,6 +54,8 @@ that <i>doc</i> is not a variable but a metadata property to be assigned to the 
  that describes the current code block.";
 print("Hellow world!");
 </code></pre>
+
+<h2>2.1.b Basic values</h2>
 
 <p>Assign values to variables with the <code>=</code>operator, like below. If a variable 
 with the same name already exists in the current scope, its value is overwritten.
@@ -109,6 +121,85 @@ message:</p>
 (<span class="error"> ERROR </span>) Cannot overwrite final value: x
   <span class="arrow">→</span> add x x _bb2                                main.bbvm line 4
 </pre>
+
+
+<h2>2.1.c Lists and vectors</h2>
+<p>
+Lists can be declared by separating several values of potential different types
+with commas <code>,</code>. List elements correspond to unique indexes, 
+where <code>0</code> is the index of the first element. You can use square brackets
+to access and set list elements based on their indexes. This is demonstrated 
+in the following example.</p>
+
+<i>main.bb</i>
+<pre><code class="language-java">l = 0, 1, "b";
+l[1] = "a";
+print(l);
+</code></pre>
+
+<p>Create a list of one or zero elements with the <code>list()</code>
+method. Lists increase in size when
+setting values to indexes greater of their current length (negative
+indexes still create an error though). This does allocate memory,
+but reading from non-existing indices creates missing variable errors.
+Elements can also be added with the <code>push</code> method, which takes
+as arguments a list and the value to add to its end. 
+To remove list elements, the <code>next</code> and <code>pop</code>
+methods remove and return the first element and last element respectively. 
+Here is an example demonstrating these concepts:</p>
+
+<i>main.bb</i>
+<pre><code class="language-java">l = list();
+push(l, 0);
+push(l, 1);
+print("first length "+str(len(l)));
+l[3] = 3;
+print("resized length "+str(len(l)));
+print("front "+str(next(l)));
+print("back "+str(pop(l)));
+print("eventual length "+str(len(l)));</code></pre>
+
+<p>Running this creates the following output:</p>
+
+<pre class="code-output">
+(<span class="ok"> OK </span>) Compilation
+(<span class="ok"> OK </span>) Optimization
+fist length 2
+resized length 4 
+front 0 
+back 3 
+eventual length 2
+</pre>
+
+<p>To effiently store and manipulate purely arithmetical data, 
+blombly also offers a <code>vector</code> datatype. This holds floats
+and provides efficient implementations for element-wise arithmetics.
+The virtual machine can use unknown 
+device resources (e.g., CPUs, GPUs) to perform operations as
+efficiently as possible.
+The currently implemented machine performs vector 
+operations in CPUs with highly optimized C++ code.</p>
+
+<p>Future backwards-compatible implementations will also support multidimensional vectors
+with matrix multiplication and dot products.</p>
+
+<p>Vectors differ from lists in that their number of elements cannot change.
+That number is provided as an argument during their creation. Their
+elements are then set to zeros and the <code>push</code>, <code>next</code>,
+and <code>pop</code> operations are not provided. Similarly, setting 
+an out-of-range value will create an error.
+There are typecasts from lists to vectors, as demonstrated below. However, the inverse
+conversion is not directly provided to avoid the code smell of converting 
+a computationally efficient data structure with potentially many elements 
+to a non-efficient one.</p>
+
+<i>main.bb</i>
+<pre><code class="language-java">
+x = vector(5);  // zeros
+x[2] = 1;
+y = vector(1, 2, 3, 4, 5);
+print(x+y-1);</code></pre>
+
 
 <script src="prism.min.js"></script>
 <script src="prism-java.min.js"></script>

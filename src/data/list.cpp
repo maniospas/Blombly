@@ -3,6 +3,8 @@
 #include "data/Integer.h"
 #include "data/Boolean.h"
 #include "data/Iterator.h"
+#include "data/BFloat.h"
+#include "data/Vector.h"
 #include "common.h"
 #include <iostream>
 
@@ -100,6 +102,36 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
                     contents->contents.pop_back();
                 contents->unlock();
                 return ret; // do not create shallow copy as the value does not remain in the list
+            }
+            case TOVECTOR: {
+                contents->lock();
+                int n = contents->contents.size();
+                Vector* ret = new Vector(n, false); // do not fill with zeros, as we will fill with whatever values we obtain
+                int i = 0;
+        		 double* rawret = ret->value->data;
+        		 BuiltinArgs* args = new BuiltinArgs();
+        		 args->preallocResult = new BFloat(0);  // preallocate this intermediate result to speed things up in case a lot of floats are moved around (this is still slower for ints)
+        		 args->size = 1;
+        		 try {
+	                for(;i<n;++i) {
+        		 		args->arg0 = contents->contents[i];
+					Data* temp = args->arg0->implement(TOFLOAT, args);
+					auto type = temp->getType();
+					bbassert(type==FLOAT || type==INT, "Convertion of a list element to float returned a non-float and non-int value");
+					double value = type==INT?((Integer*)temp)->value:((BFloat*)temp)->value;
+					rawret[i] = value;
+	                }
+        		 }
+        		 catch(BBError e) {
+        		 	delete ret;
+        		 	delete args->preallocResult;
+        		 	delete args;
+        		 	throw e;
+        		 }
+        		 delete args->preallocResult;
+        		 delete args;
+                contents->unlock();
+                return ret;
             }
         }
         throw Unimplemented();
