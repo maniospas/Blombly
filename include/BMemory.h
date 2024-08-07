@@ -62,6 +62,7 @@ public:
     // Constructors and destructor=
     explicit BMemory(const std::shared_ptr<BMemory>& par, int expectedAssignments);
     void release();
+    void releaseNonFinals();
     ~BMemory();
 
     // Lock and unlock methods for thread safety

@@ -208,7 +208,7 @@ Data* executeBlock(std::vector<Command*>* program,
                         continue;  // also skip the assignment
                     }
                     toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
-                    value = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory_);
+                    value = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory_, code->getAllMetadata());
                     if(command->operation==BEGINFINAL)
                         memory->setFinal(command->args[0]);
                     i = code->getEnd();
@@ -263,12 +263,16 @@ Data* executeBlock(std::vector<Command*>* program,
                         thread->getResult();
                     newMemory->attached_threads.clear();
                 }
-                else if(context && context->getType()==STRUCT) {
+                else if(context)
+                    bberror("Can only call code blocks");
+                else
+                    newMemory = std::make_shared<BMemory>(memory_, DEFAULT_LOCAL_EXPECTATION);
+                /*if(context && context->getType()==STRUCT) {
                     newMemory = std::make_shared<BMemory>(memory_, ((Struct*)context)->getMemory()->size());
                     newMemory->pull(((Struct*)context)->getMemory());
                 }
                 else
-                    newMemory = std::make_shared<BMemory>(memory_, DEFAULT_LOCAL_EXPECTATION);
+                    newMemory = std::make_shared<BMemory>(memory_, DEFAULT_LOCAL_EXPECTATION);*/
                 // 
                 Code* code = (Code*)execute;
                 // reframe which memory is this
@@ -341,7 +345,7 @@ Data* executeBlock(std::vector<Command*>* program,
             break;
             case SETFINAL:{
                 value = MEMGET(memory, 1);
-                bbassert(value->getType()==CODE, "Can only set set metadata (with the final setter) in a code block" );
+                bbassert(value->getType()==CODE, "Can only set metadata (with the final setter) for code blocks");
                 Code* obj = (Code*)value;
                 Data* setValue = MEMGET(memory, 3);
                 bbassert(!command->knownLocal[2], "Cannot set a metadata that is a local variable (starting with _bb...)");
@@ -480,7 +484,7 @@ Data* executeBlock(std::vector<Command*>* program,
                 if(value->getType()==FILETYPE) {
                     if(command->value) {
                         Code* code = (Code*)command->value;
-                        value = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory_);
+                        value = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory_, code->getAllMetadata());
                     }
                     else {
                         value = compileAndLoad(((BFile*)value)->getPath(), memory_);
@@ -550,13 +554,17 @@ Data* executeBlock(std::vector<Command*>* program,
                 bool* call_returnSignal = new bool(false);
                 BuiltinArgs* call_args = new BuiltinArgs();
                 value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, call_returnSignal, call_args);
-                delete call_returnSignal;
                 delete call_args;
+                delete call_returnSignal;
                 if(value) {
-                    // free up the memory only if we returned neither this nor some code defined within that mamory (we don't need to check for the memory's parrents recursively, as we then detach the memory)
+                    // free up the memory only if we returned neither this nor some code defined within that memory (we don't need to check for the memory's parents recursively, as we then detach the memory)
                     if(value==thisObj)
                         value = value;//->shallowCopy(); // creates a global struct (because *this* is final, but we don't need the returned object to be set as a final value)
-                    else if(value->getType()!=CODE || ((Code*)value)->getDeclarationMemory()->isOrDerivedFrom(newMemory)) {
+                    else if(value->getType()==CODE && !((Code*)value)->getDeclarationMemory()->isOrDerivedFrom(newMemory)) {
+                        value = value->shallowCopyIfNeeded();
+                        newMemory->releaseNonFinals();
+                    }
+                    else if(value->getType()!=CODE) {
                         value = value->shallowCopyIfNeeded();
                         newMemory->release(); // release only after the copy, as the release will delete the original value stored internally
                     }

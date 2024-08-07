@@ -103,11 +103,11 @@ public:
         // check if final or empty expression
         bool is_final = tokens[start].name=="final";
         bbassert(start<=end || (request_block && code_block_prepend.size()), "Empty expression");
-        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n       with `@property = value;` or `final @property = value;`\n       only before any other block commands and only when declaring\n       and immediately assigning a block. Metadata are not inlined.");
+        bbassert(tokens[start].name!="#", "Expression cannot start with `#`.\n   \033[33m!!!\033[0m This symbol is reserved for preprocessor directives and should have been eliminated.");
         if(is_final)
             start += 1;
         bbassert(start<=end, "Empty final expression");
-        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n       with `@property = value;` or `final @property = value;`\n       only before any other block commands and only\n       and immediately assigning a block. Metadata are not inlined.");
+        bbassert(tokens[start].name!="#", "Expression cannot start with `#`.\n   \033[33m!!!\033[0m This symbol is reserved for preprocessor directives and should have been eliminated.");
 
         // expresion parsing that is basically just a variable name
         std::string first_name = tokens[start].name;
@@ -530,6 +530,9 @@ public:
             if(conditional==MISSING) {
                 if(find_end(call+1, end, "=")!=MISSING) // if there are equalities, we are on kwarg mode 
                     parsed_args = parse_expression(call+1, end-1, true, true);
+                else if(call+1>=end-1) { // if we call with no argument whatsoever
+                    parsed_args = "#";
+                }
                 else if(find_end(call+1, end, ",")==MISSING && find_end(call+1, end, ":")==MISSING && find_end(call+1, end, ";")==MISSING) { // if there is a list of only one element 
                     parsed_args = create_temp();
                     ret += "BEGIN "+parsed_args+"\n";
@@ -624,6 +627,9 @@ void sanitize(std::vector<Token>& tokens) {
             ++i;
             continue;
         }
+        if(tokens[i].name=="#" && ((i >= tokens.size() - 1) || (tokens[i+1].name!="include" && tokens[i+1].name!="macro" && tokens[i+1].name!="spec"))) {
+            bberror("Invalid preprocessor instruction after `#` symbol.\n   \033[33m!!!\033[0m This symbol signifies preprocessor directives.\n       Valid directives are the following patterns:\n       - `#include @str;`\n       - `#spec @property=@value;`\n       - `#macro (@expression)=(@implementation);`\n       Found at line "+std::to_string(tokens[i].line));
+        }
         updatedTokens.push_back(tokens[i]);
         if(tokens[i].name=="else" && i>0 && tokens[i-1].name==";")
             bberror("`else` cannot be the next statement after `;`. \n   \033[33m!!!\033[0m You may have failed to close brackets\n       or are using a bracketless if, which should not have `;` after its first statement \n       Found at line "+std::to_string(tokens[i].line));
@@ -679,7 +685,81 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
     previousImports.insert(first_source);
 
     for (size_t i = 0; i < tokens.size(); ++i) {
-        if (tokens[i].name == "#" && i < tokens.size() - 2 && tokens[i + 1].name == "include") {
+        if (tokens[i].name == "#" && i < tokens.size() - 3 && tokens[i + 1].name == "spec") {
+            int specNameEnd = MISSING;
+            int specNameStart = MISSING;
+            if(i>0) {
+                bbassert(tokens[i-1].name=="{", "`#spec` declarations must reside at the beginning of the code block");
+                bbassert(tokens[i-2].name=="=" || tokens[i-2].name=="as", "`#spec` declarations must reside within code\n    block declaration in the form of `@block = {@code}` or `@block as {@code}`");
+                int position = i-2;
+                int depth = 0;
+                while(position>1) {
+                    position -= 1;
+                    if(tokens[position].name=="[" || tokens[position].name=="(" || tokens[position].name=="{")
+                        depth += 1;
+                    if(tokens[position].name=="]" || tokens[position].name==")" || tokens[position].name=="}")
+                        depth -= 1;
+                    if(depth==0) 
+                        break;
+                }
+                bbassert(depth==0, "Did not find the end of a code block name before `#spec` declaration.");
+                specNameEnd = position-1;
+                specNameStart = specNameEnd;
+                depth = 0;
+                while(specNameStart>0) {
+                    if(tokens[specNameStart].name=="[" || tokens[specNameStart].name=="(" || tokens[specNameStart].name=="{")
+                        depth += 1;
+                    if(tokens[specNameStart].name=="]" || tokens[specNameStart].name==")" || tokens[specNameStart].name=="}")
+                        depth -= 1;
+                    if(((tokens[specNameStart].name==";" || tokens[specNameStart].name=="final") && depth==0)||(depth>0)) {
+                        specNameStart += 1;
+                        break;
+                    }
+                    specNameStart -= 1;
+                }
+                //specNameStart += 1;
+                //specNameEnd += 1;
+                bbassert(depth>=0, "Did not find the start of a code block name before `#spec` declaration.");
+                // TODO: allow specNames that have multiple tokens
+            }
+            int depth = 1;
+            int position = i+2;
+            int specend = position;
+            while(position<tokens.size()-1) {
+                position += 1;
+                if(tokens[position].name=="[" || tokens[position].name=="(" || tokens[position].name=="{")
+                    depth += 1;
+                if(tokens[position].name=="]" || tokens[position].name==")" || tokens[position].name=="}")
+                    depth -= 1;
+                if(depth==1 && tokens[position].name==";" && specend==i+2)
+                    specend = position;
+                if(depth==0 && (tokens[position].name==";")) {
+                    position += 1;
+                    break;
+                }
+            }
+            bbassert(depth==0, "Never closed parentheses or brackets in which specification is defined. Found at line " + std::to_string(tokens[i].line));
+            
+            std::vector<Token> newTokens;
+            // prepend to definition
+            newTokens.push_back(Token("final", tokens[i].line, false));
+            if(specNameEnd==MISSING)
+                newTokens.push_back(Token("this", tokens[i].line, false));
+            else
+                newTokens.insert(newTokens.end(), tokens.begin() + specNameStart, tokens.begin() + specNameEnd + 1);
+            newTokens.push_back(Token(".", tokens[i].line, false));
+            newTokens.insert(newTokens.end(), tokens.begin() + i+2, tokens.begin() + specend + 1);
+
+            // actually make the code changes
+            tokens.insert(tokens.begin() + position, newTokens.begin(), newTokens.end()); // insert first
+            tokens.erase(tokens.begin() + i, tokens.begin() + specend + 1);
+            /*std::string out;
+            for(Token token : tokens)
+                out += token.name+" ";
+            std::cout << out << "\n";*/
+            i -= 1;
+        }
+        else if (tokens[i].name == "#" && i < tokens.size() - 2 && tokens[i + 1].name == "include") {
             bbassert(tokens[i + 2].name[0] == '"', "Include statement should have the form `#include \"libname\"`. Found at line " + std::to_string(tokens[i].line));
             bbassert(tokens[i + 3].name[0] != ';', "Include statements should not have ; at their end. Found at line " + std::to_string(tokens[i].line));
             std::string source = tokens[i + 2].name.substr(1, tokens[i + 2].name.size() - 2) + ".bb";

@@ -78,15 +78,16 @@ print(point.sum3d());</code></pre>
 
 <p>💡 Normal variable visibility rules apply; to let a struct's code blocks call each
 other, either make them <code>final</code> or access them from <code>this</code> as
-above.</p>
+above. For code safety, select the first option when in doubt.</p>
+
 <p>In blombly, inlining can be used to treat code blocks as part of constructors, which is
 a generalization of multi-inheritance. For example, you may inline the declaration of
 member functions like so:</p>
 
-<pre><code class="language-java">Point = {
-  norm = {return (this.x^2+this.y^2)^0.5;} 
+<pre><code class="language-java">final Point = {
+  final norm = {return (this.x^2+this.y^2)^0.5;} 
 }
-XYSetter = {
+final XYSetter = {
   setx = {default{value=0} this.x = value;}
   sety = {default{value=0} this.y = value;}
 }
@@ -100,9 +101,13 @@ point.sety(value=4);
 
 print(point.norm());</code></pre>
 
-<p>:warning: To prevent code smells, the compiler does not allow you to write
-<code>new B</code> where <code>B</code> is a code block. Instead, inline it per
-<code>new {B:}</code>.</p>
+<p>To prevent code smells and maintain the principle of "one solution", 
+the compiler does not accept the notation
+<code>new @block</code> where <code>@block</code> is a code block. Instead, inline that block
+per <code>new {@block:}</code>. Similarly, final members cannot be set (e.g., with ).
+That is, any declaration that is not made final during a struct definition can not be
+made final in the future. This imposes a clear distinction between mutable and immutable
+properties.</p>
 
 <script src="prism.min.js"></script>
 <script src="prism-java.min.js"></script>

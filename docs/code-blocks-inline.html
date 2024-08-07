@@ -33,19 +33,18 @@
 <p>The main logic compartmentalization mechanism in blombly are code blocks; these are flexible
 coding segments that can be treated as methods, used to define various control flows, or called 
 inline. Code blocks are declared by enclosing them in brackets and assigning them to a
-variable, like below. Notice that there is no trailing semicolon after the brackets, and the compile
-will create an error for you if you try to add one per the principle of having unique consise
-syntax. The declaration can also be <i>final</i> to make sure that the same variable always
-points to the particular block in the current scope.</p> 
+variable, like below. Notice that there is no trailing semicolon, and the compiler
+will create an error if you do try to add one, under the principle of "one solution". 
+The declaration can also be <code>final</code> to make sure that the same variable always
+points to the particular block in the current scope, and that method calls starting from
+the scope have access to it.</p> 
 
-<p>The declaration itself does not do anything more than setting a variable. 
-But you can effectively "paste" a block's
-internal code to the current position like below, where the expression ends with double colon 
-<code>:</code> instead of a semicolon to significy this behavior. This is called <i>inline execution</i>
-and has full access to variables in the current scope (both for usage and modification). The
-main usage pattern of inline execution is when you want to enrich your current code with a snippet
-defined elsewhere, which creates minimal overhead compared to creating a stack.
-You may even change which snippet to inline.</p>
+<p>The declaration itself only sets a variable. But you can effectively "paste" a block's
+internal code to the current position by using the block's name followed by double dots
+<code>:</code>.  This is called inline execution and demonstrated below.
+Inlining has full access to variables in the current scope (both for usage and modification). 
+The main usage pattern to enrich your current code with a snippet
+defined elsewhere, which may also change dynamically.</p>
 
 <i>main.bb</i>
 <pre><code class="language-java">test = {
@@ -54,17 +53,17 @@ You may even change which snippet to inline.</p>
 test:</code></pre>
 
 <p>We tackle usage of code blocks as methods in the 
-<a rel="prefetch" href="calling-blocks.html">next section</a>. For now, let 
-us continue with block declaration options by showing how to also declare 
-and retrieve some metadata for them. To this end, blombly offers the dot 
-<code>.</code> notation like structs/objects in most languages. Metadata are
-different than struct fields in that they declare
-immutable properties like documentation and source code version; blombly 
-handles structs with different mechanisms described in 
-<a rel="prefetch" href="structs.html">section 2.5</a>.
-As metadata are immutable values conceptually, assigning a value to them includes 
-the <code>final</code> keyword. For safety, an error will occur otherwise. 
-Here is an example of proper usage:</p>
+<a rel="prefetch" href="calling-blocks.html">next section</a>. For now, 
+let us see how to declare and retrieve some specification for them. 
+In the simplest case, blombly offers the dot 
+<code>.</code> notation, like the language's structs described in
+<a rel="prefetch" href="structs.html">section 2.5</a> to read and write specification
+data. The latter differ from struct fields in that they declare
+immutable properties, like documentation and source code versions.
+When assigning specifications without evoking a preprocessor directive, use the
+the <code>final</code> keyword to signify their immutable nature. 
+For logic safety, an error will occur otherwise. 
+Here is an example usage:</p>
 
 <i>main.bb</i>
 <pre><code class="language-java">final test = { // ensure that this does not change in current scope
@@ -80,27 +79,28 @@ test: // block code directly runs here</code></pre>
 
 
 
-<p>A shorthand for declaring metatadata constists of defining them at
-the beginning of blocks while replacing <i>this.</i> with the 
-<code>#</code> symbol. This declaration can not use any of the block's 
-variables, but it can use variables from the block's declaring scope, 
+<p>A shorthand for declaring specifications constists of defining them at
+the beginning of blocks using the <code>#spec</code> directive 
+for the preprocessor. This declaration can not use any of the block's 
+variables, but uses the variables from the block's declaring scope, 
 as it is interpreted equivalently to above. That is, the metadata sets 
 are performed in the declaring scope just after the block declaration
 finishes. Importantly, the same notation lets us treat source
 code files as blocks that also have metadata. You might want 
 </p>
 
+<p>As a coding standard, usage of the following metadata
+fields is encouraged: </p>
+
 <i>main.bb</i>
-<pre><code class="language-java">#doc = "This is a documented file.";
+<pre><code class="language-java">#spec doc = "This is a documented program.";
+#spec author = "Emmanouil Krasanakis (maniospas@hotmail.com)";
+#spec version = 1.0;
 
-final test = {
-  #version = 1.0;
-  #license = "CC0";
-  print("Hello world! I am a running code block.");
+final example = {
+  #spec doc = "This is a documented code block";
+  print("Hello world! I am a documented method.");
 }</code></pre>
-
-As a coding standard, we encourage the usage of the following metadata
-fields: version = float, license = str, author=str, doc = str.
 
 
 <script src="prism.min.js"></script>

@@ -10,17 +10,24 @@
 // Forward declaration for Memory class
 class BMemory;
 
+class Metadata {
+public:
+    tsl::hopscotch_map<int, Data*> metadata;
+    Metadata();
+    ~Metadata();
+};
+
 // Code class representing a segment of code in a program
 class Code : public Data {
 private:
     int start, end;
     std::shared_ptr<BMemory> declarationMemory;
+    std::shared_ptr<Metadata> metadata;
     void* program;
-    tsl::hopscotch_map<int, Data*> *metadata;
 
 public:
     explicit Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory);
-    ~Code();
+    explicit Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory, const std::shared_ptr<Metadata>& metadata);
 
     int getType() const override;
     std::string toString() const override;
@@ -30,6 +37,7 @@ public:
     void setMetadata(int pos, Data* data);
     Data* getMetadata(int id);
     std::shared_ptr<BMemory> getDeclarationMemory() const;
+    std::shared_ptr<Metadata> getAllMetadata() const;
 
     Data* shallowCopy() const override;
     Data* implement(const OperationType operation, BuiltinArgs* args) override;

@@ -42,16 +42,18 @@ is  encouraged to skim through this section.</p>
 <h2>2.1.a Comments</h2>
 
 <p>Blombly only has line comments that start with <code>//</code>. 
-However, it supports multi-line strings (the str type), and thus
-can create documentation for code blocks by creating 
-metadata properties in the way described in the 
-<a rel="prefetch" href="code-blocks-inline.html">section 2.3</a>. Below is a first take of 
-what this looks like in your programs. The <code>#</code> symbol at the beginning shows
-that <i>doc</i> is not a variable but a metadata property to be assigned to the code block.</p>
+However, it supports multi-line strings (the str type). In addition
+to code block specificiation properties, detailed 
+<a rel="prefetch" href="code-blocks-inline.html">section 2.3</a>,
+multiline strings can be used to create detailed specifications. Below is a first take of 
+what this looks like in your programs. The <code>#</code> symbol at the beginning 
+signifies an instruction to the compiler's preprocessor, which makes the necessary
+transformations to convert this to less readable but valid code. The prefix
+<code>#spec</code> indicates that this is a specification to be assigned to the code block.</p>
 
 <i>main.bb</i>
 <pre><code class="language-java">//Each file is considered a code block
-#doc = "Here is multiline documentation
+#spec doc = "Here is multiline documentation
  that describes the current code block.";
 print("Hellow world!");
 </code></pre>

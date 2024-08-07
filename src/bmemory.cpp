@@ -37,6 +37,36 @@ bool BMemory::isOrDerivedFrom(const std::shared_ptr<BMemory>& memory) const{
     return false;
 }
 
+
+void BMemory::releaseNonFinals() {
+    for(Future* thread : attached_threads) 
+        thread->getResult();
+    attached_threads.clear();
+    std::string err;
+    // automatically performed in the delete of locals/data
+    for(const auto& element : *data) {
+        if(!element.second || isFinal(element.first))
+            continue;
+        Data* dat = element.second;
+        if(dat->getType()==ERRORTYPE && !((BError*)dat)->isConsumed()){
+            if(!err.size())
+                err += "Intercepted error not handled.\n   \033[33m!!!\033[0m One or more errors that were intercepted with `try`\n       were neither handled with a `catch` clause or converted to bool or str.\n       This is not necessarily an issue, as the `try` may also be meant\n       to intercept `return` values only and cause this message otherwise.\n       The errors are listed below.";
+            err += "\n ( \x1B[31m ERROR \033[0m ) "+dat->toString();
+        }
+        if(dat->isDestroyable) {
+            //std::cout << "deleting\n";
+            //std::cout << "#"<<element.second << "\n";
+            //std::cout << element.second->toString() << "\n";
+            dat->isDestroyable = false;
+            delete dat;
+        }
+    }
+    data->clear();
+    if(err.size())
+        bberror(err);
+}
+
+
 void BMemory::release() {
     for(Future* thread : attached_threads) 
         thread->getResult();

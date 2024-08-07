@@ -3,39 +3,46 @@
 #include "common.h"
 #include "BMemory.h"
 
-// Constructor to initialize Code object with program segment details
-Code::Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory)
-    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(nullptr) {
-    }
-    
-Code::~Code() {
-    if(metadata){
-        for(const auto& element : *metadata)
-            if(element.second && element.second->isDestroyable) {
-                //std::cout << "deleting\n";
-                //std::cout << "#"<<element.second << "\n";
-                //std::cout << element.second->toString() << "\n";
-                element.second->isDestroyable = false;
-                delete element.second;
-            }
-        delete metadata;
-    }
+Metadata::Metadata() {
 }
 
+Metadata::~Metadata() {
+    for(const auto& element : metadata)
+        if(element.second && element.second->isDestroyable) {
+            //std::cout << "deleting\n";
+            //std::cout << "#"<<element.second << "\n";
+            //std::cout << element.second->toString() << "\n";
+            element.second->isDestroyable = false;
+            delete element.second;
+        }
+}
+
+// Constructor to initialize Code object with program segment details
+Code::Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory)
+    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(std::make_shared<Metadata>()) {
+        // TODO: move all attributes (programAt, startAt, endAt, into Metadata)
+    }
+
+Code::Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory, const std::shared_ptr<Metadata>& metadata)
+    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(metadata) {
+    }
+
 void Code::setMetadata(int id, Data* data) {
-    if(metadata==nullptr)
-        metadata = new tsl::hopscotch_map<int, Data*>();
-    if((*metadata)[id]!=nullptr)
-        bberror(toString()+" already has the metadata entry: "+variableManager.getSymbol(id));
-    (*metadata)[id] = data;
+    if(metadata->metadata[id])
+        bberror(toString()+" already has the specification entry: "+variableManager.getSymbol(id));
+    metadata->metadata[id] = data;
+}
+
+std::shared_ptr<Metadata> Code::getAllMetadata() const {
+    return metadata;
 }
 
 Data* Code::getMetadata(int id) {
-    if(metadata==nullptr)
-        bberror(toString()+" has no declared metadata");
-    Data* ret = (*metadata)[id];
+    if(metadata->metadata.empty())
+        bberror(toString()+" has no declared specification");
+    Data* ret = metadata->metadata[id];
     if(ret==nullptr)
-        bberror(toString()+" has no metadata entry: "+variableManager.getSymbol(id));
+        bberror(toString()+" has no specification entry: "+variableManager.getSymbol(id));
     return ret;
 }
 
@@ -46,7 +53,7 @@ int Code::getType() const {
 
 // Convert to string representation
 std::string Code::toString() const {
-    return "code from " + std::to_string(start) + " to " + std::to_string(end);
+    return "code block in lines " + std::to_string(start) + " to " + std::to_string(end);
 }
 
 // Get the starting position of the code segment
@@ -71,13 +78,14 @@ std::shared_ptr<BMemory> Code::getDeclarationMemory() const {
 
 // Create a shallow copy of this Code object
 Data* Code::shallowCopy() const {
-    return new Code(program, start, end, declarationMemory);
+    Code* ret = new Code(program, start, end, declarationMemory, metadata);
+    return ret;
 }
 
 // Implement the specified operation for the Code class
 Data* Code::implement(const OperationType operation, BuiltinArgs* args)  {
     if (args->size == 1) 
-        return new Code(program, start, end, declarationMemory);
+        return shallowCopy();
     
     // Unimplemented operation
     throw Unimplemented();
