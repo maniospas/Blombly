@@ -49,7 +49,7 @@ void BMemory::release() {
         Data* dat = element.second;
         if(dat->getType()==ERRORTYPE && !((BError*)dat)->isConsumed()){
             if(!err.size())
-                err += "Intercepted error not handled.\n   \033[33m!!!\033[0m One or more errors that were intercepted with `try`\n      were neither handled with a `catch` clause or converted to bool or str.\n      This is not necessarily an issue, as the `try` may also be meant\n      to intercept `return` values only and cause this message otherwise.\n      The errors are listed below.";
+                err += "Intercepted error not handled.\n   \033[33m!!!\033[0m One or more errors that were intercepted with `try`\n       were neither handled with a `catch` clause or converted to bool or str.\n       This is not necessarily an issue, as the `try` may also be meant\n       to intercept `return` values only and cause this message otherwise.\n       The errors are listed below.";
             err += "\n ( \x1B[31m ERROR \033[0m ) "+dat->toString();
         }
         if(dat->isDestroyable) {
@@ -215,7 +215,7 @@ Data* BMemory::getOrNull(int item, bool allowMutable) {
     // Handle mutability restrictions
     if (ret && !allowMutable && !isFinal(item)) {
         bberror("Mutable symbol cannot be accessed from a nested block: "+variableManager.getSymbol(item)
-                +"\n   \033[33m!!!\033[0m Either declare this in the current scope\n      or make its original declaration final.");
+                +"\n   \033[33m!!!\033[0m Either declare this in the current scope\n       or make its original declaration final.");
         return nullptr;
     }
 

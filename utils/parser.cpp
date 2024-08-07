@@ -103,16 +103,16 @@ public:
         // check if final or empty expression
         bool is_final = tokens[start].name=="final";
         bbassert(start<=end || (request_block && code_block_prepend.size()), "Empty expression");
-        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n      with `@property = value;` or `final @property = value;`\n      only before any other block commands and only when declaring\n      and immediately assigning a block. Metadata are not inlined.");
+        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n       with `@property = value;` or `final @property = value;`\n       only before any other block commands and only when declaring\n       and immediately assigning a block. Metadata are not inlined.");
         if(is_final)
             start += 1;
         bbassert(start<=end, "Empty final expression");
-        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n      with `@property = value;` or `final @property = value;`\n      only before any other block commands and only\n      and immediately assigning a block. Metadata are not inlined.");
+        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n       with `@property = value;` or `final @property = value;`\n       only before any other block commands and only\n       and immediately assigning a block. Metadata are not inlined.");
 
         // expresion parsing that is basically just a variable name
         std::string first_name = tokens[start].name;
         if(start==end) {
-            bbassert(code_block_prepend.size()==0, "Positional arguments were declared on an assignment's left-hand-side but the right-hand-side did not evaluate to a code block");
+            bbassert(code_block_prepend.size()==0, "Can only set positional arguments for code blocks.\n   \033[33m!!!\033[0m Positional arguments were declared on an assignment's left-hand-side\n       but the right-hand-side is not an explicit code block declaration.");
             int type = tokens[start].builtintype;
             if(type) {
                 std::string var = create_temp();
@@ -342,7 +342,7 @@ public:
         }
        
         bbassert(!is_final, "Only assignments to variables can be final");
-        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n      with `@property = value;` or `final @property = value;`\n      only before any other block commands and only\n      and immediately assigning a block. Metadata are not inlined.");
+        bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n       with `@property = value;` or `final @property = value;`\n       only before any other block commands and only\n       and immediately assigning a block. Metadata are not inlined.");
 
 
         if(first_name=="print" 
@@ -609,7 +609,7 @@ void sanitize(std::vector<Token>& tokens) {
         if(tokens[i].name=="\\")
             bberror("A stray `\\` was found at line "+std::to_string(tokens[i].line));
         if(tokens[i].name.size()>=3 && tokens[i].name.substr(0, 3)=="_bb")
-            bberror("Variable name "+tokens[i].name+" cannot start with _bb.\n   \033[33m!!!\033[0m This is reserved for VM local temporaries. Found at line "+std::to_string(tokens[i].line));
+            bberror("Variable name "+tokens[i].name+" cannot start with _bb.\n   \033[33m!!!\033[0m Names starting with this prefix are reserved\n       for VM local temporaries. Found at line "+std::to_string(tokens[i].line));
         if(tokens[i].builtintype==3 && i<tokens.size()-2 && tokens[i+1].name=="." && tokens[i+2].builtintype==3) {
             tokens[i].name += "."+tokens[i+2].name;
             tokens[i].builtintype = 4;
@@ -626,13 +626,13 @@ void sanitize(std::vector<Token>& tokens) {
         }
         updatedTokens.push_back(tokens[i]);
         if(tokens[i].name=="else" && i>0 && tokens[i-1].name==";")
-            bberror("`else` cannot be the next statement after `;`. \n   \033[33m!!!\033[0m You may have failed to close brackets\n    or are using a bracketless if, which should not have `;` after its first statement \n    Found at line "+std::to_string(tokens[i].line));
+            bberror("`else` cannot be the next statement after `;`. \n   \033[33m!!!\033[0m You may have failed to close brackets\n       or are using a bracketless if, which should not have `;` after its first statement \n       Found at line "+std::to_string(tokens[i].line));
         if((tokens[i].name=="while" || tokens[i].name=="if" || tokens[i].name=="catch")  
             && i<tokens.size()-1 && tokens[i+1].name!="(") 
             bberror("A ( should always follow `"+tokens[i].name+"` but "+tokens[i+1].name+" found at line "+std::to_string(tokens[i].line));
         if ((tokens[i].name == "new")//|| tokens[i].name == "default" // || tokens[i].name == "try")
              && i < tokens.size()-1 && tokens[i+1].name!="{")
-            bberror("A { symbol should always follow `"+tokens[i].name+"` but `"+tokens[i+1].name+"` found.\n   \033[33m!!!\033[0m To aply one a code block variable (which is a code smell), inline like this `"+tokens[i].name+" {block:}`.\n    Apply the fix at line "+std::to_string(tokens[i].line)); 
+            bberror("A { symbol should always follow `"+tokens[i].name+"` but `"+tokens[i+1].name+"` found.\n   \033[33m!!!\033[0m To aply one a code block variable (which is a code smell), inline like this `"+tokens[i].name+" {block:}`.\n       Apply the fix at line "+std::to_string(tokens[i].line)); 
         
         if (tokens[i].name == "}") {
             if (i >= tokens.size()-1) 

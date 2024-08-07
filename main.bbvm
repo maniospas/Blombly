@@ -1,30 +1,115 @@
+BUILTIN n I10000000
+BUILTIN _bb1 "-------------------------------------------"
+print # _bb1
+BUILTIN _bb3 " elements"
+str _bb5 n
+BUILTIN _bb6 "Benchmark: lists with "
+add _bb4 _bb6 _bb5
+add _bb2 _bb4 _bb3
+print # _bb2
+BUILTIN _bb7 "Language: blombly"
+print # _bb7
+BUILTIN _bb8 "-------------------------------------------"
+print # _bb8
 list x
 time tic
 BUILTIN i I0
-BUILTIN _bb4 I10000000
-lt _bb3 i _bb4
-BEGINFINAL _bb5
-BUILTIN _bb7 I1
-add i i _bb7
+lt _bb12 i n
+BEGINFINAL _bb13
+BUILTIN _bb15 I1
+add i i _bb15
 push # x i
-BUILTIN _bb4 I10000000
-lt _bb3 i _bb4
+lt _bb12 i n
 END
-while # _bb3 _bb5
-time _bb9
-sub _bb8 _bb9 tic
-print # _bb8
+while # _bb12 _bb13
+time _bb18
+sub _bb17 _bb18 tic
+str _bb19 _bb17
+BUILTIN _bb20 "  push "
+add _bb16 _bb20 _bb19
+print # _bb16
+time tic
+BUILTIN s I0
+BUILTIN i I0
+lt _bb24 i n
+BEGINFINAL _bb25
+at _bb27 x i
+add s s _bb27
+BUILTIN _bb29 I1
+add i i _bb29
+lt _bb24 i n
+END
+while # _bb24 _bb25
+time _bb32
+sub _bb31 _bb32 tic
+str _bb33 _bb31
+BUILTIN _bb34 "  access sum "
+add _bb30 _bb34 _bb33
+print # _bb30
 time tic
 iter it x
 BUILTIN s I0
 next xi it
-exists _bb14 xi
-BEGINFINAL _bb15
+exists _bb39 xi
+BEGINFINAL _bb40
 add s s xi
 next xi it
-exists _bb14 xi
+exists _bb39 xi
 END
-while # _bb14 _bb15
-time _bb18
-sub _bb17 _bb18 tic
-print # _bb17
+while # _bb39 _bb40
+time _bb44
+sub _bb43 _bb44 tic
+str _bb45 _bb43
+BUILTIN _bb46 "  iter sum "
+add _bb42 _bb46 _bb45
+print # _bb42
+BUILTIN _bb47 "-------------------------------------------"
+print # _bb47
+BUILTIN _bb49 " elements"
+str _bb51 n
+BUILTIN _bb52 "Benchmark: lists with "
+add _bb50 _bb52 _bb51
+add _bb48 _bb50 _bb49
+print # _bb48
+BUILTIN _bb53 "Language: blombly + vector"
+print # _bb53
+BUILTIN _bb54 "-------------------------------------------"
+print # _bb54
+vector x x
+time tic
+BUILTIN s I0
+BUILTIN i I0
+lt _bb59 i n
+BEGINFINAL _bb60
+at _bb62 x i
+add s s _bb62
+BUILTIN _bb64 I1
+add i i _bb64
+lt _bb59 i n
+END
+while # _bb59 _bb60
+time _bb67
+sub _bb66 _bb67 tic
+str _bb68 _bb66
+BUILTIN _bb69 "  access sum "
+add _bb65 _bb69 _bb68
+print # _bb65
+time tic
+iter it x
+BUILTIN s I0
+next xi it
+exists _bb74 xi
+BEGINFINAL _bb75
+add s s xi
+next xi it
+exists _bb74 xi
+END
+while # _bb74 _bb75
+time _bb79
+sub _bb78 _bb79 tic
+str _bb80 _bb78
+BUILTIN _bb81 "  iter sum "
+add _bb77 _bb81 _bb80
+print # _bb77
+BUILTIN _bb82 ""
+print # _bb82

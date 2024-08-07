@@ -109,28 +109,30 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
                 int n = contents->contents.size();
                 Vector* ret = new Vector(n, false); // do not fill with zeros, as we will fill with whatever values we obtain
                 int i = 0;
-        		 double* rawret = ret->value->data;
-        		 BuiltinArgs* args = new BuiltinArgs();
-        		 args->preallocResult = new BFloat(0);  // preallocate this intermediate result to speed things up in case a lot of floats are moved around (this is still slower for ints)
-        		 args->size = 1;
-        		 try {
+        		double* rawret = ret->value->data;
+        		BuiltinArgs* args = new BuiltinArgs();
+        		args->preallocResult = new BFloat(0);  // preallocate this intermediate result to speed things up in case a lot of floats are moved around (this is still slower for ints)
+        		args->size = 1;
+        		try {
 	                for(;i<n;++i) {
         		 		args->arg0 = contents->contents[i];
+					bbassert(args->arg0, "Convertion of a list element to float encountered a missing value");
 					Data* temp = args->arg0->implement(TOFLOAT, args);
 					auto type = temp->getType();
 					bbassert(type==FLOAT || type==INT, "Convertion of a list element to float returned a non-float and non-int value");
 					double value = type==INT?((Integer*)temp)->value:((BFloat*)temp)->value;
 					rawret[i] = value;
 	                }
-        		 }
-        		 catch(BBError e) {
+        		}
+        		catch(BBError e) {
         		 	delete ret;
         		 	delete args->preallocResult;
         		 	delete args;
+                contents->unlock();
         		 	throw e;
-        		 }
-        		 delete args->preallocResult;
-        		 delete args;
+        		}
+        		delete args->preallocResult;
+        		delete args;
                 contents->unlock();
                 return ret;
             }
@@ -147,29 +149,40 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
             return nullptr;
         }
         Data* ret = contents->contents[index];
-        contents->unlock();
         if(ret) {
             auto type = ret->getType();
             Data* res = args->preallocResult;
             if(res && res->getType()==type) {
-                if(type==INT) 
+                if(type==INT) {
                     ((Integer*)args->preallocResult)->value = ((Integer*)res)->value;
-                else if(type==FLOAT) 
+                    ret = res;
+                }
+                else if(type==FLOAT) {
                     ((BFloat*)args->preallocResult)->value = ((BFloat*)res)->value;
-                else if(type==BOOL) 
+                    ret = res;
+                }
+                else if(type==BOOL) {
                     ((Boolean*)args->preallocResult)->value = ((Boolean*)res)->value;
-                else if(type==STRING) 
+                    ret = res;
+                }
+                else if(type==STRING) {
                     ((BString*)args->preallocResult)->value = ((BString*)res)->value;
-                return res;
+                    ret = res;
+                }
             }
-            ret = ret->shallowCopy();
+            else 
+                ret = ret->shallowCopy();
         }
+        contents->unlock();
         return ret;
     }
 
     if(operation==PUSH && args->size==2 && args->arg0==this) {
         contents->lock();
-        contents->contents.push_back(args->arg1->shallowCopyIfNeeded());
+        if(args->arg1)
+            contents->contents.push_back(args->arg1->shallowCopyIfNeeded());
+        else
+            contents->contents.push_back(nullptr);
         contents->unlock();
         return nullptr;
     }
