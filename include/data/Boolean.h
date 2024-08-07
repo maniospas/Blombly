@@ -18,6 +18,7 @@ public:
     std::string toString() const override;
     bool getValue() const;
     bool isTrue() const override;
+    void setValue(bool val);
 
     Data* shallowCopy() const override;
     Data* implement(const OperationType operation, BuiltinArgs* args) override;

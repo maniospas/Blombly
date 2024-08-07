@@ -15,3 +15,10 @@ while(i<1000000) {
 	i = i+1;
 }
 print(time()-tic);
+
+tic = time();
+it = iter(x);
+s = 0;
+while(xi as next(it)) 
+	s = s+xi;
+print(time()-tic);

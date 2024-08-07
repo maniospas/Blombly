@@ -5,6 +5,7 @@
 #include "data/Iterator.h"
 #include "data/BFloat.h"
 #include "data/Vector.h"
+#include "data/BString.h"
 #include "common.h"
 #include <iostream>
 
@@ -147,8 +148,22 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
         }
         Data* ret = contents->contents[index];
         contents->unlock();
-        if(ret)
+        if(ret) {
+            auto type = ret->getType();
+            Data* res = args->preallocResult;
+            if(res && res->getType()==type) {
+                if(type==INT) 
+                    ((Integer*)args->preallocResult)->value = ((Integer*)res)->value;
+                else if(type==FLOAT) 
+                    ((BFloat*)args->preallocResult)->value = ((BFloat*)res)->value;
+                else if(type==BOOL) 
+                    ((Boolean*)args->preallocResult)->value = ((Boolean*)res)->value;
+                else if(type==STRING) 
+                    ((BString*)args->preallocResult)->value = ((BString*)res)->value;
+                return res;
+            }
             ret = ret->shallowCopy();
+        }
         return ret;
     }
 

@@ -31,3 +31,17 @@ while # _bb13 _bb15
 time _bb21
 sub _bb20 _bb21 tic
 print # _bb20
+time tic
+iter it x
+BUILTIN s I0
+next _bb26 it
+AS _bb25 xi _bb26
+BEGINFINAL _bb27
+add s s xi
+next _bb26 it
+AS _bb25 xi _bb26
+END
+while # _bb25 _bb27
+time _bb30
+sub _bb29 _bb30 tic
+print # _bb29

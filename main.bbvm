@@ -1,4 +1,30 @@
-list l
-next _bb2 l
-AS had_next x _bb2
-print # had_next
+list x
+time tic
+BUILTIN i I0
+BUILTIN _bb4 I10000000
+lt _bb3 i _bb4
+BEGINFINAL _bb5
+BUILTIN _bb7 I1
+add i i _bb7
+push # x i
+BUILTIN _bb4 I10000000
+lt _bb3 i _bb4
+END
+while # _bb3 _bb5
+time _bb9
+sub _bb8 _bb9 tic
+print # _bb8
+time tic
+iter it x
+BUILTIN s I0
+next xi it
+exists _bb14 xi
+BEGINFINAL _bb15
+add s s xi
+next xi it
+exists _bb14 xi
+END
+while # _bb14 _bb15
+time _bb18
+sub _bb17 _bb18 tic
+print # _bb17

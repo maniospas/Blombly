@@ -25,6 +25,11 @@ bool Boolean::getValue() const {
     return value;
 }
 
+// Return the boolean value
+void Boolean::setValue(bool val) {
+    value = val;
+}
+
 // Create a shallow copy of this Boolean
 Data* Boolean::shallowCopy() const {
     return new Boolean(value);

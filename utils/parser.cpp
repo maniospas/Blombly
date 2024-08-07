@@ -219,6 +219,10 @@ public:
 
         // assignment
         int assignment = find_end(start, end, "=");
+        int asAssignment = find_end(start, end, "as"); 
+        if(asAssignment>assignment)
+            assignment = asAssignment;
+
         if(assignment!=MISSING) {
             bbassert(assignment!=start, "Missing variable to assign to");
             int start_assignment = find_last_end(start, assignment, ".");
@@ -230,6 +234,11 @@ public:
                 bbassert(obj!="#", "There is no expression outcome to assign to");
                 bbassert(!is_final, "Entries cannot be final.");
                 ret += "put # "+obj+" "+parse_expression(start_entry+1, end_entry-1)+" "+parse_expression(assignment+1, end)+"\n";
+                if(asAssignment!=MISSING) {
+                    std::string temp = create_temp();
+                    ret += "exists "+temp+" "+first_name+"\n";
+                    return temp;
+                }
                 return "#";
             }
             if(start_assignment!=MISSING) {
@@ -250,13 +259,18 @@ public:
                 else
                     parenthesis_start = assignment;
                 ret += (is_final?"setfinal # ":"set # ")+obj+" "+parse_expression(start_assignment+1, parenthesis_start-1)+" "+parse_expression(assignment+1, end)+"\n";
+                if(asAssignment!=MISSING) {
+                    std::string temp = create_temp();
+                    ret += "exists "+temp+" "+first_name+"\n";
+                    return temp;
+                }
                 return "#";
             }   
             
             int parenthesis_start = find_end(start+1, assignment-1, "(");
             bbassert(parenthesis_start==MISSING?assignment==start+1:parenthesis_start==start+1, "Can only assign to one variable");
             first_name = parse_expression(start, (parenthesis_start==MISSING?assignment:parenthesis_start)-1);
-            if(first_name=="int" 
+            if(//first_name=="int" 
                 /*|| first_name=="float" 
                 || first_name=="str" 
                 || first_name=="file"
@@ -266,7 +280,7 @@ public:
                 || first_name=="len"
                 || first_name=="next"
                 || first_name=="vector"*/
-                || first_name=="default"
+                first_name=="default"
                 || first_name=="print"
                 || first_name=="try"
                 || first_name=="new"
@@ -319,22 +333,13 @@ public:
 
             if(is_final)
                 ret += "final # "+first_name+"\n";
+            if(asAssignment!=MISSING) {
+                std::string temp = create_temp();
+                ret += "exists "+temp+" "+first_name+"\n";
+                return temp;
+            }
             return "#";
         }
-
-		
-        // AS assignment
-        int asAssignment = find_end(start, end, "as");  
-        if(asAssignment!=MISSING) {
-       	 bbassert(asAssignment!=start, "Missing variable to assign to with 'as'");
-        	 bbassert(asAssignment!=start+2, "'as' assignment can only assign to a variable (e.g., it cannot assign to struct fields)");
-           std::string temp = create_temp();
-           ret += "AS "+temp+" "+first_name+" "+parse_expression(asAssignment+1,end)+"\n";
-           if(is_final)
-               ret += "final # "+first_name+"\n";
-		 return temp;
-        }
-
        
         bbassert(!is_final, "Only assignments to variables can be final");
         bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n      with `@property = value;` or `final @property = value;`\n      only before any other block commands and only\n      and immediately assigning a block. Metadata are not inlined.");

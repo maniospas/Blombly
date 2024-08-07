@@ -1,6 +1,15 @@
-l = 1,2,3,4,5;
-it = iter(l);
-sum = 0;
-while(i as next(it)) 
-	sum = sum+i;
-print(sum);
+x = list();
+tic = time();
+i = 0;
+while(i<10000000){
+    i = i+1;
+    push(x, i);
+}
+print(time()-tic);
+
+tic = time();
+it = iter(x);
+s = 0;
+while(xi as next(it)) 
+	s = s+xi;
+print(time()-tic);

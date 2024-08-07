@@ -316,14 +316,14 @@ Data* executeBlock(std::vector<Command*>* program,
                 value = MEMGET(memory, 1)->shallowCopyIfNeeded();
                 FILL_REPLACEMENT;
             break;
-            case AS:
-                value = MEMGET(memory, 2);
-                if(value)
-                    value = value->shallowCopyIfNeeded();
-           	    toReplace = command->args[1]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[1]);
-   		 	    memory->unsafeSet(command->args[1], value, toReplace);
+            case EXISTS:
                 FILL_REPLACEMENT;
-                value = new Boolean(value!=nullptr); // TODO: optimize this to overwrite a boolean toReplace
+                if(toReplace && toReplace->getType()==BOOL) {
+                    ((Boolean*)toReplace)->setValue(memory->contains(command->args[1]));
+                    value = toReplace;
+                }
+                else
+                    value = new Boolean(value!=nullptr); // TODO: optimize this to overwrite a boolean toReplace
                 break;
             break;
             case SET:{

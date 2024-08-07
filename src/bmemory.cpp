@@ -130,6 +130,12 @@ Data* BMemory::get(int item) {
     return ret;
 }
 
+bool BMemory::contains(int item) const {
+    auto it = data->find(item);
+    if(it==data->end())
+        return false;
+    return it->second!=nullptr;
+}
 
 void BMemory::setFinal(int item) {
     finals.insert(item);
