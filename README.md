@@ -5,10 +5,10 @@
 :rocket: Parallel<br/> 
 :goggles: Memory safety<br/> 
 
-[Learn more...](maniospas.github.io/Blombly/) 
+[Learn more...](https://maniospas.github.io/Blombly/) 
 
 # Downloads 
-- [Windows executable](../blombly.exe) 
+- [Windows executable](blombly.exe) 
 - Build from source: Download this repository and install gcc in your system. Run the following command from the directory of the `blombly.cpp` file: 
 
 ```gcc 
