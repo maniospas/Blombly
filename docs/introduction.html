@@ -72,7 +72,7 @@ be declared with the pattern <code>fn @method(@args){@code}</code>.
 <pre><code class="language-java">final scaler = {  // declares a code block, final variables are visible outside their scope
     default scale = 1;
     if(scale&lt;=0)
-       error("Scale should be greater than zero, but another value was given: "+str(scale));
+       fail("Scale should be greater than zero, but another value was given: "+str(scale));
 }
 
 final add(x,y) = {

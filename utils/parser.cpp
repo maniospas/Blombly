@@ -269,7 +269,7 @@ public:
             
             int parenthesis_start = find_end(start+1, assignment-1, "(");
             bbassert(parenthesis_start==MISSING?assignment==start+1:parenthesis_start==start+1, "Can only assign to one variable");
-            first_name = parse_expression(start, (parenthesis_start==MISSING?assignment:parenthesis_start)-1);
+            //first_name = parse_expression(start, (parenthesis_start==MISSING?assignment:parenthesis_start)-1); // TODO: find why this is wrong (run the preprocessor.html module example)
             if(//first_name=="int" 
                 /*|| first_name=="float" 
                 || first_name=="str" 
@@ -330,9 +330,10 @@ public:
             }
 
             ret += "IS "+first_name+" "+parse_expression(assignment+1,end)+"\n";
-
-            if(is_final)
+            if(is_final) {
+                bbassert(first_name.size()<3 || first_name.substr(0, 3)!="_bb", "_bb variables cannot be made final\n   \033[33m!!!\033[0m This error indicates an\n       internal logical bug of the compiler's parser."); // sanity check
                 ret += "final # "+first_name+"\n";
+            }
             if(asAssignment!=MISSING) {
                 std::string temp = create_temp();
                 ret += "exists "+temp+" "+first_name+"\n";
@@ -627,8 +628,8 @@ void sanitize(std::vector<Token>& tokens) {
             ++i;
             continue;
         }
-        if(tokens[i].name=="#" && ((i >= tokens.size() - 1) || (tokens[i+1].name!="include" && tokens[i+1].name!="macro" && tokens[i+1].name!="spec"))) {
-            bberror("Invalid preprocessor instruction after `#` symbol.\n   \033[33m!!!\033[0m This symbol signifies preprocessor directives.\n       Valid directives are the following patterns:\n       - `#include @str;`\n       - `#spec @property=@value;`\n       - `#macro (@expression)=(@implementation);`\n       Found at line "+std::to_string(tokens[i].line));
+        if(tokens[i].name=="#" && ((i >= tokens.size() - 1) || (tokens[i+1].name!="include" && tokens[i+1].name!="macro" && tokens[i+1].name!="spec" && tokens[i+1].name!="gcc"))) {
+            bberror("Invalid preprocessor instruction after `#` symbol.\n   \033[33m!!!\033[0m This symbol signifies preprocessor directives.\n       Valid directives are the following patterns:\n       - `#include @str;`\n       - `#spec @property=@value;`\n       - `#macro (@expression)=(@implementation);`\n       - `#gcc @code;`\n       Found at line "+std::to_string(tokens[i].line));
         }
         updatedTokens.push_back(tokens[i]);
         if(tokens[i].name=="else" && i>0 && tokens[i-1].name==";")
@@ -678,6 +679,7 @@ public:
 	std::vector<Token> to;
 	Macro() {}
 };
+
 void macros(std::vector<Token>& tokens, const std::string& first_source) {
     std::vector<Token> updatedTokens;
     std::vector<std::shared_ptr<Macro>> macros;
@@ -688,12 +690,12 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
         if (tokens[i].name == "#" && i < tokens.size() - 3 && tokens[i + 1].name == "spec") {
             int specNameEnd = MISSING;
             int specNameStart = MISSING;
-            if(i>0) {
+            if(i>1) {
                 bbassert(tokens[i-1].name=="{", "`#spec` declarations must reside at the beginning of the code block");
                 bbassert(tokens[i-2].name=="=" || tokens[i-2].name=="as", "`#spec` declarations must reside within code\n    block declaration in the form of `@block = {@code}` or `@block as {@code}`");
                 int position = i-2;
                 int depth = 0;
-                while(position>1) {
+                while(position>0) {
                     position -= 1;
                     if(tokens[position].name=="[" || tokens[position].name=="(" || tokens[position].name=="{")
                         depth += 1;
@@ -711,7 +713,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                         depth += 1;
                     if(tokens[specNameStart].name=="]" || tokens[specNameStart].name==")" || tokens[specNameStart].name=="}")
                         depth -= 1;
-                    if(((tokens[specNameStart].name==";" || tokens[specNameStart].name=="final") && depth==0)||(depth>0)) {
+                    if(((tokens[specNameStart].name==";" || tokens[specNameStart].name=="final") && depth==0)) {
                         specNameStart += 1;
                         break;
                     }
@@ -743,11 +745,14 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             std::vector<Token> newTokens;
             // prepend to definition
             newTokens.push_back(Token("final", tokens[i].line, false));
-            if(specNameEnd==MISSING)
-                newTokens.push_back(Token("this", tokens[i].line, false));
-            else
+            if(specNameEnd==MISSING) {
+                // pass instead of appending this here (just turns the block into a final declaration)
+                //newTokens.push_back(Token("this", tokens[i].line, false));
+            }
+            else {
                 newTokens.insert(newTokens.end(), tokens.begin() + specNameStart, tokens.begin() + specNameEnd + 1);
-            newTokens.push_back(Token(".", tokens[i].line, false));
+                newTokens.push_back(Token(".", tokens[i].line, false));
+            }
             newTokens.insert(newTokens.end(), tokens.begin() + i+2, tokens.begin() + specend + 1);
 
             // actually make the code changes
@@ -899,6 +904,90 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
 
 
 
+std::string gcc(std::vector<Token>& tokens) {
+    std::string cprogram;
+    for (size_t i = 0; i < tokens.size(); ++i) {
+        if(tokens[i].name=="#" && i<tokens.size()-2 && tokens[i+1].name=="gcc") {
+            int depth = 0;
+            i += 2;  // DON'T FORGET THAT THIS CHANGE HAS BEEN MADE
+            int end = i;
+            std::string tab;
+            if(tokens[i].name!="class" && tokens[i].name!="include" && tokens[i].name!="define")
+                cprogram += "extern \"C\" ";
+            bool isReturning = false;
+            while(end<tokens.size()) {
+                if(isReturning && tokens[end].name==";") {
+                    cprogram += ")";
+                    isReturning = false;
+                }
+                if(depth==0 && tokens[end].name==";"){
+                    if(cprogram[cprogram.length()-1]!='\n')
+                        cprogram += "\n";
+                    if(tokens[i].name=="class")
+                        cprogram = cprogram.substr(0, cprogram.size()-1)+";\n";
+                    break;
+                }
+                if(end==i+2 && tokens[i].name=="class") {
+                    cprogram +=": public Data ";
+                }
+                if(tokens[end].name=="{") {
+                    depth += 1;
+                    cprogram += " "+tokens[end].name;
+                    tab += "  ";
+                    cprogram += "\n"+tab;
+                }
+                else if(tokens[end].name=="}") {
+                    depth -= 1;
+                    tab = tab.substr(2);
+                    cprogram = cprogram.substr(0, cprogram.size()-2);
+                    cprogram += tokens[end].name+"\n"+tab;
+                }
+                else if(tokens[end].name=="include") {
+                    cprogram += "\n"+tab+"#include ";
+                }
+                else if(tokens[end].name=="define") {
+                    cprogram += "\n"+tab+"#define ";
+                }
+                else if(tokens[end].name=="return") {
+                    cprogram += "return new ";//+tokens[i].name+"(";
+                    //isReturning = true;
+                }
+                else if(tokens[end].name==";") {
+                    if(tokens[end-1].name!=":")
+                        cprogram += ";\n"+tab;
+                }
+                else if(tokens[end].name==":") {
+                    cprogram = cprogram.substr(0, cprogram.size()-1);
+                    cprogram += ": ";
+                    if(tokens[end+1].name!=":")
+                        cprogram += "\n"+tab;
+                }
+                else if(tokens[end].name=="=" && tokens[end+1].name=="{") {
+                    // pass
+                }
+                else 
+                    cprogram += tokens[end].name+" ";
+
+                if(end==i && tokens[i].name!="class" && tokens[i].name!="include" && tokens[i].name!="define") 
+                    cprogram +="* "; // function input is a pointer
+                ++end;
+            }
+            i -= 2;// CHANGE TO i-=3 ONCE THE TOKEN REMOVAL CODE IS ADDED
+        }
+    }
+    std::string raplacement = " . ";
+    std::string replaceby = "->";
+    size_t pos = cprogram.find(raplacement); 
+    while (pos != std::string::npos) { 
+        cprogram.replace(pos, raplacement.size(), replaceby); 
+        pos = cprogram.find(raplacement, pos + replaceby.size()); 
+    }
+
+    return std::move(cprogram);
+}
+
+
+
 void compile(const std::string& source, const std::string& destination) {
     // load the source code from the source file
     std::ifstream inputFile(source);
@@ -913,6 +1002,13 @@ void compile(const std::string& source, const std::string& destination) {
     // create a compiled version of the code
     std::vector<Token> tokens = tokenize(code);
     sanitize(tokens);
+
+    /*std::string cprog = gcc(tokens);
+    if(cprog.size()) {
+        std::cout << cprog<<"\n";
+        std::cout << " \033[0m(\x1B[32m OK \033[0m) GCC compilation\n";
+    }*/
+
     macros(tokens, source);
     std::cout << " \033[0m(\x1B[32m OK \033[0m) Preprocessing\n";
     Parser parser(tokens);

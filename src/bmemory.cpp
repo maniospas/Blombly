@@ -50,7 +50,7 @@ void BMemory::releaseNonFinals() {
         Data* dat = element.second;
         if(dat->getType()==ERRORTYPE && !((BError*)dat)->isConsumed()){
             if(!err.size())
-                err += "Intercepted error not handled.\n   \033[33m!!!\033[0m One or more errors that were intercepted with `try`\n       were neither handled with a `catch` clause or converted to bool or str.\n       This is not necessarily an issue, as the `try` may also be meant\n       to intercept `return` values only and cause this message otherwise.\n       The errors are listed below.";
+                err += "Intercepted error not handled.\n   \033[33m!!!\033[0m One or more errors that were intercepted with `try`\n       were neither handled with a `catch` clause nor converted to bool or str.\n       This is not necessarily an issue, as the `try` may be meant to\n       intercept `return` values only and cause this message otherwise.\n       The errors are listed below.";
             err += "\n ( \x1B[31m ERROR \033[0m ) "+dat->toString();
         }
         if(dat->isDestroyable) {
@@ -79,7 +79,7 @@ void BMemory::release() {
         Data* dat = element.second;
         if(dat->getType()==ERRORTYPE && !((BError*)dat)->isConsumed()){
             if(!err.size())
-                err += "Intercepted error not handled.\n   \033[33m!!!\033[0m One or more errors that were intercepted with `try`\n       were neither handled with a `catch` clause or converted to bool or str.\n       This is not necessarily an issue, as the `try` may also be meant\n       to intercept `return` values only and cause this message otherwise.\n       The errors are listed below.";
+                err += "Intercepted error not handled.\n   \033[33m!!!\033[0m One or more errors that were intercepted with `try`\n       were neither handled with a `catch` clause nor converted to bool or str.\n       This is not necessarily an issue, as the `try` may be meant to\n       intercept `return` values only and cause this message otherwise.\n       The errors are listed below.";
             err += "\n ( \x1B[31m ERROR \033[0m ) "+dat->toString();
         }
         if(dat->isDestroyable) {

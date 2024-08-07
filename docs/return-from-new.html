@@ -18,7 +18,7 @@
     <p><strong>Basic features</strong></p>
     <a rel="prefetch" href="vars-operations-comments.html">2.1 Vars, operations, comments</a>
     <a rel="prefetch" href="control-flow.html">2.2 Control flow</a>
-    <a rel="prefetch" href="control-flow.html">2.3 Code blocks & inline</a>
+    <a rel="prefetch" href="code-blocks-inline.html">2.3 Code blocks & inline</a>
     <a rel="prefetch" href="calling-blocks.html">2.4 Calling blocks</a>
     <a rel="prefetch" href="structs.html">2.5 Structs</a>
     <p><strong>Advanced features</strong></p>
@@ -34,7 +34,7 @@
 obtained value. This can be used to replace block calls with a forced single-threaded
 recursion that does not modify the parent context. For example:</p>
 
-<pre><code class="language-java">final fib = {  // make final so that it can see its declaration
+<pre><code class="language-java">final fib = {  // make it final so that it can see itself
     if(n&lt;2){return 1;} 
     return new{n = n-1;fib:} + new{n = n-2;fib:};
 }
@@ -42,6 +42,26 @@ recursion that does not modify the parent context. For example:</p>
 tic = time();
 print("Result", fib(n=21));
 print("Time", time()-tic);</code></pre>
+
+
+
+
+<pre><code class="language-java">#include "std/oop"
+
+final method = new {
+    final message = "Declared in new scope";
+    fn printer() {
+        print(message);
+    }
+    return printer;
+}
+rebased_method = {method:}
+
+final message = "Declared in external scope";
+method();
+rebased_method();
+</code></pre>
+
 
 <script src="prism.min.js"></script>
 <script src="prism-java.min.js"></script>

@@ -12,6 +12,8 @@ bool isBool(const std::string& value) {
     return value=="true" || value=="false";
 }
 bool isInt(const std::string& value) {
+    if(value.length()>3 && value.substr(0, 3)=="inf")
+        return false;
     try{
         std:stoi(value);
         return true;
@@ -21,8 +23,10 @@ bool isInt(const std::string& value) {
     }
 }
 bool isFloat(const std::string& value) {
+    if(value.length()>3 && value.substr(0, 3)=="inf")
+        return false;
     try{
-        std:stof(value);
+        std::stof(value);
         return true;
     }
     catch(...) {

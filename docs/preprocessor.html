@@ -18,7 +18,7 @@
     <p><strong>Basic features</strong></p>
     <a rel="prefetch" href="vars-operations-comments.html">2.1 Vars, operations, comments</a>
     <a rel="prefetch" href="control-flow.html">2.2 Control flow</a>
-    <a rel="prefetch" href="control-flow.html">2.3 Code blocks & inline</a>
+    <a rel="prefetch" href="code-blocks-inline.html">2.3 Code blocks & inline</a>
     <a rel="prefetch" href="calling-blocks.html">2.4 Calling blocks</a>
     <a rel="prefetch" href="structs.html">2.5 Structs</a>
     <p><strong>Advanced features</strong></p>
@@ -32,26 +32,93 @@
 <h1>Preprocess (include, macro)</h1>
 
 <p>Blombly's preprocessor can understand several instructions that transform the source code before compilation into <i>.bbvm</i> files.
-Two transformations are available: dependencies that make a source code file include another's codes and macros that add to the language's
-grammar with higher-level expressions.
-Dependencies are defined like below, where the dependent file's contents are directly inlined. Use them to modularize your code
-or load libraries created by others. The following example shows how to obtain the content of <i>oop.bb</i> file, including its
-own dependecies and macros. Circular dependencies are resolved by skipping those already included.</p>
+Three transformations are available: dependencies that make a source code file include another's codes, macros that add to the language's
+grammar with higher-level expressions, and specification property declarations. Of those, specifications are already 
+described in <a rel="prefetch" href="code-blocks-inline.html">section 2.3</a> as a mechanism that attaches final values on code blocks
+by evaluating them just after the block's definition.</p>
 
-<pre><code class="language-java">#include "oop"</code></pre>
+<h2>3.1.a Include and modules</h2>
 
-<p>Macros are transformations for reducing boilerplate code in the form of <code>#macro (@expression)=(@transformation);</code>,
-where both the expression and transformation consist of fixed "keyword" tokens and named wildcard tokens, prepended with <code>@</code>. 
-Expressions matched to code segments convert the latter to transformations by transferring the matched wildcard tokens. To support
-faster compilation and improve comprehension, the first token of the expression needs to be a keyword.
-Three example follow.</p>
+<p>
+Dependencies on other <code>.bb</code> files are stated with a pattern like so:
+<code class="language-java">#include "std/oop"</code>. 
+This stratement inlines the contents of the file <i>std/oop.bb</i>.
+Dependencies allow code modularization without loading overheads, as the compiled <code>.bbvm</code> 
+packs all necessary instructions to run directly. Note that dependencies should not declare 
+specifications, as these are the provenance of code blocks meant to run dynamically instead of
+immediately upon import. When creating reusable libraries, prefer constructing modules final objects
+(this is automated with <code>module</code> keyword of <code>std/oop</code>).
+Conversely, specifications are easy to create for the main files as top-level imports.
+</p>
 
-<i>oop.bb</i>
+<p>
+Below is an example of what a module may look like. Instead of specifications, final properties
+are set for documentation and versioning. However, methods (which are essentially code blocks
+meant to be called) obtain specifications. Notice that those specifications can depend on
+the library's other properties. After the library's definition this can be imported and its
+methods called. As an example, we inline the library object, which transfers all
+its variables to the local context. As a sidenote, there is no consumption of test outcomes
+(e.g., no check on whether they create errors) which means that successful testing
+is verified in parallel to other computations.
+</p>
+
+<i>mylib.bb</i>
+<pre><code class="language-java">#include "std/oop"  // for the module and fn macros (more later)
+
+module mylib {
+    final name = "mylib";
+    final author = "Emmanouil Krasanakis";
+    final doc = "This is a simple numeric interface";
+    final version = 1.0;
+
+    fn add(x, y) {
+        #spec doc = "Computes an addition in "+name;
+        #spec version = version;
+        return x + y;
+    }
+    fn abs(x) {
+        #spec doc = "Computes the absolute value in "+name;
+        #spec version = version;
+        if(x&lt;0)
+            return 0-x;
+        return x;
+    }
+    final tests = {
+        if(add(1,2)!=3)
+            fail("Invalid addition");
+        if(abs(0-1)!=1)
+            fail("Invalid abs");
+        print("Tests successful.");
+    }
+}</code></pre>
+
+
+
+<i>main.bb</i>
+<pre><code class="language-java">#include "mylib"
+
+mylib.tests();
+mylib:
+
+print(add.doc);
+print(add(1,2));
+</code></pre>
+
+
+<h2>3.1.b Macros</h2>
+
+<p>Macros are transformations for reducing boilerplate code. They are declared with statements of the form
+<code>#macro (@expression)=(@transformation);</code>. In these,
+both the expression and transformation parts consist of fixed "keyword" tokens and named wildcard tokens, prepended with <code>@</code>. 
+Wildcards represent any sequence of tokens and matched between the expression and the transformation. To support
+faster compilation and improve comprehension, the first token of the expression needs to be a keyword (for example, <code>@name fn @args</code>
+is not a valid expression, but <code>fn @name (@args)</code> is valid).
+Three example follow:</p>
+
+<i>std/oop.bb</i>
 <pre><code class="language-java">#macro (class @name {@code}) = (final @name = {@code});
 #macro (fn @name(@args){@code}) = (final @name(@args) = {@code});
 #macro (module @name {@code}) = (final @name = new {@code});</code></pre>
-
-<p>Let's break the examples down:</p>
 
 <ul>
     <li>The first macro defines a class. The <code>@name</code> placeholder is replaced by the class name, and <code>{@code}</code> is replaced by the class body.</li>
@@ -71,7 +138,7 @@ class Finder {
     fn contains(number) {
         i = 2;
         i_max = int(number^0.5);
-        while (i <= i_max) {
+        while (i &lt;= i_max) {
             if (number % i == 0) 
                 return false;
             i = i + 1;

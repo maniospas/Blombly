@@ -1,12 +1,7 @@
-#include "oop"
+#include "mylib"
 
-final test = new {
-    final method = "A";
-    fn test() {
-        print(method);
-    }
-    return test;
-}
+mylib.tests();
+mylib:
 
-final method = "B";
-test();
+print(add(1,2));
+print(add.doc);

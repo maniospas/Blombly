@@ -348,7 +348,7 @@ Data* executeBlock(std::vector<Command*>* program,
                 bbassert(value->getType()==CODE, "Can only set metadata (with the final setter) for code blocks");
                 Code* obj = (Code*)value;
                 Data* setValue = MEMGET(memory, 3);
-                bbassert(!command->knownLocal[2], "Cannot set a metadata that is a local variable (starting with _bb...)");
+                bbassert(!command->knownLocal[2], "Cannot set a specification that is a local variable (starting with _bb...)");
                 obj->setMetadata(command->args[2], setValue->shallowCopyIfNeeded());
                 continue;
             }
