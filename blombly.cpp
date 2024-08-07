@@ -316,6 +316,16 @@ Data* executeBlock(std::vector<Command*>* program,
                 value = MEMGET(memory, 1)->shallowCopyIfNeeded();
                 FILL_REPLACEMENT;
             break;
+            case AS:
+                value = MEMGET(memory, 2);
+                if(value)
+                    value = value->shallowCopyIfNeeded();
+           	    toReplace = command->args[1]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[1]);
+   		 	    memory->unsafeSet(command->args[1], value, toReplace);
+                FILL_REPLACEMENT;
+                value = new Boolean(value!=nullptr); // TODO: optimize this to overwrite a boolean toReplace
+                break;
+            break;
             case SET:{
                 value = MEMGET(memory, 1);
                 bbassert(value->getType()==STRUCT, "Can only set fields (with the non-final setter) in a struct" );

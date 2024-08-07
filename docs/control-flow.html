@@ -45,31 +45,25 @@ and some patterns are described in this section for completeness.
 
 <h3>2.2.a Conditions</h3>
 <p>
-The <i>if</i> and <i>while</i> statements implement conditional branching 
-and loops respectively. Of these, 
-conditional statements evaluate expressions within the current context
-and execute the associated code block if the outcome is <i>true</i>.
-There may also be an optional <i>else</i> branch that is executed if the
-expression evaluates to <i>false</i>.</p>
-
-<pre><code class="language-java">if (expression) {
-    // code to be executed if expression is true
-}
-else {
-    // code to be executed if expression is false
-}
-</code></pre>
-
-<p>If code blocks comprise only one statement, you may replace brackets with 
-that statement. In this case, a semicolon must be placed only at the end
-of the condition to separate it from the rest of code. If you accidentally
-pout a semicolon before an <i>else</i> statement, the compiler will
-create an error message for you. For example, 
+Conditional statements take the form <code>if(@expression){@accept}else{@reject}</code>
+where <code>@</code> reflects code This symbol complies with how macros discussed in 
+<a rel="prefetch" href="preprocessor.html">section 3.1</a> would go about defining the 
+pattern of the condition statement.
+The expression is evaluated within the current context
+and the accepted code runs (still in the context) in the context if the outcome is <code>true</code>.
+The <code>else</code> branch is optional; its reject code is executed if the
+expression evaluates to <code>false</code>. 
+If any branch's code comprise only one statement, you may ignore the brackets. 
+In this case, a semicolon must be placed only at the end
+of the statement to separate it from the rest of code. If you accidentally
+put a semicolon before an <code>else</code>, the compiler will
+ also
+create an error message to explain this. For example, 
 the following code has valid syntax for both the first branch to print
-"positive" and the the nested condition that creates an <i>else if</i> clause.
-Given the option, avoid this type of nesting conditions, as they may
-create memory bloat. Instead, rely on <i>try</i> statements described
-below.
+"positive" and the the nested condition lets us create an <code>else if</code> clause.
+Given the option, avoid this type of nesting for fast execution, 
+and rely on the <code>try</code> statement described
+ later in this section.
 </p>
 
 <i>main.bb</i>
@@ -80,19 +74,17 @@ else if(x&lt;0)
     print("negative");
 </code></pre>
 
-<h3>2.2.b Loops</h3>
+<h3>2.2.b Loops and iterators</h3>
 
-<p>The <i>while</i> statement continuously executes a code block as long 
-as the expression evaluates to <i>true</i>,
-where the expression is re-evaluated at each repetition. 
-This creates a loop that can run indefinitely if the condition never becomes
-false. The syntax is as follows:</p>
-
-<pre><code class="language-java">while (expression) {
-    // code to be executed as long as expression is true
-}</code></pre>
-
-<p>Here is an example where loop runs as long as the condition <i>counter &lt; 10</i> 
+<p>Loops take the form <code>while (expression) {
+@code}</code> and continuously executes a code block as long 
+as the expression evaluates to <code>true</code>.
+The expression is re-evaluated at each repetition,
+and the loop may run indefinitely if the condition never becomes
+false. To avoid unambiguousness, there are <i>no other</i> ways in the 
+main blombly language to declare a loop. 
+(Keep in mind, though, that one can write macros to express more loops.)
+Here is an example where loop runs as long as the condition <i>counter &lt; 10</i> 
 holds <i>true</i>. During each iteration, the loop prints the current value of the
 <i>counter</i> and increments it by 1. Once that value becomes 10, 
 the condition evaluates to <i>false</i>, and the loop terminates.</p>
@@ -103,6 +95,34 @@ while (counter&lt;10) {
     print("Counter is: " + str(counter));
     counter = counter + 1;
 }</code></pre>
+
+<p>A common task when writting code is to traverse all the elements
+in a list or vector. To do this efficiently, blombly employs an
+iteration mechanism that, after created, can be
+travered using the <code>next</code> method. 
+This mechanism is applied on all objects that overload the length
+method, as well as item getters and setters. The next example
+shows how to define an iterator from a list and use it to traverse all
+of its elements. The loop uses the <code>as</code> assignment
+(instead of <code>=</code>) to identify if a next element actually
+existed. This type of assignment was covered in 
+<a rel="prefetch" href="vars-operations-comments.html">section 2.1</a>,
+so you might want to revisit it for a refresher. Briefly,
+the loop condition performs an assignment to <code>i</code> 
+while evaluating to whether that assignment successfully created a new
+variable value.</p>
+
+<i>main.bb</i>
+<pre><code class="language-java">l = 1,2,3,4,5;
+it = iter(l);
+sum = 0;
+while(i as next(it)) 
+	sum = sum+i;
+print(sum);</code></pre>
+
+
+
+
 
 <h3>2.2.c Introduction to signals</h3>
 <p>

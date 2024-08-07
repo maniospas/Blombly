@@ -31,12 +31,13 @@
 <h1>Vars, operations, comments</h1>
 
 <p>This section covers blombly's most basic commands.
-These are comments, which include a first taste of metadata, and builtin variables types 
-and their operations. A separate subsection is also dedicated to the <code>list</code> 
+These are comments, which include a first taste of metadata, variables, and builtin
+ operations. A separate subsection is also dedicated to the <code>list</code> 
 and <code>vector</code> types, for which several operations are defined. 
-In addition to familiar concepts, there is a first introduction to metadata attributes 
-and final (immutable) assignments. The reader is encouraged to skim
-through the text, even if they are familiar with builtin datatypes of other languages.</p>
+In addition to familiar concepts, there is a first introduction to metadata attributes,
+as well as final (immutable) assignments and missing value handling. 
+To acclimate to unfamiliar concepts, the reader 
+is  encouraged to skim through this section.</p>
 
 <h2>2.1.a Comments</h2>
 
@@ -70,8 +71,8 @@ all our code remains in the same scope.</p>
 
 
 <p>There are several builtin data types that are directly created by the compiler.
-These are int, float, bool, str, code. Although variables can switch type when assigning 
-to, code that retains the same builtin type for each variable 
+These are int, float, bool, str, code. Although variables change types to mirror
+the value they have been assigned, code that retains the same builtin type for each variable 
 (which is a typical coding pattern) executes faster. Here is an example with the first 
 four builtin types - the last one will be covered in the 
 <a rel="prefetch" href="code-blocks-inline.html">section 2.3</a>.</p>
@@ -104,10 +105,14 @@ print("Sum is "+str(x+y));</code></pre>
 Result is 1.500000
 </pre>
 
-<p>Lastly, variables can be made immutable by prepending the <i>final</i> keyword
-to the assignment. This prevents any overwriting of their value and exposes them outside
-the current scope, for example in dependent code blocks calls later. Here is an example
-where there is an attempt to overwrite a final variable, which is invalid syntax.</p>
+
+<h2>2.1.c Final and missing values</h2>
+
+<p>Variables can be made immutable by prepending the <code>final</code> keyword
+to their assignment. This prevents any other code from overwriting their value.
+With this safety measure in place, final variables are also exposed
+exposed outside the current scope, for example in dependent code blocks calls later. 
+Here is an example where there is an attempt to overwrite a final variable but fails.</p>
 
 <pre><code class="language-java">final x = 0;
 x = x+1;  // CREATES AN ERROR</code></pre>
@@ -122,8 +127,28 @@ message:</p>
   <span class="arrow">→</span> add x x _bb2                                main.bbvm line 4
 </pre>
 
+<p>Some operations, such as an iterator's next element and valueless return statements, 
+may enerate missing values. Think of those as similar to null pointers, but with a
+stark difference: when assigned to variables, they completely remove the latter from the 
+scope. Missing values are different than error mechanisms in that they represent
+failures that are expected or even desireable.</p>
 
-<h2>2.1.c Lists and vectors</h2>
+<p>
+Importantly, missing values cannot be transferred, as this creates a missing
+variable error. Thus, they cannot
+silently infest the code during execution. They can also be handled with the <code>as</code>
+assignment demonstrated below, which yields a boolean value indicating the absense 
+of missing values. An <code>as</code>-based assignment can only set scope variables, and not, say
+struct fields or list elements.
+</p>
+
+<pre><code class="language-java">l = list();
+had_next = x as next(l);
+print(had_next);  // false (means that x is a missing variable)
+</code></pre>
+
+
+<h2>2.1.d Lists and vectors</h2>
 <p>
 Lists can be declared by separating several values of potential different types
 with commas <code>,</code>. List elements correspond to unique indexes, 
@@ -178,10 +203,9 @@ The virtual machine can use unknown
 device resources (e.g., CPUs, GPUs) to perform operations as
 efficiently as possible.
 The currently implemented machine performs vector 
-operations in CPUs with highly optimized C++ code.</p>
-
-<p>Future backwards-compatible implementations will also support multidimensional vectors
-with matrix multiplication and dot products.</p>
+operations in CPUs with highly optimized C++ code.
+<i>Future implementations will remain backwards-compatible, but
+will also support multidimensional vectors with matrix multiplication.</i></p>
 
 <p>Vectors differ from lists in that their number of elements cannot change.
 That number is provided as an argument during their creation. Their

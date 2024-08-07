@@ -252,6 +252,7 @@ public:
                 ret += (is_final?"setfinal # ":"set # ")+obj+" "+parse_expression(start_assignment+1, parenthesis_start-1)+" "+parse_expression(assignment+1, end)+"\n";
                 return "#";
             }   
+            
             int parenthesis_start = find_end(start+1, assignment-1, "(");
             bbassert(parenthesis_start==MISSING?assignment==start+1:parenthesis_start==start+1, "Can only assign to one variable");
             first_name = parse_expression(start, (parenthesis_start==MISSING?assignment:parenthesis_start)-1);
@@ -275,6 +276,7 @@ public:
                 || first_name=="while"
                 || first_name=="iter"
                 || first_name=="args"
+                || first_name=="as"
                 || first_name=="="
                 || first_name=="+"
                 || first_name=="-"
@@ -313,12 +315,27 @@ public:
                 }
             }
 
-            ret += PARSER_IS+" "+first_name+" "+parse_expression(assignment+1,end)+"\n";
+            ret += "IS "+first_name+" "+parse_expression(assignment+1,end)+"\n";
 
             if(is_final)
                 ret += "final # "+first_name+"\n";
             return "#";
         }
+
+		
+        // AS assignment
+        int asAssignment = find_end(start, end, "as");  
+        if(asAssignment!=MISSING) {
+       	 bbassert(asAssignment!=start, "Missing variable to assign to with 'as'");
+        	 bbassert(asAssignment!=start+2, "'as' assignment can only assign to a variable (e.g., it cannot assign to struct fields)");
+           std::string temp = create_temp();
+           ret += "AS "+temp+" "+first_name+" "+parse_expression(asAssignment+1,end)+"\n";
+           if(is_final)
+               ret += "final # "+first_name+"\n";
+		 return temp;
+        }
+
+       
         bbassert(!is_final, "Only assignments to variables can be final");
         bbassert(tokens[start].name!="#", "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata\n      with `@property = value;` or `final @property = value;`\n      only before any other block commands and only\n      and immediately assigning a block. Metadata are not inlined.");
 

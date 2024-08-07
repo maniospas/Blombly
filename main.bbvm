@@ -1,20 +1,4 @@
-BUILTIN _bb0 I5
-vector x _bb0
-BUILTIN _bb2 I1
-BUILTIN _bb3 I2
-put # x _bb3 _bb2
-BUILTIN _bb4 I1
-BUILTIN _bb5 I2
-BUILTIN _bb6 I3
-BUILTIN _bb7 I4
-BUILTIN _bb8 I5
-list _bb9 _bb4 _bb5 _bb6 _bb7 _bb8
-vector y _bb9
-BUILTIN _bb12 I1
-add _bb13 x y
-sub z _bb13 _bb12
-iter it z
-next _bb15 it
-print # _bb15
-next _bb16 it
-print # _bb16
+list l
+next _bb2 l
+AS had_next x _bb2
+print # had_next
