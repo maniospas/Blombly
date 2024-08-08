@@ -21,6 +21,10 @@ public:
     Data* shallowCopy() const override;
     Data* implement(const OperationType operation, BuiltinArgs* args) override;
 
+    size_t toHash() const override {
+        return std::hash<float>{}(value); 
+    }
+
     friend class Integer;
     friend class Boolean;
     friend class Vector;

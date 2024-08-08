@@ -41,6 +41,9 @@ public:
             return shallowCopy();
         return (Data*)this;
     }
+    virtual size_t toHash() const {
+        return std::hash<std::string>{}(toString()); 
+    }
 };
 
 #endif // DATA_H

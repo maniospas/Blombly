@@ -30,10 +30,13 @@
 <button class="toggle-button" onclick="toggleSidebar()">☰</button>
 <h1>Structs</h1>
 
+<h2>2.5.a New</h2>
+
 <p>You can create a data structure (aka object) with the <code>new {...}</code> syntax.
-This creates a new scope that can see its parent's values but keeps all new assignments.
-A struct holding new's assignments as fields is returned. Struct fields can be accessed
-via the dot <code>.</code> operator afterwards. Here is an example:</p>
+This creates a new scope that sees its parent's variables but keeps all new assignments.
+A struct holding those assignments as fields is returned, unless another return statement
+interrupts this (more on this in <a rel="prefetch" href="return-from-new.html">section 3.3</a>). 
+Struct fields can be accessed via the dot <code>.</code> operator afterwards. Here is an example:</p>
 
 <i>main.bb</i>
 <pre><code class="language-java">zbias = 0;
@@ -78,13 +81,21 @@ as a method:</p>
 }
 print(point.sum3d());</code></pre>
 
-<p>💡 Normal variable visibility rules apply; to let a struct's code blocks call each
+<p>Normal variable visibility rules apply; to let a struct's code blocks call each
 other, either make them <code>final</code> or access them from <code>this</code> as
-above. For code safety, select the first option when in doubt.</p>
+above. For consiseness and portability (inling in non-struct methods), 
+the first option is preferred. Boilerprate that
+applies best practices for object-oriented programming
+is provided by <code>std/oop</code>import in the form of
+macros (basically syntax enrichments). Related material can be found in 
+<a rel="prefetch" href="preprocessor.html">section 3.1</a>.</p>
 
-<p>In blombly, inlining can be used to treat code blocks as part of constructors, which is
-a generalization of multi-inheritance. For example, you may inline the declaration of
-member functions like so:</p>
+<h2>2.5.b Inlined code blocks as constuctors</h2>
+
+<p>In blombly, inlining can be used to treat code blocks as part of constructors. This is
+a generalization of multi-inheritance that allows any number of blocks to work together
+during struct definitions. Inline the declaration of
+member functions as in the following example:</p>
 
 <i>main.bb</i>
 <pre><code class="language-java">final Point = {
@@ -111,6 +122,32 @@ per <code>new {@block:}</code>. Similarly, final members cannot be set (e.g., wi
 That is, any declaration that is not made final during a struct definition can not be
 made final in the future. This imposes a clear distinction between mutable and immutable
 properties.</p>
+
+
+<h2>2.5.c Private variables</h2>
+It is often important to declare local variables that are not easily
+exposed outside their encosing structs. This promotes code safety
+in the form of hidden states that cannot be altered externally.
+Declarting such private variables is done by prepending their name
+with the <code>\</code> symbol.
+
+<i>main.bb</i>
+<pre><code class="language-java">point = new {
+  final \state = new {x=1;y=2}
+  final add = {return \state.x + \state.y}
+}
+
+print(point.\x); // CREATES AN ERROR</code></pre>
+
+<pre class="code-output">
+  (<span class="error"> ERROR </span>) The pattern `.\` is not allowed.
+    <span class="arrow">!!!</span> Variables starting with `\` are considered private and not
+        meant to be accessed as struct fields
+        (they can still be final if needed).
+        Found at line 6 in main.bb
+ </pre>
+ 
+
 
 <script src="prism.min.js"></script>
 <script src="prism-java.min.js"></script>

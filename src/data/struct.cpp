@@ -29,7 +29,7 @@ Data* Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
         return shallowCopy();
     std::string operation = getOperationTypeName(operation_);
     std::shared_ptr<BMemory> memory = this->getMemory();
-    Data* implementation = memory->getOrNull(variableManager.getId(operation), true);
+    Data* implementation = memory->getOrNull(variableManager.getId("\\"+operation), true);
     if (!implementation)
         throw Unimplemented();
     BList* args = new BList();
@@ -48,7 +48,7 @@ Data* Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
         Data* value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, nullptr, nullptr);
         return value;
     } else {
-        bberror(operation + " is not a method");
+        bberror("\\"+operation + " is not a method");
         delete args;  // Note: This line will never be executed due to exit.
     }
     throw Unimplemented();

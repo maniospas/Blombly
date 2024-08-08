@@ -1,2 +1,77 @@
-map m #
-print # m
+BEGINFINAL _bb0
+map keys
+final # keys
+map values
+final # values
+BEGINFINAL _bb3
+next this args
+next k args
+next v args
+put # keys k k
+put # values k v
+return _bbresult0 this
+END
+IS \put _bb3
+final # \put
+BEGINFINAL _bb4
+next this args
+next k args
+at _bb5 values k
+return _bbresult1 _bb5
+END
+IS \at _bb4
+final # \at
+BEGINFINAL _bb6
+next this args
+get _bb7 this keys
+len _bb8 _bb7
+return _bbresult2 _bb8
+END
+IS \len _bb6
+final # \len
+END
+IS Dict _bb0
+final # Dict
+BEGINFINAL _bb9
+BEGINFINAL _bb12
+inline _bb13 Dict
+return _bbresult3 this
+END
+new _bb10 _bb12
+return _bbresult4 _bb10
+END
+IS dict _bb9
+final # dict
+call d # dict
+BUILTIN _bb15 I1
+BUILTIN _bb16 "a"
+put # d _bb16 _bb15
+BUILTIN _bb17 I2
+BUILTIN _bb18 "b"
+put # d _bb18 _bb17
+BUILTIN _bb19 I3
+BUILTIN _bb20 "c"
+put # d _bb20 _bb19
+BUILTIN _bb21 I4
+BUILTIN _bb22 "d"
+put # d _bb22 _bb21
+BUILTIN _bb24 "c"
+at _bb23 d _bb24
+print # _bb23
+BUILTIN _bb26 "a"
+at _bb25 d _bb26
+print # _bb25
+BUILTIN _bb28 "c"
+at _bb27 d _bb28
+print # _bb27
+BUILTIN _bb30 "b"
+at _bb29 d _bb30
+print # _bb29
+BUILTIN _bb32 "d"
+at _bb31 d _bb32
+print # _bb31
+BUILTIN _bb34 "a"
+at _bb33 d _bb34
+print # _bb33
+len _bb35 d
+print # _bb35

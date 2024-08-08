@@ -270,16 +270,24 @@ public:
             int parenthesis_start = find_end(start+1, assignment-1, "(");
             bbassert(parenthesis_start==MISSING?assignment==start+1:parenthesis_start==start+1, "Can only assign to one variable");
             //first_name = parse_expression(start, (parenthesis_start==MISSING?assignment:parenthesis_start)-1); // TODO: find why this is wrong (run the preprocessor.html module example)
-            if(//first_name=="int" 
-                /*|| first_name=="float" 
+            if(first_name=="int" 
+                || first_name=="float" 
                 || first_name=="str" 
                 || first_name=="file"
                 || first_name=="list"
+                || first_name=="map"
                 || first_name=="pop"
                 || first_name=="push"
                 || first_name=="len"
                 || first_name=="next"
-                || first_name=="vector"*/
+                || first_name=="vector"
+                || first_name=="iter"
+                || first_name=="and"
+                || first_name=="or"
+                || first_name=="not")
+                bberror("Cannot assign to blombly operator `"+first_name+"`.\n   \033[33m!!!\033[0m This is for safety reasons (all keywords are considered final).\n       You can overload this operator in struct definitions\n       by creating the code block`\\"+first_name+"`");
+            
+            if(
                 first_name=="default"
                 || first_name=="print"
                 || first_name=="try"
@@ -288,7 +296,6 @@ public:
                 || first_name=="if"
                 || first_name=="else"
                 || first_name=="while"
-                || first_name=="iter"
                 || first_name=="args"
                 || first_name=="as"
                 || first_name=="="
@@ -302,9 +309,6 @@ public:
                 || first_name=="<="
                 || first_name==">="
                 || first_name=="!="
-                //|| first_name=="and"
-                //|| first_name=="or"
-                //|| first_name=="not"
                 || first_name=="("
                 || first_name==")"
                 || first_name=="{"
@@ -316,7 +320,7 @@ public:
                 || first_name==":"
                 || first_name==";"
                 || first_name=="#")
-                bberror("Cannot assign to blombly keyword `"+first_name+"`.\n    This is for safety reasons (all keywords are considered final).\n    Most operations can be overloaded in struct definitions.");
+                bberror("Cannot assign to blombly keyword `"+first_name+"`.\n   \033[33m!!!\033[0m This is for safety reasons (all keywords are considered final).");
             
             if(parenthesis_start!=MISSING) {
                 code_block_prepend = "";
@@ -499,7 +503,7 @@ public:
             bbassert(tokens[start+1].name=="(", "Missing ( just after "+first_name);
             if(start+1>=end-1 && (first_name=="map" || first_name=="list")) {
                 std::string var = create_temp();
-                ret += first_name+" "+var+" # "+"\n";
+                ret += first_name+" "+var+"\n";
                 return var;
             }
             std::string parsed = parse_expression(start+1, end);
@@ -625,6 +629,9 @@ void sanitize(std::vector<Token>& tokens) {
             updatedTokens.push_back(tokens[i]);
             i += 2;
             continue;
+        }
+        if(tokens[i].name=="." && i < tokens.size()-1 && tokens[i+1].name.size() && tokens[i+1].name[0]=='\\' && (i==0 || tokens[i-1].name=="this")) {
+            bberror("The pattern `.\\` is not allowed unless it follows `this`.\n   \033[33m!!!\033[0m Variables starting with `\\` are considered private and not\n       meant to be accessed directly as struct fields\n       They can still be final and be accessed from within the class's scope\n       through `this` (e.g., as `this.\\field`).\n       Found at line "+std::to_string(tokens[i].line));
         }
         if((tokens[i].name=="<" || tokens[i].name==">" || tokens[i].name=="=" || tokens[i].name=="!") 
             && i<tokens.size()-1 && tokens[i+1].name=="=") {

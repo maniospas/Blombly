@@ -1,43 +1,42 @@
-// data/HashMap.h
-#ifndef HASHMAP_H
-#define HASHMAP_H
+// data/BHashMap.h
+#ifndef BHASHMAP_H
+#define BHASHMAP_H
 
+#include "Data.h"
 #include <memory>
-#include <unordered_map>
-#include <string>
-#include "data/Data.h"
+#include <pthread.h>
+#include "tsl/hopscotch_map.h"
+#include "tsl/hopscotch_set.h"
 
-// Thread-safe container for hashmap contents
 class HashMapContents {
-private:
-    pthread_mutex_t memoryLock;
-
 public:
-    std::unordered_map<std::string, Data*> contents;
+    tsl::hopscotch_map<size_t, Data*> contents;
+    pthread_mutex_t memoryLock;
     int lockable;
 
     HashMapContents();
     ~HashMapContents();
+
     void lock();
     void unlock();
     void unsafeUnlock();
 };
 
-// HashMap class representing a hashmap of data items
 class BHashMap : public Data {
-private:
-
 public:
     std::shared_ptr<HashMapContents> contents;
-    explicit BHashMap();
-    explicit BHashMap(const std::shared_ptr<HashMapContents>& cont);
+
+    BHashMap();
+    BHashMap(const std::shared_ptr<HashMapContents>& cont);
     ~BHashMap();
 
     int getType() const override;
     std::string toString() const override;
+    size_t toHash() const override { return 0; } // Implement if necessary
     Data* shallowCopy() const override;
-    Data* implement(const OperationType operation, BuiltinArgs* args) override;
     void put(Data* from, Data* to);
+
+    Data* implement(const OperationType operation, BuiltinArgs* args) override;
 };
 
-#endif // HASHMAP_H
+#endif // BHASHMAP_H

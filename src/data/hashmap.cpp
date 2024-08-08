@@ -1,4 +1,3 @@
-// BHashMap.cpp
 #include "data/BHashMap.h"
 #include "data/Integer.h"
 #include "data/Boolean.h"
@@ -10,18 +9,19 @@
 #include <memory>
 #include <pthread.h>
 #include "data/Iterator.h"
+#include "tsl/hopscotch_map.h"
+#include "tsl/hopscotch_set.h"
 
-HashMapContents::HashMapContents(): lockable(0) {
-    if (pthread_mutex_init(&memoryLock, nullptr) != 0) {
+
+HashMapContents::HashMapContents() : lockable(0) {
+    if (pthread_mutex_init(&memoryLock, nullptr) != 0) 
         bberror("Failed to create a mutex for hash map read/write");
-    }
 }
 
 HashMapContents::~HashMapContents() {
-    for (auto& pair : contents) {
-        if (pair.second && pair.second->isDestroyable) {
+    for (const auto& pair : contents) {
+        if (pair.second && pair.second->isDestroyable) 
             delete pair.second;
-        }
     }
 }
 
@@ -38,7 +38,6 @@ void HashMapContents::unlock() {
 void HashMapContents::unsafeUnlock() {
     pthread_mutex_unlock(&memoryLock);
 }
-
 
 BHashMap::BHashMap() : contents(std::make_shared<HashMapContents>()) {}
 
@@ -58,14 +57,14 @@ int BHashMap::getType() const {
 
 std::string BHashMap::toString() const {
     contents->lock();
-    std::string result = "(";
+    std::string result = "[";
     for (const auto& pair : contents->contents) {
         if (result.size() > 1) 
             result += ", ";
-        result += "(\"" + pair.first + "\", " + pair.second->toString()+")";
+        result += pair.second->toString();
     }
     contents->unlock();
-    return result + ")";
+    return result + "]";
 }
 
 Data* BHashMap::shallowCopy() const {
@@ -81,12 +80,12 @@ Data* BHashMap::shallowCopy() const {
 void BHashMap::put(Data* from, Data* to) {
     bbassert(from, "Missing key value");
     contents->lock();
-    std::string key = from->toString();//static_cast<BString*>(args->arg1)->value;
+    size_t key = from->toHash();
     Data* prev = contents->contents[key];
     if (prev && prev->isDestroyable) {
         delete prev;
     }
-    contents->contents[key] = to?to->shallowCopyIfNeeded():to;
+    contents->contents[key] = to ? to->shallowCopyIfNeeded() : to;
     contents->unlock();
 }
 
@@ -100,13 +99,12 @@ Data* BHashMap::implement(const OperationType operation, BuiltinArgs* args) {
         }
         throw Unimplemented();
     }
-    if (operation == AT && args->size == 2) {// && args->arg1->getType() == STRING) {
+    if (operation == AT && args->size == 2) {
         contents->lock();
-        std::string key = args->arg1->toString();//static_cast<BString*>(args->arg1)->value;
+        size_t key = args->arg1->toHash();
         auto it = contents->contents.find(key);
         if (it == contents->contents.end()) {
             contents->unlock();
-            //bberror("map key \"" + key + "\" not found");
             return nullptr;
         }
         Data* ret = it->second;
@@ -128,21 +126,21 @@ Data* BHashMap::implement(const OperationType operation, BuiltinArgs* args) {
                     ret = res;
                 }
             } else {
-                ret = ret->shallowCopy();
+                ret = ret->shallowCopyIfNeeded();
             }
         }
         contents->unlock();
         return ret;
     }
 
-    if (operation == PUT && args->size == 3){// && args->arg1->getType() == STRING) {
+    if (operation == PUT && args->size == 3) {
         contents->lock();
-        std::string key = args->arg1->toString();//static_cast<BString*>(args->arg1)->value;
+        size_t key = args->arg1->toHash();
         Data* prev = contents->contents[key];
         if (prev && prev->isDestroyable) {
             delete prev;
         }
-        contents->contents[key] = args->arg2->shallowCopyIfNeeded();
+        contents->contents[key] = args->arg2?args->arg2->shallowCopyIfNeeded():nullptr;
         contents->unlock();
         return nullptr;
     }

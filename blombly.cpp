@@ -637,7 +637,7 @@ Data* executeBlock(std::vector<Command*>* program,
                 FILL_REPLACEMENT;
                 value = new BFloat(std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now()-program_start).count());
             break;
-            case TOLIST:{
+            case TOLIST:if(command->nargs==1){
                 BList* list = new BList();
                 for(int i=1;i<command->nargs;i++)
                     list->contents->contents.push_back(MEMGET(memory, i)->shallowCopyIfNeeded());
@@ -645,7 +645,7 @@ Data* executeBlock(std::vector<Command*>* program,
                 toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
                 break;
             }
-            case TOMAP:if(command->nargs==2 && command->args[0]!=variableManager.noneId){
+            case TOMAP:if(command->nargs==1){
                 BHashMap* map = new BHashMap();
                 value = map;
                 toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
