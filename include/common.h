@@ -27,16 +27,16 @@ public:
 #define bbverify(precondition, expr, msg) if(precondition && !(expr)) {std::cerr<<msg<<"\n";exit(1);}
 
 // Enumeration of data types
-enum Datatype {FUTURE, BOOL, INT, FLOAT, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE, ERRORTYPE};
+enum Datatype {FUTURE, BOOL, INT, FLOAT, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE, ERRORTYPE, MAP};
 
 // Array to map datatype enums to string representations
 static const char* datatypeName[] = { 
-    "future", "bool", "int", "float", "vector", "list", "string", "code", "struct", "iterator", "file", "error"
+    "future", "bool", "int", "float", "vector", "list", "string", "code", "struct", "iterator", "file", "error", "map"
 };
 
 // Global strings for different operations
 enum OperationType {NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, DIV, MOD, LEN, POW, LOG, 
-                    PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOINT, TOFLOAT, TOSTR, TOBOOL, TOCOPY, TOFILE,
+                    PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOMAP, TOINT, TOFLOAT, TOSTR, TOBOOL, TOCOPY, TOFILE,
                     SUM, MAX, MIN,
                     BUILTIN, BEGIN, BEGINFINAL, BEGINCACHED, END, RETURN, FINAL, IS, 
                     CALL, WHILE, IF, NEW, PRINT, INLINE, GET, SET, SETFINAL, DEFAULT,
@@ -44,7 +44,7 @@ enum OperationType {NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, 
 static const std::string OperationTypeNames[] = {
     "not", "and", "or", "eq", "neq", "le", "ge", "lt", "gt", "add", "sub", "mul", "mmul", 
     "div", "mod", "len", "pow", "log", "push", "pop", "next", "put", "at", "shape", 
-    "vector", "list", "int", "float", "str", "bool", "copy", "file",
+    "vector", "list", "map", "int", "float", "str", "bool", "copy", "file",
     "sum", "max", "min",
     "BUILTIN", "BEGIN", "BEGINFINAL", "BEGINCACHED", "END", "return", "final", "IS", 
     "call", "while", "if", "new", "print", "inline", "get", "set", "setfinal", "default",

@@ -48,6 +48,7 @@
 #include "include/data/Vector.h"
 #include "include/data/BString.h"
 #include "include/data/List.h"
+#include "include/data/BHashMap.h"
 #include "include/data/Future.h"
 #include "include/data/Code.h"
 #include "include/data/Struct.h"
@@ -642,8 +643,14 @@ Data* executeBlock(std::vector<Command*>* program,
                     list->contents->contents.push_back(MEMGET(memory, i)->shallowCopyIfNeeded());
                 value = list;
                 toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
+                break;
             }
-            break;
+            case TOMAP:if(command->nargs==2 && command->args[0]!=variableManager.noneId){
+                BHashMap* map = new BHashMap();
+                value = map;
+                toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
+                break;
+            }
             default:
                 FILL_REPLACEMENT;
                 cmdSize = command->nargs;

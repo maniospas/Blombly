@@ -6,6 +6,7 @@
 #include "data/BFloat.h"
 #include "data/Vector.h"
 #include "data/BString.h"
+#include "data/BHashMap.h"
 #include "common.h"
 #include <iostream>
 
@@ -79,6 +80,21 @@ Data* BList::shallowCopy() const {
     return ret;
 }
 
+Data* BList::at(int index) const {
+    contents->lock();
+    if(index < 0 || index>=contents->contents.size()) {
+        int endcontents = contents->contents.size();
+        contents->unlock();
+        bberror("List index "+std::to_string(index)+" out of range [0,"+std::to_string(endcontents)+")");
+        return nullptr;
+    }
+    Data* ret = contents->contents[index];
+    if(ret)
+        ret->shallowCopyIfNeeded();
+    contents->unlock();
+    return ret;
+}
+
 // Implement the specified operation
 Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
     if(args->size==1) {
@@ -103,6 +119,34 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
                     contents->contents.pop_back();
                 contents->unlock();
                 return ret; // do not create shallow copy as the value does not remain in the list
+            }
+            case TOMAP : {
+                BHashMap* map = new BHashMap();
+                contents->lock();
+                int n = contents->contents.size();
+                int i = 0;
+                try {
+                    for(;i<n;++i) {
+                        Data* el = contents->contents[i];
+                        bbassert(el->getType()==LIST, "Can only create a map from a list of lists");
+                        BList* list = ((BList*)el);
+                        list->contents->lock();
+                        if(list->contents->contents.size()!=2) {
+                            list->contents->unlock();
+                            bberror("Can only create a map from a list of 2-element lists");
+                        }
+                        std::cout << list->contents->contents[0]->toString()<<"\n";
+                        map->put(list->contents->contents[0], list->contents->contents[1]);
+                        list->contents->unlock();
+                    }
+                }
+                catch(BBError error) {
+                    contents->unlock();
+                    delete map;
+                    throw error;
+                }
+                contents->unlock();
+                return map;
             }
             case TOVECTOR: {
                 contents->lock();

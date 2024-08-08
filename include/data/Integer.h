@@ -29,6 +29,7 @@ public:
     friend class Vector;
     friend class BList;
     friend class BFile;
+    friend class BHashMap;
 };
 
 #endif // INTEGER_H

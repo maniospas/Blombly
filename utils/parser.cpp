@@ -493,9 +493,15 @@ public:
             || first_name=="pop"
             || first_name=="file"
             || first_name=="next"
-            //|| first_name=="list"
+            || first_name=="list"
+            || first_name=="map"
             || first_name=="vector") {
             bbassert(tokens[start+1].name=="(", "Missing ( just after "+first_name);
+            if(start+1>=end-1 && (first_name=="map" || first_name=="list")) {
+                std::string var = create_temp();
+                ret += first_name+" "+var+" # "+"\n";
+                return var;
+            }
             std::string parsed = parse_expression(start+1, end);
             bbassert(parsed!="#", "An expression that computes no value was given to "+first_name);
             std::string var = create_temp();
@@ -506,8 +512,7 @@ public:
         
         if(first_name=="time" || first_name=="random" || first_name=="list") {
             bbassert(tokens[start+1].name=="(", "Missing ( after "+first_name);
-
-        	  if(first_name=="list") {
+              if(first_name=="list") {
             	bbassert(tokens[start+2].name==")", first_name+" accepts no arguments\n   \033[33m!!!\033[0m Create lists of more arguments by pushing elements to\n       an empty list, or by separating values by commas like this: `l=1,2,3;`.");
         	  }
         	  else {

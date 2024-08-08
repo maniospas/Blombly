@@ -27,6 +27,7 @@ public:
     friend class BList;
     friend class BFile;
     friend class BError;
+    friend class BHashMap;
 };
 
 #endif // BSTRING_H

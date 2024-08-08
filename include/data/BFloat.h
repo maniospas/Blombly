@@ -26,6 +26,7 @@ public:
     friend class Vector;
     friend class BString;
     friend class BList;
+    friend class BHashMap;
 
 };
 

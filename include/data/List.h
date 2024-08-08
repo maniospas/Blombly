@@ -37,6 +37,7 @@ public:
     std::string toString() const override;
     Data* shallowCopy() const override;
     Data* implement(const OperationType operation, BuiltinArgs* args) override;
+    Data* at(int index) const;
 };
 
 #endif // LIST_H
