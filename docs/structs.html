@@ -30,13 +30,27 @@
 <button class="toggle-button" onclick="toggleSidebar()">☰</button>
 <h1>Structs</h1>
 
+<p>This section describes the process with which to make structs, that is, objects
+that hold certain variables that can be accessed and set with the dot notation. 
+Similarly to scopes, structs can have final variables.
+There are three mechanisms to keep in mind: a) usage of the <code>new</code> keyword
+to create a scope for declaring structs (all scope assignments are transferred to
+the produced stuct), b) the <code>this</code> keyword from which struct members
+can be accessed from called code blocks, and c) private variables that are not
+exposed externally. In addition to these concepts, we also demonstrate usage of
+code blocks as constructors to be inlined within struct creation. Builerplate
+best practices to support object-oriented programming are provided as macros
+in the <code>"std/oop"</code> include covered in 
+<a rel="prefetch" href="preprocessor.html">section 3.1</a>. For the time
+being, though, we stick to base language features.</p>
+
 <h2>2.5.a New</h2>
 
-<p>You can create a data structure (aka object) with the <code>new {...}</code> syntax.
-This creates a new scope that sees its parent's variables but keeps all new assignments.
+<p>You can create a data structure (aka object) with the <code>new {@code}</code> syntax.
+This creates a new scope that sees its parent's variables but keeps track of all new assignments.
 A struct holding those assignments as fields is returned, unless another return statement
 interrupts this (more on this in <a rel="prefetch" href="return-from-new.html">section 3.3</a>). 
-Struct fields can be accessed via the dot <code>.</code> operator afterwards. Here is an example:</p>
+Struct fields can be accessed with the dot <code>.</code> operator afterwards, as shown below:</p>
 
 <i>main.bb</i>
 <pre><code class="language-java">zbias = 0;
@@ -67,9 +81,11 @@ from the creator scope and cannot "see" the variable <code>zbias</code>.</p>
 </pre>
 
 <p>Blocks declared within <code>new</code> have access to an immutable (<code>final</code>)
-variable called <code>this</code> that holds the struct. This becomes accessible only after
-the struct is created. For example, here is a definition of a code block that is to be used
-as a method:</p>
+variable called <code>this</code> that holds the struct. Access to this as a means of setting
+and writting fields is possible only after the struct's creation concludes. Furthermore, unless 
+exposed through a different mechanism, the compiler prevents usage of <code>@obj.this</code>.
+For example, next is a definition of a code block that is to be used as a method. Typically,
+it is adviseable.</p>
 
 <i>main.bb</i>
 <pre><code class="language-java">point = new {
@@ -99,11 +115,11 @@ member functions as in the following example:</p>
 
 <i>main.bb</i>
 <pre><code class="language-java">final Point = {
-  final norm = {return (this.x^2+this.y^2)^0.5;} 
+  norm = {return (this.x^2+this.y^2)^0.5;} 
 }
 final XYSetter = {
-  setx = {default{value=0} this.x = value;}
-  sety = {default{value=0} this.y = value;}
+  setx(value) = {this.x = value;}
+  sety(value) = {this.y = value;}
 }
 point = new {
   Point:
@@ -111,7 +127,7 @@ point = new {
   x = 0;
   y = 0;
 }
-point.sety(value=4);
+point.sety(4);
 
 print(point.norm());</code></pre>
 
@@ -125,28 +141,36 @@ properties.</p>
 
 
 <h2>2.5.c Private variables</h2>
-It is often important to declare local variables that are not easily
-exposed outside their encosing structs. This promotes code safety
+
+<p>It is often important to declare local variables that may not be
+directly exposed outside their enclosing structs. This promotes code safety
 in the form of hidden states that cannot be altered externally.
-Declarting such private variables is done by prepending their name
-with the <code>\</code> symbol.
+a such private variables is done by prepending their name
+with the slash <code>\</code>. Private variables can be accessed only
+if declared or if their name (including the slash) follows the 
+<code>this</code> keyword specifically, in which case they are retrieved
+from the namesake object. These private access restrictions are enforced 
+by the compiler but not during interpretation (so <code>.bbvm</code>
+files can circumvent code safety).
+</p>
 
 <i>main.bb</i>
 <pre><code class="language-java">point = new {
-  final \state = new {x=1;y=2}
-  final add = {return \state.x + \state.y}
+  \x = 0;
+  \y = 0;
+  set = {
+    if(x as x) // effectively checks if 
+      this\x = x;
+    if(y as y)
+      this\y = y;
+  }
+  add = {return this\x + this\y}
 }
 
-print(point.\x); // CREATES AN ERROR</code></pre>
+point.set(x=1);
+print(point.add());
+print(point\x); // CREATES AN ERROR</code></pre>
 
-<pre class="code-output">
-  (<span class="error"> ERROR </span>) The pattern `.\` is not allowed.
-    <span class="arrow">!!!</span> Variables starting with `\` are considered private and not
-        meant to be accessed as struct fields
-        (they can still be final if needed).
-        Found at line 6 in main.bb
- </pre>
- 
 
 
 <script src="prism.min.js"></script>

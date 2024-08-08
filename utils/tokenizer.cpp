@@ -95,6 +95,13 @@ std::vector<Token> tokenize(const std::string& text) {
             continue;
         }
         prevChar = c;
+        if(c=='\\') {
+            if(word.size())
+                ret.push_back(Token(word, line));
+            word = "\\";
+            specialCharacter = false;
+            continue;
+        }
         bool prevSpecialCharacter = specialCharacter;
         if(c==' ' || c=='\t' || c=='\n' 
             || c=='(' || c==')' || c=='[' || c==']' || c=='{' || c=='}'|| c=='=' || c==':' || c==';'|| c==',' || c=='.'
