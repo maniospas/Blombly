@@ -41,6 +41,7 @@ public:
 
     Data* shallowCopy() const override;
     Data* implement(const OperationType operation, BuiltinArgs* args) override;
+    bool scheduleForParallelExecution;
 };
 
 #endif // CODE_H

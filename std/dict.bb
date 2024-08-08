@@ -4,15 +4,15 @@ class Dict {
     final keys = map();
     final values = map();
 
-    fn !put(this, k, v) {
+    fn \put(this, k, v) {
         keys[k] = k;
         values[k] = v;
         return this;
     }
-    fn !at(this, k) {
+    fn \at(this, k) {
         return values[k];
     }
-    fn !len(this) {
+    fn \len(this) {
         return len(this.keys);
     }
 }

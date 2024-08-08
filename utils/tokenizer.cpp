@@ -38,10 +38,11 @@ bool isFloat(const std::string& value) {
 class Token {
 public:
     std::string name;
+    std::string file;
     int line;
     int builtintype;
     bool printable;
-    Token(const std::string& name, int line, bool printable=true): name(name), line(line), printable(printable) {
+    Token(const std::string& name, const std::string& file, int line, bool printable=true): name(name), file(file), line(line), printable(printable) {
         if(isString(name))
             builtintype = 1;
         else if(isBool(name))
@@ -53,10 +54,14 @@ public:
         else
             builtintype = 0;
     }
+
+    std::string toString() const {
+        return "at line "+std::to_string(line)+" in "+file;
+    }
 };
 
 
-std::vector<Token> tokenize(const std::string& text) {
+std::vector<Token> tokenize(const std::string& text, const std::string& file) {
     std::string word;
     int line = 1;
     std::vector<Token> ret;
@@ -81,7 +86,7 @@ std::vector<Token> tokenize(const std::string& text) {
             if(inString)
                 word += c;
             if(word.size()) 
-                ret.push_back(Token(word, line));
+                ret.emplace_back(word, file, line);
             word = "";
             if(!inString)
                 word += c;
@@ -97,7 +102,7 @@ std::vector<Token> tokenize(const std::string& text) {
         prevChar = c;
         if(c=='\\') {
             if(word.size())
-                ret.push_back(Token(word, line));
+                ret.emplace_back(word, file, line);
             word = "\\";
             specialCharacter = false;
             continue;
@@ -108,7 +113,7 @@ std::vector<Token> tokenize(const std::string& text) {
             || c=='*' || c=='+' || c=='^' || c=='-' || c=='/' || c=='%' || c=='&' || c=='|' || c=='!' || c=='<' || c=='>'
             || c=='/' || c=='#') {
             if(word.size())
-                ret.push_back(Token(word, line));
+                ret.emplace_back(word, file, line);
             word = "";
             if(c=='\n')
                 line++;
@@ -119,7 +124,7 @@ std::vector<Token> tokenize(const std::string& text) {
         else
             specialCharacter = false;
         if(prevSpecialCharacter && word.size()) {
-            ret.push_back(Token(word, line));
+            ret.emplace_back(word, file, line);
             word = "";
         }
         word += c;
@@ -127,7 +132,7 @@ std::vector<Token> tokenize(const std::string& text) {
     if(inString)
         bberror("Missing `\"`. The file ended without closing the string: "+word);
     if(word.size())
-        ret.push_back(Token(word, line));
+        ret.emplace_back(word, file, line);
 
     return std::move(ret);
 }

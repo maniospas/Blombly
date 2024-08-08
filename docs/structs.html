@@ -38,8 +38,8 @@ to create a scope for declaring structs (all scope assignments are transferred t
 the produced stuct), b) the <code>this</code> keyword from which struct members
 can be accessed from called code blocks, and c) private variables that are not
 exposed externally. In addition to these concepts, we also demonstrate usage of
-code blocks as constructors to be inlined within struct creation. Builerplate
-best practices to support object-oriented programming are provided as macros
+code blocks as constructors to be inlined within struct creation. Boilerplate
+best practices that support object-oriented programming are provided as macros
 in the <code>"std/oop"</code> include covered in 
 <a rel="prefetch" href="preprocessor.html">section 3.1</a>. For the time
 being, though, we stick to base language features.</p>
@@ -49,8 +49,9 @@ being, though, we stick to base language features.</p>
 <p>You can create a data structure (aka object) with the <code>new {@code}</code> syntax.
 This creates a new scope that sees its parent's variables but keeps track of all new assignments.
 A struct holding those assignments as fields is returned, unless another return statement
-interrupts this (more on this in <a rel="prefetch" href="return-from-new.html">section 3.3</a>). 
-Struct fields can be accessed with the dot <code>.</code> operator afterwards, as shown below:</p>
+interrupts this (more on this in <a rel="prefetch" href="return-from-new.html">section 3.3</a>),
+where struct fields can be accessed with the dot <code>.</code> operator afterwards.
+The xample below demonstrates field access:</p>
 
 <i>main.bb</i>
 <pre><code class="language-java">zbias = 0;
@@ -145,13 +146,14 @@ properties.</p>
 <p>It is often important to declare local variables that may not be
 directly exposed outside their enclosing structs. This promotes code safety
 in the form of hidden states that cannot be altered externally.
-a such private variables is done by prepending their name
-with the slash <code>\</code>. Private variables can be accessed only
-if declared or if their name (including the slash) follows the 
-<code>this</code> keyword specifically, in which case they are retrieved
-from the namesake object. These private access restrictions are enforced 
+Private variables are denoted with the <code>\</code> prefix at the beginning
+of their name (e.g., <code>\test</code> is private). 
+Aside from their scope, they can be accessed only if their name (including the slash) 
+follows the keyword <code>this</code> keyword specifically. In the last case,
+they are retrieved from the namesake object. These restrictions are enforced 
 by the compiler but not during interpretation (so <code>.bbvm</code>
-files can circumvent code safety).
+files can circumvent code safety). For example, the following code declares
+an oject with private variables that can not be directly accessed externally.
 </p>
 
 <i>main.bb</i>
@@ -159,17 +161,17 @@ files can circumvent code safety).
   \x = 0;
   \y = 0;
   set = {
-    if(x as x) // effectively checks if 
-      this\x = x;
-    if(y as y)
-      this\y = y;
+    default x = this\x;
+    default y = this\y;
+    this\x = x;
+    this\y = y;
+    return this; // needed for synchronized code
   }
   add = {return this\x + this\y}
 }
 
-point.set(x=1);
-print(point.add());
-print(point\x); // CREATES AN ERROR</code></pre>
+point = point.set(x=1);  // signify that we are making an update
+print(point.add());</code></pre>
 
 
 

@@ -19,12 +19,12 @@ Metadata::~Metadata() {
 
 // Constructor to initialize Code object with program segment details
 Code::Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory)
-    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(std::make_shared<Metadata>()) {
+    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(std::make_shared<Metadata>()), scheduleForParallelExecution(false) {
         // TODO: move all attributes (programAt, startAt, endAt, into Metadata)
     }
 
 Code::Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory, const std::shared_ptr<Metadata>& metadata)
-    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(metadata) {
+    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(metadata), scheduleForParallelExecution(false) {
     }
 
 void Code::setMetadata(int id, Data* data) {

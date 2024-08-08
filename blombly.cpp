@@ -209,7 +209,9 @@ Data* executeBlock(std::vector<Command*>* program,
                         continue;  // also skip the assignment
                     }
                     toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
-                    value = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory_, code->getAllMetadata());
+                    Code* val = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory_, code->getAllMetadata());
+                    val->scheduleForParallelExecution = code->scheduleForParallelExecution;
+                    value = val;
                     if(command->operation==BEGINFINAL)
                         memory->setFinal(command->args[0]);
                     i = code->getEnd();
@@ -218,8 +220,11 @@ Data* executeBlock(std::vector<Command*>* program,
                 int pos = i+1;
                 int depth = 0;
                 OperationType command_type;
+                bool scheduleForParallelExecution = false;
                 while(pos<=end) {
                     command_type = program->at(pos)->operation;
+                    if(command_type==WHILE)
+                        scheduleForParallelExecution = true;
                     if(command_type==BEGIN || command_type==BEGINFINAL)
                         depth += 1;
                     if(command_type==END) {
@@ -230,7 +235,9 @@ Data* executeBlock(std::vector<Command*>* program,
                     pos += 1;
                 }
                 bbassert(depth>=0, "Code block never ended");
-                value = new Code(program, i+1, pos, memory_);
+                Code* val = new Code(program, i+1, pos, memory_);
+                val->scheduleForParallelExecution = scheduleForParallelExecution;
+                value = val;
                 if(command->operation==BEGINFINAL)
                     memory->setFinal(command->args[0]);
                     //value->isMutable = false;
@@ -280,20 +287,35 @@ Data* executeBlock(std::vector<Command*>* program,
                 if(newMemory!=nullptr)
                     newMemory->detach(code->getDeclarationMemory()); // reattaches the new memory on the declaration memory
                 
-                std::shared_ptr<FutureData> data = std::make_shared<FutureData>();
-                data->result = std::make_shared<ThreadResult>();
-                data->thread = std::thread(threadExecute, 
-                                            program, 
-                                            code->getStart(), 
-                                            code->getEnd(), 
-                                            newMemory, 
-                                            nullptr, 
-                                            nullptr,
-                                            data->result,
-                                            command);
-                Future* future = new Future(data);
-                memory->attached_threads.insert(future);
-                value = future;
+                if(code->scheduleForParallelExecution) {
+                    std::shared_ptr<FutureData> data = std::make_shared<FutureData>();
+                    data->result = std::make_shared<ThreadResult>();
+                    data->thread = std::thread(threadExecute, 
+                                                (std::vector<Command*>*)code->getProgram(), 
+                                                code->getStart(), 
+                                                code->getEnd(), 
+                                                newMemory, 
+                                                nullptr, 
+                                                nullptr,
+                                                data->result,
+                                                command);
+                    Future* future = new Future(data);
+                    memory->attached_threads.insert(future);
+                    value = future;
+                }
+                else {
+                    bool* call_returnSignal = new bool(false);
+                    BuiltinArgs* call_args = new BuiltinArgs();
+                    value = executeBlock((std::vector<Command*>*)code->getProgram(), code->getStart(), code->getEnd(), newMemory, call_returnSignal, call_args);
+                    delete call_returnSignal;
+                    delete call_args;
+                    for(Future* thread : newMemory->attached_threads)
+                        thread->getResult();
+                    newMemory->attached_threads.clear();
+                    if(value) 
+                        value = value->shallowCopyIfNeeded();
+                    newMemory->release();
+                }
                 toReplace = command->args[0]==variableManager.thisId?nullptr:memory->getOrNullShallow(command->args[0]);
             }
             break;
@@ -763,7 +785,7 @@ int main(int argc, char* argv[]) {
             std::cout << " \033[0m(\x1B[32m OK \033[0m) Compilation\n";
         }
         catch(const BBError& e) {
-            std::cout << e.what() << " in " << fileName << "\n";
+            std::cout << e.what() << "\n";
             //std::cout << " \033[0m(\x1B[31m FAIL \033[0m) Compilation\n";
             return 1;
         }
@@ -772,7 +794,7 @@ int main(int argc, char* argv[]) {
             std::cout << " \033[0m(\x1B[32m OK \033[0m) Optimization\n";
         }
         catch(const BBError& e) {
-            std::cout << e.what() << " in " << fileName << "\n";
+            std::cout << e.what() << "\n";
             //std::cout << " \033[0m(\x1B[31m FAIL \033[0m) Optimization\n";
             return 1;
         }

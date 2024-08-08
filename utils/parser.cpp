@@ -51,7 +51,12 @@ private:
                 depth -= 1;
         }
         if (missing_error) {
-            bberror("Closing " + end_string + " is missing");
+            if(end_string==";") {
+                bberror("Statement never ended.\n"+tokens[start].toString());
+            }
+            else {
+                bberror("Closing " + end_string + " is missing.\n"+tokens[start].toString());
+            }
         }
         return MISSING;
     }
@@ -66,16 +71,13 @@ private:
                 tokens[i].name == "{")
                 depth += 1;
             if (depth < 0)
-                bberror("Imbalanced parentheses, brackets, or scopes "
-                        "starting from line " + 
-                        std::to_string(tokens[start].line));
+                bberror("Imbalanced parentheses, brackets, or scopes\n"+tokens[start].toString());
             if (tokens[i].name == ")" || tokens[i].name == "]" || 
                 tokens[i].name == "}")
                 depth -= 1;
         }
         if (missing_error && pos == MISSING) {
-            bberror("Closing " + end_string + " is missing starting from "
-                    "line " + std::to_string(tokens[start].line));
+            bberror("Closing " + end_string + " is missing\n"+tokens[start].toString());
         }
         return pos;
     }
@@ -102,7 +104,7 @@ public:
                                  bool ignore_empty = false) {
         if (ignore_empty && start >= end)
             return "#";
-        try {
+        //try {
             bool is_final = tokens[start].name == "final";
             bbassert(start <= end || (request_block && 
                       code_block_prepend.size()), 
@@ -197,9 +199,7 @@ public:
                 std::string bodyvar = create_temp();
                 ret += "BEGIN " + bodyvar + "\n";
                 if (tokens[start_if_body].name == "{") {
-                    bbassert(find_end(start_if_body + 1, body_end, "}", true) == 
-                              body_end, "there is leftover code after closing "
-                                        "}");
+                    bbassert(find_end(start_if_body + 1, body_end, "}", true) == body_end, "There is leftover code after closing `}`\n"+tokens[start_if_body].toString());
                     parse(start_if_body + 1, body_end - 1);
                 } else if (tokens[body_end].name == "else") {
                     parse(start_if_body, body_end - 1);
@@ -210,13 +210,11 @@ public:
                     ret += condition_text;
                 ret += "END\n";
                 if (body_end <= end - 1 && tokens[body_end].name == "else") {
-                    bbassert(first_name != "while", 
-                              "while expression cannot have an else branch");
+                    bbassert(first_name != "while", "`while` expressions cannot have an else branch.\n"+tokens[body_end].toString());
                     int else_end = end;
                     if (tokens[body_end + 1].name == "{") {
                         else_end = find_end(body_end + 2, end, "}", true);
-                        bbassert(else_end == end, 
-                                  "else statement body ends before statement");
+                        bbassert(else_end == end, "There is leftover code after closing `}`\n"+tokens[else_end].toString());
                     }
                     std::string endvar = create_temp();
                     ret += "BEGIN " + endvar + "\n";
@@ -228,9 +226,7 @@ public:
                     bodyvar += " " + endvar;
                     body_end = else_end;
                 }
-                bbassert(body_end == end, first_name + 
-                          " statement body terminated before end of "
-                          "expression");
+                bbassert(body_end == end, "`"+first_name + "` statement body terminated before end of expression.\n"+tokens[body_end].toString());
                 ret += first_name + " # " + condition + " " + bodyvar + "\n";
                 return "#";
             }
@@ -244,8 +240,7 @@ public:
                                                       != "{");
                 if (first_name == "new" && ret.substr(ret.size() - 4) == "END\n")
                     ret = ret.substr(0, ret.size() - 4) + "return # this\nEND\n";
-                bbassert(parsed != "#", "An expression that computes no value "
-                          "was given to " + first_name);
+                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`\n"+tokens[start + 1].toString());
                 ret += first_name + " " + var + " " + parsed + "\n";
                 return var;
             }
@@ -256,20 +251,17 @@ public:
                 assignment = asAssignment;
 
             if (assignment != MISSING) {
-                bbassert(assignment != start, "Missing variable to assign to");
+                bbassert(assignment != start, "Missing a variable to assign to.\n"+tokens[assignment].toString());
                 int start_assignment = find_last_end(start, assignment, ".");
                 int start_entry = find_last_end((start_assignment == MISSING ? 
                                  start : start_assignment) + 1, assignment, "[");
                 if (start_entry != MISSING && start_entry > start_assignment) {
                     int end_entry = find_end(start_entry + 1, assignment, "]", 
                                              true);
-                    bbassert(end_entry == assignment - 1, 
-                              "Non-empty expression between last closing ] "
-                              "and =");
+                    bbassert(end_entry == assignment - 1, "Non-empty expression between last closing `]` and `=`.\n"+tokens[end_entry+1].toString());
                     std::string obj = parse_expression(start, start_entry - 1);
-                    bbassert(obj != "#", "There is no expression outcome to "
-                              "assign to");
-                    bbassert(!is_final, "Entries cannot be final.");
+                    bbassert(obj != "#", "There is no expression outcome to assign to.\n"+tokens[start].toString());
+                    bbassert(!is_final, "Entries cannot be final.\n"+tokens[start-1].toString());
                     ret += "put # " + obj + " " + parse_expression(start_entry 
                           + 1, end_entry - 1) + " " + parse_expression(
                           assignment + 1, end) + "\n";
@@ -281,27 +273,21 @@ public:
                     return "#";
                 }
                 if (start_assignment != MISSING) {
-                    bbassert(start_assignment >= start + 1, 
-                              "Assignment expression can not start with `.`.");
-                    int parenthesis_start = find_end(start_assignment + 1, 
-                                                     assignment - 1, "(");
-                    std::string obj = parse_expression(start, 
-                                                       start_assignment - 1);
-                    bbassert(obj != "#", "There is no expression outcome to "
-                              "assign to");
+                    bbassert(start_assignment >= start + 1, "Assignment expression can not start with `.`.\n"+tokens[start].toString());
+                    int parenthesis_start = find_end(start_assignment + 1,  assignment - 1, "(");
+                    std::string obj = parse_expression(start, start_assignment - 1);
+                    bbassert(obj != "#", "There is no expression outcome to assign to/\n"+tokens[start].toString());
                     if (parenthesis_start != MISSING) {
                         code_block_prepend = "";
                         int parenthesis_end = find_end(parenthesis_start + 1, 
                                                        assignment - 1, ")", 
                                                        true);
                         bbassert(parenthesis_end == assignment - 1, 
-                                  "Inappropriately placed code after last "
-                                  "parenthesis in assignment's left hand side");
-                        for (int j = parenthesis_start + 1; j < parenthesis_end;
-                             ++j) {
+                                  "There is leftover code after last "
+                                  "parenthesis in assignment's left hand side.\n"+tokens[parenthesis_end].toString());
+                        for (int j = parenthesis_start + 1; j < parenthesis_end; ++j) {
                             if (tokens[j].name != ",") {
-                                code_block_prepend += "next " + tokens[j].name 
-                                                      + " args\n";
+                                code_block_prepend += "next " + tokens[j].name + " args\n";
                             }
                         }
                     } else {
@@ -322,7 +308,7 @@ public:
                 int parenthesis_start = find_end(start + 1, assignment - 1, "(");
                 bbassert(parenthesis_start == MISSING ? assignment == start + 1 
                           : parenthesis_start == start + 1, 
-                          "Can only assign to one variable");
+                          "Cannot understrand what to assign to\n"+tokens[start].toString());
                 if (first_name == "int" || first_name == "float" || 
                     first_name == "str" || first_name == "file" || 
                     first_name == "list" || first_name == "map" || 
@@ -331,12 +317,12 @@ public:
                     first_name == "vector" || first_name == "iter" || 
                     first_name == "and" || first_name == "or" || 
                     first_name == "not") {
-                    bberror("Cannot assign to blombly operator `" + first_name 
-                            + "`.\n   \033[33m!!!\033[0m This is for safety "
-                            "reasons (all keywords are considered final).\n   "
-                            "    You can overload this operator in struct "
-                            "definitions\n       by creating the code block`\\"
-                            + first_name + "`");
+                    bberror("Cannot assign to blombly operator `" + first_name + "`."
+                            "\n   \033[33m!!!\033[0m This is for safety reasons (all keywords"
+                            "\n       are considered final)."
+                            "\n       You can overload this operator in struct definitions"
+                            "\n       by creating the code block `\\"
+                            + first_name + "`\n"+tokens[start].toString());
                 }
 
                 if (first_name == "default" || first_name == "print" || 
@@ -358,7 +344,7 @@ public:
                     first_name == ";" || first_name == "#") {
                     bberror("Cannot assign to blombly keyword `" + first_name 
                             + "`.\n   \033[33m!!!\033[0m This is for safety "
-                            "reasons (all keywords are considered final).");
+                            "reasons (all keywords are considered final).\n"+tokens[start].toString());
                 }
 
                 if (parenthesis_start != MISSING) {
@@ -366,14 +352,11 @@ public:
                     int parenthesis_end = find_end(parenthesis_start + 1, 
                                                    assignment - 1, ")", true);
                     bbassert(parenthesis_end == assignment - 1, 
-                              "Inappropriately placed code after last "
-                              "parenthesis in assignment's left hand side");
+                              "Leftover code after last parenthesis in assignment's left hand side.\n"+tokens[parenthesis_end].toString());
                     for (int j = parenthesis_start + 1; j < parenthesis_end; 
                          ++j) {
-                        if (tokens[j].name != ",") {
-                            code_block_prepend += "next " + tokens[j].name 
-                                                  + " args\n";
-                        }
+                        if (tokens[j].name != ",") 
+                            code_block_prepend += "next " + tokens[j].name + " args\n";
                     }
                 }
 
@@ -384,7 +367,7 @@ public:
                               != "_bb", "_bb variables cannot be made final\n"
                               "   \033[33m!!!\033[0m This error indicates an\n"
                               "       internal logical bug of the compiler's "
-                              "parser.");
+                              "parser.\n"+tokens[start].toString());
                     ret += "final # " + first_name + "\n";
                 }
                 if (asAssignment != MISSING) {
@@ -402,13 +385,12 @@ public:
                       "`@property = value;` or `final @property = value;`\n   "
                       "    only before any other block commands and only\n   "
                       "    and immediately assigning a block. Metadata are "
-                      "not inlined.");
+                      "not inlined.\n"+tokens[start].toString());
 
             if (first_name == "print" || first_name == "return" || 
                 first_name == "fail") {
                 std::string parsed = parse_expression(start + 1, end);
-                bbassert(parsed != "#", "An expression that computes no value "
-                          "was given to " + first_name);
+                bbassert(parsed != "#", "An expression that computes no value  was given to `" + first_name+"`.\n"+tokens[start+1].toString());
                 std::string var = "#";
                 ret += first_name + " " + var + " " + parsed + "\n";
                 return var;
@@ -418,14 +400,12 @@ public:
             int eor = find_last_end(start, end, "or");
             if (eand != MISSING && eand > eor) {
                 std::string var = create_temp();
-                ret += "and " + var + " " + parse_expression(start, eand - 1) 
-                       + " " + parse_expression(eand + 1, end) + "\n";
+                ret += "and " + var + " " + parse_expression(start, eand - 1) + " " + parse_expression(eand + 1, end) + "\n";
                 return var;
             }
             if (eor != MISSING) {
                 std::string var = create_temp();
-                ret += "or " + var + " " + parse_expression(start, eor - 1) + 
-                       " " + parse_expression(eor + 1, end) + "\n";
+                ret += "or " + var + " " + parse_expression(start, eor - 1) + " " + parse_expression(eor + 1, end) + "\n";
                 return var;
             }
 
@@ -437,8 +417,7 @@ public:
                     if (next == MISSING)
                         list_vars += " " + parse_expression(listgen + 1, end);
                     else
-                        list_vars += " " + parse_expression(listgen + 1, 
-                                                            next - 1);
+                        list_vars += " " + parse_expression(listgen + 1, next - 1);
                     listgen = next;
                 }
                 std::string var = create_temp();
@@ -450,14 +429,12 @@ public:
             int ne = find_last_end(start, end, "!=");
             if (eq != MISSING && eq > ne) {
                 std::string var = create_temp();
-                ret += "eq " + var + " " + parse_expression(start, eq - 1) + 
-                       " " + parse_expression(eq + 1, end) + "\n";
+                ret += "eq " + var + " " + parse_expression(start, eq - 1) + " " + parse_expression(eq + 1, end) + "\n";
                 return var;
             }
             if (ne != MISSING) {
                 std::string var = create_temp();
-                ret += "neq " + var + " " + parse_expression(start, ne - 1) + 
-                       " " + parse_expression(ne + 1, end) + "\n";
+                ret += "neq " + var + " " + parse_expression(start, ne - 1) + " " + parse_expression(ne + 1, end) + "\n";
                 return var;
             }
 
@@ -467,26 +444,22 @@ public:
             int ge = find_last_end(start, end, ">=");
             if (lt != MISSING && lt > gt && lt > ge && lt > le) {
                 std::string var = create_temp();
-                ret += "lt " + var + " " + parse_expression(start, lt - 1) + 
-                       " " + parse_expression(lt + 1, end) + "\n";
+                ret += "lt " + var + " " + parse_expression(start, lt - 1) + " " + parse_expression(lt + 1, end) + "\n";
                 return var;
             }
             if (le != MISSING && le > gt && le > ge) {
                 std::string var = create_temp();
-                ret += "le " + var + " " + parse_expression(start, le - 1) + 
-                       " " + parse_expression(le + 1, end) + "\n";
+                ret += "le " + var + " " + parse_expression(start, le - 1) + " " + parse_expression(le + 1, end) + "\n";
                 return var;
             }
             if (gt != MISSING && gt > ge) {
                 std::string var = create_temp();
-                ret += "gt " + var + " " + parse_expression(start, gt - 1) + 
-                       " " + parse_expression(gt + 1, end) + "\n";
+                ret += "gt " + var + " " + parse_expression(start, gt - 1) + " " + parse_expression(gt + 1, end) + "\n";
                 return var;
             }
             if (ge != MISSING) {
                 std::string var = create_temp();
-                ret += "ge " + var + " " + parse_expression(start, ge - 1) + 
-                       " " + parse_expression(ge + 1, end) + "\n";
+                ret += "ge " + var + " " + parse_expression(start, ge - 1) + " " + parse_expression(ge + 1, end) + "\n";
                 return var;
             }
 
@@ -494,63 +467,51 @@ public:
             int sub = find_last_end(start, end, "-");
             if (sub != MISSING && sub > add) {
                 std::string var = create_temp();
-                ret += "sub " + var + " " + parse_expression(start, sub - 1) + 
-                       " " + parse_expression(sub + 1, end) + "\n";
+                ret += "sub " + var + " " + parse_expression(start, sub - 1) + " " + parse_expression(sub + 1, end) + "\n";
                 return var;
             }
             if (add != MISSING) {
                 std::string var = create_temp();
-                ret += "add " + var + " " + parse_expression(start, add - 1) + 
-                       " " + parse_expression(add + 1, end) + "\n";
+                ret += "add " + var + " " + parse_expression(start, add - 1) + " " + parse_expression(add + 1, end) + "\n";
                 return var;
             }
             int mul = find_last_end(start, end, "*");
             int div = find_last_end(start, end, "/");
             if (div != MISSING && div > mul) {
                 std::string var = create_temp();
-                ret += "div " + var + " " + parse_expression(start, div - 1) + 
-                       " " + parse_expression(div + 1, end) + "\n";
+                ret += "div " + var + " " + parse_expression(start, div - 1) + " " + parse_expression(div + 1, end) + "\n";
                 return var;
             }
             if (mul != MISSING) {
                 std::string var = create_temp();
-                ret += "mul " + var + " " + parse_expression(start, mul - 1) + 
-                       " " + parse_expression(mul + 1, end) + "\n";
+                ret += "mul " + var + " " + parse_expression(start, mul - 1) + " " + parse_expression(mul + 1, end) + "\n";
                 return var;
             }
             int mod = find_last_end(start, end, "%");
             if (mod != MISSING) {
                 std::string var = create_temp();
-                ret += "mod " + var + " " + parse_expression(start, mod - 1) + 
-                       " " + parse_expression(mod + 1, end) + "\n";
+                ret += "mod " + var + " " + parse_expression(start, mod - 1) + " " + parse_expression(mod + 1, end) + "\n";
                 return var;
             }
             int pow = find_last_end(start, end, "^");
             if (pow != MISSING) {
                 std::string var = create_temp();
-                ret += "pow " + var + " " + parse_expression(start, pow - 1) + 
-                       " " + parse_expression(pow + 1, end) + "\n";
+                ret += "pow " + var + " " + parse_expression(start, pow - 1) + " " + parse_expression(pow + 1, end) + "\n";
                 return var;
             }
 
             if (tokens[end].name == ":") {
                 std::string var = create_temp();
-                ret += "inline " + var + " " + parse_expression(start, 
-                                                                end - 1) + "\n";
+                ret += "inline " + var + " " + parse_expression(start, end - 1) + "\n";
                 return var;
             }
 
             if (first_name == "push") {
-                bbassert(tokens[start + 1].name == "(", "Missing ( just after " 
-                          + first_name);
-                bbassert(find_end(start + 2, end, ")") == end, "Leftover code "
-                          "after the last ) for " + first_name);
+                bbassert(tokens[start + 1].name == "(", "Missing ( just after `" + first_name+"`.\n"+tokens[start+1].toString());
+                bbassert(find_end(start + 2, end, ")") == end, "Leftover code after the last `)` for `" + first_name+"`.\n"+tokens[start+2].toString());
                 int separator = find_end(start + 2, end, ",");
-                bbassert(separator != MISSING, "push requires at least two "
-                          "arguments");
-                ret += first_name + " # " + parse_expression(start + 2, 
-                        separator - 1) + " " + parse_expression(separator + 1, 
-                        end - 1) + "\n";
+                bbassert(separator != MISSING, "push requires at least two arguments.\n"+tokens[end].toString());
+                ret += first_name + " # " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, end - 1) + "\n";
                 return "#";
             }
 
@@ -561,8 +522,7 @@ public:
                 first_name == "file" || first_name == "next" || 
                 first_name == "list" || first_name == "map" || 
                 first_name == "vector") {
-                bbassert(tokens[start + 1].name == "(", "Missing ( just after " 
-                          + first_name);
+                bbassert(tokens[start + 1].name == "(", "Missing '(' just after '" + first_name+"'.\n"+tokens[start+1].toString());
                 if (start + 1 >= end - 1 && (first_name == "map" || 
                                              first_name == "list")) {
                     std::string var = create_temp();
@@ -570,8 +530,7 @@ public:
                     return var;
                 }
                 std::string parsed = parse_expression(start + 1, end);
-                bbassert(parsed != "#", "An expression that computes no value "
-                          "was given to " + first_name);
+                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name + "`.\n"+tokens[start+1].toString());
                 std::string var = create_temp();
                 ret += first_name + " " + var + " " + parsed + "\n";
                 return var;
@@ -582,15 +541,14 @@ public:
                 bbassert(tokens[start + 1].name == "(", "Missing ( after " 
                           + first_name);
                 if (first_name == "list") {
-                    bbassert(tokens[start + 2].name == ")", first_name + 
-                              " accepts no arguments\n   \033[33m!!!\033[0m "
+                    bbassert(tokens[start + 2].name == ")", "`"+first_name + 
+                              "` accepts no arguments\n   \033[33m!!!\033[0m "
                               "Create lists of more arguments by pushing "
                               "elements to\n       an empty list, or by "
                               "separating values by commas like this: `l=1,2,3;"
-                              "`.");
+                              "`.\n"+tokens[start+2].toString());
                 } else {
-                    bbassert(tokens[start + 2].name == ")", first_name + 
-                              " accepts no arguments");
+                    bbassert(tokens[start + 2].name == ")", "`"+first_name +"` accepts no arguments.\n"+tokens[start+2].toString());
                 }
                 std::string var = create_temp();
                 ret += first_name + " " + var + "\n";
@@ -605,7 +563,7 @@ public:
                 if (tokens[call + 1].name == "{")
                     bbassert(find_end(call + 1, end, "}", true) != end - 1, 
                               "Cannot directly enclose brackets inside method "
-                              "call's parenthesis to avoid code smells.");
+                              "call's parenthesis to avoid code smells.\n"+tokens[call+1].toString());
                 int conditional = find_end(call + 1, end, "|");
                 std::string parsed_args;
                 if (conditional == MISSING) {
@@ -619,22 +577,18 @@ public:
                                find_end(call + 1, end, ";") == MISSING) {  // if there is a list of only one element 
                         parsed_args = create_temp();
                         ret += "BEGIN " + parsed_args + "\n";
-                        ret += "list args " + parse_expression(call + 1, 
-                                                               end - 1) + "\n";
+                        ret += "list args " + parse_expression(call + 1, end - 1) + "\n";
                         ret += "END\n";
                     } else {
                         parsed_args = create_temp();
                         ret += "BEGIN " + parsed_args + "\n";
-                        ret += "IS args " + parse_expression(call + 1, 
-                                                             end - 1) + "\n";
+                        ret += "IS args " + parse_expression(call + 1,  end - 1) + "\n";
                         ret += "END\n";
                     }
                 } else {
                     parsed_args = create_temp();
                     ret += "BEGIN " + parsed_args + "\n";
-                    ret += "IS args " + parse_expression(call + 1, 
-                                                         conditional - 1) + 
-                                                         "\n";
+                    ret += "IS args " + parse_expression(call + 1, conditional - 1) + "\n";
                     parse(conditional + 1, end - 1);
                     ret += "END\n";
                 }
@@ -657,8 +611,7 @@ public:
             int arrayaccess = find_last_end(start, end, "[");
             if (arrayaccess != MISSING) {
                 int arrayend = find_end(arrayaccess + 1, end, "]", true);
-                bbassert(arrayend == end, "Array access ] ended before "
-                          "expression end");
+                bbassert(arrayend == end, "Array access `]` ended before expression end."+tokens[arrayend].toString());
                 std::string var = create_temp();
                 ret += "at " + var + " " + parse_expression(start, 
                                                             arrayaccess - 1) 
@@ -669,22 +622,18 @@ public:
                                                             "\n";
                 return var;
             }
-
-            bberror("Unknown type of command at " + tokens[start].name + " at "
-                    "line " + std::to_string(tokens[start].line));
-        } catch (const BBError& e) {
+            bberror("Unknown type of command.\n"+tokens[start].toString());
+        /*} catch (const BBError& e) {
             if (tokens[start].line != tokens[end].line)
                 throw e;
             std::string linestr = to_string(start, end);
             linestr.resize(40, ' ');
-            throw BBError(e.what() + ("\n   \x1B[34m\u2192\033[0m " + linestr 
-                                      + " \t\x1B[90m " + "at" + " line " + 
-                                      std::to_string(tokens[start].line)));
-        }
+            throw BBError(e.what() + ("\n   \x1B[34m\u2192\033[0m " + linestr + " \t\x1B[90m " +tokens[start].toString());
+        }*/
     }
     void parse(int start, int end) {
         int statement_start = start;
-        try {
+        //try {
             while (statement_start <= end) {
                 int statement_end = find_end(statement_start + 1, end, ";", 
                                              end - start == tokens.size() - 1);
@@ -693,13 +642,13 @@ public:
                 parse_expression(statement_start, statement_end - 1);
                 statement_start = statement_end + 1;
             }
-        } catch (const BBError& e) {
+        /*} catch (const BBError& e) {
             std::string linestr = to_string(start, end);
             linestr.resize(40, ' ');
             throw BBError(e.what() + ("\n   \x1B[34m\u2192\033[0m " + linestr 
                                       + " \t\x1B[90m " + "at" + " line " + 
                                       std::to_string(tokens[start].line)));
-        }
+        }*/
     }
 
 };
@@ -708,13 +657,12 @@ void sanitize(std::vector<Token>& tokens) {
     std::vector<Token> updatedTokens;
     for (size_t i = 0; i < tokens.size(); ++i) {
         if (tokens[i].name == "\\")
-            bberror("A stray `\\` was found at line " + 
-                    std::to_string(tokens[i].line));
+            bberror("A stray `\\` was encountered.\n" + tokens[i].toString());
         if (tokens[i].name.size() >= 3 && tokens[i].name.substr(0, 3) == "_bb")
-            bberror("Variable name " + tokens[i].name + " cannot start with "
-                    "_bb.\n   \033[33m!!!\033[0m Names starting with this "
-                    "prefix are reserved\n       for VM local temporaries. "
-                    "Found at line " + std::to_string(tokens[i].line));
+            bberror("Variable name `" + tokens[i].name + "` cannot start with _bb."
+                    "\n   \033[33m!!!\033[0m Names starting with this prefix are reserved"
+                    "\n       for VM local temporaries created by the compiler.\n"
+                     + tokens[i].toString());
         if (tokens[i].builtintype == 3 && i < tokens.size() - 2 && 
             tokens[i + 1].name == "." && tokens[i + 2].builtintype == 3) {
             tokens[i].name += "." + tokens[i + 2].name;
@@ -731,13 +679,13 @@ void sanitize(std::vector<Token>& tokens) {
                     "\n       meant to be accessed directly as struct fields"
                     "\n       They can still be final or accessed from within the class's scope"
                     "\n       through  `this\\field`. This syntax works only if `this` is explicitly"
-                    "\n       accessed (e.g., `temp=this;temp\\field;` fails.)"
-                    "\n       Found at line " + std::to_string(tokens[i].line));
+                    "\n       accessed (e.g., `temp=this;temp\\field;` fails.)\n"
+                    +tokens[i].toString());
 
         }
         if (tokens[i].name.size()>1 && tokens[i].name[0] == '\\' && i > 0 && tokens[i - 1].name == "this") {
             // convert this\property to this.\property
-            updatedTokens.push_back(Token(".", tokens[i].line, false));
+            updatedTokens.emplace_back(".", tokens[i].file, tokens[i].line, false);
             updatedTokens.push_back(tokens[i]);
             continue;
         }
@@ -746,8 +694,8 @@ void sanitize(std::vector<Token>& tokens) {
             bberror("Directly accessing `.this` as a field is not allowed."
                     "\n   \033[33m!!!\033[0m You may assign it to a new accessible variable per `scope=this;`,"
                     "\n       But this error message invalidates the pattern `obj.this\\field`, as"
-                    "\n       private fields are only accessible from the keyword `this`."
-                    "\n       Found at line " + std::to_string(tokens[i].line));
+                    "\n       private fields are only accessible from the keyword `this`.\n"
+                    + tokens[i].toString());
 
         }
         if ((tokens[i].name == "<" || tokens[i].name == ">" || 
@@ -761,62 +709,64 @@ void sanitize(std::vector<Token>& tokens) {
         if (tokens[i].name == "#" && ((i >= tokens.size() - 1) || 
             (tokens[i + 1].name != "include" && tokens[i + 1].name != "macro" 
              && tokens[i + 1].name != "spec" && tokens[i + 1].name != "gcc"))) {
-            bberror("Invalid preprocessor instruction after `#` symbol.\n   "
-                    "\033[33m!!!\033[0m This symbol signifies preprocessor "
-                    "directives.\n       Valid directives are the following "
-                    "patterns:\n       - `#include @str;`\n       - `#spec "
-                    "@property=@value;`\n       - `#macro (@expression)=("
-                    "@implementation);`\n       - `#gcc @code;`\n       Found "
-                    "at line " + std::to_string(tokens[i].line));
+            bberror("Invalid preprocessor instruction after `#` symbol."
+                    "\n   \033[33m!!!\033[0m This symbol signifies preprocessor directives."
+                    "\n       Valid directives are the following patterns:"
+                    "\n       - `#include @str;`"
+                    "\n       - `#spec @property=@value;`"
+                    "\n       - `#macro (@expression)=(@implementation);`"
+                    "\n       - `#gcc @code;`\n"
+                    + tokens[i].toString());
         }
         updatedTokens.push_back(tokens[i]);
         if (tokens[i].name == "else" && i > 0 && tokens[i - 1].name == ";")
-            bberror("`else` cannot be the next statement after `;`. \n   "
-                    "\033[33m!!!\033[0m You may have failed to close brackets\n"
-                    "       or are using a bracketless if, which should not "
-                    "have `;` after its first statement \n       Found at line "
-                    + std::to_string(tokens[i].line));
+            bberror("`else` cannot be the next statement after `;`. "
+                    "\n   \033[33m!!!\033[0m You may have failed to close brackets"
+                    "\n       or are using a bracketless if, which should not have `;`"
+                    "\n       after its first statement \n"
+                    + tokens[i].toString());
         if ((tokens[i].name == "while" || tokens[i].name == "if" || 
              tokens[i].name == "catch") && i < tokens.size() - 1 && 
              tokens[i + 1].name != "(")
-            bberror("A ( should always follow `" + tokens[i].name + "` but " + 
-                    tokens[i + 1].name + " found at line " + 
-                    std::to_string(tokens[i].line));
-        if ((tokens[i].name == "new") && i < tokens.size() - 1 && 
-             tokens[i + 1].name != "{")
-            bberror("A { symbol should always follow `" + tokens[i].name + 
-                    "` but `" + tokens[i + 1].name + "` found.\n   \033[33m!!!\033[0m "
-                    "To apply one a code block variable (which is a code "
-                    "smell), inline like this `" + tokens[i].name + 
-                    " {block:}`.\n       Apply the fix at line " + 
-                    std::to_string(tokens[i].line));
+            bberror("Invalid `"+tokens[i].name+"` syntax."
+                    "\n   \033[33m!!!\033[0m `(` should always follow `" + tokens[i].name + "`"
+                    "\n       but " + tokens[i + 1].name + " encountered.\n" 
+                    + tokens[i+1].toString());
+        if ((tokens[i].name == "new") && i < tokens.size() - 1 && tokens[i + 1].name != "{")
+            bberror("Invalid `"+tokens[i].name+"` syntax."
+                    "\n   \033[33m!!!\033[0m `{` should always follow `" + tokens[i].name + "`"
+                    "\n       but `" + tokens[i + 1].name + "` found."
+                    "\n       To apply one a code block variable (which is a code smell),"
+                    "\n       inline like this `" + tokens[i].name + " {block:}`.\n" 
+                    + tokens[i+1].toString());
 
         if (tokens[i].name == "}") {
             if (i >= tokens.size() - 1)
-                updatedTokens.push_back(Token(";", tokens[i].line, false));
+                updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
             else if (tokens[i + 1].name == ";")
-                bberror("The syntax }; is invalid because both symbols "
-                        "terminate expressions. Use only } at line " + 
-                        std::to_string(tokens[i].line));
+                bberror("The syntax `};` is invalid."
+                        "\n   \033[33m!!!\033[0m Both symbols terminate expressions."
+                        "\n       Use only } instead.\n" 
+                        + tokens[i].toString());
             else if (tokens[i + 1].name == ":")
-                bberror("The syntax }: is invalid because running inline a "
-                        "just-declared code block\n    is equivalent to "
-                        "running its code immediately.\n    Consider removing "
-                        "the brackets at line " + std::to_string(tokens[i].line));
+                bberror("The syntax `}:` is invalid."
+                        "\n   \033[33m!!!\033[0m  Inlining a just-declared code block"
+                        "\n       is equivalent to running its code immediately."
+                        "\n       Maybe you did not mean to add brackets?\n" 
+                        + tokens[i].toString());
             else if (tokens[i + 1].name != "." && tokens[i + 1].name != ")" && 
                      tokens[i + 1].name != "," && tokens[i + 1].name != "+" && 
                      tokens[i + 1].name != "-" && tokens[i + 1].name != "*" && 
                      tokens[i + 1].name != "/" && tokens[i + 1].name != "^" && 
                      tokens[i + 1].name != "%" && tokens[i + 1].name != "else")
-                updatedTokens.push_back(Token(";", tokens[i].line, false));
+                updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
         } else if (tokens[i].name == ":") {
             if (i >= tokens.size() - 1)
-                updatedTokens.push_back(Token(";", tokens[i].line, false));
+                updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
             else if (tokens[i + 1].name == ";")
-                bberror(":; is an invalid syntax. Use only : at line " + 
-                        std::to_string(tokens[i].line));
+                bberror(":; is an invalid syntax. Use only `:`.\n" + tokens[i].toString());
             else
-                updatedTokens.push_back(Token(";", tokens[i].line, false));
+                updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
         }
     }
     tokens = std::move(updatedTokens);
@@ -841,12 +791,17 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             int specNameEnd = MISSING;
             int specNameStart = MISSING;
             if (i > 1) {
-                bbassert(tokens[i - 1].name == "{", "`#spec` declarations must "
-                          "reside at the beginning of the code block");
-                bbassert(tokens[i - 2].name == "=" || tokens[i - 2].name == 
-                          "as", "`#spec` declarations must reside within code\n"
-                          "    block declaration in the form of `@block = "
-                          "{@code}` or `@block as {@code}`");
+                bbassert(tokens[i - 1].name == "{", 
+                          "Unexpected `#spec` encountered."
+                          "\n   \033[33m!!!\033[0m  `#spec` declarations can only reside"
+                          "\n       at the beginning of their enclosing code block."
+                          +tokens[i].toString());
+                bbassert(tokens[i - 2].name == "=" || tokens[i - 2].name == "as", 
+                          "Invalid `#spec` syntax."
+                          "\n   \033[33m!!!\033[0m  Each `#spec` declaration must reside"
+                          "\n       within a code block declaration and have the form"
+                          "\n       `@block = {@code}` or `@block as {@code}`\n"
+                          +tokens[i].toString());
                 int position = i - 2;
                 int depth = 0;
                 while (position > 0) {
@@ -862,8 +817,12 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     if (depth == 0)
                         break;
                 }
-                bbassert(depth == 0, "Did not find the end of a code block name "
-                          "before `#spec` declaration.");
+                bbassert(depth == 0, 
+                          "Unexpected `#spec` encountered."
+                          "\n   \033[33m!!!\033[0m  `#spec` declarations can only reside "
+                          "\n       in named code blocks. These refer to code blocks being"
+                          "\n       declared and assigned to at least one variable.\n"
+                          +tokens[i].toString());
                 specNameEnd = position - 1;
                 specNameStart = specNameEnd;
                 depth = 0;
@@ -883,8 +842,12 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     }
                     specNameStart -= 1;
                 }
-                bbassert(depth >= 0, "Did not find the start of a code block "
-                          "name before `#spec` declaration.");
+                bbassert(depth >= 0, 
+                          "Unexpected `#spec` encountered."
+                          "\n   \033[33m!!!\033[0m  `#spec` declarations can only reside "
+                          "\n       in named code blocks. These refer to code blocks being"
+                          "\n       declared and assigned to at least one variable.\n"
+                          +tokens[i].toString());
             }
             int depth = 1;
             int position = i + 2;
@@ -905,35 +868,35 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     break;
                 }
             }
-            bbassert(depth == 0, "Never closed parentheses or brackets in "
-                      "which specification is defined. Found at line " + 
-                      std::to_string(tokens[i].line));
+            bbassert(depth == 0, "Imbalanced parantheses or brackets.\n" + tokens[i].toString());
 
             std::vector<Token> newTokens;
-            newTokens.push_back(Token("final", tokens[i].line, false));
+            newTokens.emplace_back(Token("final", tokens[i].file, tokens[i].line, false));
             if (specNameEnd == MISSING) {
             } else {
                 newTokens.insert(newTokens.end(), tokens.begin() + specNameStart, 
                                  tokens.begin() + specNameEnd + 1);
-                newTokens.push_back(Token(".", tokens[i].line, false));
+                newTokens.emplace_back(".", tokens[i].file, tokens[i].line, false);
             }
-            newTokens.insert(newTokens.end(), tokens.begin() + i + 2, 
-                             tokens.begin() + specend + 1);
+            newTokens.insert(newTokens.end(), tokens.begin() + i + 2, tokens.begin() + specend + 1);
 
-            tokens.insert(tokens.begin() + position, newTokens.begin(), 
-                          newTokens.end());
+            tokens.insert(tokens.begin() + position, newTokens.begin(), newTokens.end());
             tokens.erase(tokens.begin() + i, tokens.begin() + specend + 1);
             i -= 1;
-        } else if (tokens[i].name == "#" && i < tokens.size() - 2 && 
+        } 
+        else if (tokens[i].name == "#" && i < tokens.size() - 2 && 
                    tokens[i + 1].name == "include") {
-            bbassert(tokens[i + 2].name[0] == '"', "Include statement should "
-                      "have the form `#include \"libname\"`. Found at line " + 
-                      std::to_string(tokens[i].line));
-            bbassert(tokens[i + 3].name[0] != ';', "Include statements should "
-                      "not have ; at their end. Found at line " + 
-                      std::to_string(tokens[i].line));
-            std::string source = tokens[i + 2].name.substr(1, tokens[i + 2].name.size() 
-                                  - 2) + ".bb";
+            bbassert(tokens[i + 2].name[0] == '"', 
+                      "Invalid `#include` syntax."
+                      "\n   \033[33m!!!\033[0m  Include statements should enclose paths"
+                      "\n       in quotations, like this: `#include \"libname\"`.\n" 
+                      + tokens[i].toString());
+            bbassert(tokens[i + 3].name[0] != ';', 
+                      "Unexpected `;` encountered."
+                      "\n   \033[33m!!!\033[0m  Include statements cannot "
+                      "\n       be followed by `;`.\n" 
+                      + tokens[i].toString());
+            std::string source = tokens[i + 2].name.substr(1, tokens[i + 2].name.size() - 2) + ".bb";
 
             if (previousImports.find(source) != previousImports.end()) {
                 tokens.erase(tokens.begin() + i, tokens.begin() + i + 3);
@@ -943,9 +906,10 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
 
             std::ifstream inputFile(source);
             if (!inputFile.is_open()) {
-                bberror("Unable to open file: " + source + "\n    This issue "
-                        "makes it impossible to complete the include statement "
-                        "at line " + std::to_string(tokens[i].line));
+                bberror("Unable to open file: " + source +
+                        "\n   \033[33m!!!\033[0m  This issue makes it impossible to"
+                        "\n       complete the include statement.\n"
+                        + tokens[i].toString());
             }
 
             std::string code = "";
@@ -955,7 +919,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             }
             inputFile.close();
 
-            std::vector<Token> newTokens = tokenize(code);
+            std::vector<Token> newTokens = tokenize(code, source);
             sanitize(newTokens);
 
             previousImports.insert(source);
@@ -976,13 +940,11 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             for (size_t pos = macro_start; pos < tokens.size(); ++pos) {
                 if (tokens[pos].name == "=" && depth == 0) {
                     bbassert(decl_end == macro_start, "Macro cannot have a "
-                              "second = symbol. Found at line " + 
-                              std::to_string(tokens[i].line));
+                              "second = symbol.\n"+tokens[i].toString());
                     bbassert(tokens[pos - 1].name == ")" && pos < tokens.size() 
                               - 1 && tokens[pos + 1].name == "(", "Macros "
                               "should follow the specific pattern #macro "
-                              "(@expression) = (@replacement); Found at line " 
-                              + std::to_string(tokens[i].line));
+                              "(@expression) = (@replacement);\n"+tokens[i].toString());
                     decl_end = pos;
                 } else if (tokens[pos].name == ";" && depth == 0) {
                     macro_end = pos;
@@ -996,26 +958,24 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 }
                 if (depth > 2 && macro_start == decl_end)
                     bberror("Cannot nest parentheses or brackets in the "
-                            "expression part of macro definitions at line " + 
-                            std::to_string(tokens[i].line));
+                            "expression part of macro definitions.\n" + tokens[i].toString());
                 bbassert(depth >= 0, "Parentheses or brackets closed "
-                          "prematurely at macro definition at line " + 
-                          std::to_string(tokens[i].line));
+                          "prematurely at macro definition.\n" + tokens[i].toString());
             }
             bbassert(depth == 0, "Imbalanced parentheses or brackets at macro "
-                      "definition at line " + std::to_string(tokens[i].line));
-            bbassert(macro_end != macro_start, "Macro was never closed. "
-                      "Started at line " + std::to_string(tokens[i].line));
+                      "definition.\n" + tokens[i].toString());
+            bbassert(macro_end != macro_start, "Macro was never closed.\n" + tokens[i].toString());
             bbassert(decl_end != macro_start, "Macros should follow the "
-                      "specific pattern #macro (expression) = (replacement); "
-                      "Found at line " + std::to_string(tokens[i].line));
+                      "specific pattern #macro (expression) = (replacement); \n"
+                      + tokens[i].toString());
             std::shared_ptr<Macro> macro = std::make_shared<Macro>();
             for (int pos = macro_start + 1; pos < decl_end - 1; ++pos)
                 macro->from.push_back(tokens[pos]);
             for (int pos = decl_end + 2; pos < macro_end - 1; ++pos)
                 macro->to.push_back(tokens[pos]);
             bbassert(macro->from[0].name[0] != '@', "The first token of a "
-                      "macro's expression cannot be a variable starting with @");
+                      "macro's expression cannot be a variable starting with @.\n"
+                      + tokens[i].toString());
             macros.push_back(macro);
             i = macro_end;
         } else {
@@ -1173,7 +1133,7 @@ void compile(const std::string& source, const std::string& destination) {
         code += line + "\n";
     inputFile.close();
 
-    std::vector<Token> tokens = tokenize(code);
+    std::vector<Token> tokens = tokenize(code, source);
     sanitize(tokens);
 
     macros(tokens, source);
