@@ -1,80 +1,44 @@
-BEGINFINAL _bb0
-map keys
-final # keys
-map values
-final # values
-BEGINFINAL _bb3
-next this args
-next k args
-next v args
-put # keys k k
-put # values k v
-return _bbresult0 this
+BEGIN _bb0
+next n args
+BEGIN _bb1
+BUILTIN _bb2 I1
+return _bbresult0 _bb2
 END
-IS \put _bb3
-final # \put
-BEGINFINAL _bb4
-next this args
-next k args
-at _bb5 values k
+BUILTIN _bb4 I2
+lt _bb3 n _bb4
+if # _bb3 _bb1
+BEGIN _bb7
+BUILTIN _bb9 I2
+sub _bb8 n _bb9
+list args _bb8
+END
+call _bb6 _bb7 fib
+BEGIN _bb11
+BUILTIN _bb13 I1
+sub _bb12 n _bb13
+list args _bb12
+END
+call _bb10 _bb11 fib
+add _bb5 _bb10 _bb6
 return _bbresult1 _bb5
 END
-IS \at _bb4
-final # \at
-BEGINFINAL _bb6
-next this args
-get _bb7 this keys
-len _bb8 _bb7
-return _bbresult2 _bb8
+IS fib _bb0
+final # fib
+BUILTIN _bb14 Bfalse
+setfinal # fib atomic _bb14
+time tic
+BEGIN _bb17
+BUILTIN _bb18 I21
+list args _bb18
 END
-IS \len _bb6
-final # \len
-END
-IS Dict _bb0
-final # Dict
-BEGINFINAL _bb9
-BEGINFINAL _bb12
-inline _bb13 Dict
-return _bbresult3 this
-END
-new _bb10 _bb12
-return _bbresult4 _bb10
-END
-IS dict _bb9
-final # dict
-BEGINFINAL _bb16
-BUILTIN \x I0
-BUILTIN \y I0
-BEGINFINAL _bb19
-BEGINFINAL _bb21
-get x this \x
-END
-default _bbresult5 _bb21
-BEGINFINAL _bb24
-get y this \y
-END
-default _bbresult6 _bb24
-set # this \x x
-set # this \y y
-return _bbresult7 this
-END
-IS set _bb19
-BEGINFINAL _bb26
-get _bb28 this \y
-get _bb29 this \x
-add _bb27 _bb29 _bb28
-return _bbresult8 _bb27
-END
-IS add _bb26
-return _bbresult9 this
-END
-new point _bb16
-print # point
-BEGINFINAL _bb31
-BUILTIN x I1
-END
-get _bb33 point set
-call point _bb31 _bb33
-get _bb35 point add
-call _bb34 # _bb35
-print # _bb34
+call result _bb17 fib
+str _bb20 result
+BUILTIN _bb21 "Result "
+add _bb19 _bb21 _bb20
+print # _bb19
+time _bb24
+sub _bb23 _bb24 tic
+str _bb25 _bb23
+BUILTIN _bb26 "Time "
+add _bb22 _bb26 _bb25
+print # _bb22

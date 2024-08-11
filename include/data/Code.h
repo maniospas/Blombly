@@ -28,14 +28,14 @@ private:
 public:
     explicit Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory);
     explicit Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory, const std::shared_ptr<Metadata>& metadata);
-
     int getType() const override;
     std::string toString() const override;
     int getStart() const;
     int getEnd() const;
     void* getProgram() const;
     void setMetadata(int pos, Data* data);
-    Data* getMetadata(int id);
+    Data* getMetadata(int id) const;
+    bool getMetadataBool(int id, bool def) const;
     std::shared_ptr<BMemory> getDeclarationMemory() const;
     std::shared_ptr<Metadata> getAllMetadata() const;
 

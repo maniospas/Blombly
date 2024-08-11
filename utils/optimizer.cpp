@@ -178,14 +178,14 @@ void optimize(const std::string& source, const std::string& destination) {
     // TODO
 
     // optimize local code blocks
-    for(int i=0;i<program.size();++i) {
+    /*for(int i=0;i<program.size();++i) {
         std::shared_ptr<OptimizerCommand> command = program[i];
         if(command->args.size()==0 || command->args[0]!="BEGIN" || !command->enabled)
             continue;
         if(command->args.size()<2 || command->args[1].substr(0, 3)!="_bb")
             continue;
         command->args[0] = "BEGINFINAL";
-    }
+    }*/
 
     // flatten nested code blocks (move begin-end declarations to the beginning of the program)
     /*int front = 0;

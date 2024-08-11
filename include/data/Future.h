@@ -27,6 +27,8 @@ public:
 // Future class representing an asynchronous computation
 class Future : public Data {
 private:
+    static int max_threads;
+    static int thread_count;
     std::shared_ptr<FutureData> data;
 
 public:
@@ -36,6 +38,9 @@ public:
     std::string toString() const override;
     Data* shallowCopy() const override;
     Data* getResult() const;
+
+    static bool acceptsThread();
+    static void setMaxThreads(int maxThreads);
 };
 
 #endif // FUTURE_H

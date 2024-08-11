@@ -55,6 +55,12 @@ Command::Command(const std::string& command, SourceFile* source, int line, Comma
         knownLocal[i] = argNames[i+1].substr(0, 3) == "_bb";
         args[i] = variableManager.getId(argNames[i+1]);
     }
+
+    bbassert(nargs==0 || args[0]!=variableManager.thisId || argNames[0]=="set" || argNames[0]=="setfinal" || argNames[0]=="get" || argNames[0]=="return", 
+        "Cannot assign to `this`."
+        "\n    Encountered for operation: "+argNames[0]+
+        "\n    This error appears only for invalid hand-written .bbvm files,"
+        "\n    as the blombly compiler explicitly avoids it.");
 }
 
 Command::~Command() {

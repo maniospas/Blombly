@@ -44,8 +44,7 @@ Data* Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
         Code* code = (Code*)implementation;
         std::shared_ptr<BMemory> newMemory = std::make_shared<BMemory>(memory, LOCAL_EXPACTATION_FROM_CODE(code));
         newMemory->set(variableManager.argsId, args);
-        std::vector<Command*>* program = (std::vector<Command*>*)code->getProgram();
-        Data* value = executeBlock(program, code->getStart(), code->getEnd(), newMemory, nullptr, nullptr);
+        Data* value = executeBlock(code, newMemory, nullptr, nullptr);
         return value;
     } else {
         bberror("\\"+operation + " is not a method");

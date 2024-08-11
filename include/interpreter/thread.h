@@ -10,9 +10,7 @@
 #include "BMemory.h"
 
 
-void threadExecute(std::vector<Command*>* program,
-                  int start, 
-                  int end,
+void threadExecute(Code* code,
                   const std::shared_ptr<BMemory>& memory,
                   bool *returnSignal,
                   BuiltinArgs* allocatedBuiltins,
@@ -21,7 +19,7 @@ void threadExecute(std::vector<Command*>* program,
         try {
             bool* call_returnSignal = new bool(false);
             BuiltinArgs* call_args = new BuiltinArgs();
-            Data *value = executeBlock(program, start, end, memory, call_returnSignal, call_args);
+            Data *value = executeBlock(code, memory, call_returnSignal, call_args);
             delete call_returnSignal;
             delete call_args;
             for(Future* thread : memory->attached_threads)

@@ -108,7 +108,7 @@ public:
             bool is_final = tokens[start].name == "final";
             bbassert(start <= end || (request_block && 
                       code_block_prepend.size()), 
-                      "Empty expression");
+                      "Empty expression.\n"+tokens[start].toString());
             bbassert(tokens[start].name != "#", 
                       "Expression cannot start with `#`.\n   \033[33m!!!\033[0m "
                       "This symbol is reserved for preprocessor directives "
@@ -180,18 +180,16 @@ public:
             if (first_name == "if" || first_name == "catch" || 
                 first_name == "while") {
                 int start_parenthesis = find_end(start, end, "(");
-                int start_if_body = find_end(start_parenthesis + 1, end, ")", 
-                                             true) + 1;
+                int start_if_body = find_end(start_parenthesis + 1, end, ")", true) + 1;
                 int condition_start_in_ret = ret.size();
-                std::string condition = parse_expression(start + 1, 
-                                                         start_if_body - 1);
                 std::string condition_text;
-                if (first_name == "while" && ret.substr(condition_start_in_ret, 
-                                                        5) != "BEGIN")
-                    condition_text = ret.substr(condition_start_in_ret);
-                bbassert(condition != "#", 
-                          first_name + " condition does not evaluate to "
-                          "anything");
+                std::string condition;
+                if(first_name=="while") {
+                    condition = parse_expression(start + 1, start_if_body - 1);
+                    if (first_name == "while" && ret.substr(condition_start_in_ret, 5) != "BEGIN")
+                        condition_text = ret.substr(condition_start_in_ret);
+                    bbassert(condition != "#", first_name + " condition does not evaluate to anything");
+                }
                 int body_end = first_name == "while" ? MISSING : 
                                find_end(start_if_body, end, "else");
                 if (body_end == MISSING)
@@ -227,12 +225,13 @@ public:
                     body_end = else_end;
                 }
                 bbassert(body_end == end, "`"+first_name + "` statement body terminated before end of expression.\n"+tokens[body_end].toString());
+                if(first_name!="while") // parse condition last to take advantage of blomblyvm hotpaths
+                    condition = parse_expression(start + 1, start_if_body - 1);
                 ret += first_name + " # " + condition + " " + bodyvar + "\n";
                 return "#";
             }
 
-            if (first_name == "new" || first_name == "default" || 
-                first_name == "try") {
+            if (first_name == "default" || first_name == "try") {
                 std::string var = first_name == "default" ? "#" : create_temp();
                 std::string called = create_temp();
                 std::string parsed = parse_expression(start + 1, end, 
@@ -306,8 +305,7 @@ public:
                 }
 
                 int parenthesis_start = find_end(start + 1, assignment - 1, "(");
-                bbassert(parenthesis_start == MISSING ? assignment == start + 1 
-                          : parenthesis_start == start + 1, 
+                bbassert(parenthesis_start == MISSING ? assignment == start + 1 : parenthesis_start == start + 1, 
                           "Cannot understrand what to assign to\n"+tokens[start].toString());
                 if (first_name == "int" || first_name == "float" || 
                     first_name == "str" || first_name == "file" || 
@@ -342,9 +340,9 @@ public:
                     first_name == "]" || first_name == "." || 
                     first_name == "," || first_name == ":" || 
                     first_name == ";" || first_name == "#") {
-                    bberror("Cannot assign to blombly keyword `" + first_name 
-                            + "`.\n   \033[33m!!!\033[0m This is for safety "
-                            "reasons (all keywords are considered final).\n"+tokens[start].toString());
+                    bberror("Cannot assign to blombly keyword `" + first_name + "`."+
+                            "\n   \033[33m!!!\033[0m For safety, all keywords are considered final.\n"
+                            + tokens[start].toString());
                 }
 
                 if (parenthesis_start != MISSING) {
@@ -352,7 +350,8 @@ public:
                     int parenthesis_end = find_end(parenthesis_start + 1, 
                                                    assignment - 1, ")", true);
                     bbassert(parenthesis_end == assignment - 1, 
-                              "Leftover code after last parenthesis in assignment's left hand side.\n"+tokens[parenthesis_end].toString());
+                              "Leftover code after last parenthesis in assignment's left hand side.\n"
+                              + tokens[parenthesis_end].toString());
                     for (int j = parenthesis_start + 1; j < parenthesis_end; 
                          ++j) {
                         if (tokens[j].name != ",") 
@@ -378,14 +377,14 @@ public:
                 return "#";
             }
 
-            bbassert(!is_final, "Only assignments to variables can be final");
+            bbassert(!is_final, "Only assignments to variables can be final\n" + tokens[start].toString());
             bbassert(tokens[start].name != "#", 
-                      "Expression cannot start with `#` here.\n   \033[33m!!!\033[0m "
-                      "To avoid code smells, you can set metadata\n       with "
-                      "`@property = value;` or `final @property = value;`\n   "
-                      "    only before any other block commands and only\n   "
-                      "    and immediately assigning a block. Metadata are "
-                      "not inlined.\n"+tokens[start].toString());
+                      "Expression cannot start with `#` here."
+                      "\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata"
+                      "\n       with `@property = value;` or `final @property = value;`"
+                      "\n       only before any other block commands and only"
+                      "\n       and immediately assigning a block. Metadata are not inlined.\n"
+                      + tokens[start].toString());
 
             if (first_name == "print" || first_name == "return" || 
                 first_name == "fail") {
@@ -555,22 +554,40 @@ public:
                 return var;
             }
 
+            
+
+            if (first_name == "new") {
+                std::string var = first_name == "default" ? "#" : create_temp();
+                std::string called = create_temp();
+                std::string parsed = parse_expression(start + 1, end, 
+                                                      tokens[start + 1].name 
+                                                      != "{");
+                if (first_name == "new" && ret.substr(ret.size() - 4) == "END\n")
+                    ret = ret.substr(0, ret.size() - 4) + "return # this\nEND\n";
+                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`\n"+tokens[start + 1].toString());
+                ret += first_name + " " + var + " " + parsed + "\n";
+                return var;
+            }
+
             int call = find_last_end(start, end, "(");
             if (call != MISSING && find_end(call + 1, end, ")", true) == end) {
                 if (call == start)  // if it's just a redundant parenthesis
                     return parse_expression(start + 1, end - 1);
                 std::string var = create_temp();
                 if (tokens[call + 1].name == "{")
-                    bbassert(find_end(call + 1, end, "}", true) != end - 1, 
-                              "Cannot directly enclose brackets inside method "
-                              "call's parenthesis to avoid code smells.\n"+tokens[call+1].toString());
+                    bbassert(find_end(call + 1, end, "}", true) != end - 1,  
+                              "Unexpected code block."
+                              "\n   \033[33m!!!\033[0m Cannot directly enclose brackets inside a method"
+                              "\n       call's parenthesis to avoid code smells. Instead, you can place"
+                              "\n       any code inside the parethesis to transfer evaluated content to"
+                              "\n       the method. This looks like this: `func(x=1;y=2)`\n"
+                              +tokens[call+1].toString());
                 int conditional = find_end(call + 1, end, "|");
                 std::string parsed_args;
                 if (conditional == MISSING) {
                     if (find_end(call + 1, end, "=") != MISSING)  // if there are equalities, we are on kwarg mode 
-                        parsed_args = parse_expression(call + 1, end - 1, true, 
-                                                       true);
-                    else if (call + 1 >= end - 1) {  // if we call with no argument whatsoever
+                        parsed_args = parse_expression(call + 1, end - 1, true, true);
+                    else if (call + 1 >= end ) {  // if we call with no argument whatsoever
                         parsed_args = "#";
                     } else if (find_end(call + 1, end, ",") == MISSING && 
                                find_end(call + 1, end, ":") == MISSING && 

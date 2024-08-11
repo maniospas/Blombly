@@ -24,11 +24,13 @@ public:
     int thisId;
     int argsId;
     int noneId;
+    int atomicId;
     VariableManager() {
         //lastId = getId("LAST");
         thisId = getId("this");
         argsId = getId("args");
         noneId = getId("#");
+        atomicId = getId("atomic");
     }
     int getId(const std::string& symbol) {
         if(registeredSymbols.find(symbol)==registeredSymbols.end()) {
@@ -53,6 +55,8 @@ private:
     bool allowMutables;
     pthread_mutex_t memoryLock;
     tsl::hopscotch_set<int> finals;
+    Data* fastLastAccess;
+    int fastLastAccessId;
 
 public:
     tsl::hopscotch_set<Future*> attached_threads;
@@ -87,6 +91,8 @@ public:
     void replaceMissing(const std::shared_ptr<BMemory>& other);
     void detach();
     void detach(const std::shared_ptr<BMemory>& par);
+
+    static void verify_noleaks();
 };
 
 #endif // MEMORY_H

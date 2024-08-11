@@ -1,17 +1,14 @@
-#include "std/dict"
+#include "std/oop"
 
-point = new {
-  \x = 0;
-  \y = 0;
-  set = {
-    default x = this\x;
-    default y = this\y;
-    this\x = x;
-    this\y = y;
-    return this;
-  }
-  add = {return this\x + this\y}
+fn fib(n) {
+    #spec atomic = false;
+    if(n<2)
+      return 1;
+    //return fib(n=n-1) + fib(n=n-2);
+    return fib(n-1) + fib(n-2);
 }
-print(point);
-point = point.set(x=1);
-print(point.add());
+
+tic = time();
+result = fib(21);
+print("Result " + str(result));
+print("Time " + str(time()-tic));

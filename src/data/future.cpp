@@ -13,8 +13,19 @@ FutureData::~FutureData() {
     }
 }
 
+int Future::max_threads = 0;
+int Future::thread_count = 0;
+
+bool Future::acceptsThread() {
+    return thread_count<max_threads;
+}
+
+void Future::setMaxThreads(int maxThreads) {
+    max_threads = maxThreads;
+}
+
 // Future constructor
-Future::Future(const std::shared_ptr<FutureData>& data_) : data(std::move(data_)) {}
+Future::Future(const std::shared_ptr<FutureData>& data_) : data(std::move(data_)) {++thread_count;}
 
 // Return the data type
 int Future::getType() const {
@@ -45,5 +56,6 @@ Data* Future::getResult() const {
     auto res = data->result;
     if(res->error)
         throw *res->error;
+    --thread_count;
     return res->value;
 }

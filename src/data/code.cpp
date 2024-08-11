@@ -37,13 +37,22 @@ std::shared_ptr<Metadata> Code::getAllMetadata() const {
     return metadata;
 }
 
-Data* Code::getMetadata(int id) {
+Data* Code::getMetadata(int id) const {
     if(metadata->metadata.empty())
         bberror(toString()+" has no declared specification");
     Data* ret = metadata->metadata[id];
     if(ret==nullptr)
         bberror(toString()+" has no specification entry: "+variableManager.getSymbol(id));
     return ret;
+}
+
+bool Code::getMetadataBool(int id, bool def) const {
+    if(metadata->metadata.empty())
+        return def;
+    Data* ret = metadata->metadata[id];
+    if(ret==nullptr)
+        return def;
+    return ret->isTrue();
 }
 
 // Return the type ID
@@ -79,6 +88,7 @@ std::shared_ptr<BMemory> Code::getDeclarationMemory() const {
 // Create a shallow copy of this Code object
 Data* Code::shallowCopy() const {
     Code* ret = new Code(program, start, end, declarationMemory, metadata);
+    ret->scheduleForParallelExecution = scheduleForParallelExecution;
     return ret;
 }
 

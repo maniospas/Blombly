@@ -3,10 +3,27 @@
 #include "common.h"
 #include "data/BError.h"
 #include "data/Future.h"
+#include <unordered_set>  
+
+
+//#define DEBUG_BMEMORY
+#ifdef DEBUG_BMEMORY
+std::unordered_set<BMemory*> memories;
+#endif
 
 extern VariableManager variableManager;
 
-BMemory::BMemory(const std::shared_ptr<BMemory>& par, int expectedAssignments) : parent(par), allowMutables(true) {
+void BMemory::verify_noleaks() {
+    #ifdef DEBUG_BMEMORY
+    bbassert(memories.size()==0, "There are "+std::to_string(memories.size())+" leftover memory contexts");
+    #endif
+}
+
+BMemory::BMemory(const std::shared_ptr<BMemory>& par, int expectedAssignments) : parent(par), allowMutables(true), fastLastAccessId(-1) {
+    #ifdef DEBUG_BMEMORY
+    std::cout << "Initializing memory"<<this<<" with parent "<<parent<<"\n";
+    memories.insert(this);
+    #endif
     if(parent) {
         mapPool = parent->mapPool;
         if(!mapPool->empty()) {
@@ -39,6 +56,15 @@ bool BMemory::isOrDerivedFrom(const std::shared_ptr<BMemory>& memory) const{
 
 
 void BMemory::releaseNonFinals() {
+    fastLastAccessId = -1;
+    for(const auto& element : *data) {
+        if(element.second && element.second->getType()==FUTURE) {
+            Future* prevRet = (Future*)element.second;
+            (*data)[element.first] = prevRet->getResult();
+            attached_threads.erase(prevRet);
+            delete prevRet;
+        }
+    }
     for(Future* thread : attached_threads) 
         thread->getResult();
     attached_threads.clear();
@@ -68,6 +94,18 @@ void BMemory::releaseNonFinals() {
 
 
 void BMemory::release() {
+    #ifdef DEBUG_BMEMORY
+    std::cout << "Releasing memory"<<this<<"\n";
+    #endif
+    fastLastAccessId = -1;
+    for(const auto& element : *data) {
+        if(element.second && element.second->getType()==FUTURE) {
+            Future* prevRet = (Future*)element.second;
+            (*data)[element.first] = prevRet->getResult();
+            attached_threads.erase(prevRet);
+            delete prevRet;
+        }
+    }
     for(Future* thread : attached_threads) 
         thread->getResult();
     attached_threads.clear();
@@ -86,7 +124,8 @@ void BMemory::release() {
             //std::cout << "deleting\n";
             //std::cout << "#"<<element.second << "\n";
             //std::cout << element.second->toString() << "\n";
-            dat->isDestroyable = false;
+
+            //dat->isDestroyable = false;
             delete dat;
         }
     }
@@ -97,6 +136,12 @@ void BMemory::release() {
 
 // Destructor to ensure that all threads are finished
 BMemory::~BMemory() {
+    #ifdef DEBUG_BMEMORY
+    std::cout << "Destroying memory"<<this<<"\n";
+    if(data->size())
+        std::cout << "blomblyVM is attempting to destroy an unrealeased memory.\n    This behavior should not occur in practice and signifies an internal bug.\n";
+        memories.erase(memories.find(this));
+    #endif
     release();
     // transfer remainder map pool elements to the parent
     if(parent) {
@@ -136,6 +181,10 @@ void BMemory::unlock() {
 
 // Get a data item with mutability check
 Data* BMemory::get(int item) {
+    // DO NOT COMPUTE fastLastAccessId for simple gets, as these can be accessed from different threads
+    //if(fastLastAccessId==item && fastLastAccess->getType() != FUTURE) {
+    //    return fastLastAccess;
+    //}
     Data* ret = (*data)[item];
 
     // Handle future values
@@ -161,6 +210,8 @@ Data* BMemory::get(int item) {
 }
 
 bool BMemory::contains(int item) const {
+    if(fastLastAccessId==item)
+        return true;
     auto it = data->find(item);
     if(it==data->end())
         return false;
@@ -177,6 +228,9 @@ bool BMemory::isFinal(int item) const {
 
 // Get a data item, optionally allowing mutable values
 Data* BMemory::get(int item, bool allowMutable) {
+    if(fastLastAccessId==item && fastLastAccess->getType() != FUTURE) {
+        return fastLastAccess;
+    }
     Data* ret = (*data)[item];
 
     // Handle future values
@@ -190,12 +244,10 @@ Data* BMemory::get(int item, bool allowMutable) {
     }
 
     if(ret) {
-        // Handle mutability restrictions
-        if (!allowMutable && !isFinal(item)) {
-            bberror("Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item)
-                    +"\n   \033[33m!!!\033[0m Either declare this in the current scope\n       or make its original declaration final.");
-            return nullptr;
-        }
+        bbassert(allowMutable || isFinal(item), 
+                    "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item)
+                    +"\n   \033[33m!!!\033[0m Either declare this in the current scope"
+                    +"\n       or make its original declaration final.");
     }
     else {
         // If not found locally, check parent memory
@@ -212,6 +264,9 @@ Data* BMemory::get(int item, bool allowMutable) {
 }
 
 Data* BMemory::getOrNullShallow(int item) {
+    if(fastLastAccessId==item && fastLastAccess->getType() != FUTURE) {
+        return fastLastAccess;
+    }
     auto it = data->find(item);
     if(it==data->end())
         return nullptr;
@@ -230,6 +285,9 @@ Data* BMemory::getOrNullShallow(int item) {
 
 // Get a data item or return nullptr if not found
 Data* BMemory::getOrNull(int item, bool allowMutable) {
+    if(fastLastAccessId==item && fastLastAccess->getType() != FUTURE) {
+        return fastLastAccess;
+    }
     Data* ret = (*data)[item];
 
     // Handle future values
@@ -263,7 +321,9 @@ void BMemory::removeWithoutDelete(int item) {
 }
 
 // Set a data item, ensuring mutability rules are followed
-void BMemory::set(int item, Data*value) {
+void BMemory::set(int item, Data* value) {
+    fastLastAccessId = item;
+    fastLastAccess = value;
     Data* prev = getOrNullShallow(item);
     if(prev==value) 
         return;
@@ -285,6 +345,8 @@ void BMemory::set(int item, Data*value) {
 
 // Set a data item, ensuring mutability rules are followed
 void BMemory::unsafeSet(int item, Data*value, Data* prev) {
+    fastLastAccessId = item;
+    fastLastAccess = value;
     if(prev==value)
         return;
     if (prev) {
@@ -318,6 +380,9 @@ void BMemory::replaceMissing(const std::shared_ptr<BMemory>& other) {
 
 // Detach this memory from its parent
 void BMemory::detach() {
+    #ifdef DEBUG_BMEMORY
+    std::cout << "Detaching memory"<<this<<" from parent "<<parent<<"\n";
+    #endif
     if(!parent) {
         while(!mapPool->empty()) {
             delete mapPool->top();
@@ -332,6 +397,9 @@ void BMemory::detach() {
 
 // Detach this memory from its parent but retain reference
 void BMemory::detach(const std::shared_ptr<BMemory>& par) {
+    #ifdef DEBUG_BMEMORY
+    std::cout << "Detaching memory"<<this<<" from parent "<<parent<<"\n";
+    #endif
     if(!parent) {
         while(!mapPool->empty()) {
             delete mapPool->top();

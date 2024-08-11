@@ -66,10 +66,9 @@ class Command;
 class BMemory;
 class BuiltinArgs;
 class VariableManager;
+class Code;
 extern VariableManager variableManager;
-Data* executeBlock(std::vector<Command*>* program,
-                  int start, 
-                  int end,
+Data* executeBlock(const Code* code,
                   const std::shared_ptr<BMemory>& memory, 
                   bool *returnSignal,
                   BuiltinArgs* allocatedBuiltins
