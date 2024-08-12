@@ -164,13 +164,6 @@ Data* executeBlock(const Code* code,
             case BEGINCACHED:
             case BEGINFINAL: {
                 if(command->value) {
-                    /*if(command->knownLocal[0]) {
-                        // BEGINFINAL for _bb locals is considered scopeless and optimization-friendly (DO NOT FORGET THAT CACHED CODE BLOCKS HAVE nullptr MEMORY)
-                        //value = command->value;
-                        i = ((Code*)command->value)->getEnd();
-                        break;
-                    }*/
-                    //command->lastCalled = memory;
                     Code* code = (Code*)command->value;
                     toReplace = memory->getOrNullShallow(command->args[0]);
                     Code* val = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory, code->getAllMetadata());
@@ -184,11 +177,12 @@ Data* executeBlock(const Code* code,
                 int pos = i+1;
                 int depth = 0;
                 OperationType command_type;
-                bool scheduleForParallelExecution = false;
+                bool scheduleForParallelExecution = true; // FOR NOW SCHEDULE EVERYTHING FOR PARALLEL EXECUTION
+                int countCalls = 0;
                 while(pos<=end) {
                     command_type = program->at(pos)->operation;
-                    if(command_type==WHILE) 
-                        scheduleForParallelExecution = true;
+                    //if(command_type==WHILE || command_type==CALL || command_type==TOLIST || command_type==TOVECTOR) 
+                    //    scheduleForParallelExecution = true;
                     if(command_type==BEGIN || command_type==BEGINFINAL)
                         depth += 1;
                     if(command_type==END) {
@@ -200,7 +194,7 @@ Data* executeBlock(const Code* code,
                 }
                 bbassert(depth>=0, "Code block never ended");
                 Code* cache = new Code(program, i+1, pos, nullptr);
-                Code* val = new Code(program, i+1, pos, memory);
+                Code* val = new Code(program, i+1, pos, memory, cache->getAllMetadata());
                 val->scheduleForParallelExecution = scheduleForParallelExecution;
                 cache->scheduleForParallelExecution = scheduleForParallelExecution;
                 cache->isDestroyable = false;
@@ -249,7 +243,7 @@ Data* executeBlock(const Code* code,
                 }
                 newMemory->detach(codeMemory); // detach the memory after executing the context
 
-                if(code->getMetadataBool(variableManager.atomicId, !(code->scheduleForParallelExecution)) || !Future::acceptsThread()) 
+                if(!code->scheduleForParallelExecution || !Future::acceptsThread()) 
                     value = executeBlock(code, newMemory, nullptr, nullptr);
                 else {
                     std::shared_ptr<FutureData> data = std::make_shared<FutureData>();
@@ -307,7 +301,7 @@ Data* executeBlock(const Code* code,
                     value = toReplace;
                 }
                 else
-                    value = new Boolean(value!=nullptr); // TODO: optimize this to overwrite a boolean toReplace
+                    value = new Boolean(memory->contains(command->args[1])); // TODO: optimize this to overwrite a boolean toReplace
                 break;
             break;
             case SET:{
@@ -316,12 +310,14 @@ Data* executeBlock(const Code* code,
                 Struct* obj = (Struct*)value;
                 Data* setValue = MEMGET(memory, 3);
                 bbassert(!command->knownLocal[2], "Cannot set a field that is a local variable (starting with _bb...)");
-                if(setValue && setValue->getType()==CODE && ((Code*)setValue)->getDeclarationMemory()->isOrDerivedFrom(obj->getMemory())) {
-                    bberror("Cannot set a code block to a struct field here.\n    This is only possible from blocks defined inside the struct scope's definition");
-                }
+                //if(setValue && setValue->getType()==CODE && ((Code*)setValue)->getDeclarationMemory()->isOrDerivedFrom(obj->getMemory())) {
+                //    bberror("Cannot set a code block to a struct field here.\n    This is only possible for blocks defined inside the struct scope's definition");
+                //}
+                if(setValue)
+                    setValue = setValue->shallowCopyIfNeeded();
                 int item = command->args[2];
                 toReplace = obj->getMemory()->getOrNullShallow(item);
-                obj->getMemory()->unsafeSet(item, setValue->shallowCopyIfNeeded(), toReplace); 
+                obj->getMemory()->unsafeSet(item, setValue, toReplace); 
                 continue;
             }
             break;
@@ -533,9 +529,15 @@ Data* executeBlock(const Code* code,
                 }
                 delete call_args;
                 delete call_returnSignal;
-                if(value!=thisObj && newMemory->release(value))
+                if(value!=thisObj) {// && newMemory->release(value))
                     //delete newMemory;
+                    if(value) {
+                        value = value->shallowCopyIfNeeded();
+                        if(value && value->getType()==CODE)// && ((Code*)preserve)->getDeclarationMemory()==this) 
+                            ((Code*)value)->setDeclarationMemory(nullptr);
+                    }
                     delete thisObj;
+                }
                 else
                     newMemory->detach();
                 /*

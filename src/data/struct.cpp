@@ -64,8 +64,11 @@ GlobalStruct::GlobalStruct(BMemory*  mem) : memory(mem) {
 }
 GlobalStruct::~GlobalStruct() {
     int deps = memory->countDependencies.fetch_sub(-1, std::memory_order_relaxed);
-    if(deps==1)
+    isDestroyable = false;
+    if(deps==1) {
+        memory->release();
         delete memory;
+    }
 }
 BMemory* GlobalStruct::getMemory() const {return memory;}
 void GlobalStruct::lock() const {memory->lock();}

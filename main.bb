@@ -1,14 +1,20 @@
-#include "std/oop"
-final fibber = new {
-  fn fib(n) {
-      while(false){}
-      if(n<2)
-        return 1;
-      return fib(n-1) + fib(n-2);
-  }
+final method = new {
+    final message = "Declared in a first scope";
+    final printer = {
+        print(message);
+    }
+    return printer;
+}
+final obj = new {
+    final message = "Declared in an object";
 }
 
-tic = time();
-result = fibber.fib(21);
-print("Result " + str(result));
-print("Time " + str(time()-tic));
+print(obj);
+
+final message = "Declared in external scope";
+rebased_method = {method:}
+obj.method = method;
+
+rebased_method();
+obj.method();
+method();  // CREATES AN ERROR

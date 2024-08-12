@@ -1,53 +1,32 @@
 BEGIN _bb2
-BEGIN _bb3
-next n args
-BUILTIN _bb4 Bfalse
-BEGIN _bb5
-BUILTIN _bb4 Bfalse
+BUILTIN message "Declared in a first scope"
+final # message
+BEGIN _bb4
+print # message
 END
-while # _bb4 _bb5
-BEGIN _bb6
-BUILTIN _bb7 I1
-return _bbresult0 _bb7
+IS printer _bb4
+final # printer
+return _bbresult0 printer
+return _bbresult1 this
 END
-BUILTIN _bb9 I2
-lt _bb8 n _bb9
-if # _bb8 _bb6
-BEGIN _bb12
-BUILTIN _bb14 I2
-sub _bb13 n _bb14
-list args _bb13
-END
-call _bb11 _bb12 fib
-BEGIN _bb16
-BUILTIN _bb18 I1
-sub _bb17 n _bb18
-list args _bb17
-END
-call _bb15 _bb16 fib
-add _bb10 _bb15 _bb11
-return _bbresult1 _bb10
-END
-IS fib _bb3
-final # fib
+new method _bb2
+final # method
+BEGIN _bb7
+BUILTIN message "Declared in an object"
+final # message
 return _bbresult2 this
 END
-new fibber _bb2
-final # fibber
-time tic
-BEGIN _bb21
-BUILTIN _bb22 I21
-list args _bb22
+new obj _bb7
+final # obj
+print # obj
+BUILTIN message "Declared in external scope"
+final # message
+BEGIN _bb10
+inline _bb11 method
 END
-get _bb23 fibber fib
-call result _bb21 _bb23
-str _bb25 result
-BUILTIN _bb26 "Result "
-add _bb24 _bb26 _bb25
-print # _bb24
-time _bb29
-sub _bb28 _bb29 tic
-str _bb30 _bb28
-BUILTIN _bb31 "Time "
-add _bb27 _bb31 _bb30
-print # _bb27
+IS rebased_method _bb10
+set # obj method method
+call _bb12 # rebased_method
+get _bb14 obj method
+call _bb13 # _bb14
+call _bb15 # method

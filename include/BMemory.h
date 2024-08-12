@@ -53,7 +53,7 @@ class Command;
 class BMemory {
 private:
     BMemory* parent;
-    tsl::hopscotch_map<int, Data*> *data;
+    tsl::hopscotch_map<int, Data*> data;
     pthread_mutex_t memoryLock;
     tsl::hopscotch_set<int> finals;
     Data* fastLastAccess;

@@ -31,93 +31,89 @@
 <h1>Introduction</h1>
 
 <p>
-There are a lot of programming languages to write dynamic yet safe code. 
-Maybe you already have a favorite one! However, safety often comes at the 
-expense of complexity, such as modifications to pure algorithmic logic
-that worry about non-functional code characteristics.
-Programmers then need to worry about concepts like borrow checkers, 
-deadlocks, and race conditions.
-</p>
-<p>
-Blombly is a language with small instruction set and algorithm-only semantics: it is limited to a few operations that cover a
-broad range of scenarios. Non-algorithmic tasks like memory management and parallelization 
-are automated under-the-hood, and the syntax operates under an "one solution" principle; if there is an obvious way
-to do something, there is likely no other obvious way to do it. 
-The main language is compiled into an intermediate respresentation 
-and is interpreted by an accompanying 
-<i><strong>BLO</strong>ck ase<strong>MBLY</strong> <strong>V</strong>irtual <strong>M</strong>achine</i> 
-(blomblyVM). The latter parses block-based assembly instructions that ensure reliability through
-the absense of jump statements; flow constrol is performed through code blocks of asembly instructions 
-that are easier to apply safety constraints on. There are exactly two mechanisms that interupt this 
-control flow: return statements for successful algorithms, and error messages for intermediate logic failures.
-</p>
-<p>
-So, who is blombly for? It may be a nice tool if your aim is one of the following:<br><br>
-
-✅ Quickly learn a dynamic (duck-typed) scripting language.<br>
-✅ Write sequential code that runs in parallel.<br>
-✅ Ensure memory and logic safety by design.<br>
+There are many programming languages for writing dynamic, safe code. You might 
+already have a favorite! However, ensuring safety often adds complexity, like 
+managing memory or dealing with concurrency issues.
+Blombly is a simple language with a small set of instructions focused on 
+algorithmic logic. It automates non-algorithmic tasks, such as memory 
+management and parallelization, making it easier to write safe code. Blombly 
+follows a "one solution" principle—if there’s an obvious way to do something, 
+there’s likely no alternative.
 </p>
 
+<p>
+The main language compiles into an intermediate representation, interpreted by 
+the <i><strong>BLO</strong>ck ase<strong>MBLY</strong> <strong>V</strong>irtual 
+<strong>M</strong>achine</i> (blomblyVM). This virtual machine uses block-based 
+assembly instructions to ensure reliability by avoiding jump statements. 
+Control flow is managed through code blocks, making it easier to apply safety 
+constraints. Control flow mechanisms consist of conditions, loops, inlining,
+method calling, return statements for successful operations, and error messages for failures.
+</p>
+
+<p>
+So, who is Blombly for? It might be a good choice if you want to:
+</p>
+<ul>
+    <li>✅ Quickly learn a dynamic scripting language.</li>
+    <li>✅ Write sequential code that runs in parallel.</li>
+    <li>✅ Ensure memory and logic safety by design.</li>
+</ul>
 
 <h3>A short demo</h3>
 <p>
-Below is a small blombly program that showcases several base language features.
-Practical code can be a bit more explicit by including modules that declare
-additional functions and helper methods.
-For example, the "oop" library lets callable methods 
-be declared with the pattern <code>fn @method(@args){@code}</code>.
+Below is a small Blombly program showcasing several basic language features. 
+While practical code can be more explicit (like when using the "std/oop" library 
+for object-oriented programming), this example keeps things simple.
 </p>
 
-<pre><code class="language-java">final scaler = {  // declares a code block, final variables are visible outside their scope
+<pre><code class="language-java">final scaler = {  // Immutable block, visible across method calls
     default scale = 1;
-    if(scale&lt;=0)
-       fail("Scale should be greater than zero, but another value was given: "+str(scale));
+    if(scale&lt;=0)  // Omit implied brackets
+       fail("Scale should be > 0, got: "+str(scale));
+    if(scale&lt1) {
+        scale = 1/scale;
+        print("Warning: Inverted the scale.");
+    }
 }
 
 final add(x,y) = {
-    signal = try{scaler:} // `:` performs inline execution
+    signal = try scaler: // `:` runs inline, `try` catches errors
     catch(signal) {
-        print("handled an error");
+        print("Handled an error.");
         return 0;
     }
     return (x + y)*scale;
 }
 
-result = add(1, 2 | scale=0);  // calls may be executed in parallel
+result = add(1, 2 | scale=0);  // Calls run in parallel
 print(result);
 </code></pre>
 
 <p>
-    The program starts with a code block that creates a <code>scale</code> variable with a provided default,
-    if it does not already exist (we will see momentarily how it might exist). Then, the code block
-    creates an error message if a non-positive scale is provided. The code block declaration does not run any code, 
-    but only creates a variable holding the block for future use. It is made <code>final</code> so that it 
-    cannot be modified. Similarly, a code block that performs addition and multiplication with some scale is provided.
-    This takes as input two positional arguments <code>x,y</code>.
-    This block also uses the <code>scaler:</code> symbol to inline the namesake. Inlining constitutes of 
-    immediately calling the other block's code, as if it were pasted already.
+This program begins by creating a code block to handle the <code>scale</code> 
+variable, with a default value of 1 if none is provided and checks if the scale 
+is valid (greater than 0) and adjusts it if necessary. The block is declared 
+<code>final</code>, meaning it can't be changed and is accessible from other 
+method calls.
+Another code block performs addition and multiplication using the scale. It
+also uses the <code>scaler:</code> block inline and intercepts any 
+errors that occur during execution. The <code>catch</code> mechanism works 
+similarly to an <code>if</code> statement, but it is triggered by errors instead 
+of boolean conditions.
+Finally, the <code>add</code> block is called with positional arguments. 
+Variables after the <code>|</code> symbol during the call are passed along 
+ith the arguments, allowing for flexible inline code, for example to initialize several
+calls with the same configurations. These calls are automatically scheduled for 
+parallel execution, with access to only transferred values and 
+<code>final</code> variables.
 </p>
-    
-    <p>
-    Inlining is further enriched by enclosing it an a <code>try</code> statement (the brackets can be inferred
-    by the language, but they are there for clarity). This statement is responsible for intercepting errors and inline return
-    values, and then places the intercepted values in the variable <code>signal</code>. The <code>catch</code>
-    catch mechanism is the equivalent of <code>if</code>, with the difference that it is entered if it encounters an error
-    instead of boolean truth. For safety, unhandled error values create further errors if they are never handled.
-    </p>
-    
-    <p>
-    Finally, the code block is called like a function with positional arguments. There are also
-    statements that create more variables after a <code>|</code> separator. These
-    look like positional variables (separated by semicolons if there are multiple), 
-    but offer greater flexibility.
-    For example, they can inline the same code block parameters across several methods. Variables created after 
-    <code>|</code> are transferred to the called <code>add</code> block together with positional arguments.
-    Called blocks are automatically scheduled for parallel execution.
-    While running, they have access only to transferred values and <code>final</code> variables.
-    </p>
 
+<!-- Navigation buttons -->
+<div class="nav-buttons">
+    <a href="index.html" class="nav-button">Home</a>
+    <a href="hello-world.html" class="nav-button">→</a>
+</div>
 
 <script src="prism.min.js"></script>
 <script src="prism-java.min.js"></script>

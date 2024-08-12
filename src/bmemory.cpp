@@ -18,8 +18,7 @@ void BMemory::verify_noleaks() {
 BMemory::BMemory(BMemory*  par, int expectedAssignments) : parent(par), allowMutables(true), fastLastAccessId(-1), countDependencies(0) {
     //memories.insert(this);
     countUnrealeasedMemories++;
-    data = new tsl::hopscotch_map<int, Data*>();
-    data->reserve(expectedAssignments);
+    data.reserve(expectedAssignments);
     if (pthread_mutex_init(&memoryLock, nullptr) != 0) {
         bberror("Failed to create a mutex for memory read/write");
     }
@@ -36,10 +35,10 @@ bool BMemory::isOrDerivedFrom(BMemory*  memory) const{
 
 void BMemory::release() {
     fastLastAccessId = -1;
-    for(const auto& element : *data) {
+    for(const auto& element : data) {
         if(element.second && element.second->getType()==FUTURE) {
             Future* prevRet = (Future*)element.second;
-            (*data)[element.first] = prevRet->getResult();
+            data[element.first] = prevRet->getResult();
             attached_threads.erase(prevRet);
             delete prevRet;
         }
@@ -48,8 +47,9 @@ void BMemory::release() {
         thread->getResult();
     attached_threads.clear();
     std::string err;
+    std::string destroyerr;
     // automatically performed in the delete of locals/data
-    for(const auto& element : *data) {
+    for(const auto& element : data) {
         if(!element.second)
             continue;
         Data* dat = element.second;
@@ -63,22 +63,36 @@ void BMemory::release() {
                         "\n       All the uncought errors are listed below.";
             err += "\n ( \x1B[31m ERROR \033[0m ) "+dat->toString();
         }
-        if(dat->isDestroyable) 
+        if(dat->isDestroyable) {
+            try {
             delete dat;
+            }
+            catch(const BBError& e) {
+                if(!destroyerr.size()) 
+                    destroyerr += "Error occured during the destruction of nested object.";
+                destroyerr += std::string("\n ( \x1B[31m ERROR \033[0m ) ")+e.what();
+            }
+        }
     }
-    data->clear();
-    if(err.size()) {
+    data.clear();
+    if(err.size() || destroyerr.size()) {
         delete this;
-        bberror(err);
+        if(err.size() && destroyerr.size()) {
+            bberror(err+"\n\nA second error occured simultaneously to the above\n\n"+destroyerr);
+        }
+        else if(err.size())
+            bberror(err);
+        else
+            bberror(destroyerr);
     }
 }
 
 bool BMemory::release(Data* preserve) {
     fastLastAccessId = -1;
-    for(const auto& element : *data) {
+    for(const auto& element : data) {
         if(element.second && element.second->getType()==FUTURE) {
             Future* prevRet = (Future*)element.second;
-            (*data)[element.first] = prevRet->getResult();
+            data[element.first] = prevRet->getResult();
             attached_threads.erase(prevRet);
             delete prevRet;
         }
@@ -88,12 +102,12 @@ bool BMemory::release(Data* preserve) {
     attached_threads.clear();
     std::string err;
 
-    if(preserve && preserve->getType()==CODE && ((Code*)preserve)->getDeclarationMemory()==this) 
+    if(preserve && preserve->getType()==CODE)// && ((Code*)preserve)->getDeclarationMemory()==this) 
         ((Code*)preserve)->setDeclarationMemory(nullptr);
 
     /*if((preserve && preserve->getType()==CODE && ((Code*)preserve)->getDeclarationMemory()->isOrDerivedFrom(this))) {
         // automatically performed in the delete of locals/data
-        for(const auto& element : *data) {
+        for(const auto& element : data) {
             if(!element.second)
                 continue;
             Data* dat = element.second;
@@ -103,9 +117,9 @@ bool BMemory::release(Data* preserve) {
                 err += "\n ( \x1B[31m ERROR \033[0m ) "+dat->toString();
             }
         }
-        data->clear();
+        data.clear();
         if(err.size()) {
-            for(const auto& element : *data) {
+            for(const auto& element : data) {
                 if(!element.second)
                     continue;
                 Data* dat = element.second;
@@ -119,7 +133,7 @@ bool BMemory::release(Data* preserve) {
 
 
     // automatically performed in the delete of locals/data
-    for(const auto& element : *data) {
+    for(const auto& element : data) {
         if(!element.second)
             continue;
         Data* dat = element.second;
@@ -137,7 +151,6 @@ bool BMemory::release(Data* preserve) {
             delete dat;
         }
     }
-    data->clear();
     if(err.size()) {
         bberror(err); // will delete in catch blocks
     }
@@ -147,13 +160,12 @@ bool BMemory::release(Data* preserve) {
 // Destructor to ensure that all threads are finished
 BMemory::~BMemory() {
     countUnrealeasedMemories--;
-    delete data;
     //memories.erase(memories.find(this));
     pthread_mutex_destroy(&memoryLock);
 }
 
 int BMemory::size() const {
-    return data->size();
+    return data.size();
 }
 
 // Lock the memory for thread-safe access
@@ -178,13 +190,13 @@ Data* BMemory::get(int item) {
     //if(fastLastAccessId==item && fastLastAccess->getType() != FUTURE) {
     //    return fastLastAccess;
     //}
-    Data* ret = (*data)[item];
+    Data* ret = data[item];
 
     // Handle future values
     if (ret && ret->getType() == FUTURE) {
         Future* prevRet = (Future*)ret;
         ret = prevRet->getResult();
-        (*data)[item] = ret;
+        data[item] = ret;
         attached_threads.erase(prevRet);
         delete prevRet;
         return ret;
@@ -202,11 +214,12 @@ Data* BMemory::get(int item) {
     return ret;
 }
 
+
 bool BMemory::contains(int item) const {
     if(fastLastAccessId==item)
-        return true;
-    auto it = data->find(item);
-    if(it==data->end())
+        return fastLastAccess!=nullptr;
+    auto it = data.find(item);
+    if(it==data.end())
         return false;
     return it->second!=nullptr;
 }
@@ -224,13 +237,13 @@ Data* BMemory::get(int item, bool allowMutable) {
     if(fastLastAccessId==item && fastLastAccess->getType() != FUTURE) {
         return fastLastAccess;
     }
-    Data* ret = (*data)[item];
+    Data* ret = data[item];
 
     // Handle future values
     if (ret && ret->getType() == FUTURE) {
         Future* prevRet = (Future*)ret;
         ret = prevRet->getResult();
-        (*data)[item] = ret;
+        data[item] = ret;
         attached_threads.erase(prevRet);
         delete prevRet;
         return ret;
@@ -260,15 +273,15 @@ Data* BMemory::getOrNullShallow(int item) {
     if(fastLastAccessId==item && fastLastAccess->getType() != FUTURE) {
         return fastLastAccess;
     }
-    auto it = data->find(item);
-    if(it==data->end())
+    auto it = data.find(item);
+    if(it==data.end())
         return nullptr;
     Data* ret = it->second;
     //std::cout << variableManager.getSymbol(item)<<"\n";
     if(ret && ret->getType()==FUTURE) {
         Future* prevRet = (Future*)ret;
         ret = prevRet->getResult();
-        (*data)[item] = ret;
+        data[item] = ret;
         attached_threads.erase(prevRet);
         delete prevRet;
         return ret;
@@ -281,13 +294,13 @@ Data* BMemory::getOrNull(int item, bool allowMutable) {
     if(fastLastAccessId==item && fastLastAccess->getType() != FUTURE) {
         return fastLastAccess;
     }
-    Data* ret = (*data)[item];
+    Data* ret = data[item];
 
     // Handle future values
     if (ret && ret->getType() == FUTURE) {
         Future* prevRet = (Future*)ret;
         ret = prevRet->getResult();
-        (*data)[item] = ret;
+        data[item] = ret;
         attached_threads.erase(prevRet);
         delete prevRet;
         return ret;
@@ -309,7 +322,7 @@ Data* BMemory::getOrNull(int item, bool allowMutable) {
 }
 
 void BMemory::removeWithoutDelete(int item) {
-    (*data)[item] = nullptr;
+    data[item] = nullptr;
 }
 
 /*void BMemory::set(int item, Data* value) {
@@ -318,7 +331,7 @@ void BMemory::removeWithoutDelete(int item) {
     Data* prev = getOrNullShallow(item);
     if(prev==value) 
         return;
-    (*data)[item] = value;
+    data[item] = value;
     if (prev) {
         if(prev->isDestroyable)
             delete prev;
@@ -335,28 +348,30 @@ void BMemory::unsafeSet(int item, Data*value, Data* prev) {
     fastLastAccess = value;
     if(prev==value)
         return;
-    (*data)[item] = value;
     if (prev) {
-        if(prev->isDestroyable)
-            delete prev;
         if(isFinal(item)){
+            if(value)
+                delete value;
             bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
             return;
         }
+        if(prev->isDestroyable)
+            delete prev;
     }
+    data[item] = value;
 }
 
 // Pull data from another Memory object
 void BMemory::pull(BMemory* other) {
-    for (auto& it : *other->data) {
+    for (auto& it : other->data) {
         unsafeSet(it.first, it.second->shallowCopyIfNeeded(), getOrNullShallow(it.first));
     }
 }
 
 // Replace missing values with those from another Memory object
 void BMemory::replaceMissing(BMemory* other) {
-    for (auto& it : *other->data) 
-        if (data->find(it.first)==data->end()) {
+    for (auto& it : other->data) 
+        if (data.find(it.first)==data.end()) {
             int item = it.first;
             unsafeSet(item, other->get(item)->shallowCopyIfNeeded(), getOrNullShallow(item));
         }

@@ -30,10 +30,14 @@
 <button class="toggle-button" onclick="toggleSidebar()">☰</button>
 <h1>Return from new</h1>
 
-<p>Return statements from within <code>new {...}</code> stop its execution and change the
-obtained value. This can be used to replace block calls with a forced single-threaded
-recursion that does not modify the parent context. For example:</p>
+<p>Return statements from within <code>new {...}</code> statements change the
+retrieved value to something other than a struct. For example, the following snippet
+is a valid (though not efficient in terms of asymptotic complexity) method for recursively
+computing a term of the Fibonacci sequence. BlomblyVM always schedules <code>new</code> for 
+direct execution, that is, without spawning a separate thread. In general, though,
+prefer usage of this statement to create structs.</p>
 
+<i>main.bb</i>
 <pre><code class="language-java">final fib = {  // make it final so that it can see itself
     if(n&lt;2){return 1;} 
     return new{n = n-1;fib:} + new{n = n-2;fib:};
@@ -43,25 +47,73 @@ tic = time();
 print("Result", fib(n=21));
 print("Time", time()-tic);</code></pre>
 
+<p>One particular wrinkle to iron out in our understanding is what it means
+to return a code block that is later used as a method. This patter also
+arises when returning from code blocks called as methods with the result being 
+another block. To maintain memory safety, all returned blocks are detached
+from their declaring scope. While being scopeless, they can only be inlined.
+However, they can also get re-attached to a new scope by either setting them
+as struct fields (in which case they are attached to the struct)
+or creating new blocks that inline them. An example of the last pattern
 
+</p>
 
-
-<pre><code class="language-java">#include "std/oop"
-
-final method = new {
-    final message = "Declared in new scope";
-    fn printer() {
+<pre><code class="language-java">final method = new {
+    final message = "Declared in a first scope";
+    final printer = {
         print(message);
     }
     return printer;
 }
-rebased_method = {method:}
+final obj = new {
+    final message = "Declared in an object";
+}
 
 final message = "Declared in external scope";
-method();
+rebased_method = {method:}
+obj.method = method;
+
 rebased_method();
+obj.method();
+method();  // CREATES AN ERROR
 </code></pre>
 
+<p>The outcome of running the above code is presented below. BlomblyVM runs the
+first two calls in parallel, which print internally in an unspecified order
+given that there is no sycnhronization mechanism. Then, the final block call
+fails to execute due to having being detached from a memory context. An
+ambridged version of this section describes prospective options.</p>
+
+<pre class="code-output">> blombly main.bb
+(<span class="ok"> OK </span>) Preprocessing
+(<span class="ok"> OK </span>) Compilation
+(<span class="ok"> OK </span>) Optimization
+Declared in an object
+Declared in external scope
+(<span class="error"> ERROR </span>) Memoryless code block cannot be called.
+   !!! Returned code blocks are not attached to any
+       memory context to use its finals. Consider these options:
+       - Set `\call=block;` to make the struct callable.
+       - Set the block as an object field and call that. It can
+         also be set as a field of another object.
+       - Inline the returned block. For example, `rebased={block:}`
+         rebases it to the current context.
+       Recursive calls could be violated if you assign to a different
+       name. No option is automated to prevent ambiguity.
+   <span class="arrow">→</span> call _bb15 # method                         main.bbvm line 32
+</pre>
+
+<p>The question, then, persists of how to create callables that depend
+on their own internal state. This can be achieved with operation
+overloading that turns structs into callables. This is presented 
+in the next section.
+</p>
+
+<!-- Navigation buttons -->
+<div class="nav-buttons">
+    <a href="success-fail.html" class="nav-button">←</a>
+    <a href="overloading.html" class="nav-button">→</a>
+</div>
 
 <script src="prism.min.js"></script>
 <script src="prism-java.min.js"></script>
