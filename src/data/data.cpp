@@ -1,5 +1,20 @@
 #include "data/Data.h"
 
+int numObjects = 0;
+
+Data::Data() {
+    ++numObjects;
+}
+
+Data::~Data() {
+    --numObjects;
+}
+
+int Data::countObjects() {
+    return numObjects;
+} 
+
+
 Data* Data::run(const OperationType operation, BuiltinArgs* args) {
     // size will always be >1
     try {

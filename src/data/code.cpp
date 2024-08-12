@@ -18,12 +18,12 @@ Metadata::~Metadata() {
 }
 
 // Constructor to initialize Code object with program segment details
-Code::Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory)
+Code::Code(void* programAt, int startAt, int endAt, BMemory*  declMemory)
     : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(std::make_shared<Metadata>()), scheduleForParallelExecution(false) {
         // TODO: move all attributes (programAt, startAt, endAt, into Metadata)
     }
 
-Code::Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory, const std::shared_ptr<Metadata>& metadata)
+Code::Code(void* programAt, int startAt, int endAt, BMemory*  declMemory, const std::shared_ptr<Metadata>& metadata)
     : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(metadata), scheduleForParallelExecution(false) {
     }
 
@@ -81,8 +81,13 @@ void* Code::getProgram() const {
 }
 
 // Get the memory declarations associated with this code
-std::shared_ptr<BMemory> Code::getDeclarationMemory() const {
+BMemory* Code::getDeclarationMemory() const {
     return declarationMemory;
+}
+
+// Get the memory declarations associated with this code
+void Code::setDeclarationMemory(BMemory* newMemory) {
+    declarationMemory = newMemory;
 }
 
 // Create a shallow copy of this Code object

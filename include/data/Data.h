@@ -31,7 +31,8 @@ public:
     virtual bool couldBeShallowCopy(Data* data) {
         return false;
     }
-    virtual ~Data() = default;
+    Data();
+    virtual ~Data();
     static Data* run(const OperationType operation, BuiltinArgs* args);
     virtual Data* implement(const OperationType operation, BuiltinArgs* args) {
         throw Unimplemented();
@@ -44,6 +45,8 @@ public:
     virtual size_t toHash() const {
         return std::hash<std::string>{}(toString()); 
     }
+    
+    static int countObjects();
 };
 
 #endif // DATA_H

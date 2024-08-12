@@ -28,7 +28,7 @@ Data* Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
     if(args_->size == 1 && operation_ == TOCOPY)
         return shallowCopy();
     std::string operation = getOperationTypeName(operation_);
-    std::shared_ptr<BMemory> memory = this->getMemory();
+    BMemory* memory = this->getMemory();
     Data* implementation = memory->getOrNull(variableManager.getId("\\"+operation), true);
     if (!implementation)
         throw Unimplemented();
@@ -42,8 +42,8 @@ Data* Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
         args->contents->contents.push_back(args_->arg2->shallowCopy());
     if (implementation->getType() == CODE) {
         Code* code = (Code*)implementation;
-        std::shared_ptr<BMemory> newMemory = std::make_shared<BMemory>(memory, LOCAL_EXPACTATION_FROM_CODE(code));
-        newMemory->set(variableManager.argsId, args);
+        BMemory* newMemory = new BMemory(memory, LOCAL_EXPACTATION_FROM_CODE(code));
+        newMemory->unsafeSet(variableManager.argsId, args, nullptr);
         Data* value = executeBlock(code, newMemory, nullptr, nullptr);
         return value;
     } else {
@@ -54,19 +54,19 @@ Data* Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
 }
 
 
-Data* Struct::shallowCopy() const {
-    return new GlobalStruct(getMemory());
+Data* GlobalStruct::shallowCopy() const {
+    return new GlobalStruct(memory);
 }
 
 
-GlobalStruct::GlobalStruct(const std::shared_ptr<BMemory>& mem) : memory(mem) {}
-std::shared_ptr<BMemory> GlobalStruct::getMemory() const {return memory;}
+GlobalStruct::GlobalStruct(BMemory*  mem) : memory(mem) {
+    memory->countDependencies.fetch_add(1, std::memory_order_relaxed);
+}
+GlobalStruct::~GlobalStruct() {
+    int deps = memory->countDependencies.fetch_sub(-1, std::memory_order_relaxed);
+    if(deps==1)
+        delete memory;
+}
+BMemory* GlobalStruct::getMemory() const {return memory;}
 void GlobalStruct::lock() const {memory->lock();}
 void GlobalStruct::unlock() const {memory->unlock();}
-
-
-
-LocalStruct::LocalStruct(const std::shared_ptr<BMemory>& mem) : memory(mem) {}
-std::shared_ptr<BMemory> LocalStruct::getMemory() const {return memory.lock();}
-void LocalStruct::lock() const {memory.lock()->lock();}
-void LocalStruct::unlock() const {memory.lock()->unlock();}

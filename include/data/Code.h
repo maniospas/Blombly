@@ -21,13 +21,13 @@ public:
 class Code : public Data {
 private:
     int start, end;
-    std::shared_ptr<BMemory> declarationMemory;
+    BMemory* declarationMemory;
     std::shared_ptr<Metadata> metadata;
     void* program;
 
 public:
-    explicit Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory);
-    explicit Code(void* programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory, const std::shared_ptr<Metadata>& metadata);
+    explicit Code(void* programAt, int startAt, int endAt, BMemory* declMemory);
+    explicit Code(void* programAt, int startAt, int endAt, BMemory* declMemory, const std::shared_ptr<Metadata>& metadata);
     int getType() const override;
     std::string toString() const override;
     int getStart() const;
@@ -36,7 +36,8 @@ public:
     void setMetadata(int pos, Data* data);
     Data* getMetadata(int id) const;
     bool getMetadataBool(int id, bool def) const;
-    std::shared_ptr<BMemory> getDeclarationMemory() const;
+    BMemory* getDeclarationMemory() const;
+    void setDeclarationMemory(BMemory* newMemory);
     std::shared_ptr<Metadata> getAllMetadata() const;
 
     Data* shallowCopy() const override;

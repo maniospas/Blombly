@@ -8,6 +8,7 @@
 #include <stack>
 #include <vector>
 #include <iostream>
+#include <atomic>
 #include <pthread.h>
 #include "data/Data.h"
 #include "data/Future.h"
@@ -25,12 +26,13 @@ public:
     int argsId;
     int noneId;
     int atomicId;
+    int callId;
     VariableManager() {
         //lastId = getId("LAST");
         thisId = getId("this");
         argsId = getId("args");
         noneId = getId("#");
-        atomicId = getId("atomic");
+        callId = getId("\\call");
     }
     int getId(const std::string& symbol) {
         if(registeredSymbols.find(symbol)==registeredSymbols.end()) {
@@ -50,28 +52,30 @@ class Command;
 // Memory class that manages a scope for data and threads
 class BMemory {
 private:
-    std::shared_ptr<BMemory> parent;
+    BMemory* parent;
     tsl::hopscotch_map<int, Data*> *data;
-    bool allowMutables;
     pthread_mutex_t memoryLock;
     tsl::hopscotch_set<int> finals;
     Data* fastLastAccess;
     int fastLastAccessId;
 
 public:
+    std::atomic<int> countDependencies;
     tsl::hopscotch_set<Future*> attached_threads;
-    std::stack<tsl::hopscotch_map<int, Data*>*> *mapPool;
-    bool isOrDerivedFrom(const std::shared_ptr<BMemory>& memory) const;
+    bool allowMutables;
+    bool isOrDerivedFrom(BMemory* memory) const;
 
     // Constructors and destructor=
-    explicit BMemory(const std::shared_ptr<BMemory>& par, int expectedAssignments);
+    explicit BMemory(BMemory* par, int expectedAssignments);
+    bool release(Data* preserve);
     void release();
-    void releaseNonFinals();
     ~BMemory();
 
     // Lock and unlock methods for thread safety
     void lock();
     void unlock();
+
+
 
     // Methods to get and set data
     bool contains(int item) const;
@@ -79,7 +83,6 @@ public:
     Data* get(int item, bool allowMutable);
     Data* getOrNull(int item, bool allowMutable);
     Data* getOrNullShallow(int item);
-    void set(int item, Data* value) ;
     void unsafeSet(int item, Data* value, Data* prev) ;
     int size() const;
     void removeWithoutDelete(int item);
@@ -87,10 +90,10 @@ public:
     bool isFinal(int item) const;
 
     // Methods to manage inheritance and synchronization with other Memory objects
-    void pull(const std::shared_ptr<BMemory>& other);
-    void replaceMissing(const std::shared_ptr<BMemory>& other);
+    void pull(BMemory*  other);
+    void replaceMissing(BMemory*  other);
     void detach();
-    void detach(const std::shared_ptr<BMemory>& par);
+    void detach(BMemory*  par);
 
     static void verify_noleaks();
 };

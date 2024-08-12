@@ -10,31 +10,22 @@ class Struct : public Data {
 public:
     int getType() const override;
     std::string toString() const override;
-    virtual std::shared_ptr<BMemory> getMemory() const = 0;
+    virtual BMemory* getMemory() const = 0;
     virtual void lock() const = 0;
     virtual void unlock() const = 0;
     Data* implement(const OperationType operation_, BuiltinArgs* args_) override;
-    Data* shallowCopy() const override;
-};
-
-class LocalStruct : public Struct {
-private:
-    std::weak_ptr<BMemory> memory;
-public:
-    LocalStruct(const std::shared_ptr<BMemory>& mem);
-    std::shared_ptr<BMemory> getMemory() const override;
-    void lock() const override;
-    void unlock() const override;
 };
 
 class GlobalStruct : public Struct {
 private:
-    std::shared_ptr<BMemory> memory;
+    BMemory* memory;
 public:
-    GlobalStruct(const std::shared_ptr<BMemory>& mem);
-    std::shared_ptr<BMemory> getMemory() const override;
+    GlobalStruct(BMemory* mem);
+    ~GlobalStruct();
+    BMemory* getMemory() const override;
     void lock() const override;
     void unlock() const override;
+    Data* shallowCopy() const override;
 };
 
 #endif // STRUCT_H

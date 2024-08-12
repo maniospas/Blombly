@@ -35,10 +35,11 @@
 #include <ratio>
 #include <chrono>
 #include <filesystem>
-#include "utils/stringtrim.cpp"
-#include "utils/parser.cpp"
-#include "utils/optimizer.cpp"
-#include "utils/transpiler.cpp"
+#include "src/utils/stringtrim.cpp"
+#include "src/utils/parser.cpp"
+#include "src/utils/optimizer.cpp"
+#include "src/utils/transpiler.cpp"
+#include "src/utils/cross_platform.cpp"
 
 // include data types
 #include "include/common.h"
@@ -59,37 +60,6 @@
 #include "include/interpreter/thread.h"
 
 
-namespace Terminal {
-    #ifdef _WIN32
-    #include <windows.h>
-
-    // Function to enable virtual terminal processing and set UTF-8 encoding
-    void enableVirtualTerminalProcessing() {
-        // Enable Virtual Terminal Processing on Windows
-        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-        if (hOut == INVALID_HANDLE_VALUE) {
-            return;
-        }
-
-        DWORD dwMode = 0;
-        if (!GetConsoleMode(hOut, &dwMode)) {
-            return;
-        }
-
-        dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-        if (!SetConsoleMode(hOut, dwMode)) {
-            return;
-        }
-
-        // Set console output to UTF-8
-        SetConsoleOutputCP(CP_UTF8);
-    }
-    #else
-    void enableVirtualTerminalProcessing(){}
-    #endif
-}
-
-
 std::chrono::steady_clock::time_point program_start;
 //#define MEMGET(memory, arg) (command->knownLocal[arg]?memory->getLocal(command->args[arg]):memory->get(command->args[arg]))
 
@@ -97,8 +67,7 @@ std::chrono::steady_clock::time_point program_start;
 
 #define CHECK_FOR_RETURN(expr) if(*returnSignal) { \
                         if(returnSignalHandler){ \
-                            if(value && value->getType()==CODE && ((Code*)value)->getDeclarationMemory()->isOrDerivedFrom(memory_)) \
-                                memory->release(); \
+                            if(memory->release(expr)) delete memory;\
                             delete returnSignal; \
                             delete args; \
                         } \
@@ -112,7 +81,7 @@ pthread_mutex_t printLock;
 pthread_mutex_t compileLock; 
 
 
-Code* compileAndLoad(std::string fileName, const std::shared_ptr<BMemory> currentMemory) {
+Code* compileAndLoad(std::string fileName, BMemory* currentMemory) {
     pthread_mutex_lock(&compileLock); 
 
     // compile and optimize
@@ -155,7 +124,7 @@ Code* compileAndLoad(std::string fileName, const std::shared_ptr<BMemory> curren
 
 
 Data* executeBlock(const Code* code,
-                  const std::shared_ptr<BMemory>& memory_,
+                  BMemory* memory,
                   bool *returnSignal,
                   BuiltinArgs* allocatedBuiltins
                   ) {
@@ -169,14 +138,13 @@ Data* executeBlock(const Code* code,
      *  (so the returned value should break execution). Should be nullptr for new method calls.
      * @return A Data shared pointer holding the code block's outcome. This is nullptr if nothing is returned.
     */
+    //BMemory* memory = memory_.get();
     //std::cout << memory_.use_count()<<" entered\n";
-    BMemory* memory = memory_.get();
     //std::cout << memory<<" "<<memory_.use_count()<<" enteted count\n";
-    bool returnSignalHandler = false;
+    bool returnSignalHandler = !returnSignal;
     BuiltinArgs* args = allocatedBuiltins;
-    if(!returnSignal) {
+    if(returnSignalHandler) {
         returnSignal = new bool(false);
-        returnSignalHandler = true;
         args = new BuiltinArgs();
     }
     //std::shared_ptr<Data> prevValue;
@@ -184,11 +152,11 @@ Data* executeBlock(const Code* code,
     Data* value;
     std::vector<Command*>* program = (std::vector<Command*>*)code->getProgram();
     int end = code->getEnd();
+    int i=code->getStart();
     try {
-    for(int i=code->getStart();i<=end;++i) {
+    for(;i<=end;++i) {
         Command* command = program->at(i);
         //std::cout << command->toString() << "     | refs to memory " << memory_.use_count() << "\n";
-        try {
         Data* toReplace;
         //std::cout << "COMMAND "<<memory_.use_count()<<" "<<command->operation<<getOperationTypeName(command->operation)<<"\n";
         switch(command->operation) {
@@ -205,7 +173,7 @@ Data* executeBlock(const Code* code,
                     //command->lastCalled = memory;
                     Code* code = (Code*)command->value;
                     toReplace = memory->getOrNullShallow(command->args[0]);
-                    Code* val = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory_, code->getAllMetadata());
+                    Code* val = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory, code->getAllMetadata());
                     val->scheduleForParallelExecution = code->scheduleForParallelExecution;
                     value = val;
                     if(command->operation==BEGINFINAL)
@@ -232,7 +200,7 @@ Data* executeBlock(const Code* code,
                 }
                 bbassert(depth>=0, "Code block never ended");
                 Code* cache = new Code(program, i+1, pos, nullptr);
-                Code* val = new Code(program, i+1, pos, memory_);
+                Code* val = new Code(program, i+1, pos, memory);
                 val->scheduleForParallelExecution = scheduleForParallelExecution;
                 cache->scheduleForParallelExecution = scheduleForParallelExecution;
                 cache->isDestroyable = false;
@@ -244,89 +212,44 @@ Data* executeBlock(const Code* code,
                 toReplace = memory->getOrNullShallow(command->args[0]);
             }
             break;
-            /*case CALL: {
-                //newMemory->set("locals", std::make_shared<Struct>(newMemory));
-                Data* context = command->args[1]==variableManager.noneId?nullptr:MEMGET(memory, 1);
-                Data* execute = MEMGET(memory, 2);
-                // create new writable memory under the current context
-                std::shared_ptr<BMemory> newMemory;
-                // check if the call has some context, and if so, execute it in the new memory
-                if(context && context->getType()==CODE) {
-                    // define a return signal and args for the call, to prevent it from releasing the memory, which should be cleaned up after the block finishes executing
-                    bool* call_returnSignal = new bool(false);
-                    BuiltinArgs* call_args = new BuiltinArgs();
-
-                    Code* code = (Code*)context;
-                    newMemory = std::make_shared<BMemory>(memory_, LOCAL_EXPACTATION_FROM_CODE(code));
-                    value = executeBlock(code, newMemory, call_returnSignal, call_args);
-
-                    delete call_args;
-                    delete call_returnSignal;
-                    
-                    // still wait for threads to execute on the new memory
-                    for(Future* thread : newMemory->attached_threads)
-                        thread->getResult();
-                    newMemory->attached_threads.clear();
-                }
-                else if(context)
-                    bberror("Can only call code blocks");
-                else
-                    newMemory = std::make_shared<BMemory>(memory_, DEFAULT_LOCAL_EXPECTATION);
-                /*if(context && context->getType()==STRUCT) {
-                    newMemory = std::make_shared<BMemory>(memory_, ((Struct*)context)->getMemory()->size());
-                    newMemory->pull(((Struct*)context)->getMemory());
-                }
-                else
-                    newMemory = std::make_shared<BMemory>(memory_, DEFAULT_LOCAL_EXPECTATION);*/
-                // 
-                /*bbassert(execute && execute->getType()==CODE, "Request to call something that is not a code block");
-                Code* code = (Code*)execute;
-                newMemory->detach(code->getDeclarationMemory()); // reattaches the new memory on the declaration memory (the code can see all the finals from where it is declared) 
-                
-                std::shared_ptr<FutureData> data = std::make_shared<FutureData>();
-                data->result = std::make_shared<ThreadResult>();
-                data->thread = std::thread(threadExecute, 
-                                            code, 
-                                            newMemory, 
-                                            nullptr, 
-                                            nullptr,
-                                            data->result,
-                                            command);
-                Future* future = new Future(data);
-                memory->attached_threads.insert(future);
-                value = future;
-            
-                toReplace = memory->getOrNullShallow(command->args[0]);
-            }
-            break;*/
             case CALL:{
                 Data* context = command->args[1]==variableManager.noneId?nullptr:MEMGET(memory, 1);
-                Code* code = (Code*)MEMGET(memory, 2);
-                bbassert(code->getType()==CODE, "Only code blocks can be called");
-                std::shared_ptr<BMemory> newMemory = std::make_shared<BMemory>(memory_, LOCAL_EXPACTATION_FROM_CODE(code));
+                Data* called = MEMGET(memory, 2);
+                bbassert(called, "Cannot call a missing value");
+                Code* code;
+                if(called->getType()==STRUCT) {
+                    Data* entry = ((Struct*)called)->getMemory()->get(variableManager.callId);
+                    bbassert(entry->getType(), "Struct is not callable. Assign to its `\\call` field during construction.");
+                    bbassert(entry->getType()==CODE, "Struct `\\call` is not a code block.");
+                    code = (Code*)entry;
+                }
+                else {
+                    bbassert(called->getType()==CODE, "Only structs or code blocks can be called.");
+                    code = (Code*)called;
+                }
+                
+                BMemory* codeMemory = code->getDeclarationMemory();
+                bbassert(codeMemory,
+                            "Memoryless code block cannot be called."
+                            "\n   \033[33m!!!\033[0m Returned code blocks are not attached to any"
+                            "\n       memory context to use its finals. Consider these options:"
+                            "\n       - Set `\\call=block;` to make the struct callable."
+                            "\n       - Set the block as an object field and call that. It can"
+                            "\n         also be set as a field of another object."
+                            "\n       - Inline the returned block. For example, `rebased={block:}`"
+                            "\n         rebases it to the current context."
+                            "\n       Recursive calls could be violated if you assign to a different"
+                            "\n       name. No option is automated to prevent ambiguity.");
+                BMemory* newMemory = new BMemory(memory, LOCAL_EXPACTATION_FROM_CODE(code));
                 FILL_REPLACEMENT;
                 if(context) {
                     bbassert(context->getType()==CODE, "The call's context must be a code block");
-                    //bool* call_returnSignal = new bool(false);
-                    //BuiltinArgs* call_args = new BuiltinArgs();
-                    //try {
-                        value = executeBlock((Code*)context, newMemory, returnSignal, args);
-                        CHECK_FOR_RETURN(value);
-                    //}
-                    //catch(BBError e) {
-                        //delete call_args;
-                        //delete call_returnSignal;
-                        //throw e;
-                    //}
-                    //delete call_args;
-                    //delete call_returnSignal;
-                    //if(value)
-                    //    delete value;
+                    value = executeBlock((Code*)context, newMemory, returnSignal, args);
+                    CHECK_FOR_RETURN(value);
                 }
-                newMemory->detach(code->getDeclarationMemory());
+                newMemory->detach(codeMemory); // detach the memory after executing the context
 
-                if(code->getMetadataBool(variableManager.atomicId, 
-                    !(code->scheduleForParallelExecution && Future::acceptsThread()))) 
+                if(code->getMetadataBool(variableManager.atomicId, !(code->scheduleForParallelExecution)) || !Future::acceptsThread()) 
                     value = executeBlock(code, newMemory, nullptr, nullptr);
                 else {
                     std::shared_ptr<FutureData> data = std::make_shared<FutureData>();
@@ -351,7 +274,7 @@ Data* executeBlock(const Code* code,
             break;
             case GET:{
                 value = MEMGET(memory, 1);
-                bbassert(value->getType()==STRUCT || value->getType()==CODE, "Can only get fields from a struct or metadata from code");
+                bbassert(value->getType()==STRUCT || value->getType()==CODE, "Can only get fields from structs or metadata from code blocks");
                 bbassert(!command->knownLocal[2], "Cannot get a field that is a local variable (starting with _bb...)");
                 FILL_REPLACEMENT;
                 if(value->getType()==CODE) {
@@ -360,7 +283,16 @@ Data* executeBlock(const Code* code,
                 }
                 else {
                     Struct* obj = (Struct*)value;
-                    value = obj->getMemory()->get(command->args[2])->shallowCopyIfNeeded();
+                    value = obj->getMemory()->get(command->args[2]);;
+                    if(value) {
+                        if(value->getType()==CODE) {
+                            Code* code = (Code*)value;
+                            value = new Code(code->getProgram(), code->getStart(), code->getEnd(), obj->getMemory(), code->getAllMetadata());
+                        }
+                        else
+                            value = value->shallowCopyIfNeeded();
+                    }
+
                 }
             }
             break;
@@ -387,7 +319,9 @@ Data* executeBlock(const Code* code,
                 if(setValue && setValue->getType()==CODE && ((Code*)setValue)->getDeclarationMemory()->isOrDerivedFrom(obj->getMemory())) {
                     bberror("Cannot set a code block to a struct field here.\n    This is only possible from blocks defined inside the struct scope's definition");
                 }
-                obj->getMemory()->set(command->args[2], setValue->shallowCopyIfNeeded()); 
+                int item = command->args[2];
+                toReplace = obj->getMemory()->getOrNullShallow(item);
+                obj->getMemory()->unsafeSet(item, setValue->shallowCopyIfNeeded(), toReplace); 
                 continue;
             }
             break;
@@ -419,7 +353,7 @@ Data* executeBlock(const Code* code,
                         //bbassert(check->getType()==BOOL, "While condition variable that started as bool was changed to something else midway");
                         //if(!condition->isTrue())
                         //    break;
-                        value = executeBlock(codeAccept, memory_, returnSignal, args);
+                        value = executeBlock(codeAccept, memory, returnSignal, args);
                         CHECK_FOR_RETURN(value);
                         condition = MEMGET(memory, 1);
                     }
@@ -431,13 +365,13 @@ Data* executeBlock(const Code* code,
 
                 // implement the loop
                 while(true) {
-                    Data* check = executeBlock(codeCondition, memory_, returnSignal, args);
+                    Data* check = executeBlock(codeCondition, memory, returnSignal, args);
                     CHECK_FOR_RETURN(check);
                     //bbassert(check, "while condition's expression did not evaluate to anything");
                     //bbassert(check->getType()==BOOL, "while condition's expression did not evaluate to bool");
                     if(!check->isTrue())
                         break;
-                    value = executeBlock(codeAccept, memory_, returnSignal, args);
+                    value = executeBlock(codeAccept, memory, returnSignal, args);
                     CHECK_FOR_RETURN(value);
                 }
                 continue;
@@ -452,7 +386,7 @@ Data* executeBlock(const Code* code,
                 if(condition->getType()==CODE) {
                     //bbassert(condition->getType()==CODE, "Can only have a bool or a code block for if condition");
                     Code* codeCondition = (Code*)condition;
-                    condition = executeBlock(codeCondition, memory_, returnSignal, args);
+                    condition = executeBlock(codeCondition, memory, returnSignal, args);
                 }
                 //bbassert(check, "if condition's expression did not evaluate to anything");
                 CHECK_FOR_RETURN(condition);
@@ -461,13 +395,13 @@ Data* executeBlock(const Code* code,
                 Code* codeReject = (Code*)reject;
                 if(condition->isTrue()) {
                     if(codeAccept) {
-                        value = executeBlock(codeAccept, memory_, returnSignal, args);
+                        value = executeBlock(codeAccept, memory, returnSignal, args);
                         CHECK_FOR_RETURN(value);
                     }
                     value = nullptr;
                 }
                 else if(codeReject) {
-                    value = executeBlock(codeReject, memory_, returnSignal, args);
+                    value = executeBlock(codeReject, memory, returnSignal, args);
                     CHECK_FOR_RETURN(value);
                 }
                 else
@@ -480,14 +414,17 @@ Data* executeBlock(const Code* code,
                     Data* condition = MEMGET(memory, 1);
                     bbassert(condition->getType()==CODE, "Can only inline a non-called code block for try condition");
                     Code* codeCondition = (Code*)condition;
-                    value = executeBlock(codeCondition, memory_, returnSignal, args);
+                    value = executeBlock(codeCondition, memory, returnSignal, args);
                     
                     if(value==nullptr || !*returnSignal) {
                         *returnSignal = false;
                         std::string comm = command->toString();
                         comm.resize(40, ' ');
-                        BError* error = new BError(" No return or fail signal was intercepted.\n   \033[33m!!!\033[0m Code enclosed in `try` should use either `return value`\n       or `error(\"message\")` to respectfully generate return and error signals.\n       This error was created because no such signal was obtained."
-                                            +("\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
+                        BError* error = new BError(" No return or fail signal was intercepted."
+                                                    "\n   \033[33m!!!\033[0m Code enclosed in `try` should use either `return value`"
+                                                    "\n       or `error(\"message\")` to respectfully generate return and error signals."
+                                                    "\n       This error was created because no such signal was obtained."
+                                                    +("\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
                         error->consume();  // this is not enough to make the code block to fail
                         value = error;
                     }
@@ -497,6 +434,7 @@ Data* executeBlock(const Code* code,
                     std::string comm = command->toString();
                     comm.resize(40, ' ');
                     value = new BError(e.what()+("\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
+                    FILL_REPLACEMENT;
                 }
             }
             break;
@@ -511,12 +449,12 @@ Data* executeBlock(const Code* code,
                 if(condition->getType()==ERRORTYPE) {
                     ((BError*)condition)->consume();
                     if(codeAccept) {
-                        value = executeBlock(codeAccept, memory_, returnSignal, args);
+                        value = executeBlock(codeAccept, memory, returnSignal, args);
                         CHECK_FOR_RETURN(value);
                     }
                 }
                 else if(codeReject) {
-                    value = executeBlock(codeReject, memory_, returnSignal, args);
+                    value = executeBlock(codeReject, memory, returnSignal, args);
                     CHECK_FOR_RETURN(value);
                 }
             }
@@ -526,14 +464,15 @@ Data* executeBlock(const Code* code,
                 if(value->getType()==FILETYPE) {
                     if(command->value) {
                         Code* code = (Code*)command->value;
-                        value = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory_, code->getAllMetadata());
+                        value = new Code(code->getProgram(), code->getStart(), code->getEnd(), nullptr, code->getAllMetadata());
                     }
                     else {
-                        value = compileAndLoad(((BFile*)value)->getPath(), memory_);
-                        //command->value = value;
-                        //command->value->isDestroyable = false;
+                        value = compileAndLoad(((BFile*)value)->getPath(), nullptr);
+                        command->value = value;
+                        command->value->isDestroyable = false;
                     }
                 }
+
                 if(value->getType()==STRUCT) {
                     memory->pull(((Struct*)value)->getMemory());
                 }
@@ -543,10 +482,10 @@ Data* executeBlock(const Code* code,
                 }
                 else {
                     Code* code = (Code*)value;
-                    value = executeBlock(code, memory_, returnSignal, args);
+                    value = executeBlock(code, memory, returnSignal, args);
                     CHECK_FOR_RETURN(value)
                 }
-                toReplace = memory->getOrNullShallow(command->args[0]);
+                FILL_REPLACEMENT;
             }
             break;
             case DEFAULT:{
@@ -560,13 +499,11 @@ Data* executeBlock(const Code* code,
                 else {
                     //newMemory->set("locals", std::make_shared<Struct>(newMemory));
                     Code* code = (Code*)value;
-                    std::shared_ptr<BMemory> newMemory = std::make_shared<BMemory>(memory_, LOCAL_EXPACTATION_FROM_CODE(code));
+                    BMemory*  newMemory =  new BMemory(memory, LOCAL_EXPACTATION_FROM_CODE(code));
                     value = executeBlock(code, newMemory, returnSignal, args);
                     memory->replaceMissing(newMemory);
-                    newMemory->release();
                     if(*returnSignal){
                         if(returnSignalHandler){
-                            memory->release();
                             delete args;
                         }
                         return value;
@@ -579,10 +516,10 @@ Data* executeBlock(const Code* code,
                 value = MEMGET(memory, 1);
                 bbassert(value->getType()==CODE, "Can only inline a non-called code block");
                 Code* code = (Code*)value;
-                std::shared_ptr<BMemory> newMemory = std::make_shared<BMemory>(memory_, LOCAL_EXPACTATION_FROM_CODE(code));
+                BMemory* newMemory = new BMemory(memory, LOCAL_EXPACTATION_FROM_CODE(code));
                 Struct* thisObj = new GlobalStruct(newMemory);
-                thisObj->isDestroyable = false;
-                newMemory->set(variableManager.thisId, thisObj);
+                //thisObj->isDestroyable = false;
+                newMemory->unsafeSet(variableManager.thisId, thisObj, nullptr);
                 newMemory->setFinal(variableManager.thisId);
                 bool* call_returnSignal = new bool(false);
                 BuiltinArgs* call_args = new BuiltinArgs();
@@ -596,25 +533,31 @@ Data* executeBlock(const Code* code,
                 }
                 delete call_args;
                 delete call_returnSignal;
+                if(value!=thisObj && newMemory->release(value))
+                    //delete newMemory;
+                    delete thisObj;
+                else
+                    newMemory->detach();
+                /*
                 if(value) {
                     // free up the memory only if we returned neither this nor some code defined within that memory (we don't need to check for the memory's parents recursively, as we then detach the memory)
                     if(value==thisObj) {
-                        //value = value;//->shallowCopy(); // creates a global struct (because *this* is final, but we don't need the returned object to be set as a final value)
                     }
                     else if(value->getType()!=CODE) {
                         value = value->shallowCopyIfNeeded();
-                        newMemory->release(); // release only after the copy, as the release will delete the original value stored internally
-                        delete thisObj;
+                        newMemory->release(value); // release only after the copy, as the release will delete the original value stored internally
+                        //delete thisObj;
                     }
                     else if(!((Code*)value)->getDeclarationMemory()->isOrDerivedFrom(newMemory)) {
                         value = value->shallowCopyIfNeeded();
                     }
                 }
                 else {
-                    newMemory->release();
+                    newMemory->release(value);
                 }
                 newMemory->detach();
                 toReplace = memory->getOrNullShallow(command->args[0]);
+                */
             }
             break;
             case BUILTIN:
@@ -668,7 +611,6 @@ Data* executeBlock(const Code* code,
             case END: 
                 // does not create a return signal
                 if(returnSignalHandler){
-                    memory->release();
                     delete returnSignal;
                     delete args;
                 }
@@ -681,6 +623,7 @@ Data* executeBlock(const Code* code,
             case TOLIST://if(command->nargs==1)
             {
                 BList* list = new BList();
+                list->contents->contents.reserve(command->nargs-1);
                 for(int i=1;i<command->nargs;i++)
                     list->contents->contents.push_back(MEMGET(memory, i)->shallowCopyIfNeeded());
                 value = list;
@@ -694,7 +637,6 @@ Data* executeBlock(const Code* code,
                 break;
             }
             default:
-                FILL_REPLACEMENT;
                 cmdSize = command->nargs;
                 args->size = cmdSize-1;
                 if(cmdSize>1) {
@@ -709,6 +651,7 @@ Data* executeBlock(const Code* code,
                     args->arg2 = MEMGET(memory, 3);
                     bbassert(args->arg2, "Missing value: "+variableManager.getSymbol(command->args[3]));
                 }
+                FILL_REPLACEMENT;
                 // locals are never final
                 if((!command->knownLocal[0] && memory->isFinal(command->args[0])) || (toReplace && !toReplace->isDestroyable))
                     args->preallocResult = nullptr;
@@ -718,25 +661,24 @@ Data* executeBlock(const Code* code,
             break;
         }
         memory->unsafeSet(command->args[0], value, toReplace);
+        //std::cout << command->toString()<< " \t OBJECTS "<<Data::countObjects()<<"\n";
         }
-        catch(const BBError& e) {
-            std::string comm = command->toString();
-            comm.resize(40, ' ');
-            throw BBError(e.what()+("\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
-        }
-    }
     }
     catch(const BBError& e) {
+        Command* command = program->at(i);
+        std::string comm = command->toString();
+        comm.resize(40, ' ');
         if(returnSignalHandler) {
-            //memory->release();
+            memory->release();
+            delete memory;
             delete returnSignal;
             delete args;
         }
-        throw e;
+        throw BBError(e.what()+("\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
     }
     if(returnSignalHandler) {
-        if(value && value->getType()==CODE && ((Code*)value)->getDeclarationMemory()->isOrDerivedFrom(memory_))
-            memory->release();
+        if(memory->release(value))
+            delete memory;
         delete returnSignal;
         delete args;
     }
@@ -752,7 +694,8 @@ int vm(const std::string& fileName, int numThreads) {
      * @return 0 if execution completed successfully
     */
    
-   Future::setMaxThreads(numThreads);
+    Future::setMaxThreads(numThreads);
+    // std::cout << "Setting number of threads "<<numThreads<<"\n";
    
     try {
         {
@@ -780,12 +723,9 @@ int vm(const std::string& fileName, int numThreads) {
             }
             inputFile.close();
 
-            std::shared_ptr<BMemory> memory = std::make_shared<BMemory>(nullptr, DEFAULT_LOCAL_EXPECTATION);
+            BMemory* memory = new BMemory(nullptr, DEFAULT_LOCAL_EXPECTATION);
             Code code(&program, 0, program.size()-1, memory);
-            executeBlock(&code, memory, nullptr, nullptr);
-            //memory->release();
-            //if(memory.use_count()>1)
-            //    std::cout << memory.use_count() << " remaining references to main memory\n";
+            executeBlock(&code, memory, nullptr, nullptr); // releases and deletes
         }
         BMemory::verify_noleaks();
     }

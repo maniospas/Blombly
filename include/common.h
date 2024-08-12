@@ -69,7 +69,7 @@ class VariableManager;
 class Code;
 extern VariableManager variableManager;
 Data* executeBlock(const Code* code,
-                  const std::shared_ptr<BMemory>& memory, 
+                  BMemory* memory, 
                   bool *returnSignal,
                   BuiltinArgs* allocatedBuiltins
                   );

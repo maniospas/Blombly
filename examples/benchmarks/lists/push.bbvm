@@ -1,0 +1,47 @@
+list x
+time tic
+BUILTIN i I0
+BUILTIN _bb4 I1000000
+lt _bb3 i _bb4
+BEGINFINAL _bb5
+BUILTIN _bb7 I1
+add i i _bb7
+push # x i
+BUILTIN _bb4 I1000000
+lt _bb3 i _bb4
+END
+while # _bb3 _bb5
+time _bb9
+sub _bb8 _bb9 tic
+print # _bb8
+time tic
+BUILTIN s I0
+BUILTIN i I0
+BUILTIN _bb14 I1000000
+lt _bb13 i _bb14
+BEGINFINAL _bb15
+at _bb17 x i
+add s s _bb17
+BUILTIN _bb19 I1
+add i i _bb19
+BUILTIN _bb14 I1000000
+lt _bb13 i _bb14
+END
+while # _bb13 _bb15
+time _bb21
+sub _bb20 _bb21 tic
+print # _bb20
+time tic
+iter it x
+BUILTIN s I0
+next _bb26 it
+AS _bb25 xi _bb26
+BEGINFINAL _bb27
+add s s xi
+next _bb26 it
+AS _bb25 xi _bb26
+END
+while # _bb25 _bb27
+time _bb30
+sub _bb29 _bb30 tic
+print # _bb29
