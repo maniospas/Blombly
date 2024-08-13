@@ -1,14 +1,7 @@
-#include "std/oop"
+#include "std/loop"
 
-fn badd(x, y) {
-    default bias = 0;
-    return x+y+bias;
+x = "abc";
+for(a in x) {
+    for(b in x)
+        print(a, b);
 }
-fn test(x, y) {
-    push(args,x);
-    push(args,y);
-    badd:
-    return value;
-}
-
-print(test(1,2|bias=2));

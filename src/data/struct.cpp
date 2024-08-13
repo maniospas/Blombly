@@ -30,15 +30,13 @@ Data* Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
     std::string operation = getOperationTypeName(operation_);
     BMemory* memory = this->getMemory();
     Data* implementation = memory->getOrNull(variableManager.getId("\\"+operation), true);
-    if (!implementation)
+    if (!implementation || args_->arg0!=memory->getOrNullShallow(variableManager.thisId))
         throw Unimplemented();
     BList* args = new BList();
     args->contents->contents.reserve(args_->size - 1);
     if (args_->size)
-        args->contents->contents.push_back(args_->arg0->shallowCopy());
-    if (args_->size > 1)
         args->contents->contents.push_back(args_->arg1->shallowCopy());
-    if (args_->size > 2)
+    if (args_->size > 1)
         args->contents->contents.push_back(args_->arg2->shallowCopy());
     if (implementation->getType() == CODE) {
         Code* code = (Code*)implementation;

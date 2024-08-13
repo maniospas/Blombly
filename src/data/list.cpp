@@ -194,7 +194,8 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
         }
         Data* ret = contents->contents[index];
         if(ret) {
-            auto type = ret->getType();
+            //TODO: check if the following speedup is correct
+            /*auto type = ret->getType();
             Data* res = args->preallocResult;
             if(res && res->getType()==type) {
                 if(type==INT) {
@@ -214,7 +215,7 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
                     ret = res;
                 }
             }
-            else 
+            else */
                 ret = ret->shallowCopy();
         }
         contents->unlock();

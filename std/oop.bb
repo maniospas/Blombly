@@ -1,7 +1,7 @@
 #macro (class @name {@code}) = (
     final @name = {
-        #spec type="class";
-        #spec name=#stringify(@name); 
+        //#spec type="class";
+        //#spec name=#stringify(@name); 
         @code
     }
 );

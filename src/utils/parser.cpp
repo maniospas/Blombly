@@ -32,7 +32,7 @@ const std::string ANON = "_bb";
 class Parser {
 private:
     std::vector<Token> tokens;
-    int tmp_var;
+    static int tmp_var;
     std::string ret;
     std::string code_block_prepend;
     int find_end(int start, int end, const std::string& end_string, 
@@ -85,8 +85,8 @@ public:
     const std::string& get() const {
         return ret;
     }
-    Parser(const std::vector<Token>& tokens) : tokens(tokens), tmp_var(0) {}
-    std::string create_temp() {
+    Parser(const std::vector<Token>& tokens) : tokens(tokens) {}
+    static std::string create_temp() {
         std::string ret = "_bb" + std::to_string(tmp_var);
         tmp_var += 1;
         return ret;
@@ -671,8 +671,9 @@ public:
                                       std::to_string(tokens[start].line)));
         }*/
     }
-
 };
+
+int Parser::tmp_var = 0;
 
 void sanitize(std::vector<Token>& tokens) {
     std::vector<Token> updatedTokens;
@@ -974,8 +975,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             previousImports.insert(source);
 
             tokens.erase(tokens.begin() + i, tokens.begin() + i + 3);
-            tokens.insert(tokens.begin() + i, newTokens.begin(), 
-                          newTokens.end());
+            tokens.insert(tokens.begin() + i, newTokens.begin(), newTokens.end());
             i -= 1;
         } else if (tokens[i].name == "#" && i < tokens.size() - 4 && 
                    tokens[i + 1].name == "macro") {
@@ -1069,6 +1069,14 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     }
 
                     if (match) {
+                        j = 0;
+                        while (j < macro->to.size()) {
+                            if (macro->to[j].name[0] == '@' && replacement.find(macro->to[j].name)==replacement.end())
+                                replacement[macro->to[j].name].emplace_back(Parser::create_temp(), macro->to[j].file, macro->to[j].line);
+                            j++;
+                        }
+
+
                         std::vector<Token> newTokens;
                         for (const auto& token : macro->to) {
                             if (token.name[0] == '@') {

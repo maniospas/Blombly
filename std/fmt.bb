@@ -1,4 +1,4 @@
-#macro (print fmt (@code);) = (print(fmt(@code)););
+#macro (printfm (@code);) = (print(fmt(@code)););
 
 final fmt = {
     formatted = "";

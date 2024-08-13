@@ -1,19 +1,24 @@
 #include "std/oop"
 
 class Dict {
-    final keys = map();
+    final keys = list();
     final values = map();
+    final test = "hello";
 
-    fn \put(this, k, v) {
-        keys[k] = k;
+    fn \put(k, v) {
+        push(keys, k);
         values[k] = v;
         return this;
     }
-    fn \at(this, k) {
+    fn \at(k) {
         return values[k];
     }
-    fn \len(this) {
-        return len(this.keys);
+    fn \len() {
+        return len(keys);
+    }
+
+    fn \iter() {
+        return iter(keys);
     }
 }
 

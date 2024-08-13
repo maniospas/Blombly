@@ -273,7 +273,9 @@ Data* executeBlock(const Code* code,
                 FILL_REPLACEMENT;
                 if(value->getType()==CODE) {
                     Code* obj = (Code*)value;
-                    value = obj->getMetadata(command->args[2])->shallowCopyIfNeeded();
+                    value = obj->getMetadata(command->args[2]);
+                    if(value)
+                        value = value->shallowCopyIfNeeded();
                 }
                 else {
                     Struct* obj = (Struct*)value;
@@ -654,15 +656,15 @@ Data* executeBlock(const Code* code,
                 args->size = cmdSize-1;
                 if(cmdSize>1) {
                     args->arg0 = MEMGET(memory, 1);
-                    //bbassert(args->arg0, "Missing value: "+variableManager.getSymbol(command->args[1]));
+                    bbassert(args->arg0, "Missing value: "+variableManager.getSymbol(command->args[1]));
                 }
                 if(cmdSize>2) {
                     args->arg1 = MEMGET(memory, 2);
-                    //bbassert(args->arg1, "Missing value: "+variableManager.getSymbol(command->args[2]));
+                    bbassert(args->arg1, "Missing value: "+variableManager.getSymbol(command->args[2]));
                 }
                 if(cmdSize>3) {
                     args->arg2 = MEMGET(memory, 3);
-                    //bbassert(args->arg2, "Missing value: "+variableManager.getSymbol(command->args[3]));
+                    bbassert(args->arg2, "Missing value: "+variableManager.getSymbol(command->args[3]));
                 }
                 FILL_REPLACEMENT;
                 // locals are never final

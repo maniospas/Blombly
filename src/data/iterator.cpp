@@ -14,7 +14,7 @@ IteratorContents::IteratorContents(Data* object_):object(object_) {
     BuiltinArgs* args = new BuiltinArgs();
     args->arg0 = object;
     args->size = 1;
-    pos = new Integer(0);
+    pos = new Integer(-1);
     size = ((Integer*)object->implement(LEN, args))->getValue();
     delete args;
     locked = -1; // start from -1 so that first object getting this goes to 0
@@ -86,6 +86,7 @@ Data* Iterator::shallowCopy() const {
 Data* Iterator::implement(const OperationType operation, BuiltinArgs* args) {
     if(args->size==1 && operation==NEXT) {
         contents->lock();
+        contents->pos->value += 1; // can get away with not passing a new integer to Data::run because overloaded operators are run in the same thread
         int pos = contents->pos->value;
         if(pos>=contents->size) {
             contents->unlock();
@@ -98,12 +99,6 @@ Data* Iterator::implement(const OperationType operation, BuiltinArgs* args) {
         contents->unlock();
 
         Data* ret = contents->object->implement(AT, args);//Data::run(AT, args); // run outside locks to prevent deadlocks
-
-        contents->lock();
-        bool shouldUnlock = contents->locked;
-        contents->pos->value += 1; // can get away with not passing a new integer to Data::run because overloaded operators are run in the same thread
-        if(shouldUnlock)
-            contents->unsafeUnlock();
         return ret;
     }
     if(args->size==1 && operation==LEN)

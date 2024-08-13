@@ -27,7 +27,6 @@ public:
     virtual Data* shallowCopy() const = 0;
     virtual bool isTrue() const {return false;}
 
-
     virtual bool couldBeShallowCopy(Data* data) {
         return false;
     }
@@ -45,7 +44,6 @@ public:
     virtual size_t toHash() const {
         return std::hash<std::string>{}(toString()); 
     }
-    
     static int countObjects();
 };
 

@@ -50,9 +50,9 @@ void BMemory::release() {
     std::string destroyerr;
     // automatically performed in the delete of locals/data
     for(const auto& element : data) {
-        if(!element.second)
-            continue;
         Data* dat = element.second;
+        if(!dat)
+            continue;
         if(dat->getType()==ERRORTYPE && !((BError*)dat)->isConsumed()){
             if(!err.size())
                 err += "Intercepted error not handled."

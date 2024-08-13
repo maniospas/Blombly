@@ -1,39 +1,19 @@
-BEGIN _bb0
-next x args
-next y args
-BEGIN _bb2
-BUILTIN bias I0
+BUILTIN x "abc"
+iter _bb0 x
+next a _bb0
+exists _bb5 a
+BEGIN _bb6
+iter _bb1 x
+next b _bb1
+exists _bb9 b
+BEGIN _bb10
+list _bb11 a b
+print # _bb11
+next b _bb1
+exists _bb9 b
 END
-default _bbresult0 _bb2
-add _bb5 x y
-add _bb4 _bb5 bias
-return _bbresult1 _bb4
+while # _bb9 _bb10
+next a _bb0
+exists _bb5 a
 END
-IS badd _bb0
-final # badd
-BUILTIN _bb6 "badd"
-setfinal # badd name _bb6
-BUILTIN _bb7 "fn"
-setfinal # badd type _bb7
-BEGIN _bb8
-next x args
-next y args
-push # args x
-push # args y
-inline _bb9 badd
-return _bbresult2 value
-END
-IS test _bb8
-final # test
-BUILTIN _bb10 "test"
-setfinal # test name _bb10
-BUILTIN _bb11 "fn"
-setfinal # test type _bb11
-BEGIN _bb13
-BUILTIN _bb14 I1
-BUILTIN _bb15 I2
-list args _bb14 _bb15
-BUILTIN bias I2
-END
-call _bb12 _bb13 test
-print # _bb12
+while # _bb5 _bb6
