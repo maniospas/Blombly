@@ -48,14 +48,14 @@ print("Result", fib(n=21));
 print("Time", time()-tic);</code></pre>
 
 <p>One particular wrinkle to iron out in our understanding is what it means
-to return a code block that is later used as a method. This patter also
-arises when returning from code blocks called as methods with the result being 
+to return a code block that is later used as a method. This is the same behavior
+as returning from code blocks called as methods with the result being 
 another block. To maintain memory safety, all returned blocks are detached
 from their declaring scope. While being scopeless, they can only be inlined.
 However, they can also get re-attached to a new scope by either setting them
 as struct fields (in which case they are attached to the struct)
 or creating new blocks that inline them. An example of the last pattern
-
+is presented below:
 </p>
 
 <pre><code class="language-java">final method = new {
@@ -78,9 +78,10 @@ obj.method();
 method();  // CREATES AN ERROR
 </code></pre>
 
-<p>The outcome of running the above code is presented below. BlomblyVM runs the
-first two calls in parallel, which print internally in an unspecified order
-given that there is no sycnhronization mechanism. Then, the final block call
+<p>Let's run the code. BlomblyVM executes the
+first two calls in parallel, and their internal prints are performed 
+in unspecified order given that there is no sycnhronization mechanism. 
+hen, the final block call
 fails to execute due to having being detached from a memory context. An
 ambridged version of this section describes prospective options.</p>
 

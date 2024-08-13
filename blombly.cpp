@@ -225,8 +225,8 @@ Data* executeBlock(const Code* code,
                 BMemory* codeMemory = code->getDeclarationMemory();
                 bbassert(codeMemory,
                             "Memoryless code block cannot be called."
-                            "\n   \033[33m!!!\033[0m Returned code blocks are not attached to any"
-                            "\n       memory context to use its finals. Consider these options:"
+                            "\n   \033[33m!!!\033[0m Returned code blocks are not attached to any memory context"
+                            "\n       to use its final variables. Consider these options:"
                             "\n       - Set `\\call=block;` to make the struct callable."
                             "\n       - Set the block as an object field and call that. It can"
                             "\n         also be set as a field of another object."
@@ -733,86 +733,111 @@ int vm(const std::string& fileName, int numThreads) {
     }
     catch(const BBError& e) {
         std::cout << e.what() << "\n";
+        std::cout << "\n\033[0mDocs and bug reports: \033[34mhttps://maniospas.github.io/Blombly\x1B[0m\n";
         return 1;
     }
     return 0;
 }
 
-
 int main(int argc, char* argv[]) {
     Terminal::enableVirtualTerminalProcessing();
     initializeOperationMapping();
-    // parse file to run
-    std::string fileName = "main.bb";
-    bool cexecute = false;
-    int threads = std::thread::hardware_concurrency();
-    if(threads==0)
-        threads = 4;
-    if (argc > 1) 
-        fileName = argv[1];
-    if (argc > 2)  
-        threads = atoi(argv[2]);
 
-    // if the file has a blombly source code format (.bb) compile 
-    // it into an assembly file (.bbvm)
-    if(fileName.substr(fileName.size()-3, 3)==".bb") {
-        try {
-            compile(fileName, fileName+"vm");
-            std::cout << " \033[0m(\x1B[32m OK \033[0m) Compilation\n";
+    std::string fileName = "main.bb";
+    int threads = std::thread::hardware_concurrency();
+    int default_threads = threads;
+    bool cexecute = false;
+
+    if (threads == 0)
+        threads = 4;
+
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if ((arg == "--threads" || arg == "-threads") && i + 1 < argc) {
+            threads = atoi(argv[++i]);
+        } else if (arg == "-version" || arg == "--version" || arg == "-v") {
+            std::cout << "\n\033[0mVersion: \033[33mblombly 0.2.1\n\x1B[0mCopyright (c): \x1B[32m 2024 Emmanouil Krasanakis\n\x1B[0mDocs and bug reports: \x1B[34mhttps://maniospas.github.io/Blombly\x1B[0m\n\n";
+            return 0;
+        } else if (arg == "-help" || arg == "--help" || arg == "-h") {
+            std::cout << "\033[0mUsage:\n  \033[33m.\\blombly\033[90m [options] \033[0m[file]\n";
+            std::cout << "\033[0mOptions:\n";
+            std::cout << "\033[90m  If no file is provided, main.bb will be compiled and run.\n";
+            std::cout << "\033[90m  --version, -v       Show version information.\n";
+            std::cout << "\033[90m  --help, -h          Show this help message.\n";
+            std::cout << "\033[90m  --threads <num>     Set max threads. Default for this machine: "<<default_threads<<"\n";
+            return 0;
+        } 
+        else {
+            fileName = arg;
         }
-        catch(const BBError& e) {
-            std::cout << e.what() << "\n";
-            //std::cout << " \033[0m(\x1B[31m FAIL \033[0m) Compilation\n";
-            return 1;
-        }
-        try {
-            optimize(fileName+"vm", fileName+"vm");
-            std::cout << " \033[0m(\x1B[32m OK \033[0m) Optimization\n";
-        }
-        catch(const BBError& e) {
-            std::cout << e.what() << "\n";
-            //std::cout << " \033[0m(\x1B[31m FAIL \033[0m) Optimization\n";
-            return 1;
-        }
-        fileName = fileName+"vm";
     }
-    
-    if(cexecute) {
-	   std::string cfilename = fileName.substr(0, fileName.size()-4)+"c";
+
+    std::ifstream inputFile(fileName);
+    if (!inputFile.is_open()) {
+        std::cout << "\033[0m(\x1B[31m ERROR \033[0m) File not found: "<<fileName<<"\n   \033[33m!!!\033[0m Run blombly --help for more information.\n";
+        std::cout << "\n\033[0mDocs and bug reports: \033[34mhttps://maniospas.github.io/Blombly\x1B[0m\n";
+        return 1;
+    }
+    else
+        inputFile.close();
+
+    if (fileName.substr(fileName.size() - 3, 3) == ".bb") {
+        try {
+            compile(fileName, fileName + "vm");
+            //std::cout << " \033[0m(\x1B[32m OK \033[0m) Compilation\n";
+        }
+        catch (const BBError& e) {
+            std::cout << e.what() << "\n";
+            std::cout << "\n\033[0mDocs and bug reports: \033[34mhttps://maniospas.github.io/Blombly\x1B[0m\n";
+            return 1;
+        }
+        try {
+            optimize(fileName + "vm", fileName + "vm");
+            //std::cout << " \033[0m(\x1B[32m OK \033[0m) Optimization\n";
+        }
+        catch (const BBError& e) {
+            std::cout << e.what() << "\n";
+            std::cout << "\n\033[0mDocs and bug reports: \033[34mhttps://maniospas.github.io/Blombly\x1B[0m\n";
+            return 1;
+        }
+        fileName = fileName + "vm";
+    }
+
+    if (cexecute) {
+        std::string cfilename = fileName.substr(0, fileName.size() - 4) + "c";
         try {
             transpile(fileName, cfilename);
-            std::cout << " \033[0m(\x1B[32m OK \033[0m) Transpilation (to .c)\n";
+            //std::cout << " \033[0m(\x1B[32m OK \033[0m) Transpilation (to .c)\n";
         }
-        catch(const BBError& e) {
+        catch (const BBError& e) {
             std::cout << e.what() << " in " << fileName << "\n";
             return 1;
         }
-        std::string execfilename = fileName.substr(0, fileName.size()-5);
-   	   int ret = system(("gcc -o "+execfilename+" "+cfilename).c_str());
-   	   if(ret!=0)
-   	  	return ret;
-        if(threads!=0) {
-        	  return system(execfilename.c_str());
+        std::string execfilename = fileName.substr(0, fileName.size() - 5);
+        int ret = system(("gcc -o " + execfilename + " " + cfilename).c_str());
+        if (ret != 0)
+            return ret;
+        if (threads != 0) {
+            return system(execfilename.c_str());
         }
         return 0;
     }
 
-    // if no threads, keep the compiled file only
-    if(threads==0)
+    if (threads == 0)
         return 0;
 
-    // initialize mutexes
     if (pthread_mutex_init(&printLock, NULL) != 0) {
-        printf("\nPrint mutex init failed\n"); 
-        return 1; 
+        printf("\nPrint mutex initialization failed.\n");
+        std::cout << "\n\033[0mDocs and bug reports: \033[34mhttps://maniospas.github.io/Blombly\x1B[0m\n";
+        return 1;
     }
 
-    // initialize mutexes
     if (pthread_mutex_init(&compileLock, NULL) != 0) {
-        printf("\nPrint mutex init failed\n"); 
-        return 1; 
+        printf("\nPrint mutex initialization failed.\n");
+        std::cout << "\n\033[0mDocs and bug reports: \033[34mhttps://maniospas.github.io/Blombly\x1B[0m\n";
+        return 1;
     }
+
     program_start = std::chrono::steady_clock::now();
-    // run the assembly file in the virtual machine
     return vm(fileName, threads);
 }

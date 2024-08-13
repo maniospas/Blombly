@@ -113,7 +113,7 @@ Result is 1.500000
 <p>Variables can be made immutable by prepending the <code>final</code> keyword
 to their assignment. This prevents any other code from overwriting their value.
 With this safety measure in place, final variables are also exposed
-exposed outside the current scope, for example in dependent code blocks calls later. 
+outside the current scope, for example in dependent code blocks calls later. 
 Here is an example where there is an attempt to overwrite a final variable but fails.</p>
 
 <pre><code class="language-java">final x = 0;
@@ -130,18 +130,19 @@ message:</p>
 </pre>
 
 <p>Some operations, such as an iterator's next element and valueless return statements, 
-may enerate missing values. Think of those as similar to null pointers, but with a
+may generate missing values. Think of those as similar to null pointers, but with a
 stark difference: when assigned to variables, they completely remove the latter from the 
 scope. Missing values are different than error mechanisms in that they represent
-failures that are expected or even desireable.</p>
+failures that are expected or even desireable. However, trying to use them in normal
+computations will create an error. Their only intended usage is described below.</p>
 
 <p>
-Importantly, missing values cannot be transferred, as this creates a missing
+Importantly, missing values cannot be transferred, as this would create a missing
 variable error. Thus, they cannot
 silently infest the code during execution. They can also be handled with the <code>as</code>
-assignment demonstrated below, which yields a boolean value indicating the absense 
-of missing values. An <code>as</code>-based assignment can only set scope variables, and not, say
-struct fields or list elements.
+assignment demonstrated below; this yields a boolean value indicating the absense 
+of missing values in the result. An <code>as</code>-based assignment can only set scope 
+variables, and not, say struct fields or list elements.
 </p>
 
 <pre><code class="language-java">l = list();
@@ -220,8 +221,7 @@ a computationally efficient data structure with potentially many elements
 to a non-efficient one.</p>
 
 <i>main.bb</i>
-<pre><code class="language-java">
-x = vector(5);  // zeros
+<pre><code class="language-java">x = vector(5);  // zeros
 x[2] = 1;
 y = vector(1, 2, 3, 4, 5);
 print(x+y-1);</code></pre>

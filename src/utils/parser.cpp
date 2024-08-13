@@ -1158,7 +1158,7 @@ void compile(const std::string& source, const std::string& destination) {
     sanitize(tokens);
 
     macros(tokens, source);
-    std::cout << " \033[0m(\x1B[32m OK \033[0m) Preprocessing\n";
+    //std::cout << " \033[0m(\x1B[32m OK \033[0m) Preprocessing\n";
     Parser parser(tokens);
     parser.parse(0, tokens.size() - 1);
     std::string compiled = parser.get();
