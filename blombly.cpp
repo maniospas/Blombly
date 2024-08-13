@@ -486,31 +486,40 @@ Data* executeBlock(const Code* code,
             break;
             case DEFAULT:{
                 value = MEMGET(memory, 1);
-                if(value->getType()==STRUCT) 
-                    memory->replaceMissing(((Struct*)value)->getMemory());
-                else if(value->getType()!=CODE) {
-                    bberror("Can only inline a non-called code block or struct");
-                    value = nullptr;
+                bbassert(value->getType()==CODE, "Can only call `default` on a code block");
+                Code* code = (Code*)value;
+                BMemory* newMemory = new BMemory(memory, LOCAL_EXPACTATION_FROM_CODE(code));
+                bool* call_returnSignal = new bool(false);
+                BuiltinArgs* call_args = new BuiltinArgs();
+                try {
+                    value = executeBlock(code, newMemory, call_returnSignal, call_args);
                 }
-                else {
-                    //newMemory->set("locals", std::make_shared<Struct>(newMemory));
-                    Code* code = (Code*)value;
-                    BMemory*  newMemory =  new BMemory(memory, LOCAL_EXPACTATION_FROM_CODE(code));
-                    value = executeBlock(code, newMemory, returnSignal, args);
-                    memory->replaceMissing(newMemory);
-                    if(*returnSignal){
-                        if(returnSignalHandler){
-                            delete args;
-                        }
-                        return value;
-                    }
+                catch(BBError e) {
+                    delete call_args;
+                    delete call_returnSignal;
+                    delete call_returnSignal;
+                    newMemory->release();  // TODO: convert all releases within catch bkicjs
+                    throw e;
                 }
-                toReplace = memory->getOrNullShallow(command->args[0]);
+                if(*call_returnSignal) {
+                    delete newMemory;
+                    delete call_args;
+                    delete call_returnSignal;
+                    newMemory->release();  // TODO: convert all releases before errors to have a string argument and create a string outcome
+                    bberror("Cannot return directly from within a default statement");
+                }
+                delete call_args;
+                delete call_returnSignal;
+
+                memory->replaceMissing(newMemory);
+
+                newMemory->release();
+                delete newMemory;
             }
             break;
             case NEW:{
                 value = MEMGET(memory, 1);
-                bbassert(value->getType()==CODE, "Can only inline a non-called code block");
+                bbassert(value->getType()==CODE, "Can only call `new` on a code block");
                 Code* code = (Code*)value;
                 BMemory* newMemory = new BMemory(memory, LOCAL_EXPACTATION_FROM_CODE(code));
                 Struct* thisObj = new GlobalStruct(newMemory);
@@ -523,6 +532,8 @@ Data* executeBlock(const Code* code,
                     value = executeBlock(code, newMemory, call_returnSignal, call_args);
                 }
                 catch(BBError e) {
+                    newMemory->release();
+                    delete newMemory;
                     delete call_args;
                     delete call_returnSignal;
                     throw e;
@@ -643,15 +654,15 @@ Data* executeBlock(const Code* code,
                 args->size = cmdSize-1;
                 if(cmdSize>1) {
                     args->arg0 = MEMGET(memory, 1);
-                    bbassert(args->arg0, "Missing value: "+variableManager.getSymbol(command->args[1]));
+                    //bbassert(args->arg0, "Missing value: "+variableManager.getSymbol(command->args[1]));
                 }
                 if(cmdSize>2) {
                     args->arg1 = MEMGET(memory, 2);
-                    bbassert(args->arg1, "Missing value: "+variableManager.getSymbol(command->args[2]));
+                    //bbassert(args->arg1, "Missing value: "+variableManager.getSymbol(command->args[2]));
                 }
                 if(cmdSize>3) {
                     args->arg2 = MEMGET(memory, 3);
-                    bbassert(args->arg2, "Missing value: "+variableManager.getSymbol(command->args[3]));
+                    //bbassert(args->arg2, "Missing value: "+variableManager.getSymbol(command->args[3]));
                 }
                 FILL_REPLACEMENT;
                 // locals are never final

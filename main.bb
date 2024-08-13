@@ -1,20 +1,14 @@
-final method = new {
-    final message = "Declared in a first scope";
-    final printer = {
-        print(message);
-    }
-    return printer;
+#include "std/oop"
+
+fn badd(x, y) {
+    default bias = 0;
+    return x+y+bias;
 }
-final obj = new {
-    final message = "Declared in an object";
+fn test(x, y) {
+    push(args,x);
+    push(args,y);
+    badd:
+    return value;
 }
 
-print(obj);
-
-final message = "Declared in external scope";
-rebased_method = {method:}
-obj.method = method;
-
-rebased_method();
-obj.method();
-method();  // CREATES AN ERROR
+print(test(1,2|bias=2));

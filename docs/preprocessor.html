@@ -113,10 +113,11 @@ both the expression and transformation parts consist of fixed "keyword" tokens a
 Wildcards represent any sequence of tokens and matched between the expression and the transformation. To support
 faster compilation and improve comprehension, the first token of the expression needs to be a keyword (for example, <code>@name fn @args</code>
 is not a valid expression, but <code>fn @name (@args)</code> is valid).
-Three example follow:</p>
+Three example follow, which are simplified versions of the <code>std/oop</code> module:</p>
 
 <i>std/oop.bb</i>
-<pre><code class="language-java">#macro (class @name {@code}) = (final @name = {@code});
+<pre><code class="language-java">// this is a simplified version of the actual module
+#macro (class @name {@code}) = (final @name = {@code});
 #macro (fn @name(@args){@code}) = (final @name(@args) = {@code});
 #macro (module @name {@code}) = (final @name = new {@code});</code></pre>
 
@@ -132,7 +133,7 @@ The <code>Finder</code> class contains methods to check if a number is prime and
 and the <code>next</code> function is called twice to find the next prime numbers.</p>
 
 <i>main.bb</i>
-<pre><code class="language-java">#include "oop"
+<pre><code class="language-java">#include "std/oop"  // include the file declaring the macros
 
 class Finder { 
     fn contains(number) {

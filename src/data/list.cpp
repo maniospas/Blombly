@@ -109,7 +109,7 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
                 if(hasElements)
                     contents->contents.erase(contents->contents.begin());
                 contents->unlock();
-                return ret; // do not create shallow copy as the value does not remain in the list
+                return ret; // do not create shallow copy, because the value does not remain in the list's contents (it will be destroyed at the returned context)
             }
             case POP: {
                 contents->lock();

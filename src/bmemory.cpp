@@ -216,8 +216,8 @@ Data* BMemory::get(int item) {
 
 
 bool BMemory::contains(int item) const {
-    if(fastLastAccessId==item)
-        return fastLastAccess!=nullptr;
+    //if(fastLastAccessId==item)
+    //    return fastLastAccess!=nullptr;
     auto it = data.find(item);
     if(it==data.end())
         return false;
@@ -234,9 +234,9 @@ bool BMemory::isFinal(int item) const {
 
 // Get a data item, optionally allowing mutable values
 Data* BMemory::get(int item, bool allowMutable) {
-    if(fastLastAccessId==item && fastLastAccess->getType() != FUTURE) {
+    /*if(fastLastAccessId==item && fastLastAccess->getType() != FUTURE) {
         return fastLastAccess;
-    }
+    }*/
     Data* ret = data[item];
 
     // Handle future values
@@ -270,9 +270,9 @@ Data* BMemory::get(int item, bool allowMutable) {
 }
 
 Data* BMemory::getOrNullShallow(int item) {
-    if(fastLastAccessId==item && fastLastAccess->getType() != FUTURE) {
+    /*if(fastLastAccessId==item && fastLastAccess->getType() != FUTURE) {
         return fastLastAccess;
-    }
+    }*/
     auto it = data.find(item);
     if(it==data.end())
         return nullptr;
@@ -291,9 +291,9 @@ Data* BMemory::getOrNullShallow(int item) {
 
 // Get a data item or return nullptr if not found
 Data* BMemory::getOrNull(int item, bool allowMutable) {
-    if(fastLastAccessId==item && fastLastAccess->getType() != FUTURE) {
+    /*if(fastLastAccessId==item && fastLastAccess->getType() != FUTURE) {
         return fastLastAccess;
-    }
+    }*/
     Data* ret = data[item];
 
     // Handle future values
@@ -344,8 +344,8 @@ void BMemory::removeWithoutDelete(int item) {
 
 
 void BMemory::unsafeSet(int item, Data*value, Data* prev) {
-    fastLastAccessId = item;
-    fastLastAccess = value;
+    //fastLastAccessId = item;
+    //fastLastAccess = value;
     if(prev==value)
         return;
     if (prev) {
@@ -370,11 +370,12 @@ void BMemory::pull(BMemory* other) {
 
 // Replace missing values with those from another Memory object
 void BMemory::replaceMissing(BMemory* other) {
-    for (auto& it : other->data) 
-        if (data.find(it.first)==data.end()) {
-            int item = it.first;
-            unsafeSet(item, other->get(item)->shallowCopyIfNeeded(), getOrNullShallow(item));
-        }
+    for (auto& it : other->data) {
+        int item = it.first;
+        Data* existing = getOrNullShallow(item);
+        if (existing==nullptr) 
+            unsafeSet(item, other->get(item)->shallowCopyIfNeeded(), existing);
+    }
 }
 
 // Detach this memory from its parent

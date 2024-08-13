@@ -728,15 +728,16 @@ void sanitize(std::vector<Token>& tokens) {
             continue;
         }
         if (tokens[i].name == "#" && ((i >= tokens.size() - 1) || 
-            (tokens[i + 1].name != "include" && tokens[i + 1].name != "macro" 
+            (tokens[i + 1].name != "include" && tokens[i + 1].name != "macro" && tokens[i + 1].name != "stringify"
              && tokens[i + 1].name != "spec" && tokens[i + 1].name != "gcc"))) {
             bberror("Invalid preprocessor instruction after `#` symbol."
                     "\n   \033[33m!!!\033[0m This symbol signifies preprocessor directives."
                     "\n       Valid directives are the following patterns:"
-                    "\n       - `#include @str;`"
-                    "\n       - `#spec @property=@value;`"
-                    "\n       - `#macro (@expression)=(@implementation);`"
-                    "\n       - `#gcc @code;`\n"
+                    "\n       - `#include @str;` inlines a file."
+                    "\n       - `#spec @property=@value;` declares a code block specification."
+                    "\n       - `#macro (@expression)=(@implementation);` defines a macro."
+                    "\n       - `#stringify (@tokens)` converts the tokens into a string at compile time."
+                    "\n       - `#gcc @code;` is reserved for future use.\n"
                     + tokens[i].toString());
         }
         updatedTokens.push_back(tokens[i]);
@@ -892,11 +893,11 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             bbassert(depth == 0, "Imbalanced parantheses or brackets.\n" + tokens[i].toString());
 
             std::vector<Token> newTokens;
-            newTokens.emplace_back(Token("final", tokens[i].file, tokens[i].line, false));
+            newTokens.emplace_back("final", tokens[i].file, tokens[i].line, false);
             if (specNameEnd == MISSING) {
-            } else {
-                newTokens.insert(newTokens.end(), tokens.begin() + specNameStart, 
-                                 tokens.begin() + specNameEnd + 1);
+            } 
+            else {
+                newTokens.insert(newTokens.end(), tokens.begin() + specNameStart, tokens.begin() + specNameEnd + 1);
                 newTokens.emplace_back(".", tokens[i].file, tokens[i].line, false);
             }
             newTokens.insert(newTokens.end(), tokens.begin() + i + 2, tokens.begin() + specend + 1);
@@ -905,6 +906,33 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             tokens.erase(tokens.begin() + i, tokens.begin() + specend + 1);
             i -= 1;
         } 
+        else if (tokens[i].name == "#" && i < tokens.size() - 2 && 
+            tokens[i + 1].name == "stringify") {
+            bbassert(tokens[i+2].name=="(", "Missing `(`."
+            "\n   \033[33m!!!\033[0m  `#stringify` should be followed by a parenthesis. "
+            "\n       The only valid syntax is `#stringify(@tokens)`.\n"
+            + tokens[i].toString());
+            int pos = i+3;
+            std::string created_string;
+            int depth = 1;
+            while(pos<tokens.size()) {
+                if (tokens[pos].name == "(" || tokens[pos].name == "[" || tokens[pos].name == "{")
+                    depth += 1;
+                else if (tokens[pos].name == ")" || tokens[pos].name == "]" || tokens[pos].name == "}") 
+                    depth -= 1;
+                if(depth==0 && tokens[pos].name==")")
+                    break;
+                if(created_string.size())
+                    created_string += " ";
+                created_string += tokens[pos].name;
+                ++pos;
+            }
+            bbassert(depth==0, "Missing `)`."
+                                "\n   \033[33m!!!\033[0m  `#stringify(@tokens)` parenthesis was never closed.\n"
+                                + tokens[i].toString());
+            updatedTokens.emplace_back("\""+created_string+"\"", tokens[i].file, tokens[i].line, false);
+            i = pos;
+        }
         else if (tokens[i].name == "#" && i < tokens.size() - 2 && 
                    tokens[i + 1].name == "include") {
             bbassert(tokens[i + 2].name[0] == '"', 
@@ -999,7 +1027,8 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                       + tokens[i].toString());
             macros.push_back(macro);
             i = macro_end;
-        } else {
+        } 
+        else {
             bool macro_found = false;
             for (const auto& macro : macros) {
                 if (tokens[i].name == macro->from[0].name) {
