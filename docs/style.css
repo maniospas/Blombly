@@ -68,9 +68,11 @@ a:hover {
 
 .toggle-button {
     z-index: 1;
-    float: right;
     width: 42px;
     height: 42px;
+    position: fixed; /* Makes the element fixed on the screen */
+    right: 30px; /* Adjust this value to set how far from the right edge it should be */
+    top: 30px; /* Adjust this value to set how far from the top edge it should be */
 }
 
 body.show-sidebar .sidebar {

@@ -27,14 +27,15 @@ std::string BError::toString() const {
 
 // Create a shallow copy of this BString
 Data* BError::shallowCopy() const {
-    bberror("Cannot copy error messages.");
+    return new BError(value);
+    //bberror("Cannot copy error messages.");
 }
 
 // Implement the specified operation
 Data* BError::implement(const OperationType operation, BuiltinArgs* args)  {
     if (args->size == 1) {
         switch(operation) {
-            //case TOCOPY: return shallowCopy();
+            case TOCOPY: return shallowCopy();
             case TOSTR: consumed=true;STRING_RESULT(value);
             case TOBOOL: consumed=true;BOOLEAN_RESULT(true);
         }

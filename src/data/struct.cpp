@@ -32,22 +32,18 @@ Data* Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
     Data* implementation = memory->getOrNull(variableManager.getId("\\"+operation), true);
     if (!implementation || args_->arg0!=memory->getOrNullShallow(variableManager.thisId))
         throw Unimplemented();
-    BList* args = new BList();
-    args->contents->contents.reserve(args_->size - 1);
+    BList args;
+    args.contents->contents.reserve(args_->size - 1);
     if (args_->size)
-        args->contents->contents.push_back(args_->arg1->shallowCopy());
+        args.contents->contents.push_back(args_->arg1->shallowCopyIfNeeded());
     if (args_->size > 1)
-        args->contents->contents.push_back(args_->arg2->shallowCopy());
-    if (implementation->getType() == CODE) {
-        Code* code = (Code*)implementation;
-        BMemory* newMemory = new BMemory(memory, LOCAL_EXPACTATION_FROM_CODE(code));
-        newMemory->unsafeSet(variableManager.argsId, args, nullptr);
-        Data* value = executeBlock(code, newMemory, nullptr, nullptr);
-        return value;
-    } else {
-        bberror("\\"+operation + " is not a method");
-        delete args;  // Note: This line will never be executed due to exit.
-    }
+        args.contents->contents.push_back(args_->arg2->shallowCopyIfNeeded());
+    bbassert(implementation->getType() == CODE, "\\"+operation + " is not a method");
+    Code* code = (Code*)implementation;
+    BMemory* newMemory = new BMemory(memory, LOCAL_EXPACTATION_FROM_CODE(code));
+    newMemory->unsafeSet(variableManager.argsId, &args, nullptr);
+    Data* value = executeBlock(code, newMemory, nullptr, nullptr);
+    return value;
     throw Unimplemented();
 }
 
@@ -62,9 +58,8 @@ GlobalStruct::GlobalStruct(BMemory*  mem) : memory(mem) {
 }
 GlobalStruct::~GlobalStruct() {
     int deps = memory->countDependencies.fetch_sub(-1, std::memory_order_relaxed);
-    isDestroyable = false;
     if(deps==1) {
-        memory->release();
+        isDestroyable = false;  // ignore the destruction caused by the parent memory deletion
         delete memory;
     }
 }

@@ -31,23 +31,19 @@
 <h1>Introduction</h1>
 
 <p>
-There are many programming languages for writing dynamic, safe code. You might 
-already have a favorite! However, ensuring safety often adds complexity, like 
-managing memory or dealing with concurrency issues.
-Blombly is a simple language with a small set of instructions focused on 
-algorithmic logic. It automates non-algorithmic tasks, such as memory 
-management and parallelization, making it easier to write safe code. Blombly 
-follows a "one solution" principle—if there’s an obvious way to do something, 
-there’s likely no alternative.
-</p>
-
-<p>
-The main language compiles into an intermediate representation, interpreted by 
+There are many programming languages for writing dynamic yet safe code. You might 
+already have a favorite one! However, safety often comes at the cost complexity, 
+like mutability restrictions.
+Blombly is a simple language with a small set of instructions. It is focused on 
+algorithmic logic by automating tasks like memory 
+management and parallelization. It thus simplifies safe code without
+being overly restrictive. That said, the language's design 
+follows a "one solution" principle; there should be one obvious way to implement
+code in most situations. The language compiles into an intermediate representation that is interpreted by 
 the <i><strong>BLO</strong>ck ase<strong>MBLY</strong> <strong>V</strong>irtual 
-<strong>M</strong>achine</i> (blomblyVM). This virtual machine uses block-based 
-assembly instructions to ensure reliability by avoiding jump statements. 
-Control flow is managed through code blocks, making it easier to apply safety 
-constraints. Control flow mechanisms consist of conditions, loops, inlining,
+<strong>M</strong>achine</i> (blomblyVM). The intermediate language
+ensures reliability by replacing jump-based statements to entering and exiting
+code blocks. This includes managing control flow via conditions, loops, inlining,
 method calling, return statements for successful operations, and error messages for failures.
 </p>
 
@@ -62,52 +58,52 @@ So, who is Blombly for? It might be a good choice if you want to:
 
 <h3>A short demo</h3>
 <p>
-Below is a small Blombly program showcasing several basic language features. 
-While practical code can be more explicit (like when using the "std/oop" library 
-for object-oriented programming), this example keeps things simple.
+Below is a small blombly program showcasing several basic language features.
+These include some object-oriented macros declared in the file <code>std/oop.bb</code>
+of the standard library, namely the <code>module</code> and <code>fn</code> macros.
+In particular, the program begins by creating a module (that is, a new stuct) 
+named <code>xy</code>, which includes several code blocks that perform transformations.
+An adder function inlines those transformations while intercepting any
+return values (though there are none in this code) or errors with the
+<code>try</code> clause. In case there is an error, this is handled in the
+<code>catch</code> statement. The method is called by combining positional
+arguments with code that is executed and transferred to the memory context.
+This call determines dynamically which transformation should be inlined,
+as well as the transformation's parameters.
 </p>
 
-<pre><code class="language-java">final scaler = {  // Immutable block, visible across method calls
-    default scale = 1;
-    if(scale&lt;=0)  // Omit implied brackets
-       fail("Scale should be > 0, got: "+str(scale));
-    if(scale&lt1) {
-        scale = 1/scale;
-        print("Warning: Inverted the scale.");
+<pre><code class="language-java">#include "std/oop"
+
+module xy {
+    scale = {
+        default factor = 1;  // set if not found
+        if(factor&lt;=0)  // Omit implied brackets
+            fail("Scale factor should be > 0, got: "+str(factor));
+        x = x*factor;
+        y = y*factor;
+    }
+    normalize = {
+        norm = (x^2+y^2)^0.5;
+        if(norm==0)
+            fail("Cannot normalize a zero norm");
+        x = x/norm;
+        y = y/norm;
     }
 }
 
-final add(x,y) = {
-    signal = try scaler: // `:` runs inline, `try` catches errors
-    catch(signal) {
-        print("Handled an error.");
+fn adder(x, y) {  // this is a macro for final adder(x,y) = {...}
+    err = try transform: // `try` intercepts errors or returns, `:` inlines execution
+    catch(err) {
+        print("Intercepted an error: " +str(err));
         return 0;
     }
-    return (x + y)*scale;
+    return x+y;
 }
 
-result = add(1, 2 | scale=0);  // Calls run in parallel
+result = adder(1,2 | transform=xy.scale; factor=1);  // Calls run in parallel
 print(result);
 </code></pre>
 
-<p>
-This program begins by creating a code block to handle the <code>scale</code> 
-variable, with a default value of 1 if none is provided and checks if the scale 
-is valid (greater than 0) and adjusts it if necessary. The block is declared 
-<code>final</code>, meaning it can't be changed and is accessible from other 
-method calls.
-Another code block performs addition and multiplication using the scale. It
-also uses the <code>scaler:</code> block inline and intercepts any 
-errors that occur during execution. The <code>catch</code> mechanism works 
-similarly to an <code>if</code> statement, but it is triggered by errors instead 
-of boolean conditions.
-Finally, the <code>add</code> block is called with positional arguments. 
-Variables after the <code>|</code> symbol during the call are passed along 
-ith the arguments, allowing for flexible inline code, for example to initialize several
-calls with the same configurations. These calls are automatically scheduled for 
-parallel execution, with access to only transferred values and 
-<code>final</code> variables.
-</p>
 
 <!-- Navigation buttons -->
 <div class="nav-buttons">

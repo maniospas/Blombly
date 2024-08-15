@@ -7,14 +7,16 @@ Metadata::Metadata() {
 }
 
 Metadata::~Metadata() {
-    for(const auto& element : metadata)
-        if(element.second && element.second->isDestroyable) {
+    for(const auto& element : metadata) {
+        Data* dat = element.second;
+        if(dat && dat->isDestroyable) {
             //std::cout << "deleting\n";
             //std::cout << "#"<<element.second << "\n";
             //std::cout << element.second->toString() << "\n";
-            element.second->isDestroyable = false;
-            delete element.second;
+            dat->isDestroyable = false;
+            delete dat;
         }
+    }
 }
 
 // Constructor to initialize Code object with program segment details

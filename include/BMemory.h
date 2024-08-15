@@ -58,6 +58,7 @@ private:
     tsl::hopscotch_set<int> finals;
     Data* fastLastAccess;
     int fastLastAccessId;
+    void release();
 
 public:
     std::atomic<int> countDependencies;
@@ -67,8 +68,6 @@ public:
 
     // Constructors and destructor=
     explicit BMemory(BMemory* par, int expectedAssignments);
-    bool release(Data* preserve);
-    void release();
     ~BMemory();
 
     // Lock and unlock methods for thread safety

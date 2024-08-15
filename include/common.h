@@ -77,27 +77,27 @@ Data* executeBlock(const Code* code,
 
 // code reused when returning various data from overriden Data::implement to not reallicate memory
 
-#define STRING_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==STRING) { \
+#define STRING_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==STRING && args->preallocResult->isDestroyable) { \
                     ((BString*)args->preallocResult)->value = expr; \
                     return args->preallocResult; \
                 } \
                 return new BString(expr)
 
-#define BOOLEAN_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==BOOL) { \
+#define BOOLEAN_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==BOOL && args->preallocResult->isDestroyable) { \
                     ((Boolean*)args->preallocResult)->value = expr; \
                     return args->preallocResult; \
                 } \
                 return new Boolean(expr)
                 
 
-#define INT_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==INT) { \
+#define INT_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==INT && args->preallocResult->isDestroyable) { \
                     ((Integer*)args->preallocResult)->value = expr; \
                     return args->preallocResult; \
                 } \
                 return new Integer(expr)
 
 
-#define FLOAT_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==FLOAT) { \
+#define FLOAT_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==FLOAT && args->preallocResult->isDestroyable) { \
                     ((BFloat*)args->preallocResult)->value = expr; \
                     return args->preallocResult; \
                 } \

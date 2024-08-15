@@ -7,6 +7,7 @@ Data::Data() {
 }
 
 Data::~Data() {
+    //std::cout<<"destructor "<<this<<" \n";
     --numObjects;
 }
 

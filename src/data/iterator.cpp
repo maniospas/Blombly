@@ -11,12 +11,11 @@ IteratorContents::IteratorContents(Data* object_):object(object_) {
     if (pthread_mutex_init(&memoryLock, nullptr) != 0) {
         bberror("Failed to create a mutex for list read/write");
     }
-    BuiltinArgs* args = new BuiltinArgs();
-    args->arg0 = object;
-    args->size = 1;
+    BuiltinArgs args;
+    args.arg0 = object;
+    args.size = 1;
     pos = new Integer(-1);
-    size = ((Integer*)object->implement(LEN, args))->getValue();
-    delete args;
+    size = ((Integer*)object->implement(LEN, &args))->getValue();
     locked = -1; // start from -1 so that first object getting this goes to 0
 }
 
@@ -74,7 +73,7 @@ Data* Iterator::shallowCopy() const {
     bberror("Iterators cannot be returned outside of scope");
     /*
     contents->lock();
-    std::shared_ptr<IteratorContents> newContents = std::make_shared<IteratorContents>(contents->object->shallowCopy());
+    std::shared_ptr<IteratorContents> newContents = std::make_shared<IteratorContents>(contents->object->shallowCopyIfNeeded());
     newContents->pos = contents->pos;
     newContents->size = contents->size;
     newContents->locked = -1;

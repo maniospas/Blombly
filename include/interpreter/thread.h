@@ -16,24 +16,24 @@ void threadExecute(Code* code,
                   BuiltinArgs* allocatedBuiltins,
                   std::shared_ptr<ThreadResult> result,
                   Command* command) {
-        bool* call_returnSignal = new bool(false);
-        BuiltinArgs* call_args = new BuiltinArgs();
         try {
-            Data *value = executeBlock(code, memory, call_returnSignal, call_args);
-            delete call_returnSignal;
-            delete call_args;
+            Data *value = executeBlock(code, memory, returnSignal, allocatedBuiltins);
             for(Future* thread : memory->attached_threads)
                 thread->getResult();
             memory->attached_threads.clear();
-            if(memory->release(value))
-                delete memory;
+            if(value)
+                value = value->shallowCopyIfNeeded();
             result->value = value;
         }
         catch(const BBError& e) {
-            delete call_returnSignal;
-            delete call_args;
-            memory->release();
+            std::string comm = command->toString();
+            comm.resize(40, ' ');
+            result->error = new BBError(e.what()+("\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
+        }
+        try {
             delete memory;
+        }
+        catch(const BBError& e) {
             std::string comm = command->toString();
             comm.resize(40, ' ');
             result->error = new BBError(e.what()+("\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));

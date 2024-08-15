@@ -40,7 +40,7 @@ std::string Future::toString() const {
 // Create a shallow copy of this Future
 Data* Future::shallowCopy() const {
     bberror("Internal error: threads can not be copied");
-    return getResult()->shallowCopy();
+    return getResult()->shallowCopyIfNeeded();
     //return new Future(data);
 }
 
