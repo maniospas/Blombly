@@ -2,6 +2,7 @@
 #include <unordered_set>
 #include <map>
 #include <vector>
+#include <filesystem>
 #include "stringtrim.cpp"
 #include "tokenizer.cpp"
 #include "common.h"
@@ -390,8 +391,7 @@ public:
                       "\n       and immediately assigning a block. Metadata are not inlined.\n"
                       + tokens[start].toString());
 
-            if (first_name == "print" || first_name == "return" || 
-                first_name == "fail") {
+            if (first_name == "print" || first_name == "return" || first_name == "fail") {
                 std::string parsed = parse_expression(start + 1, end);
                 bbassert(parsed != "#", "An expression that computes no value  was given to `" + first_name+"`.\n"+tokens[start+1].toString());
                 std::string var = "#";
@@ -730,7 +730,7 @@ void sanitize(std::vector<Token>& tokens) {
         }
         if (tokens[i].name == "#" && ((i >= tokens.size() - 1) || 
             (tokens[i + 1].name != "include" && tokens[i + 1].name != "macro" && tokens[i + 1].name != "stringify"
-             && tokens[i + 1].name != "spec" && tokens[i + 1].name != "gcc"))) {
+             && tokens[i + 1].name != "spec" && tokens[i + 1].name != "fail" && tokens[i + 1].name != "gcc"))) {
             bberror("Invalid preprocessor instruction after `#` symbol."
                     "\n   \033[33m!!!\033[0m This symbol signifies preprocessor directives."
                     "\n       Valid directives are the following patterns:"
@@ -738,6 +738,7 @@ void sanitize(std::vector<Token>& tokens) {
                     "\n       - `#spec @property=@value;` declares a code block specification."
                     "\n       - `#macro (@expression)=(@implementation);` defines a macro."
                     "\n       - `#stringify (@tokens)` converts the tokens into a string at compile time."
+                    "\n       - `#fail @message;` creates a compile-time failure."
                     "\n       - `#gcc @code;` is reserved for future use.\n"
                     + tokens[i].toString());
         }
@@ -809,15 +810,32 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
     previousImports.insert(first_source);
 
     for (size_t i = 0; i < tokens.size(); ++i) {
-        if (tokens[i].name == "#" && i < tokens.size() - 3 && 
-            tokens[i + 1].name == "spec") {
+        if (tokens[i].name == "#" && i < tokens.size() - 3 && tokens[i + 1].name == "fail") {
+            std::string message;
+            int pos = i+2;
+            std::string involved = tokens[i].toString();
+            while(pos<tokens.size()) {
+                if(tokens[pos].name==";" || pos==i+3)
+                    break;
+                if(tokens[pos].builtintype==1)
+                    message += tokens[pos].name.substr(1, tokens[pos].name.size()-2) + " ";
+                else
+                    message += tokens[pos].name + " ";
+                pos++;
+                std::string inv = tokens[pos].toString();
+                if(involved.find(inv)==std::string::npos)
+                    involved += "\n"+inv;
+            }
+            bberror(message+"\n"+involved);
+        }
+        else if (tokens[i].name == "#" && i < tokens.size() - 3 && tokens[i + 1].name == "spec") {
             int specNameEnd = MISSING;
             int specNameStart = MISSING;
             if (i > 1) {
                 bbassert(tokens[i - 1].name == "{", 
                           "Unexpected `#spec` encountered."
                           "\n   \033[33m!!!\033[0m  `#spec` declarations can only reside"
-                          "\n       at the beginning of their enclosing code block."
+                          "\n       at the beginning of their enclosing code block.\n"
                           +tokens[i].toString());
                 bbassert(tokens[i - 2].name == "=" || tokens[i - 2].name == "as", 
                           "Invalid `#spec` syntax."
@@ -947,7 +965,12 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                       "\n   \033[33m!!!\033[0m  Include statements cannot "
                       "\n       be followed by `;`.\n" 
                       + tokens[i].toString());
-            std::string source = tokens[i + 2].name.substr(1, tokens[i + 2].name.size() - 2) + ".bb";
+            std::string source = tokens[i + 2].name.substr(1, tokens[i + 2].name.size() - 2);
+            std::error_code ec;
+            if(std::filesystem::is_directory(source, ec))
+                source = source+"\\.bb";
+            else 
+                source += ".bb";
 
             if (previousImports.find(source) != previousImports.end()) {
                 tokens.erase(tokens.begin() + i, tokens.begin() + i + 3);

@@ -1,16 +1,36 @@
 BEGIN _bb0
+BUILTIN formatted ""
+next arg args
+exists _bb3 arg
+BEGIN _bb4
+str _bb6 arg
+add formatted formatted _bb6
+BUILTIN _bb8 " "
+add formatted formatted _bb8
+next arg args
+exists _bb3 arg
 END
-IS algorithm _bb0
-BEGIN _bb1
-print # x
+while # _bb3 _bb4
+return _bbresult0 formatted
 END
-BEGIN _bb2
-BUILTIN _bb3 "Nothing was returned"
-fail _bbresult0 _bb3
+IS fmt _bb0
+final # fmt
+BEGIN _bb9
+next x args
+next y args
+add _bb10 x y
+return _bbresult1 _bb10
 END
-BEGIN _bb6
-inline _bb7 algorithm
+IS adder _bb9
+final # adder
+BEGIN _bb12
+BEGIN _bb14
+BUILTIN _bb15 I1
+BUILTIN _bb16 I2
+list args _bb15 _bb16
 END
-try x _bb6
-exists _bb8 x
-if # _bb8 _bb1 _bb2
+call _bb13 _bb14 adder
+list args _bb13
+END
+call _bb11 _bb12 fmt
+print # _bb11

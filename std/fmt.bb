@@ -1,4 +1,4 @@
-#macro (printfm (@code);) = (print(fmt(@code)););
+#macro (std::print (@code);) = (print(fmt(@code)););
 
 final fmt = {
     formatted = "";

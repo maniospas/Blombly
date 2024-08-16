@@ -43,8 +43,22 @@ public:
     int builtintype;
     bool printable;
     Token(const std::string& name, const std::string& file, int line, bool printable=true): name(name), file(file), line(line), printable(printable) {
-        if(isString(name))
+        if(isString(name)) {
             builtintype = 1;
+            // replace \n with space
+            size_t pos = 0;
+            while ((pos = this->name.find("\n", pos)) != std::string::npos) {
+                this->name.replace(pos, 1, " ");
+                pos += 1;
+            }
+            // replace \\n with new line
+            pos = 0;
+            while ((pos = this->name.find("\\n", pos)) != std::string::npos) {
+                this->name.replace(pos, 2, "\n");
+                pos += 1; // Move past the replaced character
+            }
+
+        }
         else if(isBool(name))
             builtintype = 2;
         else if(isInt(name))

@@ -1,6 +1,8 @@
-algorithm = {return "result";}
+#include "std"
+use std;
 
-if(x as try algorithm:) 
-    print(x)  // ; cannot be the last symbol before else
-else
-    fail("Nothing was returned");
+fn adder(x, y) {
+    return x+y;
+}
+
+std::print(adder(1,2));
