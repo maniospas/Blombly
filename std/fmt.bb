@@ -1,6 +1,6 @@
-#macro (std::print (@code);) = (print(fmt(@code)););
+#macro (std::print(@code);) = (print(std::fmt(@code)););
 
-final fmt = {
+final std::fmt = {
     formatted = "";
     while(arg as next(args)) {
         formatted = formatted + str(arg);

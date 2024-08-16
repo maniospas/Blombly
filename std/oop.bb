@@ -6,7 +6,14 @@
         @code
     }
 );
-
+// function with only positional arguments (overriden by subsequent versions)
+#macro (std::fn @name(@args){@code}) = (
+    final @name(@args) = {
+        //#spec type="fn";
+        //#spec name=#stringify(@name); 
+        @code
+    }
+);
 // function with defaults 
 #macro (std::fn @name(@args | @defaults){@code}) = (
     final @name(@args) = {
@@ -22,14 +29,6 @@
         //#spec type="fn";
         //#spec name=#stringify(@name); 
         default {@arg = @defaults}
-        @code
-    }
-);
-// function with only posiitional arguments
-#macro (std::fn @name(@args){@code}) = (
-    final @name(@args) = {
-        //#spec type="fn";
-        //#spec name=#stringify(@name); 
         @code
     }
 );

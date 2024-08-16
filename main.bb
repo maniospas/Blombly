@@ -1,5 +1,5 @@
 #include "std"
-use std;
+std::simplify;
 
 fn adder(x, y) {
     return x+y;

@@ -123,7 +123,9 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
         }
         bool prevSpecialCharacter = specialCharacter;
         if(c==' ' || c=='\t' || c=='\n' 
-            || c=='(' || c==')' || c=='[' || c==']' || c=='{' || c=='}'|| c=='=' || c==':' || c==';'|| c==',' || c=='.'
+            || c=='(' || c==')' || c=='[' || c==']' || c=='{' || c=='}'|| c=='=' || 
+            (c==':' && (i==text.size()-1 || text[i+1]!=':') && (i==0 || text[i-1]!=':'))
+            || c==';'|| c==',' || c=='.'
             || c=='*' || c=='+' || c=='^' || c=='-' || c=='/' || c=='%' || c=='&' || c=='|' || c=='!' || c=='<' || c=='>'
             || c=='/' || c=='#') {
             if(word.size())

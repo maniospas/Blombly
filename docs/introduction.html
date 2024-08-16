@@ -59,11 +59,19 @@ So, who is Blombly for? It might be a good choice if you want to:
 <h3>A short demo</h3>
 <p>
 Below is a short blombly program that showcases several language features.
-These include some object-oriented macros declared in the file <code>std/oop.bb</code>
-of the standard library, namely the <code>module</code> and <code>fn</code> macros.
-The program begins by creating a module (that is, a new stuct) 
-named <code>xy</code>. This includes a couple of code blocks that serve as 
-transformation mechanisms.
+These include some object-oriented macros declared in the standard library <code>std</code>. 
+Some of thes macros include the <code>std::simplify</code>, <code>std::module</code>, and <code>std::fn</code>
+keywords. The first of these is a command that removes the need to prepend <code>std::</code> in the other two
+(macros do not affect execution speed).</p>
+
+<p>The program begins by creating an <code>std module</code> 
+named <code>xy</code>. Modules are final (immutable) structs.
+This particular one comprises a couple of code blocks that serve as 
+transformation mechanisms of a pair of variables <code>x</code> and
+<code>y</code> - hence the module name. These blocks are enclosed in brackets
+and assigned to variables.
+</p>
+<p>
 An adder function performs addition while inlining those transformations.
 For demonstration purposes, the inline is enclosed in a <code>try</code> 
 statement, which intercepts any
@@ -75,7 +83,8 @@ This call determines dynamically which transformation should be inlined,
 as well as the transformation's parameters.
 </p>
 
-<pre><code class="language-java">#include "std/oop"
+<pre><code class="language-java">#include "std"
+std::simplify;
 
 module xy {
     scale = {

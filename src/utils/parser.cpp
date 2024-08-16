@@ -1049,7 +1049,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             bbassert(macro->from[0].name[0] != '@', "The first token of a "
                       "macro's expression cannot be a variable starting with @.\n"
                       + tokens[i].toString());
-            macros.push_back(macro);
+            macros.insert(macros.begin(), macro);
             i = macro_end;
         } 
         else {

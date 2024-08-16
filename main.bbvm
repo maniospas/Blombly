@@ -13,8 +13,8 @@ END
 while # _bb3 _bb4
 return _bbresult0 formatted
 END
-IS fmt _bb0
-final # fmt
+IS std::fmt _bb0
+final # std::fmt
 BEGIN _bb9
 next x args
 next y args
@@ -32,5 +32,5 @@ END
 call _bb13 _bb14 adder
 list args _bb13
 END
-call _bb11 _bb12 fmt
+call _bb11 _bb12 std::fmt
 print # _bb11
