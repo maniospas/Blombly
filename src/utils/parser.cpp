@@ -643,7 +643,7 @@ public:
                                                             "\n";
                 return var;
             }
-            bberror("Unknown type of command.\n"+tokens[start].toString());
+            bberror("Unknown type of command\n"+tokens[start].toString());
         /*} catch (const BBError& e) {
             if (tokens[start].line != tokens[end].line)
                 throw e;
@@ -858,8 +858,8 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                         tokens[specNameStart].name == ")" || 
                         tokens[specNameStart].name == "}")
                         depth -= 1;
-                    if (((tokens[specNameStart].name == ";" || 
-                          tokens[specNameStart].name == "final") && depth == 0)) {
+                    if ((tokens[specNameStart].name == ";" || 
+                        tokens[specNameStart].name == "final") && depth == 0) {
                         specNameStart += 1;
                         break;
                     }
@@ -895,7 +895,8 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
 
             std::vector<Token> newTokens;
             newTokens.emplace_back("final", tokens[i].file, tokens[i].line, false);
-            if (specNameEnd == MISSING) {
+            if (specNameEnd == MISSING || specNameEnd <= specNameStart) {
+                bberror("`#spec` cannot be declared here.\n" + tokens[i].toString());
             } 
             else {
                 newTokens.insert(newTokens.end(), tokens.begin() + specNameStart, tokens.begin() + specNameEnd + 1);

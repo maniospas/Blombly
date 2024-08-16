@@ -1,80 +1,16 @@
+BEGIN _bb0
+END
+IS algorithm _bb0
+BEGIN _bb1
+print # x
+END
 BEGIN _bb2
-BUILTIN type "module"
-final # type
-BUILTIN name "xy"
-final # name
-BEGIN _bb5
-BEGIN _bb7
-BUILTIN factor I1
+BUILTIN _bb3 "Nothing was returned"
+fail _bbresult0 _bb3
 END
-default _bbresult0 _bb7
-BEGIN _bb9
-str _bb11 factor
-BUILTIN _bb12 "Scale factor should be > 0, got: "
-add _bb10 _bb12 _bb11
-fail _bbresult1 _bb10
+BEGIN _bb6
+inline _bb7 algorithm
 END
-BUILTIN _bb14 I0
-le _bb13 factor _bb14
-if # _bb13 _bb9
-mul x x factor
-mul y y factor
-END
-IS scale _bb5
-BEGIN _bb17
-BUILTIN _bb19 F0.5
-BUILTIN _bb22 I2
-pow _bb21 y _bb22
-BUILTIN _bb24 I2
-pow _bb23 x _bb24
-add _bb20 _bb23 _bb21
-pow norm _bb20 _bb19
-BEGIN _bb25
-BUILTIN _bb26 "Cannot normalize a zero norm"
-fail _bbresult2 _bb26
-END
-BUILTIN _bb28 I0
-eq _bb27 norm _bb28
-if # _bb27 _bb25
-div x x norm
-div y y norm
-END
-IS normalize _bb17
-return _bbresult3 this
-END
-new xy _bb2
-final # xy
-BEGIN _bb31
-next x args
-next y args
-BEGIN _bb34
-inline _bb35 transform
-END
-try err _bb34
-BEGIN _bb36
-str _bb38 err
-BUILTIN _bb39 "Intercepted an error: "
-add _bb37 _bb39 _bb38
-print # _bb37
-BUILTIN _bb40 I0
-return _bbresult4 _bb40
-END
-catch _bbresult5 err _bb36
-add _bb41 x y
-return _bbresult6 _bb41
-END
-IS adder _bb31
-final # adder
-BUILTIN _bb42 "adder"
-setfinal # adder name _bb42
-BUILTIN _bb43 "fn"
-setfinal # adder type _bb43
-BEGIN _bb45
-BUILTIN _bb46 I1
-BUILTIN _bb47 I2
-list args _bb46 _bb47
-get transform xy scale
-BUILTIN factor I1
-END
-call result _bb45 adder
-print # result
+try x _bb6
+exists _bb8 x
+if # _bb8 _bb1 _bb2

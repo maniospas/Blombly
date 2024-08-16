@@ -1,9 +1,9 @@
 # Blombly 
 
-:computer: Fast onboarding<br/> 
-:duck: Duck typing<br/> 
+:computer: Expressive<br/> 
+:duck: Dynamic<br/> 
 :rocket: Parallel<br/> 
-:goggles: Memory safety<br/> 
+:goggles: Safe<br/> 
 
 [Learn more...](https://maniospas.github.io/Blombly/) 
 

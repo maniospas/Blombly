@@ -390,9 +390,9 @@ Data* executeBlock(const Code* code,
                     //bbassert(condition->getType()==CODE, "Can only have a bool or a code block for if condition");
                     Code* codeCondition = (Code*)condition;
                     condition = executeBlock(codeCondition, memory, returnSignal, args);
+                    CHECK_FOR_RETURN(condition);
                 }
                 //bbassert(check, "if condition's expression did not evaluate to anything");
-                CHECK_FOR_RETURN(condition);
                 //bbassert(check->getType()==BOOL, "If condition did not evaluate to bool");
                 Code* codeAccept = (Code*)accept;
                 Code* codeReject = (Code*)reject;

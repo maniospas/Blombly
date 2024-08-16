@@ -58,16 +58,19 @@ So, who is Blombly for? It might be a good choice if you want to:
 
 <h3>A short demo</h3>
 <p>
-Below is a small blombly program showcasing several basic language features.
+Below is a short blombly program that showcases several language features.
 These include some object-oriented macros declared in the file <code>std/oop.bb</code>
 of the standard library, namely the <code>module</code> and <code>fn</code> macros.
-In particular, the program begins by creating a module (that is, a new stuct) 
-named <code>xy</code>, which includes several code blocks that perform transformations.
-An adder function inlines those transformations while intercepting any
-return values (though there are none in this code) or errors with the
-<code>try</code> clause. In case there is an error, this is handled in the
-<code>catch</code> statement. The method is called by combining positional
-arguments with code that is executed and transferred to the memory context.
+The program begins by creating a module (that is, a new stuct) 
+named <code>xy</code>. This includes a couple of code blocks that serve as 
+transformation mechanisms.
+An adder function performs addition while inlining those transformations.
+For demonstration purposes, the inline is enclosed in a <code>try</code> 
+statement, which intercepts any
+return values (though there are none in this example's inlined code) or errors. 
+If an error is found, it is handled with the
+<code>catch</code> statement. Finally, the method is called by combining the positionally
+declared arguments with code that is executed and transferred to the memory context.
 This call determines dynamically which transformation should be inlined,
 as well as the transformation's parameters.
 </p>
