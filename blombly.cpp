@@ -600,6 +600,24 @@ Data* executeBlock(const Code* code,
                 continue;
             }
             break;
+            case READ:{
+                std::string printing;
+                for(int i=1;i<command->nargs;i++) {
+                    Data* printable = MEMGET(memory, i);
+                    if(printable) {
+                        std::string out = printable->toString();
+                        printing += out+" ";
+                    }
+                }
+                pthread_mutex_lock(&printLock); 
+                std::cout << printing;
+                printing = "";
+                std::cin >> printing;
+                pthread_mutex_unlock(&printLock);
+                value = new BString(printing);
+                FILL_REPLACEMENT;
+            }
+            break;
             case PRINT:{
                 std::string printing;
                 for(int i=1;i<command->nargs;i++) {

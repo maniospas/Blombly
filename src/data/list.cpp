@@ -199,21 +199,23 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
             Data* res = args->preallocResult;
             if(res && res->getType()==type) {
                 if(type==INT) {
-                    ((Integer*)args->preallocResult)->value = ((Integer*)res)->value;
+                    ((Integer*)res)->value = ((Integer*)ret)->value;
                     ret = res;
                 }
                 else if(type==FLOAT) {
-                    ((BFloat*)args->preallocResult)->value = ((BFloat*)res)->value;
+                    ((BFloat*)res)->value = ((BFloat*)ret)->value;
                     ret = res;
                 }
                 else if(type==BOOL) {
-                    ((Boolean*)args->preallocResult)->value = ((Boolean*)res)->value;
+                    ((Boolean*)res)->value = ((Boolean*)ret)->value;
                     ret = res;
                 }
                 else if(type==STRING) {
-                    ((BString*)args->preallocResult)->value = ((BString*)res)->value;
+                    ((BString*)res)->value = ((BString*)ret)->value;
                     ret = res;
                 }
+                else
+                    ret = ret->shallowCopyIfNeeded();
             }
             else 
                 ret = ret->shallowCopyIfNeeded();

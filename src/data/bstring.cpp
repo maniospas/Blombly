@@ -43,9 +43,21 @@ Data* BString::implement(const OperationType operation, BuiltinArgs* args)  {
         switch(operation) {
             case TOCOPY: 
             case TOSTR: STRING_RESULT(value);
-            case TOINT: INT_RESULT(std::atoi(value.c_str()));
+            case TOINT: {
+                char* endptr = nullptr;
+                int ret = std::strtol(value.c_str(), &endptr, 10);
+                if (endptr == value.c_str() || *endptr != '\0')
+                    return nullptr;
+                INT_RESULT(ret);
+            }
             case LEN: INT_RESULT(value.size());
-            case TOFLOAT: FLOAT_RESULT(std::atof(value.c_str()));
+            case TOFLOAT: {
+                char* endptr = nullptr;
+                double ret = std::strtod(value.c_str(), &endptr);
+                if (endptr == value.c_str() || *endptr != '\0')
+                    return nullptr;
+                FLOAT_RESULT(ret);
+            }
             case TOBOOL: BOOLEAN_RESULT(value == "true");
             case TOITER: return new Iterator(std::make_shared<IteratorContents>(this));
             case TOFILE: return new BFile(value);

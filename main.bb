@@ -1,8 +1,7 @@
-#include "std"
-std::simplify;
+#include "libs/std"
+#include "libs/fmt"
+enable std::convert;
+enable fmt;
 
-fn adder(x, y) {
-    return x+y;
-}
-
-std::print(adder(1,2));
+x = std::read("Give some input:");
+print(x);

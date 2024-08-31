@@ -6,6 +6,7 @@
             "command": "g++",
             "args": [
                 "-fdiagnostics-color=always",
+                "-std=c++20",
                 "-g",
                 "${fileDirname}/src/*.cpp",
                 "${fileDirname}/src/data/*.cpp",

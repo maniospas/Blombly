@@ -40,7 +40,7 @@ enum OperationType {NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, 
                     SUM, MAX, MIN,
                     BUILTIN, BEGIN, BEGINFINAL, BEGINCACHED, END, RETURN, FINAL, IS, 
                     CALL, WHILE, IF, NEW, PRINT, INLINE, GET, SET, SETFINAL, DEFAULT,
-                    TIME, TOITER, TRY, CATCH, FAIL, EXISTS};
+                    TIME, TOITER, TRY, CATCH, FAIL, EXISTS, READ};
 static const std::string OperationTypeNames[] = {
     "not", "and", "or", "eq", "neq", "le", "ge", "lt", "gt", "add", "sub", "mul", "mmul", 
     "div", "mod", "len", "pow", "log", "push", "pop", "next", "put", "at", "shape", 
@@ -48,7 +48,7 @@ static const std::string OperationTypeNames[] = {
     "sum", "max", "min",
     "BUILTIN", "BEGIN", "BEGINFINAL", "BEGINCACHED", "END", "return", "final", "IS", 
     "call", "while", "if", "new", "print", "inline", "get", "set", "setfinal", "default",
-    "time", "iter", "try", "catch", "fail", "exists"
+    "time", "iter", "try", "catch", "fail", "exists", "read"
 };
 
 // map operations to symbols and conversely

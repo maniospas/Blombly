@@ -12,6 +12,7 @@
     <h2>Blombly Companion</h2>
     <a rel="prefetch" href="index.html">Home</a>
     <a rel="prefetch" href="introduction.html" style="color: orange;">Introduction</a>
+    <a rel="prefetch" href="demo.html">Showcase</a>
     <p><strong>Set things up</strong></p>
     <a rel="prefetch" href="hello-world.html">1.1 Hello world!</a>
     <a rel="prefetch" href="errors.html">1.2 Errors</a>
@@ -32,95 +33,37 @@
 
 <p>
 There are many programming languages for writing dynamic yet safe code. You might 
-already have a favorite one! However, safety often comes at the cost complexity, 
-like mutability restrictions.
-Blombly is a simple language with a small set of instructions. It is focused on 
-algorithmic logic by automating tasks like memory 
-management and parallelization. It thus simplifies safe code without
-being overly restrictive. That said, the language's design 
-follows a "one solution" principle; there should be one obvious way to implement
-code in most situations. The language compiles into an intermediate representation that is interpreted by 
+already have a favorite one! However, safety often comes at the cost reduced 
+expressiveness, like mutability restrictions. Otherwise, it relies on the expertise
+of non-infallible programers. Blombly is a language that aims to address these
+issues with a small base instruction set that is easy to learn
+but promises code and memory safety by design. It also focuses on algorithmic logic 
+by automating tasks like memory management and parallelization without losing
+expressiveness. All its interfaces further follow an "one solution" principle,
+meaning that there should be one obvious way to implement code in most situations. For example,
+there is only one loop structure (<code>while</code>) and alternatives
+like iterating over all list elements are implemented by combining it with
+other base operations.</p>
+<p>
+Blombly compiles into an intermediate representation that is interpreted by 
 the <i><strong>BLO</strong>ck ase<strong>MBLY</strong> <strong>V</strong>irtual 
-<strong>M</strong>achine</i> (blomblyVM). The intermediate language
+<strong>M</strong>achine</i> (blomblyVM). The latter
 ensures reliability by replacing jump-based statements to entering and exiting
 code blocks. This includes managing control flow via conditions, loops, inlining,
 method calling, return statements for successful operations, and error messages for failures.
 </p>
 
 <p>
-So, who is Blombly for? It might be a good choice if you want to:
+So, who is Blombly for? It might be a good choice if you want to:<br>
 </p>
-<ul>
-    <li>✅ Quickly learn a dynamic scripting language.</li>
-    <li>✅ Write sequential code that runs in parallel.</li>
-    <li>✅ Ensure memory and logic safety by design.</li>
-</ul>
-
-<h3>A short demo</h3>
-<p>
-Below is a short blombly program that showcases several language features.
-These include some object-oriented macros declared in the standard library <code>std</code>. 
-Some of thes macros include the <code>std::simplify</code>, <code>std::module</code>, and <code>std::fn</code>
-keywords. The first of these is a command that removes the need to prepend <code>std::</code> in the other two
-(macros do not affect execution speed).</p>
-
-<p>The program begins by creating an <code>std module</code> 
-named <code>xy</code>. Modules are final (immutable) structs.
-This particular one comprises a couple of code blocks that serve as 
-transformation mechanisms of a pair of variables <code>x</code> and
-<code>y</code> - hence the module name. These blocks are enclosed in brackets
-and assigned to variables.
-</p>
-<p>
-An adder function performs addition while inlining those transformations.
-For demonstration purposes, the inline is enclosed in a <code>try</code> 
-statement, which intercepts any
-return values (though there are none in this example's inlined code) or errors. 
-If an error is found, it is handled with the
-<code>catch</code> statement. Finally, the method is called by combining the positionally
-declared arguments with code that is executed and transferred to the memory context.
-This call determines dynamically which transformation should be inlined,
-as well as the transformation's parameters.
-</p>
-
-<pre><code class="language-java">#include "std"
-std::simplify;
-
-module xy {
-    scale = {
-        default factor = 1;  // set if not found
-        if(factor&lt;=0)  // Omit implied brackets
-            fail("Scale factor should be > 0, got: "+str(factor));
-        x = x*factor;
-        y = y*factor;
-    }
-    normalize = {
-        norm = (x^2+y^2)^0.5;
-        if(norm==0)
-            fail("Cannot normalize a zero norm");
-        x = x/norm;
-        y = y/norm;
-    }
-}
-
-fn adder(x, y) {  // this is a macro for final adder(x,y) = {...}
-    err = try transform: // `try` intercepts errors or returns, `:` inlines execution
-    catch(err) {
-        print("Intercepted an error: " +str(err));
-        return 0;
-    }
-    return x+y;
-}
-
-result = adder(1,2 | transform=xy.scale; factor=1);  // Calls run in parallel
-print(result);
-</code></pre>
-
+✅ Quickly learn a dynamic scripting language.<br>
+✅ Write sequential code that runs in parallel.<br>
+✅ Ensure memory and logic safety by design.<br>
 
 <!-- Navigation buttons -->
 <div class="nav-buttons">
     <a href="index.html" class="nav-button">Home</a>
-    <a href="hello-world.html" class="nav-button">→</a>
+    <a href="demo.html" class="nav-button">→</a>
 </div>
 
 <script src="prism.min.js"></script>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blombly Companion - Introduction</title>
+    <link rel="stylesheet" rel="prefetch" href="style.css">
+    <link rel="stylesheet" rel="prefetch" href="prism.css">
+</head>
+<body>
+<div class="sidebar">
+    <h2>Blombly Companion</h2>
+    <a rel="prefetch" href="index.html">Home</a>
+    <a rel="prefetch" href="introduction.html">Introduction</a>
+    <a rel="prefetch" href="demo.html" style="color: orange;">Showcase</a>
+    <p><strong>Set things up</strong></p>
+    <a rel="prefetch" href="hello-world.html">1.1 Hello world!</a>
+    <a rel="prefetch" href="errors.html">1.2 Errors</a>
+    <p><strong>Basic features</strong></p>
+    <a rel="prefetch" href="vars-operations-comments.html">2.1 Vars, operations, comments</a>
+    <a rel="prefetch" href="control-flow.html">2.2 Control flow</a>
+    <a rel="prefetch" href="code-blocks-inline.html">2.3 Code blocks & inline</a>
+    <a rel="prefetch" href="calling-blocks.html">2.4 Calling blocks</a>
+    <a rel="prefetch" href="structs.html">2.5 Structs</a>
+    <p><strong>Advanced features</strong></p>
+    <a rel="prefetch" href="preprocessor.html">3.1 Preprocess (include, macro)</a>
+    <a rel="prefetch" href="success-fail.html">3.2 Signals (try, return)</a>
+    <a rel="prefetch" href="return-from-new.html">3.3 Return from new</a>
+    <a rel="prefetch" href="overloading.html">3.4 Overloading</a>
+</div>
+<button class="toggle-button" onclick="toggleSidebar()">☰</button>
+<h1>Showcase</h1>
+<p>
+Here we present a short blombly program that demonstrates several
+language features in action.
+These include some standard library macros, error handling,
+dynamic inlining, and calling functions with a mixture
+of positional arguments and customized expressions the generalize the 
+concept of keyword arguments. We cover these concepts one by
+one to see how they contribute to highly dynamic code.</p>
+
+<p>To begin with, we include the standard library <code>std</code>.
+The library's code is prepended to a compiled intermediate representation,
+but also also adds macro definitions; macros are shorthands for boilerplate code
+and donnot affect execution speed.
+The ones we use in our code are <code>std::simplify</code>, <code>std::module</code>, <code>std::fn</code>,
+and <code>std::abstract</code> keywords. The first of these is used to further remove the need to 
+prepend <code>std::</code> in the other three.
+</p>
+
+<pre><code class="language-java">#include "std"
+std::simplify;
+</code></pre>
+
+<p>The program begins by creating a module 
+named <code>xy</code>. Modules are immutable structs, though
+we leave details of these concepts for later. For the 
+time being, consider them as structs/objects whose declared
+methods and variables are accessible everywhere.
+
+This particular module comprises a couple of abstract code blocks
+without positional arguments that serve as transformation mechanisms 
+of a pair of variables <code>x</code> and <code>y</code> - hence its name. 
+These code blocks can be inlined within function definitions later.
+The distinction between modules, abstracts, and functions
+is something that the standard library creates to promote clarity.
+Under the hood, though, everything is implemened via code block definitions.
+Handling code blocks can create equally concise code, 
+but since the syntax may look foreign, we use the more
+verbose standard library notation.
+</p>
+
+
+<pre><code class="language-java">module xy {
+    abstract scale {
+        default factor = 1;  // set if not found
+        if(factor&lt;=0)  // Omit implied brackets
+            fail("Scale factor should be > 0, got: "+str(factor));
+        x = x*factor;
+        y = y*factor;
+    }
+    abstract normalize {
+        norm = (x^2+y^2)^0.5;
+        if(norm==0)
+            fail("Cannot normalize a zero norm");
+        x = x/norm;
+        y = y/norm;
+    }
+}
+</code></pre>
+    
+
+<p>
+An adder function performs addition while inlining some selected transformation with the
+double dot (<code>:</code>) operator. Blombly considers this operator, semicolons (<code>;</code>)
+and right brackets (<code>}</code>) as terminal symbols that end commands. This way, excesive 
+semicolons and brackets are avoided and the syntax becomes cleaner.
+Going back to the example, the inlined execution is itself enclosed in a <code>try</code> 
+statement, which intercepts any return values (though there are none in this example's inlined code) 
+or errors. If an error is found, it is handled with the
+<code>catch</code> statement, which does nothing to non-errors, including missing values.
+</p>
+
+<pre><code class="language-java">fn adder(x, y) {  // this is a macro for final adder(x,y) = {...}
+    err = try transform: // `try` intercepts errors or returns, `:` inlines execution
+    catch(err) {
+        print("Intercepted an error: " +str(err));
+        return 0;
+    }
+    return x+y;
+}
+</code></pre>
+
+<p>Finally, the <code>adder</code> function is called. Here we let some magic happen. First,
+functional programming is allowed, in which methods and abstracts can be passed around
+through variables and be the arguments of other methods. 
+In edge cases, the scope in which things are declared is not always transferred between independent 
+memory contexts to avoid unsafe parallelization. The declaring context is further ignored when 
+it comes to inlining, which directly executes code as if it were copy-pasted. That said, immutable 
+global functions and structs are still visible, and therefore this limitation does not affect most usage 
+patterns (it is a superset of the functional programming paradigm). In fact,
+it prevents the execution of ambiguous code by creating errors instead, and forcing either transference
+of whole objects or accompanying parameters to called functions.
+</p>
+<p>
+After comma-separated required positional arguments are passed to the methods
+(this syntax actually creates a list to handle an intermediate <code>args</code> variable)
+a separator  <code>|</code> follows to show that the method call switches to executing
+some initialization code. This code passes its assigned variables to the called function. ]
+In our eample, the initialization code selects which transformation mechanism should be dynamically inlined, 
+and also sets a parameter to a value different than its default.</p>
+
+<pre><code class="language-java">result = adder(1,2 | transform=xy.scale; factor=1);  // Calls run in parallel
+print(result);
+</code></pre>
+
+<!-- Navigation buttons -->
+<div class="nav-buttons">
+    <a href="introduction.html" class="nav-button">←</a>
+    <a href="hello-world.html" class="nav-button">→</a>
+</div>
+
+<script src="prism.min.js"></script>
+<script src="prism-java.min.js"></script>
+<script>
+    function toggleSidebar() {
+        document.body.classList.toggle('show-sidebar');
+    }
+</script>
+</body>
+</html>

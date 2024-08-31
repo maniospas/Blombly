@@ -1,36 +1,25 @@
 BEGIN _bb0
 BUILTIN formatted ""
-next arg args
-exists _bb3 arg
-BEGIN _bb4
-str _bb6 arg
-add formatted formatted _bb6
-BUILTIN _bb8 " "
-add formatted formatted _bb8
-next arg args
-exists _bb3 arg
+iter argiter args
+next arg argiter
+exists _bb4 arg
+BEGIN _bb5
+str _bb7 arg
+add formatted formatted _bb7
+BUILTIN _bb9 " "
+add formatted formatted _bb9
+next arg argiter
+exists _bb4 arg
 END
-while # _bb3 _bb4
+while # _bb4 _bb5
 return _bbresult0 formatted
 END
-IS std::fmt _bb0
-final # std::fmt
-BEGIN _bb9
-next x args
-next y args
-add _bb10 x y
-return _bbresult1 _bb10
+IS fmt::fmt _bb0
+final # fmt::fmt
+BUILTIN _bb10 "Give some input:"
+read x _bb10
+BEGIN _bb13
+list args x
 END
-IS adder _bb9
-final # adder
-BEGIN _bb12
-BEGIN _bb14
-BUILTIN _bb15 I1
-BUILTIN _bb16 I2
-list args _bb15 _bb16
-END
-call _bb13 _bb14 adder
-list args _bb13
-END
-call _bb11 _bb12 std::fmt
-print # _bb11
+call _bb12 _bb13 fmt::fmt
+print # _bb12
