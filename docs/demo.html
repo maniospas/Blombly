@@ -32,12 +32,14 @@
 <h1>Showcase</h1>
 <p>
 Here we present a short blombly program that demonstrates several
-language features in action.
-These include some standard library macros, error handling,
+blombly features in action. This is just to get an overview
+of what the language to do. 
+The explored concepts include some standard library macros, error handling,
 dynamic inlining, and calling functions with a mixture
 of positional arguments and customized expressions the generalize the 
-concept of keyword arguments. We cover these concepts one by
-one to see how they contribute to highly dynamic code.</p>
+concept of keyword arguments. You may be familiar with some of these
+terms from other languages, but we briefly go through all of them
+to see how they contribute to highly dynamic code.</p>
 
 <p>To begin with, we include the standard library <code>std</code>.
 The library's code is prepended to a compiled intermediate representation,
@@ -56,15 +58,14 @@ enable std;
 </code></pre>
 
 <p>The program begins by creating a standard library module 
-named <code>xy</code>. Modules are immutable structs, though
-we leave details of these concepts for later. For the 
-time being, consider them as objects whose declared
-methods and variables are accessible everywhere.
+named <code>xy</code>. Modules are immutable structs, but
+leave later; for the time being, consider them as objects whose 
+declared methods and variables are accessible everywhere
+in your program.
 
 This particular module comprises a couple of abstract code blocks
-without positional arguments that serve as transformation mechanisms 
-of a pair of variables <code>x</code> and <code>y</code> - hence its name. 
-These code blocks can be inlined within function definitions later.
+that can be inlined into function definitions but serve as transformation mechanisms 
+of a pair of variables <code>x</code> and <code>y</code>. 
 The distinction between modules, abstracts, and functions
 is something that the standard library creates to promote clarity.
 Under the hood, though, everything is implemened via code block definitions.

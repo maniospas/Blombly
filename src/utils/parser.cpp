@@ -2,10 +2,12 @@
 #include <unordered_set>
 #include <map>
 #include <vector>
+#include <stack> 
 #include <filesystem>
 #include "stringtrim.cpp"
 #include "tokenizer.cpp"
 #include "common.h"
+
 #define MISSING -1
 
 const std::string PARSER_BUILTIN = "BUILTIN";
@@ -39,28 +41,59 @@ private:
     int find_end(int start, int end, const std::string& end_string, 
                  bool missing_error = false) {
         int depth = 0;
+        std::stack<int> last_open;
+        std::stack<std::string> last_open_type;
+        int last_open_value = start;
+        last_open.push(start);
         for (int i = start; i <= end; ++i) {
             if (depth == 0 && tokens[i].name == end_string)
                 return i;
-            if (tokens[i].name == "(" || tokens[i].name == "[" || 
-                tokens[i].name == "{")
-                depth += 1;
-            if (depth < 0)
-                bberror("Imbalanced parentheses, brackets, or scopes");
-            if (tokens[i].name == ")" || tokens[i].name == "]" || 
-                tokens[i].name == "}")
-                depth -= 1;
+            if (depth < 0) {
+                int pos = last_open_value;
+                std::string name = tokens[pos].name;
+                if(name=="(")
+                    bberror("Closing `)` is missing.\n"+show_position(pos));
+                if(name=="{")
+                    bberror("Closing `}` is missing.\n"+show_position(pos));
+                if(name=="[")
+                    bberror("Closing `]` is missing.\n"+show_position(pos));
+                    
+                 bberror("Unknown symbol imbalance.\n"+show_position(pos));
+            }
+            std::string name = tokens[i].name;
+            if (name == "(" || name == "[" || name == "{") {
+                    last_open.push(i);
+                    last_open_type.push(tokens[i].name);
+                    last_open_value = i;
+                    depth += 1;
+                }
+            if (name == ")" || name == "]" || name == "}") {
+                    last_open_value = last_open.top();
+                    if(last_open_type.size()>=1) {
+                        bbassert(name!=")" || last_open_type.top()=="(", "Closing `)` is missing.\n"+show_position(last_open.top()));
+                        bbassert(name!="}" || last_open_type.top()=="{", "Closing `}` is missing.\n"+show_position(last_open.top()));
+                        bbassert(name!="]" || last_open_type.top()=="[", "Closing `]` is missing.\n"+show_position(last_open.top()));
+                        last_open.pop();
+                        last_open_type.pop();
+                    }
+                    depth -= 1;
+                }
         }
         if (missing_error) {
             if(end_string==";") {
-                std::string statement;
-                for(int j=start;j<=end;j++)
-                    if(tokens[j].printable)
-                        statement += tokens[j].name+" ";
-                bberror("Statement never ended.\n"+statement+"\n"+tokens[start].toString()+": "+to_string(start,end));
+                int pos = depth<0?start:last_open.top();
+                std::string name = tokens[pos].name;
+                if(name=="(")
+                    bberror("Closing `)` is missing.\n"+show_position(pos));
+                if(name=="{")
+                    bberror("Closing `}` is missing.\n"+show_position(pos));
+                if(name=="[")
+                    bberror("Closing `]` is missing.\n"+show_position(pos));
+                    
+                 bberror("Unknown symbol imbalance.\n"+show_position(start));
             }
             else {
-                bberror("Closing " + end_string + " is missing.\n"+tokens[start].toString()+": "+to_string(start,end));
+                bberror("Closing `" + end_string + "` is missing.\n"+show_position(depth<0?start:last_open.top()));
             }
         }
         return MISSING;
@@ -69,20 +102,24 @@ private:
                       bool missing_error = false) {
         int depth = 0;
         int pos = MISSING;
+        int last_open = end;
         for (int i = start; i <= end; ++i) {
             if (depth == 0 && tokens[i].name == end_string)
                 pos = i;
             if (tokens[i].name == "(" || tokens[i].name == "[" || 
-                tokens[i].name == "{")
+                tokens[i].name == "{") 
                 depth += 1;
             if (depth < 0)
-                bberror("Imbalanced parentheses, brackets, or scopes\n"+tokens[start].toString()+": "+to_string(start,end));
+                bberror("Imbalanced parentheses, brackets, or scopes\n"+show_position(last_open));
             if (tokens[i].name == ")" || tokens[i].name == "]" || 
-                tokens[i].name == "}")
+                tokens[i].name == "}") {
+                if(depth==0)
+                    last_open = i;
                 depth -= 1;
+            }
         }
         if (missing_error && pos == MISSING) {
-            bberror("Closing " + end_string + " is missing\n"+tokens[start].toString()+": "+to_string(start,end));
+            bberror("Closing " + end_string + " is missing\n"+show_position(last_open));
         }
         return pos;
     }
@@ -105,6 +142,74 @@ public:
         return expr;
     }
 
+    std::string show_position(int pos) const {
+        return show_position(tokens, pos);
+    }
+
+    static std::string show_position(const std::vector<Token>& tokens, int pos) {
+        std::string expr;
+        for(int mac=tokens[pos].line.size()-1;mac>=0;--mac) {
+            if(expr.size())
+                expr += "\n";
+            int start = pos;
+            int end = pos;
+            while(start>0 && (tokens[start-1].has(tokens[pos].line[mac], tokens[pos].file[mac]))) 
+                start--;
+            while(end<tokens.size()-1 && tokens[end+1].has(tokens[pos].line[mac], tokens[pos].file[mac])) 
+                end++;
+
+            // print previous lines
+            /*int prev_start = start;
+            while(prev_start>0 && (tokens[prev_start-1].has(tokens[pos].line[mac]-1, tokens[pos].file[mac]))) 
+                prev_start--;
+            int prev_prev_start = prev_start;
+            while(prev_prev_start>0 && (tokens[prev_prev_start-1].has(tokens[pos].line[mac]-2, tokens[pos].file[mac]))) 
+                prev_prev_start--;
+            expr += "   \x1B[34m\u2192\033[0m ...\n   ";
+            for(int i=prev_start;i<start;i++)
+                if (tokens[i].printable) {
+                    expr += tokens[i].name;
+                    if(i<end-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
+                                && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]")
+                        expr += " ";
+                }
+            if(prev_start!=start)
+                expr += "\n   ";
+            for(int i=prev_prev_start;i<prev_start;i++)
+                if (tokens[i].printable) {
+                    expr += tokens[i].name;
+                    if(i<end-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
+                                && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]")
+                        expr += " ";
+                }
+             if(prev_start!=prev_prev_start)
+                expr += "\n";*/
+
+            // print error line with position indicator
+            expr += "  \x1B[34m\u2192\033[0m   ";
+            for (int i = start; i <= end; i++)
+                if (tokens[i].printable) {
+                    expr += tokens[i].name;
+                    if(i<end-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
+                                && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]")
+                        expr += " ";
+                }
+            expr += " \x1B[90m "+tokens[pos].toString();
+            expr += "\n     \x1B[31m ";
+            for (int i = start; i < pos; i++)
+                if (tokens[i].printable) {
+                    for(int k=0;k<tokens[i].name.size();++k)
+                        expr += "~";
+                    if(i<end-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
+                                && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]")
+                        expr += "~";
+                }
+            expr += "^";
+            break; // TODO: decide whether to show full replacement stack (also uncomment to debug)
+        }
+        return expr;
+    }
+
     std::string parse_expression(int start, int end, bool request_block = false, 
                                  bool ignore_empty = false) {
         if (ignore_empty && start >= end)
@@ -113,7 +218,7 @@ public:
             bool is_final = tokens[start].name == "final";
             bbassert(start <= end || (request_block && 
                       code_block_prepend.size()), 
-                      "Empty expression.\n"+tokens[start].toString()+": "+to_string(start,end));
+                      "Empty expression.\n"+show_position(start));
             bbassert(tokens[start].name != "#", 
                       "Expression cannot start with `#`.\n   \033[33m!!!\033[0m "
                       "This symbol is reserved for preprocessor directives "
@@ -193,7 +298,7 @@ public:
                     condition = parse_expression(start + 1, start_if_body - 1);
                     if (first_name == "while" && ret.substr(condition_start_in_ret, 5) != "BEGIN")
                         condition_text = ret.substr(condition_start_in_ret);
-                    bbassert(condition != "#", first_name + " condition does not evaluate to anything");
+                    bbassert(condition != "#", first_name + " condition does not evaluate to anything\n"+show_position(start_parenthesis+1));
                 }
                 int body_end = first_name == "while" ? MISSING : 
                                find_end(start_if_body, end, "else");
@@ -201,8 +306,11 @@ public:
                     body_end = end;
                 std::string bodyvar = create_temp();
                 ret += "BEGIN " + bodyvar + "\n";
+                if (body_end==MISSING && find_end(start_if_body, end, "else")!=MISSING) {
+                    bbassert(first_name != "while", "`while` expressions cannot have an else branch.\n"+show_position(body_end));
+                }
                 if (tokens[start_if_body].name == "{") {
-                    bbassert(find_end(start_if_body + 1, body_end, "}", true) == body_end, "There is leftover code after closing `}`\n"+tokens[start_if_body].toString()+": "+to_string(start,end));
+                    bbassert(find_end(start_if_body + 1, body_end, "}", true) == body_end, "There is leftover code after closing `}`\n"+show_position(body_end));
                     parse(start_if_body + 1, body_end - 1);
                 } else if (tokens[body_end].name == "else") {
                     parse(start_if_body, body_end - 1);
@@ -213,11 +321,11 @@ public:
                     ret += condition_text;
                 ret += "END\n";
                 if (body_end <= end - 1 && tokens[body_end].name == "else") {
-                    bbassert(first_name != "while", "`while` expressions cannot have an else branch.\n"+tokens[body_end].toString()+": "+to_string(start,end));
+                    bbassert(first_name != "while", "`while` expressions cannot have an else branch.\n"+show_position(body_end));
                     int else_end = end;
                     if (tokens[body_end + 1].name == "{") {
                         else_end = find_end(body_end + 2, end, "}", true);
-                        bbassert(else_end == end, "There is leftover code after closing `}`\n"+tokens[else_end].toString()+": "+to_string(start,end));
+                        bbassert(else_end == end, "There is leftover code after closing `}`\n"+show_position(else_end));
                     }
                     std::string endvar = create_temp();
                     ret += "BEGIN " + endvar + "\n";
@@ -229,7 +337,7 @@ public:
                     bodyvar += " " + endvar;
                     body_end = else_end;
                 }
-                bbassert(body_end == end, "`"+first_name + "` statement body terminated before end of expression.\n"+tokens[body_end].toString()+": "+to_string(start,end));
+                bbassert(body_end == end, "`"+first_name + "` statement body terminated before end of expression.\n"+show_position(body_end));
                 if(first_name!="while") // parse condition last to take advantage of blomblyvm hotpaths
                     condition = parse_expression(start + 1, start_if_body - 1);
                 ret += first_name + " # " + condition + " " + bodyvar + "\n";
@@ -244,7 +352,7 @@ public:
                                                       != "{");
                 if (first_name == "new" && ret.substr(ret.size() - 4) == "END\n")
                     ret = ret.substr(0, ret.size() - 4) + "return # this\nEND\n";
-                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`\n"+tokens[start + 1].toString()+": "+to_string(start,end));
+                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`\n"+show_position(start+1));
                 ret += first_name + " " + var + " " + parsed + "\n";
                 return var;
             }
@@ -255,17 +363,16 @@ public:
                 assignment = asAssignment;
 
             if (assignment != MISSING) {
-                bbassert(assignment != start, "Missing a variable to assign to.\n"+tokens[assignment].toString()+": "+to_string(start,end));
+                bbassert(assignment != start, "Missing a variable to assign to.\n"+show_position(assignment));
                 int start_assignment = find_last_end(start, assignment, ".");
                 int start_entry = find_last_end((start_assignment == MISSING ? 
                                  start : start_assignment) + 1, assignment, "[");
                 if (start_entry != MISSING && start_entry > start_assignment) {
-                    int end_entry = find_end(start_entry + 1, assignment, "]", 
-                                             true);
-                    bbassert(end_entry == assignment - 1, "Non-empty expression between last closing `]` and `=`.\n"+tokens[end_entry+1].toString()+": "+to_string(start,end));
+                    int end_entry = find_end(start_entry + 1, assignment, "]", true);
+                    bbassert(end_entry == assignment - 1, "Non-empty expression between last closing `]` and `"+tokens[assignment].name+"`.\n"+show_position(end_entry+1));
                     std::string obj = parse_expression(start, start_entry - 1);
-                    bbassert(obj != "#", "There is no expression outcome to assign to.\n"+tokens[start].toString()+": "+to_string(start,end));
-                    bbassert(!is_final, "Entries cannot be final.\n"+tokens[start-1].toString()+": "+to_string(start,end));
+                    bbassert(obj != "#", "There is no expression outcome to assign to.\n"+show_position(start));
+                    bbassert(!is_final, "Entries cannot be set to final.\n"+show_position(start-1));
                     ret += "put # " + obj + " " + parse_expression(start_entry 
                           + 1, end_entry - 1) + " " + parse_expression(
                           assignment + 1, end) + "\n";
@@ -277,10 +384,10 @@ public:
                     return "#";
                 }
                 if (start_assignment != MISSING) {
-                    bbassert(start_assignment >= start + 1, "Assignment expression can not start with `.`.\n"+tokens[start].toString()+": "+to_string(start,end));
+                    bbassert(start_assignment >= start + 1, "Assignment expression can not start with `.`.\n"+show_position(start));
                     int parenthesis_start = find_end(start_assignment + 1,  assignment - 1, "(");
                     std::string obj = parse_expression(start, start_assignment - 1);
-                    bbassert(obj != "#", "There is no expression outcome to assign to/\n"+tokens[start].toString()+": "+to_string(start,end));
+                    bbassert(obj != "#", "There is no expression outcome to assign to.\n"+show_position(start));
                     if (parenthesis_start != MISSING) {
                         code_block_prepend = "";
                         int parenthesis_end = find_end(parenthesis_start + 1, 
@@ -288,7 +395,7 @@ public:
                                                        true);
                         bbassert(parenthesis_end == assignment - 1, 
                                   "There is leftover code after last "
-                                  "parenthesis in assignment's left hand side.\n"+tokens[parenthesis_end].toString()+": "+to_string(start,end));
+                                  "parenthesis in assignment's left hand side.\n"+show_position(parenthesis_end));
                         for (int j = parenthesis_start + 1; j < parenthesis_end; ++j) {
                             if (tokens[j].name != ",") {
                                 code_block_prepend += "next " + tokens[j].name + " args\n";
@@ -311,7 +418,7 @@ public:
 
                 int parenthesis_start = find_end(start + 1, assignment - 1, "(");
                 bbassert(parenthesis_start == MISSING ? assignment == start + 1 : parenthesis_start == start + 1, 
-                          "Cannot understrand what to assign to\n"+tokens[start].toString()+": "+to_string(start,end));
+                          "Cannot understrand what to assign to.\n"+show_position(start));
                 if (first_name == "std::int" || first_name == "std::float" || 
                     first_name == "int" || first_name == "float" || 
                     first_name == "std::str" || first_name == "std::file" || 
@@ -338,7 +445,7 @@ public:
                             "\n   \033[33m!!!\033[0m This is for safety reasons."
                             "\n       You can overload this operator in struct definitions"
                             "\n       by creating the code block `\\" 
-                            + first_name + "`\n"+tokens[start].toString()+": "+to_string(start,end));
+                            + first_name + "`.\n"+show_position(start));
                 }
 
                 if (first_name == "default" || first_name == "std::print" || first_name == "std::read" || 
@@ -361,7 +468,7 @@ public:
                     first_name == ";" || first_name == "#") {
                     bberror("Cannot assign to blombly keyword `" + first_name + "`."+
                             "\n   \033[33m!!!\033[0m For safety, all keywords are considered final.\n"
-                            + tokens[start].toString()+": "+to_string(start,end));
+                            + show_position(start));
                 }
 
                 if (parenthesis_start != MISSING) {
@@ -370,7 +477,7 @@ public:
                                                    assignment - 1, ")", true);
                     bbassert(parenthesis_end == assignment - 1, 
                               "Leftover code after last parenthesis in assignment's left hand side.\n"
-                              + tokens[parenthesis_end].toString()+": "+to_string(start,end));
+                              + show_position(parenthesis_end));
                     for (int j = parenthesis_start + 1; j < parenthesis_end; ++j) {
                         if (tokens[j].name != ",") 
                             code_block_prepend += "next " + tokens[j].name + " args\n";
@@ -384,7 +491,7 @@ public:
                               != "_bb", "_bb variables cannot be made final\n"
                               "   \033[33m!!!\033[0m This error indicates an\n"
                               "       internal logical bug of the compiler's "
-                              "parser.\n"+tokens[start].toString()+": "+to_string(start,end));
+                              "parser.\n"+show_position(start));
                     ret += "final # " + first_name + "\n";
                 }
                 if (asAssignment != MISSING) {
@@ -395,19 +502,19 @@ public:
                 return "#";
             }
 
-            bbassert(!is_final, "Only assignments to variables can be final\n" + tokens[start].toString()+": "+to_string(start,end));
+            bbassert(!is_final, "Only assignments to variables can be final\n" + show_position(start));
             bbassert(tokens[start].name != "#", 
                       "Expression cannot start with `#` here."
                       "\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata"
                       "\n       with `@property = value;` or `final @property = value;`"
                       "\n       only before any other block commands and only"
                       "\n       and immediately assigning a block. Metadata are not inlined.\n"
-                      + tokens[start].toString()+": "+to_string(start,end));
+                      + show_position(start));
 
             
             if (first_name == "std::print") {
                 std::string parsed = parse_expression(start + 1, end);
-                bbassert(parsed != "#", "An expression that computes no value  was given to `" + first_name+"`.\n"+tokens[start+1].toString()+": "+to_string(start,end));
+                bbassert(parsed != "#", "An expression that computes no value  was given to `" + first_name+"`.\n"+show_position(start+1));
                 std::string var = "#";
                 ret += "print " + var + " " + parsed + "\n";
                 return var;
@@ -422,7 +529,7 @@ public:
             
             if (first_name == "fail") {
                 std::string parsed = parse_expression(start + 1, end);
-                bbassert(parsed != "#", "An expression that computes no value  was given to `" + first_name+"`.\n"+tokens[start+1].toString()+": "+to_string(start,end));
+                bbassert(parsed != "#", "An expression that computes no value  was given to `" + first_name+"`.\n"+show_position(tokens, start+1));
                 std::string var = "#";
                 ret += "fail " + var + " " + parsed + "\n";
                 return var;
@@ -430,7 +537,7 @@ public:
 
             if (first_name == "return") {
                 std::string parsed = parse_expression(start + 1, end);
-                bbassert(parsed != "#", "An expression that computes no value  was given to `" + first_name+"`.\n"+tokens[start+1].toString()+": "+to_string(start,end));
+                bbassert(parsed != "#", "An expression that computes no value  was given to `" + first_name+"`.\n"+show_position(start+1));
                 std::string var = "#";
                 ret += first_name + " " + var + " " + parsed + "\n";
                 return var;
@@ -547,10 +654,10 @@ public:
             }
 
             if (first_name == "std::push") {
-                bbassert(tokens[start + 1].name == "(", "Missing ( just after `" + first_name+"`.\n"+tokens[start+1].toString()+": "+to_string(start,end));
-                bbassert(find_end(start + 2, end, ")") == end, "Leftover code after the last `)` for `" + first_name+"`.\n"+tokens[start+2].toString()+": "+to_string(start,end));
+                bbassert(tokens[start + 1].name == "(", "Missing ( just after `" + first_name+"`.\n"+show_position(start+1));
+                bbassert(find_end(start + 2, end, ")") == end, "Leftover code after the last `)` for `" + first_name+"`.\n"+show_position(start+2));
                 int separator = find_end(start + 2, end, ",");
-                bbassert(separator != MISSING, "push requires at least two arguments.\n"+tokens[end].toString()+": "+to_string(start,end));
+                bbassert(separator != MISSING, "push requires at least two arguments.\n"+show_position(end));
                 if(first_name.substr(0, 5)=="std::")
                     first_name = first_name.substr(5);
                 ret += first_name + " # " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, end - 1) + "\n";
@@ -564,7 +671,7 @@ public:
                 first_name == "std::file" || first_name == "std::next" || 
                 first_name == "std::list" || first_name == "std::map" || 
                 first_name == "std::vector") {
-                bbassert(tokens[start + 1].name == "(", "Missing '(' just after '" + first_name+"'.\n"+tokens[start+1].toString()+": "+to_string(start,end));
+                bbassert(tokens[start + 1].name == "(", "Missing '(' just after '" + first_name+"'.\n"+show_position(start+1));
                 if (start + 1 >= end - 1 && (first_name == "map" || 
                                              first_name == "list")) {
                     std::string var = create_temp();
@@ -574,7 +681,7 @@ public:
                     return var;
                 }
                 std::string parsed = parse_expression(start + 1, end);
-                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name + "`.\n"+tokens[start+1].toString()+": "+to_string(start,end));
+                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name + "`.\n"+show_position(start+1));
                 std::string var = create_temp();
                 if(first_name.substr(0, 5)=="std::")
                     first_name = first_name.substr(5);
@@ -593,9 +700,9 @@ public:
                               "Create lists of more arguments by pushing "
                               "elements to\n       an empty list, or by "
                               "separating values by commas like this: `l=1,2,3;"
-                              "`.\n"+tokens[start+2].toString()+": "+to_string(start,end));
+                              "`.\n"+show_position(start+2));
                 } else {
-                    bbassert(tokens[start + 2].name == ")", "`"+first_name +"` accepts no arguments.\n"+tokens[start+2].toString()+": "+to_string(start,end));
+                    bbassert(tokens[start + 2].name == ")", "`"+first_name +"` accepts no arguments.\n"+show_position(start+2));
                 }
                 std::string var = create_temp();
                 ret += first_name + " " + var + "\n";
@@ -612,7 +719,7 @@ public:
                                                       != "{");
                 if (first_name == "new" && ret.substr(ret.size() - 4) == "END\n")
                     ret = ret.substr(0, ret.size() - 4) + "return # this\nEND\n";
-                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`\n"+tokens[start + 1].toString()+": "+to_string(start,end));
+                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`\n"+show_position(start+1));
                 ret += first_name + " " + var + " " + parsed + "\n";
                 return var;
             }
@@ -629,7 +736,7 @@ public:
                               "\n       call's parenthesis to avoid code smells. Instead, you can place"
                               "\n       any code inside the parethesis to transfer evaluated content to"
                               "\n       the method. This looks like this: `func(x=1;y=2)`\n"
-                              +tokens[call+1].toString()+": "+to_string(start,end));
+                              +show_position(call+1));
                 int conditional = find_end(call + 1, end, "|");
                 std::string parsed_args;
                 if (conditional == MISSING) {
@@ -678,7 +785,7 @@ public:
             int arrayaccess = find_last_end(start, end, "[");
             if (arrayaccess != MISSING) {
                 int arrayend = find_end(arrayaccess + 1, end, "]", true);
-                bbassert(arrayend == end, "Array access `]` ended before expression end.\n"+tokens[arrayend].toString()+": "+to_string(start,end));
+                bbassert(arrayend == end, "Array access `]` ended before expression end.\n"+show_position(arrayend));
                 std::string var = create_temp();
                 ret += "at " + var + " " + parse_expression(start, 
                                                             arrayaccess - 1) 
@@ -689,7 +796,7 @@ public:
                                                             "\n";
                 return var;
             }
-            bberror("Unknown type of command\n"+tokens[start].toString()+": "+to_string(start,end));
+            bberror("Unknown type of command\n"+show_position(start));
         /*} catch (const BBError& e) {
             if (tokens[start].line != tokens[end].line)
                 throw e;
@@ -725,12 +832,12 @@ void sanitize(std::vector<Token>& tokens) {
     std::vector<Token> updatedTokens;
     for (size_t i = 0; i < tokens.size(); ++i) {
         if (tokens[i].name == "\\")
-            bberror("A stray `\\` was encountered.\n" + tokens[i].toString());
+            bberror("A stray `\\` was encountered.\n" + Parser::show_position(tokens, i));
         if (tokens[i].name.size() >= 3 && tokens[i].name.substr(0, 3) == "_bb")
             bberror("Variable name `" + tokens[i].name + "` cannot start with _bb."
                     "\n   \033[33m!!!\033[0m Names starting with this prefix are reserved"
                     "\n       for VM local temporaries created by the compiler.\n"
-                     + tokens[i].toString());
+                     + Parser::show_position(tokens, i));
         if (tokens[i].builtintype == 3 && i < tokens.size() - 2 && 
             tokens[i + 1].name == "." && tokens[i + 2].builtintype == 3) {
             tokens[i].name += "." + tokens[i + 2].name;
@@ -748,7 +855,7 @@ void sanitize(std::vector<Token>& tokens) {
                     "\n       They can still be final or accessed from within the class's scope"
                     "\n       through  `this\\field`. This syntax works only if `this` is explicitly"
                     "\n       accessed (e.g., `temp=this;temp\\field;` fails.)\n"
-                    +tokens[i].toString());
+                    +Parser::show_position(tokens, i));
 
         }
         if (tokens[i].name.size()>1 && tokens[i].name[0] == '\\' && i > 0 && tokens[i - 1].name == "this") {
@@ -764,7 +871,7 @@ void sanitize(std::vector<Token>& tokens) {
                     "\n       But this error message invalidates the pattern `obj.this\\field`, as"
                     "\n       private fields like `\\field`` are only accessible from the keyword `this`"
                     "\n       like so: `this\\field`.\n"
-                    + tokens[i].toString());
+                    + Parser::show_position(tokens, i));
 
         }
         if ((tokens[i].name == "<" || tokens[i].name == ">" || 
@@ -787,29 +894,35 @@ void sanitize(std::vector<Token>& tokens) {
                     "\n       - `#stringify (@tokens)` converts the tokens into a string at compile time."
                     "\n       - `#fail @message;` creates a compile-time failure."
                     "\n       - `#gcc @code;` is reserved for future use.\n"
-                    + tokens[i].toString());
+                    + Parser::show_position(tokens, i));
         }
         updatedTokens.push_back(tokens[i]);
+        /*if ((tokens[i].name == "if" || tokens[i].name == "while") && ((i==0) || 
+            (tokens[i - 1].name != ";" && tokens[i - 1].name != "{" && tokens[i - 1].name != "}" && tokens[i - 1].name != "try" && tokens[i - 1].name != "default")))
+            bberror("`"+tokens[i].name+"` statements must be preceded by one of `try`, `default`, '{', '}', or ';'. "
+                    "\n   \033[33m!!!\033[0m These statements must be preceded by"
+                    "\n       one of the tokens `try`, `default`, '{', '}', or ';'\n"
+                    + Parser::show_position(tokens, i));*/
         if (tokens[i].name == "else" && i > 0 && tokens[i - 1].name == ";")
             bberror("`else` cannot be the next statement after `;`. "
                     "\n   \033[33m!!!\033[0m You may have failed to close brackets"
                     "\n       or are using a bracketless if, which should not have `;`"
                     "\n       after its first statement \n"
-                    + tokens[i].toString());
+                    + Parser::show_position(tokens, i));
         if ((tokens[i].name == "while" || tokens[i].name == "if" || 
              tokens[i].name == "catch") && i < tokens.size() - 1 && 
              tokens[i + 1].name != "(")
             bberror("Invalid `"+tokens[i].name+"` syntax."
                     "\n   \033[33m!!!\033[0m `(` should always follow `" + tokens[i].name + "`"
                     "\n       but " + tokens[i + 1].name + " encountered.\n" 
-                    + tokens[i+1].toString());
+                    + Parser::show_position(tokens, i+1));
         if ((tokens[i].name == "new") && i < tokens.size() - 1 && tokens[i + 1].name != "{")
             bberror("Invalid `"+tokens[i].name+"` syntax."
                     "\n   \033[33m!!!\033[0m `{` should always follow `" + tokens[i].name + "`"
                     "\n       but `" + tokens[i + 1].name + "` found."
                     "\n       To apply one a code block variable (which is a code smell),"
                     "\n       inline like this `" + tokens[i].name + " {block:}`.\n" 
-                    + tokens[i+1].toString());
+                    + Parser::show_position(tokens, i+1));
 
         if (tokens[i].name == "}") {
             if (i >= tokens.size() - 1)
@@ -818,13 +931,13 @@ void sanitize(std::vector<Token>& tokens) {
                 bberror("The syntax `};` is invalid."
                         "\n   \033[33m!!!\033[0m Both symbols terminate expressions."
                         "\n       Use only } instead.\n" 
-                        + tokens[i].toString());
+                        + Parser::show_position(tokens, i));
             else if (tokens[i + 1].name == ":")
                 bberror("The syntax `}:` is invalid."
                         "\n   \033[33m!!!\033[0m  Inlining a just-declared code block"
                         "\n       is equivalent to running its code immediately."
                         "\n       Maybe you did not mean to add brackets?\n" 
-                        + tokens[i].toString());
+                        + Parser::show_position(tokens, i));
             else if (tokens[i + 1].name != "." && tokens[i + 1].name != ")" && 
                      tokens[i + 1].name != "," && tokens[i + 1].name != "+" && 
                      tokens[i + 1].name != "-" && tokens[i + 1].name != "*" && 
@@ -835,7 +948,7 @@ void sanitize(std::vector<Token>& tokens) {
             if (i >= tokens.size() - 1)
                 updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
             else if (tokens[i + 1].name == ";")
-                bberror(":; is an invalid syntax. Use only `:`.\n" + tokens[i].toString());
+                bberror(":; is an invalid syntax. Use only `:`.\n" + Parser::show_position(tokens, i));
             else
                 updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
         }
@@ -860,7 +973,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
         if (tokens[i].name == "#" && i < tokens.size() - 3 && tokens[i + 1].name == "fail") {
             std::string message;
             int pos = i+2;
-            std::string involved = tokens[i].toString();
+            std::string involved = Parser::show_position(tokens, i);
             while(pos<tokens.size()) {
                 if(tokens[pos].name==";" || pos==i+3)
                     break;
@@ -869,7 +982,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 else
                     message += tokens[pos].name + " ";
                 pos++;
-                std::string inv = tokens[pos].toString();
+                std::string inv = Parser::show_position(tokens, pos);
                 if(involved.find(inv)==std::string::npos)
                     involved += "\n"+inv;
             }
@@ -883,13 +996,13 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                           "Unexpected `#spec` encountered."
                           "\n   \033[33m!!!\033[0m  `#spec` declarations can only reside"
                           "\n       at the beginning of their enclosing code block.\n"
-                          +tokens[i].toString());
+                          +Parser::show_position(tokens, i));
                 bbassert(tokens[i - 2].name == "=" || tokens[i - 2].name == "as", 
                           "Invalid `#spec` syntax."
                           "\n   \033[33m!!!\033[0m  Each `#spec` declaration must reside"
                           "\n       within a code block declaration and have the form"
                           "\n       `@block = {@code}` or `@block as {@code}`\n"
-                          +tokens[i].toString());
+                          +Parser::show_position(tokens, i));
                 int position = i - 2;
                 int depth = 0;
                 while (position > 0) {
@@ -910,7 +1023,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                           "\n   \033[33m!!!\033[0m  `#spec` declarations can only reside "
                           "\n       in named code blocks. These refer to code blocks being"
                           "\n       declared and assigned to at least one variable.\n"
-                          +tokens[i].toString());
+                          +Parser::show_position(tokens, i));
                 specNameEnd = position - 1;
                 specNameStart = specNameEnd;
                 depth = 0;
@@ -935,7 +1048,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                           "\n   \033[33m!!!\033[0m  `#spec` declarations can only reside "
                           "\n       in named code blocks. These refer to code blocks being"
                           "\n       declared and assigned to at least one variable.\n"
-                          +tokens[i].toString());
+                          +Parser::show_position(tokens, i));
             }
             int depth = 1;
             int position = i + 2;
@@ -956,12 +1069,12 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     break;
                 }
             }
-            bbassert(depth == 0, "Imbalanced parantheses or brackets.\n" + tokens[i].toString());
+            bbassert(depth == 0, "Imbalanced parantheses or brackets.\n" + Parser::show_position(tokens, i));
 
             std::vector<Token> newTokens;
             newTokens.emplace_back("final", tokens[i].file, tokens[i].line, false);
             if (specNameEnd == MISSING || specNameEnd <= specNameStart) {
-                bberror("`#spec` cannot be declared here.\n" + tokens[i].toString());
+                bberror("`#spec` cannot be declared here.\n" + Parser::show_position(tokens, i));
             } 
             else {
                 newTokens.insert(newTokens.end(), tokens.begin() + specNameStart, tokens.begin() + specNameEnd + 1);
@@ -978,7 +1091,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             bbassert(tokens[i+2].name=="(", "Missing `(`."
             "\n   \033[33m!!!\033[0m  `#stringify` should be followed by a parenthesis. "
             "\n       The only valid syntax is `#stringify(@tokens)`.\n"
-            + tokens[i].toString());
+            + Parser::show_position(tokens, i));
             int pos = i+3;
             std::string created_string;
             int depth = 1;
@@ -996,7 +1109,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             }
             bbassert(depth==0, "Missing `)`."
                                 "\n   \033[33m!!!\033[0m  `#stringify(@tokens)` parenthesis was never closed.\n"
-                                + tokens[i].toString());
+                                + Parser::show_position(tokens, i));
             updatedTokens.emplace_back("\""+created_string+"\"", tokens[i].file, tokens[i].line, false);
             i = pos;
         }
@@ -1006,12 +1119,12 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                       "Invalid `#include` syntax."
                       "\n   \033[33m!!!\033[0m  Include statements should enclose paths"
                       "\n       in quotations, like this: `#include \"libname\"`.\n" 
-                      + tokens[i].toString());
+                      + Parser::show_position(tokens, i+2));
             bbassert(tokens[i + 3].name[0] != ';', 
                       "Unexpected `;` encountered."
                       "\n   \033[33m!!!\033[0m  Include statements cannot "
                       "\n       be followed by `;`.\n" 
-                      + tokens[i].toString());
+                      + Parser::show_position(tokens, i+3));
             std::string source = tokens[i + 2].name.substr(1, tokens[i + 2].name.size() - 2);
             std::error_code ec;
             if(std::filesystem::is_directory(source, ec))
@@ -1030,7 +1143,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 bberror("Unable to open file: " + source +
                         "\n   \033[33m!!!\033[0m  This issue makes it impossible to"
                         "\n       complete the include statement.\n"
-                        + tokens[i].toString());
+                        + Parser::show_position(tokens, i));
             }
 
             std::string code = "";
@@ -1051,20 +1164,20 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
         } else if (tokens[i].name == "#" && i < tokens.size() - 4 && 
                    tokens[i + 1].name == "macro") {
             bbassert(tokens[i + 2].name == "(", "Macros should follow the "
-                      "specific pattern `#macro (@expression) = {@replacement}` "
-                      "Found at line " + std::to_string(tokens[i].line));
+                      "specific pattern `#macro (@expression) = {@replacement}`\n"+
+                      Parser::show_position(tokens, i));
             int macro_start = i + 2;
             int macro_end = macro_start;
             int depth = 0;
             int decl_end = macro_start;
             for (size_t pos = macro_start; pos < tokens.size(); ++pos) {
                 if (tokens[pos].name == "=" && depth == 0) {
-                    bbassert(decl_end == macro_start, "Macro cannot have a "
-                              "second = symbol.\n"+tokens[i].toString());
+                    bbassert(decl_end == macro_start, "Macro definition cannot have a "
+                              "second equality symbol.\n"+Parser::show_position(tokens, pos));
                     bbassert(tokens[pos - 1].name == ")" && pos < tokens.size() 
                               - 1 && tokens[pos + 1].name == "{", "Macros "
                               "should follow the specific pattern #macro "
-                              "(@expression) = {@replacement}\n"+tokens[i].toString());
+                              "(@expression) = {@replacement}\n"+Parser::show_position(tokens, pos));
                     decl_end = pos;
                 } else if (tokens[pos].name == ";" && depth == 0) {
                     macro_end = pos;
@@ -1078,28 +1191,28 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 }
                 if (depth > 2 && macro_start == decl_end)
                     bberror("Cannot nest parentheses or brackets in the "
-                            "expression part of macro definitions.\n" + tokens[i].toString());
+                            "expression part of macro definitions.\n" + Parser::show_position(tokens, macro_start));
                 bbassert(depth >= 0, "Parentheses or brackets closed "
-                          "prematurely at macro definition.\n" + tokens[i].toString());
+                          "prematurely at macro definition.\n" + Parser::show_position(tokens, macro_start));
             }
             bbassert(depth == 0, "Imbalanced parentheses or brackets at macro "
-                      "definition.\n" + tokens[i].toString());
-            bbassert(macro_end != macro_start, "Macro was never closed.\n" + tokens[i].toString());
+                      "definition.\n" + Parser::show_position(tokens, macro_start));
+            bbassert(macro_end != macro_start, "Macro was never closed.\n" + Parser::show_position(tokens, macro_start));
             bbassert(decl_end != macro_start, "Macros should follow the "
                       "specific pattern #macro (@expression) = {replacement} \n"
-                      + tokens[i].toString());
+                      + Parser::show_position(tokens, macro_start));
             std::shared_ptr<Macro> macro = std::make_shared<Macro>();
             for (int pos = macro_start + 1; pos < decl_end - 1; ++pos) 
                 macro->from.push_back(tokens[pos]);
             if(tokens[decl_end - 2].name=="}")
                 macro->from.emplace_back(";", tokens[decl_end - 2].file, tokens[decl_end - 2].line, false);  // since macro definition usually ends with }) properly close the } block with a hidden ;
             for (int pos = decl_end + 2; pos < macro_end - 1; ++pos) 
-                macro->to.push_back(tokens[pos]);
+                macro->to.emplace_back(tokens[pos].name, macro->from[0].file, macro->from[0].line, tokens[pos].file, tokens[pos].line, tokens[pos].printable);
             //if(tokens[macro_end - 2].name=="}")
             //    macro->from.emplace_back(";", tokens[macro_end - 2].file, tokens[macro_end - 2].line, false);
             bbassert(macro->from[0].name[0] != '@', "The first token of a "
                       "macro's @expression cannot be a variable starting with @.\n"
-                      + tokens[i].toString());
+                      + Parser::show_position(tokens, macro_start));
             macros.insert(macros.begin(), macro);
             i = macro_end;
         } 
@@ -1148,7 +1261,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                         while (j < macro->to.size()) {
                             if (macro->to[j].name[0] == '@' && replacement.find(macro->to[j].name)==replacement.end()) {
                                 //if(macro->to[j].name.size()>1 && macro->to[j].name[1] == '@')
-                                replacement[macro->to[j].name].emplace_back(Parser::create_temp(), macro->to[j].file, macro->to[j].line);
+                                replacement[macro->to[j].name].emplace_back(Parser::create_temp(), macro->to[j].file, macro->to[j].line);//, macro->to[j].printable);
                                 /*else
                                     bberror("Macro symbol `"+macro->to[j].name+"` was not defined."
                                             "\n   \033[33m!!!\033[0m This symbol was not a part of the macro's definition."
@@ -1165,14 +1278,13 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                         for (const auto& token : macro->to) {
                             if (token.name[0] == '@') {
                                 for (const auto& rep_token : replacement[token.name])
-                                    newTokens.push_back(rep_token);
+                                    newTokens.emplace_back(rep_token.name, tokens[i].file, tokens[i].line, rep_token.file, rep_token.line, rep_token.printable);
                             } else {
-                                newTokens.push_back(token);
+                                newTokens.emplace_back(token.name, tokens[i].file, tokens[i].line, token.file, token.line, token.printable);
                             }
                         }
                         tokens.erase(tokens.begin() + i, tokens.begin() + k);
-                        tokens.insert(tokens.begin() + i, newTokens.begin(), 
-                                      newTokens.end());
+                        tokens.insert(tokens.begin() + i, newTokens.begin(), newTokens.end());
                         i -= 1;
                         macro_found = true;
                         break;

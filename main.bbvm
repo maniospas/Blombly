@@ -1,75 +1,93 @@
-BEGIN _bb2
+BEGIN _bb0
+next re args
+next im args
 BEGIN _bb3
-BEGIN _bb5
-BUILTIN factor I1
+IS Complex Complex
+final # Complex
+IS re re
+final # re
+IS im im
+final # im
+BEGIN _bb4
+next other args
+BEGIN _bb6
+get _bb8 other re
+add _bb7 re _bb8
+get _bb10 other im
+add _bb9 im _bb10
+list args _bb7 _bb9
 END
-default _bbresult0 _bb5
-BEGIN _bb7
-str _bb9 factor
-BUILTIN _bb10 "Scale factor should be > 0, got: "
-add _bb8 _bb10 _bb9
-fail _bbresult1 _bb8
+call _bb5 _bb6 Complex
+return _bbresult0 _bb5
 END
-BUILTIN _bb12 I0
-le _bb11 factor _bb12
-if # _bb11 _bb7
-mul x x factor
-mul y y factor
+IS \add _bb4
+final # \add
+BEGIN _bb12
+next other args
+BEGIN _bb14
+get _bb16 other re
+sub _bb15 re _bb16
+get _bb18 other im
+sub _bb17 im _bb18
+list args _bb15 _bb17
 END
-IS scale _bb3
-final # scale
-BEGIN _bb15
-BUILTIN _bb17 F0.5
-BUILTIN _bb20 I2
-pow _bb19 y _bb20
-BUILTIN _bb22 I2
-pow _bb21 x _bb22
-add _bb18 _bb21 _bb19
-pow norm _bb18 _bb17
-BEGIN _bb23
-BUILTIN _bb24 "Cannot normalize a zero norm"
-fail _bbresult2 _bb24
+call _bb13 _bb14 Complex
+return _bbresult1 _bb13
 END
-BUILTIN _bb26 I0
-eq _bb25 norm _bb26
-if # _bb25 _bb23
-div x x norm
-div y y norm
+IS \sub _bb12
+final # \sub
+BEGIN _bb20
+next other args
+BEGIN _bb22
+get _bb25 other im
+mul _bb24 im _bb25
+get _bb27 other re
+mul _bb26 re _bb27
+sub _bb23 _bb26 _bb24
+get _bb30 other re
+mul _bb29 im _bb30
+get _bb32 other im
+mul _bb31 re _bb32
+add _bb28 _bb31 _bb29
+list args _bb23 _bb28
 END
-IS normalize _bb15
-final # normalize
-return _bbresult3 this
+call _bb21 _bb22 Complex
+return _bbresult2 _bb21
 END
-new xy _bb2
-final # xy
-BEGIN _bb29
-next x args
-next y args
-BEGIN _bb32
-inline _bb33 transform
-END
-try err _bb32
+IS \mul _bb20
+final # \mul
 BEGIN _bb34
-str _bb36 err
-BUILTIN _bb37 "Intercepted an error: "
+BUILTIN _bb36 ")"
+str _bb38 im
+BUILTIN _bb40 ","
+str _bb42 re
+BUILTIN _bb43 "("
+add _bb41 _bb43 _bb42
+add _bb39 _bb41 _bb40
+add _bb37 _bb39 _bb38
 add _bb35 _bb37 _bb36
-print # _bb35
-BUILTIN _bb38 I0
-return _bbresult4 _bb38
+return _bbresult3 _bb35
 END
-catch _bbresult5 err _bb34
-print # err
-add _bb39 x y
-return _bbresult6 _bb39
+IS \str _bb34
+final # \str
+return _bbresult4 this
 END
-IS adder _bb29
-final # adder
-BEGIN _bb41
-BUILTIN _bb42 I1
-BUILTIN _bb43 I2
-list args _bb42 _bb43
-get transform xy scale
-BUILTIN factor I1
+new _bb1 _bb3
+return _bbresult5 _bb1
 END
-call result _bb41 adder
-print # result
+IS Complex _bb0
+final # Complex
+BEGIN _bb45
+BUILTIN _bb46 I1
+BUILTIN _bb47 I1
+list args _bb46 _bb47
+END
+call x _bb45 Complex
+BEGIN _bb50
+BUILTIN _bb51 I2
+BUILTIN _bb52 I1
+list args _bb51 _bb52
+END
+call y _bb50 Complex
+mul z x y
+print # z

@@ -4,76 +4,116 @@
 #include <vector>
 #include "common.h"
 
-
+// Check if the string is a quoted string
 bool isString(const std::string& value) {
-    return value[0]=='"' && value[value.size()-1]=='"';
+    return value[0] == '"' && value[value.size() - 1] == '"';
 }
+
+// Check if the string is a boolean
 bool isBool(const std::string& value) {
-    return value=="true" || value=="false";
+    return value == "true" || value == "false";
 }
+
+// Check if the string is an integer
 bool isInt(const std::string& value) {
-    if(value.length()>3 && value.substr(0, 3)=="inf")
+    if (value.length() > 3 && value.substr(0, 3) == "inf")
         return false;
-    try{
-        std:stoi(value);
+    try {
+        std::stoi(value);
         return true;
     }
-    catch(...) {
+    catch (...) {
         return false;
     }
 }
+
+// Check if the string is a floating-point number
 bool isFloat(const std::string& value) {
-    if(value.length()>3 && value.substr(0, 3)=="inf")
+    if (value.length() > 3 && value.substr(0, 3) == "inf")
         return false;
-    try{
+    try {
         std::stof(value);
         return true;
     }
-    catch(...) {
+    catch (...) {
         return false;
     }
 }
 
+// Utility function to determine built-in type and handle newline replacement
+int determineBuiltintype(std::string& name) {
+    if (isString(name)) {
+        size_t pos = 0;
+        // Replace \n with space
+        while ((pos = name.find("\n", pos)) != std::string::npos) {
+            name.replace(pos, 1, " ");
+            pos += 1;
+        }
+        // Replace \\n with newline
+        pos = 0;
+        while ((pos = name.find("\\n", pos)) != std::string::npos) {
+            name.replace(pos, 2, "\n");
+            pos += 1; // Move past the replaced character
+        }
+        return 1; // String type
+    }
+    else if (isBool(name))
+        return 2; // Boolean type
+    else if (isInt(name))
+        return 3; // Integer type
+    else if (isFloat(name))
+        return 4; // Float type
+    else
+        return 0; // Unknown type
+}
 
 class Token {
 public:
     std::string name;
-    std::string file;
-    int line;
+    std::vector<std::string> file;
+    std::vector<int> line;
     int builtintype;
     bool printable;
-    Token(const std::string& name, const std::string& file, int line, bool printable=true): name(name), file(file), line(line), printable(printable) {
-        if(isString(name)) {
-            builtintype = 1;
-            // replace \n with space
-            size_t pos = 0;
-            while ((pos = this->name.find("\n", pos)) != std::string::npos) {
-                this->name.replace(pos, 1, " ");
-                pos += 1;
-            }
-            // replace \\n with new line
-            pos = 0;
-            while ((pos = this->name.find("\\n", pos)) != std::string::npos) {
-                this->name.replace(pos, 2, "\n");
-                pos += 1; // Move past the replaced character
-            }
 
-        }
-        else if(isBool(name))
-            builtintype = 2;
-        else if(isInt(name))
-            builtintype = 3;
-        else if(isFloat(name))
-            builtintype = 4;
-        else
-            builtintype = 0;
+    Token(const std::string& name, const std::vector<std::string>& __file, const std::vector<int>& __line, bool printable = true)
+        : name(name), file(__file), line(__line), printable(printable) {
+        builtintype = determineBuiltintype(this->name);
+    }
+
+    Token(const std::string& name, const std::string& _file, int _line, const std::vector<std::string>& __file, const std::vector<int>& __line, bool printable = true)
+        : name(name), file(__file), line(__line), printable(printable) {
+        file.push_back(_file);
+        line.push_back(_line);
+        builtintype = determineBuiltintype(this->name);
+    }
+
+    Token(const std::string& name, const std::vector<std::string>& _file, const std::vector<int>& _line, const std::vector<std::string>& __file, const std::vector<int>& __line, bool printable = true)
+        : name(name), file(__file), line(__line), printable(printable) {
+        file.insert(file.end(), _file.begin(), _file.end());
+        line.insert(line.end(), _line.begin(), _line.end());
+        //file.push_back(_file.back());
+        //line.push_back(_line.back());
+        builtintype = determineBuiltintype(this->name);
+    }
+
+    Token(const std::string& name, const std::string& _file, int _line, bool printable = true)
+        : name(name), printable(printable) {
+        file.push_back(_file);
+        line.push_back(_line);
+        builtintype = determineBuiltintype(this->name);
+    }
+
+    bool has(int _line, const std::string& _file) const {
+        for(int i=0;i<file.size();++i)
+            if(file[i]==_file && line[i] == _line)
+                return true;
+        return false;
     }
 
     std::string toString() const {
-        return "at line "+std::to_string(line)+" in "+file;
+        return file.back() + " line " + std::to_string(line.back());
     }
 };
-
 
 std::vector<Token> tokenize(const std::string& text, const std::string& file) {
     std::string word;
@@ -83,72 +123,74 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
     bool inComment = false;
     bool inString = false;
     char prevChar = '\n';
-    for(int i=0;i<text.size();++i) {
+
+    for (int i = 0; i < text.size(); ++i) {
         char c = text[i];
-        if(inComment) {
-            if(c!='\n')
+        if (inComment) {
+            if (c != '\n')
                 continue;
             else
                 inComment = false;
         }
-        if(c=='/' && i<text.size()-1 && text[i+1]=='/') {
+        if (c == '/' && i < text.size() - 1 && text[i + 1] == '/') {
             word = "";
             inComment = true;
             continue;
-        } 
-        if(c=='"') {
-            if(inString)
+        }
+        if (c == '"') {
+            if (inString)
                 word += c;
-            if(word.size()) 
+            if (word.size())
                 ret.emplace_back(word, file, line);
             word = "";
-            if(!inString)
+            if (!inString)
                 word += c;
             inString = !inString;
             continue;
         }
-        if(inString) {
-            if(c=='\n' || c=='\t')
+        if (inString) {
+            if (c == '\n' || c == '\t')
                 c = ' ';
             word += c;
             continue;
         }
         prevChar = c;
-        if(c=='\\') {
-            if(word.size())
+        if (c == '\\') {
+            if (word.size())
                 ret.emplace_back(word, file, line);
             word = "\\";
             specialCharacter = false;
             continue;
         }
         bool prevSpecialCharacter = specialCharacter;
-        if(c==' ' || c=='\t' || c=='\n' 
-            || c=='(' || c==')' || c=='[' || c==']' || c=='{' || c=='}'|| c=='=' || 
-            (c==':' && (i==text.size()-1 || text[i+1]!=':') && (i==0 || text[i-1]!=':'))
-            || c==';'|| c==',' || c=='.'
-            || c=='*' || c=='+' || c=='^' || c=='-' || c=='/' || c=='%' || c=='&' || c=='|' || c=='!' || c=='<' || c=='>'
-            || c=='/' || c=='#') {
-            if(word.size())
+        if (c == ' ' || c == '\t' || c == '\n'
+            || c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '=' ||
+            (c == ':' && (i == text.size() - 1 || text[i + 1] != ':') && (i == 0 || text[i - 1] != ':'))
+            || c == ';' || c == ',' || c == '.' ||
+            c == '*' || c == '+' || c == '^' || c == '-' || c == '/' || c == '%' || c == '&' || c == '|' || c == '!' || c == '<' || c == '>' ||
+            c == '/' || c == '#') {
+            if (word.size())
                 ret.emplace_back(word, file, line);
             word = "";
-            if(c=='\n')
+            if (c == '\n')
                 line++;
-            if(c==' ' || c=='\t' || c=='\n')
+            if (c == ' ' || c == '\t' || c == '\n')
                 continue;
             specialCharacter = true;
         }
         else
             specialCharacter = false;
-        if(prevSpecialCharacter && word.size()) {
+
+        if (prevSpecialCharacter && word.size()) {
             ret.emplace_back(word, file, line);
             word = "";
         }
         word += c;
     }
-    if(inString)
-        bberror("Missing `\"`. The file ended without closing the string: "+word);
-    if(word.size())
+    if (inString)
+        bberror("Missing `\"`. The file ended without closing the string: " + word);
+    if (word.size())
         ret.emplace_back(word, file, line);
 
-    return std::move(ret);
+    return ret;
 }

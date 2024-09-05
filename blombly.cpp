@@ -209,7 +209,7 @@ Data* executeBlock(const Code* code,
                 FILL_REPLACEMENT; // important to do this before passing args to context
                 Data* context = command->args[1]==variableManager.noneId?nullptr:MEMGET(memory, 1);
                 Data* called = MEMGET(memory, 2);
-                bbassert(called, "Cannot call a missing value");
+                bbassert(called, "Cannot call a missing value.");
                 Code* code;
                 if(called->getType()==STRUCT) {
                     Data* entry = ((Struct*)called)->getMemory()->get(variableManager.callId);

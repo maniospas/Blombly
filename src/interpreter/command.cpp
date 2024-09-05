@@ -59,8 +59,8 @@ Command::Command(const std::string& command, SourceFile* source, int line, Comma
     bbassert(nargs==0 || args[0]!=variableManager.thisId || argNames[0]=="set" || argNames[0]=="setfinal" || argNames[0]=="get" || argNames[0]=="return", 
         "Cannot assign to `this`."
         "\n    Encountered for operation: "+argNames[0]+
-        "\n    This error appears only for invalid hand-written .bbvm files,"
-        "\n    as the blombly compiler explicitly avoids it.");
+        "\n    This error appears only when you use `this` as a method"
+        "\n    argument or for invalid hand-written .bbvm files,.");
 }
 
 Command::~Command() {

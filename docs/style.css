@@ -15,6 +15,9 @@ p {
 .code-output .error {
     color: red;
 }
+.code-output .position {
+    color: rgb(180, 180, 180);
+}
 .code-output .arrow {
     color: rgb(139, 205, 255);
 }

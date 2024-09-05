@@ -40,20 +40,16 @@ get a sense of what errors look like and how they may be interpeted.
 To see what a syntax error looks like, let us try to execute the following invalid code:</p>
 
 <i>main.bb</i>
-<pre><code class="language-java">print("Hello"+);  // CREATES AN ERROR</code></pre>
+<pre><code class="language-java">std::print("Hello"+);  // CREATES AN ERROR</code></pre>
 
 <p>We get the following error, from which we can see that the <code>+</code> operation for
 string concatenation (see later) is added with no right-hand side. Notice that the compiler
-shows the full deconstruction process into an abstract syntax tree, to help understand what
-it's doing.</p>
+shows the exact position of the missing expression within the source code's line.</p>
 
 <pre class="code-output">> blombly main.bb
-(<span class="error"> ERROR </span>) Empty expression
-  <span class="arrow">→</span>                                             main.bb line 1
-  <span class="arrow">→</span> "Hello" +                                   main.bb line 1
-  <span class="arrow">→</span> ( "Hello" + )                               main.bb line 1
-  <span class="arrow">→</span> print ( "Hello" + )                         main.bb line 1
-  <span class="arrow">→</span> print ( "Hello" + ) ;                       main.bb line 1
+ (<span class="error"> ERROR </span>) Empty expression
+   <span class="arrow">→</span> std::print("Hello"+);  <span class="position">main.bb line 1</span>
+     <span class="error">~~~~~~~~~~~~~~~~~~~^</span>
 </pre>
 
 <p>Let us see what a logical error looks like too. Try to print a variable that does not
@@ -68,8 +64,6 @@ to see where the error's lines, for example to make sense of stack traces report
 others.</p>
 
 <pre class="code-output">> blombly main.bb
-(<span class="ok"> OK </span>) Compilation
-(<span class="ok"> OK </span>) Optimization
 (<span class="error"> ERROR </span>) Missing value: x
   <span class="arrow">→</span> print # x                                   main.bbvm line 1
 </pre>

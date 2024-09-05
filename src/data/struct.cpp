@@ -30,21 +30,23 @@ Data* Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
     std::string operation = getOperationTypeName(operation_);
     BMemory* memory = this->getMemory();
     Data* implementation = memory->getOrNull(variableManager.getId("\\"+operation), true);
-    if (!implementation || args_->arg0!=memory->getOrNullShallow(variableManager.thisId))
+    if (!implementation)// || args_->arg0!=memory->getOrNullShallow(variableManager.thisId))
         throw Unimplemented();
-    BList args;
-    args.contents->contents.reserve(args_->size - 1);
-    if (args_->size)
-        args.contents->contents.push_back(args_->arg1->shallowCopyIfNeeded());
+    BList* args = new BList();  // will be destroyed alongside the memory
+    args->contents->contents.reserve(args_->size - 1);
+    bbassert(args_->arg0==this, "\\Must define "+operation + " for the first operand");
     if (args_->size > 1)
-        args.contents->contents.push_back(args_->arg2->shallowCopyIfNeeded());
+        args->contents->contents.push_back(args_->arg1->shallowCopyIfNeeded());
+    if (args_->size > 2)
+        args->contents->contents.push_back(args_->arg2->shallowCopyIfNeeded());
     bbassert(implementation->getType() == CODE, "\\"+operation + " is not a method");
     Code* code = (Code*)implementation;
-    BMemory* newMemory = new BMemory(memory, LOCAL_EXPACTATION_FROM_CODE(code));
-    newMemory->unsafeSet(variableManager.argsId, &args, nullptr);
-    Data* value = executeBlock(code, newMemory, nullptr, nullptr);
+    BMemory newMemory(memory, LOCAL_EXPACTATION_FROM_CODE(code));
+    newMemory.unsafeSet(variableManager.argsId, args, nullptr);
+    Data* value = executeBlock(code, &newMemory, nullptr, nullptr);
+    if(value)
+        value = value->shallowCopy(); // TODO: check this
     return value;
-    throw Unimplemented();
 }
 
 

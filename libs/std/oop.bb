@@ -1,4 +1,8 @@
 // abstract definition
+#macro (std::uses @name;) = {
+    final @name = @name;
+}
+
 #macro (std::abstract @name {@code}) = {
     final @name = {
         //#spec type="abstract";

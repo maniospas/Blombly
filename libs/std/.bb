@@ -29,6 +29,7 @@
     #macro (fn) = {std::fn}
     #macro (module) = {std::module}
     #macro (abstract) = {std::abstract}
+    #macro (uses) = {std::uses}
 }
 
 #macro (enable std;) = {

@@ -1,31 +1,28 @@
 #include "libs/std"
 enable std;
 
-module xy {
-    abstract scale {
-        default factor = 1;  // set if not found
-        if(factor<=0)  // Omit implied brackets
-            fail("Scale factor should be > 0, got: "+str(factor));
-        x = x*factor;
-        y = y*factor;
-    }
-    abstract normalize {
-        norm = (x^2+y^2)^0.5;
-        if(norm==0)
-            fail("Cannot normalize a zero norm");
-        x = x/norm;
-        y = y/norm;
+fn Complex(re, im) {
+    return new{
+        uses Complex;
+        uses re;
+        uses im;
+        fn \add(other) {
+            return Complex(re+other.re, im+other.im);
+        }
+        fn \sub(other) {
+            return Complex(re-other.re, im-other.im);
+        }
+        fn \mul(other) {
+            return Complex(re*other.re-im*other.im, re*other.im+im*other.re);
+        }
+        fn \str() {
+            return "("+str(re)+","+str(im)+")";
+        }
     }
 }
 
-fn adder(x, y) {  // this is a macro for final adder(x,y) = {...}
-    err = try transform: // `try` intercepts errors or returns, `:` inlines execution
-    catch(err) {
-        print("Intercepted an error: " +str(err));
-        return 0;
-    }
-    return x+y;
-}
+x = Complex(1, 1);
+y = Complex(2, 1);
 
-result = adder(1,2 | transform=xy.scale; factor=1);  // Calls run in parallel
-print(result);
+z = x*y;
+print(z);
