@@ -1,13 +1,13 @@
 #include "libs\std\oop"
 
-#macro (enable std::convert;) = { 
+#macro (enable std::converters;) = { 
     // these are builtin type convertion symbols
     #macro (int)   = {std::int}
     #macro (float) = {std::float}
     #macro (str)   = {std::str}
 }
 
-#macro (enable std::list;) = {
+#macro (enable std::lists;) = {
     // builtin symbols (of the bbvm namespace) to work with lists
     #macro (list) = {std::list}
     #macro (map)  = {std::map}
@@ -18,7 +18,7 @@
     #macro (iter) = {std::iter}
 }
 
-#macro (enable std::vector;) = {
+#macro (enable std::vectors;) = {
     // builtin symbols (of the bbvm namespace) to work with vectors
     #macro (vector) = {std::vector}
     #macro (len) = {std::len}
@@ -34,7 +34,8 @@
 #macro (enable std;) = {
     #macro (print) = {std::print}
     #macro (read) = {std::read}
-    enable std::convert;
-    enable std::list;
-    enable std::vector;
+    enable std::converters;
+    enable std::lists;
+    enable std::vectors;
+    enable std::oop;
 }

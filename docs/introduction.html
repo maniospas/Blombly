@@ -33,17 +33,16 @@
 
 <p>
 There are many programming languages for writing dynamic yet safe code. You might 
-already have a favorite one! However, safety often comes at the cost reduced 
-expressiveness, like mutability restrictions. Otherwise, it relies on the expertise
-of non-infallible programers. Blombly is a language that aims to address these
+already have a favorite one! However, safety often comes at the cost of reduced 
+expressiveness, like mutability restrictions or relies on
+non-infallible programers. Blombly is a language that aims to address these
 issues with a small base instruction set that is easy to learn
 but promises code and memory safety by design. It also focuses on algorithmic logic 
 by automating tasks like memory management and parallelization without losing
 expressiveness. All its interfaces further follow an "one solution" principle,
 meaning that there should be one obvious way to implement code in most situations. For example,
 there is only one loop structure (<code>while</code>) and alternatives
-like iterating over all list elements are implemented by combining it with
-other base operations.</p>
+like iterating over all list elements are implemented as macros that use it.</p>
 <p>
 Blombly compiles into an intermediate representation that is interpreted by 
 the <i><strong>BLO</strong>ck ase<strong>MBLY</strong> <strong>V</strong>irtual 

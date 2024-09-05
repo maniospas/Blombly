@@ -1,28 +1,75 @@
-BEGIN _bb0
-BUILTIN formatted ""
-iter argiter args
-next arg argiter
-exists _bb4 arg
+BEGIN _bb2
+BEGIN _bb3
 BEGIN _bb5
-str _bb7 arg
-add formatted formatted _bb7
-BUILTIN _bb9 " "
-add formatted formatted _bb9
-next arg argiter
-exists _bb4 arg
+BUILTIN factor I1
 END
-while # _bb4 _bb5
-return _bbresult0 formatted
+default _bbresult0 _bb5
+BEGIN _bb7
+str _bb9 factor
+BUILTIN _bb10 "Scale factor should be > 0, got: "
+add _bb8 _bb10 _bb9
+fail _bbresult1 _bb8
 END
-IS fmt::fmt _bb0
-final # fmt::fmt
-BEGIN _bb12
-BUILTIN _bb13 I1
-return _bbresult1 _bb13
+BUILTIN _bb12 I0
+le _bb11 factor _bb12
+if # _bb11 _bb7
+mul x x factor
+mul y y factor
 END
-try y _bb12
+IS scale _bb3
+final # scale
 BEGIN _bb15
-list args y
+BUILTIN _bb17 F0.5
+BUILTIN _bb20 I2
+pow _bb19 y _bb20
+BUILTIN _bb22 I2
+pow _bb21 x _bb22
+add _bb18 _bb21 _bb19
+pow norm _bb18 _bb17
+BEGIN _bb23
+BUILTIN _bb24 "Cannot normalize a zero norm"
+fail _bbresult2 _bb24
 END
-call _bb14 _bb15 fmt::fmt
-print # _bb14
+BUILTIN _bb26 I0
+eq _bb25 norm _bb26
+if # _bb25 _bb23
+div x x norm
+div y y norm
+END
+IS normalize _bb15
+final # normalize
+return _bbresult3 this
+END
+new xy _bb2
+final # xy
+BEGIN _bb29
+next x args
+next y args
+BEGIN _bb32
+inline _bb33 transform
+END
+try err _bb32
+BEGIN _bb34
+str _bb36 err
+BUILTIN _bb37 "Intercepted an error: "
+add _bb35 _bb37 _bb36
+print # _bb35
+BUILTIN _bb38 I0
+return _bbresult4 _bb38
+END
+catch _bbresult5 err _bb34
+print # err
+add _bb39 x y
+return _bbresult6 _bb39
+END
+IS adder _bb29
+final # adder
+BEGIN _bb41
+BUILTIN _bb42 I1
+BUILTIN _bb43 I2
+list args _bb42 _bb43
+get transform xy scale
+BUILTIN factor I1
+END
+call result _bb41 adder
+print # result

@@ -1,6 +1,7 @@
 // Future.cpp
 #include "data/Future.h"
 #include "common.h"
+#include "data/berror.h"
 #include <iostream>
 
 // FutureData constructor
@@ -54,8 +55,15 @@ Data* Future::getResult() const {
         bberror("Failed to join thread");
     }
     auto res = data->result;
-    if(res->error)
-        throw *res->error;
     --thread_count;
+    if(res->error) {
+        std::string what = std::move(res->error->what());
+        res->error = nullptr;
+        res->value = nullptr;
+        bberror(what);
+        /*auto ret = new BError(res->error->what());
+        delete res->error;
+        return ret;*/
+    }
     return res->value;
 }

@@ -43,14 +43,14 @@ void BMemory::release() {
         Data* dat = element.second;
         if(dat && dat->getType()==FUTURE) {
             Future* prevRet = (Future*)dat;
-            //try {
+            try {
                 data[element.first] = prevRet->getResult();
-            /*}
+            }
             catch(const BBError& e) {
                 if(!destroyerr.size()) 
-                    destroyerr += "Error occured during the execution of dependent code.";
+                    destroyerr += "Error occured during the execution of spawned code.";
                 destroyerr += std::string("\n ( \x1B[31m ERROR \033[0m ) ")+e.what();
-            }*/
+            }
             data[element.first] = nullptr;
             attached_threads.erase(prevRet);
             if(dat->isDestroyable)
@@ -69,7 +69,7 @@ void BMemory::release() {
         if(dat->getType()==ERRORTYPE && !((BError*)dat)->isConsumed()){
             if(!err.size())
                 err += "Intercepted error not handled."
-                        "\n   \033[33m!!!\033[0m One or more errors that were intercepted with `try` were"
+                        "\n   \033[33m!!!\033[0m One or more errors that were intercepted (with `try` were"
                         "\n       neither handled with a `catch` clause nor converted to bool or str."
                         "\n       Neglecting to catch may not be an issue, as the `try` may be meant to"
                         "\n       intercept `return` values only and cause this message otherwise."

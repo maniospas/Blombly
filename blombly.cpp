@@ -426,7 +426,6 @@ Data* executeBlock(const Code* code,
                                                     "\n       This error was created because neither kind of signal was obtained."
                                                     +("\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
                         error->consume();  // this is not enough to make the code block to fail*/
-                        delete value;
                         value = nullptr;
                     }
                     *returnSignal = false;

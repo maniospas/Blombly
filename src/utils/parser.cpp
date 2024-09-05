@@ -1091,8 +1091,12 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             std::shared_ptr<Macro> macro = std::make_shared<Macro>();
             for (int pos = macro_start + 1; pos < decl_end - 1; ++pos) 
                 macro->from.push_back(tokens[pos]);
+            if(tokens[decl_end - 2].name=="}")
+                macro->from.emplace_back(";", tokens[decl_end - 2].file, tokens[decl_end - 2].line, false);  // since macro definition usually ends with }) properly close the } block with a hidden ;
             for (int pos = decl_end + 2; pos < macro_end - 1; ++pos) 
                 macro->to.push_back(tokens[pos]);
+            //if(tokens[macro_end - 2].name=="}")
+            //    macro->from.emplace_back(";", tokens[macro_end - 2].file, tokens[macro_end - 2].line, false);
             bbassert(macro->from[0].name[0] != '@', "The first token of a "
                       "macro's @expression cannot be a variable starting with @.\n"
                       + tokens[i].toString());

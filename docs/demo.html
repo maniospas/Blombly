@@ -41,21 +41,24 @@ one to see how they contribute to highly dynamic code.</p>
 
 <p>To begin with, we include the standard library <code>std</code>.
 The library's code is prepended to a compiled intermediate representation,
-but also also adds macro definitions; macros are shorthands for boilerplate code
-and donnot affect execution speed.
-The ones we use in our code are <code>std::simplify</code>, <code>std::module</code>, <code>std::fn</code>,
-and <code>std::abstract</code> keywords. The first of these is used to further remove the need to 
-prepend <code>std::</code> in the other three.
+but also also adds several macro definitions. Macros are shorthands for boilerplate code
+and do not impact execution speed. By design, most libraries internally secure variables 
+and macro names by following the notation <code>namespace::varname</code> (this is considered
+one valid variable name). In our example we use the standard library
+macros beggining with the symbols
+<code>std::fn</code>, <code>std::abstract</code>, and <code>std::module</code>.
+We also use the macro <code>enable std;</code> to omit the <code>std::</code> part of 
+standard library symbols.
 </p>
 
-<pre><code class="language-java">#include "std"
-std::simplify;
+<pre><code class="language-java">#include "libs/std"
+enable std;
 </code></pre>
 
-<p>The program begins by creating a module 
+<p>The program begins by creating a standard library module 
 named <code>xy</code>. Modules are immutable structs, though
 we leave details of these concepts for later. For the 
-time being, consider them as structs/objects whose declared
+time being, consider them as objects whose declared
 methods and variables are accessible everywhere.
 
 This particular module comprises a couple of abstract code blocks
@@ -111,9 +114,8 @@ or errors. If an error is found, it is handled with the
 }
 </code></pre>
 
-<p>Finally, the <code>adder</code> function is called. Here we let some magic happen. First,
-functional programming is allowed, in which methods and abstracts can be passed around
-through variables and be the arguments of other methods. 
+<p>Finally, the <code>adder</code> function is called. Here we allow some functional programming magic,
+where methods and abstracts can be passed around through variables and be the arguments of other methods. 
 In edge cases, the scope in which things are declared is not always transferred between independent 
 memory contexts to avoid unsafe parallelization. The declaring context is further ignored when 
 it comes to inlining, which directly executes code as if it were copy-pasted. That said, immutable 
