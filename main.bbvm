@@ -16,10 +16,13 @@ return _bbresult0 formatted
 END
 IS fmt::fmt _bb0
 final # fmt::fmt
-BUILTIN _bb10 "Give some input:"
-read x _bb10
-BEGIN _bb13
-list args x
+BEGIN _bb12
+BUILTIN _bb13 I1
+return _bbresult1 _bb13
 END
-call _bb12 _bb13 fmt::fmt
-print # _bb12
+try y _bb12
+BEGIN _bb15
+list args y
+END
+call _bb14 _bb15 fmt::fmt
+print # _bb14

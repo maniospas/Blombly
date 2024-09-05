@@ -417,8 +417,7 @@ Data* executeBlock(const Code* code,
                     bbassert(condition->getType()==CODE, "Can only inline a non-called code block for try condition");
                     Code* codeCondition = (Code*)condition;
                     value = executeBlock(codeCondition, memory, returnSignal, args);
-                    if(!value || !*returnSignal) {
-                        *returnSignal = false;
+                    if(value && !*returnSignal) {
                         /*std::string comm = command->toString();
                         comm.resize(40, ' ');
                         BError* error = new BError(" No return or fail signal was intercepted."
@@ -427,8 +426,10 @@ Data* executeBlock(const Code* code,
                                                     "\n       This error was created because neither kind of signal was obtained."
                                                     +("\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
                         error->consume();  // this is not enough to make the code block to fail*/
+                        delete value;
                         value = nullptr;
                     }
+                    *returnSignal = false;
                     FILL_REPLACEMENT;
                 }
                 catch(const BBError& e) {
