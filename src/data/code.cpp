@@ -30,7 +30,7 @@ Code::Code(void* programAt, int startAt, int endAt, BMemory*  declMemory, const 
     }
 
 void Code::setMetadata(int id, Data* data) {
-    if(metadata->metadata[id])
+    if(metadata->metadata[id] && metadata->metadata[id]!=data)  // the second check prevents cached code objects from creating errors when reused (since they are reused with the same metadata)
         bberror(toString()+" already has the specification entry: "+variableManager.getSymbol(id));
     metadata->metadata[id] = data;
 }

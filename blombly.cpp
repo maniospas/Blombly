@@ -298,7 +298,9 @@ Data* executeBlock(const Code* code,
             }
             break;
             case IS:
-                value = MEMGET(memory, 1)->shallowCopyIfNeeded();
+                value = command->knownLocal[1]?memory->getOrNullShallow(command->args[1]):memory->getOrNull(command->args[1], true);
+                if(value)
+                    value = value->shallowCopyIfNeeded();
                 FILL_REPLACEMENT;
             break;
             case EXISTS:

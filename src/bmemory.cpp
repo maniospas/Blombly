@@ -78,6 +78,7 @@ void BMemory::release() {
         }
         if(dat->isDestroyable) {
             try {
+                //std::cout << "Destroying " << variableManager.getSymbol(element.first)<<"\n";
                 delete dat;
             }
             catch(const BBError& e) {

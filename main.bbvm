@@ -2,6 +2,8 @@ BEGIN _bb0
 next re args
 next im args
 BEGIN _bb3
+IS type Complex
+final # type
 IS Complex Complex
 final # Complex
 IS re re
@@ -22,54 +24,70 @@ return _bbresult0 _bb5
 END
 IS \add _bb4
 final # \add
-BEGIN _bb12
-next other args
+BUILTIN _bb12 "\add"
+setfinal # \add name _bb12
+BUILTIN _bb13 "fn"
+setfinal # \add type _bb13
 BEGIN _bb14
-get _bb16 other re
-sub _bb15 re _bb16
-get _bb18 other im
-sub _bb17 im _bb18
-list args _bb15 _bb17
-END
-call _bb13 _bb14 Complex
-return _bbresult1 _bb13
-END
-IS \sub _bb12
-final # \sub
-BEGIN _bb20
 next other args
-BEGIN _bb22
-get _bb25 other im
-mul _bb24 im _bb25
-get _bb27 other re
-mul _bb26 re _bb27
-sub _bb23 _bb26 _bb24
-get _bb30 other re
-mul _bb29 im _bb30
-get _bb32 other im
-mul _bb31 re _bb32
-add _bb28 _bb31 _bb29
-list args _bb23 _bb28
+BEGIN _bb16
+get _bb18 other re
+sub _bb17 re _bb18
+get _bb20 other im
+sub _bb19 im _bb20
+list args _bb17 _bb19
 END
-call _bb21 _bb22 Complex
-return _bbresult2 _bb21
+call _bb15 _bb16 Complex
+return _bbresult1 _bb15
 END
-IS \mul _bb20
+IS \sub _bb14
+final # \sub
+BUILTIN _bb22 "\sub"
+setfinal # \sub name _bb22
+BUILTIN _bb23 "fn"
+setfinal # \sub type _bb23
+BEGIN _bb24
+next other args
+BEGIN _bb26
+get _bb29 other im
+mul _bb28 im _bb29
+get _bb31 other re
+mul _bb30 re _bb31
+sub _bb27 _bb30 _bb28
+get _bb34 other re
+mul _bb33 im _bb34
+get _bb36 other im
+mul _bb35 re _bb36
+add _bb32 _bb35 _bb33
+list args _bb27 _bb32
+END
+call _bb25 _bb26 Complex
+return _bbresult2 _bb25
+END
+IS \mul _bb24
 final # \mul
-BEGIN _bb34
-BUILTIN _bb36 ")"
-str _bb38 im
-BUILTIN _bb40 ","
-str _bb42 re
-BUILTIN _bb43 "("
+BUILTIN _bb38 "\mul"
+setfinal # \mul name _bb38
+BUILTIN _bb39 "fn"
+setfinal # \mul type _bb39
+BEGIN _bb40
+BUILTIN _bb42 ")"
+str _bb44 im
+BUILTIN _bb46 ","
+str _bb48 re
+BUILTIN _bb49 "Complex("
+add _bb47 _bb49 _bb48
+add _bb45 _bb47 _bb46
+add _bb43 _bb45 _bb44
 add _bb41 _bb43 _bb42
-add _bb39 _bb41 _bb40
-add _bb37 _bb39 _bb38
-add _bb35 _bb37 _bb36
-return _bbresult3 _bb35
+return _bbresult3 _bb41
 END
-IS \str _bb34
+IS \str _bb40
 final # \str
+BUILTIN _bb50 "\str"
+setfinal # \str name _bb50
+BUILTIN _bb51 "fn"
+setfinal # \str type _bb51
 return _bbresult4 this
 END
 new _bb1 _bb3
@@ -77,17 +95,24 @@ return _bbresult5 _bb1
 END
 IS Complex _bb0
 final # Complex
-BEGIN _bb45
-BUILTIN _bb46 I1
-BUILTIN _bb47 I1
-list args _bb46 _bb47
+BUILTIN _bb52 "Complex"
+setfinal # Complex name _bb52
+BUILTIN _bb53 "class"
+setfinal # Complex type _bb53
+BEGIN _bb55
+BUILTIN _bb56 I1
+BUILTIN _bb57 I1
+list args _bb56 _bb57
 END
-call x _bb45 Complex
-BEGIN _bb50
-BUILTIN _bb51 I2
-BUILTIN _bb52 I1
-list args _bb51 _bb52
+call x _bb55 Complex
+BEGIN _bb60
+BUILTIN _bb61 I2
+BUILTIN _bb62 I1
+list args _bb61 _bb62
 END
-call y _bb50 Complex
+call y _bb60 Complex
+get _bb65 x type
+get _bb64 _bb65 name
+print # _bb64
 mul z x y
 print # z

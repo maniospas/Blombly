@@ -25,13 +25,6 @@
     #macro (iter) = {std::iter}
 }
 
-#macro (enable std::oop;) = {
-    #macro (fn) = {std::fn}
-    #macro (module) = {std::module}
-    #macro (abstract) = {std::abstract}
-    #macro (uses) = {std::uses}
-}
-
 #macro (enable std;) = {
     #macro (print) = {std::print}
     #macro (read) = {std::read}

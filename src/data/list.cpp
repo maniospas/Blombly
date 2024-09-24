@@ -106,7 +106,7 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
                 contents->lock();
                 bool hasElements = contents->contents.size();
                 Data* ret = hasElements?contents->contents.front():nullptr;
-                if(hasElements)
+                if(hasElements) 
                     contents->contents.erase(contents->contents.begin());
                 contents->unlock();
                 return ret; // do not create shallow copy, because the value does not remain in the list's contents (it will be destroyed at the returned context)

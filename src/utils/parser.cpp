@@ -142,6 +142,14 @@ public:
         return expr;
     }
 
+    static std::string to_string(const std::vector<Token>& tokens, int start, int end) {
+        std::string expr;
+        for (int i = start; i <= end; i++)
+            if (tokens[i].printable)
+                expr += tokens[i].name + " ";
+        return expr;
+    }
+
     std::string show_position(int pos) const {
         return show_position(tokens, pos);
     }
@@ -443,8 +451,8 @@ public:
                         first_name = first_name.substr(5);
                     bberror("Cannot assign to internal keyword `" + first_name + "`."
                             "\n   \033[33m!!!\033[0m This is for safety reasons."
-                            "\n       You can overload this operator in struct definitions"
-                            "\n       by creating the code block `\\" 
+                            "\n        You can overload this operator in struct definitions"
+                            "\n        by creating the code block `\\" 
                             + first_name + "`.\n"+show_position(start));
                 }
 
@@ -490,7 +498,7 @@ public:
                     bbassert(first_name.size() < 3 || first_name.substr(0, 3) 
                               != "_bb", "_bb variables cannot be made final\n"
                               "   \033[33m!!!\033[0m This error indicates an\n"
-                              "       internal logical bug of the compiler's "
+                              "        internal logical bug of the compiler's "
                               "parser.\n"+show_position(start));
                     ret += "final # " + first_name + "\n";
                 }
@@ -506,9 +514,9 @@ public:
             bbassert(tokens[start].name != "#", 
                       "Expression cannot start with `#` here."
                       "\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata"
-                      "\n       with `@property = value;` or `final @property = value;`"
-                      "\n       only before any other block commands and only"
-                      "\n       and immediately assigning a block. Metadata are not inlined.\n"
+                      "\n        with `@property = value;` or `final @property = value;`"
+                      "\n        only before any other block commands and only"
+                      "\n        and immediately assigning a block. Metadata are not inlined.\n"
                       + show_position(start));
 
             
@@ -695,12 +703,10 @@ public:
                 bbassert(tokens[start + 1].name == "(", "Missing ( after " 
                           + first_name);
                 if (first_name == "list") {
-                    bbassert(tokens[start + 2].name == ")", "`"+first_name + 
-                              "` accepts no arguments\n   \033[33m!!!\033[0m "
-                              "Create lists of more arguments by pushing "
-                              "elements to\n       an empty list, or by "
-                              "separating values by commas like this: `l=1,2,3;"
-                              "`.\n"+show_position(start+2));
+                    bbassert(tokens[start + 2].name == ")", "`"+first_name + "` accepts no arguments"
+                              "\n   \033[33m!!!\033[0m Create lists of more arguments by pushing elements to"
+                              "\n        an empty list, or by separating values by commas like this: `l=1,2,3;`.\n"
+                              +show_position(start+2));
                 } else {
                     bbassert(tokens[start + 2].name == ")", "`"+first_name +"` accepts no arguments.\n"+show_position(start+2));
                 }
@@ -733,9 +739,9 @@ public:
                     bbassert(find_end(call + 1, end, "}", true) != end - 1,  
                               "Unexpected code block."
                               "\n   \033[33m!!!\033[0m Cannot directly enclose brackets inside a method"
-                              "\n       call's parenthesis to avoid code smells. Instead, you can place"
-                              "\n       any code inside the parethesis to transfer evaluated content to"
-                              "\n       the method. This looks like this: `func(x=1;y=2)`\n"
+                              "\n        call's parenthesis to avoid code smells. Instead, you can place"
+                              "\n        any code inside the parethesis to transfer evaluated content to"
+                              "\n        the method. This looks like this: `func(x=1;y=2)`\n"
                               +show_position(call+1));
                 int conditional = find_end(call + 1, end, "|");
                 std::string parsed_args;
@@ -836,7 +842,7 @@ void sanitize(std::vector<Token>& tokens) {
         if (tokens[i].name.size() >= 3 && tokens[i].name.substr(0, 3) == "_bb")
             bberror("Variable name `" + tokens[i].name + "` cannot start with _bb."
                     "\n   \033[33m!!!\033[0m Names starting with this prefix are reserved"
-                    "\n       for VM local temporaries created by the compiler.\n"
+                    "\n        for VM local temporaries created by the compiler.\n"
                      + Parser::show_position(tokens, i));
         if (tokens[i].builtintype == 3 && i < tokens.size() - 2 && 
             tokens[i + 1].name == "." && tokens[i + 2].builtintype == 3) {
@@ -851,10 +857,10 @@ void sanitize(std::vector<Token>& tokens) {
             (i == 0 || tokens[i - 1].name != "this")) {
             bberror("The pattern `.\\` is not allowed."
                     "\n   \033[33m!!!\033[0m Variables starting with `\\` are considered private and not"
-                    "\n       meant to be accessed directly as struct fields"
-                    "\n       They can still be final or accessed from within the class's scope"
-                    "\n       through  `this\\field`. This syntax works only if `this` is explicitly"
-                    "\n       accessed (e.g., `temp=this;temp\\field;` fails.)\n"
+                    "\n        meant to be accessed directly as struct fields"
+                    "\n        They can still be final or accessed from within the class's scope"
+                    "\n        through  `this\\field`. This syntax works only if `this` is explicitly"
+                    "\n        accessed (e.g., `temp=this;temp\\field;` fails.)\n"
                     +Parser::show_position(tokens, i));
 
         }
@@ -868,9 +874,9 @@ void sanitize(std::vector<Token>& tokens) {
         if (tokens[i].name == "." && i < tokens.size() - 1 && tokens[i+1].name == "this") {
             bberror("Directly accessing `.this` as a field is not allowed."
                     "\n   \033[33m!!!\033[0m You may assign it to a new accessible variable per `scope=this;`,"
-                    "\n       But this error message invalidates the pattern `obj.this\\field`, as"
-                    "\n       private fields like `\\field`` are only accessible from the keyword `this`"
-                    "\n       like so: `this\\field`.\n"
+                    "\n        But this error message invalidates the pattern `obj.this\\field`, as"
+                    "\n        private fields like `\\field`` are only accessible from the keyword `this`"
+                    "\n        like so: `this\\field`.\n"
                     + Parser::show_position(tokens, i));
 
         }
@@ -887,13 +893,13 @@ void sanitize(std::vector<Token>& tokens) {
              && tokens[i + 1].name != "spec" && tokens[i + 1].name != "fail" && tokens[i + 1].name != "gcc"))) {
             bberror("Invalid preprocessor instruction after `#` symbol."
                     "\n   \033[33m!!!\033[0m This symbol signifies preprocessor directives."
-                    "\n       Valid directives are the following patterns:"
-                    "\n       - `#include @str;` inlines a file."
-                    "\n       - `#spec @property=@value;` declares a code block specification."
-                    "\n       - `#macro (@expression)={@implementation}` defines a macro."
-                    "\n       - `#stringify (@tokens)` converts the tokens into a string at compile time."
-                    "\n       - `#fail @message;` creates a compile-time failure."
-                    "\n       - `#gcc @code;` is reserved for future use.\n"
+                    "\n        Valid directives are the following patterns:"
+                    "\n        - `#include @str;` inlines a file."
+                    "\n        - `#spec @property=@value;` declares a code block specification."
+                    "\n        - `#macro (@expression)={@implementation}` defines a macro."
+                    "\n        - `#stringify (@tokens)` converts the tokens into a string at compile time."
+                    "\n        - `#fail @message;` creates a compile-time failure."
+                    "\n        - `#gcc @code;` is reserved for future use.\n"
                     + Parser::show_position(tokens, i));
         }
         updatedTokens.push_back(tokens[i]);
@@ -906,22 +912,22 @@ void sanitize(std::vector<Token>& tokens) {
         if (tokens[i].name == "else" && i > 0 && tokens[i - 1].name == ";")
             bberror("`else` cannot be the next statement after `;`. "
                     "\n   \033[33m!!!\033[0m You may have failed to close brackets"
-                    "\n       or are using a bracketless if, which should not have `;`"
-                    "\n       after its first statement \n"
+                    "\n        or are using a bracketless if, which should not have `;`"
+                    "\n        after its first statement \n"
                     + Parser::show_position(tokens, i));
         if ((tokens[i].name == "while" || tokens[i].name == "if" || 
              tokens[i].name == "catch") && i < tokens.size() - 1 && 
              tokens[i + 1].name != "(")
             bberror("Invalid `"+tokens[i].name+"` syntax."
                     "\n   \033[33m!!!\033[0m `(` should always follow `" + tokens[i].name + "`"
-                    "\n       but " + tokens[i + 1].name + " encountered.\n" 
+                    "\n        but " + tokens[i + 1].name + " encountered.\n" 
                     + Parser::show_position(tokens, i+1));
         if ((tokens[i].name == "new") && i < tokens.size() - 1 && tokens[i + 1].name != "{")
             bberror("Invalid `"+tokens[i].name+"` syntax."
                     "\n   \033[33m!!!\033[0m `{` should always follow `" + tokens[i].name + "`"
-                    "\n       but `" + tokens[i + 1].name + "` found."
-                    "\n       To apply one a code block variable (which is a code smell),"
-                    "\n       inline like this `" + tokens[i].name + " {block:}`.\n" 
+                    "\n        but `" + tokens[i + 1].name + "` found."
+                    "\n        To apply one a code block variable (which is a code smell),"
+                    "\n        inline like this `" + tokens[i].name + " {block:}`.\n" 
                     + Parser::show_position(tokens, i+1));
 
         if (tokens[i].name == "}") {
@@ -930,13 +936,13 @@ void sanitize(std::vector<Token>& tokens) {
             else if (tokens[i + 1].name == ";")
                 bberror("The syntax `};` is invalid."
                         "\n   \033[33m!!!\033[0m Both symbols terminate expressions."
-                        "\n       Use only } instead.\n" 
+                        "\n        Use only } instead.\n" 
                         + Parser::show_position(tokens, i));
             else if (tokens[i + 1].name == ":")
                 bberror("The syntax `}:` is invalid."
                         "\n   \033[33m!!!\033[0m  Inlining a just-declared code block"
-                        "\n       is equivalent to running its code immediately."
-                        "\n       Maybe you did not mean to add brackets?\n" 
+                        "\n        is equivalent to running its code immediately."
+                        "\n        Maybe you did not mean to add brackets?\n" 
                         + Parser::show_position(tokens, i));
             else if (tokens[i + 1].name != "." && tokens[i + 1].name != ")" && 
                      tokens[i + 1].name != "," && tokens[i + 1].name != "+" && 
@@ -995,15 +1001,15 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 bbassert(tokens[i - 1].name == "{", 
                           "Unexpected `#spec` encountered."
                           "\n   \033[33m!!!\033[0m  `#spec` declarations can only reside"
-                          "\n       at the beginning of their enclosing code block.\n"
+                          "\n         at the beginning of their enclosing code block.\n"
                           +Parser::show_position(tokens, i));
                 bbassert(tokens[i - 2].name == "=" || tokens[i - 2].name == "as", 
                           "Invalid `#spec` syntax."
-                          "\n   \033[33m!!!\033[0m  Each `#spec` declaration must reside"
-                          "\n       within a code block declaration and have the form"
-                          "\n       `@block = {@code}` or `@block as {@code}`\n"
+                          "\n   \033[33m!!!\033[0m  Each `#spec` declaration can only reside"
+                          "\n        in named code blocks. These refer to code blocks being"
+                          "\n        declared and assigned to at least one variable.\n"
                           +Parser::show_position(tokens, i));
-                int position = i - 2;
+                int position = i - 1;
                 int depth = 0;
                 while (position > 0) {
                     position -= 1;
@@ -1021,8 +1027,8 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 bbassert(depth == 0, 
                           "Unexpected `#spec` encountered."
                           "\n   \033[33m!!!\033[0m  `#spec` declarations can only reside "
-                          "\n       in named code blocks. These refer to code blocks being"
-                          "\n       declared and assigned to at least one variable.\n"
+                          "\n        in named code blocks. These refer to code blocks being"
+                          "\n        declared and assigned to at least one variable.\n"
                           +Parser::show_position(tokens, i));
                 specNameEnd = position - 1;
                 specNameStart = specNameEnd;
@@ -1073,11 +1079,12 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
 
             std::vector<Token> newTokens;
             newTokens.emplace_back("final", tokens[i].file, tokens[i].line, false);
-            if (specNameEnd == MISSING || specNameEnd <= specNameStart) {
+            if (specNameEnd == MISSING || specNameEnd < specNameStart) {
                 bberror("`#spec` cannot be declared here.\n" + Parser::show_position(tokens, i));
             } 
             else {
-                newTokens.insert(newTokens.end(), tokens.begin() + specNameStart, tokens.begin() + specNameEnd + 1);
+                //std::cout<<Parser::to_string(tokens, specNameStart, specNameStart + 1)<<"."<<Parser::to_string(tokens, i + 2, specend)<<"\n";
+                newTokens.insert(newTokens.end(), tokens.begin() + specNameStart, tokens.begin() + specNameStart + 1);
                 newTokens.emplace_back(".", tokens[i].file, tokens[i].line, false);
             }
             newTokens.insert(newTokens.end(), tokens.begin() + i + 2, tokens.begin() + specend + 1);
