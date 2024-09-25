@@ -65,7 +65,7 @@ std::chrono::steady_clock::time_point program_start;
 
 #define MEMGET(memory, arg) (command->knownLocal[arg]?memory->getOrNullShallow(command->args[arg]):memory->get(command->args[arg]))
 
-#define CHECK_FOR_RETURN(expr) if(*returnSignal) { \
+#define CHECK_FOR_RETURN(expr) if(*returnSignal) { if(expr)expr = expr->shallowCopyIfNeeded();\
                         if(returnSignalHandler) { \
                             delete returnSignal; \
                             delete args; \
@@ -272,7 +272,7 @@ Data* executeBlock(const Code* code,
                 *returnSignal = true;
                 CHECK_FOR_RETURN(value);
             break;
-            case GET:{
+            case GET: {
                 value = MEMGET(memory, 1);
                 bbassert(value->getType()==STRUCT || value->getType()==CODE, "Can only get fields from structs or metadata from code blocks");
                 bbassert(!command->knownLocal[2], "Cannot get a field that is a local variable (starting with _bb...)");

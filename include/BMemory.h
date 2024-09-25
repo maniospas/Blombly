@@ -78,7 +78,7 @@ public:
 
     // Methods to get and set data
     bool contains(int item) const;
-    Data* get(int item) ;
+    Data* get(int item);
     Data* get(int item, bool allowMutable);
     Data* getOrNull(int item, bool allowMutable);
     Data* getOrNullShallow(int item);

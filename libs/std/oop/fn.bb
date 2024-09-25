@@ -24,11 +24,11 @@
     }
 }
 // function with only defaults (identified because it has an assignment)
-#macro (std::fn @name(@arg = @defaults){@code}) = {
-    final @name = {
-        #spec type="fn";
-        #spec name=#stringify(@name); 
-        default {@arg = @defaults}
-        @code
-    }
-}
+// #macro (std::fn @name(@arg = @defaults){@code}) = {
+//    final @name = {
+//        #spec type="fn";
+//        #spec name=#stringify(@name); 
+//       default {@arg = @defaults}
+//        @code
+//    }
+//}

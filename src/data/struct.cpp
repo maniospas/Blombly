@@ -57,6 +57,7 @@ Data* GlobalStruct::shallowCopy() const {
 
 GlobalStruct::GlobalStruct(BMemory*  mem) : memory(mem) {
     memory->countDependencies.fetch_add(1, std::memory_order_relaxed);
+    //std::cout<<"created struct "<<this<<"\n";
 }
 GlobalStruct::~GlobalStruct() {
     int deps = memory->countDependencies.fetch_sub(-1, std::memory_order_relaxed);
@@ -64,6 +65,7 @@ GlobalStruct::~GlobalStruct() {
         isDestroyable = false;  // ignore the destruction caused by the parent memory deletion
         delete memory;
     }
+    //std::cout<<"destroyed struct "<<this<<"\n";
 }
 BMemory* GlobalStruct::getMemory() const {return memory;}
 void GlobalStruct::lock() const {memory->lock();}

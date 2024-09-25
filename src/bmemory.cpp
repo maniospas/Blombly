@@ -136,6 +136,8 @@ Data* BMemory::get(int item) {
     //}
     Data* ret = data[item];
 
+    //std::cout<<variableManager.getSymbol(item)<<" retrieving "<<ret<<"\n";
+
     // Handle future values
     if (ret && ret->getType() == FUTURE) {
         Future* prevRet = (Future*)ret;
@@ -183,6 +185,7 @@ Data* BMemory::get(int item, bool allowMutable) {
         return fastLastAccess;
     }*/
     Data* ret = data[item];
+    //std::cout<<variableManager.getSymbol(item)<<" retrieving "<<ret<<"\n";
 
     // Handle future values
     if (ret && ret->getType() == FUTURE) {

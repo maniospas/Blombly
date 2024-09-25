@@ -3,7 +3,7 @@
 #macro (std::class @name(@args) {@code}) = {
     final @name(@args) = {
         #spec type="class";
-        #spec name=#stringify(@name); 
+        #spec name=#stringify(@name);
         return new {
             final type = @name;
             std::uses @name;
