@@ -47,7 +47,9 @@ std::shared_ptr<Data> BList::at(int index) const {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     if (index < 0 || index >= contents->size()) 
         bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents->size()) + ")");
-    return contents->at(index) ? contents->at(index)->shallowCopy() : nullptr;
+    auto res = contents->at(index);
+    SCOPY(res);
+    return res;
 }
 
 std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArgs* args) {
@@ -62,7 +64,7 @@ std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArg
                 if (contents->empty()) return nullptr;
                 auto ret = std::move(contents->front());
                 contents->erase(contents->begin());
-                return std::move(ret);
+                return ret;
             }
             case POP: {
                 if (contents->empty()) return nullptr;
@@ -96,9 +98,11 @@ std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArg
                         auto type = temp->getType();
                         if (type == INT) {
                             rawret[i] = static_cast<Integer*>(temp.get())->getValue();
-                        } else if (type == FLOAT) {
+                        } 
+                        else if (type == FLOAT) {
                             rawret[i] = static_cast<BFloat*>(temp.get())->getValue();
-                        } else {
+                        } 
+                        else {
                             bberror("Non-numeric value in list during conversion to vector");
                         }
                     }
@@ -117,14 +121,15 @@ std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArg
         // manual implementation of at to avoid deadlocks with its own lock
         if (index < 0 || index >= contents->size()) 
             bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents->size()) + ")");
-        return contents->at(index) ? contents->at(index)->shallowCopy() : nullptr;
-    }
+        auto res = contents->at(index);
+        SCOPY(res);
+        return res;
+    }   
 
     if (operation == PUSH && args->size == 2 && args->arg0.get() == this) {
-        if (args->arg1) 
-            contents->push_back(args->arg1->shallowCopy());
-        else 
-            contents->push_back(nullptr);
+        auto value = args->arg1;
+        SCOPY(value);
+        contents->push_back(std::move(value));
         return nullptr;
     }
 
@@ -132,7 +137,9 @@ std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArg
         int index = static_cast<Integer*>(args->arg1.get())->getValue();
         if (index >= contents->size()) 
             contents->resize(index + 1);
-        (*contents.get())[index] = args->arg2 ? args->arg2->shallowCopy() : nullptr;
+        auto value = args->arg2;
+        SCOPY(value);
+        (*contents.get())[index] = std::move(value);
         return nullptr;
     }
 

@@ -13,8 +13,7 @@ void threadExecute(std::shared_ptr<Code> code,
         for (auto& thread : memory->attached_threads) 
             thread->getResult();
         memory->attached_threads.clear();
-        if (value) 
-            value = value->shallowCopy();
+        SCOPY(value);
         result->value = value;
     } catch (const BBError& e) {
         // Capture and format the error message

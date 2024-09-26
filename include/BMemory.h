@@ -48,7 +48,7 @@ class BMemory {
 private:
     tsl::hopscotch_map<int, std::shared_ptr<Data>> data;
     tsl::hopscotch_set<int> finals;
-    std::shared_ptr<Data> fastLastAccess;
+    std::weak_ptr<Data> fastLastAccess;
     int fastLastAccessId;
     void release();
 
@@ -68,6 +68,7 @@ public:
     std::shared_ptr<Data> getOrNull(int item, bool allowMutable);
     std::shared_ptr<Data> getOrNullShallow(int item);
     void unsafeSet(int item, const std::shared_ptr<Data>& value, const std::shared_ptr<Data>& prev);
+    std::shared_ptr<Data> unsafeSet(int item, const std::shared_ptr<Data>& value);
     int size() const;
     void removeWithoutDelete(int item);
     void setFinal(int item);

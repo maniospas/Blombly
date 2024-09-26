@@ -45,7 +45,7 @@ void BHashMap::put(const std::shared_ptr<Data>& from, const std::shared_ptr<Data
     auto& existing = contents[key];
     if (existing && existing->isDestroyable) 
         existing.reset();  // Safely destroy the previous object
-    contents[key] = to ? to->shallowCopy() : to;
+    contents[key] = INLINE_SCOPY(to);
 }
 
 std::shared_ptr<Data> BHashMap::implement(const OperationType operation, BuiltinArgs* args) {
@@ -63,7 +63,9 @@ std::shared_ptr<Data> BHashMap::implement(const OperationType operation, Builtin
         auto it = contents.find(key);
         if (it == contents.end()) 
             return nullptr;
-        return it->second ? it->second->shallowCopy() : nullptr;
+        auto res = it->second;
+        SCOPY(res);
+        return res;
     }
 
     if (operation == PUT && args->size == 3) {

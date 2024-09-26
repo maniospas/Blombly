@@ -43,7 +43,9 @@ std::string Future::toString() const {
 // Create a shallow copy of this Future
 std::shared_ptr<Data> Future::shallowCopy() const {
     bberror("Internal error: threads cannot be copied");
-    return getResult()->shallowCopy();
+    auto res = getResult();
+    SCOPY(res);
+    return res;
 }
 
 // Get the result after joining the thread

@@ -101,8 +101,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
                     break;
                 newMemory->detach(code->getDeclarationMemory());
                 result = executeBlock(code, std::move(newMemory), newReturnSignal, args);
-                if (result)
-                    result = result->shallowCopy();
+                SCOPY(result);
                 newMemory.reset();
             } else {
                 auto newMemory = std::make_shared<BMemory>(memory, LOCAL_EXPECTATION_FROM_CODE(code));
@@ -133,17 +132,17 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             if (result->getType() == CODE) {
                 auto code = std::static_pointer_cast<Code>(result);
                 result = code->getMetadata(command->args[2]);
-                if (result) result = result->shallowCopy();
+                SCOPY(result);
             } else if (result->getType() == STRUCT) {
                 auto obj = std::static_pointer_cast<Struct>(result);
                 result = obj->getMemory()->get(command->args[2]);
-                if (result) result = result->shallowCopy();
+                SCOPY(result);
             }
         } break;
 
         case IS: {
             result = memory->getOrNull(command->args[1], true);
-            if (result) result = result->shallowCopy();
+            SCOPY(result);
         } break;
 
         case EXISTS: {
@@ -156,8 +155,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             bbassert(obj->getType() == STRUCT, "Can only set fields in a struct.");
             auto structObj = std::static_pointer_cast<Struct>(obj);
             std::shared_ptr<Data> setValue = memory->get(command->args[3]);
-            if(setValue)
-                setValue = setValue->shallowCopy();
+            SCOPY(setValue);
             structObj->getMemory()->unsafeSet(command->args[2], setValue, memory->get(command->args[2]));
         } break;
 
@@ -166,8 +164,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             bbassert(obj->getType() == CODE, "Can only set metadata for code blocks.");
             auto code = std::static_pointer_cast<Code>(obj);
             std::shared_ptr<Data> setValue = memory->get(command->args[3]);
-            if(setValue)
-                setValue = setValue->shallowCopy();
+            SCOPY(setValue);
             code->setMetadata(command->args[2], setValue);
         } break;
 
@@ -305,8 +302,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
                 auto code = std::static_pointer_cast<Code>(source);
                 result = executeBlock(code, memory, returnSignal, args);
             }
-            //if(result)
-            //    result = result->shallowCopy();
+            // SCOPY(result);
         } break;
 
         case DEFAULT: {
@@ -335,7 +331,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             bool newReturnSignal(false);
             result = executeBlock(code, newMemory, newReturnSignal, args);
             if(result) {
-                result = result->shallowCopy();
+                SCOPY(result);
                 if(result->getType()==CODE) 
                     std::static_pointer_cast<Code>(result)->setDeclarationMemory(nullptr);
             }
@@ -346,8 +342,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             auto list = std::make_shared<BList>(command->nargs-1);
             for(int i=1;i<command->nargs;i++) {
                 std::shared_ptr<Data> element = MEMGET(memory, i);
-                if(element)
-                    element = element->shallowCopy();
+                SCOPY(element);
                 list->contents->push_back(element);
             }
             result = list;
@@ -377,8 +372,5 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             result = Data::run(command->operation, &args);
         } break;
     }
-    
-    if(result && result->getType()==STRUCT) // here we may convert strong pointer structs to weak pointer structs so that deleting the memory will also delete those pointers even if there are cycles
-        result = std::static_pointer_cast<Struct>(result)->modifyBeforeAttachingToMemory(std::static_pointer_cast<Struct>(result), memory);
     memory->unsafeSet(command->args[0], result, toReplace);
 }

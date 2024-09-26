@@ -81,6 +81,8 @@ std::shared_ptr<Data> executeBlock(const std::shared_ptr<Code>& code,
                    const BuiltinArgs&  builtinArgs);
 
 #define MEMGET(memory, arg) (command->knownLocal[arg]?memory->getOrNullShallow(command->args[arg]):memory->get(command->args[arg]))
+#define SCOPY(data) if(data && data->isDestroyable) data = data->shallowCopy()
+#define INLINE_SCOPY(data) ((data && data->isDestroyable)?data->shallowCopy():nullptr)
 
 // Code reused when returning various data from overridden Data::implement to avoid reallocating memory
 #define STRING_RESULT(expr) if (args->preallocResult && args->preallocResult->getType() == STRING && args->preallocResult->isDestroyable) { \
