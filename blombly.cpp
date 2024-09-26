@@ -9,10 +9,10 @@
 #include "utils.h"
 #include "interpreter/functional.h"
 
-
-std::chrono::steady_clock::time_point program_start;
-pthread_mutex_t printLock;
-pthread_mutex_t compileLock;
+// mkdir build
+// cd build
+// cmake ..
+// cmake --build .\build --config Release
 
 
 int main(int argc, char* argv[]) {
@@ -31,43 +31,30 @@ int main(int argc, char* argv[]) {
         std::string arg = argv[i];
         if ((arg == "--threads" || arg == "-threads") && i + 1 < argc) {
             threads = std::stoi(argv[++i]);
-        } else if (arg == "--version" || arg == "-v") {
+        } 
+        else if (arg == "--version" || arg == "-v") {
             std::cout << "Version: blombly 0.2.1\n";
             return 0;
-        } else if (arg == "--help" || arg == "-h") {
+        } 
+        else if (arg == "--help" || arg == "-h") {
             std::cout << "Usage: blombly [options] [file]\n";
             std::cout << "--threads <num>   Set max threads. Default: " << default_threads << "\n";
             return 0;
-        } else {
+        } 
+        else {
             fileName = arg;
         }
     }
 
-    if (fileName.substr(fileName.size() - 3, 3) == ".bb") {
-        try {
+    try {
+        if (fileName.substr(fileName.size() - 3, 3) == ".bb") {
             compile(fileName, fileName + "vm");
-        } catch (const BBError& e) {
-            std::cerr << e.what() << "\n";
-            return 1;
-        }
-
-        try {
             optimize(fileName + "vm", fileName + "vm");
-        } catch (const BBError& e) {
-            std::cerr << e.what() << "\n";
-            return 1;
+            fileName = fileName + "vm";
         }
-
-        fileName = fileName + "vm";
     }
-
-    if (pthread_mutex_init(&printLock, nullptr) != 0) {
-        std::cerr << "Print mutex initialization failed.\n";
-        return 1;
-    }
-
-    if (pthread_mutex_init(&compileLock, nullptr) != 0) {
-        std::cerr << "Compile mutex initialization failed.\n";
+    catch (const BBError& e) {
+        std::cerr << e.what() << "\n";
         return 1;
     }
 

@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 # Project name and version
-project(MyProject VERSION 1.0 LANGUAGES CXX)
+project(blombly VERSION 3.0 LANGUAGES CXX)
 
 # Set C++20 standard
 set(CMAKE_CXX_STANDARD 20)
@@ -20,6 +20,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Collect all .cpp source files from src/
 file(GLOB_RECURSE SOURCES
+    "${PROJECT_SOURCE_DIR}/blombly.cpp"
     "${PROJECT_SOURCE_DIR}/src/*.cpp"
 )
 
@@ -37,17 +38,27 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 # LIBRARY_OUTPUT_DIRECTORY: Shared libraries (.so, .dll)
 # Both are set to the 'temp' directory
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/temp"
-    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/temp"
+    ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/build/output"
+    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/build/output"
 )
 
 # Specify where to place object files
 # OBJECT_OUTPUT_DIRECTORY directs object files (.o, .obj) to 'temp'
-set(CMAKE_OBJECT_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/temp")
+set(CMAKE_OBJECT_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/build/output")
 
 # Ensure the 'temp' directory exists
-file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/temp")
+file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/build/output")
 
-# Optional: Enable caching of compiled files
-# CMake inherently caches build information to avoid unnecessary recompilations
-# No additional configuration is typically required for basic caching
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Limited configurations" FORCE)
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/build/output"
+    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/build/output"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT_SOURCE_DIR}"  # Release executable to top folder
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECT_BINARY_DIR}/build/output"  # Debug executable to temp
+    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${PROJECT_BINARY_DIR}/build/output"
+    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${PROJECT_BINARY_DIR}/build/output"
+)

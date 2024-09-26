@@ -13,9 +13,10 @@
 // BList constructor
 BList::BList()  {}
 BList::BList(int reserve)  {
-    contents.reserve(reserve);
+    contents = std::make_shared<std::vector<std::shared_ptr<Data>>>();
+    contents->reserve(reserve);
 }
-BList::BList(const std::vector<std::shared_ptr<Data>>& contents) : contents(contents) {}
+BList::BList(const std::shared_ptr<std::vector<std::shared_ptr<Data>>>& contents) : contents(contents) {}
 BList::BList(const std::shared_ptr<BList>& list) : contents(list->contents) {}
 BList::~BList() {}
 
@@ -26,7 +27,7 @@ int BList::getType() const {
 std::string BList::toString() const {
     std::lock_guard<std::mutex> lock(memoryLock);
     std::string result = "[";
-    for (const auto& element : contents) {
+    for (const auto& element : *contents.get()) {
         if (!result.empty()) {
             result += ", ";
         }
@@ -43,11 +44,11 @@ std::shared_ptr<Data> BList::shallowCopy() const {
 
 std::shared_ptr<Data> BList::at(int index) const {
     std::lock_guard<std::mutex> lock(memoryLock);
-    if (index < 0 || index >= contents.size()) {
-        bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents.size()) + ")");
+    if (index < 0 || index >= contents->size()) {
+        bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents->size()) + ")");
         return nullptr;
     }
-    return contents[index] ? contents[index]->shallowCopy() : nullptr;
+    return contents->at(index) ? contents->at(index)->shallowCopy() : nullptr;
 }
 
 std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArgs* args) {
@@ -56,43 +57,43 @@ std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArg
     if (args->size == 1) {
         switch (operation) {
             case TOCOPY: return shallowCopy();
-            case LEN: return std::make_shared<Integer>(contents.size());
+            case LEN: return std::make_shared<Integer>(contents->size());
             case TOITER: return std::make_shared<Iterator>(args->arg0);
             case NEXT: {
-                if (contents.empty()) return nullptr;
-                auto ret = contents.front();
-                contents.erase(contents.begin());
-                return ret;
+                if (contents->empty()) return nullptr;
+                auto ret = std::move(contents->front());
+                contents->erase(contents->begin());
+                return std::move(ret);
             }
             case POP: {
-                if (contents.empty()) return nullptr;
-                auto ret = contents.back();
-                contents.pop_back();
-                return ret;
+                if (contents->empty()) return nullptr;
+                auto ret = std::move(contents->back());
+                contents->pop_back();
+                return std::move(ret);
             }
             case TOMAP: {
                 auto map = std::make_shared<BHashMap>();
-                int n = contents.size();
+                int n = contents->size();
                 for (int i = 0; i < n; ++i) {
-                    auto list = std::dynamic_pointer_cast<BList>(contents[i]);
-                    if (!list || list->contents.size() != 2) {
+                    auto list = std::dynamic_pointer_cast<BList>(contents->at(i));
+                    if (!list || list->contents->size() != 2) {
                         bberror("Can only create a map from a list of 2-element lists");
                     }
-                    map->put(list->contents[0], list->contents[1]);
+                    map->put(list->contents->at(0), list->contents->at(1));
                 }
                 return map;
             }
             case TOVECTOR: {
-                int n = contents.size();
+                int n = contents->size();
                 auto vec = std::make_shared<Vector>(n, false);
                 double* rawret = vec->data.get();
-                BuiltinArgs* args = new BuiltinArgs();
-                args->preallocResult = std::make_shared<BFloat>(0);
-                args->size = 1;
+                BuiltinArgs args;
+                args.preallocResult = std::make_shared<BFloat>(0);
+                args.size = 1;
                 try {
                     for (int i = 0; i < n; ++i) {
-                        args->arg0 = contents[i];
-                        auto temp = args->arg0->implement(TOFLOAT, args);
+                        args.arg0 = contents->at(i);
+                        auto temp = args.arg0->implement(TOFLOAT, &args);
                         auto type = temp->getType();
                         if (type == INT) {
                             rawret[i] = static_cast<Integer*>(temp.get())->getValue();
@@ -102,11 +103,10 @@ std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArg
                             bberror("Non-numeric value in list during conversion to vector");
                         }
                     }
-                } catch (BBError& e) {
-                    delete args;
+                } 
+                catch (BBError& e) {
                     throw e;
                 }
-                delete args;
                 return vec;
             }
         }
@@ -120,17 +120,17 @@ std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArg
 
     if (operation == PUSH && args->size == 2 && args->arg0.get() == this) {
         if (args->arg1) 
-            contents.push_back(args->arg1->shallowCopy());
+            contents->push_back(args->arg1->shallowCopy());
         else 
-            contents.push_back(nullptr);
+            contents->push_back(nullptr);
         return nullptr;
     }
 
     if (operation == PUT && args->size == 3 && args->arg1->getType() == INT) {
         int index = static_cast<Integer*>(args->arg1.get())->getValue();
-        if (index >= contents.size()) 
-            contents.resize(index + 1);
-        contents[index] = args->arg2 ? args->arg2->shallowCopy() : nullptr;
+        if (index >= contents->size()) 
+            contents->resize(index + 1);
+        (*contents.get())[index] = args->arg2 ? args->arg2->shallowCopy() : nullptr;
         return nullptr;
     }
 

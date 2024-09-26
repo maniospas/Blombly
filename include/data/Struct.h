@@ -13,14 +13,12 @@ private:
     mutable std::mutex memoryLock;
 
 public:
-    explicit Struct(std::shared_ptr<BMemory> mem);
+    explicit Struct(const std::shared_ptr<BMemory>& mem);
     ~Struct();
 
     int getType() const override;
     std::string toString() const override;
     std::shared_ptr<BMemory> getMemory() const;
-    void lock() const;
-    void unlock() const;
     std::shared_ptr<Data> shallowCopy() const override;
     std::shared_ptr<Data> implement(const OperationType operation_, BuiltinArgs* args_) override;
 };

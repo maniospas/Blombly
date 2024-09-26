@@ -12,12 +12,12 @@ private:
     mutable std::mutex memoryLock; 
 
 public:
-    std::vector<std::shared_ptr<Data>> contents;
+    std::shared_ptr<std::vector<std::shared_ptr<Data>>> contents;
     
     explicit BList();
     explicit BList(int reserve);
     explicit BList(const std::shared_ptr<BList>& list);
-    explicit BList(const std::vector<std::shared_ptr<Data>>& contents);
+    explicit BList(const std::shared_ptr<std::vector<std::shared_ptr<Data>>>& contents);
     ~BList();
 
     int getType() const override;

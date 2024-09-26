@@ -13,13 +13,8 @@
 #include "interpreter/functional.h"
 
 
-extern std::chrono::steady_clock::time_point program_start;
-extern pthread_mutex_t printLock;
-extern pthread_mutex_t compileLock;
-
-
 std::shared_ptr<Code> compileAndLoad(const std::string& fileName, const std::shared_ptr<BMemory>& currentMemory) {
-    pthread_mutex_lock(&compileLock);
+    std::lock_guard<std::mutex> lock(compileMutex);
 
     // Compile and optimize
     std::string file = fileName;
@@ -49,8 +44,6 @@ std::shared_ptr<Code> compileAndLoad(const std::string& fileName, const std::sha
     }
     inputFile.close();
 
-    pthread_mutex_unlock(&compileLock);
-
     return std::make_shared<Code>(program, 0, program->size() - 1, currentMemory);
 }
 
@@ -78,11 +71,13 @@ int vm(const std::string& fileName, int numThreads) {
 
         inputFile.close();
 
-        auto memory = std::make_shared<BMemory>(nullptr, DEFAULT_LOCAL_EXPECTATION);
-        auto code = std::make_shared<Code>(program, 0, program->size() - 1, memory);
-        bool hasReturned(false);
-        executeBlock(code, memory, hasReturned, BuiltinArgs());
-        bbassert(!hasReturned, "The virtual machine problem cannot return a value.");
+        {
+            auto memory = std::make_shared<BMemory>(nullptr, DEFAULT_LOCAL_EXPECTATION);
+            auto code = std::make_shared<Code>(program, 0, program->size() - 1, memory);
+            bool hasReturned(false);
+            executeBlock(code, memory, hasReturned, BuiltinArgs());
+            bbassert(!hasReturned, "The virtual machine cannot return a value.");
+        }
 
         BMemory::verify_noleaks();
     } catch (const BBError& e) {

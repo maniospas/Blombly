@@ -12,7 +12,6 @@
 #include <cstdlib>
 #include <algorithm>
 #include <unordered_set>  
-#include <pthread.h>
 #include <queue>
 #include <atomic>
 #include <functional>

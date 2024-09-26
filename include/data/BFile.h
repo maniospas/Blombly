@@ -5,14 +5,12 @@
 #include <memory>
 #include <vector>
 #include "data/Data.h"
-#include <pthread.h>
+
 
 class BFile : public Data {
 private:
-    pthread_mutex_t memoryLock;
     std::string path;
     int size;
-    int lockable; // counts shared instances - 1
     std::vector<std::string> contents;
 
 public:

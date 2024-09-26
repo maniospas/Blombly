@@ -7,10 +7,7 @@
 #include <fstream>
 
 
-BFile::BFile(const std::string& path_) : path(path_), size(0), lockable(0) {
-    if (pthread_mutex_init(&memoryLock, nullptr) != 0) {
-        bberror("Failed to create a mutex for file read/write");
-    }
+BFile::BFile(const std::string& path_) : path(path_), size(0) {
     std::ifstream file(path);
     if (file.is_open()) {
         std::string line;

@@ -8,7 +8,6 @@
 #include <vector>
 #include <iostream>
 #include <atomic>
-#include <pthread.h>
 #include "data/Data.h"
 #include "tsl/hopscotch_map.h"
 #include "tsl/hopscotch_set.h"
@@ -49,14 +48,12 @@ class BMemory {
 private:
     std::shared_ptr<BMemory> parent;
     tsl::hopscotch_map<int, std::shared_ptr<Data>> data;
-    pthread_mutex_t memoryLock;
     tsl::hopscotch_set<int> finals;
     std::shared_ptr<Data> fastLastAccess;
     int fastLastAccessId;
     void release();
 
 public:
-    std::atomic<int> countDependencies;
     tsl::hopscotch_set<std::shared_ptr<Future>> attached_threads;
     bool allowMutables;
 
@@ -64,9 +61,6 @@ public:
 
     explicit BMemory(const std::shared_ptr<BMemory>& par, int expectedAssignments);
     ~BMemory();
-
-    void lock();
-    void unlock();
 
     bool contains(int item);
     std::shared_ptr<Data> get(int item);

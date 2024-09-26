@@ -18,7 +18,7 @@ public:
     std::shared_ptr<BBError> error;
     ThreadResult():value(nullptr), error(nullptr) {};
     void start(const std::shared_ptr<Code>& code, const std::shared_ptr<BMemory>& newMemory, const std::shared_ptr<ThreadResult>& futureResult, const Command& command) {
-        //thread = std::thread(threadExecute, std::move(code->shallowCopy()), std::move(newMemory), std::move(futureResult), command);
+        thread = std::thread(threadExecute, std::move(std::static_pointer_cast<Code>(code->shallowCopy())), std::move(newMemory), std::move(futureResult), command);
     }
 };
 

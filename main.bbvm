@@ -1,2 +1,10 @@
-BUILTIN _bb0 I1
-print # _bb0
+BEGIN _bb0
+next x args
+print # x
+END
+IS test _bb0
+BEGIN _bb2
+BUILTIN _bb3 I1
+list args _bb3
+END
+call _bb1 _bb2 test

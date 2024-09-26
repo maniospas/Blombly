@@ -12,7 +12,7 @@ std::shared_ptr<Data> executeBlock(const std::shared_ptr<Code>& code, const std:
 
     try {
         for (; i <= end; ++i) {
-            value = handleCommand(program, i, memory, returnSignal, args);
+            handleCommand(program, i, memory, returnSignal, args, value);
             if (returnSignal) 
                 return value;
         }

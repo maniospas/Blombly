@@ -18,7 +18,7 @@ CommandContext::CommandContext(const std::string& source) : source(source) {}
 
 // Command constructor
 Command::Command(const std::string& command, std::shared_ptr<SourceFile> source_, int line_, std::shared_ptr<CommandContext> descriptor_) 
-    : source(std::move(source_)), line(line_), descriptor(std::move(descriptor_)), lastCalled(nullptr), value(nullptr) {
+    : source(std::move(source_)), line(line_), descriptor(std::move(descriptor_)), value(nullptr) {
 
     std::vector<std::string> argNames;
     argNames.reserve(4);

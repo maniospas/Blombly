@@ -15,12 +15,9 @@ void BMemory::verify_noleaks() {
 }
 
 BMemory::BMemory(const std::shared_ptr<BMemory>& par, int expectedAssignments)
-    : parent(par), allowMutables(true), fastLastAccessId(-1), countDependencies(0) {
+    : parent(par), allowMutables(true), fastLastAccessId(-1) {
     countUnrealeasedMemories++;
     data.reserve(expectedAssignments);
-    if (pthread_mutex_init(&memoryLock, nullptr) != 0) {
-        bberror("Failed to create a mutex for memory read/write");
-    }
 }
 
 bool BMemory::isOrDerivedFrom(const std::shared_ptr<BMemory>& memory) const {
@@ -62,19 +59,10 @@ void BMemory::release() {
 BMemory::~BMemory() {
     release();
     countUnrealeasedMemories--;
-    pthread_mutex_destroy(&memoryLock);
 }
 
 int BMemory::size() const {
     return data.size();
-}
-
-void BMemory::lock() {
-    pthread_mutex_lock(&memoryLock);
-}
-
-void BMemory::unlock() {
-    pthread_mutex_unlock(&memoryLock);
 }
 
 std::shared_ptr<Data> BMemory::get(int item) {
@@ -102,17 +90,17 @@ std::shared_ptr<Data> BMemory::get(int item, bool allowMutable) {
         ret = prevRet->getResult();
         data[item] = ret;
         attached_threads.erase(prevRet);
+        bbassert(ret, "Missing value: " + variableManager.getSymbol(item));
         return ret;
     }
     if (ret) {
         bbassert(allowMutable || isFinal(item), 
             "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));
-    } else if (parent) {
+    } 
+    else if (parent) 
         ret = parent->get(item, allowMutables && allowMutable);
-    }
-    if (!ret) {
-        bberror("Missing value: " + variableManager.getSymbol(item));
-    }
+    
+    bbassert(ret, "Missing value: " + variableManager.getSymbol(item));
     return ret;
 }
 
@@ -157,9 +145,9 @@ std::shared_ptr<Data> BMemory::getOrNull(int item, bool allowMutable) {
         bberror("Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));
         return nullptr;
     }
-    if (!ret && parent) {
+    if (!ret && parent) 
         ret = parent->getOrNull(item, allowMutables && allowMutable);
-    }
+    
     return ret;
 }
 

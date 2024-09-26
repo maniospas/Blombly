@@ -1,1 +1,5 @@
-std::print(1);
+test(x) = {
+    std::print(x);
+}
+
+test(1);

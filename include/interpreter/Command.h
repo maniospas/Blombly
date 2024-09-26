@@ -29,7 +29,6 @@ public:
     int line;
     int nargs;                              // Keeep this separately for fast checks
     std::shared_ptr<CommandContext> descriptor;  // Use shared_ptr for descriptor
-    BMemory* lastCalled;
 
     Command(const std::string& command, std::shared_ptr<SourceFile> source, int line, std::shared_ptr<CommandContext> descriptor);
     std::string toString() const;
