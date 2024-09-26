@@ -1,2 +1,4 @@
 .vscode/*
 __pachache_/*
+temp/
+build/

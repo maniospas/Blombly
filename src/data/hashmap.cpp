@@ -7,141 +7,67 @@
 #include <iostream>
 #include <unordered_map>
 #include <memory>
-#include <pthread.h>
+#include <mutex>
 #include "data/Iterator.h"
 #include "tsl/hopscotch_map.h"
-#include "tsl/hopscotch_set.h"
 
+BHashMap::BHashMap() {}
 
-HashMapContents::HashMapContents() : lockable(0) {
-    if (pthread_mutex_init(&memoryLock, nullptr) != 0) 
-        bberror("Failed to create a mutex for hash map read/write");
-}
-
-HashMapContents::~HashMapContents() {
-    for (const auto& pair : contents) {
-        if (pair.second && pair.second->isDestroyable) 
-            delete pair.second;
-    }
-}
-
-void HashMapContents::lock() {
-    if (lockable)
-        pthread_mutex_lock(&memoryLock);
-}
-
-void HashMapContents::unlock() {
-    if (lockable)
-        pthread_mutex_unlock(&memoryLock);
-}
-
-void HashMapContents::unsafeUnlock() {
-    pthread_mutex_unlock(&memoryLock);
-}
-
-BHashMap::BHashMap() : contents(std::make_shared<HashMapContents>()) {}
-
-BHashMap::BHashMap(const std::shared_ptr<HashMapContents>& cont) : contents(cont) {}
-
-BHashMap::~BHashMap() {
-    contents->lock();
-    bool shouldUnlock = contents->lockable;
-    contents->lockable -= 1;
-    if (shouldUnlock)
-        contents->unsafeUnlock();
-}
+BHashMap::~BHashMap() {}
 
 int BHashMap::getType() const {
     return MAP;
 }
 
 std::string BHashMap::toString() const {
-    contents->lock();
-    std::string result = "[";
-    for (const auto& pair : contents->contents) {
+    std::lock_guard<std::mutex> lock(memoryLock);
+    std::string result = "{";
+    for (const auto& pair : contents) {
         if (result.size() > 1) 
             result += ", ";
         result += pair.second->toString();
     }
-    contents->unlock();
-    return result + "]";
+    return result + "}";
 }
 
-Data* BHashMap::shallowCopy() const {
-    contents->lock();
-    Data* ret = new BHashMap(contents);
-    bool shouldUnlock = contents->lockable;
-    contents->lockable += 1;
-    if (shouldUnlock)
-        contents->unlock();
-    return ret;
+std::shared_ptr<Data> BHashMap::shallowCopy() const {
+    std::lock_guard<std::mutex> lock(memoryLock);
+    auto copy = std::make_shared<BHashMap>();
+    copy->contents = contents;
+    return copy;
 }
 
-void BHashMap::put(Data* from, Data* to) {
+void BHashMap::put(const std::shared_ptr<Data>& from, const std::shared_ptr<Data>& to) {
     bbassert(from, "Missing key value");
-    contents->lock();
+
+    std::lock_guard<std::mutex> lock(memoryLock);
     size_t key = from->toHash();
-    Data* prev = contents->contents[key];
-    if (prev && prev->isDestroyable) {
-        delete prev;
-    }
-    contents->contents[key] = to ? to->shallowCopyIfNeeded() : to;
-    contents->unlock();
+    auto& existing = contents[key];
+    if (existing && existing->isDestroyable) 
+        existing.reset();  // Safely destroy the previous object
+    contents[key] = to ? to->shallowCopy() : to;
 }
 
-Data* BHashMap::implement(const OperationType operation, BuiltinArgs* args) {
+std::shared_ptr<Data> BHashMap::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 1) {
         switch (operation) {
-            case TOCOPY: return shallowCopyIfNeeded();
-            case LEN: return new Integer(contents->contents.size());
-            case TOITER: return new Iterator(std::make_shared<IteratorContents>(this));
-            // Implement other operations as needed
+            case TOCOPY: return shallowCopy();
+            case LEN: return std::make_shared<Integer>(contents.size());
+            case TOITER: return std::make_shared<Iterator>(args->arg0);
         }
         throw Unimplemented();
     }
     if (operation == AT && args->size == 2) {
-        contents->lock();
+        std::lock_guard<std::mutex> lock(memoryLock);
         size_t key = args->arg1->toHash();
-        auto it = contents->contents.find(key);
-        if (it == contents->contents.end()) {
-            contents->unlock();
+        auto it = contents.find(key);
+        if (it == contents.end()) 
             return nullptr;
-        }
-        Data* ret = it->second;
-        if (ret) {
-            auto type = ret->getType();
-            Data* res = args->preallocResult;
-            if (res && res->getType() == type) {
-                if (type == INT) {
-                    static_cast<Integer*>(args->preallocResult)->value = static_cast<Integer*>(ret)->value;
-                    ret = res;
-                } else if (type == FLOAT) {
-                    static_cast<BFloat*>(args->preallocResult)->value = static_cast<BFloat*>(ret)->value;
-                    ret = res;
-                } else if (type == BOOL) {
-                    static_cast<Boolean*>(args->preallocResult)->value = static_cast<Boolean*>(ret)->value;
-                    ret = res;
-                } else if (type == STRING) {
-                    static_cast<BString*>(args->preallocResult)->value = static_cast<BString*>(ret)->value;
-                    ret = res;
-                }
-            } else {
-                ret = ret->shallowCopyIfNeeded();
-            }
-        }
-        contents->unlock();
-        return ret;
+        return it->second ? it->second->shallowCopy() : nullptr;
     }
 
     if (operation == PUT && args->size == 3) {
-        contents->lock();
-        size_t key = args->arg1->toHash();
-        Data* prev = contents->contents[key];
-        if (prev && prev->isDestroyable) {
-            delete prev;
-        }
-        contents->contents[key] = args->arg2?args->arg2->shallowCopyIfNeeded():nullptr;
-        contents->unlock();
+        put(args->arg1, args->arg2);
         return nullptr;
     }
 

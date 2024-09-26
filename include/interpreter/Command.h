@@ -3,35 +3,35 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include "common.h"
 #include "data/Data.h"
 
 class SourceFile {
 public:
     std::string path;
-    SourceFile(const std::string& path);
+    explicit SourceFile(const std::string& path);
 };
 
 class CommandContext {
 public:
     std::string source;
-    CommandContext(const std::string& source);
+    explicit CommandContext(const std::string& source);
 };
 
 class Command {
 public:
     OperationType operation;
-    int* args;
-    bool* knownLocal;
-    int nargs;
-    Data* value;
-    SourceFile* source;
+    std::vector<int> args;                  // Store arguments as a vector
+    std::vector<bool> knownLocal;           // Store knownLocal as a vector
+    std::shared_ptr<Data> value;            // Use shared_ptr for value
+    std::shared_ptr<SourceFile> source;     // Use shared_ptr for source
     int line;
-    CommandContext* descriptor;
+    int nargs;                              // Keeep this separately for fast checks
+    std::shared_ptr<CommandContext> descriptor;  // Use shared_ptr for descriptor
     BMemory* lastCalled;
 
-    Command(const std::string& command, SourceFile* source, int line, CommandContext* descriptor);
-    ~Command();
+    Command(const std::string& command, std::shared_ptr<SourceFile> source, int line, std::shared_ptr<CommandContext> descriptor);
     std::string toString() const;
 };
 

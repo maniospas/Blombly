@@ -9,42 +9,33 @@
 
 class Data;
 struct BuiltinArgs {
-    Data* arg0;
-    Data* arg1;
-    Data* arg2;
+    std::shared_ptr<Data> arg0;
+    std::shared_ptr<Data> arg1;
+    std::shared_ptr<Data> arg2;
     int size;
-    Data* preallocResult;
+    std::shared_ptr<Data> preallocResult;
 };
 
 // Abstract base class for all data types
-class Data {
+class Data : public std::enable_shared_from_this<Data> {
 public:
-    //bool isMutable = true;
-    bool isDestroyable = true;
-
+    bool isDestroyable = false;
+    
     virtual std::string toString() const = 0;
     virtual int getType() const = 0;
-    virtual Data* shallowCopy() const = 0;
-    virtual bool isTrue() const {return false;}
+    virtual std::shared_ptr<Data> shallowCopy() const = 0;
+    virtual bool isTrue() const { return false; }
 
-    virtual bool couldBeShallowCopy(Data* data) {
-        return false;
-    }
     Data();
     virtual ~Data();
-    static Data* run(const OperationType operation, BuiltinArgs* args);
-    virtual Data* implement(const OperationType operation, BuiltinArgs* args) {
-        throw Unimplemented();
-    }
-    Data* shallowCopyIfNeeded() const {
-        if(isDestroyable)
-            return shallowCopy();
-        return (Data*)this;
-    }
-    virtual size_t toHash() const {
-        return std::hash<std::string>{}(toString()); 
-    }
+
+    static std::shared_ptr<Data> run(const OperationType operation, BuiltinArgs& args);
+    virtual std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args);
+    virtual size_t toHash() const;
     static int countObjects();
+    
+private:
+    static int numObjects;
 };
 
 #endif // DATA_H

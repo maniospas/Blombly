@@ -11,6 +11,8 @@
                 "${fileDirname}/src/*.cpp",
                 "${fileDirname}/src/data/*.cpp",
                 "${fileDirname}/src/interpreter/*.cpp",
+                "${fileDirname}/src/interpreter/functional/*.cpp",
+                "${fileDirname}/src/utils/*.cpp",
                 "${file}",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}.exe",

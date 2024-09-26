@@ -1,4 +1,3 @@
-// List.cpp
 #include "data/List.h"
 #include "data/Integer.h"
 #include "data/Boolean.h"
@@ -9,242 +8,129 @@
 #include "data/BHashMap.h"
 #include "common.h"
 #include <iostream>
+#include <mutex>
 
-// ListContents constructor and methods
-ListContents::ListContents(): lockable(0) {
-    if (pthread_mutex_init(&memoryLock, nullptr) != 0) {
-        bberror("Failed to create a mutex for list read/write");
-    }
+// BList constructor
+BList::BList()  {}
+BList::BList(int reserve)  {
+    contents.reserve(reserve);
 }
+BList::BList(const std::vector<std::shared_ptr<Data>>& contents) : contents(contents) {}
+BList::BList(const std::shared_ptr<BList>& list) : contents(list->contents) {}
+BList::~BList() {}
 
-ListContents::~ListContents() {
-    for(const Data* element : contents)
-        if(element && element->isDestroyable)
-            delete element;
-}
-
-void ListContents::lock() {
-    if(lockable)
-        pthread_mutex_lock(&memoryLock);
-}
-
-void ListContents::unlock() {
-    if(lockable)
-        pthread_mutex_unlock(&memoryLock);
-}
-
-void ListContents::unsafeUnlock() {
-    pthread_mutex_unlock(&memoryLock);
-}
-
-// List constructors
-BList::BList() : contents(std::make_shared<ListContents>()) {}
-
-BList::BList(const std::shared_ptr<ListContents>& cont) : contents(cont) {}
-
-BList::~BList() {
-    contents->lock();
-    bool shouldUnlock = contents->lockable;
-    contents->lockable -= 1;
-    if(shouldUnlock)
-        contents->unsafeUnlock();
-}
-
-// Return the type ID
 int BList::getType() const {
     return LIST;
 }
 
-// Convert to string representation
 std::string BList::toString() const {
-    contents->lock();
+    std::lock_guard<std::mutex> lock(memoryLock);
     std::string result = "[";
-    for (Data* element : contents->contents) {
-        if (result.size() > 1) {
+    for (const auto& element : contents) {
+        if (!result.empty()) {
             result += ", ";
         }
         result += element->toString();
     }
-    contents->unlock();
     return result + "]";
 }
 
-// Create a shallow copy of this List
-Data* BList::shallowCopy() const {
-    contents->lock();
-    Data* ret = new BList(contents);
-    bool shouldUnlock = contents->lockable;
-    contents->lockable += 1;
-    if(shouldUnlock)
-        contents->unlock();
-    return ret;
+std::shared_ptr<Data> BList::shallowCopy() const {
+    std::lock_guard<std::mutex> lock(memoryLock);
+    auto copy = std::make_shared<BList>(contents);
+    return copy;
 }
 
-Data* BList::at(int index) const {
-    contents->lock();
-    if(index < 0 || index>=contents->contents.size()) {
-        int endcontents = contents->contents.size();
-        contents->unlock();
-        bberror("List index "+std::to_string(index)+" out of range [0,"+std::to_string(endcontents)+")");
+std::shared_ptr<Data> BList::at(int index) const {
+    std::lock_guard<std::mutex> lock(memoryLock);
+    if (index < 0 || index >= contents.size()) {
+        bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents.size()) + ")");
         return nullptr;
     }
-    Data* ret = contents->contents[index];
-    if(ret)
-        ret->shallowCopyIfNeeded();
-    contents->unlock();
-    return ret;
+    return contents[index] ? contents[index]->shallowCopy() : nullptr;
 }
 
-// Implement the specified operation
-Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
-    if(args->size==1) {
-        switch(operation) {
-            case TOCOPY: return shallowCopyIfNeeded();
-            case LEN: return new Integer(contents->contents.size());
-            case TOITER: return new Iterator(std::make_shared<IteratorContents>(this));
-            case NEXT:{
-                contents->lock();
-                bool hasElements = contents->contents.size();
-                Data* ret = hasElements?contents->contents.front():nullptr;
-                if(hasElements) 
-                    contents->contents.erase(contents->contents.begin());
-                contents->unlock();
-                return ret; // do not create shallow copy, because the value does not remain in the list's contents (it will be destroyed at the returned context)
+std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArgs* args) {
+    std::lock_guard<std::mutex> lock(memoryLock);
+    
+    if (args->size == 1) {
+        switch (operation) {
+            case TOCOPY: return shallowCopy();
+            case LEN: return std::make_shared<Integer>(contents.size());
+            case TOITER: return std::make_shared<Iterator>(args->arg0);
+            case NEXT: {
+                if (contents.empty()) return nullptr;
+                auto ret = contents.front();
+                contents.erase(contents.begin());
+                return ret;
             }
             case POP: {
-                contents->lock();
-                bool hasElements = contents->contents.size();
-                Data* ret = hasElements?contents->contents.back():nullptr;
-                if(hasElements)
-                    contents->contents.pop_back();
-                contents->unlock();
-                return ret; // do not create shallow copy as the value does not remain in the list
+                if (contents.empty()) return nullptr;
+                auto ret = contents.back();
+                contents.pop_back();
+                return ret;
             }
-            case TOMAP : {
-                BHashMap* map = new BHashMap();
-                contents->lock();
-                int n = contents->contents.size();
-                int i = 0;
-                try {
-                    for(;i<n;++i) {
-                        Data* el = contents->contents[i];
-                        bbassert(el->getType()==LIST, "Can only create a map from a list of lists");
-                        BList* list = ((BList*)el);
-                        list->contents->lock();
-                        if(list->contents->contents.size()!=2) {
-                            list->contents->unlock();
-                            bberror("Can only create a map from a list of 2-element lists");
-                        }
-                        std::cout << list->contents->contents[0]->toString()<<"\n";
-                        map->put(list->contents->contents[0], list->contents->contents[1]);
-                        list->contents->unlock();
+            case TOMAP: {
+                auto map = std::make_shared<BHashMap>();
+                int n = contents.size();
+                for (int i = 0; i < n; ++i) {
+                    auto list = std::dynamic_pointer_cast<BList>(contents[i]);
+                    if (!list || list->contents.size() != 2) {
+                        bberror("Can only create a map from a list of 2-element lists");
                     }
+                    map->put(list->contents[0], list->contents[1]);
                 }
-                catch(BBError error) {
-                    contents->unlock();
-                    delete map;
-                    throw error;
-                }
-                contents->unlock();
                 return map;
             }
             case TOVECTOR: {
-                contents->lock();
-                int n = contents->contents.size();
-                Vector* ret = new Vector(n, false); // do not fill with zeros, as we will fill with whatever values we obtain
-                int i = 0;
-        		double* rawret = ret->value->data;
-        		BuiltinArgs* args = new BuiltinArgs();
-        		args->preallocResult = new BFloat(0);  // preallocate this intermediate result to speed things up in case a lot of floats are moved around (this is still slower for ints)
-        		args->size = 1;
-        		try {
-	                for(;i<n;++i) {
-        		 		args->arg0 = contents->contents[i];
-					bbassert(args->arg0, "Convertion of a list element to float encountered a missing value");
-					Data* temp = args->arg0->implement(TOFLOAT, args);
-					auto type = temp->getType();
-					bbassert(type==FLOAT || type==INT, "Convertion of a list element to float returned a non-float and non-int value");
-					double value = type==INT?((Integer*)temp)->value:((BFloat*)temp)->value;
-					rawret[i] = value;
-	                }
-        		}
-        		catch(BBError e) {
-        		 	delete ret;
-        		 	delete args->preallocResult;
-        		 	delete args;
-                contents->unlock();
-        		 	throw e;
-        		}
-        		delete args->preallocResult;
-        		delete args;
-                contents->unlock();
-                return ret;
+                int n = contents.size();
+                auto vec = std::make_shared<Vector>(n, false);
+                double* rawret = vec->data.get();
+                BuiltinArgs* args = new BuiltinArgs();
+                args->preallocResult = std::make_shared<BFloat>(0);
+                args->size = 1;
+                try {
+                    for (int i = 0; i < n; ++i) {
+                        args->arg0 = contents[i];
+                        auto temp = args->arg0->implement(TOFLOAT, args);
+                        auto type = temp->getType();
+                        if (type == INT) {
+                            rawret[i] = static_cast<Integer*>(temp.get())->getValue();
+                        } else if (type == FLOAT) {
+                            rawret[i] = static_cast<BFloat*>(temp.get())->getValue();
+                        } else {
+                            bberror("Non-numeric value in list during conversion to vector");
+                        }
+                    }
+                } catch (BBError& e) {
+                    delete args;
+                    throw e;
+                }
+                delete args;
+                return vec;
             }
         }
         throw Unimplemented();
     }
-    if(operation==AT && args->size==2 && args->arg1->getType()==INT) {
-        contents->lock();
-        int index = ((Integer*)args->arg1)->getValue();
-        if(index < 0 || index>=contents->contents.size()) {
-            int endcontents = contents->contents.size();
-            contents->unlock();
-            bberror("List index "+std::to_string(index)+" out of range [0,"+std::to_string(endcontents)+")");
-            return nullptr;
-        }
-        Data* ret = contents->contents[index];
-        if(ret) {
-            //TODO: check if the following speedup is correct
-            auto type = ret->getType();
-            Data* res = args->preallocResult;
-            if(res && res->getType()==type) {
-                if(type==INT) {
-                    ((Integer*)res)->value = ((Integer*)ret)->value;
-                    ret = res;
-                }
-                else if(type==FLOAT) {
-                    ((BFloat*)res)->value = ((BFloat*)ret)->value;
-                    ret = res;
-                }
-                else if(type==BOOL) {
-                    ((Boolean*)res)->value = ((Boolean*)ret)->value;
-                    ret = res;
-                }
-                else if(type==STRING) {
-                    ((BString*)res)->value = ((BString*)ret)->value;
-                    ret = res;
-                }
-                else
-                    ret = ret->shallowCopyIfNeeded();
-            }
-            else 
-                ret = ret->shallowCopyIfNeeded();
-        }
-        contents->unlock();
-        return ret;
+
+    if (operation == AT && args->size == 2 && args->arg1->getType() == INT) {
+        int index = static_cast<Integer*>(args->arg1.get())->getValue();
+        return at(index);
     }
 
-    if(operation==PUSH && args->size==2 && args->arg0==this) {
-        contents->lock();
-        if(args->arg1)
-            contents->contents.push_back(args->arg1->shallowCopyIfNeeded());
-        else
-            contents->contents.push_back(nullptr);
-        contents->unlock();
+    if (operation == PUSH && args->size == 2 && args->arg0.get() == this) {
+        if (args->arg1) 
+            contents.push_back(args->arg1->shallowCopy());
+        else 
+            contents.push_back(nullptr);
         return nullptr;
     }
 
-    if(operation==PUT && args->size==3 && args->arg1->getType()==INT) {
-        contents->lock();
-        int index = ((Integer*)args->arg1)->getValue();
-        int diff = index-contents->contents.size();
-        for(int i=0;i<=diff;i++)
-            contents->contents.push_back(nullptr);
-        Data* prev = contents->contents[index];
-        if(prev && prev->isDestroyable) // TODO: do not delete if primitives are going to be replaced
-            delete prev;
-        contents->contents[index] = args->arg2->shallowCopyIfNeeded();
-        contents->unlock();
+    if (operation == PUT && args->size == 3 && args->arg1->getType() == INT) {
+        int index = static_cast<Integer*>(args->arg1.get())->getValue();
+        if (index >= contents.size()) 
+            contents.resize(index + 1);
+        contents[index] = args->arg2 ? args->arg2->shallowCopy() : nullptr;
         return nullptr;
     }
 

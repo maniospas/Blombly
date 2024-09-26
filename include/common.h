@@ -21,45 +21,50 @@ public:
     explicit BBError(const std::string& message) : std::runtime_error(message) {}
 };
 
-// custom error messages
-#define bberror(msg) throw BBError(std::string(" \033[0m(\x1B[31m ERROR \033[0m) ")+(msg)) //std::cout<<" \033[0m(\x1B[31m ERROR \033[0m) "<<(msg)<<"\n";exit(1); 
-#define bbassert(expr, msg) if(!(expr)) {bberror(msg);}
-#define bbverify(precondition, expr, msg) if(precondition && !(expr)) {std::cerr<<msg<<"\n";exit(1);}
+// Custom error message macro
+#define bberror(msg) throw BBError("\033[0m(\x1B[31m ERROR \033[0m) " + std::string(msg))
+#define bbassert(expr, msg) if (!(expr)) { bberror(msg); }
+#define bbverify(precondition, expr, msg) if ((precondition) && !(expr)) { std::cerr << msg << "\n"; exit(1); }
 
 // Enumeration of data types
-enum Datatype {FUTURE, BOOL, INT, FLOAT, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE, ERRORTYPE, MAP};
+enum Datatype {
+    FUTURE, BOOL, INT, FLOAT, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE, ERRORTYPE, MAP
+};
 
 // Array to map datatype enums to string representations
-static const char* datatypeName[] = { 
+static const char* datatypeName[] = {
     "future", "bool", "int", "float", "vector", "list", "string", "code", "struct", "iterator", "file", "error", "map"
 };
 
 // Global strings for different operations
-enum OperationType {NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, DIV, MOD, LEN, POW, LOG, 
-                    PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOMAP, TOINT, TOFLOAT, TOSTR, TOBOOL, TOCOPY, TOFILE,
-                    SUM, MAX, MIN,
-                    BUILTIN, BEGIN, BEGINFINAL, BEGINCACHED, END, RETURN, FINAL, IS, 
-                    CALL, WHILE, IF, NEW, PRINT, INLINE, GET, SET, SETFINAL, DEFAULT,
-                    TIME, TOITER, TRY, CATCH, FAIL, EXISTS, READ};
+enum OperationType {
+    NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, DIV, MOD, LEN, POW, LOG,
+    PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOMAP, TOINT, TOFLOAT, TOSTR, TOBOOL, TOCOPY, TOFILE,
+    SUM, MAX, MIN,
+    BUILTIN, BEGIN, BEGINFINAL, BEGINCACHED, END, RETURN, FINAL, IS,
+    CALL, WHILE, IF, NEW, PRINT, INLINE, GET, SET, SETFINAL, DEFAULT,
+    TIME, TOITER, TRY, CATCH, FAIL, EXISTS, READ
+};
+
+// Array mapping OperationType to string representations
 static const std::string OperationTypeNames[] = {
-    "not", "and", "or", "eq", "neq", "le", "ge", "lt", "gt", "add", "sub", "mul", "mmul", 
-    "div", "mod", "len", "pow", "log", "push", "pop", "next", "put", "at", "shape", 
+    "not", "and", "or", "eq", "neq", "le", "ge", "lt", "gt", "add", "sub", "mul", "mmul",
+    "div", "mod", "len", "pow", "log", "push", "pop", "next", "put", "at", "shape",
     "vector", "list", "map", "int", "float", "str", "bool", "copy", "file",
     "sum", "max", "min",
-    "BUILTIN", "BEGIN", "BEGINFINAL", "BEGINCACHED", "END", "return", "final", "IS", 
+    "BUILTIN", "BEGIN", "BEGINFINAL", "BEGINCACHED", "END", "return", "final", "IS",
     "call", "while", "if", "new", "print", "inline", "get", "set", "setfinal", "default",
     "time", "iter", "try", "catch", "fail", "exists", "read"
 };
 
-// map operations to symbols and conversely
+// Map operations to symbols and conversely
 void initializeOperationMapping();
-OperationType getOperationType(const std::string &str);
+OperationType getOperationType(const std::string& str);
 std::string getOperationTypeName(OperationType type);
 
-
-// block execution declarations
+// Block execution declarations
 #define DEFAULT_LOCAL_EXPECTATION 8
-#define LOCAL_EXPACTATION_FROM_CODE(code) std::min((code->getEnd()-code->getStart())*2, DEFAULT_LOCAL_EXPECTATION)
+#define LOCAL_EXPECTATION_FROM_CODE(code) std::min((code->getEnd() - code->getStart()) * 2, DEFAULT_LOCAL_EXPECTATION)
 
 class Data;
 class Command;
@@ -67,42 +72,43 @@ class BMemory;
 class BuiltinArgs;
 class VariableManager;
 class Code;
+
 extern VariableManager variableManager;
-Data* executeBlock(const Code* code,
-                  BMemory* memory, 
-                  bool *returnSignal,
-                  BuiltinArgs* allocatedBuiltins
-                  );
 
+std::shared_ptr<Data> executeBlock(const std::shared_ptr<Code>& code,
+                   const std::shared_ptr<BMemory>& memory,
+                   bool  &returnSignal,
+                   const BuiltinArgs&  builtinArgs);
 
-// code reused when returning various data from overriden Data::implement to not reallicate memory
+#define MEMGET(memory, arg) (command->knownLocal[arg]?memory->getOrNullShallow(command->args[arg]):memory->get(command->args[arg]))
 
-#define STRING_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==STRING && args->preallocResult->isDestroyable) { \
-                    ((BString*)args->preallocResult)->value = expr; \
-                    return args->preallocResult; \
-                } \
-                return new BString(expr)
+// Code reused when returning various data from overridden Data::implement to avoid reallocating memory
+#define STRING_RESULT(expr) if (args->preallocResult && args->preallocResult->getType() == STRING && args->preallocResult->isDestroyable) { \
+                                auto bstr = std::static_pointer_cast<BString>(args->preallocResult); \
+                                bstr->value = (expr); \
+                                return args->preallocResult; \
+                            } \
+                            return std::make_shared<BString>(expr)
 
-#define BOOLEAN_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==BOOL && args->preallocResult->isDestroyable) { \
-                    ((Boolean*)args->preallocResult)->value = expr; \
-                    return args->preallocResult; \
-                } \
-                return new Boolean(expr)
-                
+#define BOOLEAN_RESULT(expr) if (args->preallocResult && args->preallocResult->getType() == BOOL && args->preallocResult->isDestroyable) { \
+                                auto bbool = std::static_pointer_cast<Boolean>(args->preallocResult); \
+                                bbool->value = (expr); \
+                                return args->preallocResult; \
+                            } \
+                            return std::make_shared<Boolean>(expr)
 
-#define INT_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==INT && args->preallocResult->isDestroyable) { \
-                    ((Integer*)args->preallocResult)->value = expr; \
-                    return args->preallocResult; \
-                } \
-                return new Integer(expr)
+#define INT_RESULT(expr) if (args->preallocResult && args->preallocResult->getType() == INT && args->preallocResult->isDestroyable) { \
+                            auto bint = std::static_pointer_cast<Integer>(args->preallocResult); \
+                            bint->value = (expr); \
+                            return args->preallocResult; \
+                         } \
+                         return std::make_shared<Integer>(expr)
 
-
-#define FLOAT_RESULT(expr) if(args->preallocResult && args->preallocResult->getType()==FLOAT && args->preallocResult->isDestroyable) { \
-                    ((BFloat*)args->preallocResult)->value = expr; \
-                    return args->preallocResult; \
-                } \
-                return new BFloat(expr)
-
-
+#define FLOAT_RESULT(expr) if (args->preallocResult && args->preallocResult->getType() == FLOAT && args->preallocResult->isDestroyable) { \
+                              auto bfloat = std::static_pointer_cast<BFloat>(args->preallocResult); \
+                              bfloat->value = (expr); \
+                              return args->preallocResult; \
+                          } \
+                          return std::make_shared<BFloat>(expr)
 
 #endif // COMMON_H

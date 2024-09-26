@@ -1,7 +1,11 @@
+#ifndef TOKENIZER_CPP
+#define TOKENIZER_CPP
+
 #include <string>
 #include <unordered_set>
 #include <map>
 #include <vector>
+#include "utils.h"
 #include "common.h"
 
 // Check if the string is a quoted string
@@ -67,53 +71,47 @@ int determineBuiltintype(std::string& name) {
         return 0; // Unknown type
 }
 
-class Token {
-public:
-    std::string name;
-    std::vector<std::string> file;
-    std::vector<int> line;
-    int builtintype;
-    bool printable;
 
-    Token(const std::string& name, const std::vector<std::string>& __file, const std::vector<int>& __line, bool printable = true)
-        : name(name), file(__file), line(__line), printable(printable) {
-        builtintype = determineBuiltintype(this->name);
-    }
 
-    Token(const std::string& name, const std::string& _file, int _line, const std::vector<std::string>& __file, const std::vector<int>& __line, bool printable = true)
-        : name(name), file(__file), line(__line), printable(printable) {
-        file.push_back(_file);
-        line.push_back(_line);
-        builtintype = determineBuiltintype(this->name);
-    }
 
-    Token(const std::string& name, const std::vector<std::string>& _file, const std::vector<int>& _line, const std::vector<std::string>& __file, const std::vector<int>& __line, bool printable = true)
-        : name(name), file(__file), line(__line), printable(printable) {
-        file.insert(file.end(), _file.begin(), _file.end());
-        line.insert(line.end(), _line.begin(), _line.end());
-        //file.push_back(_file.back());
-        //line.push_back(_line.back());
-        builtintype = determineBuiltintype(this->name);
-    }
+Token::Token(const std::string& name, const std::vector<std::string>& __file, const std::vector<int>& __line, bool printable)
+    : name(name), file(__file), line(__line), printable(printable) {
+    builtintype = determineBuiltintype(this->name);
+}
 
-    Token(const std::string& name, const std::string& _file, int _line, bool printable = true)
-        : name(name), printable(printable) {
-        file.push_back(_file);
-        line.push_back(_line);
-        builtintype = determineBuiltintype(this->name);
-    }
+Token::Token(const std::string& name, const std::string& _file, int _line, const std::vector<std::string>& __file, const std::vector<int>& __line, bool printable)
+    : name(name), file(__file), line(__line), printable(printable) {
+    file.push_back(_file);
+    line.push_back(_line);
+    builtintype = determineBuiltintype(this->name);
+}
 
-    bool has(int _line, const std::string& _file) const {
-        for(int i=0;i<file.size();++i)
-            if(file[i]==_file && line[i] == _line)
-                return true;
-        return false;
-    }
+Token::Token(const std::string& name, const std::vector<std::string>& _file, const std::vector<int>& _line, const std::vector<std::string>& __file, const std::vector<int>& __line, bool printable)
+    : name(name), file(__file), line(__line), printable(printable) {
+    file.insert(file.end(), _file.begin(), _file.end());
+    line.insert(line.end(), _line.begin(), _line.end());
+    //file.push_back(_file.back());
+    //line.push_back(_line.back());
+    builtintype = determineBuiltintype(this->name);
+}
 
-    std::string toString() const {
-        return file.back() + " line " + std::to_string(line.back());
-    }
-};
+Token::Token(const std::string& name, const std::string& _file, int _line, bool printable)
+    : name(name), printable(printable) {
+    file.push_back(_file);
+    line.push_back(_line);
+    builtintype = determineBuiltintype(this->name);
+}
+
+bool Token::has(int _line, const std::string& _file) const {
+    for(int i=0;i<file.size();++i)
+        if(file[i]==_file && line[i] == _line)
+            return true;
+    return false;
+}
+
+std::string Token::toString() const {
+    return file.back() + " line " + std::to_string(line.back());
+}
 
 std::vector<Token> tokenize(const std::string& text, const std::string& file) {
     std::string word;
@@ -194,3 +192,6 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
 
     return ret;
 }
+
+
+#endif

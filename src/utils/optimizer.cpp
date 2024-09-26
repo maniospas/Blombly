@@ -1,3 +1,6 @@
+#ifndef OPTIMIZER_CPP
+#define OPTIMIZER_CPP
+
 #include <string>
 #include <iostream>
 #include "stringtrim.cpp"
@@ -247,3 +250,5 @@ void optimize(const std::string& source, const std::string& destination) {
         outputFile << program[i]->toString();
     outputFile.close(); 
 }
+
+#endif

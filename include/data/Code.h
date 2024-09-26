@@ -1,18 +1,19 @@
-// data/Code.h
 #ifndef CODE_H
 #define CODE_H
 
 #include <memory>
 #include <string>
+#include <vector>
 #include "data/Data.h"
 #include "tsl/hopscotch_map.h"
 
-// Forward declaration for Memory class
+// Forward declaration for Memory and Command classes
 class BMemory;
+class Command;
 
 class Metadata {
 public:
-    tsl::hopscotch_map<int, Data*> metadata;
+    tsl::hopscotch_map<int, std::shared_ptr<Data>> metadata;
     Metadata();
     ~Metadata();
 };
@@ -21,28 +22,32 @@ public:
 class Code : public Data {
 private:
     int start, end;
-    BMemory* declarationMemory;
+    std::shared_ptr<BMemory> declarationMemory;
     std::shared_ptr<Metadata> metadata;
-    void* program;
+    std::shared_ptr<std::vector<Command>> program;
 
 public:
-    explicit Code(void* programAt, int startAt, int endAt, BMemory* declMemory);
-    explicit Code(void* programAt, int startAt, int endAt, BMemory* declMemory, const std::shared_ptr<Metadata>& metadata);
+    bool scheduleForParallelExecution;
+    
+    explicit Code(const std::shared_ptr<std::vector<Command>>& programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory);
+    explicit Code(const std::shared_ptr<std::vector<Command>>& programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory, const std::shared_ptr<Metadata>& metadata);
+    
     int getType() const override;
     std::string toString() const override;
     int getStart() const;
     int getEnd() const;
-    void* getProgram() const;
-    void setMetadata(int pos, Data* data);
-    Data* getMetadata(int id) const;
+    std::shared_ptr<std::vector<Command>> getProgram() const;
+    
+    void setMetadata(int pos, const std::shared_ptr<Data>& data);
     bool getMetadataBool(int id, bool def) const;
-    BMemory* getDeclarationMemory() const;
-    void setDeclarationMemory(BMemory* newMemory);
+    void setDeclarationMemory(const std::shared_ptr<BMemory>& newMemory);
+
+    std::shared_ptr<Data> getMetadata(int id) const;
+    std::shared_ptr<BMemory> getDeclarationMemory() const;
     std::shared_ptr<Metadata> getAllMetadata() const;
 
-    Data* shallowCopy() const override;
-    Data* implement(const OperationType operation, BuiltinArgs* args) override;
-    bool scheduleForParallelExecution;
+    std::shared_ptr<Data> shallowCopy() const override;
+    std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
 };
 
 #endif // CODE_H

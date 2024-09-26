@@ -1,11 +1,16 @@
+#ifndef PARSER_CPP
+#define PARSER_CPP
+
 #include <string>
 #include <unordered_set>
+#include <unordered_map>
 #include <map>
 #include <vector>
 #include <stack> 
 #include <filesystem>
-#include "stringtrim.cpp"
-#include "tokenizer.cpp"
+#include <iostream>
+#include <fstream>
+#include "utils.h"
 #include "common.h"
 
 #define MISSING -1
@@ -1409,3 +1414,6 @@ void compile(const std::string& source, const std::string& destination) {
     outputFile << compiled;
     outputFile.close();
 }
+
+
+#endif

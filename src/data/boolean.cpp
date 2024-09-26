@@ -1,12 +1,8 @@
-// Boolean.cpp
 #include "data/Boolean.h"
 #include "common.h"
 
-
-// Constructor
 Boolean::Boolean(bool val) : value(val) {}
 
-// Return the type ID
 int Boolean::getType() const {
     return BOOL;
 }
@@ -15,33 +11,27 @@ bool Boolean::isTrue() const {
     return value;
 }
 
-// Convert to string representation
 std::string Boolean::toString() const {
     return value ? "true" : "false";
 }
 
-// Return the boolean value
 bool Boolean::getValue() const {
     return value;
 }
 
-// Return the boolean value
 void Boolean::setValue(bool val) {
     value = val;
 }
 
-// Create a shallow copy of this Boolean
-Data* Boolean::shallowCopy() const {
-    return new Boolean(value);
+std::shared_ptr<Data> Boolean::shallowCopy() const {
+    return std::make_shared<Boolean>(value);
 }
 
-// Implement the specified operation
-Data* Boolean::implement(const OperationType operation, BuiltinArgs* args) {
-    // Two Boolean argument operations
+std::shared_ptr<Data> Boolean::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 2 && args->arg0->getType() == BOOL && args->arg1->getType() == BOOL) {
-        bool v1 = ((Boolean*)args->arg0)->getValue();
-        bool v2 = ((Boolean*)args->arg1)->getValue();
-        switch(operation) {
+        bool v1 = static_cast<Boolean*>(args->arg0.get())->getValue();
+        bool v2 = static_cast<Boolean*>(args->arg1.get())->getValue();
+        switch (operation) {
             case AND: BOOLEAN_RESULT(v1 && v2);
             case OR: BOOLEAN_RESULT(v1 || v2);
             case EQ: BOOLEAN_RESULT(v1 == v2);
@@ -49,9 +39,8 @@ Data* Boolean::implement(const OperationType operation, BuiltinArgs* args) {
         }
     }
 
-    // Single Boolean argument operations
     if (args->size == 1) {
-        switch(operation) {
+        switch (operation) {
             case TOCOPY:
             case TOBOOL: BOOLEAN_RESULT(value);
             case NOT: BOOLEAN_RESULT(!value);
@@ -59,7 +48,5 @@ Data* Boolean::implement(const OperationType operation, BuiltinArgs* args) {
         throw Unimplemented();
     }
 
-
-    // Unimplemented operation
     throw Unimplemented();
 }

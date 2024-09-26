@@ -3,29 +3,26 @@
 
 #include <memory>
 #include <string>
+#include <mutex>
 #include "data/Data.h"
 #include "BMemory.h"
 
 class Struct : public Data {
+private:
+    std::shared_ptr<BMemory> memory;
+    mutable std::mutex memoryLock;
+
 public:
+    explicit Struct(std::shared_ptr<BMemory> mem);
+    ~Struct();
+
     int getType() const override;
     std::string toString() const override;
-    virtual BMemory* getMemory() const = 0;
-    virtual void lock() const = 0;
-    virtual void unlock() const = 0;
-    Data* implement(const OperationType operation_, BuiltinArgs* args_) override;
-};
-
-class GlobalStruct : public Struct {
-private:
-    BMemory* memory;
-public:
-    GlobalStruct(BMemory* mem);
-    ~GlobalStruct();
-    BMemory* getMemory() const override;
-    void lock() const override;
-    void unlock() const override;
-    Data* shallowCopy() const override;
+    std::shared_ptr<BMemory> getMemory() const;
+    void lock() const;
+    void unlock() const;
+    std::shared_ptr<Data> shallowCopy() const override;
+    std::shared_ptr<Data> implement(const OperationType operation_, BuiltinArgs* args_) override;
 };
 
 #endif // STRUCT_H

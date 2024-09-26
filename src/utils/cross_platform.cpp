@@ -1,3 +1,30 @@
+#ifndef CROSS_PLATFORM_CPP
+#define CROSS_PLATFORM_CPP
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <unordered_map>
+#include <stack>
+#include <map>
+#include <sstream>
+#include <memory> 
+#include <cstdlib>
+#include <algorithm>
+#include <unordered_set>  
+#include <pthread.h>
+#include <queue>
+#include <atomic>
+#include <functional>
+#include <thread>
+#include <cmath>
+#include <future>
+#include <ctime>
+#include <ratio>
+#include <chrono>
+#include <filesystem>
+#include "utils.h"
+
 namespace Terminal {
     #ifdef _WIN32
     #include <windows.h>
@@ -27,3 +54,6 @@ namespace Terminal {
     void enableVirtualTerminalProcessing(){}
     #endif
 }
+
+
+#endif

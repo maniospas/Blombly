@@ -1,43 +1,28 @@
-// data/Iterator.h
 #ifndef ITERATOR_H
 #define ITERATOR_H
 
 #include <memory>
 #include <vector>
+#include <mutex>
 #include "data/Data.h"
 #include "data/Integer.h"
 
-// Thread-safe container for list contents
-class IteratorContents {
-private:
-    pthread_mutex_t memoryLock;
-
-public:
-    int size;
-    Data* object;
-    Integer* pos;
-    int locked;
-    
-    IteratorContents(Data* object);
-    ~IteratorContents();
-    void lock();
-    void unlock();
-    void unsafeUnlock();
-};
-
-// List class representing a list of data items
+// Iterator class representing an iterator over a data object
 class Iterator : public Data {
 private:
-    std::shared_ptr<IteratorContents> contents;
+    mutable std::mutex memoryLock;  // Use std::mutex for locking
+    int size;
+    std::shared_ptr<Data> object;
+    std::shared_ptr<Integer> pos;
 
 public:
-    explicit Iterator(const std::shared_ptr<IteratorContents>& contents_);
+    explicit Iterator(const std::shared_ptr<Data>& object_);
     ~Iterator();
 
     int getType() const override;
     std::string toString() const override;
-    Data* shallowCopy() const override;
-    Data* implement(const OperationType operation, BuiltinArgs* args) override;
+    std::shared_ptr<Data> shallowCopy() const override;
+    std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
 };
 
 #endif // ITERATOR_H

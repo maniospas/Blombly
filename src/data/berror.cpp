@@ -26,13 +26,13 @@ std::string BError::toString() const {
 }
 
 // Create a shallow copy of this BString
-Data* BError::shallowCopy() const {
-    return new BError(value);
+std::shared_ptr<Data> BError::shallowCopy() const {
+    return std::make_shared<BError>(value);
     //bberror("Cannot copy error messages.");
 }
 
 // Implement the specified operation
-Data* BError::implement(const OperationType operation, BuiltinArgs* args)  {
+std::shared_ptr<Data> BError::implement(const OperationType operation, BuiltinArgs* args)  {
     if (args->size == 1) {
         switch(operation) {
             case TOCOPY: return shallowCopy();

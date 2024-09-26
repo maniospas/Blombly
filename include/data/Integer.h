@@ -1,13 +1,12 @@
-// data/Integer.h
 #ifndef INTEGER_H
 #define INTEGER_H
 
 #include <memory>
 #include <string>
-#include <cmath> 
+#include <cmath>
 #include "data/Data.h"
 
-// Integer class representing an integer data type
+
 class Integer : public Data {
 private:
     int value;
@@ -19,11 +18,11 @@ public:
     std::string toString() const override;
     int getValue() const;
 
-    Data* shallowCopy() const override;
-    Data* implement(const OperationType operation, BuiltinArgs* args) override;
+    std::shared_ptr<Data> shallowCopy() const override;
+    std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
 
     size_t toHash() const override {
-        return std::hash<int>{}(value); 
+        return std::hash<int>{}(value);
     }
 
     friend class Iterator;

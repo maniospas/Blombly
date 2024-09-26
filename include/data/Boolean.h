@@ -1,4 +1,3 @@
-// data/Boolean.h
 #ifndef BOOLEAN_H
 #define BOOLEAN_H
 
@@ -6,7 +5,6 @@
 #include <string>
 #include "data/Data.h"
 
-// Boolean class representing a boolean data type
 class Boolean : public Data {
 private:
     bool value;
@@ -20,8 +18,8 @@ public:
     bool isTrue() const override;
     void setValue(bool val);
 
-    Data* shallowCopy() const override;
-    Data* implement(const OperationType operation, BuiltinArgs* args) override;
+    std::shared_ptr<Data> shallowCopy() const override;
+    std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
 
     friend class Integer; 
     friend class BFloat; 
