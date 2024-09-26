@@ -1,10 +1,14 @@
+#include "libs/std"
+enable std;
+
+
 n = 10000000;
 print("-------------------------------------------");
 print("Benchmark: lists with "+str(n)+" elements");
 print("Language: blombly");
 print("-------------------------------------------");
 
-x = list();
+x = list(1);
 tic = time();
 i = 0;
 while(i<n){

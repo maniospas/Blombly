@@ -1,10 +1,16 @@
-BUILTIN _bb0 I1
-BUILTIN _bb1 I2
-BUILTIN _bb2 I3
-list A _bb0 _bb1 _bb2
-BUILTIN _bb5 I0
-at _bb4 A _bb5
-print # _bb4
-vector v A
-pow _bb7 v v
-print # _bb7
+BUILTIN n I1000000
+BUILTIN _bb1 I1
+list x _bb1
+time tic
+BUILTIN i I0
+lt _bb5 i n
+BEGIN _bb6
+BUILTIN _bb8 I1
+add i i _bb8
+push # x i
+lt _bb5 i n
+END
+while # _bb5 _bb6
+BUILTIN _bb10 I0
+at _bb9 x _bb10
+print # _bb9

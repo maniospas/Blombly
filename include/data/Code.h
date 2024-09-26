@@ -24,21 +24,21 @@ private:
     int start, end;
     std::weak_ptr<BMemory> declarationMemory;
     std::shared_ptr<Metadata> metadata;
-    std::shared_ptr<std::vector<Command>> program;
+    std::shared_ptr<std::vector<Command*>> program;
 
 public:
     bool scheduleForParallelExecution;
     
-    explicit Code(const std::shared_ptr<std::vector<Command>>& programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory);
-    explicit Code(const std::shared_ptr<std::vector<Command>>& programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory, const std::shared_ptr<Metadata>& metadata);
-    explicit Code(const std::shared_ptr<std::vector<Command>>& programAt, int startAt, int endAt, const std::weak_ptr<BMemory>& declMemory);
-    explicit Code(const std::shared_ptr<std::vector<Command>>& programAt, int startAt, int endAt, const std::weak_ptr<BMemory>& declMemory, const std::shared_ptr<Metadata>& metadata);
+    explicit Code(const std::shared_ptr<std::vector<Command*>>& programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory);
+    explicit Code(const std::shared_ptr<std::vector<Command*>>& programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory, const std::shared_ptr<Metadata>& metadata);
+    explicit Code(const std::shared_ptr<std::vector<Command*>>& programAt, int startAt, int endAt, const std::weak_ptr<BMemory>& declMemory);
+    explicit Code(const std::shared_ptr<std::vector<Command*>>& programAt, int startAt, int endAt, const std::weak_ptr<BMemory>& declMemory, const std::shared_ptr<Metadata>& metadata);
     
     int getType() const override;
     std::string toString() const override;
     int getStart() const;
     int getEnd() const;
-    std::shared_ptr<std::vector<Command>> getProgram() const;
+    std::shared_ptr<std::vector<Command*>> getProgram() const;
     
     void setMetadata(int pos, const std::shared_ptr<Data>& data);
     bool getMetadataBool(int id, bool def) const;

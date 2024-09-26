@@ -1,7 +1,14 @@
-# include "libs/std"
+#include "libs/std"
 enable std;
 
-A = 1,2,3;
-print(A[0]);
-v = vector(A);
-print(v^v);
+n = 1000000;
+
+x = list(1);
+tic = time();
+i = 0;
+while(i<n){
+    i = i+1;
+    push(x, i);
+}
+
+print(x[0]);

@@ -32,13 +32,13 @@ std::shared_ptr<Code> compileAndLoad(const std::string& fileName, const std::sha
     }
 
     // Organize each line into a new assembly command
-    auto program = std::make_shared<std::vector<Command>>();
+    auto program = std::make_shared<std::vector<Command*>>();
     auto source = std::make_shared<SourceFile>(file);
     std::string line;
     int i = 1;
     while (std::getline(inputFile, line)) {
         if (line[0] != '%') {
-            program->emplace_back(line, source, i, nullptr);
+            program->push_back(new Command(line, source, i, nullptr));
         }
         ++i;
     }
@@ -57,14 +57,14 @@ int vm(const std::string& fileName, int numThreads) {
             bberror("Unable to open file: " + fileName);
         }
 
-        auto program = std::make_shared<std::vector<Command>>();
+        auto program = std::make_shared<std::vector<Command*>>();
         auto source = std::make_shared<SourceFile>(fileName);
         std::string line;
         int i = 1;
 
         while (std::getline(inputFile, line)) {
             if (line[0] != '%') {
-                program->emplace_back(line, source, i, nullptr);
+                program->push_back(new Command(line, source, i, nullptr));
             }
             ++i;
         }

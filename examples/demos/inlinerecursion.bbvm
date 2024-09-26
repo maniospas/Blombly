@@ -1,40 +1,42 @@
-BEGINFINAL fib
 BEGIN _bb0
-BUILTIN _bb1 I2
-lt _bbresult0 n _bb1
+BEGIN _bb1
+BUILTIN _bb2 I1
+return _bbresult0 _bb2
 END
-BEGIN _bb2
-BUILTIN _bb3 I1
-return _bbresult1 _bb3
-END
-if # _bb0 _bb2
-BEGIN _bb6
-BUILTIN _bb7 I1
-sub n n _bb7
-inline _bbresult2 fib
-return _bbresult3 this
-END
-new _bb5 _bb6
-BEGIN _bb9
+BUILTIN _bb4 I2
+lt _bb3 n _bb4
+if # _bb3 _bb1
+BEGIN _bb8
 BUILTIN _bb10 I2
 sub n n _bb10
-inline _bbresult4 fib
-return _bbresult5 this
+inline _bb11 fib
+return _bbresult1 this
 END
-new _bb8 _bb9
-add _bb4 _bb5 _bb8
-return _bbresult6 _bb4
+new _bb6 _bb8
+BEGIN _bb14
+BUILTIN _bb16 I1
+sub n n _bb16
+inline _bb17 fib
+return _bbresult2 this
 END
+new _bb12 _bb14
+add _bb5 _bb12 _bb6
+return _bbresult3 _bb5
+END
+IS fib _bb0
+final # fib
 time tic
-BUILTIN _bb11 "Result"
-BEGIN _bb13
+BUILTIN _bb19 "Result"
+BEGIN _bb22
 BUILTIN n I21
-inline _bbresult7 fib
-return _bbresult8 this
+inline _bb24 fib
+return _bbresult4 this
 END
-new _bb12 _bb13
-print # _bb11 _bb12
-BUILTIN _bb14 "Time"
-time _bb16
-sub _bb15 _bb16 tic
-print # _bb14 _bb15
+new _bb20 _bb22
+list _bb25 _bb19 _bb20
+print # _bb25
+BUILTIN _bb26 "Time"
+time _bb28
+sub _bb27 _bb28 tic
+list _bb29 _bb26 _bb27
+print # _bb29

@@ -28,6 +28,7 @@
 #macro (enable std;) = {
     #macro (print) = {std::print}
     #macro (read) = {std::read}
+    #macro (time) = {std::time}
     enable std::converters;
     enable std::lists;
     enable std::vectors;

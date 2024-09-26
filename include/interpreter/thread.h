@@ -12,6 +12,6 @@ class ThreadResult;
 void threadExecute(std::shared_ptr<Code> code,
                    std::shared_ptr<BMemory> memory,
                    std::shared_ptr<ThreadResult> result,
-                   const Command& command);
+                   Command *command);
 
 #endif // THREAD_EXECUTE_H

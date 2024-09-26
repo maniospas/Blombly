@@ -80,7 +80,7 @@ std::shared_ptr<Data> executeBlock(const std::shared_ptr<Code>& code,
                    bool  &returnSignal,
                    const BuiltinArgs&  builtinArgs);
 
-#define MEMGET(memory, arg) (command.knownLocal[arg]?memory->getOrNullShallow(command.args[arg]):memory->get(command.args[arg]))
+#define MEMGET(memory, arg) (command->knownLocal[arg]?memory->getOrNullShallow(command->args[arg]):memory->get(command->args[arg]))
 
 // Code reused when returning various data from overridden Data::implement to avoid reallocating memory
 #define STRING_RESULT(expr) if (args->preallocResult && args->preallocResult->getType() == STRING && args->preallocResult->isDestroyable) { \

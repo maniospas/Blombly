@@ -23,34 +23,34 @@ std::recursive_mutex printMutex;
 std::recursive_mutex compileMutex;
 
 
-void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
+void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
                     int& i,
                     const std::shared_ptr<BMemory>& memory,
                     bool &returnSignal, 
                     BuiltinArgs &args,
                     std::shared_ptr<Data>& result) {
-    Command command = program->at(i);
-    std::shared_ptr<Data> toReplace = command.nargs?memory->getOrNullShallow(command.args[0]):nullptr;
+    Command* command = program->at(i);
+    std::shared_ptr<Data> toReplace = command->nargs?memory->getOrNullShallow(command->args[0]):nullptr;
     //BMemory* memory = memory_.get();
 
-    //std::cout<<command.toString()<<"\n";
+    //std::cout<<command->toString()<<"\n";
     
-    switch (command.operation) {
+    switch (command->operation) {
         case BUILTIN:
-            result = command.value;
+            result = command->value;
             break;
         case BEGIN:
         case BEGINCACHED:
         case BEGINFINAL: {
             // Start a block of code
-            toReplace = memory->getOrNullShallow(command.args[0]);
-            if (command.value) {
-                auto code = std::static_pointer_cast<Code>(command.value);
+            toReplace = memory->getOrNullShallow(command->args[0]);
+            if (command->value) {
+                auto code = std::static_pointer_cast<Code>(command->value);
                 auto val = std::make_shared<Code>(code->getProgram(), code->getStart(), code->getEnd(), memory, code->getAllMetadata());
                 val->scheduleForParallelExecution = code->scheduleForParallelExecution;
                 result = std::move(val);
-                if (command.operation == BEGINFINAL) 
-                    memory->setFinal(command.args[0]);
+                if (command->operation == BEGINFINAL) 
+                    memory->setFinal(command->args[0]);
                 i = code->getEnd();
                 break;
             }
@@ -59,7 +59,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
             int depth = 0;
             OperationType command_type;
             while (pos <= program->size()) {
-                command_type = program->at(pos).operation;
+                command_type = program->at(pos)->operation;
                 if (command_type == BEGIN || command_type == BEGINFINAL)
                     depth += 1;
                 if (command_type == END) {
@@ -75,18 +75,18 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
             val->scheduleForParallelExecution = true;
             cache->scheduleForParallelExecution = true;
             cache->isDestroyable = false;
-            command.value = cache;
+            command->value = cache;
             result = std::move(val);
-            if (command.operation == BEGINFINAL) {
-                memory->setFinal(command.args[0]);
+            if (command->operation == BEGINFINAL) {
+                memory->setFinal(command->args[0]);
             }
             i = pos;
         } break;
 
         case CALL: {
             // Function or method call
-            std::shared_ptr<Data> context = command.args[1] == variableManager.noneId ? nullptr : memory->get(command.args[1]);
-            std::shared_ptr<Data> called = memory->get(command.args[2]);
+            std::shared_ptr<Data> context = command->args[1] == variableManager.noneId ? nullptr : memory->get(command->args[1]);
+            std::shared_ptr<Data> called = memory->get(command->args[2]);
             bbassert(called, "Cannot call a missing value.");
             bbassert(called->getType()==CODE, "Only structs or code blocks can be called.");
             auto code = std::static_pointer_cast<Code>(called);
@@ -124,70 +124,70 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
         } break;
 
         case RETURN: {
-            result = command.args[1] == variableManager.noneId ? nullptr : memory->get(command.args[1]);
+            result = command->args[1] == variableManager.noneId ? nullptr : memory->get(command->args[1]);
             returnSignal = true;
         } break;
 
         case GET: {
-            result = memory->get(command.args[1]);
+            result = memory->get(command->args[1]);
             if (result->getType() == CODE) {
                 auto code = std::static_pointer_cast<Code>(result);
-                result = code->getMetadata(command.args[2]);
+                result = code->getMetadata(command->args[2]);
                 if (result) result = result->shallowCopy();
             } else if (result->getType() == STRUCT) {
                 auto obj = std::static_pointer_cast<Struct>(result);
-                result = obj->getMemory()->get(command.args[2]);
+                result = obj->getMemory()->get(command->args[2]);
                 if (result) result = result->shallowCopy();
             }
         } break;
 
         case IS: {
-            result = memory->getOrNull(command.args[1], true);
+            result = memory->getOrNull(command->args[1], true);
             if (result) result = result->shallowCopy();
         } break;
 
         case EXISTS: {
-            bool exists = memory->contains(command.args[1]);
+            bool exists = memory->contains(command->args[1]);
             result = std::make_shared<Boolean>(exists);
         } break;
 
         case SET: {
-            std::shared_ptr<Data> obj = memory->get(command.args[1]);
+            std::shared_ptr<Data> obj = memory->get(command->args[1]);
             bbassert(obj->getType() == STRUCT, "Can only set fields in a struct.");
             auto structObj = std::static_pointer_cast<Struct>(obj);
-            std::shared_ptr<Data> setValue = memory->get(command.args[3]);
+            std::shared_ptr<Data> setValue = memory->get(command->args[3]);
             if(setValue)
                 setValue = setValue->shallowCopy();
-            structObj->getMemory()->unsafeSet(command.args[2], setValue, memory->get(command.args[2]));
+            structObj->getMemory()->unsafeSet(command->args[2], setValue, memory->get(command->args[2]));
         } break;
 
         case SETFINAL: {
-            std::shared_ptr<Data> obj = memory->get(command.args[1]);
+            std::shared_ptr<Data> obj = memory->get(command->args[1]);
             bbassert(obj->getType() == CODE, "Can only set metadata for code blocks.");
             auto code = std::static_pointer_cast<Code>(obj);
-            std::shared_ptr<Data> setValue = memory->get(command.args[3]);
+            std::shared_ptr<Data> setValue = memory->get(command->args[3]);
             if(setValue)
                 setValue = setValue->shallowCopy();
-            code->setMetadata(command.args[2], setValue);
+            code->setMetadata(command->args[2], setValue);
         } break;
 
         case WHILE: {
-            std::shared_ptr<Data> condition = memory->get(command.args[1]);
-            std::shared_ptr<Data> body = memory->get(command.args[2]);
+            std::shared_ptr<Data> condition = memory->get(command->args[1]);
+            std::shared_ptr<Data> body = memory->get(command->args[2]);
             bbassert(body->getType() == CODE, "While body can only be a code block.");
             auto codeBody = std::static_pointer_cast<Code>(body);
 
             while (condition->isTrue()) {
                 result = executeBlock(codeBody, memory, returnSignal, args);
                 if (returnSignal) break;
-                condition = memory->get(command.args[1]);
+                condition = memory->get(command->args[1]);
             }
         } break;
 
         case IF: {
-            std::shared_ptr<Data> condition = memory->get(command.args[1]);
-            std::shared_ptr<Data> accept = memory->get(command.args[2]);
-            std::shared_ptr<Data> reject = command.nargs > 3 ? memory->get(command.args[3]) : nullptr;
+            std::shared_ptr<Data> condition = memory->get(command->args[1]);
+            std::shared_ptr<Data> accept = memory->get(command->args[2]);
+            std::shared_ptr<Data> reject = command->nargs > 3 ? memory->get(command->args[3]) : nullptr;
 
             if (condition->isTrue()) {
                 if (accept->getType() == CODE) {
@@ -200,7 +200,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
 
         case PRINT: {
             std::string printing;
-            for(int i = 1; i < command.nargs; i++) {
+            for(int i = 1; i < command->nargs; i++) {
                 std::shared_ptr<Data> printable = MEMGET(memory, i);
                 if(printable) {
                     std::string out = printable->toString();
@@ -217,7 +217,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
 
         case READ:{
             std::string printing;
-            for(int i=1;i<command.nargs;i++) {
+            for(int i=1;i<command->nargs;i++) {
                 std::shared_ptr<Data> printable = MEMGET(memory, i);
                 if(printable) {
                     std::string out = printable->toString();
@@ -235,9 +235,9 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
 
         case FINAL:
             // setting a memory content to final should alway be an attomic operation
-            if(command.knownLocal[1]) 
+            if(command->knownLocal[1]) 
                 bberror("Cannot finalize a local variable (starting with _bb...)");
-            memory->setFinal(command.args[1]);
+            memory->setFinal(command->args[1]);
             return;
 
         case END:
@@ -260,9 +260,9 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
         } break;
         
         case CATCH: {
-            std::shared_ptr<Data> condition = (command.knownLocal[1]?memory->getOrNullShallow(command.args[1]):memory->getOrNull(command.args[1], true)); //MEMGET(memory, 1);
+            std::shared_ptr<Data> condition = (command->knownLocal[1]?memory->getOrNullShallow(command->args[1]):memory->getOrNull(command->args[1], true)); //MEMGET(memory, 1);
             std::shared_ptr<Data> accept = MEMGET(memory, 2);
-            std::shared_ptr<Data> reject = command.nargs>3?MEMGET(memory, 3):nullptr;
+            std::shared_ptr<Data> reject = command->nargs>3?MEMGET(memory, 3):nullptr;
             bbverify(accept, !accept || accept->getType()==CODE, "Can only inline a code block for catch acceptance");
             bbverify(reject, !reject || reject->getType()==CODE, "Can only inline a code block for catch rejection");
             auto codeAccept = std::static_pointer_cast<Code>(accept);
@@ -279,22 +279,22 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
 
         case FAIL: {
             std::shared_ptr<Data> result = MEMGET(memory, 1);
-            std::string comm = command.toString();
+            std::string comm = command->toString();
             comm.resize(40, ' ');
-            throw BBError(result->toString()+("\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command.source->path+" line "+std::to_string(command.line)));
+            throw BBError(result->toString()+("\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
         } break;
 
         case INLINE: {
             std::shared_ptr<Data> source = MEMGET(memory, 1);
             if(source->getType()==FILETYPE) {
-                if(command.value) {
-                    auto code = std::static_pointer_cast<Code>(command.value);
+                if(command->value) {
+                    auto code = std::static_pointer_cast<Code>(command->value);
                     result = std::make_shared<Code>(code->getProgram(), code->getStart(), code->getEnd(), nullptr, code->getAllMetadata());
                 }
                 else {
                     result = compileAndLoad(std::static_pointer_cast<BFile>(source)->getPath(), nullptr);
-                    command.value = result;
-                    command.value->isDestroyable = false;
+                    command->value = result;
+                    command->value->isDestroyable = false;
                 }
             }
             else if(source->getType()==STRUCT) 
@@ -343,8 +343,8 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
         } break;
 
         case TOLIST: {
-            auto list = std::make_shared<BList>(command.nargs-1);
-            for(int i=1;i<command.nargs;i++) {
+            auto list = std::make_shared<BList>(command->nargs-1);
+            for(int i=1;i<command->nargs;i++) {
                 std::shared_ptr<Data> element = MEMGET(memory, i);
                 if(element)
                     element = element->shallowCopy();
@@ -353,7 +353,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
             result = list;
         } break;
 
-        case TOMAP: if(command.nargs==1) {
+        case TOMAP: if(command->nargs==1) {
             result = std::make_shared<BHashMap>();
             break;
         }
@@ -362,7 +362,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
         break;
 
         default: {
-            int nargs = command.nargs;
+            int nargs = command->nargs;
             args.size = nargs - 1;
             if (nargs > 1) 
                 args.arg0 = MEMGET(memory, 1);
@@ -370,15 +370,15 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
                 args.arg1 = MEMGET(memory, 2);
             if (nargs > 3) 
                 args.arg2 = MEMGET(memory, 3);
-            if(toReplace && toReplace->isDestroyable && (command.knownLocal[0] || memory->isFinal(command.args[0])))
+            if(toReplace && toReplace->isDestroyable && (command->knownLocal[0] || memory->isFinal(command->args[0])))
                 args.preallocResult = toReplace;
             else
                 args.preallocResult = nullptr;
-            result = Data::run(command.operation, &args);
+            result = Data::run(command->operation, &args);
         } break;
     }
     
     if(result && result->getType()==STRUCT) // here we may convert strong pointer structs to weak pointer structs so that deleting the memory will also delete those pointers even if there are cycles
         result = std::static_pointer_cast<Struct>(result)->modifyBeforeAttachingToMemory(std::static_pointer_cast<Struct>(result), memory);
-    memory->unsafeSet(command.args[0], result, toReplace);
+    memory->unsafeSet(command->args[0], result, toReplace);
 }
