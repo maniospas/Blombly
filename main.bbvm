@@ -1,10 +1,357 @@
 BEGIN _bb0
-next x args
-print # x
+BUILTIN version "Number library version: v1.0"
+final # version
 END
-IS test _bb0
-BEGIN _bb2
-BUILTIN _bb3 I1
-list args _bb3
+IS Version _bb0
+final # Version
+BUILTIN _bb2 "Version"
+setfinal # Version name _bb2
+BUILTIN _bb3 "abstract"
+setfinal # Version type _bb3
+BEGIN _bb4
+next value args
+BEGIN _bb7
+IS type Real
+final # type
+IS Real Real
+final # Real
+inline _bb8 Version
+IS Complex Complex
+final # Complex
+IS value value
+final # value
+BEGIN _bb9
+BEGIN _bb11
+list args value
 END
-call _bb1 _bb2 test
+call _bb10 _bb11 Real
+return _bbresult0 _bb10
+END
+IS real _bb9
+final # real
+BUILTIN _bb12 "real"
+setfinal # real name _bb12
+BUILTIN _bb13 "fn"
+setfinal # real type _bb13
+BEGIN _bb14
+BEGIN _bb16
+BUILTIN _bb17 I0
+list args value _bb17
+END
+call _bb15 _bb16 Complex
+return _bbresult1 _bb15
+END
+IS complex _bb14
+final # complex
+BUILTIN _bb19 "complex"
+setfinal # complex name _bb19
+BUILTIN _bb20 "fn"
+setfinal # complex type _bb20
+BEGIN _bb21
+next other args
+BEGIN _bb23
+get _bb25 other value
+add _bb24 value _bb25
+list args _bb24
+END
+call _bb22 _bb23 Real
+return _bbresult2 _bb22
+END
+IS \add _bb21
+final # \add
+BUILTIN _bb26 "\add"
+setfinal # \add name _bb26
+BUILTIN _bb27 "fn"
+setfinal # \add type _bb27
+BEGIN _bb28
+next other args
+BEGIN _bb30
+get _bb32 other value
+sub _bb31 value _bb32
+list args _bb31
+END
+call _bb29 _bb30 Real
+return _bbresult3 _bb29
+END
+IS \sub _bb28
+final # \sub
+BUILTIN _bb33 "\sub"
+setfinal # \sub name _bb33
+BUILTIN _bb34 "fn"
+setfinal # \sub type _bb34
+BEGIN _bb35
+next other args
+BEGIN _bb37
+get _bb39 other value
+mul _bb38 value _bb39
+list args _bb38
+END
+call _bb36 _bb37 Real
+return _bbresult4 _bb36
+END
+IS \mul _bb35
+final # \mul
+BUILTIN _bb40 "\mul"
+setfinal # \mul name _bb40
+BUILTIN _bb41 "fn"
+setfinal # \mul type _bb41
+BEGIN _bb42
+next other args
+BEGIN _bb44
+get _bb46 other value
+div _bb45 value _bb46
+list args _bb45
+END
+call _bb43 _bb44 Real
+return _bbresult5 _bb43
+END
+IS \div _bb42
+final # \div
+BUILTIN _bb47 "\div"
+setfinal # \div name _bb47
+BUILTIN _bb48 "fn"
+setfinal # \div type _bb48
+BEGIN _bb49
+BUILTIN _bb51 ")"
+str _bb53 value
+BUILTIN _bb54 "Real("
+add _bb52 _bb54 _bb53
+add _bb50 _bb52 _bb51
+return _bbresult6 _bb50
+END
+IS \str _bb49
+final # \str
+BUILTIN _bb55 "\str"
+setfinal # \str name _bb55
+BUILTIN _bb56 "fn"
+setfinal # \str type _bb56
+return _bbresult7 this
+END
+new _bb5 _bb7
+return _bbresult8 _bb5
+END
+IS Real _bb4
+final # Real
+BUILTIN _bb57 "Real"
+setfinal # Real name _bb57
+BUILTIN _bb58 "class"
+setfinal # Real type _bb58
+BEGIN _bb59
+next re args
+next im args
+BEGIN _bb62
+IS type Complex
+final # type
+IS Complex Complex
+final # Complex
+inline _bb63 Version
+IS Real Real
+final # Real
+IS re re
+final # re
+IS im im
+final # im
+BEGIN _bb64
+BEGIN _bb65
+BUILTIN _bb66 "The imaginary part is not zero."
+fail _bbresult9 _bb66
+END
+BUILTIN _bb68 I0
+neq _bb67 im _bb68
+if # _bb67 _bb65
+BEGIN _bb70
+list args re
+END
+call _bb69 _bb70 Real
+return _bbresult10 _bb69
+END
+IS real _bb64
+final # real
+BUILTIN _bb71 "real"
+setfinal # real name _bb71
+BUILTIN _bb72 "fn"
+setfinal # real type _bb72
+BEGIN _bb73
+BEGIN _bb75
+BUILTIN _bb78 I2
+pow _bb77 im _bb78
+BUILTIN _bb80 I2
+pow _bb79 re _bb80
+add _bb76 _bb79 _bb77
+list args _bb76
+END
+call _bb74 _bb75 Real
+return _bbresult11 _bb74
+END
+IS norm _bb73
+final # norm
+BUILTIN _bb81 "norm"
+setfinal # norm name _bb81
+BUILTIN _bb82 "fn"
+setfinal # norm type _bb82
+BEGIN _bb83
+return _bbresult12 this
+END
+IS complex _bb83
+final # complex
+BUILTIN _bb84 "complex"
+setfinal # complex name _bb84
+BUILTIN _bb85 "fn"
+setfinal # complex type _bb85
+BEGIN _bb86
+next other args
+get _bb88 other complex
+call other # _bb88
+BEGIN _bb90
+get _bb92 other re
+add _bb91 re _bb92
+get _bb94 other im
+add _bb93 im _bb94
+list args _bb91 _bb93
+END
+call _bb89 _bb90 Complex
+return _bbresult13 _bb89
+END
+IS \add _bb86
+final # \add
+BUILTIN _bb96 "\add"
+setfinal # \add name _bb96
+BUILTIN _bb97 "fn"
+setfinal # \add type _bb97
+BEGIN _bb98
+next other args
+get _bb100 other complex
+call other # _bb100
+BEGIN _bb102
+get _bb104 other re
+sub _bb103 re _bb104
+get _bb106 other im
+sub _bb105 im _bb106
+list args _bb103 _bb105
+END
+call _bb101 _bb102 Complex
+return _bbresult14 _bb101
+END
+IS \sub _bb98
+final # \sub
+BUILTIN _bb108 "\sub"
+setfinal # \sub name _bb108
+BUILTIN _bb109 "fn"
+setfinal # \sub type _bb109
+BEGIN _bb110
+next other args
+get _bb112 other complex
+call other # _bb112
+BEGIN _bb114
+get _bb117 other im
+mul _bb116 im _bb117
+get _bb119 other re
+mul _bb118 re _bb119
+sub _bb115 _bb118 _bb116
+get _bb122 other re
+mul _bb121 im _bb122
+get _bb124 other im
+mul _bb123 re _bb124
+add _bb120 _bb123 _bb121
+list args _bb115 _bb120
+END
+call _bb113 _bb114 Complex
+return _bbresult15 _bb113
+END
+IS \mul _bb110
+final # \mul
+BUILTIN _bb126 "\mul"
+setfinal # \mul name _bb126
+BUILTIN _bb127 "fn"
+setfinal # \mul type _bb127
+BEGIN _bb128
+next other args
+next . args
+next complex args
+next ( args
+next ) args
+get _bb130 other complex
+call other # _bb130
+BUILTIN _bb133 I2
+get _bb134 other im
+pow _bb132 _bb134 _bb133
+BUILTIN _bb136 I2
+get _bb137 other re
+pow _bb135 _bb137 _bb136
+add norm _bb135 _bb132
+div re re norm
+div im im norm
+BEGIN _bb141
+get _bb144 other im
+mul _bb143 im _bb144
+get _bb146 other re
+mul _bb145 re _bb146
+add _bb142 _bb145 _bb143
+get _bb149 other im
+mul _bb148 re _bb149
+get _bb151 other re
+mul _bb150 im _bb151
+sub _bb147 _bb150 _bb148
+list args _bb142 _bb147
+END
+call _bb140 _bb141 Complex
+return _bbresult16 _bb140
+END
+IS \div _bb128
+final # \div
+BUILTIN _bb153 "\div"
+setfinal # \div name _bb153
+BUILTIN _bb154 "fn"
+setfinal # \div type _bb154
+BEGIN _bb155
+BUILTIN _bb157 ")"
+str _bb159 im
+BUILTIN _bb161 ","
+str _bb163 re
+BUILTIN _bb164 "Complex("
+add _bb162 _bb164 _bb163
+add _bb160 _bb162 _bb161
+add _bb158 _bb160 _bb159
+add _bb156 _bb158 _bb157
+return _bbresult17 _bb156
+END
+IS \str _bb155
+final # \str
+BUILTIN _bb165 "\str"
+setfinal # \str name _bb165
+BUILTIN _bb166 "fn"
+setfinal # \str type _bb166
+return _bbresult18 this
+END
+new _bb60 _bb62
+return _bbresult19 _bb60
+END
+IS Complex _bb59
+final # Complex
+BUILTIN _bb167 "Complex"
+setfinal # Complex name _bb167
+BUILTIN _bb168 "class"
+setfinal # Complex type _bb168
+BEGIN _bb170
+BUILTIN _bb171 I1
+BUILTIN _bb172 I1
+list args _bb171 _bb172
+END
+call x _bb170 Complex
+BEGIN _bb176
+BUILTIN _bb177 I1
+list args _bb177
+END
+call _bb175 _bb176 Real
+BEGIN _bb179
+BUILTIN _bb180 I1
+BUILTIN _bb181 I1
+list args _bb180 _bb181
+END
+call _bb178 _bb179 Complex
+add y _bb178 _bb175
+div z x y
+print # z
+get _bb185 z real
+call _bb184 # _bb185
+print # _bb184

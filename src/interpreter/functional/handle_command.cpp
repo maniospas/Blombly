@@ -32,6 +32,8 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
     Command command = program->at(i);
     std::shared_ptr<Data> toReplace = command.nargs?memory->getOrNullShallow(command.args[0]):nullptr;
     //BMemory* memory = memory_.get();
+
+    //std::cout<<command.toString()<<"\n";
     
     switch (command.operation) {
         case BUILTIN:
@@ -90,21 +92,27 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
             auto code = std::static_pointer_cast<Code>(called);
             if (true || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
                 auto newMemory = std::make_shared<BMemory>(memory, LOCAL_EXPECTATION_FROM_CODE(code));
+                bool newReturnSignal(false);
                 if (context) {
                     bbassert(context->getType() == CODE, "Call context must be a code block.");
-                    result = executeBlock(std::static_pointer_cast<Code>(context), newMemory, returnSignal, args);
+                    result = executeBlock(std::static_pointer_cast<Code>(context), newMemory, newReturnSignal, args);
                 }
+                if(newReturnSignal)
+                    break;
                 newMemory->detach(code->getDeclarationMemory());
-                result = executeBlock(code, std::move(newMemory), returnSignal, args);
+                result = executeBlock(code, std::move(newMemory), newReturnSignal, args);
                 if (result)
                     result = result->shallowCopy();
                 newMemory.reset();
             } else {
                 auto newMemory = std::make_shared<BMemory>(memory, LOCAL_EXPECTATION_FROM_CODE(code));
+                bool newReturnSignal(false);
                 if (context) {
                     bbassert(context->getType() == CODE, "Call context must be a code block.");
-                    result = executeBlock(std::static_pointer_cast<Code>(context), newMemory, returnSignal, args);
+                    result = executeBlock(std::static_pointer_cast<Code>(context), newMemory, newReturnSignal, args);
                 }
+                if(newReturnSignal)
+                    break;
                 newMemory->detach(code->getDeclarationMemory());
 
                 auto futureResult = std::make_shared<ThreadResult>();
@@ -297,8 +305,8 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
                 auto code = std::static_pointer_cast<Code>(source);
                 result = executeBlock(code, memory, returnSignal, args);
             }
-            if(result)
-                result = result->shallowCopy();
+            //if(result)
+            //    result = result->shallowCopy();
         } break;
 
         case DEFAULT: {
@@ -308,7 +316,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
             auto newMemory = std::make_shared<BMemory>(memory, LOCAL_EXPECTATION_FROM_CODE(code));
             bool defaultReturnSignal(false);
             //result = executeBlock(code, memory, defaultReturnSignal, args);
-            executeBlock(code, memory, defaultReturnSignal, args);
+            executeBlock(code, newMemory, defaultReturnSignal, args);
             if(defaultReturnSignal)
                 bberror("Cannot return from within a `default` statement");
             //newMemory->detach();
@@ -321,21 +329,17 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
             bbassert(source->getType()==CODE, "Can only call `new` on a code block");
             auto code = std::static_pointer_cast<Code>(source);
             auto newMemory = std::make_shared<BMemory>(memory, LOCAL_EXPECTATION_FROM_CODE(code));
-            auto thisObj = std::make_shared<Struct>(newMemory);
+            auto thisObj = std::make_shared<WeakStruct>(newMemory);  // this MUST be weak to let the memory destroy itself. it will be converted to a strong version with a shallow copy after being returned
             newMemory->unsafeSet(variableManager.thisId, thisObj, nullptr);
             newMemory->setFinal(variableManager.thisId);
             bool newReturnSignal(false);
-            result = executeBlock(code, memory, newReturnSignal, args);
-            if(result!=thisObj) {
-                if(result) {
-                    result = result->shallowCopy();
-                    if(result->getType()==CODE) 
-                        std::static_pointer_cast<Code>(result)->setDeclarationMemory(nullptr);
-                }
+            result = executeBlock(code, newMemory, newReturnSignal, args);
+            if(result) {
+                result = result->shallowCopy();
+                if(result->getType()==CODE) 
+                    std::static_pointer_cast<Code>(result)->setDeclarationMemory(nullptr);
             }
-            else
-                newMemory->detach();
-            newMemory.reset();
+            newMemory->detach();
         } break;
 
         case TOLIST: {
@@ -360,16 +364,21 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
         default: {
             int nargs = command.nargs;
             args.size = nargs - 1;
-            if (nargs > 0) 
-                args.arg0 = MEMGET(memory, command.args[1]);
             if (nargs > 1) 
-                args.arg1 = MEMGET(memory, command.args[2]);
+                args.arg0 = MEMGET(memory, 1);
             if (nargs > 2) 
-                args.arg2 = MEMGET(memory, command.args[3]);
-            args.preallocResult = toReplace;
-            result = Data::run(command.operation, args);
+                args.arg1 = MEMGET(memory, 2);
+            if (nargs > 3) 
+                args.arg2 = MEMGET(memory, 3);
+            if(toReplace && toReplace->isDestroyable && (command.knownLocal[0] || memory->isFinal(command.args[0])))
+                args.preallocResult = toReplace;
+            else
+                args.preallocResult = nullptr;
+            result = Data::run(command.operation, &args);
         } break;
     }
     
+    if(result && result->getType()==STRUCT) // here we may convert strong pointer structs to weak pointer structs so that deleting the memory will also delete those pointers even if there are cycles
+        result = std::static_pointer_cast<Struct>(result)->modifyBeforeAttachingToMemory(std::static_pointer_cast<Struct>(result), memory);
     memory->unsafeSet(command.args[0], result, toReplace);
 }

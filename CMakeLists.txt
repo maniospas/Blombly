@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # -O2: Optimization level 2
 # -g: Include debugging information
 # -fdiagnostics-color=always: Enable colored diagnostics
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -g -fdiagnostics-color=always")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 
 # Include directories
 # Add the 'include' directory to the list of paths to search for header files

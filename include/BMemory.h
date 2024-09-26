@@ -46,7 +46,6 @@ class Command;
 
 class BMemory {
 private:
-    std::shared_ptr<BMemory> parent;
     tsl::hopscotch_map<int, std::shared_ptr<Data>> data;
     tsl::hopscotch_set<int> finals;
     std::shared_ptr<Data> fastLastAccess;
@@ -54,6 +53,7 @@ private:
     void release();
 
 public:
+    std::shared_ptr<BMemory> parent;
     tsl::hopscotch_set<std::shared_ptr<Future>> attached_threads;
     bool allowMutables;
 

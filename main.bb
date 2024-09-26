@@ -1,5 +1,8 @@
-test(x) = {
-    std::print(x);
-}
+#include "libs/numbers"
 
-test(1);
+x = Complex(1, 1);
+y = Complex(1, 1)+Real(1);
+
+z = x/y;
+print(z);
+print(z.real());

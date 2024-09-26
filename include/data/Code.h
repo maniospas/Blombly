@@ -22,7 +22,7 @@ public:
 class Code : public Data {
 private:
     int start, end;
-    std::shared_ptr<BMemory> declarationMemory;
+    std::weak_ptr<BMemory> declarationMemory;
     std::shared_ptr<Metadata> metadata;
     std::shared_ptr<std::vector<Command>> program;
 
@@ -31,6 +31,8 @@ public:
     
     explicit Code(const std::shared_ptr<std::vector<Command>>& programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory);
     explicit Code(const std::shared_ptr<std::vector<Command>>& programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory, const std::shared_ptr<Metadata>& metadata);
+    explicit Code(const std::shared_ptr<std::vector<Command>>& programAt, int startAt, int endAt, const std::weak_ptr<BMemory>& declMemory);
+    explicit Code(const std::shared_ptr<std::vector<Command>>& programAt, int startAt, int endAt, const std::weak_ptr<BMemory>& declMemory, const std::shared_ptr<Metadata>& metadata);
     
     int getType() const override;
     std::string toString() const override;

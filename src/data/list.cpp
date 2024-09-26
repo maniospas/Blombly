@@ -28,26 +28,25 @@ std::string BList::toString() const {
     std::lock_guard<std::mutex> lock(memoryLock);
     std::string result = "[";
     for (const auto& element : *contents.get()) {
-        if (!result.empty()) {
+        if (result.size()!=1) 
             result += ", ";
-        }
-        result += element->toString();
+        if(element)
+            result += element->toString();
+        else
+            result += " ";
     }
     return result + "]";
 }
 
 std::shared_ptr<Data> BList::shallowCopy() const {
     std::lock_guard<std::mutex> lock(memoryLock);
-    auto copy = std::make_shared<BList>(contents);
-    return copy;
+    return std::make_shared<BList>(contents);
 }
 
 std::shared_ptr<Data> BList::at(int index) const {
     std::lock_guard<std::mutex> lock(memoryLock);
-    if (index < 0 || index >= contents->size()) {
+    if (index < 0 || index >= contents->size()) 
         bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents->size()) + ")");
-        return nullptr;
-    }
     return contents->at(index) ? contents->at(index)->shallowCopy() : nullptr;
 }
 
@@ -115,7 +114,10 @@ std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArg
 
     if (operation == AT && args->size == 2 && args->arg1->getType() == INT) {
         int index = static_cast<Integer*>(args->arg1.get())->getValue();
-        return at(index);
+        // manual implementation of at to avoid deadlocks with its own lock
+        if (index < 0 || index >= contents->size()) 
+            bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents->size()) + ")");
+        return contents->at(index) ? contents->at(index)->shallowCopy() : nullptr;
     }
 
     if (operation == PUSH && args->size == 2 && args->arg0.get() == this) {

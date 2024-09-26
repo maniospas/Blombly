@@ -14,19 +14,19 @@ int Data::countObjects() {
     return numObjects;
 }
 
-std::shared_ptr<Data> Data::run(const OperationType operation, BuiltinArgs& args) {
+std::shared_ptr<Data> Data::run(const OperationType operation, BuiltinArgs *args) {
     try {
-        return args.arg0->implement(operation, &args);
+        return args->arg0->implement(operation, args);
     }
     catch (Unimplemented&) {
         // Handle unimplemented methods
     }
 
-    int size = args.size;
+    int size = args->size;
     --size;
     if (size) {
         try {
-            return args.arg1->implement(operation, &args);
+            return args->arg1->implement(operation, args);
         }
         catch (Unimplemented&) {
             // Handle unimplemented methods
@@ -34,7 +34,7 @@ std::shared_ptr<Data> Data::run(const OperationType operation, BuiltinArgs& args
         --size;
         if (size) {
             try {
-                return args.arg2->implement(operation, &args);
+                return args->arg2->implement(operation, args);
             }
             catch (Unimplemented&) {
                 // Handle unimplemented methods
@@ -44,18 +44,18 @@ std::shared_ptr<Data> Data::run(const OperationType operation, BuiltinArgs& args
 
     std::string err = "No valid builtin implementation for this method: " + getOperationTypeName(operation) + "(";
     int i = 0;
-    if (args.size > 0) {
-        auto arg = args.arg0;
+    if (args->size > 0) {
+        auto arg = args->arg0;
         if (i++) err += ",";
         if (arg != nullptr) err += datatypeName[arg->getType()];
     }
-    if (args.size > 1) {
-        auto arg = args.arg1;
+    if (args->size > 1) {
+        auto arg = args->arg1;
         if (i++) err += ",";
         if (arg != nullptr) err += datatypeName[arg->getType()];
     }
-    if (args.size > 2) {
-        auto arg = args.arg2;
+    if (args->size > 2) {
+        auto arg = args->arg2;
         if (i++) err += ",";
         if (arg != nullptr) err += datatypeName[arg->getType()];
     }

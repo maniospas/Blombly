@@ -29,7 +29,7 @@ public:
     Data();
     virtual ~Data();
 
-    static std::shared_ptr<Data> run(const OperationType operation, BuiltinArgs& args);
+    static std::shared_ptr<Data> run(const OperationType operation, BuiltinArgs* args);
     virtual std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args);
     virtual size_t toHash() const;
     static int countObjects();

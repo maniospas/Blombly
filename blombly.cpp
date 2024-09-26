@@ -11,8 +11,8 @@
 
 // mkdir build
 // cd build
-// cmake ..
-// cmake --build .\build --config Release
+// cmake -B ./build
+// cmake --build ./build --config Release
 
 
 int main(int argc, char* argv[]) {

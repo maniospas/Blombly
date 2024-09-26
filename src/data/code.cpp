@@ -18,6 +18,12 @@ Code::Code(const std::shared_ptr<std::vector<Command>>& programAt, int startAt, 
 Code::Code(const std::shared_ptr<std::vector<Command>>& programAt, int startAt, int endAt, const std::shared_ptr<BMemory>& declMemory, const std::shared_ptr<Metadata>& metadata)
     : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(metadata), scheduleForParallelExecution(false) {}
 
+Code::Code(const std::shared_ptr<std::vector<Command>>& programAt, int startAt, int endAt, const std::weak_ptr<BMemory>& declMemory)
+    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(std::make_shared<Metadata>()), scheduleForParallelExecution(false) {}
+
+Code::Code(const std::shared_ptr<std::vector<Command>>& programAt, int startAt, int endAt, const std::weak_ptr<BMemory>& declMemory, const std::shared_ptr<Metadata>& metadata)
+    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(metadata), scheduleForParallelExecution(false) {}
+
 void Code::setMetadata(int id, const std::shared_ptr<Data>& data) {
     if (metadata->metadata[id] && metadata->metadata[id] != data) {
         bberror(toString() + " already has the specification entry: " + variableManager.getSymbol(id));
@@ -68,7 +74,7 @@ std::shared_ptr<std::vector<Command>> Code::getProgram() const {
 }
 
 std::shared_ptr<BMemory> Code::getDeclarationMemory() const {
-    return declarationMemory;
+    return declarationMemory.lock();
 }
 
 void Code::setDeclarationMemory(const std::shared_ptr<BMemory>& newMemory) {

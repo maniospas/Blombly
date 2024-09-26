@@ -22,7 +22,7 @@ BMemory::BMemory(const std::shared_ptr<BMemory>& par, int expectedAssignments)
 
 bool BMemory::isOrDerivedFrom(const std::shared_ptr<BMemory>& memory) const {
     if (memory.get() == this)
-        return true;
+        return true;  // stop on cycle
     if (parent)
         return parent->isOrDerivedFrom(memory);
     return false;
@@ -158,12 +158,8 @@ void BMemory::removeWithoutDelete(int item) {
 void BMemory::unsafeSet(int item, const std::shared_ptr<Data>& value, const std::shared_ptr<Data>& prev) {
     if (prev == value)
         return;
-    if (prev) {
-        if (isFinal(item)) {
-            bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
-            return;
-        }
-    }
+    if (prev && isFinal(item))
+        bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
     data[item] = value;
 }
 
@@ -203,6 +199,9 @@ void BMemory::detach() {
             attached_threads.erase(prevRet);
         }
     }
+    for (const auto& thread : attached_threads) 
+        thread->getResult();
+    attached_threads.clear();
     allowMutables = false;
     parent = nullptr;
 }
