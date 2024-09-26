@@ -10,7 +10,7 @@
 // Iterator class representing an iterator over a data object
 class Iterator : public Data {
 private:
-    mutable std::mutex memoryLock;  // Use std::mutex for locking
+    mutable std::recursive_mutex memoryLock;  // Use std::recursive_mutex for locking
     int size;
     std::shared_ptr<Data> object;
     std::shared_ptr<Integer> pos;

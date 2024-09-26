@@ -19,8 +19,8 @@
 
 
 std::chrono::steady_clock::time_point program_start;
-std::mutex printMutex;
-std::mutex compileMutex;
+std::recursive_mutex printMutex;
+std::recursive_mutex compileMutex;
 
 
 void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
@@ -209,7 +209,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
             }
             printing += "\n";
             {
-                std::lock_guard<std::mutex> lock(printMutex);
+                std::lock_guard<std::recursive_mutex> lock(printMutex);
                 std::cout << printing;
             } 
             result = nullptr;
@@ -225,7 +225,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command>>& program,
                 }
             }
             {
-                std::lock_guard<std::mutex> lock(printMutex);
+                std::lock_guard<std::recursive_mutex> lock(printMutex);
                 std::cout << printing;
                 printing = "";
                 std::cin >> printing;

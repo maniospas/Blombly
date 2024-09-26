@@ -14,7 +14,7 @@ private:
     int* dims;        // Shape of the vector
     int ndims;        // Number of dimensions
     int size;         // Size of the vector
-    mutable std::mutex memoryLock;   // Mutex for thread safety
+    mutable std::recursive_mutex memoryLock;   // Mutex for thread safety
     int lockable;     // Counts shared instances-1
 
 public:

@@ -14,7 +14,7 @@
 
 
 std::shared_ptr<Code> compileAndLoad(const std::string& fileName, const std::shared_ptr<BMemory>& currentMemory) {
-    std::lock_guard<std::mutex> lock(compileMutex);
+    std::lock_guard<std::recursive_mutex> lock(compileMutex);
 
     // Compile and optimize
     std::string file = fileName;

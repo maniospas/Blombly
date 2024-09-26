@@ -25,7 +25,7 @@ int BList::getType() const {
 }
 
 std::string BList::toString() const {
-    std::lock_guard<std::mutex> lock(memoryLock);
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
     std::string result = "[";
     for (const auto& element : *contents.get()) {
         if (result.size()!=1) 
@@ -39,19 +39,19 @@ std::string BList::toString() const {
 }
 
 std::shared_ptr<Data> BList::shallowCopy() const {
-    std::lock_guard<std::mutex> lock(memoryLock);
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
     return std::make_shared<BList>(contents);
 }
 
 std::shared_ptr<Data> BList::at(int index) const {
-    std::lock_guard<std::mutex> lock(memoryLock);
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
     if (index < 0 || index >= contents->size()) 
         bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents->size()) + ")");
     return contents->at(index) ? contents->at(index)->shallowCopy() : nullptr;
 }
 
 std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArgs* args) {
-    std::lock_guard<std::mutex> lock(memoryLock);
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
     
     if (args->size == 1) {
         switch (operation) {

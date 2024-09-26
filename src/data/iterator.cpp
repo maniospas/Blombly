@@ -13,7 +13,7 @@ Iterator::Iterator(const std::shared_ptr<Data>& object_) : object(object_), pos(
     size = std::static_pointer_cast<Integer>(object->implement(LEN, &args))->getValue();
 }
 
-Iterator::~Iterator() = default;  // No manual mutex destruction required with std::mutex
+Iterator::~Iterator() = default;  // No manual mutex destruction required with std::recursive_mutex
 
 int Iterator::getType() const {
     return ITERATOR;
@@ -29,7 +29,7 @@ std::shared_ptr<Data> Iterator::shallowCopy() const {
 
 std::shared_ptr<Data> Iterator::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 1 && operation == NEXT) {
-        std::lock_guard<std::mutex> lock(memoryLock);
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
         pos->value += 1; 
         int currentPos = pos->value;
         if (currentPos >= size) 

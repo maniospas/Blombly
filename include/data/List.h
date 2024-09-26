@@ -9,7 +9,7 @@
 
 class BList : public Data {
 private:
-    mutable std::mutex memoryLock; 
+    mutable std::recursive_mutex memoryLock; 
 
 public:
     std::shared_ptr<std::vector<std::shared_ptr<Data>>> contents;

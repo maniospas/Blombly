@@ -1,8 +1,7 @@
-#include "libs/numbers"
+# include "libs/std"
+enable std;
 
-x = Complex(1, 1);
-y = Complex(1, 1)+Real(1);
-
-z = x/y;
-print(z);
-print(z.real());
+A = 1,2,3;
+print(A[0]);
+v = vector(A);
+print(v^v);

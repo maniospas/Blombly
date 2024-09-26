@@ -74,7 +74,7 @@ int Vector::getType() const {
 }
 
 std::string Vector::toString() const {
-    std::lock_guard<std::mutex> lock(memoryLock);
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
     std::string result = "[";
     for (std::size_t i = 0; i < std::min(static_cast<std::size_t>(size), static_cast<std::size_t>(10)); ++i) {
         if (result.size() > 1) {
@@ -93,7 +93,7 @@ std::shared_ptr<double[]> Vector::getValue() const {
 }
 
 std::shared_ptr<Data> Vector::shallowCopy() const {
-    std::lock_guard<std::mutex> lock(memoryLock);
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
     auto copy = std::make_shared<Vector>(data, this);
     return copy;
 }
@@ -108,7 +108,7 @@ void Vector::unlock() const {
 
 std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinArgs* args) {
     if (operation == AT && args->size == 2 && args->arg1->getType() == INT) {
-        std::lock_guard<std::mutex> lock(memoryLock);
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
         int index = static_cast<Integer*>(args->arg1.get())->getValue();
         if (natdims) {
             for (int i = 0; i < natdims; ++i) {
@@ -124,7 +124,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
     }
 
     if (operation == PUT && args->size == 3 && args->arg1->getType() == INT && args->arg2->getType() == FLOAT) {
-        std::lock_guard<std::mutex> lock(memoryLock);
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
         int index = static_cast<Integer*>(args->arg1.get())->getValue();
         for (int i = 0; i < natdims; ++i) {
             index *= dims[i + 1];
@@ -148,8 +148,8 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
             return nullptr;
         }
 
-        std::lock_guard<std::mutex> lock1(a1->memoryLock);
-        std::lock_guard<std::mutex> lock2(a2->memoryLock);
+        std::lock_guard<std::recursive_mutex> lock1(a1->memoryLock);
+        std::lock_guard<std::recursive_mutex> lock2(a2->memoryLock);
 
         auto result = std::make_shared<Vector>(a1->size);
         for (int i = 0; i < a1->size; ++i) {
@@ -167,8 +167,8 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
             return nullptr;
         }
 
-        std::lock_guard<std::mutex> lock1(a1->memoryLock);
-        std::lock_guard<std::mutex> lock2(a2->memoryLock);
+        std::lock_guard<std::recursive_mutex> lock1(a1->memoryLock);
+        std::lock_guard<std::recursive_mutex> lock2(a2->memoryLock);
 
         auto result = std::make_shared<Vector>(a1->size);
         for (int i = 0; i < a1->size; ++i) {
@@ -184,8 +184,8 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
             bberror("Vector sizes do not match for multiplication.");
             return nullptr;
         }
-        std::lock_guard<std::mutex> lock1(a1->memoryLock);
-        std::lock_guard<std::mutex> lock2(a2->memoryLock);
+        std::lock_guard<std::recursive_mutex> lock1(a1->memoryLock);
+        std::lock_guard<std::recursive_mutex> lock2(a2->memoryLock);
         auto result = std::make_shared<Vector>(a1->size);
         for (int i = 0; i < a1->size; ++i) 
             result->data[i] = a1->data[i] * a2->data[i];
@@ -199,8 +199,8 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
             bberror("Vector sizes do not match for multiplication.");
             return nullptr;
         }
-        std::lock_guard<std::mutex> lock1(a1->memoryLock);
-        std::lock_guard<std::mutex> lock2(a2->memoryLock);
+        std::lock_guard<std::recursive_mutex> lock1(a1->memoryLock);
+        std::lock_guard<std::recursive_mutex> lock2(a2->memoryLock);
         auto result = std::make_shared<Vector>(a1->size);
         for (int i = 0; i < a1->size; ++i) 
             result->data[i] = a1->data[i] / a2->data[i];
@@ -216,8 +216,8 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
             return nullptr;
         }
 
-        std::lock_guard<std::mutex> lock1(a1->memoryLock);
-        std::lock_guard<std::mutex> lock2(a2->memoryLock);
+        std::lock_guard<std::recursive_mutex> lock1(a1->memoryLock);
+        std::lock_guard<std::recursive_mutex> lock2(a2->memoryLock);
 
         auto result = std::make_shared<Vector>(a1->size);
         for (int i = 0; i < a1->size; ++i) {
@@ -229,7 +229,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
     if (operation == SUM && args->size == 1 && args->arg0->getType() == VECTOR) {
         Vector* vec = static_cast<Vector*>(args->arg0.get());
 
-        std::lock_guard<std::mutex> lock(vec->memoryLock);
+        std::lock_guard<std::recursive_mutex> lock(vec->memoryLock);
 
         double sum = 0;
         for (int i = 0; i < vec->size; ++i) {
@@ -246,7 +246,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
             return nullptr;
         }
 
-        std::lock_guard<std::mutex> lock(vec->memoryLock);
+        std::lock_guard<std::recursive_mutex> lock(vec->memoryLock);
 
         double maxVal = vec->data[0];
         for (int i = 1; i < vec->size; ++i) {
@@ -266,7 +266,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
             return nullptr;
         }
 
-        std::lock_guard<std::mutex> lock(vec->memoryLock);
+        std::lock_guard<std::recursive_mutex> lock(vec->memoryLock);
 
         double minVal = vec->data[0];
         for (int i = 1; i < vec->size; ++i) {
@@ -280,13 +280,14 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
 
     if ((operation == ADD || operation == SUB || operation == MUL || operation == DIV || operation == POW) && 
         args->size == 2 && 
-        (args->arg0->getType() == VECTOR || args->arg1->getType() == VECTOR) && 
         (args->arg0->getType() == FLOAT || args->arg0->getType() == INT || args->arg1->getType() == FLOAT || args->arg1->getType() == INT)) {
 
         Vector* vec = args->arg0->getType() == VECTOR ? static_cast<Vector*>(args->arg0.get()) : static_cast<Vector*>(args->arg1.get());
-        double scalar = args->arg0->getType() != VECTOR ? static_cast<BFloat*>(args->arg0.get())->getValue() : static_cast<BFloat*>(args->arg1.get())->getValue();
+        double scalar = args->arg0->getType() != VECTOR 
+            ? args->arg0->getType()==FLOAT?static_cast<BFloat*>(args->arg0.get())->getValue(): static_cast<Integer*>(args->arg0.get())->getValue()  
+            : args->arg1->getType()==FLOAT?static_cast<BFloat*>(args->arg1.get())->getValue(): static_cast<Integer*>(args->arg1.get())->getValue() ;
 
-        std::lock_guard<std::mutex> lock(vec->memoryLock);
+        std::lock_guard<std::recursive_mutex> lock(vec->memoryLock);
 
         auto result = std::make_shared<Vector>(vec->size);
         if (operation == ADD) {

@@ -10,7 +10,7 @@
 class Struct : public Data {
 private:
     std::shared_ptr<BMemory> memory;
-    mutable std::mutex memoryLock;
+    mutable std::recursive_mutex memoryLock;
 
 public:
 

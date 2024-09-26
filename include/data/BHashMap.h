@@ -10,7 +10,7 @@
 class BHashMap : public Data {
 private:
     tsl::hopscotch_map<size_t, std::shared_ptr<Data>> contents;
-    mutable std::mutex memoryLock;  // mutable to allow locking in const methods
+    mutable std::recursive_mutex memoryLock;  // mutable to allow locking in const methods
 
 public:
     explicit BHashMap();

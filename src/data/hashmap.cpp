@@ -20,7 +20,7 @@ int BHashMap::getType() const {
 }
 
 std::string BHashMap::toString() const {
-    std::lock_guard<std::mutex> lock(memoryLock);
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
     std::string result = "{";
     for (const auto& pair : contents) {
         if (result.size() > 1) 
@@ -31,7 +31,7 @@ std::string BHashMap::toString() const {
 }
 
 std::shared_ptr<Data> BHashMap::shallowCopy() const {
-    std::lock_guard<std::mutex> lock(memoryLock);
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
     auto copy = std::make_shared<BHashMap>();
     copy->contents = contents;
     return copy;
@@ -40,7 +40,7 @@ std::shared_ptr<Data> BHashMap::shallowCopy() const {
 void BHashMap::put(const std::shared_ptr<Data>& from, const std::shared_ptr<Data>& to) {
     bbassert(from, "Missing key value");
 
-    std::lock_guard<std::mutex> lock(memoryLock);
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
     size_t key = from->toHash();
     auto& existing = contents[key];
     if (existing && existing->isDestroyable) 
@@ -58,7 +58,7 @@ std::shared_ptr<Data> BHashMap::implement(const OperationType operation, Builtin
         throw Unimplemented();
     }
     if (operation == AT && args->size == 2) {
-        std::lock_guard<std::mutex> lock(memoryLock);
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
         size_t key = args->arg1->toHash();
         auto it = contents.find(key);
         if (it == contents.end()) 

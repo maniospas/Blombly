@@ -12,8 +12,8 @@
 #include "interpreter/Command.h"
 
 extern std::chrono::steady_clock::time_point program_start;
-extern std::mutex printMutex;
-extern std::mutex compileMutex;
+extern std::recursive_mutex printMutex;
+extern std::recursive_mutex compileMutex;
 
 std::shared_ptr<Data> executeBlock(const std::shared_ptr<Code>& code, const std::shared_ptr<BMemory>& memory, bool  &returnSignal, const BuiltinArgs& allocatedBuiltins);
 void handleExecutionError(const std::shared_ptr<std::vector<Command>>& program, int i, const BBError& e);
