@@ -142,7 +142,9 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
 
         case IS: {
             result = memory->getOrNull(command->args[1], true);
-            SCOPY(result);
+            //SCOPY(result);
+            if(result)
+                result = result->shallowCopy();
         } break;
 
         case EXISTS: {
@@ -365,7 +367,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
                 args.arg1 = MEMGET(memory, 2);
             if (nargs > 3) 
                 args.arg2 = MEMGET(memory, 3);
-            if(toReplace && toReplace->isDestroyable && (command->knownLocal[0] || memory->isFinal(command->args[0])))
+            if(toReplace && toReplace->isDestroyable && (command->knownLocal[0] || !memory->isFinal(command->args[0])))
                 args.preallocResult = toReplace;
             else
                 args.preallocResult = nullptr;

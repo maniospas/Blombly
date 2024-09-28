@@ -9,8 +9,8 @@
 #include "utils.h"
 #include "interpreter/functional.h"
 
+// Experimental cmake build system (other compilers may be up to 1.5x slower than gcc):
 // mkdir build
-// cd build
 // cmake -B ./build
 // cmake --build ./build --config Release
 
@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
             threads = std::stoi(argv[++i]);
         } 
         else if (arg == "--version" || arg == "-v") {
-            std::cout << "Version: blombly 0.2.1\n";
+            std::cout << "Version: blombly 0.3.0\n";
             return 0;
         } 
         else if (arg == "--help" || arg == "-h") {

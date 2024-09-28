@@ -333,6 +333,9 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
         return result;
     }
 
+    
+    if(operation==TOITER && args->size==1) 
+        return std::make_shared<Iterator>(args->arg0);
 
     throw Unimplemented();
 }
