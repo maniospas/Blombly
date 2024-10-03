@@ -156,9 +156,10 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             std::shared_ptr<Data> obj = memory->get(command->args[1]);
             bbassert(obj->getType() == STRUCT, "Can only set fields in a struct.");
             auto structObj = std::static_pointer_cast<Struct>(obj);
-            std::shared_ptr<Data> setValue = memory->get(command->args[3]);
+            std::shared_ptr<Data> setValue = memory->getOrNullShallow(command->args[3]);
             SCOPY(setValue);
-            structObj->getMemory()->unsafeSet(command->args[2], setValue, memory->get(command->args[2]));
+            auto structMemory = structObj->getMemory();
+            structMemory->unsafeSet(memory, command->args[2], setValue, structMemory->getOrNullShallow(command->args[2]));
         } break;
 
         case SETFINAL: {
@@ -334,6 +335,8 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             result = executeBlock(code, newMemory, newReturnSignal, args);
             if(result) {
                 SCOPY(result);
+                else if(result->getType()==STRUCT)
+                    result = result->shallowCopy(); // shallow copy structs even when shallow copying is commented out, so as to always convert weak structs to strong structs and not lose the memory context while transferring results around
                 if(result->getType()==CODE) 
                     std::static_pointer_cast<Code>(result)->setDeclarationMemory(nullptr);
             }

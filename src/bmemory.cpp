@@ -4,6 +4,7 @@
 #include "data/BError.h"
 #include "data/Future.h"
 #include "data/Code.h"
+#include "data/Struct.h"
 #include <unordered_set>  
 
 tsl::hopscotch_set<std::shared_ptr<BMemory>> memories;
@@ -21,8 +22,8 @@ BMemory::BMemory(const std::shared_ptr<BMemory>& par, int expectedAssignments)
     data.reserve(expectedAssignments);
 }
 
-bool BMemory::isOrDerivedFrom(const std::shared_ptr<BMemory>& memory) const {
-    if (memory.get() == this)
+bool BMemory::isOrDerivedFrom(const BMemory* memory) const {
+    if (memory == this)
         return true;  // stop on cycle
     if (parent)
         return parent->isOrDerivedFrom(memory);
@@ -59,6 +60,7 @@ void BMemory::release() {
 
 BMemory::~BMemory() {
     release();
+    data.clear();
     countUnrealeasedMemories--;
 }
 
@@ -163,6 +165,22 @@ void BMemory::removeWithoutDelete(int item) {
     //fastLastAccessId = -1;
 }
 
+void BMemory::unsafeSet(const std::shared_ptr<BMemory>& handler, int item, const std::shared_ptr<Data>& value, const std::shared_ptr<Data>& prev) {
+    if (prev == value)
+        return;
+    if (prev && isFinal(item))
+        bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
+    
+    std::shared_ptr<Data> val;
+    if(value && value->getType()==STRUCT) // here we may convert strong pointer structs to weak pointer structs so that deleting the memory will also delete those pointers even if there are cycles
+        val = std::static_pointer_cast<Struct>(value)->modifyBeforeAttachingToMemory(handler, std::static_pointer_cast<Struct>(value), this);
+    else 
+        val = value;
+    //fastLastAccess = val;
+    //fastLastAccessId = item;
+    data[item] = std::move(val);
+}
+
 void BMemory::unsafeSet(int item, const std::shared_ptr<Data>& value, const std::shared_ptr<Data>& prev) {
     if (prev == value)
         return;
@@ -171,7 +189,7 @@ void BMemory::unsafeSet(int item, const std::shared_ptr<Data>& value, const std:
     
     std::shared_ptr<Data> val;
     if(value && value->getType()==STRUCT) // here we may convert strong pointer structs to weak pointer structs so that deleting the memory will also delete those pointers even if there are cycles
-        val = std::static_pointer_cast<Struct>(value)->modifyBeforeAttachingToMemory(std::static_pointer_cast<Struct>(value), this);
+        val = std::static_pointer_cast<Struct>(value)->modifyBeforeAttachingToMemory(nullptr, std::static_pointer_cast<Struct>(value), this);
     else 
         val = value;
     //fastLastAccess = val;
@@ -182,7 +200,7 @@ void BMemory::unsafeSet(int item, const std::shared_ptr<Data>& value, const std:
 std::shared_ptr<Data> BMemory::unsafeSet(int item, const std::shared_ptr<Data>& value) {
     std::shared_ptr<Data> val;
     if(value && value->getType()==STRUCT) // here we may convert strong pointer structs to weak pointer structs so that deleting the memory will also delete those pointers even if there are cycles
-        val = std::static_pointer_cast<Struct>(value)->modifyBeforeAttachingToMemory(std::static_pointer_cast<Struct>(value), this);
+        val = std::static_pointer_cast<Struct>(value)->modifyBeforeAttachingToMemory(nullptr, std::static_pointer_cast<Struct>(value), this);
     else
         val = value;
     data[item] = std::move(val);  // TODO: this is a prime suspect for a bug

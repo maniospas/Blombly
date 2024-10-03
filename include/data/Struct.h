@@ -18,7 +18,7 @@ public:
     std::string toString() const override;
     virtual std::shared_ptr<BMemory> getMemory() const = 0;
     std::shared_ptr<Data> implement(const OperationType operation_, BuiltinArgs* args_) override;
-    virtual std::shared_ptr<Struct> modifyBeforeAttachingToMemory(std::shared_ptr<Struct> selfPtr, BMemory* owner) = 0; // the contract here is that while the method is running there will always be a valid owner class instance
+    virtual std::shared_ptr<Struct> modifyBeforeAttachingToMemory(const std::shared_ptr<BMemory>& memoryHandler, const std::shared_ptr<Struct>&, BMemory* owner) = 0; // the contract here is that while the method is running there will always be a valid owner class instance
 };
 
 class StrongStruct : public Struct {
@@ -29,7 +29,7 @@ public:
     ~StrongStruct();
     std::shared_ptr<Data> shallowCopy() const override;
     std::shared_ptr<BMemory> getMemory() const override;
-    std::shared_ptr<Struct> modifyBeforeAttachingToMemory(std::shared_ptr<Struct> selfPtr, BMemory* owner) override;
+    std::shared_ptr<Struct> modifyBeforeAttachingToMemory(const std::shared_ptr<BMemory>& memoryHandler, const std::shared_ptr<Struct>& selfPtr, BMemory* owner) override;
 };
 
 class WeakStruct : public Struct {
@@ -41,7 +41,7 @@ public:
     ~WeakStruct();
     std::shared_ptr<Data> shallowCopy() const override;
     std::shared_ptr<BMemory> getMemory() const override;
-    std::shared_ptr<Struct> modifyBeforeAttachingToMemory(std::shared_ptr<Struct> selfPtr, BMemory* owner) override;
+    std::shared_ptr<Struct> modifyBeforeAttachingToMemory(const std::shared_ptr<BMemory>& memoryHandler, const std::shared_ptr<Struct>&, BMemory* owner) override;
 };
 
 #endif // STRUCT_H

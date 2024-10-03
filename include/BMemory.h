@@ -12,6 +12,8 @@
 #include "tsl/hopscotch_map.h"
 #include "tsl/hopscotch_set.h"
 class Future;
+class Struct;
+class Command;
 
 
 class VariableManager {
@@ -42,7 +44,6 @@ public:
     }
 };
 
-class Command;
 
 class BMemory {
 private:
@@ -57,7 +58,7 @@ public:
     tsl::hopscotch_set<std::shared_ptr<Future>> attached_threads;
     bool allowMutables;
 
-    bool isOrDerivedFrom(const std::shared_ptr<BMemory>& memory) const;
+    bool isOrDerivedFrom(const BMemory* memory) const;
 
     explicit BMemory(const std::shared_ptr<BMemory>& par, int expectedAssignments);
     ~BMemory();
@@ -67,6 +68,7 @@ public:
     std::shared_ptr<Data> get(int item, bool allowMutable);
     std::shared_ptr<Data> getOrNull(int item, bool allowMutable);
     std::shared_ptr<Data> getOrNullShallow(int item);
+    void unsafeSet(const std::shared_ptr<BMemory>& handler, int item, const std::shared_ptr<Data>& value, const std::shared_ptr<Data>& prev);
     void unsafeSet(int item, const std::shared_ptr<Data>& value, const std::shared_ptr<Data>& prev);
     std::shared_ptr<Data> unsafeSet(int item, const std::shared_ptr<Data>& value);
     int size() const;

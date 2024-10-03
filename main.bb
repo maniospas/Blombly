@@ -1,59 +1,17 @@
-#include "libs/std"
-enable std;
+test = new {
+    x = new{y=0;z=1}
+    y = new{x=0;z=2}
 
+    x.y = y;
+    y.x = x;
 
-n = 10000000;
-print("-------------------------------------------");
-print("Benchmark: lists with "+str(n)+" elements");
-print("Language: blombly");
-print("-------------------------------------------");
+    w = new{x=x;y=y}
+    x = 0;
+    y = 0;
 
-x = list(1);
-tic = time();
-i = 0;
-while(i<n){
-    i = i+1;
-    push(x, i);
+    std::print(w.x.y.z);
 }
-print("  push "+str(time()-tic));
 
-tic = time();
-s = 0;
-i = 0;
-while(i<n) {
-	s = s+x[i];
-	i = i+1;
-}
-print("  access sum "+str(time()-tic));
+test.w.x.y = 0;
 
-tic = time();
-it = iter(x);
-s = 0;
-while(xi as next(it)) 
-	s = s+xi;
-print("  iter sum "+str(time()-tic));
-
-
-print("-------------------------------------------");
-print("Benchmark: lists with "+str(n)+" elements");
-print("Language: blombly + vector");
-print("-------------------------------------------");
-
-x = vector(x);
-
-tic = time();
-s = 0;
-i = 0;
-while(i<n) {
-	s = s+x[i];
-	i = i+1;
-}
-print("  access sum "+str(time()-tic));
-
-tic = time();
-it = iter(x);
-s = 0;
-while(xi as next(it)) 
-	s = s+xi;
-print("  iter sum "+str(time()-tic));
-print("");
+std::print(test.w);

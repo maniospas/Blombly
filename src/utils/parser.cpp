@@ -461,7 +461,7 @@ public:
                             + first_name + "`.\n"+show_position(start));
                 }
 
-                if (first_name == "default" || first_name == "std::print" || first_name == "std::read" || 
+                if (first_name == "default" || first_name == "std::print" || first_name == "std::read"  || first_name == "std::fail" || 
                     first_name == "try" || first_name == "new" || 
                     first_name == "return" || first_name == "if" || 
                     first_name == "else" || first_name == "while" || 
@@ -525,7 +525,7 @@ public:
                       + show_position(start));
 
             
-            if (first_name == "std::print") {
+            if (first_name == "std::print" || first_name == "print") {
                 std::string parsed = parse_expression(start + 1, end);
                 bbassert(parsed != "#", "An expression that computes no value  was given to `" + first_name+"`.\n"+show_position(start+1));
                 std::string var = "#";
@@ -533,14 +533,14 @@ public:
                 return var;
             }
             
-            if (first_name == "std::read") {
+            if (first_name == "std::read" || first_name == "read") {
                 std::string parsed = parse_expression(start + 1, end);
                 std::string var = create_temp();
                 ret += "read " + var + " " + parsed + "\n";
                 return var;
             }
             
-            if (first_name == "fail") {
+            if (first_name == "fail" || first_name == "std::fail") {
                 std::string parsed = parse_expression(start + 1, end);
                 bbassert(parsed != "#", "An expression that computes no value  was given to `" + first_name+"`.\n"+show_position(tokens, start+1));
                 std::string var = "#";

@@ -26,7 +26,7 @@ std::string Struct::toString() const {
 
 std::shared_ptr<Data> Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
     if (args_->size == 1 && operation_ == TOCOPY) {
-        return shallowCopy();
+        bberror("Cannot copy structs");
     }
 
     std::string operation = getOperationTypeName(operation_);
@@ -87,8 +87,8 @@ std::shared_ptr<Data> StrongStruct::shallowCopy() const {
     return std::make_shared<StrongStruct>(memory);
 }
 
-std::shared_ptr<Struct> StrongStruct::modifyBeforeAttachingToMemory(std::shared_ptr<Struct> selfPtr, BMemory* owner) {
-    if(owner->isOrDerivedFrom(memory))
+std::shared_ptr<Struct> StrongStruct::modifyBeforeAttachingToMemory(const std::shared_ptr<BMemory>& memoryHandler, const std::shared_ptr<Struct>& selfPtr, BMemory* owner) {
+    if(memory && memory->isOrDerivedFrom(owner))
         return std::move(std::make_shared<WeakStruct>(memory));
     return selfPtr;
 }
@@ -117,9 +117,9 @@ std::shared_ptr<Data> WeakStruct::shallowCopy() const {
     return std::make_shared<StrongStruct>(memory.lock());  // the copy should always be strong so that picking up a struct from some memory will prevent the memory from being released before the struct is assigned somewhere
 }
 
-std::shared_ptr<Struct> WeakStruct::modifyBeforeAttachingToMemory(std::shared_ptr<Struct> selfPtr, BMemory* owner) {
+std::shared_ptr<Struct> WeakStruct::modifyBeforeAttachingToMemory(const std::shared_ptr<BMemory>& memoryHandler, const std::shared_ptr<Struct>& selfPtr, BMemory* owner) {
     auto mem = memory.lock();
-    if(owner->isOrDerivedFrom(mem))
+    if(mem && mem->isOrDerivedFrom(owner))
         return selfPtr;
     return std::move(std::make_shared<StrongStruct>(mem));
 }
