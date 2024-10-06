@@ -3,7 +3,7 @@ final fmt::fmt = {
     argiter = std::iter(args);
     while(arg as std::next(argiter)) {
         formatted = formatted + std::str(arg);
-        formatted = formatted + " ";
+        // formatted = formatted + " ";  
     }
     return formatted;
 }

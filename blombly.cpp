@@ -20,8 +20,25 @@
 // cmake -B ./build
 // cmake --build ./build --config Release
 
+std::string blombly_executable_path;
+
+
+
+std::string get_executable_directory(const std::string& argv0) {
+    #ifdef _WIN32
+        size_t pos = argv0.find_last_of("\\");
+    #else
+        size_t pos = argv0.find_last_of("/");
+    #endif
+    if (pos != std::string::npos) 
+        return argv0.substr(0, pos);
+    return ".";
+}
+
+
 
 int main(int argc, char* argv[]) {
+    blombly_executable_path = get_executable_directory(argv[0]);
     Terminal::enableVirtualTerminalProcessing();
     initializeOperationMapping();
 

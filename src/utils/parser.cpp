@@ -36,6 +36,7 @@ const std::string PARSER_NEW = "new";
 const std::string PARSER_PRBB_INT = "print";
 const std::string PARSER_COPY = "copy";
 const std::string ANON = "_bb";
+extern std::string blombly_executable_path;
 
 class Parser {
 private:
@@ -1149,11 +1150,18 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
 
             std::ifstream inputFile(source);
             if (!inputFile.is_open()) {
-                bberror("Unable to open file: " + source +
-                        "\n   \033[33m!!!\033[0m  This issue makes it impossible to"
-                        "\n       complete the include statement.\n"
-                        + Parser::show_position(tokens, i));
+                std::filesystem::path execFilePath = std::filesystem::path(std::filesystem::current_path().string()) / source;
+                inputFile.open(execFilePath.string());
             }
+            if (!inputFile.is_open()) {
+                std::filesystem::path execFilePath = std::filesystem::path(blombly_executable_path) / source;
+                inputFile.open(execFilePath.string());
+            }
+
+            if (!inputFile.is_open()) 
+                bberror("Unable to open file: " + source +
+                        "\n   \033[33m!!!\033[0m  This issue makes it impossible to complete the include statement.\n"
+                        + Parser::show_position(tokens, i));
 
             std::string code = "";
             std::string line;

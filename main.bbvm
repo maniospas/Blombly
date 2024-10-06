@@ -1,48 +1,41 @@
-BEGIN _bb2
-BUILTIN value I0
-BUILTIN _bb4 I8000
-server routes _bb4
-BEGIN _bb6
-BEGIN _bb7
-BUILTIN _bb8 "The number of hi must be an integer."
-return _bbresult0 _bb8
+BEGIN _bb0
+BUILTIN formatted ""
+iter argiter args
+next arg argiter
+exists _bb4 arg
+BEGIN _bb5
+str _bb7 arg
+add formatted formatted _bb7
+next arg argiter
+exists _bb4 arg
 END
-BUILTIN _bb10 Bfalse
-int number number
-exists _bb12 number
-eq _bb9 _bb12 _bb10
-if # _bb9 _bb7
-BEGIN _bb13
-BUILTIN _bb14 "Need a positive number of hi. Why must you take them away? :-("
-return _bbresult1 _bb14
+while # _bb4 _bb5
+return _bbresult0 formatted
 END
-BUILTIN _bb16 I0
-le _bb15 number _bb16
-if # _bb15 _bb13
-BUILTIN _bb18 I1
-get _bb19 this value
-add _bb17 _bb19 _bb18
-set # this value _bb17
-BUILTIN _bb21 " hi"
-str _bb23 number
-BUILTIN _bb25 " hello your "
-get _bb27 this value
-add _bb26 _bb27 number
-str _bb28 _bb26
-add _bb24 _bb28 _bb25
-add _bb22 _bb24 _bb23
-add _bb20 _bb22 _bb21
-return _bbresult2 _bb20
+IS fmt::fmt _bb0
+final # fmt::fmt
+time tic
+BEGIN _bb10
+BUILTIN _bb11 "What's your name?"
+list args _bb11
 END
-BUILTIN _bb29 "/hi/<number>"
-put # routes _bb29 _bb6
-return _bbresult3 this
+call _bb9 _bb10 fmt::fmt
+read name _bb9
+BEGIN _bb14
+BUILTIN _bb15 "Hello "
+BUILTIN _bb16 "!"
+list args _bb15 name _bb16
 END
-new _bb0 _bb2
-BUILTIN _bb30 "Give me some greetings at localhost:8000/hi/<number>"
-print # _bb30
-BUILTIN _bb31 Btrue
-BEGIN _bb32
-BUILTIN _bb31 Btrue
+call _bb13 _bb14 fmt::fmt
+print # _bb13
+time _bb19
+sub duration _bb19 tic
+BEGIN _bb21
+BUILTIN _bb22 "It was fun knowing you for "
+BUILTIN _bb24 ".1f"
+at _bb23 duration _bb24
+BUILTIN _bb25 " seconds."
+list args _bb22 _bb23 _bb25
 END
-while # _bb31 _bb32
+call _bb20 _bb21 fmt::fmt
+print # _bb20
