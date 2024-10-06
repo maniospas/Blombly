@@ -65,19 +65,19 @@ jobs:
         path: ${{ matrix.os }}_release.zip
 
   release:
-  runs-on: ubuntu-latest
-  needs: build
-  steps:
-    - name: Download Windows build artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: windows-latest-build
-        path: windows-latest_release.zip
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download Windows build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: windows-latest-build
+          path: windows-latest_release.zip
 
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: windows-latest_release.zip
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: windows-latest_release.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
