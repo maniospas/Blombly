@@ -1,0 +1,76 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            triplet: x64-linux
+            build-script: ./vcpkg/bootstrap-vcpkg.sh
+            cmake-command: |
+              cmake -B ./build -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
+              cmake --build ./build --config Release
+          - os: windows-latest
+            triplet: x64-windows
+            build-script: .\vcpkg\bootstrap-vcpkg.bat
+            cmake-command: |
+              cmake -B ./build -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
+              cmake --build ./build --config Release
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install vcpkg
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git
+        ${{ matrix.build-script }}
+
+    - name: Install Crow and Civetweb dependencies
+      run: |
+        ./vcpkg/vcpkg install crow civetweb --triplet=${{ matrix.triplet }}
+
+    - name: Configure and build
+      run: |
+        ${{ matrix.cmake-command }}
+
+    - name: Package executable and dependencies
+      run: |
+        mkdir -p release
+        cp ./build/output/* release/
+        cp -r libs/ release/
+        zip -r ${{ matrix.os }}_release.zip release/
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.os }}-build
+        path: ${{ matrix.os }}_release.zip
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: ubuntu-latest-build
+        path: ubuntu.zip
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          ubuntu.zip
+          windows.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
