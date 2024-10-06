@@ -4,7 +4,7 @@
 #include <memory>
 #include <thread>
 #include "data/Data.h"
-#include "data/berror.h"
+#include "data/BError.h"
 #include "interpreter/Command.h"
 #include "interpreter/thread.h"
 #include "BMemory.h"
