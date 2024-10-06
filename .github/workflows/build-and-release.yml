@@ -37,21 +37,24 @@ jobs:
       run: |
         ${{ matrix.cmake-command }}
 
-    - name: Package executable and dependencies
+    - name: Package executable for Windows
+      if: matrix.os == 'windows-latest'
       run: |
         mkdir -p release
-        # For Windows, copy .exe and .dll files from the top-level directory
-        if [ "${{ matrix.os }}" = "windows-latest" ]; then
-          cp ./*.exe release/ || echo "No executables found"
-          cp ./*.dll release/ || echo "No DLLs found"
-        
-        # For Linux, copy the binary and any shared libraries (.so) from the top-level directory and build folder
-        elif [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
-          cp ./* release/ || echo "No executables found"
-          cp ./*.so release/ || echo "No shared libraries found"
-        fi
-        cp -r libs/ release/
-        zip -r ${{ matrix.os }}_release.zip release/
+        cp ./*.exe release/ || echo "No executables found"
+        cp ./*.dll release/ || echo "No DLLs found"
+        cp -r libs/ release/ || echo "No libs directory found"
+        zip -r windows_release.zip release/
+
+    - name: Package executable for Linux
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        mkdir -p release
+        cp ./* release/ || echo "No executables found"
+        cp ./build/output/*.so release/ || echo "No shared libraries found"
+        cp -r libs/ release/ || echo "No libs directory found"
+        zip -r linux_release.zip release/
+
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
