@@ -45,7 +45,7 @@ jobs:
         cp ./*.dll release/ || echo "No DLLs found"
         cp -r libs/ release/ || echo "No libs directory found"
         # Use PowerShell's Compress-Archive for zipping files on Windows
-        powershell Compress-Archive -Path release/* -DestinationPath windows_release.zip
+        powershell Compress-Archive -Path release/* -DestinationPath windows-latest_release.zip
 
     - name: Package executable for Linux
       if: matrix.os == 'ubuntu-latest'
@@ -55,7 +55,7 @@ jobs:
         cp ./build/output/*.so release/ || echo "No shared libraries found"
         cp -r libs/ release/ || echo "No libs directory found"
         # Use zip for Linux
-        zip -r linux_release.zip release/
+        zip -r ubuntu-latest_release.zip release/
 
 
     - name: Upload build artifacts
