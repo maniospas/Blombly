@@ -30,6 +30,10 @@ file(GLOB_RECURSE SOURCES
 # Create the executable from the collected source files
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+# Find and link Crow package (installed via vcpkg)
+find_package(Crow CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE Crow::Crow)
+
 # Manually include Civetweb headers and link library (installed via vcpkg)
 find_path(CIVETWEB_INCLUDE_DIR civetweb.h)
 find_library(CIVETWEB_LIBRARY civetweb)
