@@ -38,31 +38,19 @@ jobs:
         ${{ matrix.cmake-command }}
 
     - name: Package executable for Windows
-      if: matrix.os == 'windows-latest'
       run: |
         mkdir -p release
         cp ./*.exe release/ || echo "No executables found"
         cp ./*.dll release/ || echo "No DLLs found"
         cp -r libs/ release/ || echo "No libs directory found"
         # Use PowerShell's Compress-Archive for zipping files on Windows
-        powershell Compress-Archive -Path release/* -DestinationPath windows-latest_release.zip
-
-    - name: Package executable for Linux
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        mkdir -p release
-        cp ./* release/ || echo "No executables found"
-        cp ./build/output/*.so release/ || echo "No shared libraries found"
-        cp -r libs/ release/ || echo "No libs directory found"
-        # Use zip for Linux
-        zip -r ubuntu-latest_release.zip release/
-
+        powershell Compress-Archive -Path release/* -DestinationPath windows_release.zip
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ matrix.os }}-build
-        path: ${{ matrix.os }}_release.zip
+        name: windows-build
+        path: windows_release.zip
 
   release:
     runs-on: ubuntu-latest
@@ -71,13 +59,15 @@ jobs:
       - name: Download Windows build artifact
         uses: actions/download-artifact@v3
         with:
-          name: windows-latest-build
-          path: windows-latest_release.zip
+          name: windows-build
+          path: .
+
+      - name: List downloaded files (Debugging step)
+        run: ls -al
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: windows-latest_release.zip
+          files: windows_release.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
