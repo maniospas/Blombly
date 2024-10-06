@@ -33,7 +33,7 @@ const std::string PARSER_INLINE = "inline";
 const std::string PARSER_TRY = "try";
 const std::string PARSER_DEFAULT = "default";
 const std::string PARSER_NEW = "new";
-const std::string PARSER_PRINT = "print";
+const std::string PARSER_PRBB_INT = "print";
 const std::string PARSER_COPY = "copy";
 const std::string ANON = "_bb";
 
@@ -683,7 +683,7 @@ public:
                 first_name == "std::push" || first_name == "std::pop" || 
                 first_name == "std::file" || first_name == "std::next" || 
                 first_name == "std::list" || first_name == "std::map" || 
-                first_name == "std::vector") {
+                first_name == "std::server" || first_name == "std::vector") {
                 bbassert(tokens[start + 1].name == "(", "Missing '(' just after '" + first_name+"'.\n"+show_position(start+1));
                 if (start + 1 >= end - 1 && (first_name == "map" || 
                                              first_name == "list")) {
@@ -702,8 +702,7 @@ public:
                 return var;
             }
 
-            if (first_name == "std::time" || first_name == "std::random" || 
-                first_name == "std::list") {
+            if (first_name == "std::time" || first_name == "std::random" || first_name == "std::server" || first_name == "std::list") {
                 first_name = first_name.substr(5);
                 bbassert(tokens[start + 1].name == "(", "Missing ( after " 
                           + first_name);
@@ -924,15 +923,13 @@ void sanitize(std::vector<Token>& tokens) {
              tokens[i].name == "catch") && i < tokens.size() - 1 && 
              tokens[i + 1].name != "(")
             bberror("Invalid `"+tokens[i].name+"` syntax."
-                    "\n   \033[33m!!!\033[0m `(` should always follow `" + tokens[i].name + "`"
-                    "\n        but " + tokens[i + 1].name + " encountered.\n" 
+                    "\n   \033[33m!!!\033[0m `(` should always follow `" + tokens[i].name + "` but " + tokens[i + 1].name + " encountered.\n" 
                     + Parser::show_position(tokens, i+1));
         if ((tokens[i].name == "new") && i < tokens.size() - 1 && tokens[i + 1].name != "{")
             bberror("Invalid `"+tokens[i].name+"` syntax."
-                    "\n   \033[33m!!!\033[0m `{` should always follow `" + tokens[i].name + "`"
-                    "\n        but `" + tokens[i + 1].name + "` found."
-                    "\n        To apply one a code block variable (which is a code smell),"
-                    "\n        inline like this `" + tokens[i].name + " {block:}`.\n" 
+                    "\n   \033[33m!!!\033[0m `{` should always follow `" + tokens[i].name + "` but `" + tokens[i + 1].name + "` encountered."
+                    "\n        Since nitializing a struct based on a code block variable and no arguments"
+                    "\n        is a code smell, explicitly inline the block this: `" + tokens[i].name + " {block:}`.\n" 
                     + Parser::show_position(tokens, i+1));
 
         if (tokens[i].name == "}") {

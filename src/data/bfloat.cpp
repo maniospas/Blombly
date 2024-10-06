@@ -54,7 +54,7 @@ std::string __python_like_float_format(double number, const std::string& format)
 BFloat::BFloat(double val) : value(val) {}
 
 int BFloat::getType() const {
-    return FLOAT;
+    return BB_FLOAT;
 }
 
 std::string BFloat::toString() const {
@@ -74,23 +74,23 @@ std::shared_ptr<Data> BFloat::implement(const OperationType operation, BuiltinAr
         int type0 = args->arg0->getType();
         int type1 = args->arg1->getType();
 
-        double v1 = (type0 == INT) ? static_cast<double>(static_cast<Integer*>(args->arg0.get())->getValue()) 
+        double v1 = (type0 == BB_INT) ? static_cast<double>(static_cast<Integer*>(args->arg0.get())->getValue()) 
                                    : static_cast<BFloat*>(args->arg0.get())->getValue();
-        double v2 = (type1 == INT) ? static_cast<double>(static_cast<Integer*>(args->arg1.get())->getValue()) 
+        double v2 = (type1 == BB_INT) ? static_cast<double>(static_cast<Integer*>(args->arg1.get())->getValue()) 
                                    : static_cast<BFloat*>(args->arg1.get())->getValue();
 
         switch (operation) {
-            case EQ: BOOLEAN_RESULT(v1 == v2);
-            case NEQ: BOOLEAN_RESULT(v1 != v2);
-            case LT: BOOLEAN_RESULT(v1 < v2);
-            case LE: BOOLEAN_RESULT(v1 <= v2);
-            case GT: BOOLEAN_RESULT(v1 > v2);
-            case GE: BOOLEAN_RESULT(v1 >= v2);
-            case ADD: FLOAT_RESULT(v1 + v2);
-            case SUB: FLOAT_RESULT(v1 - v2);
-            case MUL: FLOAT_RESULT(v1 * v2);
-            case POW: FLOAT_RESULT(std::pow(v1, v2));
-            case DIV: FLOAT_RESULT(v1 / v2);
+            case EQ: BB_BOOLEAN_RESULT(v1 == v2);
+            case NEQ: BB_BOOLEAN_RESULT(v1 != v2);
+            case LT: BB_BOOLEAN_RESULT(v1 < v2);
+            case LE: BB_BOOLEAN_RESULT(v1 <= v2);
+            case GT: BB_BOOLEAN_RESULT(v1 > v2);
+            case GE: BB_BOOLEAN_RESULT(v1 >= v2);
+            case ADD: BB_FLOAT_RESULT(v1 + v2);
+            case SUB: BB_FLOAT_RESULT(v1 - v2);
+            case MUL: BB_FLOAT_RESULT(v1 * v2);
+            case POW: BB_FLOAT_RESULT(std::pow(v1, v2));
+            case DIV: BB_FLOAT_RESULT(v1 / v2);
         }
 
         // Handle formatted string conversion
@@ -105,8 +105,8 @@ std::shared_ptr<Data> BFloat::implement(const OperationType operation, BuiltinAr
     if (args->size == 1) {
         switch (operation) {
             case TOCOPY:
-            case TOFLOAT: FLOAT_RESULT(value);
-            case TOINT: INT_RESULT(static_cast<int>(value));
+            case TOBB_FLOAT: BB_FLOAT_RESULT(value);
+            case TOBB_INT: BB_INT_RESULT(static_cast<int>(value));
             case TOSTR: STRING_RESULT(std::to_string(value));
         }
         throw Unimplemented();

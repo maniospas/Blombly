@@ -4,7 +4,7 @@
 Boolean::Boolean(bool val) : value(val) {}
 
 int Boolean::getType() const {
-    return BOOL;
+    return BB_BOOL;
 }
 
 bool Boolean::isTrue() const {
@@ -28,22 +28,22 @@ std::shared_ptr<Data> Boolean::shallowCopy() const {
 }
 
 std::shared_ptr<Data> Boolean::implement(const OperationType operation, BuiltinArgs* args) {
-    if (args->size == 2 && args->arg0->getType() == BOOL && args->arg1->getType() == BOOL) {
+    if (args->size == 2 && args->arg0->getType() == BB_BOOL && args->arg1->getType() == BB_BOOL) {
         bool v1 = static_cast<Boolean*>(args->arg0.get())->getValue();
         bool v2 = static_cast<Boolean*>(args->arg1.get())->getValue();
         switch (operation) {
-            case AND: BOOLEAN_RESULT(v1 && v2);
-            case OR: BOOLEAN_RESULT(v1 || v2);
-            case EQ: BOOLEAN_RESULT(v1 == v2);
-            case NEQ: BOOLEAN_RESULT(v1 != v2);
+            case AND: BB_BOOLEAN_RESULT(v1 && v2);
+            case OR: BB_BOOLEAN_RESULT(v1 || v2);
+            case EQ: BB_BOOLEAN_RESULT(v1 == v2);
+            case NEQ: BB_BOOLEAN_RESULT(v1 != v2);
         }
     }
 
     if (args->size == 1) {
         switch (operation) {
             case TOCOPY:
-            case TOBOOL: BOOLEAN_RESULT(value);
-            case NOT: BOOLEAN_RESULT(!value);
+            case TOBB_BOOL: BB_BOOLEAN_RESULT(value);
+            case NOT: BB_BOOLEAN_RESULT(!value);
         }
         throw Unimplemented();
     }

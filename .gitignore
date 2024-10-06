@@ -2,3 +2,5 @@
 __pachache_/*
 temp/
 build/
+vcpkg/
+civetweb.dll

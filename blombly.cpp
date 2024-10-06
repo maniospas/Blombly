@@ -9,6 +9,12 @@
 #include "utils.h"
 #include "interpreter/functional.h"
 
+// git clone https://github.com/microsoft/vcpkg.git
+// cd vcpkg
+// .\bootstrap-vcpkg.bat   or    ./bootstrap-vcpkg.sh
+// ./vcpkg install crow
+// cd ..
+
 // Experimental cmake build system (other compilers may be up to 1.5x slower than gcc):
 // mkdir build
 // cmake -B ./build

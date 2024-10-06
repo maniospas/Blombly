@@ -107,7 +107,7 @@ void Vector::unlock() const {
 }
 
 std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinArgs* args) {
-    if (operation == AT && args->size == 2 && args->arg1->getType() == INT) {
+    if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         int index = static_cast<Integer*>(args->arg1.get())->getValue();
         if (natdims) {
@@ -123,7 +123,7 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
         return std::make_shared<BFloat>(data[index]);
     }
 
-    if (operation == PUT && args->size == 3 && args->arg1->getType() == INT && args->arg2->getType() == FLOAT) {
+    if (operation == PUT && args->size == 3 && args->arg1->getType() == BB_INT && args->arg2->getType() == BB_FLOAT) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         int index = static_cast<Integer*>(args->arg1.get())->getValue();
         for (int i = 0; i < natdims; ++i) {
@@ -280,12 +280,12 @@ std::shared_ptr<Data> Vector::implement(const OperationType operation, BuiltinAr
 
     if ((operation == ADD || operation == SUB || operation == MUL || operation == DIV || operation == POW) && 
         args->size == 2 && 
-        (args->arg0->getType() == FLOAT || args->arg0->getType() == INT || args->arg1->getType() == FLOAT || args->arg1->getType() == INT)) {
+        (args->arg0->getType() == BB_FLOAT || args->arg0->getType() == BB_INT || args->arg1->getType() == BB_FLOAT || args->arg1->getType() == BB_INT)) {
 
         Vector* vec = args->arg0->getType() == VECTOR ? static_cast<Vector*>(args->arg0.get()) : static_cast<Vector*>(args->arg1.get());
         double scalar = args->arg0->getType() != VECTOR 
-            ? args->arg0->getType()==FLOAT?static_cast<BFloat*>(args->arg0.get())->getValue(): static_cast<Integer*>(args->arg0.get())->getValue()  
-            : args->arg1->getType()==FLOAT?static_cast<BFloat*>(args->arg1.get())->getValue(): static_cast<Integer*>(args->arg1.get())->getValue() ;
+            ? args->arg0->getType()==BB_FLOAT?static_cast<BFloat*>(args->arg0.get())->getValue(): static_cast<Integer*>(args->arg0.get())->getValue()  
+            : args->arg1->getType()==BB_FLOAT?static_cast<BFloat*>(args->arg1.get())->getValue(): static_cast<Integer*>(args->arg1.get())->getValue() ;
 
         std::lock_guard<std::recursive_mutex> lock(vec->memoryLock);
 

@@ -13,6 +13,8 @@
 #include "data/BFloat.h"
 #include "data/BString.h"
 #include "data/BError.h"
+#include "data/Integer.h"
+#include "data/RestServer.h"
 #include "interpreter/Command.h"
 #include "interpreter/functional.h"
 #include "interpreter/thread.h"
@@ -88,7 +90,14 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             std::shared_ptr<Data> context = command->args[1] == variableManager.noneId ? nullptr : memory->get(command->args[1]);
             std::shared_ptr<Data> called = memory->get(command->args[2]);
             bbassert(called, "Cannot call a missing value.");
-            bbassert(called->getType()==CODE, "Only structs or code blocks can be called.");
+            bbassert(called->getType()==CODE || called->getType()==STRUCT, "Only structs or code blocks can be called.");
+            if(called->getType()==STRUCT) {
+                // struct calls are never executed in parallel
+                auto strct = std::static_pointer_cast<Struct>(called);
+                auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
+                bbassert(val && val->getType()==CODE, "Struct was called like a method but has no implemented code for `\\call`.");
+                called = std::move(val);
+            }
             auto code = std::static_pointer_cast<Code>(called);
             if (true || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
                 auto newMemory = std::make_shared<BMemory>(memory, LOCAL_EXPECTATION_FROM_CODE(code));
@@ -99,7 +108,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
                 }
                 if(newReturnSignal)
                     break;
-                newMemory->detach(code->getDeclarationMemory());
+                newMemory->detach(memory);
                 result = executeBlock(code, std::move(newMemory), newReturnSignal, args);
                 SCOPY(result);
                 newMemory.reset();
@@ -112,7 +121,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
                 }
                 if(newReturnSignal)
                     break;
-                newMemory->detach(code->getDeclarationMemory());
+                newMemory->detach(memory);
 
                 auto futureResult = std::make_shared<ThreadResult>();
                 auto future = std::make_shared<Future>(futureResult);
@@ -198,7 +207,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             }
         } break;
 
-        case PRINT: {
+        case PRBB_INT: {
             std::string printing;
             for(int i = 1; i < command->nargs; i++) {
                 std::shared_ptr<Data> printable = MEMGET(memory, i);
@@ -214,6 +223,14 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             } 
             result = nullptr;
         } return;
+
+        case CREATESERVER: {
+            std::shared_ptr<Data> port = memory->get(command->args[1]);
+            bbassert(port->getType()==BB_INT, "The server's port must be an integer.");
+            auto res = std::make_shared<RestServer>(std::static_pointer_cast<Integer>(port)->getValue());
+            res->runServer();
+            result = std::move(res);
+        } break;
 
         case READ:{
             std::string printing;

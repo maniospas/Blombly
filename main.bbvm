@@ -1,36 +1,28 @@
 BEGIN _bb2
-BEGIN _bb5
-BUILTIN y I0
-BUILTIN z I1
-return _bbresult0 this
+BUILTIN value I0
+BUILTIN _bb4 I8000
+server routes _bb4
+BEGIN _bb6
+BUILTIN _bb8 I1
+get _bb9 this value
+add _bb7 _bb9 _bb8
+set # this value _bb7
+BUILTIN _bb12 " to your "
+get _bb14 this value
+str _bb15 _bb14
+BUILTIN _bb16 "hi "
+add _bb13 _bb16 _bb15
+add _bb11 _bb13 _bb12
+add _bb10 _bb11 query
+return _bbresult0 _bb10
 END
-new x _bb5
-BEGIN _bb10
-BUILTIN x I0
-BUILTIN z I2
+BUILTIN _bb17 "/"
+put # routes _bb17 _bb6
 return _bbresult1 this
 END
-new y _bb10
-set # x y y
-set # y x x
-BEGIN _bb15
-IS x x
-IS y y
-return _bbresult2 this
+new _bb0 _bb2
+BUILTIN _bb18 Btrue
+BEGIN _bb19
+BUILTIN _bb18 Btrue
 END
-new w _bb15
-BUILTIN x I0
-BUILTIN y I0
-get _bb20 w x
-get _bb19 _bb20 y
-get _bb18 _bb19 z
-print # _bb18
-return _bbresult3 this
-END
-new test _bb2
-get _bb22 test w
-get _bb21 _bb22 x
-BUILTIN _bb23 I0
-set # _bb21 y _bb23
-get _bb24 test w
-print # _bb24
+while # _bb18 _bb19

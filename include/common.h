@@ -28,22 +28,22 @@ public:
 
 // Enumeration of data types
 enum Datatype {
-    FUTURE, BOOL, INT, FLOAT, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE, ERRORTYPE, MAP
+    FUTURE, BB_BOOL, BB_INT, BB_FLOAT, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE, ERRORTYPE, MAP, SERVER
 };
 
 // Array to map datatype enums to string representations
 static const char* datatypeName[] = {
-    "future", "bool", "int", "float", "vector", "list", "string", "code", "struct", "iterator", "file", "error", "map"
+    "future", "bool", "int", "float", "vector", "list", "string", "code", "struct", "iterator", "file", "error", "map", "server"
 };
 
 // Global strings for different operations
 enum OperationType {
     NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, DIV, MOD, LEN, POW, LOG,
-    PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOMAP, TOINT, TOFLOAT, TOSTR, TOBOOL, TOCOPY, TOFILE,
+    PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOMAP, TOBB_INT, TOBB_FLOAT, TOSTR, TOBB_BOOL, TOCOPY, TOFILE,
     SUM, MAX, MIN,
     BUILTIN, BEGIN, BEGINFINAL, BEGINCACHED, END, RETURN, FINAL, IS,
-    CALL, WHILE, IF, NEW, PRINT, INLINE, GET, SET, SETFINAL, DEFAULT,
-    TIME, TOITER, TRY, CATCH, FAIL, EXISTS, READ
+    CALL, WHILE, IF, NEW, PRBB_INT, INLINE, GET, SET, SETFINAL, DEFAULT,
+    TIME, TOITER, TRY, CATCH, FAIL, EXISTS, READ, CREATESERVER
 };
 
 // Array mapping OperationType to string representations
@@ -54,7 +54,7 @@ static const std::string OperationTypeNames[] = {
     "sum", "max", "min",
     "BUILTIN", "BEGIN", "BEGINFINAL", "BEGINCACHED", "END", "return", "final", "IS",
     "call", "while", "if", "new", "print", "inline", "get", "set", "setfinal", "default",
-    "time", "iter", "try", "catch", "fail", "exists", "read"
+    "time", "iter", "try", "catch", "fail", "exists", "read", "server"
 };
 
 // Map operations to symbols and conversely
@@ -94,21 +94,21 @@ std::shared_ptr<Data> executeBlock(const std::shared_ptr<Code>& code,
                             } \
                             return std::make_shared<BString>(expr)
 
-#define BOOLEAN_RESULT(expr) if (args->preallocResult && args->preallocResult->getType() == BOOL && args->preallocResult->isDestroyable) { \
+#define BB_BOOLEAN_RESULT(expr) if (args->preallocResult && args->preallocResult->getType() == BB_BOOL && args->preallocResult->isDestroyable) { \
                                 auto bbool = std::static_pointer_cast<Boolean>(args->preallocResult); \
                                 bbool->value = (expr); \
                                 return args->preallocResult; \
                             } \
                             return std::make_shared<Boolean>(expr)
 
-#define INT_RESULT(expr) if (args->preallocResult && args->preallocResult->getType() == INT && args->preallocResult->isDestroyable) { \
+#define BB_INT_RESULT(expr) if (args->preallocResult && args->preallocResult->getType() == BB_INT && args->preallocResult->isDestroyable) { \
                             auto bint = std::static_pointer_cast<Integer>(args->preallocResult); \
                             bint->value = (expr); \
                             return args->preallocResult; \
                          } \
                          return std::make_shared<Integer>(expr)
 
-#define FLOAT_RESULT(expr) if (args->preallocResult && args->preallocResult->getType() == FLOAT && args->preallocResult->isDestroyable) { \
+#define BB_FLOAT_RESULT(expr) if (args->preallocResult && args->preallocResult->getType() == BB_FLOAT && args->preallocResult->isDestroyable) { \
                               auto bfloat = std::static_pointer_cast<BFloat>(args->preallocResult); \
                               bfloat->value = (expr); \
                               return args->preallocResult; \

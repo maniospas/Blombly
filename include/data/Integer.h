@@ -1,5 +1,5 @@
-#ifndef INTEGER_H
-#define INTEGER_H
+#ifndef BB_INTEGER_H
+#define BB_INTEGER_H
 
 #include <memory>
 #include <string>
@@ -35,4 +35,4 @@ public:
     friend class BHashMap;
 };
 
-#endif // INTEGER_H
+#endif // BB_INTEGER_H

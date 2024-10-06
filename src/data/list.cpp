@@ -94,12 +94,12 @@ std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArg
                 try {
                     for (int i = 0; i < n; ++i) {
                         args.arg0 = contents->at(i);
-                        auto temp = args.arg0->implement(TOFLOAT, &args);
+                        auto temp = args.arg0->implement(TOBB_FLOAT, &args);
                         auto type = temp->getType();
-                        if (type == INT) {
+                        if (type == BB_INT) {
                             rawret[i] = static_cast<Integer*>(temp.get())->getValue();
                         } 
-                        else if (type == FLOAT) {
+                        else if (type == BB_FLOAT) {
                             rawret[i] = static_cast<BFloat*>(temp.get())->getValue();
                         } 
                         else {
@@ -116,7 +116,7 @@ std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArg
         throw Unimplemented();
     }
 
-    if (operation == AT && args->size == 2 && args->arg1->getType() == INT) {
+    if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
         int index = static_cast<Integer*>(args->arg1.get())->getValue();
         // manual implementation of at to avoid deadlocks with its own lock
         if (index < 0 || index >= contents->size()) 
@@ -133,7 +133,7 @@ std::shared_ptr<Data> BList::implement(const OperationType operation, BuiltinArg
         return nullptr;
     }
 
-    if (operation == PUT && args->size == 3 && args->arg1->getType() == INT) {
+    if (operation == PUT && args->size == 3 && args->arg1->getType() == BB_INT) {
         int index = static_cast<Integer*>(args->arg1.get())->getValue();
         if (index >= contents->size()) 
             contents->resize(index + 1);

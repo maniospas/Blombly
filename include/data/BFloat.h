@@ -1,5 +1,5 @@
-#ifndef BFLOAT_H
-#define BFLOAT_H
+#ifndef BBB_FLOAT_H
+#define BBB_FLOAT_H
 
 #include <memory>
 #include <string>
@@ -32,4 +32,4 @@ public:
     friend class BHashMap;
 };
 
-#endif // BFLOAT_H
+#endif // BBB_FLOAT_H

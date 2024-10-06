@@ -46,7 +46,7 @@ std::shared_ptr<Data> BFile::shallowCopy() const {
 }
 
 std::shared_ptr<Data> BFile::implement(const OperationType operation, BuiltinArgs* args) {
-    if (operation == AT && args->size == 2 && args->arg1->getType() == INT) {
+    if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
         int lineNum = static_cast<Integer*>(args->arg1.get())->getValue();
         if (lineNum < 0 || lineNum >= contents.size()) {
             bberror("Line number " + std::to_string(lineNum) + " out of range [0," + std::to_string(contents.size()) + ")");
@@ -55,7 +55,7 @@ std::shared_ptr<Data> BFile::implement(const OperationType operation, BuiltinArg
         std::string lineContent = contents[lineNum];
         STRING_RESULT(lineContent);
     }
-    if (operation == PUT && args->size == 3 && args->arg1->getType() == INT && args->arg2->getType() == STRING) {
+    if (operation == PUT && args->size == 3 && args->arg1->getType() == BB_INT && args->arg2->getType() == STRING) {
         int lineNum = static_cast<Integer*>(args->arg1.get())->getValue();
         std::string newContent = args->arg2->toString();
         if (lineNum < 0 || lineNum >= contents.size()) {
@@ -67,7 +67,7 @@ std::shared_ptr<Data> BFile::implement(const OperationType operation, BuiltinArg
     }
     if (operation == LEN) {
         int ret = contents.size();
-        INT_RESULT(ret);
+        BB_INT_RESULT(ret);
     }
     if (operation == TOCOPY || operation == TOFILE) {
         return shallowCopy();

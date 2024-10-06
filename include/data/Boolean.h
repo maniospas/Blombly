@@ -1,5 +1,5 @@
-#ifndef BOOLEAN_H
-#define BOOLEAN_H
+#ifndef BB_BOOLEAN_H
+#define BB_BOOLEAN_H
 
 #include <memory>
 #include <string>
@@ -30,4 +30,4 @@ public:
     friend class BHashMap;
 };
 
-#endif // BOOLEAN_H
+#endif // BB_BOOLEAN_H

@@ -37,7 +37,7 @@ std::shared_ptr<Data> BError::implement(const OperationType operation, BuiltinAr
         switch(operation) {
             case TOCOPY: return shallowCopy();
             case TOSTR: consumed=true;STRING_RESULT(value);
-            case TOBOOL: consumed=true;BOOLEAN_RESULT(true);
+            case TOBB_BOOL: consumed=true;BB_BOOLEAN_RESULT(true);
         }
         throw Unimplemented();
     }
