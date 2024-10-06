@@ -1,14 +1,18 @@
+#include "libs/std"
+enable std;
+
 new {
     value = 0;
-    routes = std::server(8000);
-    routes["/hi/<query>"] = {
-        if((query as std::int(query))==false)
+    routes = server(8000);
+    routes["/hi/<number>"] = {
+        if((number as int(number))==false)
             return "The number of hi must be an integer.";
-        if(query<=0)
+        if(number<=0)
             return "Need a positive number of hi. Why must you take them away? :-(";
         this.value = this.value + 1;
-        return std::str(this.value+query)+" hello your "+std::str(query)+" hi";
+        return str(this.value+number)+" hello your "+str(number)+" hi";
     }
 }
 
+print("Give me some greetings at localhost:8000/hi/<number>");
 while(true) {}  // wait indefinitely

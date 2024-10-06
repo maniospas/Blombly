@@ -4,43 +4,45 @@ BUILTIN _bb4 I8000
 server routes _bb4
 BEGIN _bb6
 BEGIN _bb7
-BUILTIN _bb8 "The query must be an integer. :-("
+BUILTIN _bb8 "The number of hi must be an integer."
 return _bbresult0 _bb8
 END
 BUILTIN _bb10 Bfalse
-int query query
-exists _bb12 query
+int number number
+exists _bb12 number
 eq _bb9 _bb12 _bb10
 if # _bb9 _bb7
 BEGIN _bb13
-BUILTIN _bb14 "Need a positive number of hi. :-("
+BUILTIN _bb14 "Need a positive number of hi. Why must you take them away? :-("
 return _bbresult1 _bb14
 END
 BUILTIN _bb16 I0
-le _bb15 query _bb16
+le _bb15 number _bb16
 if # _bb15 _bb13
 BUILTIN _bb18 I1
 get _bb19 this value
 add _bb17 _bb19 _bb18
 set # this value _bb17
 BUILTIN _bb21 " hi"
-str _bb23 query
+str _bb23 number
 BUILTIN _bb25 " hello your "
 get _bb27 this value
-add _bb26 _bb27 query
+add _bb26 _bb27 number
 str _bb28 _bb26
 add _bb24 _bb28 _bb25
 add _bb22 _bb24 _bb23
 add _bb20 _bb22 _bb21
 return _bbresult2 _bb20
 END
-BUILTIN _bb29 "/hi/<query>"
+BUILTIN _bb29 "/hi/<number>"
 put # routes _bb29 _bb6
 return _bbresult3 this
 END
 new _bb0 _bb2
-BUILTIN _bb30 Btrue
-BEGIN _bb31
-BUILTIN _bb30 Btrue
+BUILTIN _bb30 "Give me some greetings at localhost:8000/hi/<number>"
+print # _bb30
+BUILTIN _bb31 Btrue
+BEGIN _bb32
+BUILTIN _bb31 Btrue
 END
-while # _bb30 _bb31
+while # _bb31 _bb32
