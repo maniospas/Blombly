@@ -16,7 +16,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
-add_definitions(-D_WIN32_WINNT=0x0A00)
+#add_definitions(-D_WIN32_WINNT=0x0A00)
 
 # Include directories: add your project's include folder
 include_directories(${PROJECT_SOURCE_DIR}/include)
