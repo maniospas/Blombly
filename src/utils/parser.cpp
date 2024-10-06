@@ -431,7 +431,7 @@ public:
 
                 int parenthesis_start = find_end(start + 1, assignment - 1, "(");
                 bbassert(parenthesis_start == MISSING ? assignment == start + 1 : parenthesis_start == start + 1, 
-                          "Cannot understrand what to assign to.\n"+show_position(start));
+                          "Cannot understrand what to assign to left from the assignment.\n"+show_position(assignment));
                 if (first_name == "std::int" || first_name == "std::float" || 
                     first_name == "int" || first_name == "float" || 
                     first_name == "std::str" || first_name == "std::file" || 

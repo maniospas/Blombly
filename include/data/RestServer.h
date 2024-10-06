@@ -26,7 +26,7 @@ private:
     int port_;
     struct mg_context* context_;
     std::unordered_map<std::string, std::shared_ptr<Data>> routeHandlers_;
-    std::shared_ptr<Data> executeCode(std::shared_ptr<Data> called, BuiltinArgs* args);
+    std::shared_ptr<Data> executeCodeWithMemory(std::shared_ptr<Data> called, const std::shared_ptr<BMemory>& memory) const;
     static int requestHandler(struct mg_connection* conn, void* cbdata);
     std::recursive_mutex serverModification;
 };
