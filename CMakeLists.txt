@@ -30,6 +30,17 @@ file(GLOB_RECURSE SOURCES
 # Create the executable from the collected source files
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+# Find and link zlib for compression support
+find_package(ZLIB REQUIRED)
+
+# Include zlib directory and link the necessary libraries
+if(ZLIB_FOUND)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${ZLIB_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${ZLIB_LIBRARIES})
+else()
+    message(FATAL_ERROR "Zlib library not found.")
+endif()
+
 # Find and link Crow package (installed via vcpkg)
 find_package(Crow CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Crow::Crow)

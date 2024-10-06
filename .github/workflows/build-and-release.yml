@@ -37,7 +37,7 @@ jobs:
 
     - name: Install Crow and Civetweb dependencies
       run: |
-        ./vcpkg/vcpkg install crow civetweb --triplet=${{ matrix.triplet }}
+        ./vcpkg/vcpkg install crow civetweb zlib --triplet=${{ matrix.triplet }}
 
     - name: Configure and build
       run: |
