@@ -41,13 +41,14 @@ jobs:
       run: |
         mkdir -p release
         # For Windows, copy .exe and .dll files from the top-level directory
-        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
           cp ./*.exe release/ || echo "No executables found"
           cp ./*.dll release/ || echo "No DLLs found"
+        
         # For Linux, copy the binary and any shared libraries (.so) from the top-level directory and build folder
-        elif [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+        elif [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
           cp ./* release/ || echo "No executables found"
-          cp ./build/output/*.so release/ || echo "No shared libraries found"
+          cp ./*.so release/ || echo "No shared libraries found"
         fi
         cp -r libs/ release/
         zip -r ${{ matrix.os }}_release.zip release/
