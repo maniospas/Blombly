@@ -11,14 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        include:
-          - os: ubuntu-latest
-            triplet: x64-linux
-            build-script: ./vcpkg/bootstrap-vcpkg.sh
-            cmake-command: |
-              cmake -B ./build -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
-              cmake --build ./build --config Release
+        os: [windows-latest]
           - os: windows-latest
             triplet: x64-windows
             build-script: .\vcpkg\bootstrap-vcpkg.bat
@@ -35,7 +28,7 @@ jobs:
         git clone https://github.com/microsoft/vcpkg.git
         ${{ matrix.build-script }}
 
-    - name: Install Crow and Civetweb dependencies
+    - name: Install dependencies
       run: |
         ./vcpkg/vcpkg install crow civetweb zlib --triplet=${{ matrix.triplet }}
 
