@@ -107,26 +107,20 @@ void optimize(const std::string& source, const std::string& destination) {
         program.insert(program.begin(), std::make_shared<OptimizerCommand>("BUILTIN "+entry.second+" "+entry.first));
     }*/
 
-    // remove all IS statements that follow an assignment
-    for(int i=0;i<program.size();i++) {
+    // remove all IS or AS statements that follow an assignment
+    /*for(int i=0;i<program.size();i++) {
         std::shared_ptr<OptimizerCommand> command = program[i];
-        if(command->args.size()<3 || command->args[0]!="IS")
+        if(command->args.size()<3 || command->args[0]!="IS" || command->args[0]!="AS")
             continue;
         std::string to_replace = command->args[1];
         std::string symbol = command->args[2];
         int declaration = i-1; // for the time being this issue can arise only by adding an IS after an immediate command
-        if(declaration>=0 && program[declaration]->args.size()>1 && program[declaration]->args[0]!="IS"
+        if(declaration>=0 && program[declaration]->args.size()>1 && program[declaration]->args[0]!="IS" && program[declaration]->args[0]!="AS"
             && program[declaration]->args[1] == symbol) {
             program[declaration]->args[1] = to_replace;
             program[i]->enabled = false;
         }
-        /*else if(i<program.size()-1)
-            for(int k=2;k<program[i+1]->args.size();k++)
-                if(to_replace==program[i+1]->args[k]){
-                    to_replace=program[i+1]->args[k] = symbol;
-                    program[i]->enabled = false;
-                }*/
-    }
+    }*/
 
     
     // find symbols

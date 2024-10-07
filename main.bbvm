@@ -1,41 +1,27 @@
-BEGIN _bb0
-BUILTIN formatted ""
-iter argiter args
-next arg argiter
-exists _bb4 arg
-BEGIN _bb5
-str _bb7 arg
-add formatted formatted _bb7
-next arg argiter
-exists _bb4 arg
+BUILTIN _bb0 I0
+IS counter _bb0
+BUILTIN _bb2 I10
+lt _bb1 counter _bb2
+BEGIN _bb3
+BEGIN _bb6
+BUILTIN _bb8 I1
+add _bb7 counter _bb8
+IS counter _bb7
+BEGIN _bb9
+return _bbresult0
 END
-while # _bb4 _bb5
-return _bbresult0 formatted
+BUILTIN _bb11 I0
+BUILTIN _bb13 I2
+mod _bb12 counter _bb13
+eq _bb10 _bb12 _bb11
+if # _bb10 _bb9
+str _bb15 counter
+BUILTIN _bb16 "Odd value: "
+add _bb14 _bb16 _bb15
+print # _bb14
 END
-IS fmt::fmt _bb0
-final # fmt::fmt
-time tic
-BEGIN _bb10
-BUILTIN _bb11 "What's your name?"
-list args _bb11
+try _bb4 _bb6
+BUILTIN _bb2 I10
+lt _bb1 counter _bb2
 END
-call _bb9 _bb10 fmt::fmt
-read name _bb9
-BEGIN _bb14
-BUILTIN _bb15 "Hello "
-BUILTIN _bb16 "!"
-list args _bb15 name _bb16
-END
-call _bb13 _bb14 fmt::fmt
-print # _bb13
-time _bb19
-sub duration _bb19 tic
-BEGIN _bb21
-BUILTIN _bb22 "It was fun knowing you for "
-BUILTIN _bb24 ".1f"
-at _bb23 duration _bb24
-BUILTIN _bb25 " seconds."
-list args _bb22 _bb23 _bb25
-END
-call _bb20 _bb21 fmt::fmt
-print # _bb20
+while # _bb1 _bb3

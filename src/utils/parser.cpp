@@ -226,8 +226,8 @@ public:
 
     std::string parse_expression(int start, int end, bool request_block = false, 
                                  bool ignore_empty = false) {
-        if (ignore_empty && start >= end)
-            return "#";
+            if (ignore_empty && start >= end)
+                return "#";
         //try {
             bool is_final = tokens[start].name == "final";
             bbassert(start <= end || (request_block && 
@@ -253,6 +253,10 @@ public:
                           "declared on an assignment's left-hand-side\n       "
                           "but the right-hand-side is not an explicit code "
                           "block declaration.");
+                if(tokens[start].name=="return") {
+                    ret += "return #\n";
+                    return "#";
+                }
                 int type = tokens[start].builtintype;
                 if (type) {
                     std::string var = create_temp();
@@ -361,9 +365,7 @@ public:
             if (first_name == "default" || first_name == "try") {
                 std::string var = first_name == "default" ? "#" : create_temp();
                 std::string called = create_temp();
-                std::string parsed = parse_expression(start + 1, end, 
-                                                      tokens[start + 1].name 
-                                                      != "{");
+                std::string parsed = parse_expression(start + 1, end, tokens[start + 1].name != "{");
                 if (first_name == "new" && ret.substr(ret.size() - 4) == "END\n")
                     ret = ret.substr(0, ret.size() - 4) + "return # this\nEND\n";
                 bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`\n"+show_position(start+1));
@@ -373,10 +375,17 @@ public:
 
             int assignment = find_end(start, end, "=");
             int asAssignment = find_end(start, end, "as");
-            if (asAssignment > assignment)
+            if ((asAssignment < assignment && asAssignment!=MISSING) || assignment==MISSING)
                 assignment = asAssignment;
 
             if (assignment != MISSING) {
+                bool negation = first_name=="not";
+                if(negation) {
+                    bbassert(asAssignment==assignment, "Keyword `not` can precede an `as` but not a `=` assignment.");
+                    start += 1;
+                    first_name = tokens[start].name;
+                }
+                    
                 bbassert(assignment != start, "Missing a variable to assign to.\n"+show_position(assignment));
                 int start_assignment = find_last_end(start, assignment, ".");
                 int start_entry = find_last_end((start_assignment == MISSING ? 
@@ -434,41 +443,27 @@ public:
                 bbassert(parenthesis_start == MISSING ? assignment == start + 1 : parenthesis_start == start + 1, 
                           "Cannot understrand what to assign to left from the assignment.\n"+show_position(assignment));
                 if (first_name == "std::int" || first_name == "std::float" || 
-                    first_name == "int" || first_name == "float" || 
                     first_name == "std::str" || first_name == "std::file" || 
-                    first_name == "str" || first_name == "file" || 
                     first_name == "std::list" || first_name == "std::map" || 
-                    first_name == "list" || first_name == "map" || 
                     first_name == "std::pop" || first_name == "std::push" || 
-                    first_name == "pop" || first_name == "push" || 
                     first_name == "std::len" || first_name == "std::next" || 
-                    first_name == "len" || first_name == "next" || 
                     first_name == "std::vector" || first_name == "std::iter" || 
-                    first_name == "vector" || first_name == "iter" || 
-                    first_name == "and" || first_name == "or" || 
                     first_name == "std::add" || first_name == "std::sub" || 
-                    first_name == "add" || first_name == "sub" || 
                     first_name == "std::min" || first_name == "std::max" || 
-                    first_name == "min" || first_name == "max" || 
-                    first_name == "std::call" ||
-                    first_name == "call" ||
-                    first_name == "not") {
-                    if(first_name.substr(0, 5)=="std::")
-                        first_name = first_name.substr(5);
-                    bberror("Cannot assign to internal keyword `" + first_name + "`."
-                            "\n   \033[33m!!!\033[0m This is for safety reasons."
-                            "\n        You can overload this operator in struct definitions"
-                            "\n        by creating the code block `\\" 
-                            + first_name + "`.\n"+show_position(start));
+                    first_name == "std::call") {
+                    bberror("Cannot assign to std implementation `" + first_name + "`.\n"+show_position(start));
                 }
 
-                if (first_name == "default" || first_name == "std::print" || first_name == "std::read"  || first_name == "std::fail" || 
+                if (first_name == "default" || 
                     first_name == "try" || first_name == "new" || 
                     first_name == "return" || first_name == "if" || 
                     first_name == "else" || first_name == "while" || 
                     first_name == "args" || first_name == "as" || 
                     first_name == "final" ||
                     first_name == "this" || 
+                    first_name == "and" || 
+                    first_name == "or" || 
+                    first_name == "not" || 
                     first_name == "=" || first_name == "+" || 
                     first_name == "-" || first_name == "*" || 
                     first_name == "^" || first_name == "/" || 
@@ -498,7 +493,7 @@ public:
                     }
                 }
 
-                ret += "IS " + first_name + " " + parse_expression(
+                ret += (asAssignment != MISSING?"AS ":"IS ") + first_name + " " + parse_expression(
                        assignment + 1, end) + "\n";
                 if (is_final) {
                     bbassert(first_name.size() < 3 || first_name.substr(0, 3) 
@@ -511,6 +506,11 @@ public:
                 if (asAssignment != MISSING) {
                     std::string temp = create_temp();
                     ret += "exists " + temp + " " + first_name + "\n";
+                    if(negation) {
+                        std::string temp2 = create_temp();
+                        ret += "not " + temp2 + " " + temp + "\n";
+                        return temp2;
+                    }
                     return temp;
                 }
                 return "#";
@@ -557,19 +557,6 @@ public:
                 return var;
             }
 
-            int eand = find_last_end(start, end, "and");
-            int eor = find_last_end(start, end, "or");
-            if (eand != MISSING && eand > eor) {
-                std::string var = create_temp();
-                ret += "and " + var + " " + parse_expression(start, eand - 1) + " " + parse_expression(eand + 1, end) + "\n";
-                return var;
-            }
-            if (eor != MISSING) {
-                std::string var = create_temp();
-                ret += "or " + var + " " + parse_expression(start, eor - 1) + " " + parse_expression(eor + 1, end) + "\n";
-                return var;
-            }
-
             int listgen = find_end(start, end, ",");
             if (listgen != MISSING) {
                 std::string list_vars = parse_expression(start, listgen - 1);
@@ -584,6 +571,25 @@ public:
                 std::string var = create_temp();
                 ret += "list " + var + " " + list_vars + "\n";
                 return var;
+            }
+
+            int eand = find_last_end(start, end, "and");
+            int eor = find_last_end(start, end, "or");
+            if (eand != MISSING && eand > eor) {
+                std::string var = create_temp();
+                ret += "and " + var + " " + parse_expression(start, eand - 1) + " " + parse_expression(eand + 1, end) + "\n";
+                return var;
+            }
+            if (eor != MISSING) {
+                std::string var = create_temp();
+                ret += "or " + var + " " + parse_expression(start, eor - 1) + " " + parse_expression(eor + 1, end) + "\n";
+                return var;
+            }
+            if(first_name=="not") {
+                std::string parsed = parse_expression(start + 1, end, tokens[start + 1].name != "{");
+                std::string temp = create_temp();
+                ret += "not " + temp + " " + parsed + "\n";
+                return temp;
             }
 
             int eq = find_last_end(start, end, "==");
@@ -684,7 +690,14 @@ public:
                 first_name == "std::push" || first_name == "std::pop" || 
                 first_name == "std::file" || first_name == "std::next" || 
                 first_name == "std::list" || first_name == "std::map" || 
-                first_name == "std::server" || first_name == "std::vector") {
+                first_name == "std::server" || first_name == "std::vector" ||
+                first_name == "len" || first_name == "iter" || 
+                first_name == "int" || first_name == "float" || 
+                first_name == "str" || first_name == "bool" || 
+                first_name == "push" || first_name == "pop" || 
+                first_name == "file" || first_name == "next" || 
+                first_name == "list" || first_name == "map" || 
+                first_name == "server" || first_name == "vector") {
                 bbassert(tokens[start + 1].name == "(", "Missing '(' just after '" + first_name+"'.\n"+show_position(start+1));
                 if (start + 1 >= end - 1 && (first_name == "map" || 
                                              first_name == "list")) {
@@ -820,8 +833,7 @@ public:
         int statement_start = start;
         //try {
             while (statement_start <= end) {
-                int statement_end = find_end(statement_start + 1, end, ";", 
-                                             end - start == tokens.size() - 1);
+                int statement_end = find_end(statement_start + 1, end, ";", end - start == tokens.size() - 1);
                 if (statement_end == MISSING)
                     statement_end = end + 1;
                 parse_expression(statement_start, statement_end - 1);

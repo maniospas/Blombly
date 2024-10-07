@@ -40,7 +40,8 @@ std::string get_executable_directory(const std::string& argv0) {
 int main(int argc, char* argv[]) {
     blombly_executable_path = get_executable_directory(argv[0]);
     Terminal::enableVirtualTerminalProcessing();
-    initializeOperationMapping();
+    initializeOperationMapping();   
+    std::cout<<"\033[0m";
 
     std::string fileName = "main.bb";
     int threads = std::thread::hardware_concurrency();
@@ -80,7 +81,7 @@ int main(int argc, char* argv[]) {
         std::cerr << e.what() << "\n";
         return 1;
     }
-
+    
     program_start = std::chrono::steady_clock::now();
     return vm(fileName, threads);
 }

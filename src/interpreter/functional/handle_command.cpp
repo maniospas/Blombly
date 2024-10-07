@@ -150,6 +150,13 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
         } break;
 
         case IS: {
+            result = memory->get(command->args[1], true);
+            //SCOPY(result);
+            bbassert(result, "Missing value: " + variableManager.getSymbol(command->args[1]));
+            result = result->shallowCopy();
+        } break;
+
+        case AS: {
             result = memory->getOrNull(command->args[1], true);
             //SCOPY(result);
             if(result)
@@ -266,7 +273,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
                 bbassert(condition->getType()==CODE, "Can only inline a non-called code block for try condition");
                 auto codeCondition = std::static_pointer_cast<Code>(condition);
                 bool tryReturnSignal(false);
-                result = executeBlock(codeCondition, memory, returnSignal, args);
+                result = executeBlock(codeCondition, memory, tryReturnSignal, args);
                 if(!tryReturnSignal)
                     result = nullptr;
             }

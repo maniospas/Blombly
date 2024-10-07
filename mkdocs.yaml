@@ -1,0 +1,17 @@
+site_name: Blombly
+nav:
+  - Home: index.md
+  - Setup: setup.md
+  - The basics:
+      - Sequential code: basics/builtins.md
+      - Code blocks: basics/blocks.md
+      - Structs: basics/structs.md
+  - Advanced features:
+      - The preprocessor: advanced/preprocessor.md
+      - Signals: advanced/signals.md
+      - Servers: advanced/servers.md
+theme:
+  name: united  
+
+extra_css:
+  - css/extra.css
