@@ -72,7 +72,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
                 pos += 1;
             }
             bbassert(depth >= 0, "Code block never ended.");
-            auto cache = std::make_shared<Code>(program, i + 1, pos, nullptr);
+            auto cache = std::make_shared<Code>(program, i + 1, pos, memory);
             auto val = std::make_shared<Code>(program, i + 1, pos, memory, cache->getAllMetadata());
             val->scheduleForParallelExecution = true;
             cache->scheduleForParallelExecution = true;
@@ -100,7 +100,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             }
             auto code = std::static_pointer_cast<Code>(called);
             if (true || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
-                auto newMemory = std::make_shared<BMemory>(memory, LOCAL_EXPECTATION_FROM_CODE(code));
+                auto newMemory = std::make_shared<BMemory>(code->getDeclarationMemory(), LOCAL_EXPECTATION_FROM_CODE(code));
                 bool newReturnSignal(false);
                 if (context) {
                     bbassert(context->getType() == CODE, "Call context must be a code block.");
@@ -108,12 +108,12 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
                 }
                 if(newReturnSignal)
                     break;
-                newMemory->detach(memory);
+                newMemory->detach(code->getDeclarationMemory());
                 result = executeBlock(code, std::move(newMemory), newReturnSignal, args);
                 SCOPY(result);
                 newMemory.reset();
             } else {
-                auto newMemory = std::make_shared<BMemory>(memory, LOCAL_EXPECTATION_FROM_CODE(code));
+                auto newMemory = std::make_shared<BMemory>(code->getDeclarationMemory(), LOCAL_EXPECTATION_FROM_CODE(code));
                 bool newReturnSignal(false);
                 if (context) {
                     bbassert(context->getType() == CODE, "Call context must be a code block.");
@@ -121,7 +121,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
                 }
                 if(newReturnSignal)
                     break;
-                newMemory->detach(memory);
+                newMemory->detach(code->getDeclarationMemory());
 
                 auto futureResult = std::make_shared<ThreadResult>();
                 auto future = std::make_shared<Future>(futureResult);

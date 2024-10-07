@@ -1,27 +1,20 @@
-BUILTIN _bb0 I0
-IS counter _bb0
-BUILTIN _bb2 I10
-lt _bb1 counter _bb2
+BEGIN _bb2
 BEGIN _bb3
-BEGIN _bb6
-BUILTIN _bb8 I1
-add _bb7 counter _bb8
-IS counter _bb7
-BEGIN _bb9
-return _bbresult0
+BUILTIN _bb4 "test1"
+print # _bb4
 END
-BUILTIN _bb11 I0
-BUILTIN _bb13 I2
-mod _bb12 counter _bb13
-eq _bb10 _bb12 _bb11
-if # _bb10 _bb9
-str _bb15 counter
-BUILTIN _bb16 "Odd value: "
-add _bb14 _bb16 _bb15
-print # _bb14
+IS test1 _bb3
+final # test1
+BEGIN _bb5
+inline _bb6 test1
+BUILTIN _bb7 "test2"
+print # _bb7
 END
-try _bb4 _bb6
-BUILTIN _bb2 I10
-lt _bb1 counter _bb2
+IS test2 _bb5
+final # test2
+IS \call test2
+return _bbresult0 this
 END
-while # _bb1 _bb3
+new _bb0 _bb2
+IS method _bb0
+call _bb8 # method

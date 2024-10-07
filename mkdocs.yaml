@@ -11,7 +11,8 @@ nav:
       - Signals: advanced/signals.md
       - Servers: advanced/servers.md
 theme:
-  name: united  
+  name: united
 
 extra_css:
   - css/extra.css
+

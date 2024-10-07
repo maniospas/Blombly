@@ -1090,6 +1090,12 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     break;
                 }
             }
+            bbassert(position > tokens.size() - 1, 
+                        "Unexpected `#spec` encountered."
+                        "\n   \033[33m!!!\033[0m  `#spec` declarations can only reside "
+                        "\n       in named code blocks. These refer to code blocks being"
+                        "\n       declared and assigned to at least one variable.\n"
+                        +Parser::show_position(tokens, i));
             bbassert(depth == 0, "Imbalanced parantheses or brackets.\n" + Parser::show_position(tokens, i));
 
             std::vector<Token> newTokens;

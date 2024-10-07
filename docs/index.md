@@ -1,6 +1,6 @@
 # Blombly
 
-[Get started](setup.md) | [Download](https://github.com/maniospas/Blombly/releases/latest)
+[Get started](setup.md) | [Download](https://github.com/maniospas/Blombly/releases/latest) | [GitHub](https://github.com/maniospas/Blombly)
 
 There are many programming languages for writing dynamic yet safe code. You might already have a favorite one! However, safety often comes at the cost of reduced expressiveness, like mutability restrictions, or may rely on non-infallible programmers. Blombly addresses these issues with a small instruction set that is easy to learn and use but which promises code and memory safety. It also focuses on algorithmic logic by automating memory management and parallelization. 
 

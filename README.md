@@ -5,7 +5,7 @@
 :rocket: Parallel
 :goggles: Safe
 
-## [Guidebook](https://maniospas.github.io/Blombly/) 
+## [Documentation](https://blombly.readthedocs.io/en/latest/)
 
 ## Install & run
 

@@ -11,18 +11,21 @@ Use a Java syntax highlighter (but not a syntax checker), as the two languages s
 print("Hello world!");
 ```
 
-To run this file, download Blombly's latest release from [here](https://github.com/maniospas/Blombly/releases/latest). Extract the release to a folder
+To run this file, download Blombly's latest [release](https://github.com/maniospas/Blombly/releases/latest). Extract the release to a folder
 and add it to your filepath to let your operating system know where `blombly.exe` is located. If you don't want to add anything to your filepath,
-use the full path to the executable everywhere. Then run the following console command:
+use the full path to the executable everywhere. Instructions to build the library from source for your environment are provided in repository's
+[GitHub](https://github.com/maniospas/Blombly) page.
+
+
+Once you set up everything, run the following console command. 
+If a message that starts with `( ERROR )` appears, the language was set up properly but there was some syntax or logic error.
+For example, brackets may have closed with a semicolon, or there could be some other type of infraction. More on errors below.
 
 ```bash
 > blombly main.bb
 Hello world!
 ```
 
-Success! If a message that starts with (`<ERROR>`) appears, the language was set up properly but there was some syntax or logic error (more later).
-For example, brackets may have closed with a semicolon, or there could be some other type of infraction. Read the error details carefully, as they highly descriptive
-(more on this later).
 
 
 ## VM code

@@ -1,8 +1,8 @@
 # Sequential code
 
-This section covers Blombly's most basic commands, namely comments, variable handling, builtin datatypes,
-and control flow. Some concepts may be familiar, but the reader is encouraged to skim through this section
-as it also touches some unique language features.
+This section covers Blombly commands that are used in writing sequential code. These include the common concepts
+of comments, variable handling, builtin datatypes, and flow control. 
+Some discussed concepts may be familiar, but we urge reader to skim through this section, because some unique features are added to the mix.
 
 ## Comments
 
@@ -117,18 +117,22 @@ while (counter<10) {
 }
 ```
 
-## Sneak peek at signals
+## Trying until return
 
 To get a full sense of how control flow may work with other commands,
-here we briefly introduce signals - 
-the mechanism behind Blombly's error handling. We use these to create the
-equivalent of continue and break statements without needing more keywords.
+here we make a soft introduction to return signals; if errors indicate
+unsuccessful algorithms, return statements indicate successfully concluding
+algorithms. Here, we focus only on returning (and ignore additional error handling statements
+that would be needed), as this lets us define 
+the equivalent of continue and break statements without needing more keywords.
 
-In particular, the `value = try{@code}` intercepts both errors 
-and `return value;`
-statements on its internal code segment. Given that brackets may again
-be ommited for a segment of one command, one can use it to compute
-one-line conditions like in this example:
+To intercept both kinds of signals, use the `value = try{@code}` pattern,
+from which a value can be retrieved with the statement`return value;`. 
+This is the same mechanism as the one we will [next](blocks.md) use to
+return values from called methods.
+
+By ommiting brackes for code comprising only one command, we can conveniently
+combine interception mechanism with other control flows statements like so:
 
 ```java
 // main.bb
@@ -137,17 +141,19 @@ sgn = try if(x>=0) return 1 else return -1;
 print("Sign is "+str(sgn));
 ```
 
-Asimilar syntax can stop loops, though we will not dabble on handling returned values for now. 
-What should be mentioned is that, contrary to errors, intercepting returns is lightweight.
+A similar syntax can be used to halt loops beliw, though we will not dabble on 
+handling returned values for now. 
+It should be mentioned that, contrary to some additional computations that are
+normally required for error handling, intercepting returns is lightweight.
 
 ```java
 // main.bb
 counter = 0;
 try while (true) {
-    print("Counter is: " + str(counter));
     counter = counter + 1;
+    print("Counter is: " + str(counter));
     if(counter==10)
-        return;
+        return;  // keeps exiting the code until intercepted by try
 }
 ```
 
