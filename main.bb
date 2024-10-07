@@ -6,7 +6,6 @@ test = {
 show = {
     while(i as next(it)) 
         print(i);
-
 }
 
 final it = test();

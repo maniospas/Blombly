@@ -673,7 +673,7 @@ public:
                 return var;
             }
 
-            if (first_name == "std::push") {
+            if (first_name == "std::push" || first_name=="push") {
                 bbassert(tokens[start + 1].name == "(", "Missing ( just after `" + first_name+"`.\n"+show_position(start+1));
                 bbassert(find_end(start + 2, end, ")") == end, "Leftover code after the last `)` for `" + first_name+"`.\n"+show_position(start+2));
                 int separator = find_end(start + 2, end, ",");
@@ -687,14 +687,14 @@ public:
             if (first_name == "std::len" || first_name == "std::iter" || 
                 first_name == "std::int" || first_name == "std::float" || 
                 first_name == "std::str" || first_name == "std::bool" || 
-                first_name == "std::push" || first_name == "std::pop" || 
+                first_name == "std::pop" || 
                 first_name == "std::file" || first_name == "std::next" || 
                 first_name == "std::list" || first_name == "std::map" || 
                 first_name == "std::server" || first_name == "std::vector" ||
                 first_name == "len" || first_name == "iter" || 
                 first_name == "int" || first_name == "float" || 
                 first_name == "str" || first_name == "bool" || 
-                first_name == "push" || first_name == "pop" || 
+                first_name == "pop" || 
                 first_name == "file" || first_name == "next" || 
                 first_name == "list" || first_name == "map" || 
                 first_name == "server" || first_name == "vector") {

@@ -1,18 +1,26 @@
 # Code blocks
 
+The main logic compartmentalization mechanism in Blombly are code blocks; these are flexible coding segments that can be treated as methods, used to define various control flows, or called inline. 
+Code blocks are declared by enclosing some code in brackets and assigning them to a variable. 
+
+There is no trailing semicolon, and the compiler will create an error if you do try to add one so that only one syntax is promoted. 
+Block declaration only sets a variable and does not execute code. As a good practice, prefer making blocks final for visibility and to ensure logic safety.
+
+
 ## Inlining
 
-The main logic compartmentalization mechanism in Blombly are code blocks; these are flexible coding segments that can be treated as methods, used to define various control flows, or called inline. Code blocks are declared by enclosing them in brackets and assigning them to a variable, like below. Notice that there is no trailing semicolon, and the compiler will create an error if you do try to add one, under the principle of "one solution". The declaration can also be final to make sure that the same variable always points to the particular block in the current scope, and that method calls starting from the scope have access to it.
-
-The declaration itself only sets a variable. But you can effectively "paste" a block's internal code to the current position by using the block's name followed by double dots ()`:`). This is called inline execution and demonstrated below. Inlining has full access to variables in the current scope (both for usage and modification). The main usage pattern is to enrich your current code with a snippet defined elsewhere, which may also change dynamically.
+One can "paste" a block's internal code to the current position by using the block's name followed by double dots (`:`). 
+This is called inlining and demonstrated below. The inlined block has full access to variables for usage and modification. 
+This way, it enriches the current code with a snippet that is defined elsewhere, and which may also change dynamically.
 
 ```java
 // main.bb
-test = { 
+final test = {
     print("Hello world"); 
 } 
 test:
 ```
+
 
 ## Specifications
 
