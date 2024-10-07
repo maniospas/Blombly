@@ -24,7 +24,7 @@ std::string Iterator::toString() const {
 }
 
 std::shared_ptr<Data> Iterator::shallowCopy() const {
-    bberror("Iterators cannot be returned outside of scope");
+    bberror("Iterators cannot be copied");
 }
 
 std::shared_ptr<Data> Iterator::implement(const OperationType operation, BuiltinArgs* args) {

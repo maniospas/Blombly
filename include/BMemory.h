@@ -51,9 +51,9 @@ private:
     tsl::hopscotch_set<int> finals;
     std::weak_ptr<Data> fastLastAccess;
     int fastLastAccessId;
-    void release();
 
 public:
+    void release();
     std::shared_ptr<BMemory> parent;
     tsl::hopscotch_set<std::shared_ptr<Future>> attached_threads;
     bool allowMutables;
@@ -66,6 +66,7 @@ public:
     bool contains(int item);
     std::shared_ptr<Data> get(int item);
     std::shared_ptr<Data> get(int item, bool allowMutable);
+    std::shared_ptr<Data> getShallow(int item);
     std::shared_ptr<Data> getOrNull(int item, bool allowMutable);
     std::shared_ptr<Data> getOrNullShallow(int item);
     void unsafeSet(const std::shared_ptr<BMemory>& handler, int item, const std::shared_ptr<Data>& value, const std::shared_ptr<Data>& prev);

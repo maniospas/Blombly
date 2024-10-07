@@ -11,14 +11,14 @@ Use a Java syntax highlighter (but not a syntax checker), as the two languages s
 print("Hello world!");
 ```
 
-To run this file, download Blombly's latest [release](https://github.com/maniospas/Blombly/releases/latest). Extract the release to a folder
-and add it to your filepath to let your operating system know where `blombly.exe` is located. If you don't want to add anything to your filepath,
+To run this file, download Blombly's latest [release](https://github.com/maniospas/Blombly/releases/latest). Extract that into a folder
+and add the latter to your filepath to let your operating system know where `blombly.exe` is located. Alternatively, you may
 use the full path to the executable everywhere. Instructions to build the library from source for your environment are provided in repository's
 [GitHub](https://github.com/maniospas/Blombly) page.
 
 
-Once you set up everything, run the following console command. 
-If a message that starts with `( ERROR )` appears, the language was set up properly but there was some syntax or logic error.
+Once you set things up, run the following console command. 
+If a message that starts with `( ERROR )` appears, everything properly but there was some syntax or logic error.
 For example, brackets may have closed with a semicolon, or there could be some other type of infraction. More on errors below.
 
 ```bash
@@ -30,8 +30,11 @@ Hello world!
 
 ## VM code
 
-Compilation converts code to the BlomlyVM intermediate representation language files, like the one below. Those files are associated with the .bbvm extension and look like assembly code. 
-They are self-contained by packing all dependencies inside and can run directly; thus they can be shared directly for execution by others.
+Compilation converts code to the BlomlyVM intermediate representation language files. 
+These are associated with the `.bbvm` extension and look like assembly code. 
+They are self-contained by packing all dependencies inside and can run directly and
+can be shared directly for execution by others.
+The following file is generated when you run`main.bb` above.
 
 ```asm
 % blombly.bbvm
@@ -39,8 +42,21 @@ BUILTIN _bb0 "Hello world!"
 print # _bb0
 ```
 
- To get a sense of internal commands temporary variables start with `_bb`. Compilation may have also optimized parts of the code for faster execution,
- for example by creating unused variables that let the virtual machine reduce memory allocations.
+```bash
+> blombly main.bbvm
+Hello world!
+```
+
+ To get a sense of internal commands, each one is a tuple of virtual machine command and its arguments
+ are separated by spaces. The first argument is always a variable to assign to, where `#` indicates
+ assignment to nothing. Temporary variables start with `_bb`, 
+ and code blocks are started by `BEGIN` and completing at `END`.
+
+ Compilation may have also optimized parts of the code for faster execution,
+ for example by creating unused variables that let the virtual machine reduce memory reallocation.
+ To convert back the compilation outcome to semi-readable Blombly,
+ run the Python script `bbreader.py` (this is intensionally written in a different language
+ to also help with development debugging).
 
 
 ## Errors
@@ -63,11 +79,10 @@ print("Hello"+);  // CREATES AN ERROR
      ~~~~~~~~~~~~~~~~~~~^
 ```
 
-Let us see what a logical error looks like by next printing a variable that does not exist.
-This creates error during runtime that points to the stack trace of both compiled code and the original source. 
-You will see full traces even when certain computations are internally delegated to threads.
-For more complicated errors, the virtual machine shows the full stack trace leading to the failure.
-This is retrieved even when code segments run in threads. Runtime errors can be caught to create self-healing code,
+Look at a logical error looks like by printing a variable that does not exist.
+This creates an error during runtime that points to the stack trace of compiled code and the original source. 
+You will see full traces, regardless of which computations are internally delegated to threads.
+Runtime errors can be caught to create self-healing code,
 but this is a more advanced concept that we talk about [later](success-fail.md).
 
 

@@ -254,7 +254,7 @@ public:
                           "but the right-hand-side is not an explicit code "
                           "block declaration.");
                 if(tokens[start].name=="return") {
-                    ret += "return #\n";
+                    ret += "return # #\n";
                     return "#";
                 }
                 int type = tokens[start].builtintype;

@@ -15,11 +15,8 @@ Find the latest release [here](https://github.com/maniospas/Blombly/releases/lat
 Unzip the folder in a directory and create a file `main.bb` (or any name but with the same extension). Add the following contents:
 
 ```cpp
-#include "libs/fmt"
-enable fmt;  // pretty read and print
-
 name = read("What's your name?");
-print("Hello ", name, "!");
+print("Hello " + name + "!");
 ```
 
 Run `blombly.exe main.bb`, where the executable and main files can be any path, and check that everything is working properly. 

@@ -85,8 +85,7 @@ std::shared_ptr<Data> RestServer::executeCodeWithMemory(std::shared_ptr<Data> ca
     memory->unsafeSet(variableManager.argsId, listArgs, nullptr);
 
     bool hasReturned = false;
-    BuiltinArgs callArgs;
-    auto result = executeBlock(code, memory, hasReturned, callArgs);
+    auto result = executeBlock(code, memory, hasReturned);
 
     if (!hasReturned) 
         bberror("Server route handler did not reach a return statement.");

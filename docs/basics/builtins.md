@@ -1,21 +1,19 @@
 # Sequential code
 
-This section covers Blombly commands that are used in writing sequential code. These include the common concepts
-of comments, variable handling, builtin datatypes, and flow control. 
-Some discussed concepts may be familiar, but we urge reader to skim through this section, because some unique features are added to the mix.
+This section covers Blombly commands that are used in writing sequential code. It includes familiar concepts 
+like comments, variable handling, builtin datatypes, and flow control. 
+But more features are added to the mix, like immutable variables, trying until return, and missing variable handling.
 
 ## Comments
 
-Blombly only has line comments that start with `//`. However, it supports multi-line strings and these can be set as specification metadata like in the snippet below. 
-In this, the preprocessor instruction `#spec doc = ...` creates the `doc` specification for a whole code block or file. 
-Specifications are only allowed at the beginning of code (so as the first instructions of your main file) and, once set, are immutable.
+Blombly only has line comments that start with `//`. However, it supports multi-line strings and these can be used for 
+documention as in the snippet below.
 
 ```java
 // main.bb
-// This is a line comment.
-#spec doc = "This is multiline documentation 
-           \nthat describes the current file."; 
-print("Hello world!");
+"This is multiline documentation 
+that describes the current file.";
+print("Hello world!"); // This is a line comment.
 ```
 
 ## Builtins
@@ -25,8 +23,8 @@ Otherwise, a new variable is created. Subsequent code in the same scope will ret
 in which subsequent code can overwrite variable values. Each program starts from one initial scope, but new ones are created when creating new objects or calling methods.
 
 There are several builtin data types that are directly incorporated in the language.
-Exhaustively, these are `int`, `float`, `bool`, `str`, `list`, `vector`, `code`, `struct`, `server`.
-Here we start with the most basic ones, ans leave the last three for dedicated subsections.
+Exhaustively, these are `int`, `float`, `bool`, `str`, `list`, `vector`, `map`, `iter`, `code`, `struct`, `server`.
+Here we start with the first four, and split the rest to dedicated pages like the one describing [iterables](iterables.md).
 
 ```java
 // main.bb
@@ -34,9 +32,6 @@ i = 1;     // int
 f = 1.2;   // float 
 b = false; // bool (or true)
 s = "this is a string literal";
-a = 1,2,3;     // list
-v = vector(5); // its number of elements
-m = map();     // hash map
 ```
 
 Some well-known operations on the above types are listed below. These are computed as one might have come to learn from other programming
@@ -45,20 +40,20 @@ languages.
 | **Category**             | **Operation**                          | **Description**                                          |
 |--------------------------|----------------------------------------|----------------------------------------------------------|
 | **Arithmetics**          | `+`, `-`, `*`, `/` <br> `^` <br> `%`   | Basic arithmetics (division is floating-point). <br> Exponentiation. <br> Modulo for integers. |
-| **Comparisons**          | `<`, `>`, `<=`, `>=` <br>  `==`, `!=`  | Inequality comparisons. <br> Equality and inequality comparisons. |
-| **Boolean operations**   | `and`, `or` <br> `not`                 | Logical operations for booleans.  <br> Negation of any boolean value it prepends.|
-| **String operations**    | `+`                                    | Concatenation.                                                    |
-| **Convertion**           | Type names.                            | Everything can be converted from and to a string.                 |
-| **Elements**             | `a[i]`, `a[i]=x`                       | Element get and set for strings, maps, lists, and vectors.       |
+| **Comparisons**          | `<`, `>`, `<=`, `>=` <br>  `==`, `!=`  | Inequality comparisons. <br> Equality and inequality comparisons.                   |
+| **Boolean operations**   | `and`, `or` <br> `not`                 | Logical operations for booleans.  <br> Negation of any boolean value it prepends.   |
+| **String operations**    | `+`                                    | Concatenation.                                                                      |
+| **Convertion**           | Type names.                            | Everything can be converted from and to a string.                                   |
+| **Elements**             | `a[i]`, `a[i]=x`                       | Element get and set for strings. Multiple elements may be obtained for list inputs. |
 
 
-Here is an example:
+Here is an example that contains some of these operations:
 
 ```java
 // main.bb
-x = int("1"); 
+x = int("1");
 y = float("0.5");
-print("Sum is "+str(x+y)); // there is no implicit typecasting
+print("Sum is " + str(x+y)); // there is no implicit typecasting
 ```
 
 ```bash
@@ -87,8 +82,8 @@ x = x+1; // CREATES AN ERROR
 ## Control flow
 
 Control flow alters which code segments are executed next. Blombly offers similar options to most programming languages in terms of conditional branching, loops, method calling,
-and error handling. The first two of those are described here, whereas method calling is [next](blocks.md) in the menu because it offers more options than other languages. 
-Error handling also has its own dedicated page [here](errors.md) but below we also give a first taste of the `try` keyword's dynamic usage.
+and error handling. The first two of those are described here, whereas method calling is described [seperately](blocks.md) because it offers more options than other languages. 
+Error handling also has its own dedicated page [here](errors.md), though below give a first taste of the `try` keyword's dynamic usage in other cases.
 
 Conditionals take the form `if(@condition){@accept}else{@reject}` where `@` denotes code segments (by the way, this is the macro declaration notation). 
 The condition must yield a boolean and makes the respective branch execute, where the `else` branch is optional.
@@ -117,22 +112,18 @@ while (counter<10) {
 }
 ```
 
-## Trying until return
+## Try until return
 
-To get a full sense of how control flow may work with other commands,
-here we make a soft introduction to return signals; if errors indicate
-unsuccessful algorithms, return statements indicate successfully concluding
-algorithms. Here, we focus only on returning (and ignore additional error handling statements
-that would be needed), as this lets us define 
-the equivalent of continue and break statements without needing more keywords.
+Here we make a soft introduction to return signals; if errors indicate
+unsuccessful algorithms, return statements indicate successful conclusion of
+computations. The introduction focuses on returning (and ignore error handling), as
+this supports the equivalent of continue and break statements without needing more keywords.
 
-To intercept both kinds of signals, use the `value = try{@code}` pattern,
-from which a value can be retrieved with the statement`return value;`. 
-This is the same mechanism as the one we will [next](blocks.md) use to
-return values from called methods.
-
-By ommiting brackes for code comprising only one command, we can conveniently
-combine interception mechanism with other control flows statements like so:
+To intercept return or error signals, use the `value = try{@code}` pattern. 
+This is the same mechanism as the one we [next](blocks.md) use to
+return values from called methods and unwind error stack traces.
+By ommiting brackets when only one command is tried, we can conveniently
+combine the interception mechanism with other control flows like so:
 
 ```java
 // main.bb
@@ -141,10 +132,8 @@ sgn = try if(x>=0) return 1 else return -1;
 print("Sign is "+str(sgn));
 ```
 
-A similar syntax can be used to halt loops beliw, though we will not dabble on 
-handling returned values for now. 
-It should be mentioned that, contrary to some additional computations that are
-normally required for error handling, intercepting returns is lightweight.
+A similar syntax breaks away from loops below, though we will not dabble on 
+handling returned values for now. Contrary to error handling overheads, intercepting returns is lightweight.
 
 ```java
 // main.bb
@@ -175,15 +164,22 @@ while (counter<10) try {
 
 ## Missing values
 
-Some operations, such as returning with no value or converting invalid strings to numbers, generate missing values. These
-are different than errors in that they denote a completed algorithm that returns with nothing as
-an expected potential outcome. 
+Computations like converting invalid strings to numbers may 
+generate missing values. These are different than errors in that they denote a completed algorithm 
+that returns with nothing as an expected potential outcome. As a different example,
+getting or setting out-of-bounds list element
+creates errors, but the `next` operator of iterators returns a messing value once there are no
+more items to iterate through.
 
-Assigning missing values to a variable is considered a logical error by the interpreter, and we denote that this is ok 
-by using the `as` keyword in lieu of the assignment operator ('='). 
-This new assignment operator is different in that it silently erases the previous value when the new one is missing. 
-Furthermore, it yields a boolean value that indicates whether a new value was set. Here is an example that retries
-reading from the console until a number if provided. The `as` operator lets use create a simple one-liner.
+Missing values also create errors, but only to the extend that the assignment
+operator (`=`) prevents assigning such values to variables. In this case,
+substitute the assignment with the `as` keyword. 
+The differences are two: a) previous values are removed when overwritten with missing ones,
+and b) this new kind of assignment yields a boolean value that indicates whether the set value 
+was not missing.
+
+For example, here is an a simple one-liner that retries
+reading from the console until a number if provided:
 
 ```java
 // main.bb

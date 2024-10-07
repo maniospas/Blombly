@@ -50,21 +50,21 @@ std::shared_ptr<Data> Future::shallowCopy() const {
 
 // Get the result after joining the thread
 std::shared_ptr<Data> Future::getResult() const {
+    std::lock_guard<std::recursive_mutex> lock(syncMutex);
     try {
         if (result->thread.joinable()) {
             result->thread.join();
+            --thread_count;
         }
     } catch (...) {
         bberror("Failed to join thread");
     }
 
-    --thread_count;
-
     if (result->error) {
         std::string error_message = std::move(result->error->what());
         result->error = nullptr;
         result->value = nullptr;
-        bberror(error_message);
+        throw BBError(error_message);
     }
 
     return result->value;

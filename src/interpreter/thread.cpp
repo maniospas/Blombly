@@ -8,11 +8,10 @@ void threadExecute(std::shared_ptr<Code> code,
                    Command *command) {
     try {
         bool returnSignal(false);
-        BuiltinArgs allocatedBuiltins;
-        std::shared_ptr<Data> value = executeBlock(code, memory, returnSignal, allocatedBuiltins);
+        std::shared_ptr<Data> value = executeBlock(code, memory, returnSignal);
         for (auto& thread : memory->attached_threads) 
             thread->getResult();
-        memory->attached_threads.clear();
+        memory->attached_threads.clear(); // TODO: maybe we need to release the memory instead (investigate)
         SCOPY(value);
         result->value = value;
     } catch (const BBError& e) {

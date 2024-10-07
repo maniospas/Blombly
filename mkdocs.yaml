@@ -4,6 +4,7 @@ nav:
   - Setup: setup.md
   - The basics:
       - Sequential code: basics/builtins.md
+      - Iterables: basics/iterables.md
       - Code blocks: basics/blocks.md
       - Structs: basics/structs.md
   - Advanced features:

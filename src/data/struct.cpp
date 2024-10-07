@@ -58,9 +58,8 @@ std::shared_ptr<Data> Struct::implement(const OperationType operation_, BuiltinA
     std::shared_ptr<BMemory> newMemory = std::make_shared<BMemory>(mem, LOCAL_EXPECTATION_FROM_CODE(code));
     newMemory->unsafeSet(variableManager.argsId, args, nullptr);
 
-    BuiltinArgs builtinArgs;
     bool hasReturned(false);
-    std::shared_ptr<Data> value = executeBlock(code, newMemory, hasReturned, builtinArgs);
+    std::shared_ptr<Data> value = executeBlock(code, newMemory, hasReturned);
     bbassert(hasReturned, "Implementation for \\" + operation + " did not return anything");
     newMemory.reset();
     args.reset();

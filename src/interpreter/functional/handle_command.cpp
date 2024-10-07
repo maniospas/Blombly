@@ -35,7 +35,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
     std::shared_ptr<Data> toReplace = command->nargs?memory->getOrNullShallow(command->args[0]):nullptr;
     //BMemory* memory = memory_.get();
 
-    //std::cout<<command->toString()<<"\n";
+    //std::cout<<command->toString()<<"\t "<<std::this_thread::get_id()<<"\n";
     
     switch (command->operation) {
         case BUILTIN:
@@ -99,25 +99,26 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
                 called = std::move(val);
             }
             auto code = std::static_pointer_cast<Code>(called);
-            if (true || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
+            if (!code->scheduleForParallelExecution || !Future::acceptsThread()) {
                 auto newMemory = std::make_shared<BMemory>(code->getDeclarationMemory(), LOCAL_EXPECTATION_FROM_CODE(code));
                 bool newReturnSignal(false);
                 if (context) {
                     bbassert(context->getType() == CODE, "Call context must be a code block.");
-                    result = executeBlock(std::static_pointer_cast<Code>(context), newMemory, newReturnSignal, args);
+                    result = executeBlock(std::static_pointer_cast<Code>(context), newMemory, newReturnSignal);
                 }
                 if(newReturnSignal)
                     break;
                 newMemory->detach(code->getDeclarationMemory());
-                result = executeBlock(code, std::move(newMemory), newReturnSignal, args);
+                result = executeBlock(code, std::move(newMemory), newReturnSignal);
                 SCOPY(result);
                 newMemory.reset();
-            } else {
+            } 
+            else {
                 auto newMemory = std::make_shared<BMemory>(code->getDeclarationMemory(), LOCAL_EXPECTATION_FROM_CODE(code));
                 bool newReturnSignal(false);
                 if (context) {
                     bbassert(context->getType() == CODE, "Call context must be a code block.");
-                    result = executeBlock(std::static_pointer_cast<Code>(context), newMemory, newReturnSignal, args);
+                    result = executeBlock(std::static_pointer_cast<Code>(context), newMemory, newReturnSignal);
                 }
                 if(newReturnSignal)
                     break;
@@ -153,13 +154,14 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             result = memory->get(command->args[1], true);
             //SCOPY(result);
             bbassert(result, "Missing value: " + variableManager.getSymbol(command->args[1]));
-            result = result->shallowCopy();
+            if(result->getType()!=ITERATOR)
+                result = result->shallowCopy();
         } break;
 
         case AS: {
             result = memory->getOrNull(command->args[1], true);
             //SCOPY(result);
-            if(result)
+            if(result && result->getType()!=ITERATOR)
                 result = result->shallowCopy();
         } break;
 
@@ -194,7 +196,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             auto codeBody = std::static_pointer_cast<Code>(body);
 
             while (condition->isTrue()) {
-                result = executeBlock(codeBody, memory, returnSignal, args);
+                result = executeBlock(codeBody, memory, returnSignal);
                 if (returnSignal) break;
                 condition = memory->get(command->args[1]);
             }
@@ -207,10 +209,10 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
 
             if (condition->isTrue()) {
                 if (accept->getType() == CODE) {
-                    result = executeBlock(std::static_pointer_cast<Code>(accept), memory, returnSignal, args);
+                    result = executeBlock(std::static_pointer_cast<Code>(accept), memory, returnSignal);
                 }
             } else if (reject && reject->getType() == CODE) {
-                result = executeBlock(std::static_pointer_cast<Code>(reject), memory, returnSignal, args);
+                result = executeBlock(std::static_pointer_cast<Code>(reject), memory, returnSignal);
             }
         } break;
 
@@ -273,7 +275,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
                 bbassert(condition->getType()==CODE, "Can only inline a non-called code block for try condition");
                 auto codeCondition = std::static_pointer_cast<Code>(condition);
                 bool tryReturnSignal(false);
-                result = executeBlock(codeCondition, memory, tryReturnSignal, args);
+                result = executeBlock(codeCondition, memory, tryReturnSignal);
                 if(!tryReturnSignal)
                     result = nullptr;
             }
@@ -295,10 +297,10 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             if(condition && condition->getType()==ERRORTYPE) { //&& !((BError*)condition)->isConsumed()) {
                 std::static_pointer_cast<BError>(condition)->consume();
                 if(codeAccept) 
-                    result = executeBlock(codeAccept, memory, returnSignal, args);
+                    result = executeBlock(codeAccept, memory, returnSignal);
             }
             else if(codeReject) 
-                result = executeBlock(codeReject, memory, returnSignal, args);
+                result = executeBlock(codeReject, memory, returnSignal);
         } break;
 
         case FAIL: {
@@ -327,7 +329,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
                 bberror("Can only inline a non-called code block or struct");
             else {
                 auto code = std::static_pointer_cast<Code>(source);
-                result = executeBlock(code, memory, returnSignal, args);
+                result = executeBlock(code, memory, returnSignal);
             }
             // SCOPY(result);
         } break;
@@ -339,7 +341,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             auto newMemory = std::make_shared<BMemory>(memory, LOCAL_EXPECTATION_FROM_CODE(code));
             bool defaultReturnSignal(false);
             //result = executeBlock(code, memory, defaultReturnSignal, args);
-            executeBlock(code, newMemory, defaultReturnSignal, args);
+            executeBlock(code, newMemory, defaultReturnSignal);
             if(defaultReturnSignal)
                 bberror("Cannot return from within a `default` statement");
             //newMemory->detach();
@@ -356,7 +358,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             newMemory->unsafeSet(variableManager.thisId, thisObj, nullptr);
             newMemory->setFinal(variableManager.thisId);
             bool newReturnSignal(false);
-            result = executeBlock(code, newMemory, newReturnSignal, args);
+            result = executeBlock(code, newMemory, newReturnSignal);
             if(result) {
                 SCOPY(result);
                 else if(result->getType()==STRUCT)
@@ -386,14 +388,17 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
         break;
 
         default: {
+            //std::cout << command->toString()+"\n";
             int nargs = command->nargs;
             args.size = nargs - 1;
+            //std::cout << "Gathering "+command->toString()+"\n";
             if (nargs > 1) 
                 args.arg0 = MEMGET(memory, 1);
             if (nargs > 2) 
                 args.arg1 = MEMGET(memory, 2);
             if (nargs > 3) 
                 args.arg2 = MEMGET(memory, 3);
+            //std::cout << "Running "+command->toString()+"\n";
             if(toReplace && toReplace->isDestroyable && (command->knownLocal[0] || !memory->isFinal(command->args[0])))
                 args.preallocResult = toReplace;
             else
@@ -401,5 +406,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             result = Data::run(command->operation, &args);
         } break;
     }
+    //if(!result && command->knownLocal[0])
+    //    bberror("Missing value encountered in intermediate computation "+variableManager.getSymbol(command->args[0])+". Explicitly use the `as` assignment to explicitly set potentially missing values\n");
     memory->unsafeSet(command->args[0], result, toReplace);
 }

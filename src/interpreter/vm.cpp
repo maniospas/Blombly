@@ -51,6 +51,7 @@ std::shared_ptr<Code> compileAndLoad(const std::string& fileName, const std::sha
 int vm(const std::string& fileName, int numThreads) {
     Future::setMaxThreads(numThreads);
 
+    auto memory = std::make_shared<BMemory>(nullptr, DEFAULT_LOCAL_EXPECTATION);
     try {
         std::ifstream inputFile(fileName);
         if (!inputFile.is_open()) {
@@ -71,17 +72,16 @@ int vm(const std::string& fileName, int numThreads) {
 
         inputFile.close();
 
-        {
-            auto memory = std::make_shared<BMemory>(nullptr, DEFAULT_LOCAL_EXPECTATION);
-            auto code = std::make_shared<Code>(program, 0, program->size() - 1, memory);
-            bool hasReturned(false);
-            executeBlock(code, memory, hasReturned, BuiltinArgs());
-            bbassert(!hasReturned, "The virtual machine cannot return a value.");
-        }
-
+        auto code = std::make_shared<Code>(program, 0, program->size() - 1, memory);
+        bool hasReturned(false);
+        executeBlock(code, memory, hasReturned);
+        bbassert(!hasReturned, "The virtual machine cannot return a value.");
+        memory->release(); // manually release to syncrhonize all threads in case there are memory leaks
         BMemory::verify_noleaks();
     } catch (const BBError& e) {
-        std::cerr << e.what() << "\n";
+        if(memory)
+            memory->release(); // manually release to syncrhonize all threads in case there are memory leaks
+        std::cerr << e.what() << "\033[0m\n";
         std::cerr << "Docs and bug reports: https://maniospas.github.io/Blombly\n";
         return 1;
     }

@@ -28,6 +28,7 @@ private:
     static int max_threads;
     static int thread_count;
     std::shared_ptr<ThreadResult> result;
+    mutable std::recursive_mutex syncMutex;
 
 public:
     Future();

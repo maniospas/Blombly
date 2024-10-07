@@ -15,7 +15,7 @@ extern std::chrono::steady_clock::time_point program_start;
 extern std::recursive_mutex printMutex;
 extern std::recursive_mutex compileMutex;
 
-std::shared_ptr<Data> executeBlock(const std::shared_ptr<Code>& code, const std::shared_ptr<BMemory>& memory, bool  &returnSignal, const BuiltinArgs& allocatedBuiltins);
+std::shared_ptr<Data> executeBlock(const std::shared_ptr<Code>& code, const std::shared_ptr<BMemory>& memory, bool &returnSignal);
 void handleExecutionError(const std::shared_ptr<std::vector<Command*>>& program, int i, const BBError& e);
 void handleCommand(const std::shared_ptr<std::vector<Command*>>& program, int& i, const std::shared_ptr<BMemory>& memory, bool &returnSignal, BuiltinArgs &args, std::shared_ptr<Data>& result);
 

@@ -77,10 +77,10 @@ extern VariableManager variableManager;
 
 std::shared_ptr<Data> executeBlock(const std::shared_ptr<Code>& code,
                    const std::shared_ptr<BMemory>& memory,
-                   bool  &returnSignal,
-                   const BuiltinArgs&  builtinArgs);
+                   bool  &returnSignal);
 
-#define MEMGET(memory, arg) (command->knownLocal[arg]?memory->getOrNullShallow(command->args[arg]):memory->get(command->args[arg]))
+#define UNSAFEMEMGET(memory, arg) (command->knownLocal[arg]?memory->getOrNullShallow(command->args[arg]):memory->get(command->args[arg]))
+#define MEMGET(memory, arg) (command->knownLocal[arg]?memory->getShallow(command->args[arg]):memory->get(command->args[arg]))
 //#define SCOPY(data) if(data && data->isDestroyable) data = data->shallowCopy()
 //#define INLINE_SCOPY(data) ((data && data->isDestroyable)?data->shallowCopy():nullptr)
 #define SCOPY(data) if(false) data = data->shallowCopy()

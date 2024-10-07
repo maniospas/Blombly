@@ -13,7 +13,7 @@ extern VariableManager variableManager;
 
 void BMemory::verify_noleaks() {
     bbassert(memories.size() == 0, "There are " + std::to_string(memories.size()) + " leftover memory contexts");
-    bbassert(countUnrealeasedMemories.load() == 0, "There are " + std::to_string(countUnrealeasedMemories.load()) + " leftover memory contexts");
+    bbassert(countUnrealeasedMemories.load() == 1, "There are " + std::to_string(countUnrealeasedMemories.load()-1) + " leftover memory contexts");  // the main memory is a global object (needed to sync threads on errors)
 }
 
 BMemory::BMemory(const std::shared_ptr<BMemory>& par, int expectedAssignments)
@@ -31,6 +31,7 @@ bool BMemory::isOrDerivedFrom(const BMemory* memory) const {
 }
 
 void BMemory::release() {
+    std::string destroyerr = "";
     for (const auto& element : data) {
         auto dat = element.second;
         if (dat && dat->getType() == FUTURE) {
@@ -39,23 +40,30 @@ void BMemory::release() {
                 data[element.first] = prevRet->getResult();
             }
             catch (const BBError& e) {
-                std::string destroyerr = "Error occurred during the execution of spawned code.";
-                destroyerr += "\n ( \x1B[31m ERROR \033[0m ) " + std::string(e.what());
-                bberror(destroyerr);
+                destroyerr += std::string(e.what())+"\n";
             }
             data[element.first] = nullptr;
             attached_threads.erase(prevRet);
         }
     }
     for (const auto& thread : attached_threads) {
-        thread->getResult();
+        try {
+            thread->getResult();
+        }
+        catch (const BBError& e) {
+            destroyerr += std::string(e.what())+"\n";
+        }
+        attached_threads.erase(thread);
     }
     for (const auto& element : data) {
         auto dat = element.second;
         if (dat && dat->getType() == ERRORTYPE && !std::dynamic_pointer_cast<BError>(dat)->isConsumed()) {
-            bberror("Intercepted error not handled: " + dat->toString());
+            destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:"+dat->toString()+"\n";
         }
     }
+    if(destroyerr.size())
+        throw BBError(destroyerr.substr(0, destroyerr.size()-1));
+        //bberror("The following error(s) were found while releasing a struct or memory:"+destroyerr);
 }
 
 BMemory::~BMemory() {
@@ -77,9 +85,8 @@ std::shared_ptr<Data> BMemory::get(int item) {
         attached_threads.erase(prevRet);
         return ret;
     }
-    if (!ret && parent) {
+    if (!ret && parent) 
         ret = parent->get(item, allowMutables);
-    }
     if (!ret) {
         bberror("Missing value: " + variableManager.getSymbol(item));
     }
@@ -122,6 +129,24 @@ bool BMemory::contains(int item) {
         attached_threads.erase(prevRet);
     }
     return ret!=nullptr;
+}
+
+std::shared_ptr<Data> BMemory::getShallow(int item) {
+    if(item==fastLastAccessId) 
+        return fastLastAccess.lock();
+    auto it = data.find(item);
+    if (it == data.end()) 
+        bberror("Missing value: " + variableManager.getSymbol(item));
+    auto ret = it->second;
+    if (ret && ret->getType() == FUTURE) {
+        auto prevRet = std::dynamic_pointer_cast<Future>(ret);
+        ret = prevRet->getResult();
+        ret = unsafeSet(item, ret);
+        attached_threads.erase(prevRet);
+    }
+    if(!ret)
+        bberror("Missing value: " + variableManager.getSymbol(item));
+    return ret;
 }
 
 std::shared_ptr<Data> BMemory::getOrNullShallow(int item) {
