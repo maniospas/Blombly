@@ -1,13 +1,21 @@
-BUILTIN _bb0 I5000
-server routes _bb0
-BEGIN _bb2
-BUILTIN _bb3 "<!DOCTYPE html>     <html>         <body>         <h1>My First Heading</h1>         <p>My first paragraph.</p>         </body>     </html>"
-return _bbresult0 _bb3
+BEGIN _bb0
+BUILTIN _bb2 "!"
+BUILTIN _bb4 "Hello "
+add _bb3 _bb4 name
+add _bb1 _bb3 _bb2
+print # _bb1
 END
-BUILTIN _bb4 "/"
-put # routes _bb4 _bb2
-BUILTIN _bb5 Btrue
-BEGIN _bb6
-BUILTIN _bb5 Btrue
+IS hello _bb0
+final # hello
+BUILTIN _bb5 "v1.0.0"
+setfinal # hello version _bb5
+BUILTIN _bb6 "maniospas"
+setfinal # hello author _bb6
+get _bb7 hello version
+print # _bb7
+BUILTIN _bb8 "What's your name?"
+read name _bb8
+BEGIN _bb11
+IS name name
 END
-while # _bb5 _bb6
+call _bb10 _bb11 hello

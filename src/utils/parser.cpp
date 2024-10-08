@@ -1015,14 +1015,13 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             if (i > 1) {
                 bbassert(tokens[i - 1].name == "{", 
                           "Unexpected `#spec` encountered."
-                          "\n   \033[33m!!!\033[0m  `#spec` declarations can only reside"
-                          "\n         at the beginning of their enclosing code block.\n"
+                          "\n   \033[33m!!!\033[0m  Each `#spec` declaration can only reside in named code blocks."
+                          "\n        These refer to code blocks being declared and assigned to at least one variable.\n"
                           +Parser::show_position(tokens, i));
                 bbassert(tokens[i - 2].name == "=" || tokens[i - 2].name == "as", 
                           "Invalid `#spec` syntax."
-                          "\n   \033[33m!!!\033[0m  Each `#spec` declaration can only reside"
-                          "\n        in named code blocks. These refer to code blocks being"
-                          "\n        declared and assigned to at least one variable.\n"
+                          "\n   \033[33m!!!\033[0m  Each `#spec` declaration can only reside in named code blocks."
+                          "\n        These refer to code blocks being declared and assigned to at least one variable.\n"
                           +Parser::show_position(tokens, i));
                 int position = i - 1;
                 int depth = 0;
@@ -1041,14 +1040,13 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 }
                 bbassert(depth == 0, 
                           "Unexpected `#spec` encountered."
-                          "\n   \033[33m!!!\033[0m  `#spec` declarations can only reside "
-                          "\n        in named code blocks. These refer to code blocks being"
-                          "\n        declared and assigned to at least one variable.\n"
+                          "\n   \033[33m!!!\033[0m  Each `#spec` declaration can only reside in named code blocks."
+                          "\n        These refer to code blocks being declared and assigned to at least one variable.\n"
                           +Parser::show_position(tokens, i));
                 specNameEnd = position - 1;
                 specNameStart = specNameEnd;
                 depth = 0;
-                while (specNameStart > 0) {
+                while (specNameStart >= 0) {
                     if (tokens[specNameStart].name == "[" || 
                         tokens[specNameStart].name == "(" || 
                         tokens[specNameStart].name == "{")
@@ -1059,16 +1057,15 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                         depth -= 1;
                     if ((tokens[specNameStart].name == ";" || 
                         tokens[specNameStart].name == "final") && depth == 0) {
-                        specNameStart += 1;
                         break;
                     }
                     specNameStart -= 1;
                 }
+                specNameStart += 1;
                 bbassert(depth >= 0, 
                           "Unexpected `#spec` encountered."
-                          "\n   \033[33m!!!\033[0m  `#spec` declarations can only reside "
-                          "\n       in named code blocks. These refer to code blocks being"
-                          "\n       declared and assigned to at least one variable.\n"
+                          "\n   \033[33m!!!\033[0m  Each `#spec` declaration can only reside in named code blocks."
+                          "\n        These refer to code blocks being declared and assigned to at least one variable.\n"
                           +Parser::show_position(tokens, i));
             }
             int depth = 1;
@@ -1090,13 +1087,13 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     break;
                 }
             }
-            bbassert(position > tokens.size() - 1, 
+            bbassert(specNameEnd < tokens.size(), 
                         "Unexpected `#spec` encountered."
-                        "\n   \033[33m!!!\033[0m  `#spec` declarations can only reside "
-                        "\n       in named code blocks. These refer to code blocks being"
-                        "\n       declared and assigned to at least one variable.\n"
+                          "\n   \033[33m!!!\033[0m  Each `#spec` declaration can only reside in named code blocks."
+                          "\n        These refer to code blocks being declared and assigned to at least one variable.\n"
                         +Parser::show_position(tokens, i));
             bbassert(depth == 0, "Imbalanced parantheses or brackets.\n" + Parser::show_position(tokens, i));
+
 
             std::vector<Token> newTokens;
             newTokens.emplace_back("final", tokens[i].file, tokens[i].line, false);
