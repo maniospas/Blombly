@@ -30,10 +30,10 @@ Hello world!
 
 ## VM code
 
-Compilation converts code to the BlomlyVM intermediate representation language files. 
-These are associated with the `.bbvm` extension and look like assembly code. 
-They are self-contained by packing all dependencies inside and can run directly and
-can be shared directly for execution by others.
+Compilation converts code to a BlomlyVM intermediate representation. 
+This looks like assembly code and is stored win files with the `.bbvm` extension. 
+It is also self-contained by packing all dependencies inside the intermediate files,
+which can can be shared with others and run directly.
 The following file is generated when you run`main.bb` above.
 
 ```asm
@@ -52,7 +52,7 @@ Hello world!
  assignment to nothing. Temporary variables start with `_bb`, 
  and code blocks are started by `BEGIN` and completing at `END`.
 
- Compilation may have also optimized parts of the code for faster execution,
+ Compilation optimizes the code for faster execution,
  for example by creating unused variables that let the virtual machine reduce memory reallocation.
  To convert back the compilation outcome to semi-readable Blombly,
  run the Python script `bbreader.py` (this is intensionally written in a different language

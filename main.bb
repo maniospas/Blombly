@@ -1,9 +1,11 @@
-final hello = { // code block that can be called or inlined elsewhere
-    #spec author = "maniospas"; // any spec field can be set
-    #spec version = "v1.0.0"; // can set field to objects too
-    print("Hello "+name+"!"); 
+routes = server(5000);
+routes["/"] = {
+    return "<!DOCTYPE html>
+    <html>
+        <body>
+        <h1>My First Heading</h1>
+        <p>My first paragraph.</p>
+        </body>
+    </html>"
 }
-
-print(hello.version);
-name = read("What's your name?");
-hello(name=name);
+while(true) {}  // wait indefinitely

@@ -1,21 +1,45 @@
 BEGIN _bb0
-BUILTIN _bb2 "!"
-BUILTIN _bb4 "Hello "
-add _bb3 _bb4 name
-add _bb1 _bb3 _bb2
-print # _bb1
+add _bb2 x y
+add _bb1 _bb2 bias
+return _bbresult0 _bb1
 END
-IS hello _bb0
-final # hello
-BUILTIN _bb5 "v1.0.0"
-setfinal # hello version _bb5
-BUILTIN _bb6 "maniospas"
-setfinal # hello author _bb6
-get _bb7 hello version
-print # _bb7
-BUILTIN _bb8 "What's your name?"
-read name _bb8
+IS add _bb0
+final # add
+BEGIN _bb3
+sub _bb5 x y
+add _bb4 _bb5 bias
+return _bbresult1 _bb4
+END
+IS sub _bb3
+final # sub
+BEGIN _bb6
+BEGIN _bb7
+BUILTIN bias I1
+END
+BEGIN _bb9
+BUILTIN bias I0
+END
+if # increment _bb7 _bb9
+END
+IS increase _bb6
+final # increase
 BEGIN _bb11
-IS name name
+BUILTIN bias I0
 END
-call _bb10 _bb11 hello
+IS nobias _bb11
+final # nobias
+BUILTIN increment Btrue
+BEGIN _bb15
+inline _bb16 increase
+BUILTIN x I1
+BUILTIN y I2
+END
+call a _bb15 add
+BEGIN _bb20
+inline _bb21 nobias
+BUILTIN x I1
+BUILTIN y I2
+END
+call b _bb20 sub
+print # a
+print # b
