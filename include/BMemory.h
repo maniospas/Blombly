@@ -64,7 +64,7 @@ public:
     ~BMemory();
 
     bool contains(int item);
-    std::shared_ptr<Data> get(int item);
+    std::shared_ptr<Data> get(int item); // allowMutable = true
     std::shared_ptr<Data> get(int item, bool allowMutable);
     std::shared_ptr<Data> getShallow(int item);
     std::shared_ptr<Data> getOrNull(int item, bool allowMutable);

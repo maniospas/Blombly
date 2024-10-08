@@ -76,7 +76,7 @@ int BMemory::size() const {
     return data.size();
 }
 
-std::shared_ptr<Data> BMemory::get(int item) {
+std::shared_ptr<Data> BMemory::get(int item) { // allowMutable = true
     auto ret = data[item];
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = std::dynamic_pointer_cast<Future>(ret);
@@ -136,7 +136,7 @@ std::shared_ptr<Data> BMemory::getShallow(int item) {
         return fastLastAccess.lock();
     auto it = data.find(item);
     if (it == data.end()) 
-        bberror("Missing value: " + variableManager.getSymbol(item));
+        bberror("Missing value 1: " + variableManager.getSymbol(item));
     auto ret = it->second;
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = std::dynamic_pointer_cast<Future>(ret);

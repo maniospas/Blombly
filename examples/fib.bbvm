@@ -1,19 +1,22 @@
 BEGIN _bb0
+next n args
 BEGIN _bb1
 BUILTIN _bb2 I1
 return _bbresult0 _bb2
 END
-BUILTIN _bb4 I2
+BUILTIN _bb4 I1
 lt _bb3 n _bb4
 if # _bb3 _bb1
 BEGIN _bb7
 BUILTIN _bb9 I2
-sub n n _bb9
+sub _bb8 n _bb9
+list args _bb8
 END
 call _bb6 _bb7 fib
 BEGIN _bb11
 BUILTIN _bb13 I1
-sub n n _bb13
+sub _bb12 n _bb13
+list args _bb12
 END
 call _bb10 _bb11 fib
 add _bb5 _bb10 _bb6
@@ -21,16 +24,9 @@ return _bbresult1 _bb5
 END
 IS fib _bb0
 final # fib
-time tic
-BUILTIN _bb15 "Result"
-BEGIN _bb17
-BUILTIN n I21
+BEGIN _bb15
+BUILTIN _bb16 I25
+list args _bb16
 END
-call _bb16 _bb17 fib
-list _bb19 _bb15 _bb16
-print # _bb19
-BUILTIN _bb20 "Time"
-time _bb22
-sub _bb21 _bb22 tic
-list _bb23 _bb20 _bb21
-print # _bb23
+call _bb14 _bb15 fib
+print # _bb14

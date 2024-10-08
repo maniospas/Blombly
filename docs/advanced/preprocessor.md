@@ -86,7 +86,7 @@ print(mylib.add(1, 2));
 
 ```java
 // mylib.bb
-#include "libs/std"
+#include "libs/oop"
 enable oop;
 
 module mylib {

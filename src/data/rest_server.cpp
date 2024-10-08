@@ -161,12 +161,23 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
 
                 std::shared_ptr<Data> result = server->executeCodeWithMemory(entry.second, mem);
                 std::string response = result->toString();
-                mg_printf(conn,
-                        "HTTP/1.1 200 OK\r\n"
-                        "Content-Type: text/plain\r\n"
-                        "Content-Length: %lu\r\n"
-                        "\r\n%s",
-                        response.length(), response.c_str());
+
+                std::string html_prefix = "<!DOCTYPE html>";
+                if(html_prefix.size()>=html_prefix.length() && response.substr(0, html_prefix.length())==html_prefix) {
+                    mg_printf(conn,
+                            "HTTP/1.1 200 OK\r\n"
+                            "Content-Type: text/html\r\n"
+                            "Content-Length: %lu\r\n"
+                            "\r\n%s",
+                            response.length(), response.c_str());
+                }
+                else
+                    mg_printf(conn,
+                            "HTTP/1.1 200 OK\r\n"
+                            "Content-Type: text/plain\r\n"
+                            "Content-Length: %lu\r\n"
+                            "\r\n%s",
+                            response.length(), response.c_str());
                 return 200;
             } 
             catch (const BBError& e) {

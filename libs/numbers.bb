@@ -1,5 +1,5 @@
-#include "libs/std"
-enable std;
+#include "libs/oop"
+enable oop;
 
 
 abstract Version {

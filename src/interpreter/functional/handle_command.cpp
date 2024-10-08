@@ -100,7 +100,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             }
             auto code = std::static_pointer_cast<Code>(called);
             if (!code->scheduleForParallelExecution || !Future::acceptsThread()) {
-                auto newMemory = std::make_shared<BMemory>(code->getDeclarationMemory(), LOCAL_EXPECTATION_FROM_CODE(code));
+                auto newMemory = std::make_shared<BMemory>(memory, LOCAL_EXPECTATION_FROM_CODE(code));
                 bool newReturnSignal(false);
                 if (context) {
                     bbassert(context->getType() == CODE, "Call context must be a code block.");
@@ -114,7 +114,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
                 newMemory.reset();
             } 
             else {
-                auto newMemory = std::make_shared<BMemory>(code->getDeclarationMemory(), LOCAL_EXPECTATION_FROM_CODE(code));
+                auto newMemory = std::make_shared<BMemory>(memory, LOCAL_EXPECTATION_FROM_CODE(code));
                 bool newReturnSignal(false);
                 if (context) {
                     bbassert(context->getType() == CODE, "Call context must be a code block.");
@@ -404,6 +404,7 @@ void handleCommand(const std::shared_ptr<std::vector<Command*>>& program,
             else
                 args.preallocResult = nullptr;
             result = Data::run(command->operation, &args);
+            //std::cout << "Running "+result->toString()+"\n";
         } break;
     }
     //if(!result && command->knownLocal[0])

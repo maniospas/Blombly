@@ -1,38 +1,13 @@
-BEGIN _bb0
-BUILTIN _bb1 I1
-BUILTIN _bb2 I2
-BUILTIN _bb3 I3
-BUILTIN _bb4 I4
-BUILTIN _bb5 I5
-BUILTIN _bb6 I6
-BUILTIN _bb7 I7
-BUILTIN _bb8 I8
-BUILTIN _bb9 I9
-BUILTIN _bb10 I10
-BUILTIN _bb11 I11
-BUILTIN _bb12 I12
-BUILTIN _bb13 I13
-BUILTIN _bb14 I14
-BUILTIN _bb15 I15
-list A _bb1 _bb2 _bb3 _bb4 _bb5 _bb6 _bb7 _bb8 _bb9 _bb10 _bb11 _bb12 _bb13 _bb14 _bb15
-iter _bb17 A
-return _bbresult0 _bb17
+BUILTIN _bb0 I5000
+server routes _bb0
+BEGIN _bb2
+BUILTIN _bb3 "<!DOCTYPE html>     <html>         <body>         <h1>My First Heading</h1>         <p>My first paragraph.</p>         </body>     </html>"
+return _bbresult0 _bb3
 END
-IS test _bb0
-BEGIN _bb18
-next _bb19 it
-AS i _bb19
-exists _bb20 i
-BEGIN _bb21
-print # i
-next _bb19 it
-AS i _bb19
-exists _bb20 i
+BUILTIN _bb4 "/"
+put # routes _bb4 _bb2
+BUILTIN _bb5 Btrue
+BEGIN _bb6
+BUILTIN _bb5 Btrue
 END
-while # _bb20 _bb21
-END
-IS show _bb18
-call it # test
-final # it
-call _bb23 # show
-call _bb24 # show
+while # _bb5 _bb6

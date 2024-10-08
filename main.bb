@@ -1,13 +1,11 @@
-test = {
-    A = 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15;
-    return iter(A);
+routes = server(5000);
+routes["/"] = {
+    return "<!DOCTYPE html>
+    <html>
+        <body>
+        <h1>My First Heading</h1>
+        <p>My first paragraph.</p>
+        </body>
+    </html>"
 }
-
-show = {
-    while(i as next(it)) 
-        print(i);
-}
-
-final it = test();
-show();
-show();
+while(true) {}  // wait indefinitely
