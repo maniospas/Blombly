@@ -6,10 +6,12 @@ int Future::max_threads = 0;
 int Future::thread_count = 0;
 
 // Future constructor
-Future::Future() : result(new ThreadResult()) {}
+Future::Future() : result(new ThreadResult()), Data(FUTURE) {
+    ++thread_count;
+}
 
 // Constructor with thread and result
-Future::Future(ThreadResult* result_) : result((result_)) {
+Future::Future(ThreadResult* result_) : result((result_)), Data(FUTURE) {
     ++thread_count;
 }
 
@@ -28,11 +30,6 @@ bool Future::acceptsThread() {
 // Set maximum threads
 void Future::setMaxThreads(int maxThreads) {
     max_threads = maxThreads;
-}
-
-// Return the data type
-int Future::getType() const {
-    return FUTURE;
 }
 
 // Convert to string representation

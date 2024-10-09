@@ -35,7 +35,6 @@ public:
     explicit Future(ThreadResult* result);
     ~Future();
 
-    int getType() const override;
     std::string toString() const override;
     Data* getResult() const;
 

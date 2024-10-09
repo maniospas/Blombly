@@ -12,7 +12,6 @@ private:
 public:
     explicit BString(const std::string& val);
 
-    int getType() const override;
     std::string toString() const override;
     Data* implement(const OperationType operation, BuiltinArgs* args) override;
 

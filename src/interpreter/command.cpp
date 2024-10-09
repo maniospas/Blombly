@@ -58,7 +58,6 @@ Command::Command(const std::string& command, SourceFile* source_, int line_, Com
         } else {
             bberror("Unable to understand builtin value prefix (should be one of I,F,B,\"): " + raw);
         }
-        value->isDestroyable = false;
     }
 
     // Initialize args and knownLocal vectors

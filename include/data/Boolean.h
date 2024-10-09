@@ -12,7 +12,6 @@ private:
 public:
     explicit Boolean(bool val);
     
-    int getType() const override;
     std::string toString() const override;
     bool getValue() const;
     bool isTrue() const override;

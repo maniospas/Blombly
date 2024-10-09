@@ -14,7 +14,6 @@ private:
 public:
     explicit Integer(int val);
 
-    int getType() const override;
     std::string toString() const override;
     int getValue() const;
 

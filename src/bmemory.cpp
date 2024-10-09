@@ -190,16 +190,14 @@ void BMemory::unsafeSet(BMemory* handler, int item, Data* value, Data* prev) {
 }
 
 void BMemory::unsafeSet(int item, Data* value, Data* prev) {
-    if (prev == value)
-        return;
-    if (prev && isFinal(item))
+    if (isFinal(item))
         bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
     data[item] = value;
 }
 
 Data* BMemory::unsafeSet(int item, Data* value) {
     data[item] = value;
-    return data[item];
+    return value;
 }
 
 void BMemory::setFinal(int item) {

@@ -8,10 +8,6 @@
 #include "common.h"
 
 
-int Struct::getType() const {
-    return STRUCT;
-}
-
 std::string Struct::toString() const {
     try {
         BuiltinArgs args;
@@ -58,7 +54,7 @@ Data* Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
     return value;
 }
 
-Struct::Struct(BMemory* mem) : memory(mem) {}
+Struct::Struct(BMemory* mem) : memory(mem), Data(STRUCT) {}
 Struct::~Struct() {}
 BMemory* Struct::getMemory() const {
     return memory;

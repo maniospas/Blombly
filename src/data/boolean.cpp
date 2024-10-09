@@ -1,11 +1,7 @@
 #include "data/Boolean.h"
 #include "common.h"
 
-Boolean::Boolean(bool val) : value(val) {}
-
-int Boolean::getType() const {
-    return BB_BOOL;
-}
+Boolean::Boolean(bool val) : value(val), Data(BB_BOOL) {}
 
 bool Boolean::isTrue() const {
     return value;

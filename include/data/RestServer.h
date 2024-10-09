@@ -16,7 +16,6 @@ public:
 
     // Overrides from Data
     std::string toString() const override;
-    int getType() const override;
 
     void runServer();
     Data* implement(const OperationType operation, BuiltinArgs* args) override;

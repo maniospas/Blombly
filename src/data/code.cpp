@@ -5,18 +5,13 @@
 Metadata::Metadata() {}
 
 Metadata::~Metadata() {
-    for (const auto& element : metadata) {
-        if (element.second && element.second->isDestroyable) {
-            element.second->isDestroyable = false;
-        }
-    }
 }
 
 Code::Code(std::vector<Command*>* programAt, int startAt, int endAt, BMemory* declMemory)
-    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(new Metadata()), scheduleForParallelExecution(false) {}
+    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(new Metadata()), scheduleForParallelExecution(false), Data(CODE) {}
 
 Code::Code(std::vector<Command*>* programAt, int startAt, int endAt, BMemory* declMemory, Metadata* metadata)
-    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(metadata), scheduleForParallelExecution(false) {}
+    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(metadata), scheduleForParallelExecution(false), Data(CODE) {}
 
 void Code::setMetadata(int id, Data* data) {
     if (metadata->metadata[id] && metadata->metadata[id] != data) {
@@ -45,10 +40,6 @@ bool Code::getMetadataBool(int id, bool def) const {
     if (!ret)
         return def;
     return ret->isTrue();
-}
-
-int Code::getType() const {
-    return CODE;
 }
 
 std::string Code::toString() const {

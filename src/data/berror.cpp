@@ -5,7 +5,7 @@
 #include "common.h"
 
 // Constructor
-BError::BError(const std::string& val) : value(val), consumed(false) {}
+BError::BError(const std::string& val) : value(val), consumed(false), Data(ERRORTYPE) {}
 
 void BError::consume() {
     consumed = true;
@@ -15,12 +15,6 @@ bool BError::isConsumed() const {
     return consumed;
 }
 
-// Return the type ID
-int BError::getType() const {
-    return ERRORTYPE;
-}
-
-// Convert to string representation
 std::string BError::toString() const {
     return value;
 }

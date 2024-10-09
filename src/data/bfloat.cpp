@@ -51,11 +51,7 @@ std::string __python_like_float_format(double number, const std::string& format)
     return output.str();
 }
 
-BFloat::BFloat(double val) : value(val) {}
-
-int BFloat::getType() const {
-    return BB_FLOAT;
-}
+BFloat::BFloat(double val) : value(val), Data(BB_FLOAT) {}
 
 std::string BFloat::toString() const {
     return std::to_string(value);

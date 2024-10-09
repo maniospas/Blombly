@@ -1,6 +1,6 @@
 tic = std::time();
 
-x = list();
+final x = list();
 i = 0;
 while(i<100000) {
     push(x, i);

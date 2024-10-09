@@ -27,7 +27,7 @@ std::recursive_mutex compileMutex;
 
 void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool &returnSignal, BuiltinArgs &args, Data*& result) {
     Command* command = program->at(i);
-    Data* toReplace = command->nargs?memory->getOrNullShallow(command->args[0]):nullptr;
+    //Data* toReplace = command->nargs?memory->getOrNullShallow(command->args[0]):nullptr;
     //BMemory* memory = memory_.get();
 
     //std::cout<<command->toString()<<"\t "<<std::this_thread::get_id()<<"\n";
@@ -73,7 +73,6 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto val = new Code(program, i + 1, pos, memory, cache->getAllMetadata());
             val->scheduleForParallelExecution = scheduleForParallelExecution;
             cache->scheduleForParallelExecution = scheduleForParallelExecution;
-            cache->isDestroyable = false;
             command->value = cache;
             result = (val);
             if (command->operation == BEGINFINAL) {
@@ -165,7 +164,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto structObj = static_cast<Struct*>(obj);
             Data* setValue = memory->getOrNullShallow(command->args[3]);
             auto structMemory = structObj->getMemory();
-            structMemory->unsafeSet(memory, command->args[2], setValue, structMemory->getOrNullShallow(command->args[2]));
+            structMemory->unsafeSet(memory, command->args[2], setValue, nullptr);//structMemory->getOrNullShallow(command->args[2]));
         } break;
 
         case SETFINAL: {
@@ -307,7 +306,6 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 else {
                     result = compileAndLoad(static_cast<BFile*>(source)->getPath(), nullptr);
                     command->value = result;
-                    command->value->isDestroyable = false;
                 }
             }
             else if(source->getType()==STRUCT) 
@@ -389,5 +387,5 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
     }
     //if(!result && command->knownLocal[0])
     //    bberror("Missing value encountered in intermediate computation "+variableManager.getSymbol(command->args[0])+". Explicitly use the `as` assignment to explicitly set potentially missing values\n");
-    memory->unsafeSet(command->args[0], result, toReplace);
+    memory->unsafeSet(command->args[0], result, nullptr);
 }

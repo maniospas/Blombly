@@ -1,13 +1,13 @@
 time tic
 list x
 BUILTIN i I0
-BUILTIN _bb4 I100000
+BUILTIN _bb4 I1000000
 lt _bb3 i _bb4
 BEGIN _bb5
 push # x i
 BUILTIN _bb7 I1
 add i i _bb7
-BUILTIN _bb4 I100000
+BUILTIN _bb4 I1000000
 lt _bb3 i _bb4
 END
 while # _bb3 _bb5

@@ -27,7 +27,7 @@ std::vector<std::string> splitRoute(const std::string& route) {
 
 extern std::recursive_mutex printMutex;
 
-RestServer::RestServer(int port) : port_(port), context_(nullptr) {}
+RestServer::RestServer(int port) : port_(port), context_(nullptr), Data(SERVER) {}
 
 RestServer::~RestServer() {
     if (context_) {
@@ -37,10 +37,6 @@ RestServer::~RestServer() {
 
 std::string RestServer::toString() const {
     return "Server on port " + std::to_string(port_);
-}
-
-int RestServer::getType() const {
-    return SERVER;
 }
 
 void RestServer::runServer() {

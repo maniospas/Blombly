@@ -11,15 +11,11 @@
 #include <mutex>
 
 // BList constructor
-BList::BList()  {}
-BList::BList(int reserve)  {
+BList::BList() : Data(LIST) {}
+BList::BList(int reserve) : Data(LIST)  {
     contents.reserve(reserve);
 }
 BList::~BList() {}
-
-int BList::getType() const {
-    return LIST;
-}
 
 std::string BList::toString() const {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);

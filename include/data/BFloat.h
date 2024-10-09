@@ -13,7 +13,6 @@ private:
 public:
     explicit BFloat(double val);
 
-    int getType() const override;
     std::string toString() const override;
     double getValue() const;
 

@@ -11,13 +11,9 @@
 #include "data/Iterator.h"
 #include "tsl/hopscotch_map.h"
 
-BHashMap::BHashMap() {}
+BHashMap::BHashMap() : Data(MAP) {}
 
 BHashMap::~BHashMap() {}
-
-int BHashMap::getType() const {
-    return MAP;
-}
 
 std::string BHashMap::toString() const {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);

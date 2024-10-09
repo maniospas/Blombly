@@ -32,7 +32,6 @@ public:
     explicit Code(std::vector<Command*>* programAt, int startAt, int endAt, BMemory* declMemory);
     explicit Code(std::vector<Command*>* programAt, int startAt, int endAt, BMemory* declMemory, Metadata* metadata);
     
-    int getType() const override;
     std::string toString() const override;
     int getStart() const;
     int getEnd() const;

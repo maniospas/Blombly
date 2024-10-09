@@ -16,7 +16,6 @@ public:
     explicit BHashMap();
     ~BHashMap();
 
-    int getType() const override;
     std::string toString() const override;
     size_t toHash() const override { return 0; }  // Implement if necessary
     void put(Data* from, Data* to);

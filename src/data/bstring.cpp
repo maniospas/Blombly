@@ -6,11 +6,7 @@
 #include "data/Iterator.h"
 #include "common.h"
 
-BString::BString(const std::string& val) : value(val) {}
-
-int BString::getType() const {
-    return STRING;
-}
+BString::BString(const std::string& val) : value(val), Data(STRING) {}
 
 std::string BString::toString() const {
     return value;

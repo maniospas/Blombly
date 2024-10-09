@@ -9,7 +9,7 @@
 
 #define POS(v, i, j) (i * v + j)
 
-Vector::Vector(int size) : data(new double[size]), size(size), lockable(0) {
+Vector::Vector(int size) : data(new double[size]), size(size), lockable(0), Data(VECTOR) {
     dims = new int[1];
     dims[0] = size;
     ndims = 1;
@@ -23,7 +23,7 @@ Vector::Vector(int size, bool setToZero) : Vector(size) {
     }
 }
 
-Vector::Vector(int size1, int size2) : data(new double[size1 * size2]), size(size1 * size2), lockable(0) {
+Vector::Vector(int size1, int size2) : data(new double[size1 * size2]), size(size1 * size2), lockable(0), Data(VECTOR) {
     dims = new int[2];
     dims[0] = size1;
     dims[1] = size2;
@@ -38,7 +38,7 @@ Vector::Vector(int size1, int size2, bool setToZero) : Vector(size1, size2) {
     }
 }
 
-Vector::Vector(double* data, const Vector* prototype) : data(data), size(prototype->size), lockable(0) {
+Vector::Vector(double* data, const Vector* prototype) : data(data), size(prototype->size), lockable(0), Data(VECTOR) {
     ndims = prototype->ndims;
     dims = new int[ndims];
     std::copy(prototype->dims, prototype->dims + ndims, dims);
@@ -46,7 +46,7 @@ Vector::Vector(double* data, const Vector* prototype) : data(data), size(prototy
     natdims = prototype->natdims;
 }
 
-Vector::Vector(double* data, const Vector* prototype, int new_dim_access) : data(data), size(prototype->size), lockable(0) {
+Vector::Vector(double* data, const Vector* prototype, int new_dim_access) : data(data), size(prototype->size), lockable(0), Data(VECTOR) {
     ndims = prototype->ndims;
     dims = new int[ndims];
     std::copy(prototype->dims, prototype->dims + ndims, dims);
@@ -56,7 +56,7 @@ Vector::Vector(double* data, const Vector* prototype, int new_dim_access) : data
     natdims = prototype->natdims + 1;
 }
 
-Vector::Vector(double* data, int size1, int size2) : data(data), size(size1 * size2), lockable(0) {
+Vector::Vector(double* data, int size1, int size2) : data(data), size(size1 * size2), lockable(0), Data(VECTOR) {
     dims = new int[2];
     dims[0] = size1;
     dims[1] = size2;
@@ -67,10 +67,6 @@ Vector::Vector(double* data, int size1, int size2) : data(data), size(size1 * si
 
 Vector::~Vector() {
     delete[] dims;
-}
-
-int Vector::getType() const {
-    return VECTOR;
 }
 
 std::string Vector::toString() const {

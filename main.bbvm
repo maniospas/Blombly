@@ -1,5 +1,6 @@
 time tic
 list x
+final # x
 BUILTIN i I0
 BUILTIN _bb4 I100000
 lt _bb3 i _bb4

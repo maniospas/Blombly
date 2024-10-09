@@ -7,7 +7,7 @@
 #include <fstream>
 
 
-BFile::BFile(const std::string& path_) : path(path_), size(0) {
+BFile::BFile(const std::string& path_) : path(path_), size(0), Data(FILETYPE) {
     std::ifstream file(path);
     if (file.is_open()) {
         std::string line;
@@ -19,10 +19,6 @@ BFile::BFile(const std::string& path_) : path(path_), size(0) {
         bberror("Failed to open file: " + path);
     }
     size = contents.size();
-}
-
-int BFile::getType() const {
-    return FILETYPE;
 }
 
 std::string BFile::toString() const {

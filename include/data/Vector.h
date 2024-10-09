@@ -29,7 +29,6 @@ public:
     Vector(double* data, int size1, int size2);
     ~Vector();
 
-    int getType() const override;
     std::string toString() const override;
     double* getValue() const;
     Data* implement(const OperationType operation, BuiltinArgs* args) override;

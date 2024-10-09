@@ -51,11 +51,7 @@ std::string __python_like_int_format(int int_number, const std::string& format) 
     return output.str();
 }
 
-Integer::Integer(int val) : value(val) {}
-
-int Integer::getType() const {
-    return BB_INT;
-}
+Integer::Integer(int val) : value(val), Data(BB_INT) {}
 
 std::string Integer::toString() const {
     return std::to_string(value);

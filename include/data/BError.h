@@ -18,7 +18,6 @@ public:
     void consume();
     bool isConsumed() const;
 
-    int getType() const override;
     std::string toString() const override;
     virtual Data* implement(const OperationType operation, BuiltinArgs* args);
 };

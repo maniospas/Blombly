@@ -6,7 +6,7 @@
 #include <iostream>
 #include <mutex>
 
-Iterator::Iterator(Data* object_) : object(object_), pos(new Integer(-1)) {
+Iterator::Iterator(Data* object_) : object(object_), pos(new Integer(-1)), Data(ITERATOR) {
     BuiltinArgs args;
     args.arg0 = object;
     args.size = 1;
@@ -17,10 +17,6 @@ Iterator::Iterator(Data* object_) : object(object_), pos(new Integer(-1)) {
 
 Iterator::~Iterator() {
     delete pos;
-}
-
-int Iterator::getType() const {
-    return ITERATOR;
 }
 
 std::string Iterator::toString() const {

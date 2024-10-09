@@ -2,7 +2,7 @@ tic = std::time();
 
 x = list();
 i = 0;
-while(i<100000) {
+while(i<1000000) {
     push(x, i);
     i = i+1;
 }
