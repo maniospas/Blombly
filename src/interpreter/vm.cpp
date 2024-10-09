@@ -13,7 +13,7 @@
 #include "interpreter/functional.h"
 
 
-std::shared_ptr<Code> compileAndLoad(const std::string& fileName, const std::shared_ptr<BMemory>& currentMemory) {
+Code* compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
     std::lock_guard<std::recursive_mutex> lock(compileMutex);
 
     // Compile and optimize
@@ -32,8 +32,8 @@ std::shared_ptr<Code> compileAndLoad(const std::string& fileName, const std::sha
     }
 
     // Organize each line into a new assembly command
-    auto program = std::make_shared<std::vector<Command*>>();
-    auto source = std::make_shared<SourceFile>(file);
+    auto program = new std::vector<Command*>();
+    auto source = new SourceFile(file);
     std::string line;
     int i = 1;
     while (std::getline(inputFile, line)) {
@@ -44,22 +44,22 @@ std::shared_ptr<Code> compileAndLoad(const std::string& fileName, const std::sha
     }
     inputFile.close();
 
-    return std::make_shared<Code>(program, 0, program->size() - 1, currentMemory);
+    return new Code(program, 0, program->size() - 1, currentMemory);
 }
 
 
 int vm(const std::string& fileName, int numThreads) {
     Future::setMaxThreads(numThreads);
 
-    auto memory = std::make_shared<BMemory>(nullptr, DEFAULT_LOCAL_EXPECTATION);
+    auto memory = new BMemory(nullptr, DEFAULT_LOCAL_EXPECTATION);
     try {
         std::ifstream inputFile(fileName);
         if (!inputFile.is_open()) {
             bberror("Unable to open file: " + fileName);
         }
 
-        auto program = std::make_shared<std::vector<Command*>>();
-        auto source = std::make_shared<SourceFile>(fileName);
+        auto program = new std::vector<Command*>();
+        auto source = new SourceFile(fileName);
         std::string line;
         int i = 1;
 
@@ -72,7 +72,7 @@ int vm(const std::string& fileName, int numThreads) {
 
         inputFile.close();
 
-        auto code = std::make_shared<Code>(program, 0, program->size() - 1, memory);
+        auto code = new Code(program, 0, program->size() - 1, memory);
         bool hasReturned(false);
         executeBlock(code, memory, hasReturned);
         bbassert(!hasReturned, "The virtual machine cannot return a value.");

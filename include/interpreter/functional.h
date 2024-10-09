@@ -15,11 +15,11 @@ extern std::chrono::steady_clock::time_point program_start;
 extern std::recursive_mutex printMutex;
 extern std::recursive_mutex compileMutex;
 
-std::shared_ptr<Data> executeBlock(const std::shared_ptr<Code>& code, const std::shared_ptr<BMemory>& memory, bool &returnSignal);
-void handleExecutionError(const std::shared_ptr<std::vector<Command*>>& program, int i, const BBError& e);
-void handleCommand(const std::shared_ptr<std::vector<Command*>>& program, int& i, const std::shared_ptr<BMemory>& memory, bool &returnSignal, BuiltinArgs &args, std::shared_ptr<Data>& result);
+Data* executeBlock(Code* code, BMemory* memory, bool &returnSignal);
+void handleExecutionError(std::vector<Command*>* program, int i, const BBError& e);
+void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool &returnSignal, BuiltinArgs &args, Data*& result);
 
-std::shared_ptr<Code> compileAndLoad(const std::string& fileName, const std::shared_ptr<BMemory>& currentMemory);
+Code* compileAndLoad(const std::string& fileName, BMemory* currentMemory);
 int vm(const std::string& fileName, int numThreads);
 
 #endif

@@ -22,15 +22,15 @@ public:
 class Command {
 public:
     OperationType operation;
-    std::vector<int> args;                  // Store arguments as a vector
-    std::vector<bool> knownLocal;           // Store knownLocal as a vector
-    std::shared_ptr<Data> value;            // Use shared_ptr for value
-    std::shared_ptr<SourceFile> source;     // Use shared_ptr for source
+    std::vector<int> args;
+    std::vector<bool> knownLocal;
+    Data* value;
+    SourceFile* source;
     int line;
-    int nargs;                              // Keeep this separately for fast checks
-    std::shared_ptr<CommandContext> descriptor;  // Use shared_ptr for descriptor
+    int nargs;
+    CommandContext* descriptor;
 
-    Command(const std::string& command, std::shared_ptr<SourceFile> source, int line, std::shared_ptr<CommandContext> descriptor);
+    Command(const std::string& command, SourceFile* source, int line, CommandContext* descriptor);
     std::string toString() const;
 };
 

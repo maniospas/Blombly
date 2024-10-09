@@ -47,40 +47,38 @@ public:
 
 class BMemory {
 private:
-    tsl::hopscotch_map<int, std::shared_ptr<Data>> data;
+    tsl::hopscotch_map<int, Data*> data;
     tsl::hopscotch_set<int> finals;
-    std::weak_ptr<Data> fastLastAccess;
-    int fastLastAccessId;
 
 public:
     void release();
-    std::shared_ptr<BMemory> parent;
-    tsl::hopscotch_set<std::shared_ptr<Future>> attached_threads;
+    BMemory* parent;
+    tsl::hopscotch_set<Future*> attached_threads;
     bool allowMutables;
 
-    bool isOrDerivedFrom(const BMemory* memory) const;
+    bool isOrDerivedFrom(BMemory* memory) const;
 
-    explicit BMemory(const std::shared_ptr<BMemory>& par, int expectedAssignments);
+    explicit BMemory(BMemory* par, int expectedAssignments);
     ~BMemory();
 
     bool contains(int item);
-    std::shared_ptr<Data> get(int item); // allowMutable = true
-    std::shared_ptr<Data> get(int item, bool allowMutable);
-    std::shared_ptr<Data> getShallow(int item);
-    std::shared_ptr<Data> getOrNull(int item, bool allowMutable);
-    std::shared_ptr<Data> getOrNullShallow(int item);
-    void unsafeSet(const std::shared_ptr<BMemory>& handler, int item, const std::shared_ptr<Data>& value, const std::shared_ptr<Data>& prev);
-    void unsafeSet(int item, const std::shared_ptr<Data>& value, const std::shared_ptr<Data>& prev);
-    std::shared_ptr<Data> unsafeSet(int item, const std::shared_ptr<Data>& value);
+    Data* get(int item); // allowMutable = true
+    Data* get(int item, bool allowMutable);
+    Data* getShallow(int item);
+    Data* getOrNull(int item, bool allowMutable);
+    Data* getOrNullShallow(int item);
+    void unsafeSet(BMemory* handler, int item, Data* value, Data* prev);
+    void unsafeSet(int item, Data* value, Data* prev);
+    Data* unsafeSet(int item, Data* value);
     int size() const;
     void removeWithoutDelete(int item);
     void setFinal(int item);
     bool isFinal(int item) const;
 
-    void pull(const std::shared_ptr<BMemory>& other);
-    void replaceMissing(const std::shared_ptr<BMemory>& other);
+    void pull(BMemory* other);
+    void replaceMissing(BMemory* other);
     void detach();
-    void detach(const std::shared_ptr<BMemory>& par);
+    void detach(BMemory* par);
 
     static void verify_noleaks();
 };

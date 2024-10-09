@@ -7,7 +7,7 @@
 #include "data/Struct.h"
 #include <unordered_set>  
 
-tsl::hopscotch_set<std::shared_ptr<BMemory>> memories;
+tsl::hopscotch_set<BMemory*> memories;
 std::atomic<int> countUnrealeasedMemories;
 extern VariableManager variableManager;
 
@@ -16,13 +16,12 @@ void BMemory::verify_noleaks() {
     bbassert(countUnrealeasedMemories.load() == 1, "There are " + std::to_string(countUnrealeasedMemories.load()-1) + " leftover memory contexts");  // the main memory is a global object (needed to sync threads on errors)
 }
 
-BMemory::BMemory(const std::shared_ptr<BMemory>& par, int expectedAssignments)
-    : parent(par), allowMutables(true), fastLastAccessId(-1) {
+BMemory::BMemory(BMemory* par, int expectedAssignments) : parent(par), allowMutables(true) {
     countUnrealeasedMemories++;
     data.reserve(expectedAssignments);
 }
 
-bool BMemory::isOrDerivedFrom(const BMemory* memory) const {
+bool BMemory::isOrDerivedFrom(BMemory* memory) const {
     if (memory == this)
         return true;  // stop on cycle
     if (parent)
@@ -35,7 +34,7 @@ void BMemory::release() {
     for (const auto& element : data) {
         auto dat = element.second;
         if (dat && dat->getType() == FUTURE) {
-            auto prevRet = std::dynamic_pointer_cast<Future>(dat);
+            auto prevRet = static_cast<Future*>(dat);
             try {
                 data[element.first] = prevRet->getResult();
             }
@@ -57,7 +56,7 @@ void BMemory::release() {
     }
     for (const auto& element : data) {
         auto dat = element.second;
-        if (dat && dat->getType() == ERRORTYPE && !std::dynamic_pointer_cast<BError>(dat)->isConsumed()) {
+        if (dat && dat->getType() == ERRORTYPE && !static_cast<BError*>(dat)->isConsumed()) {
             destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:"+dat->toString()+"\n";
         }
     }
@@ -76,10 +75,10 @@ int BMemory::size() const {
     return data.size();
 }
 
-std::shared_ptr<Data> BMemory::get(int item) { // allowMutable = true
+Data* BMemory::get(int item) { // allowMutable = true
     auto ret = data[item];
     if (ret && ret->getType() == FUTURE) {
-        auto prevRet = std::dynamic_pointer_cast<Future>(ret);
+        auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
         ret = unsafeSet(item, ret);
         attached_threads.erase(prevRet);
@@ -93,10 +92,10 @@ std::shared_ptr<Data> BMemory::get(int item) { // allowMutable = true
     return ret;
 }
 
-std::shared_ptr<Data> BMemory::get(int item, bool allowMutable) {
+Data* BMemory::get(int item, bool allowMutable) {
     auto ret = data[item];
     if (ret && ret->getType() == FUTURE) {
-        auto prevRet = std::dynamic_pointer_cast<Future>(ret);
+        auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
         ret = unsafeSet(item, ret);
         attached_threads.erase(prevRet);
@@ -116,14 +115,12 @@ std::shared_ptr<Data> BMemory::get(int item, bool allowMutable) {
 
 
 bool BMemory::contains(int item) {
-    if(item==fastLastAccessId) 
-        return true;
     auto it = data.find(item);
     if (it == data.end())
         return false;
     auto ret = it->second;
     if (ret && ret->getType() == FUTURE) {
-        auto prevRet = std::dynamic_pointer_cast<Future>(ret);
+        auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
         ret = unsafeSet(item, ret);
         attached_threads.erase(prevRet);
@@ -131,15 +128,13 @@ bool BMemory::contains(int item) {
     return ret!=nullptr;
 }
 
-std::shared_ptr<Data> BMemory::getShallow(int item) {
-    if(item==fastLastAccessId) 
-        return fastLastAccess.lock();
+Data* BMemory::getShallow(int item) {
     auto it = data.find(item);
     if (it == data.end()) 
         bberror("Missing value 1: " + variableManager.getSymbol(item));
     auto ret = it->second;
     if (ret && ret->getType() == FUTURE) {
-        auto prevRet = std::dynamic_pointer_cast<Future>(ret);
+        auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
         ret = unsafeSet(item, ret);
         attached_threads.erase(prevRet);
@@ -149,15 +144,13 @@ std::shared_ptr<Data> BMemory::getShallow(int item) {
     return ret;
 }
 
-std::shared_ptr<Data> BMemory::getOrNullShallow(int item) {
-    if(item==fastLastAccessId) 
-        return fastLastAccess.lock();
+Data* BMemory::getOrNullShallow(int item) {
     auto it = data.find(item);
     if (it == data.end())
         return nullptr;
     auto ret = it->second;
     if (ret && ret->getType() == FUTURE) {
-        auto prevRet = std::dynamic_pointer_cast<Future>(ret);
+        auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
         ret = unsafeSet(item, ret);
         attached_threads.erase(prevRet);
@@ -165,12 +158,10 @@ std::shared_ptr<Data> BMemory::getOrNullShallow(int item) {
     return ret;
 }
 
-std::shared_ptr<Data> BMemory::getOrNull(int item, bool allowMutable) {
-    if(item==fastLastAccessId) 
-        return fastLastAccess.lock();
+Data* BMemory::getOrNull(int item, bool allowMutable) {
     auto ret = data[item];
     if (ret && ret->getType() == FUTURE) {
-        auto prevRet = std::dynamic_pointer_cast<Future>(ret);
+        auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
         ret = unsafeSet(item, ret);
         attached_threads.erase(prevRet);
@@ -190,47 +181,24 @@ void BMemory::removeWithoutDelete(int item) {
     //fastLastAccessId = -1;
 }
 
-void BMemory::unsafeSet(const std::shared_ptr<BMemory>& handler, int item, const std::shared_ptr<Data>& value, const std::shared_ptr<Data>& prev) {
+void BMemory::unsafeSet(BMemory* handler, int item, Data* value, Data* prev) {
     if (prev == value)
         return;
     if (prev && isFinal(item))
         bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
-    
-    std::shared_ptr<Data> val;
-    if(value && value->getType()==STRUCT) // here we may convert strong pointer structs to weak pointer structs so that deleting the memory will also delete those pointers even if there are cycles
-        val = std::static_pointer_cast<Struct>(value)->modifyBeforeAttachingToMemory(handler, std::static_pointer_cast<Struct>(value), this);
-    else 
-        val = value;
-    //fastLastAccess = val;
-    //fastLastAccessId = item;
-    data[item] = std::move(val);
+    data[item] = value;
 }
 
-void BMemory::unsafeSet(int item, const std::shared_ptr<Data>& value, const std::shared_ptr<Data>& prev) {
+void BMemory::unsafeSet(int item, Data* value, Data* prev) {
     if (prev == value)
         return;
     if (prev && isFinal(item))
         bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
-    
-    std::shared_ptr<Data> val;
-    if(value && value->getType()==STRUCT) // here we may convert strong pointer structs to weak pointer structs so that deleting the memory will also delete those pointers even if there are cycles
-        val = std::static_pointer_cast<Struct>(value)->modifyBeforeAttachingToMemory(nullptr, std::static_pointer_cast<Struct>(value), this);
-    else 
-        val = value;
-    //fastLastAccess = val;
-    //fastLastAccessId = item;
-    data[item] = std::move(val);
+    data[item] = value;
 }
 
-std::shared_ptr<Data> BMemory::unsafeSet(int item, const std::shared_ptr<Data>& value) {
-    std::shared_ptr<Data> val;
-    if(value && value->getType()==STRUCT) // here we may convert strong pointer structs to weak pointer structs so that deleting the memory will also delete those pointers even if there are cycles
-        val = std::static_pointer_cast<Struct>(value)->modifyBeforeAttachingToMemory(nullptr, std::static_pointer_cast<Struct>(value), this);
-    else
-        val = value;
-    data[item] = std::move(val);  // TODO: this is a prime suspect for a bug
-    //if(item==fastLastAccessId)
-    //    fastLastAccessId = -1;
+Data* BMemory::unsafeSet(int item, Data* value) {
+    data[item] = value;
     return data[item];
 }
 
@@ -242,22 +210,22 @@ bool BMemory::isFinal(int item) const {
     return finals.find(item) != finals.end();
 }
 
-void BMemory::pull(const std::shared_ptr<BMemory>& other) {
+void BMemory::pull(BMemory* other) {
     for (const auto& it : other->data) {
         if (it.second) {
-            unsafeSet(it.first, INLINE_SCOPY(it.second), getOrNullShallow(it.first));
+            unsafeSet(it.first, it.second, getOrNullShallow(it.first));
         }
     }
 }
 
-void BMemory::replaceMissing(const std::shared_ptr<BMemory>& other) {
+void BMemory::replaceMissing(BMemory* other) {
     for (const auto& it : other->data) {
         int item = it.first;
         auto existing = getOrNullShallow(item);
         if (!existing) {
             auto dat = it.second;
             if (dat) 
-                unsafeSet(item, INLINE_SCOPY(dat), nullptr);
+                unsafeSet(item, dat, nullptr);
         }
     }
 }
@@ -265,7 +233,7 @@ void BMemory::replaceMissing(const std::shared_ptr<BMemory>& other) {
 void BMemory::detach() {
     for (const auto& element : data) {
         if (element.second && element.second->getType() == FUTURE) {
-            auto prevRet = std::dynamic_pointer_cast<Future>(element.second);
+            auto prevRet = static_cast<Future*>(element.second);
             unsafeSet(element.first, prevRet->getResult());
             attached_threads.erase(prevRet);
         }
@@ -277,7 +245,7 @@ void BMemory::detach() {
     parent = nullptr;
 }
 
-void BMemory::detach(const std::shared_ptr<BMemory>& par) {
+void BMemory::detach(BMemory* par) {
     detach();
     parent = par;
 }

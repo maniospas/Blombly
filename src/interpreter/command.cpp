@@ -17,8 +17,8 @@ SourceFile::SourceFile(const std::string& path) : path(path) {}
 CommandContext::CommandContext(const std::string& source) : source(source) {}
 
 // Command constructor
-Command::Command(const std::string& command, std::shared_ptr<SourceFile> source_, int line_, std::shared_ptr<CommandContext> descriptor_) 
-    : source(std::move(source_)), line(line_), descriptor(std::move(descriptor_)), value(nullptr) {
+Command::Command(const std::string& command, SourceFile* source_, int line_, CommandContext* descriptor_) 
+    : source((source_)), line(line_), descriptor((descriptor_)), value(nullptr) {
 
     std::vector<std::string> argNames;
     argNames.reserve(4);
@@ -48,13 +48,13 @@ Command::Command(const std::string& command, std::shared_ptr<SourceFile> source_
         nargs -= 1;
         std::string raw = argNames[2];
         if (raw[0] == '"') {
-            value = std::make_shared<BString>(raw.substr(1, raw.size() - 2));
+            value = new BString(raw.substr(1, raw.size() - 2));
         } else if (raw[0] == 'I') {
-            value = std::make_shared<Integer>(std::atoi(raw.substr(1).c_str()));
+            value = new Integer(std::atoi(raw.substr(1).c_str()));
         } else if (raw[0] == 'F') {
-            value = std::make_shared<BFloat>(std::atof(raw.substr(1).c_str()));
+            value = new BFloat(std::atof(raw.substr(1).c_str()));
         } else if (raw[0] == 'B') {
-            value = std::make_shared<Boolean>(raw == "Btrue");
+            value = new Boolean(raw == "Btrue");
         } else {
             bberror("Unable to understand builtin value prefix (should be one of I,F,B,\"): " + raw);
         }

@@ -18,8 +18,7 @@ public:
     bool isTrue() const override;
     void setValue(bool val);
 
-    std::shared_ptr<Data> shallowCopy() const override;
-    std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
+    Data* implement(const OperationType operation, BuiltinArgs* args) override;
 
     friend class Integer; 
     friend class BFloat; 

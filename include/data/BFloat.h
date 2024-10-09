@@ -17,8 +17,7 @@ public:
     std::string toString() const override;
     double getValue() const;
 
-    std::shared_ptr<Data> shallowCopy() const override;
-    std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
+    Data* implement(const OperationType operation, BuiltinArgs* args) override;
 
     size_t toHash() const override {
         return std::hash<double>{}(value); 

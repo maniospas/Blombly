@@ -6,11 +6,10 @@ int Future::max_threads = 0;
 int Future::thread_count = 0;
 
 // Future constructor
-Future::Future() : result(std::make_shared<ThreadResult>()) {}
+Future::Future() : result(new ThreadResult()) {}
 
 // Constructor with thread and result
-Future::Future(std::shared_ptr<ThreadResult> result_)
-    : result(std::move(result_)) {
+Future::Future(ThreadResult* result_) : result((result_)) {
     ++thread_count;
 }
 
@@ -18,6 +17,7 @@ Future::Future(std::shared_ptr<ThreadResult> result_)
 Future::~Future() {
     if (result->thread.joinable()) 
         result->thread.join();
+    delete result;
 }
 
 // Check if a new thread can be accepted
@@ -40,16 +40,8 @@ std::string Future::toString() const {
     return "future";
 }
 
-// Create a shallow copy of this Future
-std::shared_ptr<Data> Future::shallowCopy() const {
-    bberror("Internal error: threads cannot be copied");
-    auto res = getResult();
-    SCOPY(res);
-    return res;
-}
-
 // Get the result after joining the thread
-std::shared_ptr<Data> Future::getResult() const {
+Data* Future::getResult() const {
     std::lock_guard<std::recursive_mutex> lock(syncMutex);
     try {
         if (result->thread.joinable()) {
@@ -61,7 +53,7 @@ std::shared_ptr<Data> Future::getResult() const {
     }
 
     if (result->error) {
-        std::string error_message = std::move(result->error->what());
+        std::string error_message = (result->error->what());
         result->error = nullptr;
         result->value = nullptr;
         throw BBError(error_message);

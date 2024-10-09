@@ -116,7 +116,7 @@ std::string transpile(const std::vector<std::shared_ptr<TranspilerCommand>>& pro
         		inferred_type[command->args[1]] = inferred_result_type;
     }
     
-    return std::move(transpilation);
+    return (transpilation);
 }
 
 

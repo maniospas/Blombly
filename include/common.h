@@ -75,44 +75,15 @@ class Code;
 
 extern VariableManager variableManager;
 
-std::shared_ptr<Data> executeBlock(const std::shared_ptr<Code>& code,
-                   const std::shared_ptr<BMemory>& memory,
-                   bool  &returnSignal);
+Data* executeBlock(Code* code, BMemory* memory, bool  &returnSignal);
 
 #define UNSAFEMEMGET(memory, arg) (command->knownLocal[arg]?memory->getOrNullShallow(command->args[arg]):memory->get(command->args[arg]))
 #define MEMGET(memory, arg) (command->knownLocal[arg]?memory->getShallow(command->args[arg]):memory->get(command->args[arg]))
-//#define SCOPY(data) if(data && data->isDestroyable) data = data->shallowCopy()
-//#define INLINE_SCOPY(data) ((data && data->isDestroyable)?data->shallowCopy():nullptr)
-#define SCOPY(data) if(false) data = data->shallowCopy()
-#define INLINE_SCOPY(data) data
 
-// Code reused when returning various data from overridden Data::implement to avoid reallocating memory
-#define STRING_RESULT(expr) if (args->preallocResult && args->preallocResult->getType() == STRING && args->preallocResult->isDestroyable) { \
-                                auto bstr = std::static_pointer_cast<BString>(args->preallocResult); \
-                                bstr->value = (expr); \
-                                return args->preallocResult; \
-                            } \
-                            return std::make_shared<BString>(expr)
-
-#define BB_BOOLEAN_RESULT(expr) if (args->preallocResult && args->preallocResult->getType() == BB_BOOL && args->preallocResult->isDestroyable) { \
-                                auto bbool = std::static_pointer_cast<Boolean>(args->preallocResult); \
-                                bbool->value = (expr); \
-                                return args->preallocResult; \
-                            } \
-                            return std::make_shared<Boolean>(expr)
-
-#define BB_INT_RESULT(expr) if (args->preallocResult && args->preallocResult->getType() == BB_INT && args->preallocResult->isDestroyable) { \
-                            auto bint = std::static_pointer_cast<Integer>(args->preallocResult); \
-                            bint->value = (expr); \
-                            return args->preallocResult; \
-                         } \
-                         return std::make_shared<Integer>(expr)
-
-#define BB_FLOAT_RESULT(expr) if (args->preallocResult && args->preallocResult->getType() == BB_FLOAT && args->preallocResult->isDestroyable) { \
-                              auto bfloat = std::static_pointer_cast<BFloat>(args->preallocResult); \
-                              bfloat->value = (expr); \
-                              return args->preallocResult; \
-                          } \
-                          return std::make_shared<BFloat>(expr)
+// Code reused when returning various data from overridden Data::implement 
+#define STRING_RESULT(expr) return new BString(expr)
+#define BB_BOOLEAN_RESULT(expr) return new Boolean(expr)
+#define BB_INT_RESULT(expr) return new Integer(expr)
+#define BB_FLOAT_RESULT(expr) return new BFloat(expr)
 
 #endif // COMMON_H

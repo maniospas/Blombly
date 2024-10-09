@@ -65,19 +65,13 @@ double BFloat::getValue() const {
     return value;
 }
 
-std::shared_ptr<Data> BFloat::shallowCopy() const {
-    return std::make_shared<BFloat>(value);
-}
-
-std::shared_ptr<Data> BFloat::implement(const OperationType operation, BuiltinArgs* args) {
+Data* BFloat::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 2) {
         int type0 = args->arg0->getType();
         int type1 = args->arg1->getType();
 
-        double v1 = (type0 == BB_INT) ? static_cast<double>(static_cast<Integer*>(args->arg0.get())->getValue()) 
-                                   : static_cast<BFloat*>(args->arg0.get())->getValue();
-        double v2 = (type1 == BB_INT) ? static_cast<double>(static_cast<Integer*>(args->arg1.get())->getValue()) 
-                                   : static_cast<BFloat*>(args->arg1.get())->getValue();
+        double v1 = (type0 == BB_INT) ? static_cast<double>(static_cast<Integer*>(args->arg0)->getValue()) : static_cast<BFloat*>(args->arg0)->getValue();
+        double v2 = (type1 == BB_INT) ? static_cast<double>(static_cast<Integer*>(args->arg1)->getValue()) : static_cast<BFloat*>(args->arg1)->getValue();
 
         switch (operation) {
             case EQ: BB_BOOLEAN_RESULT(v1 == v2);
@@ -94,9 +88,8 @@ std::shared_ptr<Data> BFloat::implement(const OperationType operation, BuiltinAr
         }
 
         // Handle formatted string conversion
-        if (operation == AT && type1 == STRING) {
+        if (operation == AT && type1 == STRING) 
             STRING_RESULT(__python_like_float_format(value, args->arg1->toString()));
-        }
         
         throw Unimplemented();
     }

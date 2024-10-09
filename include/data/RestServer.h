@@ -17,16 +17,15 @@ public:
     // Overrides from Data
     std::string toString() const override;
     int getType() const override;
-    std::shared_ptr<Data> shallowCopy() const override;
 
     void runServer();
-    std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
+    Data* implement(const OperationType operation, BuiltinArgs* args) override;
 
 private:
     int port_;
     struct mg_context* context_;
-    std::unordered_map<std::string, std::shared_ptr<Data>> routeHandlers_;
-    std::shared_ptr<Data> executeCodeWithMemory(std::shared_ptr<Data> called, const std::shared_ptr<BMemory>& memory) const;
+    std::unordered_map<std::string, Data*> routeHandlers_;
+    Data* executeCodeWithMemory(Data* called, BMemory* memory) const;
     static int requestHandler(struct mg_connection* conn, void* cbdata);
     std::recursive_mutex serverModification;
 };

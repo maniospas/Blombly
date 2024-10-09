@@ -14,7 +14,7 @@ int Data::countObjects() {
     return numObjects;
 }
 
-std::shared_ptr<Data> Data::run(const OperationType operation, BuiltinArgs *args) {
+Data* Data::run(const OperationType operation, BuiltinArgs *args) {
     try {
         return args->arg0->implement(operation, args);
     }
@@ -64,7 +64,7 @@ std::shared_ptr<Data> Data::run(const OperationType operation, BuiltinArgs *args
     return nullptr;
 }
 
-std::shared_ptr<Data> Data::implement(const OperationType operation, BuiltinArgs* args) {
+Data* Data::implement(const OperationType operation, BuiltinArgs* args) {
     throw Unimplemented();
 }
 

@@ -3,9 +3,9 @@
 
 #include "interpreter/functional.h"
 
-std::shared_ptr<Data> executeBlock(const std::shared_ptr<Code>& code, const std::shared_ptr<BMemory>& memory, bool &returnSignal) {
+Data* executeBlock(Code* code, BMemory* memory, bool &returnSignal) {
     BuiltinArgs args;
-    std::shared_ptr<Data> value = nullptr;
+    Data* value = nullptr;
     auto program = code->getProgram();
     int end = code->getEnd();
     int i = code->getStart();

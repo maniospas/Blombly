@@ -30,30 +30,19 @@ std::string BHashMap::toString() const {
     return result + "}";
 }
 
-std::shared_ptr<Data> BHashMap::shallowCopy() const {
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
-    auto copy = std::make_shared<BHashMap>();
-    copy->contents = contents;
-    return copy;
-}
-
-void BHashMap::put(const std::shared_ptr<Data>& from, const std::shared_ptr<Data>& to) {
+void BHashMap::put(Data* from, Data* to) {
     bbassert(from, "Missing key value");
-
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     size_t key = from->toHash();
     auto& existing = contents[key];
-    if (existing && existing->isDestroyable) 
-        existing.reset();  // Safely destroy the previous object
-    contents[key] = INLINE_SCOPY(to);
+    contents[key] = to;
 }
 
-std::shared_ptr<Data> BHashMap::implement(const OperationType operation, BuiltinArgs* args) {
+Data* BHashMap::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 1) {
         switch (operation) {
-            case TOCOPY: return shallowCopy();
-            case LEN: return std::make_shared<Integer>(contents.size());
-            case TOITER: return std::make_shared<Iterator>(args->arg0);
+            case LEN: return new Integer(contents.size());
+            case TOITER: return new Iterator(args->arg0);
         }
         throw Unimplemented();
     }
@@ -63,9 +52,7 @@ std::shared_ptr<Data> BHashMap::implement(const OperationType operation, Builtin
         auto it = contents.find(key);
         if (it == contents.end()) 
             return nullptr;
-        auto res = it->second;
-        SCOPY(res);
-        return res;
+        return it->second;
     }
 
     if (operation == PUT && args->size == 3) {

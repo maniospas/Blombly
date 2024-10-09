@@ -982,7 +982,7 @@ void sanitize(std::vector<Token>& tokens) {
                 updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
         }
     }
-    tokens = std::move(updatedTokens);
+    tokens = (updatedTokens);
 }
 
 class Macro {
@@ -1337,7 +1337,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
         }
     }
 
-    tokens = std::move(updatedTokens);
+    tokens = (updatedTokens);
 }
 
 std::string gcc(std::vector<Token>& tokens) {
@@ -1414,7 +1414,7 @@ std::string gcc(std::vector<Token>& tokens) {
         pos = cprogram.find(raplacement, pos + replaceby.size());
     }
 
-    return std::move(cprogram);
+    return (cprogram);
 }
 
 void compile(const std::string& source, const std::string& destination) {

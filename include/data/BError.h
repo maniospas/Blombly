@@ -20,8 +20,7 @@ public:
 
     int getType() const override;
     std::string toString() const override;
-    virtual std::shared_ptr<Data> shallowCopy() const;
-    virtual std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args);
+    virtual Data* implement(const OperationType operation, BuiltinArgs* args);
 };
 
 #endif // BERROR_H

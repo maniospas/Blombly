@@ -40,14 +40,9 @@ std::string BFile::getPath() const {
     return path;
 }
 
-std::shared_ptr<Data> BFile::shallowCopy() const {
-    auto ret = std::make_shared<BFile>(path);
-    return ret;
-}
-
-std::shared_ptr<Data> BFile::implement(const OperationType operation, BuiltinArgs* args) {
+Data* BFile::implement(const OperationType operation, BuiltinArgs* args) {
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
-        int lineNum = static_cast<Integer*>(args->arg1.get())->getValue();
+        int lineNum = static_cast<Integer*>(args->arg1)->getValue();
         if (lineNum < 0 || lineNum >= contents.size()) {
             bberror("Line number " + std::to_string(lineNum) + " out of range [0," + std::to_string(contents.size()) + ")");
             return nullptr;
@@ -56,7 +51,7 @@ std::shared_ptr<Data> BFile::implement(const OperationType operation, BuiltinArg
         STRING_RESULT(lineContent);
     }
     if (operation == PUT && args->size == 3 && args->arg1->getType() == BB_INT && args->arg2->getType() == STRING) {
-        int lineNum = static_cast<Integer*>(args->arg1.get())->getValue();
+        int lineNum = static_cast<Integer*>(args->arg1)->getValue();
         std::string newContent = args->arg2->toString();
         if (lineNum < 0 || lineNum >= contents.size()) {
             bberror("Line number " + std::to_string(lineNum) + " out of range [0," + std::to_string(contents.size()) + ")");
@@ -69,14 +64,14 @@ std::shared_ptr<Data> BFile::implement(const OperationType operation, BuiltinArg
         int ret = contents.size();
         BB_INT_RESULT(ret);
     }
-    if (operation == TOCOPY || operation == TOFILE) {
-        return shallowCopy();
+    if (operation == TOFILE) {
+        return this;
     }
     if (operation == TOSTR) {
         STRING_RESULT(toString());
     }
     if (operation == TOITER) {
-        return std::make_shared<Iterator>(args->arg0);
+        return new Iterator(args->arg0);
     }
     throw Unimplemented();
 }

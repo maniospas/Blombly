@@ -43,10 +43,6 @@ int RestServer::getType() const {
     return SERVER;
 }
 
-std::shared_ptr<Data> RestServer::shallowCopy() const {
-    return std::make_shared<RestServer>(port_);
-}
-
 void RestServer::runServer() {
     const char* options[] = {
         "listening_ports", std::to_string(port_).c_str(),
@@ -59,11 +55,11 @@ void RestServer::runServer() {
     mg_set_request_handler(context_, "/", requestHandler, (void*)this);
 }
 
-std::shared_ptr<Data> RestServer::implement(const OperationType operation, BuiltinArgs* args) {
+Data* RestServer::implement(const OperationType operation, BuiltinArgs* args) {
     if (operation == PUT && args->size == 3 && args->arg1->getType() == STRING &&
         (args->arg2->getType() == CODE || args->arg2->getType() == STRUCT)) {
         std::lock_guard<std::recursive_mutex> lock(serverModification);
-        std::string route = std::static_pointer_cast<BString>(args->arg1)->toString();
+        std::string route = static_cast<BString*>(args->arg1)->toString();
         routeHandlers_[route] = args->arg2;
         return nullptr;
     }
@@ -71,17 +67,17 @@ std::shared_ptr<Data> RestServer::implement(const OperationType operation, Built
 }
 
 
-std::shared_ptr<Data> RestServer::executeCodeWithMemory(std::shared_ptr<Data> called, const std::shared_ptr<BMemory>& memory) const {
+Data* RestServer::executeCodeWithMemory(Data* called, BMemory* memory) const {
     if(called->getType()==STRUCT) {
-        auto strct = std::static_pointer_cast<Struct>(called);
+        auto strct = static_cast<Struct*>(called);
         auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
         bbassert(val && val->getType()==CODE, "Struct was called like a method but has no implemented code for `\\call`.");
-        called = std::move(val);
+        called = (val);
     }
     bbassert(called->getType()==CODE, "Internally corrupted server callable is neither code nor struct (this message should never appear due to earlier error checking)");
-    auto code = std::static_pointer_cast<Code>(called);
+    auto code = static_cast<Code*>(called);
     memory->detach(code->getDeclarationMemory());
-    auto listArgs = std::make_shared<BList>();
+    auto listArgs = new BList();
     memory->unsafeSet(variableManager.argsId, listArgs, nullptr);
 
     bool hasReturned = false;
@@ -107,7 +103,7 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
     for (const auto& entry : server->routeHandlers_) {
         std::vector<std::string> registeredRouteParts = splitRoute(entry.first);
         if (routeParts.size() == registeredRouteParts.size()) {
-            auto mem = std::make_shared<BMemory>(nullptr, (int)routeParts.size()/2+1);
+            auto mem = new BMemory(nullptr, (int)routeParts.size()/2+1);
             bool isMatch = true;
             for (size_t i = 0; i < routeParts.size(); ++i) {
                 if (registeredRouteParts[i][0] == '<' && registeredRouteParts[i][registeredRouteParts[i].size()-1] == '>') {
@@ -115,7 +111,7 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                     std::string varValue = routeParts[i];
                     // TODO: prevent invalid variable names
                     int varId = variableManager.getId(varName);
-                    mem->unsafeSet(varId, std::make_shared<BString>(varValue), nullptr);
+                    mem->unsafeSet(varId, new BString(varValue), nullptr);
                     //mem->setFinal(varId);
                 } 
                 else if (registeredRouteParts[i] != routeParts[i]) {
@@ -128,23 +124,23 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
 
             try {
                 if(req_info->request_uri) {
-                    mem->unsafeSet(variableManager.getId("uri"), std::make_shared<BString>(req_info->request_uri), nullptr);
+                    mem->unsafeSet(variableManager.getId("uri"), new BString(req_info->request_uri), nullptr);
                     //mem->setFinal(variableManager.getId("uri"));
                 }
                 if(req_info->query_string) {
-                    mem->unsafeSet(variableManager.getId("query"), std::make_shared<BString>(req_info->query_string), nullptr);
+                    mem->unsafeSet(variableManager.getId("query"), new BString(req_info->query_string), nullptr);
                     //mem->setFinal(variableManager.getId("query"));
                 }
                 if(req_info->request_method) {
-                    mem->unsafeSet(variableManager.getId("method"), std::make_shared<BString>(req_info->request_method), nullptr);
+                    mem->unsafeSet(variableManager.getId("method"), new BString(req_info->request_method), nullptr);
                     //mem->setFinal(variableManager.getId("method"));
                 }
                 if(req_info->http_version) {
-                    mem->unsafeSet(variableManager.getId("http"), std::make_shared<BString>(req_info->http_version), nullptr);
+                    mem->unsafeSet(variableManager.getId("http"), new BString(req_info->http_version), nullptr);
                     //mem->setFinal(variableManager.getId("http"));
                 }
-                mem->unsafeSet(variableManager.getId("ip"), std::make_shared<BString>(req_info->remote_addr), nullptr);
-                mem->unsafeSet(variableManager.getId("ssl"), std::make_shared<Boolean>(req_info->is_ssl), nullptr);
+                mem->unsafeSet(variableManager.getId("ip"), new BString(req_info->remote_addr), nullptr);
+                mem->unsafeSet(variableManager.getId("ssl"), new Boolean(req_info->is_ssl), nullptr);
                 //mem->setFinal(variableManager.getId("ip"));
                 //mem->setFinal(variableManager.getId("ssl"));
 
@@ -155,11 +151,11 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                     if (bytesRead > 0) {
                         bodyData[bytesRead] = '\0';
                         std::string requestBody(&bodyData[0]);
-                        mem->unsafeSet(variableManager.getId("content"), std::make_shared<BString>(requestBody), nullptr);
+                        mem->unsafeSet(variableManager.getId("content"), new BString(requestBody), nullptr);
                     }
                 }
 
-                std::shared_ptr<Data> result = server->executeCodeWithMemory(entry.second, mem);
+                Data* result = server->executeCodeWithMemory(entry.second, mem);
                 std::string response = result->toString();
 
                 std::string html_prefix = "<!DOCTYPE html>";

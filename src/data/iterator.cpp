@@ -6,14 +6,18 @@
 #include <iostream>
 #include <mutex>
 
-Iterator::Iterator(const std::shared_ptr<Data>& object_) : object(object_), pos(std::make_shared<Integer>(-1)) {
+Iterator::Iterator(Data* object_) : object(object_), pos(new Integer(-1)) {
     BuiltinArgs args;
     args.arg0 = object;
     args.size = 1;
-    size = std::static_pointer_cast<Integer>(object->implement(LEN, &args))->getValue();
+    Data* len = object->implement(LEN, &args);
+    bbassert(len && len->getType()==BB_INT, "`len` failed to return an integer");
+    size = static_cast<Integer*>(len)->getValue();
 }
 
-Iterator::~Iterator() = default;  // No manual mutex destruction required with std::recursive_mutex
+Iterator::~Iterator() {
+    delete pos;
+}
 
 int Iterator::getType() const {
     return ITERATOR;
@@ -23,11 +27,7 @@ std::string Iterator::toString() const {
     return "iterator";
 }
 
-std::shared_ptr<Data> Iterator::shallowCopy() const {
-    bberror("Iterators cannot be copied");
-}
-
-std::shared_ptr<Data> Iterator::implement(const OperationType operation, BuiltinArgs* args) {
+Data* Iterator::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 1 && operation == NEXT) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         pos->value += 1; 
@@ -42,10 +42,8 @@ std::shared_ptr<Data> Iterator::implement(const OperationType operation, Builtin
     }
     
     if (args->size == 1 && operation == LEN) 
-        return std::make_shared<Integer>(size);
-    if (args->size == 1 && operation == TOCOPY) 
-        return shallowCopy();
+        return new Integer(size);
     if (args->size == 1 && operation == TOITER) 
-        return shallowCopy();
+        return this;
     throw Unimplemented();
 }

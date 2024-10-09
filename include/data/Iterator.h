@@ -12,17 +12,16 @@ class Iterator : public Data {
 private:
     mutable std::recursive_mutex memoryLock;  // Use std::recursive_mutex for locking
     int size;
-    std::shared_ptr<Data> object;
-    std::shared_ptr<Integer> pos;
+    Data* object;
+    Integer* pos;
 
 public:
-    explicit Iterator(const std::shared_ptr<Data>& object_);
+    explicit Iterator(Data* object_);
     ~Iterator();
 
     int getType() const override;
     std::string toString() const override;
-    std::shared_ptr<Data> shallowCopy() const override;
-    std::shared_ptr<Data> implement(const OperationType operation, BuiltinArgs* args) override;
+    Data* implement(const OperationType operation, BuiltinArgs* args) override;
 };
 
 #endif // ITERATOR_H

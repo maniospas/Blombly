@@ -65,18 +65,14 @@ int Integer::getValue() const {
     return value;
 }
 
-std::shared_ptr<Data> Integer::shallowCopy() const {
-    return std::make_shared<Integer>(value);
-}
-
-std::shared_ptr<Data> Integer::implement(const OperationType operation, BuiltinArgs* args) {
+Data* Integer::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 2) {
         int type0 = args->arg0->getType();
         int type1 = args->arg1->getType();
 
         if (type0 == BB_INT && type1 == BB_INT) {
-            int v1 = static_cast<Integer*>(args->arg0.get())->getValue();
-            int v2 = static_cast<Integer*>(args->arg1.get())->getValue();
+            int v1 = static_cast<Integer*>(args->arg0)->getValue();
+            int v2 = static_cast<Integer*>(args->arg1)->getValue();
 
             switch (operation) {
                 case EQ: BB_BOOLEAN_RESULT(v1 == v2);
@@ -93,10 +89,10 @@ std::shared_ptr<Data> Integer::implement(const OperationType operation, BuiltinA
                 case DIV: BB_FLOAT_RESULT(v1 / static_cast<float>(v2));
             }
         } else if ((type0 == BB_FLOAT || type0 == BB_INT) && (type1 == BB_FLOAT || type1 == BB_INT)) {
-            double v1 = type0 == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg0.get())->getValue())
-                                     : static_cast<BFloat*>(args->arg0.get())->getValue();
-            double v2 = type1 == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg1.get())->getValue())
-                                     : static_cast<BFloat*>(args->arg1.get())->getValue();
+            double v1 = type0 == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg0)->getValue())
+                                     : static_cast<BFloat*>(args->arg0)->getValue();
+            double v2 = type1 == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg1)->getValue())
+                                     : static_cast<BFloat*>(args->arg1)->getValue();
 
             switch (operation) {
                 case EQ: BB_BOOLEAN_RESULT(v1 == v2);
@@ -114,7 +110,7 @@ std::shared_ptr<Data> Integer::implement(const OperationType operation, BuiltinA
         }
 
         if (operation == AT && type1 == STRING) {
-            STRING_RESULT(std::move(__python_like_int_format(value, args->arg1->toString())));
+            STRING_RESULT((__python_like_int_format(value, args->arg1->toString())));
         }
         throw Unimplemented();
     }
@@ -125,7 +121,7 @@ std::shared_ptr<Data> Integer::implement(const OperationType operation, BuiltinA
             case TOBB_INT: BB_INT_RESULT(value);
             case TOBB_FLOAT: BB_FLOAT_RESULT(value);
             case TOSTR: STRING_RESULT(std::to_string(value));
-            case TOVECTOR: return std::make_shared<Vector>(value, true);
+            case TOVECTOR: return new Vector(value, true);
         }
         throw Unimplemented();
     }
