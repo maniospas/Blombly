@@ -1,16 +1,15 @@
 #include "data/Future.h"
 #include "common.h"
 #include <iostream>
+#include <atomic>
 
 int Future::max_threads = 0;
-int Future::thread_count = 0;
+std::atomic<int> Future::thread_count = 0;
 
-// Future constructor
 Future::Future() : result(new ThreadResult()), Data(FUTURE) {
     ++thread_count;
 }
 
-// Constructor with thread and result
 Future::Future(ThreadResult* result_) : result((result_)), Data(FUTURE) {
     ++thread_count;
 }

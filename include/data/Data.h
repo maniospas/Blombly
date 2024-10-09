@@ -17,11 +17,11 @@ struct BuiltinArgs {
 };
 
 // Abstract base class for all data types
-class Data : public std::enable_shared_from_this<Data> {
+class Data {
 public:
     virtual std::string toString() const = 0;
     virtual bool isTrue() const { return false; }
-    inline int getType() const { return type; }
+    inline uint8_t getType() const { return type; }
 
     Data(int type);
     virtual ~Data();
@@ -33,7 +33,7 @@ public:
 
 private:
     static int numObjects;
-    int type;
+    uint8_t type;
 };
 
 #endif // DATA_H
