@@ -1,17 +1,15 @@
-time tic
-list x
-final # x
-BUILTIN i I0
-BUILTIN _bb4 I100000
-lt _bb3 i _bb4
-BEGIN _bb5
-push # x i
-BUILTIN _bb7 I1
-add i i _bb7
-BUILTIN _bb4 I100000
-lt _bb3 i _bb4
+BUILTIN _bb1 I1
+BUILTIN _bb2 I2
+BUILTIN _bb3 I3
+list A _bb1 _bb2 _bb3
+iter _bb0 A
+next _bb6 _bb0
+AS x _bb6
+exists _bb7 x
+BEGIN _bb8
+print # x
+next _bb6 _bb0
+AS x _bb6
+exists _bb7 x
 END
-while # _bb3 _bb5
-time _bb9
-sub _bb8 _bb9 tic
-print # _bb8
+while # _bb7 _bb8

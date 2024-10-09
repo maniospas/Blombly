@@ -70,6 +70,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             }
             bbassert(depth >= 0, "Code block never ended.");
             auto cache = new Code(program, i + 1, pos, memory);
+            cache->setAsBuiltin();
             auto val = new Code(program, i + 1, pos, memory, cache->getAllMetadata());
             val->scheduleForParallelExecution = scheduleForParallelExecution;
             cache->scheduleForParallelExecution = scheduleForParallelExecution;
@@ -96,14 +97,17 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             }
             auto code = static_cast<Code*>(called);
             if (!code->scheduleForParallelExecution || !Future::acceptsThread()) {
-                BMemory newMemory = BMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
+                BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
                 bool newReturnSignal(false);
                 if (context) {
                     bbassert(context->getType() == CODE, "Call context must be a code block.");
                     result = executeBlock(static_cast<Code*>(context), &newMemory, newReturnSignal);
                 }
-                if(newReturnSignal)
+                if(newReturnSignal) {
+                    if(result && result->getType()==CODE)
+                        static_cast<Code*>(result)->setDeclarationMemory(nullptr);
                     break;
+                }
                 newMemory.detach(code->getDeclarationMemory());
                 result = executeBlock(code, &newMemory, newReturnSignal);
                 if(result && result->getType()==CODE)
@@ -116,8 +120,11 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     bbassert(context->getType() == CODE, "Call context must be a code block.");
                     result = executeBlock(static_cast<Code*>(context), newMemory, newReturnSignal);
                 }
-                if(newReturnSignal)
+                if(newReturnSignal) {
+                    if(result && result->getType()==CODE)
+                        static_cast<Code*>(result)->setDeclarationMemory(nullptr);
                     break;
+                }
                 newMemory->detach(code->getDeclarationMemory());
 
                 auto futureResult = new ThreadResult();
@@ -316,7 +323,6 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 auto code = static_cast<Code*>(source);
                 result = executeBlock(code, memory, returnSignal);
             }
-            // SCOPY(result);
         } break;
 
         case DEFAULT: {
@@ -325,11 +331,9 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto code = static_cast<Code*>(source);
             auto newMemory = new BMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
             bool defaultReturnSignal(false);
-            //result = executeBlock(code, memory, defaultReturnSignal, args);
             executeBlock(code, newMemory, defaultReturnSignal);
             if(defaultReturnSignal)
                 bberror("Cannot return from within a `default` statement");
-            //newMemory->detach();
             memory->replaceMissing(newMemory);
         } break;
 
@@ -366,23 +370,15 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         break;
 
         default: {
-            //std::cout << command->toString()+"\n";
             int nargs = command->nargs;
             args.size = nargs - 1;
-            //std::cout << "Gathering "+command->toString()+"\n";
             if (nargs > 1) 
                 args.arg0 = MEMGET(memory, 1);
             if (nargs > 2) 
                 args.arg1 = MEMGET(memory, 2);
             if (nargs > 3) 
                 args.arg2 = MEMGET(memory, 3);
-            //std::cout << "Running "+command->toString()+"\n";
-            /*if(toReplace && toReplace->isDestroyable && (command->knownLocal[0] || !memory->isFinal(command->args[0])))
-                args.preallocResult = toReplace;
-            else*/
-                args.preallocResult = nullptr;
             result = Data::run(command->operation, &args);
-            //std::cout << "Running "+result->toString()+"\n";
         } break;
     }
     //if(!result && command->knownLocal[0])

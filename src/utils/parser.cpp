@@ -907,12 +907,13 @@ void sanitize(std::vector<Token>& tokens) {
         }
         if (tokens[i].name == "#" && ((i >= tokens.size() - 1) || 
             (tokens[i + 1].name != "include" && tokens[i + 1].name != "macro" && tokens[i + 1].name != "stringify"
-             && tokens[i + 1].name != "spec" && tokens[i + 1].name != "fail" && tokens[i + 1].name != "gcc"))) {
+             && tokens[i + 1].name != "spec" && tokens[i + 1].name != "fail" && tokens[i + 1].name != "of" && tokens[i + 1].name != "gcc"))) {
             bberror("Invalid preprocessor instruction after `#` symbol."
                     "\n   \033[33m!!!\033[0m This symbol signifies preprocessor directives."
                     "\n        Valid directives are the following patterns:"
                     "\n        - `#include @str;` inlines a file."
                     "\n        - `#spec @property=@value;` declares a code block specification."
+                    "\n        - `(#of @expression)` assigns the expression to a temporary variable just after the last command."
                     "\n        - `#macro (@expression)={@implementation}` defines a macro."
                     "\n        - `#stringify (@tokens)` converts the tokens into a string at compile time."
                     "\n        - `#fail @message;` creates a compile-time failure."
@@ -920,6 +921,7 @@ void sanitize(std::vector<Token>& tokens) {
                     + Parser::show_position(tokens, i));
         }
         updatedTokens.push_back(tokens[i]);
+
         /*if ((tokens[i].name == "if" || tokens[i].name == "while") && ((i==0) || 
             (tokens[i - 1].name != ";" && tokens[i - 1].name != "{" && tokens[i - 1].name != "}" && tokens[i - 1].name != "try" && tokens[i - 1].name != "default")))
             bberror("`"+tokens[i].name+"` statements must be preceded by one of `try`, `default`, '{', '}', or ';'. "
@@ -999,6 +1001,52 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
     previousImports.insert(first_source);
 
     for (size_t i = 0; i < tokens.size(); ++i) {
+        if ((tokens[i].name == "iter" || tokens[i].name == "std::iter") && i>0 && tokens[i-1].name != "as" && tokens[i-1].name != "=" && tokens[i-1].name != ",")
+            bberror("`"+tokens[i].name+"` statements must be preceded by one of `=`, `as`, or ','. "
+                    "\n   \033[33m!!!\033[0m This way, you may only directly assign to an iterator or add it to a list."
+                    "\n       For example, the pattern `A = 1,2,3; while(x as next(std::iter(A))) {}` that leads to an infinite loop is prevented."
+                    "\n       You may instead consider the preprocessor #of directive to precompute the contents of a parenthesis"
+                    "\n       before the current commend. Here is an example `A = 1,2,3; while(x as next(#of std::iter(A))) {}`.\n"
+                    + Parser::show_position(tokens, i));
+
+        if (tokens[i].name == "#" && i < tokens.size() - 3 && tokens[i + 1].name == "of") {
+                bbassert(tokens[i - 1].name == "(" || tokens[i - 1].name == "[", 
+                          "Unexpected `#of` encountered after `"+tokens[i - 1].name +"`."
+                          "\n   \033[33m!!!\033[0m  Each `#of` declaration can only start after a parenthesis or square bracket."
+                          "\n        Here is an example `A = 1,2,3; while(x as next(#of std::iter(A))) {}`.\n"
+                          +Parser::show_position(tokens, i));
+                int iend = i+2;
+                int depth = 1;
+                while(iend<tokens.size()) {
+                    if(tokens[iend].name=="(" || tokens[iend].name=="{" || tokens[iend].name=="[")
+                        depth += 1;
+                    if(tokens[iend].name==")" || tokens[iend].name=="}" || tokens[iend].name=="]")
+                        depth -= 1;
+                    if(depth==0) 
+                        break;
+                    iend += 1;
+                }
+                bbassert(iend<tokens.size() && (tokens[iend].name==")" || tokens[iend].name=="]"), tokens[i - 1].name == "("?"`(#of @code)` statement was never closed with a right symbol.":"`[#of @code]` statement was never closed with a right symbol.");
+                int position = updatedTokens.size();
+                while(position>0)  {
+                    position -= 1;
+                    if(updatedTokens[position].name==";" || updatedTokens[position].name=="{") {
+                        position += 1;
+                        break;
+                    }
+                }
+                std::vector<Token> newTokens;
+                std::string temp = Parser::create_temp();
+                newTokens.emplace_back(temp, tokens[i].file, tokens[i].line, false);
+                newTokens.emplace_back("=", tokens[i].file, tokens[i].line, false);
+                newTokens.insert(newTokens.end(), tokens.begin()+i+2, tokens.begin()+iend);
+                newTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
+
+                updatedTokens.insert(updatedTokens.begin()+position, newTokens.begin(), newTokens.end());
+                updatedTokens.emplace_back(temp, tokens[i].file, tokens[i].line, false);
+                i = iend;
+        }
+
         if (tokens[i].name == "#" && i < tokens.size() - 3 && tokens[i + 1].name == "fail") {
             std::string message;
             int pos = i+2;

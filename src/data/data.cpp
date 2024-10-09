@@ -2,7 +2,7 @@
 
 int Data::numObjects = 0;
 
-Data::Data(int type) : type(type) {
+Data::Data(int type) : type(type), builtin(false) {
     ++numObjects;
 }
 

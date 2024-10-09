@@ -49,6 +49,8 @@ class BMemory {
 private:
     tsl::hopscotch_map<int, Data*> data;
     tsl::hopscotch_set<int> finals;
+    int fastId;
+    Data* fastData;
 
 public:
     void release();

@@ -76,22 +76,19 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
                 auto vec = new Vector(n, false);
                 double* rawret = vec->data;
                 BuiltinArgs args;
-                args.preallocResult = new BFloat(0);
+                //args.preallocResult = new BFloat(0);
                 args.size = 1;
                 try {
                     for (int i = 0; i < n; ++i) {
                         args.arg0 = contents.at(i);
                         auto temp = args.arg0->implement(TOBB_FLOAT, &args);
                         auto type = temp->getType();
-                        if (type == BB_INT) {
+                        if (type == BB_INT) 
                             rawret[i] = static_cast<Integer*>(temp)->getValue();
-                        } 
-                        else if (type == BB_FLOAT) {
+                        else if (type == BB_FLOAT) 
                             rawret[i] = static_cast<BFloat*>(temp)->getValue();
-                        } 
-                        else {
+                        else 
                             bberror("Non-numeric value in list during conversion to vector");
-                        }
                     }
                 } 
                 catch (BBError& e) {

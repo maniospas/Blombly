@@ -16,7 +16,7 @@ void BMemory::verify_noleaks() {
     bbassert(countUnrealeasedMemories.load() == 1, "There are " + std::to_string(countUnrealeasedMemories.load()-1) + " leftover memory contexts");  // the main memory is a global object (needed to sync threads on errors)
 }
 
-BMemory::BMemory(BMemory* par, int expectedAssignments) : parent(par), allowMutables(true) {
+BMemory::BMemory(BMemory* par, int expectedAssignments) : parent(par), allowMutables(true), fastId(-1) {
     countUnrealeasedMemories++;
     data.reserve(expectedAssignments);
 }
@@ -31,7 +31,7 @@ bool BMemory::isOrDerivedFrom(BMemory* memory) const {
 
 void BMemory::release() {
     std::string destroyerr = "";
-    for (const auto& element : data) {
+    /*for (const auto& element : data) {
         auto dat = element.second;
         if (dat && dat->getType() == FUTURE) {
             auto prevRet = static_cast<Future*>(dat);
@@ -39,12 +39,11 @@ void BMemory::release() {
                 data[element.first] = prevRet->getResult();
             }
             catch (const BBError& e) {
-                destroyerr += std::string(e.what())+"\n";
+                //destroyerr += std::string(e.what())+"\n";
             }
             data[element.first] = nullptr;
-            attached_threads.erase(prevRet);
         }
-    }
+    }*/
     for (const auto& thread : attached_threads) {
         try {
             thread->getResult();
@@ -52,13 +51,13 @@ void BMemory::release() {
         catch (const BBError& e) {
             destroyerr += std::string(e.what())+"\n";
         }
-        attached_threads.erase(thread);
+        //attached_threads.erase(thread);
     }
+    attached_threads.clear();
     for (const auto& element : data) {
         auto dat = element.second;
-        if (dat && dat->getType() == ERRORTYPE && !static_cast<BError*>(dat)->isConsumed()) {
+        if (dat && dat->getType() == ERRORTYPE && !static_cast<BError*>(dat)->isConsumed()) 
             destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:"+dat->toString()+"\n";
-        }
     }
     if(destroyerr.size())
         throw BBError(destroyerr.substr(0, destroyerr.size()-1));
@@ -76,7 +75,7 @@ int BMemory::size() const {
 }
 
 Data* BMemory::get(int item) { // allowMutable = true
-    auto ret = data[item];
+    auto ret = item==fastId?fastData:data[item];
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
@@ -93,7 +92,7 @@ Data* BMemory::get(int item) { // allowMutable = true
 }
 
 Data* BMemory::get(int item, bool allowMutable) {
-    auto ret = data[item];
+    auto ret = item==fastId?fastData:data[item];
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
@@ -115,6 +114,8 @@ Data* BMemory::get(int item, bool allowMutable) {
 
 
 bool BMemory::contains(int item) {
+    if(item==fastId && fastData && fastData->getType() != FUTURE)
+        return fastData;
     auto it = data.find(item);
     if (it == data.end())
         return false;
@@ -129,6 +130,8 @@ bool BMemory::contains(int item) {
 }
 
 Data* BMemory::getShallow(int item) {
+    if(item==fastId && fastData && fastData->getType() != FUTURE)
+        return fastData;
     auto it = data.find(item);
     if (it == data.end()) 
         bberror("Missing value 1: " + variableManager.getSymbol(item));
@@ -145,6 +148,8 @@ Data* BMemory::getShallow(int item) {
 }
 
 Data* BMemory::getOrNullShallow(int item) {
+    if(item==fastId && fastData && fastData->getType() != FUTURE)
+        return fastData;
     auto it = data.find(item);
     if (it == data.end())
         return nullptr;
@@ -159,7 +164,7 @@ Data* BMemory::getOrNullShallow(int item) {
 }
 
 Data* BMemory::getOrNull(int item, bool allowMutable) {
-    auto ret = data[item];
+    auto ret = item==fastId?fastData:data[item];
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
@@ -182,8 +187,6 @@ void BMemory::removeWithoutDelete(int item) {
 }
 
 void BMemory::unsafeSet(BMemory* handler, int item, Data* value, Data* prev) {
-    if (prev == value)
-        return;
     if (prev && isFinal(item))
         bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
     data[item] = value;
@@ -192,6 +195,8 @@ void BMemory::unsafeSet(BMemory* handler, int item, Data* value, Data* prev) {
 void BMemory::unsafeSet(int item, Data* value, Data* prev) {
     if (isFinal(item))
         bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
+    fastId = item;
+    fastData = value;
     data[item] = value;
 }
 
@@ -229,16 +234,31 @@ void BMemory::replaceMissing(BMemory* other) {
 }
 
 void BMemory::detach() {
-    for (const auto& element : data) {
+    std::string destroyerr = "";
+    /*for (const auto& element : data) {
         if (element.second && element.second->getType() == FUTURE) {
-            auto prevRet = static_cast<Future*>(element.second);
-            unsafeSet(element.first, prevRet->getResult());
-            attached_threads.erase(prevRet);
+            try {
+                data[element.first] = static_cast<Future*>(element.second)->getResult();
+            }
+            catch (const BBError& e) {
+                //destroyerr += std::string(e.what())+"\n";
+            }
+        }
+    }*/
+
+    for (const auto& thread : attached_threads) {
+        try {
+            thread->getResult();  // TODO: this is a memory leak
+        }
+        catch (const BBError& e) {
+            destroyerr += std::string(e.what())+"\n";
         }
     }
-    for (const auto& thread : attached_threads) 
-        thread->getResult();
+    if(destroyerr.size())
+        throw BBError(destroyerr.substr(0, destroyerr.size()-1));
+    
     attached_threads.clear();
+
     allowMutables = false;
     parent = nullptr;
 }
