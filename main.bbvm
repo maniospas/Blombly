@@ -1,45 +1,20 @@
-BEGIN _bb0
-add _bb2 x y
-add _bb1 _bb2 bias
-return _bbresult0 _bb1
+BEGIN _bb2
+BUILTIN y I1
+return _bbresult0 y
 END
-IS add _bb0
-final # add
-BEGIN _bb3
-sub _bb5 x y
-add _bb4 _bb5 bias
-return _bbresult1 _bb4
+try _bb0 _bb2
+AS e _bb0
+exists _bb4 e
+BEGIN _bb5
+BUILTIN _bb6 "Fail"
+print # _bb6
 END
-IS sub _bb3
-final # sub
-BEGIN _bb6
-BEGIN _bb7
-BUILTIN bias I1
+catch _bbresult1 e _bb5
+BUILTIN _bb7 "end"
+print # _bb7
+BEGIN _bb8
+print # e
 END
-BEGIN _bb9
-BUILTIN bias I0
-END
-if # increment _bb7 _bb9
-END
-IS increase _bb6
-final # increase
-BEGIN _bb11
-BUILTIN bias I0
-END
-IS nobias _bb11
-final # nobias
-BUILTIN increment Btrue
-BEGIN _bb15
-inline _bb16 increase
-BUILTIN x I1
-BUILTIN y I2
-END
-call a _bb15 add
-BEGIN _bb20
-inline _bb21 nobias
-BUILTIN x I1
-BUILTIN y I2
-END
-call b _bb20 sub
-print # a
-print # b
+AS e e
+exists _bb9 e
+if # _bb9 _bb8

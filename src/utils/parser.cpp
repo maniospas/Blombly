@@ -926,6 +926,14 @@ void sanitize(std::vector<Token>& tokens) {
                     "\n   \033[33m!!!\033[0m These statements must be preceded by"
                     "\n       one of the tokens `try`, `default`, '{', '}', or ';'\n"
                     + Parser::show_position(tokens, i));*/
+        
+        /*if (tokens[i].name == "try" && i > 0 && tokens[i - 1].name == "=")
+            bberror("Replace `= try` with `as try`. "
+                    "\n   \033[33m!!!\033[0m Try statements may encounter neither exceptions "
+                    "\n        nor value returns. As a blanket protection against missing"
+                    "\n        value errors other than your error handling, use `as` instead of `=` .\n"
+                    + Parser::show_position(tokens, i-1));*/
+
         if (tokens[i].name == "else" && i > 0 && tokens[i - 1].name == ";")
             bberror("`else` cannot be the next statement after `;`. "
                     "\n   \033[33m!!!\033[0m You may have failed to close brackets"

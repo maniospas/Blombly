@@ -1,11 +1,10 @@
-routes = server(5000);
-routes["/"] = {
-    return "<!DOCTYPE html>
-    <html>
-        <body>
-        <h1>My First Heading</h1>
-        <p>My first paragraph.</p>
-        </body>
-    </html>"
+command = read("What do you want to do?");
+a = try {  // or `result = try {...}` if you are sure you are going to return a value
+   if(command=="nothing")
+       return;
+   print("Instructions unclear. let's add two numbers.");
+   a = read("First");
+   b = read("Second");
+   c = float(a) + float(b);
+   print(c);
 }
-while(true) {}  // wait indefinitely

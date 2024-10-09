@@ -1,3 +1,4 @@
+tic = std::time();
 final fib(n) = {
     if(n<1)
         return 1;
@@ -5,3 +6,4 @@ final fib(n) = {
 }
 
 print(fib(25));
+print(std::time()-tic);
