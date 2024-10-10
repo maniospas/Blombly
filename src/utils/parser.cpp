@@ -854,8 +854,13 @@ int Parser::tmp_var = 0;
 void sanitize(std::vector<Token>& tokens) {
     std::vector<Token> updatedTokens;
     for (size_t i = 0; i < tokens.size(); ++i) {
+        /*if (tokens[i].name == "{" && i>0 && tokens[i-1].name!="=" && tokens[i-1].name!="as" && tokens[i-1].name!=")") {
+            updatedTokens.emplace_back("=", tokens[i].file, tokens[i].line, false);
+        }*/
+
         if (tokens[i].name == "\\")
             bberror("A stray `\\` was encountered.\n" + Parser::show_position(tokens, i));
+
         if (tokens[i].name.size() >= 3 && tokens[i].name.substr(0, 3) == "_bb")
             bberror("Variable name `" + tokens[i].name + "` cannot start with _bb."
                     "\n   \033[33m!!!\033[0m Names starting with this prefix are reserved"
@@ -914,7 +919,7 @@ void sanitize(std::vector<Token>& tokens) {
                     "\n        - `#include @str;` inlines a file."
                     "\n        - `#spec @property=@value;` declares a code block specification."
                     "\n        - `(#of @expression)` assigns the expression to a temporary variable just after the last command."
-                    "\n        - `#macro (@expression)={@implementation}` defines a macro."
+                    "\n        - `#macro {@expression} as {@implementation}` defines a macro."
                     "\n        - `#stringify (@tokens)` converts the tokens into a string at compile time."
                     "\n        - `#fail @message;` creates a compile-time failure."
                     "\n        - `#gcc @code;` is reserved for future use.\n"
@@ -1251,55 +1256,47 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             i -= 1;
         } else if (tokens[i].name == "#" && i < tokens.size() - 4 && 
                    tokens[i + 1].name == "macro") {
-            bbassert(tokens[i + 2].name == "(", "Macros should follow the "
-                      "specific pattern `#macro (@expression) = {@replacement}`\n"+
-                      Parser::show_position(tokens, i));
+            bbassert(tokens[i + 2].name == "{", "Macros should follow the pattern `#macro {@expression} as {@implementation}`.\n"+Parser::show_position(tokens, i));
             int macro_start = i + 2;
             int macro_end = macro_start;
-            int depth = 0;
+            int depth = 1;
             int decl_end = macro_start;
-            for (size_t pos = macro_start; pos < tokens.size(); ++pos) {
-                if (tokens[pos].name == "=" && depth == 0) {
-                    bbassert(decl_end == macro_start, "Macro definition cannot have a "
-                              "second equality symbol.\n"+Parser::show_position(tokens, pos));
-                    bbassert(tokens[pos - 1].name == ")" && pos < tokens.size() 
-                              - 1 && tokens[pos + 1].name == "{", "Macros "
-                              "should follow the specific pattern #macro "
-                              "(@expression) = {@replacement}\n"+Parser::show_position(tokens, pos));
+            for (size_t pos = macro_start+1; pos < tokens.size(); ++pos) {
+                if ((tokens[pos].name == "=" || tokens[pos].name == "as") && depth == 0) {
+                    bbassert(tokens[pos].name != "=", "`=` was used instead of `as`.\n   \033[33m!!!\033[0m  Macros should follow the pattern `{@expression} as {@implementation}'.\n"+Parser::show_position(tokens, pos));
+                    bbassert(decl_end == macro_start, "Macro definition cannot have a second equality symbol.\n   \033[33m!!!\033[0m  Macros should follow the pattern `{@expression} as {@implementation}'.\n"+Parser::show_position(tokens, pos));
+                    bbassert(tokens[pos - 2].name == "}" && pos < tokens.size() - 1 && tokens[pos + 1].name == "{", 
+                             "Missing `{`.\n   \033[33m!!!\033[0m  Macros should follow the pattern `{@expression} as {@implementation}'.\n"+Parser::show_position(tokens, pos));
                     decl_end = pos;
-                } else if (tokens[pos].name == ";" && depth == 0) {
+                } else if (tokens[pos].name == ";" && depth == 0 && decl_end!=macro_start) {
                     macro_end = pos;
                     break;
                 } else if (tokens[pos].name == "(" || tokens[pos].name == "[" || 
-                           tokens[pos].name == "{")
+                           tokens[pos].name == "{") {
+                    if(decl_end==macro_start)
+                        bbassert(depth!=0, "Missing `as` after macro `@expression` was closed.\n   \033[33m!!!\033[0m  Macros should follow the pattern `{@expression} as {@implementation}'.\n"+Parser::show_position(tokens, pos));
                     depth += 1;
+                }
                 else if (tokens[pos].name == ")" || tokens[pos].name == "]" || 
                          tokens[pos].name == "}") {
                     depth -= 1;
                 }
                 if (depth > 2 && macro_start == decl_end)
-                    bberror("Cannot nest parentheses or brackets in the "
-                            "expression part of macro definitions.\n" + Parser::show_position(tokens, macro_start));
-                bbassert(depth >= 0, "Parentheses or brackets closed "
-                          "prematurely at macro definition.\n" + Parser::show_position(tokens, macro_start));
+                    bberror("Cannot nest parentheses or brackets in the expression part of macro definitions.\n" + Parser::show_position(tokens, macro_start));
+                bbassert(depth >= 0, "Parentheses or brackets closed prematurely at macro definition.\n" + Parser::show_position(tokens, macro_start));
             }
-            bbassert(depth == 0, "Imbalanced parentheses or brackets at macro "
-                      "definition.\n" + Parser::show_position(tokens, macro_start));
+            bbassert(depth == 0, "Imbalanced parentheses or brackets at macro definition.\n" + Parser::show_position(tokens, macro_start));
             bbassert(macro_end != macro_start, "Macro was never closed.\n" + Parser::show_position(tokens, macro_start));
-            bbassert(decl_end != macro_start, "Macros should follow the "
-                      "specific pattern #macro (@expression) = {replacement} \n"
+            bbassert(decl_end != macro_start, "Macros should follow the pattern `#macro {@expression} as {@implementation}`. \n"
                       + Parser::show_position(tokens, macro_start));
             std::shared_ptr<Macro> macro = std::make_shared<Macro>();
-            for (int pos = macro_start + 1; pos < decl_end - 1; ++pos) 
+            for (int pos = macro_start + 1; pos < decl_end - 2; ++pos) {
+                //std::cout << tokens[pos].name << "\n";
                 macro->from.push_back(tokens[pos]);
-            if(tokens[decl_end - 2].name=="}")
-                macro->from.emplace_back(";", tokens[decl_end - 2].file, tokens[decl_end - 2].line, false);  // since macro definition usually ends with }) properly close the } block with a hidden ;
+            }
             for (int pos = decl_end + 2; pos < macro_end - 1; ++pos) 
                 macro->to.emplace_back(tokens[pos].name, macro->from[0].file, macro->from[0].line, tokens[pos].file, tokens[pos].line, tokens[pos].printable);
-            //if(tokens[macro_end - 2].name=="}")
-            //    macro->from.emplace_back(";", tokens[macro_end - 2].file, tokens[macro_end - 2].line, false);
-            bbassert(macro->from[0].name[0] != '@', "The first token of a "
-                      "macro's @expression cannot be a variable starting with @.\n"
+            bbassert(macro->from[0].name[0] != '@', "The first token of a macro's @expression cannot be a variable starting with @.\n"
                       + Parser::show_position(tokens, macro_start));
             macros.insert(macros.begin(), macro);
             i = macro_end;

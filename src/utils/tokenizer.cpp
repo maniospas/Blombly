@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include <map>
 #include <vector>
+#include <sstream>
 #include "utils.h"
 #include "common.h"
 
@@ -47,18 +48,6 @@ bool isFloat(const std::string& value) {
 // Utility function to determine built-in type and handle newline replacement
 int determineBuiltintype(std::string& name) {
     if (isString(name)) {
-        size_t pos = 0;
-        // Replace \n with space
-        while ((pos = name.find("\n", pos)) != std::string::npos) {
-            name.replace(pos, 1, " ");
-            pos += 1;
-        }
-        // Replace \\n with newline
-        pos = 0;
-        while ((pos = name.find("\\n", pos)) != std::string::npos) {
-            name.replace(pos, 2, "\n");
-            pos += 1; // Move past the replaced character
-        }
         return 1; // String type
     }
     else if (isBool(name))
@@ -70,9 +59,6 @@ int determineBuiltintype(std::string& name) {
     else
         return 0; // Unknown type
 }
-
-
-
 
 Token::Token(const std::string& name, const std::vector<std::string>& __file, const std::vector<int>& __line, bool printable)
     : name(name), file(__file), line(__line), printable(printable) {
@@ -90,8 +76,6 @@ Token::Token(const std::string& name, const std::vector<std::string>& _file, con
     : name(name), file(__file), line(__line), printable(printable) {
     file.insert(file.end(), _file.begin(), _file.end());
     line.insert(line.end(), _line.begin(), _line.end());
-    //file.push_back(_file.back());
-    //line.push_back(_line.back());
     builtintype = determineBuiltintype(this->name);
 }
 
@@ -103,8 +87,8 @@ Token::Token(const std::string& name, const std::string& _file, int _line, bool 
 }
 
 bool Token::has(int _line, const std::string& _file) const {
-    for(int i=0;i<file.size();++i)
-        if(file[i]==_file && line[i] == _line)
+    for (int i = 0; i < file.size(); ++i)
+        if (file[i] == _file && line[i] == _line)
             return true;
     return false;
 }
@@ -113,8 +97,20 @@ std::string Token::toString() const {
     return file.back() + " line " + std::to_string(line.back());
 }
 
+std::string escapeSpecialCharacters(char c) {
+    switch(c) {
+        case '\n': return "\\n";
+        case '\t': return "\\t";
+        case '\\': return "\\\\";
+        case '\r': return "\\r";
+        case '\"': return "\\\"";
+        case '\'': return "\\\'";
+        default:   return std::string(1, c); 
+    }
+}
+
 std::vector<Token> tokenize(const std::string& text, const std::string& file) {
-    std::string word;
+    std::stringstream wordStream;
     int line = 1;
     std::vector<Token> ret;
     bool specialCharacter = false;
@@ -131,32 +127,33 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
                 inComment = false;
         }
         if (c == '/' && i < text.size() - 1 && text[i + 1] == '/') {
-            word = "";
+            wordStream.str("");  // Clear the stream
             inComment = true;
             continue;
         }
         if (c == '"') {
-            if (inString)
-                word += c;
-            if (word.size())
-                ret.emplace_back(word, file, line);
-            word = "";
+            if (inString) {
+                wordStream << c;
+            }
+            if (wordStream.str().size())
+                ret.emplace_back(wordStream.str(), file, line);
+            wordStream.str("");  // Clear the stream
+            wordStream.clear();  // Clear any errors
             if (!inString)
-                word += c;
+                wordStream << c;
             inString = !inString;
             continue;
         }
         if (inString) {
-            if (c == '\n' || c == '\t')
-                c = ' ';
-            word += c;
+            wordStream << escapeSpecialCharacters(c);;
             continue;
         }
         prevChar = c;
         if (c == '\\') {
-            if (word.size())
-                ret.emplace_back(word, file, line);
-            word = "\\";
+            if (wordStream.str().size())
+                ret.emplace_back(wordStream.str(), file, line);
+            wordStream.str("\\");  // Reset the stream to store only the backslash
+            wordStream.clear();
             specialCharacter = false;
             continue;
         }
@@ -167,31 +164,32 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
             || c == ';' || c == ',' || c == '.' ||
             c == '*' || c == '+' || c == '^' || c == '-' || c == '/' || c == '%' || c == '&' || c == '|' || c == '!' || c == '<' || c == '>' ||
             c == '/' || c == '#') {
-            if (word.size())
-                ret.emplace_back(word, file, line);
-            word = "";
+            if (wordStream.str().size())
+                ret.emplace_back(wordStream.str(), file, line);
+            wordStream.str("");  // Clear the stream
+            wordStream.clear();
             if (c == '\n')
                 line++;
             if (c == ' ' || c == '\t' || c == '\n')
                 continue;
             specialCharacter = true;
-        }
-        else
+        } else {
             specialCharacter = false;
-
-        if (prevSpecialCharacter && word.size()) {
-            ret.emplace_back(word, file, line);
-            word = "";
         }
-        word += c;
+
+        if (prevSpecialCharacter && wordStream.str().size()) {
+            ret.emplace_back(wordStream.str(), file, line);
+            wordStream.str("");  // Clear the stream
+            wordStream.clear();
+        }
+        wordStream << c;
     }
     if (inString)
-        bberror("Missing `\"`. The file ended without closing the string: " + word);
-    if (word.size())
-        ret.emplace_back(word, file, line);
+        bberror("Missing `\"`. The file ended without closing the string: " + wordStream.str());
+    if (wordStream.str().size())
+        ret.emplace_back(wordStream.str(), file, line);
 
     return ret;
 }
-
 
 #endif

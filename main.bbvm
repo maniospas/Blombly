@@ -1,15 +1,65 @@
-BUILTIN _bb1 I1
-BUILTIN _bb2 I2
-BUILTIN _bb3 I3
-list A _bb1 _bb2 _bb3
-iter _bb0 A
-next _bb6 _bb0
-AS x _bb6
-exists _bb7 x
-BEGIN _bb8
-print # x
-next _bb6 _bb0
-AS x _bb6
-exists _bb7 x
+BEGIN _bb0
 END
-while # _bb7 _bb8
+AS fmt::INFO _bb0
+final # fmt::INFO
+exists _bb1 fmt::INFO
+BUILTIN _bb2 "\n    This library introduces console messages that print \n    multiple arguments. New symbols:\n    - `fmt::print(args)` concatenates a list of args into \n      a string that is printed.\n    - `fmt::read(args)` concatenates a list of args into a \n      string that is printed before waiting for user input.\n    - `fmt::fmt(args)` concatenates a list of args into a \n      string that is returned.\n    - `fmt::ENABLE;` removes the `fmt::` prefix from the\n      above macros. This overwrites the `print` and `read`\n      symbols."
+setfinal # fmt::INFO doc _bb2
+BUILTIN _bb3 "v1.0.0"
+setfinal # fmt::INFO version _bb3
+BUILTIN _bb4 "Apache 2.0"
+setfinal # fmt::INFO license _bb4
+BUILTIN _bb5 "Emmanouil (Manios) Krasanakis"
+setfinal # fmt::INFO author _bb5
+BUILTIN _bb6 "fmt"
+setfinal # fmt::INFO name _bb6
+BEGIN _bb7
+BUILTIN formatted ""
+iter argiter args
+next _bb10 argiter
+AS arg _bb10
+exists _bb11 arg
+BEGIN _bb12
+str _bb14 arg
+add formatted formatted _bb14
+BUILTIN _bb16 " "
+add formatted formatted _bb16
+next _bb10 argiter
+AS arg _bb10
+exists _bb11 arg
+END
+while # _bb11 _bb12
+return _bbresult0 formatted
+END
+IS fmt::fmt _bb7
+final # fmt::fmt
+BEGIN _bb19
+IS fmt::fmt fmt::fmt
+final # fmt::fmt
+BEGIN _bb20
+BEGIN _bb22
+list args arg
+END
+call _bb21 _bb22 fmt::fmt
+read _bb23 _bb21
+END
+IS next _bb20
+BEGIN _bb24
+next arg args
+BEGIN _bb26
+list args arg
+END
+call _bb25 _bb26 fmt::fmt
+print # _bb25
+END
+IS push _bb24
+return _bbresult1 this
+END
+new fmt::out _bb19
+final # fmt::out
+BEGIN _bb28
+BUILTIN _bb29 "hello world"
+list args _bb29
+END
+get _bb30 fmt::out push
+call _bb27 _bb28 _bb30

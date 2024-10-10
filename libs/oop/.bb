@@ -2,7 +2,7 @@
 #include "libs/oop/class"
 
 // enables the 
-#macro (enable oop;) = {
+#macro (oop::simplify;) = {
     #macro (fn) = {oop::fn}
     #macro (module) = {oop::module}
     #macro (abstract) = {oop::abstract}
