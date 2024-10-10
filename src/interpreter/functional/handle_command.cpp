@@ -152,7 +152,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         } break;
 
         case IS: {
-            result = memory->get(command->args[1], true);
+            result = command->knownLocal[1]?memory->getShallow(command->args[1]):memory->get(command->args[1], true);
             bbassert(result, "Missing value: " + variableManager.getSymbol(command->args[1]));
         } break;
 
@@ -383,5 +383,6 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
     }
     //if(!result && command->knownLocal[0])
     //    bberror("Missing value encountered in intermediate computation "+variableManager.getSymbol(command->args[0])+". Explicitly use the `as` assignment to explicitly set potentially missing values\n");
+    //Data* prevResult = command->knownLocal[0]?memory->getOrNullShallow(command->args[0]):memory->getOrNull(command->args[0], true);
     memory->unsafeSet(command->args[0], result, nullptr);
 }

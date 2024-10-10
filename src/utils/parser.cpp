@@ -134,8 +134,14 @@ public:
         return ret;
     }
     Parser(const std::vector<Token>& tokens) : tokens(tokens) {}
-    static std::string create_temp() {
+    std::string create_temp() {
         std::string ret = "_bb" + std::to_string(tmp_var);
+        tmp_var += 1;
+        return ret;
+    }
+
+    static std::string create_macro_temp() {
+        std::string ret = "_bbmacro" + std::to_string(tmp_var);
         tmp_var += 1;
         return ret;
     }
@@ -911,7 +917,7 @@ void sanitize(std::vector<Token>& tokens) {
             continue;
         }
         if (tokens[i].name == "#" && ((i >= tokens.size() - 1) || 
-            (tokens[i + 1].name != "include" && tokens[i + 1].name != "macro" && tokens[i + 1].name != "stringify"
+            (tokens[i + 1].name != "include" && tokens[i + 1].name != "macro" && tokens[i + 1].name != "stringify" && tokens[i + 1].name != "symbol"
              && tokens[i + 1].name != "spec" && tokens[i + 1].name != "fail" && tokens[i + 1].name != "of" && tokens[i + 1].name != "gcc"))) {
             bberror("Invalid preprocessor instruction after `#` symbol."
                     "\n   \033[33m!!!\033[0m This symbol signifies preprocessor directives."
@@ -921,6 +927,7 @@ void sanitize(std::vector<Token>& tokens) {
                     "\n        - `(#of @expression)` assigns the expression to a temporary variable just after the last command."
                     "\n        - `#macro {@expression} as {@implementation}` defines a macro."
                     "\n        - `#stringify (@tokens)` converts the tokens into a string at compile time."
+                    "\n        - `#symbol (@tokens)` converts the tokens into a symbol name at compile time."
                     "\n        - `#fail @message;` creates a compile-time failure."
                     "\n        - `#gcc @code;` is reserved for future use.\n"
                     + Parser::show_position(tokens, i));
@@ -1041,7 +1048,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     }
                 }
                 std::vector<Token> newTokens;
-                std::string temp = Parser::create_temp();
+                std::string temp = Parser::create_macro_temp();
                 newTokens.emplace_back(temp, tokens[i].file, tokens[i].line, false);
                 newTokens.emplace_back("=", tokens[i].file, tokens[i].line, false);
                 newTokens.insert(newTokens.end(), tokens.begin()+i+2, tokens.begin()+iend);
@@ -1171,9 +1178,37 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             tokens.insert(tokens.begin() + position, newTokens.begin(), newTokens.end());
             tokens.erase(tokens.begin() + i, tokens.begin() + specend + 1);
             i -= 1;
-        } 
-        else if (tokens[i].name == "#" && i < tokens.size() - 2 && 
-            tokens[i + 1].name == "stringify") {
+        }  else if (tokens[i].name == "#" && i < tokens.size() - 2 && tokens[i + 1].name == "symbol") {
+            bbassert(tokens[i+2].name=="(", "Missing `(`."
+            "\n   \033[33m!!!\033[0m  `#symbol` should be followed by a parenthesis. "
+            "\n       The only valid syntax is `#symbol(@tokens)`.\n"
+            + Parser::show_position(tokens, i));
+            int pos = i+3;
+            std::string created_string;
+            int depth = 1;
+            while(pos<tokens.size()) {
+                if (tokens[pos].name == "(" || tokens[pos].name == "[" || tokens[pos].name == "{")
+                    depth += 1;
+                else if (tokens[pos].name == ")" || tokens[pos].name == "]" || tokens[pos].name == "}") 
+                    depth -= 1;
+                if(depth==0 && tokens[pos].name==")")
+                    break;
+                if(tokens[pos].builtintype==1) // if is string
+                    created_string += tokens[pos].name.substr(1, tokens[pos].name.size()-2);
+                else
+                    created_string += tokens[pos].name;
+                ++pos;
+            }
+            bbassert(depth==0, "Missing `)`."
+                                "\n   \033[33m!!!\033[0m  `#symbol(@tokens)` parenthesis was never closed.\n"
+                                + Parser::show_position(tokens, i));
+            //updatedTokens.emplace_back(created_string, tokens[i].file, tokens[i].line, false);
+            //i = pos;
+            tokens.erase(tokens.begin()+i, tokens.begin()+pos+1); // +1 to remove the closing parenthesis
+            tokens.emplace(tokens.begin()+i, created_string, tokens[i].file, tokens[i].line, true);
+            i = i-1;
+        }
+        else if (tokens[i].name == "#" && i < tokens.size() - 2 && tokens[i + 1].name == "stringify") {
             bbassert(tokens[i+2].name=="(", "Missing `(`."
             "\n   \033[33m!!!\033[0m  `#stringify` should be followed by a parenthesis. "
             "\n       The only valid syntax is `#stringify(@tokens)`.\n"
@@ -1188,30 +1223,70 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     depth -= 1;
                 if(depth==0 && tokens[pos].name==")")
                     break;
-                if(created_string.size())
-                    created_string += " ";
-                created_string += tokens[pos].name;
+                //if(created_string.size())
+                //    created_string += " ";
+                if(tokens[pos].builtintype==1) // if is string
+                    created_string += tokens[pos].name.substr(1, tokens[pos].name.size()-2);
+                else
+                    created_string += tokens[pos].name;
                 ++pos;
             }
             bbassert(depth==0, "Missing `)`."
                                 "\n   \033[33m!!!\033[0m  `#stringify(@tokens)` parenthesis was never closed.\n"
                                 + Parser::show_position(tokens, i));
-            updatedTokens.emplace_back("\""+created_string+"\"", tokens[i].file, tokens[i].line, false);
-            i = pos;
+            //updatedTokens.emplace_back("\""+created_string+"\"", tokens[i].file, tokens[i].line, false);
+            //i = pos;
+            tokens.erase(tokens.begin()+i, tokens.begin()+pos+1); // +1 to remove the closing parenthesis
+            tokens.emplace(tokens.begin()+i, created_string, tokens[i].file, tokens[i].line, true);
+            i = i-1;
         }
-        else if (tokens[i].name == "#" && i < tokens.size() - 2 && 
-                   tokens[i + 1].name == "include") {
-            bbassert(tokens[i + 2].name[0] == '"', 
-                      "Invalid `#include` syntax."
-                      "\n   \033[33m!!!\033[0m  Include statements should enclose paths"
-                      "\n       in quotations, like this: `#include \"libname\"`.\n" 
-                      + Parser::show_position(tokens, i+2));
-            bbassert(tokens[i + 3].name[0] != ';', 
+        else if (tokens[i].name == "#" && i < tokens.size() - 2 && tokens[i + 1].name == "include") {
+            std::string libpath = tokens[i + 2].name;
+            int libpathend = i+2;
+            // find what is actually being imported (account for #include #stringify(...) statement)
+            if(libpath=="#") {
+                bbassert(i<tokens.size()-5 && tokens[i+3].name=="stringify", "Missing `stringify`."
+                    "\n   \033[33m!!!\033[0m  `#include` should be followed by either a string of `#stringify`. "
+                    "\n       but another preprocessor isntruction follows `#`.\n"
+                    + Parser::show_position(tokens, i));
+                bbassert(tokens[i+4].name=="(", "Missing `(`."
+                    "\n   \033[33m!!!\033[0m  `#stringify` should be followed by a parenthesis. "
+                    "\n       The only valid syntax is `#stringify(@tokens)` so here it should be `#include #stringify(tokens)`.\n"
+                + Parser::show_position(tokens, i));
+                libpathend = i+5;
+                libpath = "\"";
+                int depth = 1;
+                while(libpathend<tokens.size()) {
+                    if (tokens[libpathend].name == "(" || tokens[libpathend].name == "[" || tokens[libpathend].name == "{")
+                        depth += 1;
+                    else if (tokens[libpathend].name == ")" || tokens[libpathend].name == "]" || tokens[libpathend].name == "}") 
+                        depth -= 1;
+                    if(depth==0 && tokens[libpathend].name==")")
+                        break;
+                    //if(created_string.size())
+                    //    created_string += " ";
+                    if(tokens[libpathend].builtintype==1) // if is string
+                        libpath += tokens[libpathend].name.substr(1, tokens[libpathend].name.length()-2);
+                    else
+                        libpath += tokens[libpathend].name;
+                    ++libpathend;
+                }
+                libpath += "\"";
+            }
+            else 
+                bbassert(libpath[0] == '"', 
+                        "Invalid `#include` syntax."
+                        "\n   \033[33m!!!\033[0m  Include statements should enclose paths"
+                        "\n       in quotations, like this: `#include \"libname\"`.\n" 
+                        + Parser::show_position(tokens, i+2));
+            bbassert(tokens[libpathend].name != ";", 
                       "Unexpected `;` encountered."
                       "\n   \033[33m!!!\033[0m  Include statements cannot "
                       "\n       be followed by `;`.\n" 
-                      + Parser::show_position(tokens, i+3));
-            std::string source = tokens[i + 2].name.substr(1, tokens[i + 2].name.size() - 2);
+                      + Parser::show_position(tokens, libpathend));
+
+            // actually handle the import
+            std::string source = libpath.substr(1, libpath.size() - 2);
             std::error_code ec;
             if(std::filesystem::is_directory(source, ec))
                 source = source+"\\.bb";
@@ -1219,7 +1294,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 source += ".bb";
 
             if (previousImports.find(source) != previousImports.end()) {
-                tokens.erase(tokens.begin() + i, tokens.begin() + i + 3);
+                tokens.erase(tokens.begin() + i, tokens.begin() + libpathend+1);
                 i -= 1;
                 continue;
             }
@@ -1251,8 +1326,9 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
 
             previousImports.insert(source);
 
-            tokens.erase(tokens.begin() + i, tokens.begin() + i + 3);
+            tokens.erase(tokens.begin() + i, tokens.begin() + libpathend+1);
             tokens.insert(tokens.begin() + i, newTokens.begin(), newTokens.end());
+
             i -= 1;
         } else if (tokens[i].name == "#" && i < tokens.size() - 4 && 
                    tokens[i + 1].name == "macro") {
@@ -1346,7 +1422,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                         while (j < macro->to.size()) {
                             if (macro->to[j].name[0] == '@' && replacement.find(macro->to[j].name)==replacement.end()) {
                                 //if(macro->to[j].name.size()>1 && macro->to[j].name[1] == '@')
-                                replacement[macro->to[j].name].emplace_back(Parser::create_temp(), macro->to[j].file, macro->to[j].line);//, macro->to[j].printable);
+                                replacement[macro->to[j].name].emplace_back(Parser::create_macro_temp(), macro->to[j].file, macro->to[j].line);//, macro->to[j].printable);
                                 /*else
                                     bberror("Macro symbol `"+macro->to[j].name+"` was not defined."
                                             "\n   \033[33m!!!\033[0m This symbol was not a part of the macro's definition."

@@ -99,12 +99,9 @@ std::string Token::toString() const {
 
 std::string escapeSpecialCharacters(char c) {
     switch(c) {
-        case '\n': return "\\n";
-        case '\t': return "\\t";
-        case '\\': return "\\\\";
-        case '\r': return "\\r";
-        case '\"': return "\\\"";
-        case '\'': return "\\\'";
+        case '\n': return " ";
+        case '\t': return " ";
+        case '\r': return " ";
         default:   return std::string(1, c); 
     }
 }
@@ -113,10 +110,11 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
     std::stringstream wordStream;
     int line = 1;
     std::vector<Token> ret;
-    bool specialCharacter = false;
     bool inComment = false;
     bool inString = false;
+    bool braceMode = false;  // Indicates we are in the custom brace mode
     char prevChar = '\n';
+    bool specialCharacter = false;
 
     for (int i = 0; i < text.size(); ++i) {
         char c = text[i];
@@ -131,6 +129,23 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
             inComment = true;
             continue;
         }
+
+        if (braceMode && c == '{')
+            bberror("Cannot open a bracket `{` within a string f-expression: " + wordStream.str());
+
+        if (braceMode && c == '}') {
+            if (wordStream.str().size())
+                ret.emplace_back(wordStream.str(), file, line);
+            wordStream.str("");  // Clear the stream and start a new string
+            wordStream.clear();
+            ret.emplace_back(")", file, line);
+            ret.emplace_back("+", file, line);
+            wordStream << "\"";
+            inString = true;
+            braceMode = false;  // Exit brace mode
+            continue;
+        }
+
         if (c == '"') {
             if (inString) {
                 wordStream << c;
@@ -144,10 +159,28 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
             inString = !inString;
             continue;
         }
+
         if (inString) {
-            wordStream << escapeSpecialCharacters(c);;
+            if (c == '{') {
+                // Add current string
+                wordStream << "\"";
+                ret.emplace_back(wordStream.str(), file, line);
+                wordStream.str("");  // Clear the stream
+                wordStream.clear();
+
+                // Prepare expression
+                ret.emplace_back("+", file, line);
+                ret.emplace_back("str", file, line);
+                ret.emplace_back("(", file, line);
+
+                braceMode = true;  // Enter the special brace mode
+                inString = false;
+                continue;
+            } 
+            wordStream << escapeSpecialCharacters(c);
             continue;
         }
+
         prevChar = c;
         if (c == '\\') {
             if (wordStream.str().size())
@@ -188,7 +221,6 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
         bberror("Missing `\"`. The file ended without closing the string: " + wordStream.str());
     if (wordStream.str().size())
         ret.emplace_back(wordStream.str(), file, line);
-
     return ret;
 }
 

@@ -1,4 +1,4 @@
-#include "libs/fmt"
-fmt::ENABLE;
+#include "libs/docs"
 
-out.push("hello world");
+docs::include("docs");
+docs::help("docs");

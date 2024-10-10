@@ -75,7 +75,9 @@ int BMemory::size() const {
 }
 
 Data* BMemory::get(int item) { // allowMutable = true
-    auto ret = item==fastId?fastData:data[item];
+    if(item==fastId)
+        return fastData;
+    auto ret = data[item];
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
@@ -92,7 +94,9 @@ Data* BMemory::get(int item) { // allowMutable = true
 }
 
 Data* BMemory::get(int item, bool allowMutable) {
-    auto ret = item==fastId?fastData:data[item];
+    if(item==fastId)
+        return fastData;
+    auto ret = data[item];
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
@@ -114,7 +118,7 @@ Data* BMemory::get(int item, bool allowMutable) {
 
 
 bool BMemory::contains(int item) {
-    if(item==fastId && fastData && fastData->getType() != FUTURE)
+    if(item==fastId)
         return fastData;
     auto it = data.find(item);
     if (it == data.end())
@@ -130,11 +134,11 @@ bool BMemory::contains(int item) {
 }
 
 Data* BMemory::getShallow(int item) {
-    if(item==fastId && fastData && fastData->getType() != FUTURE)
+    if(item==fastId)
         return fastData;
     auto it = data.find(item);
     if (it == data.end()) 
-        bberror("Missing value 1: " + variableManager.getSymbol(item));
+        bberror("Missing value: " + variableManager.getSymbol(item));
     auto ret = it->second;
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
@@ -148,7 +152,7 @@ Data* BMemory::getShallow(int item) {
 }
 
 Data* BMemory::getOrNullShallow(int item) {
-    if(item==fastId && fastData && fastData->getType() != FUTURE)
+    if(item==fastId)
         return fastData;
     auto it = data.find(item);
     if (it == data.end())
@@ -164,7 +168,9 @@ Data* BMemory::getOrNullShallow(int item) {
 }
 
 Data* BMemory::getOrNull(int item, bool allowMutable) {
-    auto ret = item==fastId?fastData:data[item];
+    if(item==fastId)
+        return fastData;
+    auto ret = data[item];
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
@@ -183,20 +189,31 @@ Data* BMemory::getOrNull(int item, bool allowMutable) {
 
 void BMemory::removeWithoutDelete(int item) {
     data[item] = nullptr;
-    //fastLastAccessId = -1;
+    if(fastId==item)
+        fastData = nullptr;
 }
 
 void BMemory::unsafeSet(BMemory* handler, int item, Data* value, Data* prev) {
-    if (prev && isFinal(item))
+    if (isFinal(item))
         bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
+    if(value && value->getType()==FUTURE) 
+        fastId = -1;
+    else {
+        fastId = item;
+        fastData = value;
+    }
     data[item] = value;
 }
 
 void BMemory::unsafeSet(int item, Data* value, Data* prev) {
     if (isFinal(item))
         bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
-    fastId = item;
-    fastData = value;
+    if(value && value->getType()==FUTURE) 
+        fastId = -1;
+    else {
+        fastId = item;
+        fastData = value;
+    }
     data[item] = value;
 }
 

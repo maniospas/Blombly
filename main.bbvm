@@ -1,65 +1,69 @@
-BEGIN _bb0
+BEGIN _bb2
+BUILTIN name "docs"
+BUILTIN author "Emmanouil Krasanakis"
+BUILTIN license "Apache 2.0"
+BUILTIN version "1.0"
+BUILTIN release I0
+BUILTIN year I2024
+BUILTIN doc "     \n Introduces version control and documentation     \n capabilities for other libraries. In particular,     \n new libraries should contain a library::INFO     \n code block that sets the following variables:     \n name, author, license, version, release, year.     \n Then import both docs and library and call one      \n of the following methods:     \n     \n - docs::help(library::INFO);      \n   Prints the details of the library.     "
 END
-AS fmt::INFO _bb0
-final # fmt::INFO
-exists _bb1 fmt::INFO
-BUILTIN _bb2 "\n    This library introduces console messages that print \n    multiple arguments. New symbols:\n    - `fmt::print(args)` concatenates a list of args into \n      a string that is printed.\n    - `fmt::read(args)` concatenates a list of args into a \n      string that is printed before waiting for user input.\n    - `fmt::fmt(args)` concatenates a list of args into a \n      string that is returned.\n    - `fmt::ENABLE;` removes the `fmt::` prefix from the\n      above macros. This overwrites the `print` and `read`\n      symbols."
-setfinal # fmt::INFO doc _bb2
-BUILTIN _bb3 "v1.0.0"
-setfinal # fmt::INFO version _bb3
-BUILTIN _bb4 "Apache 2.0"
-setfinal # fmt::INFO license _bb4
-BUILTIN _bb5 "Emmanouil (Manios) Krasanakis"
-setfinal # fmt::INFO author _bb5
-BUILTIN _bb6 "fmt"
-setfinal # fmt::INFO name _bb6
-BEGIN _bb7
-BUILTIN formatted ""
-iter argiter args
-next _bb10 argiter
-AS arg _bb10
-exists _bb11 arg
-BEGIN _bb12
-str _bb14 arg
-add formatted formatted _bb14
-BUILTIN _bb16 " "
-add formatted formatted _bb16
-next _bb10 argiter
-AS arg _bb10
-exists _bb11 arg
+AS docs::INFO _bb2
+final # docs::INFO
+exists _bb10 docs::INFO
+BEGIN _bb11
+next info args
+BUILTIN hbar "-------------------------------------------------------------"
+final # hbar
+inline _bb13 info
+IS info hbar
+BUILTIN _bb15 ""
+str _bb17 release
+BUILTIN _bb19 "."
+str _bb21 version
+BUILTIN _bb23 " "
+str _bb25 name
+BUILTIN _bb27 "\n"
+add _bb26 info _bb27
+add _bb24 _bb26 _bb25
+add _bb22 _bb24 _bb23
+add _bb20 _bb22 _bb21
+add _bb18 _bb20 _bb19
+add _bb16 _bb18 _bb17
+add info _bb16 _bb15
+BUILTIN _bb29 ""
+str _bb31 author
+BUILTIN _bb33 ", "
+str _bb35 year
+BUILTIN _bb37 "\nCopyright (C) "
+add _bb36 info _bb37
+add _bb34 _bb36 _bb35
+add _bb32 _bb34 _bb33
+add _bb30 _bb32 _bb31
+add info _bb30 _bb29
+BUILTIN _bb39 " license"
+str _bb41 license
+BUILTIN _bb43 "\n"
+add _bb42 info _bb43
+add _bb40 _bb42 _bb41
+add info _bb40 _bb39
+BUILTIN _bb46 "\n"
+add _bb45 info _bb46
+add info _bb45 doc
+BUILTIN _bb49 "\n"
+add _bb48 info _bb49
+add info _bb48 hbar
+return _bbresult0 info
 END
-while # _bb11 _bb12
-return _bbresult0 formatted
-END
-IS fmt::fmt _bb7
-final # fmt::fmt
-BEGIN _bb19
-IS fmt::fmt fmt::fmt
-final # fmt::fmt
-BEGIN _bb20
-BEGIN _bb22
-list args arg
-END
-call _bb21 _bb22 fmt::fmt
-read _bb23 _bb21
-END
-IS next _bb20
-BEGIN _bb24
-next arg args
-BEGIN _bb26
-list args arg
-END
-call _bb25 _bb26 fmt::fmt
-print # _bb25
-END
-IS push _bb24
+IS docs::str _bb11
+final # docs::str
+BEGIN _bb52
+inline _bb53 docs::INFO
 return _bbresult1 this
 END
-new fmt::out _bb19
-final # fmt::out
-BEGIN _bb28
-BUILTIN _bb29 "hello world"
-list args _bb29
+new _bbmacro0 _bb52
+IS _bbmacro1 docs::INFO
+BEGIN _bb55
+list args _bbmacro1
 END
-get _bb30 fmt::out push
-call _bb27 _bb28 _bb30
+call _bb54 _bb55 docs::str
+print # _bb54

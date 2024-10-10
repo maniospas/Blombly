@@ -10,6 +10,15 @@
 #include "BMemory.h"
 #include "common.h"
 
+
+void replaceAll(std::string &str, const std::string &from, const std::string &to) {
+    size_t start_pos = 0;
+    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // Advance past the last replaced portion
+    }
+}
+
 // SourceFile constructor
 SourceFile::SourceFile(const std::string& path) : path(path) {}
 
@@ -48,7 +57,12 @@ Command::Command(const std::string& command, SourceFile* source_, int line_, Com
         nargs -= 1;
         std::string raw = argNames[2];
         if (raw[0] == '"') {
-            value = new BString(raw.substr(1, raw.size() - 2));
+            raw = raw.substr(1, raw.size() - 2);
+            replaceAll(raw, "\\n", "\n");
+            //replaceAll(raw, "\\t", "\t");
+            //replaceAll(raw, "\\'", "'");
+            //replaceAll(raw, "\\\"", "\"");
+            value = new BString(raw);
         } else if (raw[0] == 'I') {
             value = new Integer(std::atoi(raw.substr(1).c_str()));
         } else if (raw[0] == 'F') {
@@ -66,7 +80,7 @@ Command::Command(const std::string& command, SourceFile* source_, int line_, Com
     args.reserve(nargs);
     knownLocal.reserve(nargs);
     for (int i = 0; i < nargs; ++i) {
-        knownLocal.push_back(argNames[i + 1].substr(0, 3) == "_bb");
+        knownLocal.push_back(argNames[i + 1].size()>=3 && argNames[i + 1].substr(0, 3) == "_bb" && (argNames[i + 1].size()<=8 || argNames[i + 1].substr(0, 8) != "_bbmacro"));
         args.push_back(variableManager.getId(argNames[i + 1]));
     }
 
