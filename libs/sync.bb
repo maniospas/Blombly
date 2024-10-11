@@ -1,12 +1,12 @@
-final loop::INFO as {
-    name    = "loop";
+final thread::INFO as {
+    name    = "sync";
     author  = "Emmanouil Krasanakis";
     license = "Apache 2.0";
     version = "1.0";
     release = 0;
     year    = 2024;
     doc     = "
-    \n Introduces the `loop::next` macro that allows
+    \n Introduces the `sync::next` macro that allows
     \n iteration over all elements of a list or other
     \n iterable, like so:
     \n
