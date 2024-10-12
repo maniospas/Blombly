@@ -102,7 +102,7 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
 
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
         int index = static_cast<Integer*>(args->arg1)->getValue();
-        // manual implementation of at to avoid deadlocks with its own lock
+        // manual implementation of BList::at() to avoid deadlocks with its own lock
         if (index < 0 || index >= contents.size()) 
             bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents.size()) + ")");
         auto res = contents.at(index);
@@ -111,7 +111,10 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
 
     if (operation == PUSH && args->size == 2 && args->arg0 == this) {
         auto value = args->arg1;
+        bbassert(value, "Cannot push a missing value to a list");
         contents.push_back((value));
+        if(value)
+            value->addOwner();
         return nullptr;
     }
 
@@ -120,7 +123,13 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
         if (index >= contents.size()) 
             contents.resize(index + 1);
         auto value = args->arg2;
+        bbassert(value, "Cannot set a missing value on a list");
+        Data* prev = contents[index];
         contents[index] = value;
+        //if(prev)
+            prev->removeFromOwner();
+        //if(value)
+            value->addOwner();
         return nullptr;
     }
 
