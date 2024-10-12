@@ -54,6 +54,5 @@ Data* Future::getResult() const {
         result->value = nullptr;
         throw BBError(error_message);
     }
-
     return result->value;
 }

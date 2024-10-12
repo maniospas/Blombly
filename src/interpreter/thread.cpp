@@ -6,12 +6,15 @@ void threadExecute(Code* code,
                    BMemory* memory,
                    ThreadResult* result,
                    Command *command) {
+    Data* value(nullptr);
     try {
         bool returnSignal(false);
-        Data* value = executeBlock(code, memory, returnSignal);
+        value = executeBlock(code, memory, returnSignal);
         for (auto& thread : memory->attached_threads) 
             thread->getResult();
         memory->attached_threads.clear(); // TODO: maybe we need to release the memory instead (investigate)
+        if(!returnSignal)
+            value = nullptr;
         if(value && value->getType()==CODE)
             static_cast<Code*>(value)->setDeclarationMemory(nullptr);
         result->value = value;
@@ -24,6 +27,7 @@ void threadExecute(Code* code,
     }
 
     try {
+        // value should have been 
         delete memory;
     } catch (const BBError& e) {
         std::string comm = command->toString();

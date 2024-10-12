@@ -13,7 +13,7 @@ extern VariableManager variableManager;
 
 void BMemory::verify_noleaks() {
     bbassert(memories.size() == 0, "There are " + std::to_string(memories.size()) + " leftover memory contexts");
-    bbassert(countUnrealeasedMemories.load() == 1, "There are " + std::to_string(countUnrealeasedMemories.load()-1) + " leftover memory contexts");  // the main memory is a global object (needed to sync threads on errors)
+    bbassert(countUnrealeasedMemories.load() == 0, "There are " + std::to_string(countUnrealeasedMemories.load()) + " leftover memory contexts");  // the main memory is a global object (needed to sync threads on errors)
 }
 
 BMemory::BMemory(BMemory* par, int expectedAssignments) : parent(par), allowMutables(true), fastId(-1) {
@@ -29,44 +29,57 @@ bool BMemory::isOrDerivedFrom(BMemory* memory) const {
     return false;
 }
 
-void BMemory::release() {
-    std::string destroyerr = "";
+void BMemory::leak() {
     /*for (const auto& element : data) {
-        auto dat = element.second;
+        Data* dat = element.second;
         if (dat && dat->getType() == FUTURE) {
             auto prevRet = static_cast<Future*>(dat);
-            try {
-                data[element.first] = prevRet->getResult();
-            }
-            catch (const BBError& e) {
-                //destroyerr += std::string(e.what())+"\n";
-            }
-            data[element.first] = nullptr;
+            dat = prevRet->getResult();
+            data[element.first] = dat;
         }
+        if(dat)
+            dat->leak();
     }*/
+}
+
+void BMemory::release() {
+    std::string destroyerr = "";
     for (const auto& thread : attached_threads) {
         try {
-            thread->getResult();
+            Data* ret = thread->getResult(); // TODO: this is a memory leak
+            //if(ret) // TODO: attach only threads that return something to avoid this destroying something else
+            //    ret->removeFromOwner();
         }
         catch (const BBError& e) {
             destroyerr += std::string(e.what())+"\n";
         }
-        //attached_threads.erase(thread);
     }
     attached_threads.clear();
     for (const auto& element : data) {
         auto dat = element.second;
         if (dat && dat->getType() == ERRORTYPE && !static_cast<BError*>(dat)->isConsumed()) 
             destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:"+dat->toString()+"\n";
+        try {
+            if(dat) 
+                dat->removeFromOwner();
+        }
+        catch (const BBError& e) {
+            destroyerr += std::string(e.what())+"\n";
+        }
     }
+
     if(destroyerr.size())
         throw BBError(destroyerr.substr(0, destroyerr.size()-1));
         //bberror("The following error(s) were found while releasing a struct or memory:"+destroyerr);
 }
 
+
+
 BMemory::~BMemory() {
+    // first remove any this object the memory might have, as this is what is actually calling the destruction (unless there is no this object)
+    data[variableManager.thisId] = nullptr;
     release();
-    data.clear();
+    //data.clear();
     countUnrealeasedMemories--;
 }
 
@@ -81,7 +94,9 @@ Data* BMemory::get(int item) { // allowMutable = true
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
-        ret = unsafeSet(item, ret);
+        ret = unsafeSet(item, ret); 
+        if(ret) 
+            ret->removeFromOwner(); // countermand the return statement now that everything has move in memory ret->removeFromOwner(); 
         attached_threads.erase(prevRet);
         return ret;
     }
@@ -100,7 +115,9 @@ Data* BMemory::get(int item, bool allowMutable) {
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
-        ret = unsafeSet(item, ret);
+        ret = unsafeSet(item, ret); 
+        if(ret) 
+            ret->removeFromOwner(); // countermand the return statement now that everything has move in memory
         attached_threads.erase(prevRet);
         bbassert(ret, "Missing value: " + variableManager.getSymbol(item));
         return ret;
@@ -127,7 +144,9 @@ bool BMemory::contains(int item) {
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
-        ret = unsafeSet(item, ret);
+        ret = unsafeSet(item, ret); 
+        if(ret) 
+            ret->removeFromOwner(); // countermand the return statement now that everything has move in memory
         attached_threads.erase(prevRet);
     }
     return ret!=nullptr;
@@ -144,6 +163,8 @@ Data* BMemory::getShallow(int item) {
         auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
         ret = unsafeSet(item, ret);
+        if(ret)
+            ret->removeFromOwner(); // countermand the return statement now that everything has move in memory
         attached_threads.erase(prevRet);
     }
     if(!ret)
@@ -161,7 +182,7 @@ Data* BMemory::getOrNullShallow(int item) {
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
-        ret = unsafeSet(item, ret);
+        ret = unsafeSet(item, ret); if(ret) ret->removeFromOwner(); // countermand the return statement now that everything has move in memory
         attached_threads.erase(prevRet);
     }
     return ret;
@@ -175,6 +196,8 @@ Data* BMemory::getOrNull(int item, bool allowMutable) {
         auto prevRet = static_cast<Future*>(ret);
         ret = prevRet->getResult();
         ret = unsafeSet(item, ret);
+        if(ret)
+            ret->removeFromOwner(); // countermand the return statement now that everything has move in memory
         attached_threads.erase(prevRet);
     }
     if (ret && !allowMutable && !isFinal(item)) {
@@ -214,11 +237,23 @@ void BMemory::unsafeSet(int item, Data* value, Data* prev) {
         fastId = item;
         fastData = value;
     }
+    prev = data[item];
+    if(value)
+        value->addOwner();
+    if(prev)
+        prev->removeFromOwner();
     data[item] = value;
+    //std::cout << "set "<<variableManager.getSymbol(item)<<" to "<<value<<"\n";
 }
 
 Data* BMemory::unsafeSet(int item, Data* value) {
+    Data* prev = data[item];
+    if(value)
+        value->addOwner();
+    if(prev)
+        prev->removeFromOwner();
     data[item] = value;
+    //std::cout << "set "<<variableManager.getSymbol(item)<<" to "<<value<<"\n";
     return value;
 }
 
@@ -263,9 +298,12 @@ void BMemory::detach() {
         }
     }*/
 
+
     for (const auto& thread : attached_threads) {
         try {
-            thread->getResult();  // TODO: this is a memory leak
+            thread->getResult();
+           // if(ret)
+           //     ret->removeFromOwner();
         }
         catch (const BBError& e) {
             destroyerr += std::string(e.what())+"\n";

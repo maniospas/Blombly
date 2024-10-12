@@ -59,6 +59,7 @@ public:
     bool allowMutables;
 
     bool isOrDerivedFrom(BMemory* memory) const;
+    void leak();
 
     explicit BMemory(BMemory* par, int expectedAssignments);
     ~BMemory();

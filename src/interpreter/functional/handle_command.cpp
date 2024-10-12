@@ -70,7 +70,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             }
             bbassert(depth >= 0, "Code block never ended.");
             auto cache = new Code(program, i + 1, pos, memory);
-            cache->setAsBuiltin();
+            cache->addOwner();
             auto val = new Code(program, i + 1, pos, memory, cache->getAllMetadata());
             val->scheduleForParallelExecution = scheduleForParallelExecution;
             cache->scheduleForParallelExecution = scheduleForParallelExecution;
@@ -109,7 +109,10 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     break;
                 }
                 newMemory.detach(code->getDeclarationMemory());
+                newMemory.leak();
                 result = executeBlock(code, &newMemory, newReturnSignal);
+                if(result)
+                    result->removeFromOwner();  // countermand the return statement
                 if(result && result->getType()==CODE)
                     static_cast<Code*>(result)->setDeclarationMemory(nullptr);
             } 
@@ -126,6 +129,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     break;
                 }
                 newMemory->detach(code->getDeclarationMemory());
+                newMemory->leak();
 
                 auto futureResult = new ThreadResult();
                 auto future = new Future(futureResult);
@@ -138,7 +142,10 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         case RETURN: {
             result = command->args[1] == variableManager.noneId ? nullptr : memory->get(command->args[1]);
             returnSignal = true;
-        } break;
+            // add to ghost memory waiting for consumption at the other end
+            if(result)
+                result->addOwner();
+        } return;
 
         case GET: {
             result = memory->get(command->args[1]);
@@ -209,7 +216,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             }
         } break;
 
-        case PRBB_INT: {
+        case BB_PRINT: {
             std::string printing;
             for(int i = 1; i < command->nargs; i++) {
                 Data* printable = MEMGET(memory, i);
@@ -329,12 +336,12 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             Data* source = MEMGET(memory, 1);
             bbassert(source->getType()==CODE, "Can only call `default` on a code block");
             auto code = static_cast<Code*>(source);
-            auto newMemory = new BMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
+            BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
             bool defaultReturnSignal(false);
-            executeBlock(code, newMemory, defaultReturnSignal);
+            executeBlock(code, &newMemory, defaultReturnSignal);
             if(defaultReturnSignal)
                 bberror("Cannot return from within a `default` statement");
-            memory->replaceMissing(newMemory);
+            memory->replaceMissing(&newMemory);
         } break;
 
         case NEW: {
@@ -347,9 +354,24 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             newMemory->setFinal(variableManager.thisId);
             bool newReturnSignal(false);
             result = executeBlock(code, newMemory, newReturnSignal);
-            if(result && result->getType()==CODE) 
-                static_cast<Code*>(result)->setDeclarationMemory(nullptr);
             newMemory->detach();
+            if(result!=thisObj) {
+                if(result) {
+                    if(result->getType()==CODE) 
+                        static_cast<Code*>(result)->setDeclarationMemory(nullptr);
+                    if(command->args[0]!=variableManager.noneId)
+                        memory->unsafeSet(command->args[0], result, nullptr); // perform this first before accidentally deleting this by deleting thisObj
+                    result->removeFromOwner(); // countermand the return statement
+                }
+                thisObj->removeFromOwner();
+                return;
+            }
+            else {
+                if(command->args[0]!=variableManager.noneId)
+                    memory->unsafeSet(command->args[0], result, nullptr); // perform this first before accidentally deleting
+                result->removeFromOwner(); // countermand the return statement
+                return;
+            }
         } break;
 
         case TOLIST: {
@@ -383,6 +405,11 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
     }
     //if(!result && command->knownLocal[0])
     //    bberror("Missing value encountered in intermediate computation "+variableManager.getSymbol(command->args[0])+". Explicitly use the `as` assignment to explicitly set potentially missing values\n");
-    //Data* prevResult = command->knownLocal[0]?memory->getOrNullShallow(command->args[0]):memory->getOrNull(command->args[0], true);
-    memory->unsafeSet(command->args[0], result, nullptr);
+    //Data* prevResult = command->knownLocal[0]?memory->getOrNullShallow(command->args[0]):memory->getOrNull(command->args[0], true)
+    if(command->args[0]==variableManager.noneId) {
+        if(result)
+            result->removeFromOwner();
+    }
+    else
+        memory->unsafeSet(command->args[0], result, nullptr);
 }

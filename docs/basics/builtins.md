@@ -116,8 +116,9 @@ while (counter<10) {
 
 Here we make a soft introduction to return signals; if errors indicate
 unsuccessful algorithms, return statements indicate successful conclusion of
-computations. The introduction focuses on returning (and ignore error handling), as
-this supports the equivalent of continue and break statements without needing more keywords.
+computations. The introduction focuses on returning (not on error handling), as
+this supports what other languages dub as continue and break statements 
+without needing such keywords.
 
 To intercept return or error signals, use the `value = try{@code}` pattern. 
 This is the same mechanism as the one we [next](blocks.md) use to
@@ -133,7 +134,8 @@ print("Sign is "+str(sgn));
 ```
 
 A similar syntax breaks away from loops below, though we will not dabble on 
-handling returned values for now. Contrary to error handling overheads, intercepting returns is lightweight.
+handling returned values for now. Contrary to error handling overheads, 
+tt is lightweight to intercept returns.
 
 ```java
 // main.bb

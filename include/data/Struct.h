@@ -10,7 +10,6 @@
 class Struct : public Data {
 private:
     BMemory* memory;
-    mutable std::recursive_mutex memoryLock;
 
 public:
     explicit Struct(BMemory* mem);
@@ -18,6 +17,7 @@ public:
     std::string toString() const override;
     virtual BMemory* getMemory() const;
     Data* implement(const OperationType operation_, BuiltinArgs* args_) override;    
+    void removeFromOwner() override;
 };
 
 #endif // STRUCT_H

@@ -143,7 +143,7 @@ void optimize(const std::string& source, const std::string& destination) {
 
     
     // add outcome caches (these prevent re-initialization of shared pointers that have been previously computed)
-    int cacheNum = 0;
+    /*int cacheNum = 0;
     for(int i=0;i<program.size();i++) {
         std::shared_ptr<OptimizerCommand> command = program[i];
         if(command->args.size()<2)
@@ -161,7 +161,7 @@ void optimize(const std::string& source, const std::string& destination) {
             command->args[1] = "_bbresult"+std::to_string(cacheNum);
             cacheNum += 1;
         }
-    }
+    }*/
 
     // remove put and push assignments
     for(int i=0;i<program.size();i++) {

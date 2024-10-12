@@ -1,4 +1,4 @@
-BEGIN _bb3
+BEGIN _bb4
 BUILTIN name "env"
 BUILTIN author "Emmanouil Krasanakis"
 BUILTIN license "Apache 2.0"
@@ -7,130 +7,126 @@ BUILTIN release I0
 BUILTIN year I2024
 BUILTIN doc "     \n Introduces version control and documentation     \n capabilities for other libraries. In particular,     \n new libraries should contain a library::INFO     \n code block that sets the following variables:     \n name, author, license, version, release, year.     \n Then import both env and library and call one      \n of the following methods:     \n     \n - env::help(library::INFO);      \n   Prints the details of the library.     "
 END
-AS env::INFO _bb3
+AS env::INFO _bb4
 final # env::INFO
-exists _bb11 env::INFO
+exists _bb12 env::INFO
 BUILTIN env::hbar "-------------------------------------------------------------"
 final # env::hbar
-BEGIN _bb13
+BEGIN _bb14
 next info args
-inline _bb14 info
+inline _bb15 info
 IS info env::hbar
-BUILTIN _bb16 ""
-str _bb18 release
-BUILTIN _bb20 "."
-str _bb22 version
-BUILTIN _bb24 " "
-str _bb26 name
-BUILTIN _bb28 "\n"
-add _bb27 info _bb28
-add _bb25 _bb27 _bb26
-add _bb23 _bb25 _bb24
-add _bb21 _bb23 _bb22
-add _bb19 _bb21 _bb20
-add _bb17 _bb19 _bb18
-add info _bb17 _bb16
-BUILTIN _bb30 ""
-str _bb32 author
-BUILTIN _bb34 ", "
-str _bb36 year
-BUILTIN _bb38 "\nCopyright (C) "
-add _bb37 info _bb38
-add _bb35 _bb37 _bb36
-add _bb33 _bb35 _bb34
-add _bb31 _bb33 _bb32
-add info _bb31 _bb30
-BUILTIN _bb40 " license"
-str _bb42 license
-BUILTIN _bb44 "\n"
-add _bb43 info _bb44
-add _bb41 _bb43 _bb42
-add info _bb41 _bb40
-BUILTIN _bb47 "\n"
-add _bb46 info _bb47
-add info _bb46 doc
-BUILTIN _bb50 "\n"
-add _bb49 info _bb50
-add info _bb49 env::hbar
-return _bbresult0 info
+BUILTIN _bb17 ""
+str _bb19 release
+BUILTIN _bb21 "."
+str _bb23 version
+BUILTIN _bb25 " "
+str _bb27 name
+BUILTIN _bb29 "\n"
+add _bb28 info _bb29
+add _bb26 _bb28 _bb27
+add _bb24 _bb26 _bb25
+add _bb22 _bb24 _bb23
+add _bb20 _bb22 _bb21
+add _bb18 _bb20 _bb19
+add info _bb18 _bb17
+BUILTIN _bb31 ""
+str _bb33 author
+BUILTIN _bb35 ", "
+str _bb37 year
+BUILTIN _bb39 "\nCopyright (C) "
+add _bb38 info _bb39
+add _bb36 _bb38 _bb37
+add _bb34 _bb36 _bb35
+add _bb32 _bb34 _bb33
+add info _bb32 _bb31
+BUILTIN _bb41 " license"
+str _bb43 license
+BUILTIN _bb45 "\n"
+add _bb44 info _bb45
+add _bb42 _bb44 _bb43
+add info _bb42 _bb41
+BUILTIN _bb48 "\n"
+add _bb47 info _bb48
+add info _bb47 doc
+BUILTIN _bb51 "\n"
+add _bb50 info _bb51
+add info _bb50 env::hbar
+return # info
 END
-IS env::str _bb13
+IS env::str _bb14
 final # env::str
-BEGIN _bb53
-inline _bb54 env::INFO
-return _bbresult1 this
+BEGIN _bb54
+inline _bb55 env::INFO
+return # this
 END
-new _bb51 _bb53
-list env::dependencies _bb51
+new _bb52 _bb54
+list env::dependencies _bb52
 final # env::dependencies
-BEGIN _bb56
+BEGIN _bb57
 next text args
 str text text
-BEGIN _bb59
+BEGIN _bb60
 BUILTIN size I20
 END
-default _bbresult2 _bb59
-len _bb62 text
-lt _bb61 _bb62 size
-BEGIN _bb63
-BUILTIN _bb65 " "
-add text text _bb65
-len _bb62 text
-lt _bb61 _bb62 size
+default # _bb60
+len _bb65 text
+sub _bb64 size _bb65
+BUILTIN _bb66 " "
+mul _bb63 _bb66 _bb64
+add text text _bb63
+return # text
 END
-while # _bb61 _bb63
-return _bbresult3 text
-END
-IS env::ljust _bb56
+IS env::ljust _bb57
 final # env::ljust
-BEGIN _bb66
-BUILTIN _bb68 "\n"
-add desc env::hbar _bb68
-BUILTIN _bb70 " Version\n"
-BEGIN _bb73
-BUILTIN _bb74 "Library"
-list args _bb74
+BEGIN _bb67
+BUILTIN _bb69 "\n"
+add desc env::hbar _bb69
+BUILTIN _bb71 " Version\n"
+BEGIN _bb74
+BUILTIN _bb75 "Library"
+list args _bb75
 END
-call _bb72 _bb73 env::ljust
-add _bb71 desc _bb72
-add desc _bb71 _bb70
+call _bb73 _bb74 env::ljust
+add _bb72 desc _bb73
+add desc _bb72 _bb71
 iter _bbmacro0 env::dependencies
-next _bb76 _bbmacro0
-AS dependency _bb76
-exists _bb77 dependency
-BEGIN _bb78
-BUILTIN _bb80 "\n"
-get _bb82 dependency release
-str _bb83 _bb82
-BUILTIN _bb85 "."
-get _bb87 dependency version
-str _bb88 _bb87
-BUILTIN _bb90 " "
-BEGIN _bb93
-get _bb94 dependency name
-list args _bb94
+next _bb77 _bbmacro0
+AS dependency _bb77
+exists _bb78 dependency
+BEGIN _bb79
+BUILTIN _bb81 "\n"
+get _bb83 dependency release
+str _bb84 _bb83
+BUILTIN _bb86 "."
+get _bb88 dependency version
+str _bb89 _bb88
+BUILTIN _bb91 " "
+BEGIN _bb94
+get _bb95 dependency name
+list args _bb95
 END
-call _bb92 _bb93 env::ljust
-str _bb95 _bb92
-BUILTIN _bb97 ""
-add _bb96 desc _bb97
-add _bb91 _bb96 _bb95
-add _bb89 _bb91 _bb90
-add _bb86 _bb89 _bb88
-add _bb84 _bb86 _bb85
-add _bb81 _bb84 _bb83
-add desc _bb81 _bb80
-next _bb76 _bbmacro0
-AS dependency _bb76
-exists _bb77 dependency
+call _bb93 _bb94 env::ljust
+str _bb96 _bb93
+BUILTIN _bb98 ""
+add _bb97 desc _bb98
+add _bb92 _bb97 _bb96
+add _bb90 _bb92 _bb91
+add _bb87 _bb90 _bb89
+add _bb85 _bb87 _bb86
+add _bb82 _bb85 _bb84
+add desc _bb82 _bb81
+next _bb77 _bbmacro0
+AS dependency _bb77
+exists _bb78 dependency
 END
-while # _bb77 _bb78
+while # _bb78 _bb79
 add desc desc env::hbar
 print # desc
 END
-IS env::versions _bb66
+IS env::versions _bb67
 final # env::versions
-BEGIN _bb99
+BEGIN _bb100
 BUILTIN name "loop"
 BUILTIN author "Emmanouil Krasanakis"
 BUILTIN license "Apache 2.0"
@@ -139,16 +135,15 @@ BUILTIN release I0
 BUILTIN year I2024
 BUILTIN doc "     \n Introduces the `loop::next` macro that allows     \n iteration over all elements of a list or other     \n iterable, like so:     \n     \n    A = 1,2,3;     \n    while(x as loop::next(A))      \n       print(x);     \n     \n This is a wrapper around `std::next` that creates      \n an iterator for the supplied expression just     \n before the loop's command.     "
 END
-AS loop::INFO _bb99
+AS loop::INFO _bb100
 final # loop::INFO
-exists _bb107 loop::INFO
-BEGIN _bb110
-inline _bb111 loop::INFO
-return _bbresult4 this
+exists _bb108 loop::INFO
+BEGIN _bb111
+inline _bb112 loop::INFO
+return # this
 END
-new _bbmacro1 _bb110
+new _bbmacro1 _bb111
 push # env::dependencies _bbmacro1
-call _bb112 # env::versions
 BUILTIN _bb113 I1
 BUILTIN _bb114 I2
 BUILTIN _bb115 I3
@@ -164,3 +159,10 @@ AS x _bb118
 exists _bb119 x
 END
 while # _bb119 _bb120
+IS _bbmacro3 loop::INFO
+BEGIN _bb122
+list args _bbmacro3
+END
+call _bb121 _bb122 env::str
+print # _bb121
+call _bb123 # env::versions

@@ -31,6 +31,7 @@ final env::str(info) = {
     info = info + "\n" + env::hbar;
     return info;
 }
+
 final env::dependencies = list(new{env::INFO:});
 
 // include a library
@@ -71,8 +72,7 @@ final env::dependencies = list(new{env::INFO:});
 final env::ljust(text) = {
     text = str(text);
     default size = 20;
-    while(len(text)<size)
-        text = text + " ";
+    text = text + " "*(size-len(text));
     return text;
 }
 

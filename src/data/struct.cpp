@@ -55,7 +55,19 @@ Data* Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
 }
 
 Struct::Struct(BMemory* mem) : memory(mem), Data(STRUCT) {}
-Struct::~Struct() {}
+Struct::~Struct() {
+    delete memory;
+}
 BMemory* Struct::getMemory() const {
     return memory;
+}
+void Struct::removeFromOwner() {
+    int counter = --referenceCounter;
+    //std::cout << "removing "<<this<<" from "<<data<<" with counter "<<referenceCounter<<"\n";
+    if(counter==1 || counter==0) {// its held memory will always hold this, in which case we do want a destruction
+        //std::cout << "destroying "<<toString()<<" "<<this<<"\n";
+        delete this;
+    }
+    //else 
+    //    std::cout << "refusing to destroy "<<this<<toString()<<referenceCounter<<"\n";
 }

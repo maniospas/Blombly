@@ -5,9 +5,11 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <atomic>
 #include "common.h"
 
 class Data;
+class BMemory;
 struct BuiltinArgs {
     Data* arg0;
     Data* arg1;
@@ -22,7 +24,6 @@ public:
     virtual std::string toString() const = 0;
     virtual bool isTrue() const { return false; }
     inline uint8_t getType() const { return type; }
-    inline bool isBuiltIn() const {return builtin;}
 
     Data(int type);
     virtual ~Data();
@@ -32,11 +33,14 @@ public:
     virtual size_t toHash() const;
     static int countObjects();
     
-    Data* setAsBuiltin() {builtin=this;return this;}
+    void addOwner();
+    virtual void removeFromOwner();
+protected:
+    std::atomic<int> referenceCounter;
 private:
     static int numObjects;
     uint8_t type;
-    bool builtin;
+    bool isContained;
 };
 
 #endif // DATA_H

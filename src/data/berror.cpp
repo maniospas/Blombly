@@ -12,7 +12,7 @@ void BError::consume() {
 }
 
 bool BError::isConsumed() const {
-    return consumed;
+    return consumed; 
 }
 
 std::string BError::toString() const {

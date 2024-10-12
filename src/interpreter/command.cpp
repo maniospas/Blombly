@@ -10,7 +10,6 @@
 #include "BMemory.h"
 #include "common.h"
 
-
 void replaceAll(std::string &str, const std::string &from, const std::string &to) {
     size_t start_pos = 0;
     while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
@@ -72,8 +71,8 @@ Command::Command(const std::string& command, SourceFile* source_, int line_, Com
         } else {
             bberror("Unable to understand builtin value prefix (should be one of I,F,B,\"): " + raw);
         }
-        if(value)
-            value->setAsBuiltin();
+        if(value) 
+            value->addOwner();
     }
 
     // Initialize args and knownLocal vectors

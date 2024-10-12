@@ -2,12 +2,22 @@
 
 int Data::numObjects = 0;
 
-Data::Data(int type) : type(type), builtin(false) {
-    ++numObjects;
+Data::Data(int type) : type(type), isContained(true), referenceCounter(0) {
+    //++numObjects;
 }
 
 Data::~Data() {
-    --numObjects;
+    //--numObjects;
+}
+
+
+void Data::addOwner() {
+    ++referenceCounter;
+}
+
+void Data::removeFromOwner() {
+    if((--referenceCounter)==0) 
+        delete this;
 }
 
 int Data::countObjects() {

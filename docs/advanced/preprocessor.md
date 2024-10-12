@@ -3,12 +3,11 @@
 Blombly's preprocessor can understand several instructions that transform the source code before compilation into `.bbvm` files. 
 Preprocessor instractions are made distinct by prepending them with a `#` symbol.
 Three main types of preprocessing are available: dependencies that make a source code file include another's code, 
-macros that add to the language's grammar with higher-level expressions, and specification property declarations.
+macros that add to the language's grammar with higher-level expressions, and supporting code transformations.
 
-## Specifications
-
-Specifications have already been described as a mechanism that attaches final values to code blocks. Evaluating them 
-just after the block's definition.
+**In practical code writting, you will mostly use dependencies.** The rest of the features are there to support
+compile time modification of code, such as by libraries adding new parsable expressions. [Here](libraries.md) are some
+libraries that are shipped with the language.
 
 ## Dependencies
 
@@ -18,6 +17,11 @@ Dependencies allow code modularization without loading overheads, as the compila
 Dependencies should not declare specifications, as these are the provenance of code blocks meant to run dynamically instead of immediately upon import. 
 When creating reusable libraries, prefer constructing modules and final objects (this is automated with the module keyword of `std/oop`).
 
+
+## Specifications
+
+Specifications have already been described as a mechanism that attaches final values to code blocks. Evaluating them 
+just after the block's definition.
 
 ## Macros
 
@@ -64,11 +68,6 @@ finder = new {Finder: number = 10;}
 print(finder.next());
 print(finder.next());
 ```
-
-## The standard library
-
-*This section is under construction.*
-
 
 ## Writing an new library
 

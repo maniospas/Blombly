@@ -51,36 +51,36 @@ Code* compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
 int vm(const std::string& fileName, int numThreads) {
     Future::setMaxThreads(numThreads);
 
-    auto memory = new BMemory(nullptr, DEFAULT_LOCAL_EXPECTATION);
     try {
-        std::ifstream inputFile(fileName);
-        if (!inputFile.is_open()) {
-            bberror("Unable to open file: " + fileName);
-        }
-
-        auto program = new std::vector<Command*>();
-        auto source = new SourceFile(fileName);
-        std::string line;
-        int i = 1;
-
-        while (std::getline(inputFile, line)) {
-            if (line[0] != '%') {
-                program->push_back(new Command(line, source, i, nullptr));
+        {
+            BMemory memory(nullptr, DEFAULT_LOCAL_EXPECTATION);
+            std::ifstream inputFile(fileName);
+            if (!inputFile.is_open()) {
+                bberror("Unable to open file: " + fileName);
             }
-            ++i;
+
+            auto program = new std::vector<Command*>();
+            auto source = new SourceFile(fileName);
+            std::string line;
+            int i = 1;
+
+            while (std::getline(inputFile, line)) {
+                if (line[0] != '%') {
+                    program->push_back(new Command(line, source, i, nullptr));
+                }
+                ++i;
+            }
+
+            inputFile.close();
+
+            auto code = new Code(program, 0, program->size() - 1, &memory);
+            bool hasReturned(false);
+            executeBlock(code, &memory, hasReturned);
+            bbassert(!hasReturned, "The virtual machine cannot return a value.");
         }
-
-        inputFile.close();
-
-        auto code = new Code(program, 0, program->size() - 1, memory);
-        bool hasReturned(false);
-        executeBlock(code, memory, hasReturned);
-        bbassert(!hasReturned, "The virtual machine cannot return a value.");
-        memory->release(); // manually release to syncrhonize all threads in case there are memory leaks
         BMemory::verify_noleaks();
+        //std::cout<<"Program completed successfully\n";
     } catch (const BBError& e) {
-        if(memory)
-            memory->release(); // manually release to syncrhonize all threads in case there are memory leaks
         std::cerr << e.what() << "\033[0m\n";
         std::cerr << "Docs and bug reports: https://maniospas.github.io/Blombly\n";
         return 1;
