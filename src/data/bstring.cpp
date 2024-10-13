@@ -12,7 +12,7 @@ std::string BString::toString() const {
     return value;
 }
 
-Data* BString::implement(const OperationType operation, BuiltinArgs* args) {
+Result BString::implement(const OperationType operation, BuiltinArgs* args) {
 
     if (args->size == 2 && args->arg0->getType() == STRING && args->arg1->getType() == STRING) {
         std::string v1 = static_cast<BString*>(args->arg0)->value;
@@ -32,7 +32,7 @@ Data* BString::implement(const OperationType operation, BuiltinArgs* args) {
                 char* endptr = nullptr;
                 int ret = std::strtol(value.c_str(), &endptr, 10);
                 if (endptr == value.c_str() || *endptr != '\0') {
-                    return nullptr;
+                    return Result(nullptr);
                 }
                 BB_INT_RESULT(ret);
             }
@@ -41,13 +41,13 @@ Data* BString::implement(const OperationType operation, BuiltinArgs* args) {
                 char* endptr = nullptr;
                 double ret = std::strtod(value.c_str(), &endptr);
                 if (endptr == value.c_str() || *endptr != '\0') {
-                    return nullptr;
+                    return Result(nullptr);
                 }
                 BB_FLOAT_RESULT(ret);
             }
             case TOBB_BOOL: BB_BOOLEAN_RESULT(value == "true");
-            case TOITER: return new Iterator(args->arg0);
-            case TOFILE: return new BFile(value);
+            case TOITER: return Result(new Iterator(args->arg0));
+            case TOFILE: return Result(new BFile(value));
         }
         throw Unimplemented();
     }
@@ -56,9 +56,9 @@ Data* BString::implement(const OperationType operation, BuiltinArgs* args) {
         int index = static_cast<Integer*>(args->arg1)->getValue();
         if (index < 0 || index >= value.size()) {
             bberror("String index " + std::to_string(index) + " out of range [0," + std::to_string(value.size()) + ")");
-            return nullptr;
+            return Result(nullptr);
         }
-        return new BString(std::string(1, value[index]));
+        return Result(new BString(std::string(1, value[index])));
     }
 
     throw Unimplemented();

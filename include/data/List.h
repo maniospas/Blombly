@@ -19,7 +19,7 @@ public:
     ~BList();
 
     std::string toString() const override;
-    Data* implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
     Data* at(int index) const;
 };
 

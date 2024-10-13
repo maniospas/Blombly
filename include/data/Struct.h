@@ -16,7 +16,7 @@ public:
     ~Struct();
     std::string toString() const override;
     virtual BMemory* getMemory() const;
-    Data* implement(const OperationType operation_, BuiltinArgs* args_) override;    
+    Result implement(const OperationType operation_, BuiltinArgs* args_) override;    
     void removeFromOwner() override;
 };
 

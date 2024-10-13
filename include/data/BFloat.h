@@ -16,7 +16,7 @@ public:
     std::string toString() const override;
     double getValue() const;
 
-    Data* implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
 
     size_t toHash() const override {
         return std::hash<double>{}(value); 

@@ -20,7 +20,7 @@ std::string BError::toString() const {
 }
 
 // Implement the specified operation
-Data* BError::implement(const OperationType operation, BuiltinArgs* args)  {
+Result BError::implement(const OperationType operation, BuiltinArgs* args)  {
     if (args->size == 1) {
         switch(operation) {
             case TOSTR: consumed=true;STRING_RESULT(value);

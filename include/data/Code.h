@@ -45,7 +45,7 @@ public:
     BMemory* getDeclarationMemory() const;
     Metadata* getAllMetadata() const;
 
-    Data* implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
 };
 
 #endif // CODE_H

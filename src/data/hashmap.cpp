@@ -34,11 +34,11 @@ void BHashMap::put(Data* from, Data* to) {
     contents[key] = to;
 }
 
-Data* BHashMap::implement(const OperationType operation, BuiltinArgs* args) {
+Result BHashMap::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 1) {
         switch (operation) {
-            case LEN: return new Integer(contents.size());
-            case TOITER: return new Iterator(args->arg0);
+            case LEN: return Result(new Integer(contents.size()));
+            case TOITER: return Result(new Iterator(args->arg0));
         }
         throw Unimplemented();
     }
@@ -47,13 +47,13 @@ Data* BHashMap::implement(const OperationType operation, BuiltinArgs* args) {
         size_t key = args->arg1->toHash();
         auto it = contents.find(key);
         if (it == contents.end()) 
-            return nullptr;
-        return it->second;
+            return Result(nullptr);
+        return Result(it->second);
     }
 
     if (operation == PUT && args->size == 3) {
         put(args->arg1, args->arg2);
-        return nullptr;
+        return Result(nullptr);
     }
 
     throw Unimplemented();

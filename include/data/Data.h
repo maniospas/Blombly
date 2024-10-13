@@ -7,6 +7,7 @@
 #include <iostream>
 #include <atomic>
 #include "common.h"
+#include "Result.h"
 
 class Data;
 class BMemory;
@@ -28,8 +29,8 @@ public:
     Data(int type);
     virtual ~Data();
 
-    static Data* run(const OperationType operation, BuiltinArgs* args);
-    virtual Data* implement(const OperationType operation, BuiltinArgs* args);
+    static Result run(const OperationType operation, BuiltinArgs* args);
+    virtual Result implement(const OperationType operation, BuiltinArgs* args);
     virtual size_t toHash() const;
     static int countObjects();
     

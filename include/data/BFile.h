@@ -18,7 +18,7 @@ public:
 
     std::string toString() const override;
     std::string getPath() const;
-    Data* implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
 
     friend class Boolean;
     friend class Integer;

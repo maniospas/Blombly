@@ -3,7 +3,7 @@
 
 #include "interpreter/functional.h"
 
-Data* executeBlock(Code* code, BMemory* memory, bool &returnSignal) {
+Result executeBlock(Code* code, BMemory* memory, bool &returnSignal) {
     BuiltinArgs args;
     Data* value = nullptr;
     auto program = code->getProgram();
@@ -14,14 +14,14 @@ Data* executeBlock(Code* code, BMemory* memory, bool &returnSignal) {
         for (; i <= end; ++i) {
             handleCommand(program, i, memory, returnSignal, args, value);
             if (returnSignal) 
-                return value;
+                return Result(value);
         }
     } 
     catch (const BBError& e) {
         handleExecutionError(program, i, e);
     }
 
-    return value;
+    return Result(value);
 }
 
 

@@ -18,7 +18,7 @@ public:
     std::string toString() const override;
 
     void runServer();
-    Data* implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
 
 private:
     int port_;

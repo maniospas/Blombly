@@ -36,12 +36,12 @@ std::string BFile::getPath() const {
     return path;
 }
 
-Data* BFile::implement(const OperationType operation, BuiltinArgs* args) {
+Result BFile::implement(const OperationType operation, BuiltinArgs* args) {
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
         int lineNum = static_cast<Integer*>(args->arg1)->getValue();
         if (lineNum < 0 || lineNum >= contents.size()) {
             bberror("Line number " + std::to_string(lineNum) + " out of range [0," + std::to_string(contents.size()) + ")");
-            return nullptr;
+            return Result(nullptr);
         }
         std::string lineContent = contents[lineNum];
         STRING_RESULT(lineContent);
@@ -51,23 +51,23 @@ Data* BFile::implement(const OperationType operation, BuiltinArgs* args) {
         std::string newContent = args->arg2->toString();
         if (lineNum < 0 || lineNum >= contents.size()) {
             bberror("Line number " + std::to_string(lineNum) + " out of range [0," + std::to_string(contents.size()) + ")");
-            return nullptr;
+            return Result(nullptr);
         }
         contents[lineNum] = newContent;
-        return nullptr;
+        return Result(nullptr);
     }
     if (operation == LEN) {
         int ret = contents.size();
         BB_INT_RESULT(ret);
     }
     if (operation == TOFILE) {
-        return this;
+        return Result(this);
     }
     if (operation == TOSTR) {
         STRING_RESULT(toString());
     }
     if (operation == TOITER) {
-        return new Iterator(args->arg0);
+        return Result(new Iterator(args->arg0));
     }
     throw Unimplemented();
 }

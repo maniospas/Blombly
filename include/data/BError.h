@@ -19,7 +19,7 @@ public:
     bool isConsumed() const;
 
     std::string toString() const override;
-    virtual Data* implement(const OperationType operation, BuiltinArgs* args);
+    virtual Result implement(const OperationType operation, BuiltinArgs* args);
 };
 
 #endif // BERROR_H

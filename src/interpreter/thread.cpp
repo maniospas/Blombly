@@ -9,15 +9,18 @@ void threadExecute(Code* code,
     Data* value(nullptr);
     try {
         bool returnSignal(false);
-        value = executeBlock(code, memory, returnSignal);
+        Result returnValue = executeBlock(code, memory, returnSignal);
+        Data* value = returnValue.get();
         for (auto& thread : memory->attached_threads) 
             thread->getResult();
         memory->attached_threads.clear(); // TODO: maybe we need to release the memory instead (investigate)
-        if(!returnSignal)
+        if(!returnSignal) {
             value = nullptr;
+            returnValue = Result(nullptr);
+        }
         if(value && value->getType()==CODE)
             static_cast<Code*>(value)->setDeclarationMemory(nullptr);
-        result->value = value;
+        result->value = returnValue;
     } catch (const BBError& e) {
         // Capture and format the error message
         std::string comm = command->toString();

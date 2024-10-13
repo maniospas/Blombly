@@ -20,7 +20,7 @@ public:
     ~Iterator();
 
     std::string toString() const override;
-    Data* implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
 };
 
 #endif // ITERATOR_H

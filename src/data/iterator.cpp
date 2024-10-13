@@ -10,7 +10,8 @@ Iterator::Iterator(Data* object_) : object(object_), pos(new Integer(-1)), Data(
     BuiltinArgs args;
     args.arg0 = object;
     args.size = 1;
-    Data* len = object->implement(LEN, &args);
+    Result lenValue = object->implement(LEN, &args);
+    Data* len = lenValue.get();
     bbassert(len && len->getType()==BB_INT, "`len` failed to return an integer");
     size = static_cast<Integer*>(len)->getValue();
 }
@@ -23,13 +24,13 @@ std::string Iterator::toString() const {
     return "iterator";
 }
 
-Data* Iterator::implement(const OperationType operation, BuiltinArgs* args) {
+Result Iterator::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 1 && operation == NEXT) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         pos->value += 1; 
         int currentPos = pos->value;
         if (currentPos >= size) 
-            return nullptr;
+            return Result(nullptr);
 
         args->arg0 = object;
         args->arg1 = pos;
@@ -38,8 +39,8 @@ Data* Iterator::implement(const OperationType operation, BuiltinArgs* args) {
     }
     
     if (args->size == 1 && operation == LEN) 
-        return new Integer(size);
+        return Result(new Integer(size));
     if (args->size == 1 && operation == TOITER) 
-        return this;
+        return Result(this);
     throw Unimplemented();
 }

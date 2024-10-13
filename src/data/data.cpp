@@ -13,9 +13,11 @@ Data::~Data() {
 
 void Data::addOwner() {
     ++referenceCounter;
+    //std::cout << "added "<<(referenceCounter)<<" "<<this<<"\n";
 }
 
 void Data::removeFromOwner() {
+    //std::cout << "removed "<<(referenceCounter-1)<<" "<<this<<"\n";
     if((--referenceCounter)==0) 
         delete this;
 }
@@ -24,7 +26,7 @@ int Data::countObjects() {
     return numObjects;
 }
 
-Data* Data::run(const OperationType operation, BuiltinArgs *args) {
+Result Data::run(const OperationType operation, BuiltinArgs *args) {
     try {
         return args->arg0->implement(operation, args);
     }
@@ -71,10 +73,10 @@ Data* Data::run(const OperationType operation, BuiltinArgs *args) {
     }
     err += ")";
     bberror(err);
-    return nullptr;
+    return Result(nullptr);
 }
 
-Data* Data::implement(const OperationType operation, BuiltinArgs* args) {
+Result Data::implement(const OperationType operation, BuiltinArgs* args) {
     throw Unimplemented();
 }
 

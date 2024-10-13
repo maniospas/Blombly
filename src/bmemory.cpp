@@ -17,6 +17,7 @@ void BMemory::verify_noleaks() {
 }
 
 BMemory::BMemory(BMemory* par, int expectedAssignments) : parent(par), allowMutables(true), fastId(-1) {
+    //std::cout << "created "<<this<<"\n";
     countUnrealeasedMemories++;
     data.reserve(expectedAssignments);
 }
@@ -43,12 +44,11 @@ void BMemory::leak() {
 }
 
 void BMemory::release() {
+    //std::cout << "releasing "<<this<<"\n";
     std::string destroyerr = "";
     for (const auto& thread : attached_threads) {
         try {
-            Data* ret = thread->getResult(); // TODO: this is a memory leak
-            //if(ret) // TODO: attach only threads that return something to avoid this destroying something else
-            //    ret->removeFromOwner();
+            thread->getResult();
         }
         catch (const BBError& e) {
             destroyerr += std::string(e.what())+"\n";
@@ -93,7 +93,8 @@ Data* BMemory::get(int item) { // allowMutable = true
     auto ret = data[item];
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
-        ret = prevRet->getResult();
+        auto resVal = prevRet->getResult();
+        ret = resVal.get();
         ret = unsafeSet(item, ret); 
         if(ret) 
             ret->removeFromOwner(); // countermand the return statement now that everything has move in memory ret->removeFromOwner(); 
@@ -114,7 +115,8 @@ Data* BMemory::get(int item, bool allowMutable) {
     auto ret = data[item];
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
-        ret = prevRet->getResult();
+        auto resVal = prevRet->getResult();
+        ret = resVal.get();
         ret = unsafeSet(item, ret); 
         if(ret) 
             ret->removeFromOwner(); // countermand the return statement now that everything has move in memory
@@ -143,7 +145,8 @@ bool BMemory::contains(int item) {
     auto ret = it->second;
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
-        ret = prevRet->getResult();
+        auto resVal = prevRet->getResult();
+        ret = resVal.get();
         ret = unsafeSet(item, ret); 
         if(ret) 
             ret->removeFromOwner(); // countermand the return statement now that everything has move in memory
@@ -161,7 +164,8 @@ Data* BMemory::getShallow(int item) {
     auto ret = it->second;
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
-        ret = prevRet->getResult();
+        auto resVal = prevRet->getResult();
+        ret = resVal.get();
         ret = unsafeSet(item, ret);
         if(ret)
             ret->removeFromOwner(); // countermand the return statement now that everything has move in memory
@@ -181,7 +185,8 @@ Data* BMemory::getOrNullShallow(int item) {
     auto ret = it->second;
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
-        ret = prevRet->getResult();
+        auto resVal = prevRet->getResult();
+        ret = resVal.get();
         ret = unsafeSet(item, ret); if(ret) ret->removeFromOwner(); // countermand the return statement now that everything has move in memory
         attached_threads.erase(prevRet);
     }
@@ -194,7 +199,8 @@ Data* BMemory::getOrNull(int item, bool allowMutable) {
     auto ret = data[item];
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
-        ret = prevRet->getResult();
+        auto resVal = prevRet->getResult();
+        ret = resVal.get();
         ret = unsafeSet(item, ret);
         if(ret)
             ret->removeFromOwner(); // countermand the return statement now that everything has move in memory
@@ -225,6 +231,10 @@ void BMemory::unsafeSet(BMemory* handler, int item, Data* value, Data* prev) {
         fastId = item;
         fastData = value;
     }
+    if(value)
+        value->addOwner();
+    if(prev)
+        prev->removeFromOwner();
     data[item] = value;
 }
 

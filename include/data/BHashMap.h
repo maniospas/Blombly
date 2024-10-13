@@ -20,7 +20,7 @@ public:
     size_t toHash() const override { return 0; }  // Implement if necessary
     void put(Data* from, Data* to);
 
-    Data* implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
 };
 
 #endif // BHASHMAP_H

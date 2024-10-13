@@ -14,7 +14,7 @@
 class ThreadResult {
 public:
     std::thread thread;
-    Data* value;
+    Result value;
     BBError* error;
     ThreadResult():value(nullptr), error(nullptr) {};
     void start(Code* code, BMemory* newMemory, ThreadResult* futureResult, Command *command) {
@@ -36,7 +36,7 @@ public:
     ~Future();
 
     std::string toString() const override;
-    Data* getResult() const;
+    Result getResult() const;
 
     static bool acceptsThread();
     static void setMaxThreads(int maxThreads);

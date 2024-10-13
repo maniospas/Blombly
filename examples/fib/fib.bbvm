@@ -1,5 +1,6 @@
 time tic
 BEGIN _bb1
+next n args
 BEGIN _bb2
 BUILTIN _bb3 I1
 return # _bb3
@@ -9,12 +10,14 @@ le _bb4 n _bb5
 if # _bb4 _bb2
 BEGIN _bb8
 BUILTIN _bb10 I2
-sub n n _bb10
+sub _bb9 n _bb10
+list args _bb9
 END
 call _bb7 _bb8 fib
 BEGIN _bb12
 BUILTIN _bb14 I1
-sub n n _bb14
+sub _bb13 n _bb14
+list args _bb13
 END
 call _bb11 _bb12 fib
 add _bb6 _bb11 _bb7
@@ -23,7 +26,8 @@ END
 IS fib _bb1
 final # fib
 BEGIN _bb16
-BUILTIN n I32
+BUILTIN _bb17 I32
+list args _bb17
 END
 call _bb15 _bb16 fib
 print # _bb15

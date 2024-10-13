@@ -51,13 +51,19 @@ void RestServer::runServer() {
     mg_set_request_handler(context_, "/", requestHandler, (void*)this);
 }
 
-Data* RestServer::implement(const OperationType operation, BuiltinArgs* args) {
+Result RestServer::implement(const OperationType operation, BuiltinArgs* args) {
     if (operation == PUT && args->size == 3 && args->arg1->getType() == STRING &&
         (args->arg2->getType() == CODE || args->arg2->getType() == STRUCT)) {
         std::lock_guard<std::recursive_mutex> lock(serverModification);
         std::string route = static_cast<BString*>(args->arg1)->toString();
-        routeHandlers_[route] = args->arg2;
-        return nullptr;
+        if(routeHandlers_[route]!=args->arg2) {
+            if(routeHandlers_[route])
+                routeHandlers_[route]->removeFromOwner();
+            routeHandlers_[route] = args->arg2;
+            if(routeHandlers_[route])
+                routeHandlers_[route]->addOwner();
+        }
+        return Result(nullptr);
     }
     throw Unimplemented();
 }
@@ -77,7 +83,8 @@ Data* RestServer::executeCodeWithMemory(Data* called, BMemory* memory) const {
     memory->unsafeSet(variableManager.argsId, listArgs, nullptr);
 
     bool hasReturned = false;
-    auto result = executeBlock(code, memory, hasReturned);
+    Result returnValue = executeBlock(code, memory, hasReturned);
+    Data* result = returnValue.get();
 
     if (!hasReturned) 
         bberror("Server route handler did not reach a return statement.");

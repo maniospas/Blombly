@@ -15,7 +15,11 @@ BList::BList() : Data(LIST) {}
 BList::BList(int reserve) : Data(LIST)  {
     contents.reserve(reserve);
 }
-BList::~BList() {}
+BList::~BList() {
+    for(Data* dat : contents)
+        if(dat)
+            dat->removeFromOwner();
+}
 
 std::string BList::toString() const {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
@@ -39,24 +43,26 @@ Data* BList::at(int index) const {
     return res;
 }
 
-Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
+Result BList::implement(const OperationType operation, BuiltinArgs* args) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     
     if (args->size == 1) {
         switch (operation) {
-            case LEN: return new Integer(contents.size());
-            case TOITER: return new Iterator(args->arg0);
+            case LEN: return Result(new Integer(contents.size()));
+            case TOITER: return Result(new Iterator(args->arg0));
             case NEXT: {
-                if (contents.empty()) return nullptr;
-                auto ret = (contents.front());
+                if (contents.empty()) return Result(nullptr);
+                auto ret = Result(contents.front());
+                ret.get()->removeFromOwner();
                 contents.erase(contents.begin());
-                return ret;
+                return Result(ret);
             }
             case POP: {
-                if (contents.empty()) return nullptr;
-                auto ret = (contents.back());
+                if (contents.empty()) return Result(nullptr);
+                auto ret = Result(contents.back());
+                ret.get()->removeFromOwner();
                 contents.pop_back();
-                return (ret);
+                return Result(ret);
             }
             case TOMAP: {
                 auto map = new BHashMap();
@@ -69,7 +75,7 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
                         bberror("Can only create a map from a list of 2-element lists");
                     map->put(list->contents[0], list->contents[1]);
                 }
-                return map;
+                return Result(map);
             }
             case TOVECTOR: {
                 int n = contents.size();
@@ -81,7 +87,8 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
                 try {
                     for (int i = 0; i < n; ++i) {
                         args.arg0 = contents.at(i);
-                        auto temp = args.arg0->implement(TOBB_FLOAT, &args);
+                        Result tempValue = args.arg0->implement(TOBB_FLOAT, &args);
+                        Data* temp = tempValue.get();
                         auto type = temp->getType();
                         if (type == BB_INT) 
                             rawret[i] = static_cast<Integer*>(temp)->getValue();
@@ -94,7 +101,7 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
                 catch (BBError& e) {
                     throw e;
                 }
-                return vec;
+                return Result(vec);
             }
         }
         throw Unimplemented();
@@ -106,16 +113,16 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
         if (index < 0 || index >= contents.size()) 
             bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents.size()) + ")");
         auto res = contents.at(index);
-        return res;
+        return Result(res);
     }   
 
     if (operation == PUSH && args->size == 2 && args->arg0 == this) {
         auto value = args->arg1;
         bbassert(value, "Cannot push a missing value to a list");
         contents.push_back((value));
-        if(value)
+        //if(value)
             value->addOwner();
-        return nullptr;
+        return Result(nullptr);
     }
 
     if (operation == PUT && args->size == 3 && args->arg1->getType() == BB_INT) {
@@ -130,7 +137,7 @@ Data* BList::implement(const OperationType operation, BuiltinArgs* args) {
             prev->removeFromOwner();
         //if(value)
             value->addOwner();
-        return nullptr;
+        return Result(nullptr);
     }
 
     throw Unimplemented();

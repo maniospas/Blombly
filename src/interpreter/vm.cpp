@@ -13,7 +13,7 @@
 #include "interpreter/functional.h"
 
 
-Code* compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
+Result compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
     std::lock_guard<std::recursive_mutex> lock(compileMutex);
 
     // Compile and optimize
@@ -28,7 +28,7 @@ Code* compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
     std::ifstream inputFile(file);
     if (!inputFile.is_open()) {
         bberror("Unable to open file: " + file);
-        return nullptr;
+        return Result(nullptr);
     }
 
     // Organize each line into a new assembly command
@@ -44,7 +44,7 @@ Code* compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
     }
     inputFile.close();
 
-    return new Code(program, 0, program->size() - 1, currentMemory);
+    return Result(new Code(program, 0, program->size() - 1, currentMemory));
 }
 
 

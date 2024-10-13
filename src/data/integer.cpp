@@ -61,7 +61,7 @@ int Integer::getValue() const {
     return value;
 }
 
-Data* Integer::implement(const OperationType operation, BuiltinArgs* args) {
+Result Integer::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 2) {
         int type0 = args->arg0->getType();
         int type1 = args->arg1->getType();
@@ -117,7 +117,7 @@ Data* Integer::implement(const OperationType operation, BuiltinArgs* args) {
             case TOBB_INT: BB_INT_RESULT(value);
             case TOBB_FLOAT: BB_FLOAT_RESULT(value);
             case TOSTR: STRING_RESULT(std::to_string(value));
-            case TOVECTOR: return new Vector(value, true);
+            case TOVECTOR: return Result(new Vector(value, true));
         }
         throw Unimplemented();
     }

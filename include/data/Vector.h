@@ -31,7 +31,7 @@ public:
 
     std::string toString() const override;
     double* getValue() const;
-    Data* implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
 
     void lock() const;
     void unlock() const;

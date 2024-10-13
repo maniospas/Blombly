@@ -13,14 +13,15 @@ std::string Struct::toString() const {
         BuiltinArgs args;
         args.size = 1;
         args.arg0 = (Data*)this;
-        Data* repr = args.arg0->implement(TOSTR, &args);
+        Result reprValue = args.arg0->implement(TOSTR, &args);
+        Data* repr = reprValue.get();
         return repr->toString();
     } catch (Unimplemented&) {
         return "struct";
     }
 }
 
-Data* Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
+Result Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
     if (args_->size == 1 && operation_ == TOCOPY) {
         bberror("Cannot copy structs");
     }
@@ -49,9 +50,9 @@ Data* Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
     newMemory->unsafeSet(variableManager.argsId, args, nullptr);
 
     bool hasReturned(false);
-    Data* value = executeBlock(code, newMemory, hasReturned);
+    Result value = executeBlock(code, newMemory, hasReturned);
     bbassert(hasReturned, "Implementation for \\" + operation + " did not return anything");
-    return value;
+    return Result(value);
 }
 
 Struct::Struct(BMemory* mem) : memory(mem), Data(STRUCT) {}

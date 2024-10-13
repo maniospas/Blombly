@@ -66,7 +66,7 @@ void Code::setDeclarationMemory(BMemory* newMemory) {
     declarationMemory = newMemory;
 }
 
-Data* Code::implement(const OperationType operation, BuiltinArgs* args) {
+Result Code::implement(const OperationType operation, BuiltinArgs* args) {
     //if (args->size == 1)
     //    return this;
     

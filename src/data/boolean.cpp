@@ -19,7 +19,7 @@ void Boolean::setValue(bool val) {
     value = val;
 }
 
-Data* Boolean::implement(const OperationType operation, BuiltinArgs* args) {
+Result Boolean::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 2 && args->arg0->getType() == BB_BOOL && args->arg1->getType() == BB_BOOL) {
         bool v1 = static_cast<Boolean*>(args->arg0)->getValue();
         bool v2 = static_cast<Boolean*>(args->arg1)->getValue();

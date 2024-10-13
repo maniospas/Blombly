@@ -61,7 +61,7 @@ double BFloat::getValue() const {
     return value;
 }
 
-Data* BFloat::implement(const OperationType operation, BuiltinArgs* args) {
+Result BFloat::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 2) {
         int type0 = args->arg0->getType();
         int type1 = args->arg1->getType();

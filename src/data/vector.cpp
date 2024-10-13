@@ -96,7 +96,7 @@ void Vector::unlock() const {
     memoryLock.unlock();
 }
 
-Data* Vector::implement(const OperationType operation, BuiltinArgs* args) {
+Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         int index = static_cast<Integer*>(args->arg1)->getValue();
@@ -108,9 +108,9 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args) {
         }
         if (index < 0 || index >= size) {
             bberror("Vector index " + std::to_string(index) + " out of range [0," + std::to_string(size) + ")");
-            return nullptr;
+            return Result(nullptr);
         }
-        return new BFloat(data[index]);
+        return Result(new BFloat(data[index]));
     }
 
     if (operation == PUT && args->size == 3 && args->arg1->getType() == BB_INT && args->arg2->getType() == BB_FLOAT) {
@@ -122,10 +122,10 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args) {
         }
         if (index < 0 || index >= size) {
             bberror("Vector index " + std::to_string(index) + " out of range [0," + std::to_string(size) + ")");
-            return nullptr;
+            return Result(nullptr);
         }
         data[index] = static_cast<BFloat*>(args->arg2)->getValue();
-        return nullptr;
+        return Result(nullptr);
     }
 
 
@@ -135,7 +135,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args) {
 
         if (a1->size != a2->size) {
             bberror("Vector sizes do not match for addition.");
-            return nullptr;
+            return Result(nullptr);
         }
 
         std::lock_guard<std::recursive_mutex> lock1(a1->memoryLock);
@@ -145,7 +145,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args) {
         for (int i = 0; i < a1->size; ++i) {
             result->data[i] = a1->data[i] + a2->data[i];
         }
-        return result;
+        return Result(result);
     }
 
     if (operation == SUB && args->size == 2 && args->arg0->getType() == VECTOR && args->arg1->getType() == VECTOR) {
@@ -154,7 +154,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args) {
 
         if (a1->size != a2->size) {
             bberror("Vector sizes do not match for subtraction.");
-            return nullptr;
+            return Result(nullptr);
         }
 
         std::lock_guard<std::recursive_mutex> lock1(a1->memoryLock);
@@ -164,7 +164,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args) {
         for (int i = 0; i < a1->size; ++i) {
             result->data[i] = a1->data[i] - a2->data[i];
         }
-        return result;
+        return Result(result);
     }
 
     if (operation == MUL && args->size == 2 && args->arg0->getType() == VECTOR && args->arg1->getType() == VECTOR) {
@@ -172,14 +172,14 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args) {
         Vector* a2 = static_cast<Vector*>(args->arg1);
         if (a1->size != a2->size) {
             bberror("Vector sizes do not match for multiplication.");
-            return nullptr;
+            return Result(nullptr);
         }
         std::lock_guard<std::recursive_mutex> lock1(a1->memoryLock);
         std::lock_guard<std::recursive_mutex> lock2(a2->memoryLock);
         auto result = new Vector(a1->size);
         for (int i = 0; i < a1->size; ++i) 
             result->data[i] = a1->data[i] * a2->data[i];
-        return result;
+        return Result(result);
     }
 
     if (operation == MUL && args->size == 2 && args->arg0->getType() == VECTOR && args->arg1->getType() == VECTOR) {
@@ -187,14 +187,14 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args) {
         Vector* a2 = static_cast<Vector*>(args->arg1);
         if (a1->size != a2->size) {
             bberror("Vector sizes do not match for multiplication.");
-            return nullptr;
+            return Result(nullptr);
         }
         std::lock_guard<std::recursive_mutex> lock1(a1->memoryLock);
         std::lock_guard<std::recursive_mutex> lock2(a2->memoryLock);
         auto result = new Vector(a1->size);
         for (int i = 0; i < a1->size; ++i) 
             result->data[i] = a1->data[i] / a2->data[i];
-        return result;
+        return Result(result);
     }
 
     if (operation == POW && args->size == 2 && args->arg0->getType() == VECTOR && args->arg1->getType() == VECTOR) {
@@ -203,7 +203,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args) {
 
         if (a1->size != a2->size) {
             bberror("Vector sizes do not match for power operation.");
-            return nullptr;
+            return Result(nullptr);
         }
 
         std::lock_guard<std::recursive_mutex> lock1(a1->memoryLock);
@@ -213,7 +213,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args) {
         for (int i = 0; i < a1->size; ++i) {
             result->data[i] = std::pow(a1->data[i], a2->data[i]);
         }
-        return result;
+        return Result(result);
     }
 
     if (operation == SUM && args->size == 1 && args->arg0->getType() == VECTOR) {
@@ -225,7 +225,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args) {
         for (int i = 0; i < vec->size; ++i) {
             sum += vec->data[i];
         }
-        return new BFloat(sum);
+        return Result(new BFloat(sum));
     }
 
     if (operation == MAX && args->size == 1 && args->arg0->getType() == VECTOR) {
@@ -233,7 +233,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args) {
 
         if (vec->size == 0) {
             bberror("Cannot apply max on an empty vector.");
-            return nullptr;
+            return Result(nullptr);
         }
 
         std::lock_guard<std::recursive_mutex> lock(vec->memoryLock);
@@ -244,7 +244,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args) {
                 maxVal = vec->data[i];
             }
         }
-        return new BFloat(maxVal);
+        return Result(new BFloat(maxVal));
     }
 
 
@@ -253,7 +253,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args) {
 
         if (vec->size == 0) {
             bberror("Cannot apply min on an empty vector.");
-            return nullptr;
+            return Result(nullptr);
         }
 
         std::lock_guard<std::recursive_mutex> lock(vec->memoryLock);
@@ -264,7 +264,7 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args) {
                 minVal = vec->data[i];
             }
         }
-        return new BFloat(minVal);
+        return Result(new BFloat(minVal));
     }
 
 
@@ -320,12 +320,12 @@ Data* Vector::implement(const OperationType operation, BuiltinArgs* args) {
             }
         }
 
-        return result;
+        return Result(result);
     }
 
     
     if(operation==TOITER && args->size==1) 
-        return new Iterator(args->arg0);
+        return Result(new Iterator(args->arg0));
 
     throw Unimplemented();
 }

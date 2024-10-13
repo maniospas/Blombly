@@ -24,6 +24,8 @@ std::chrono::steady_clock::time_point program_start;
 std::recursive_mutex printMutex;
 std::recursive_mutex compileMutex;
 
+#define SET_RESULT if(command->args[0]!=variableManager.noneId) memory->unsafeSet(command->args[0], result, nullptr);return
+
 
 void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool &returnSignal, BuiltinArgs &args, Data*& result) {
     Command* command = program->at(i);
@@ -96,32 +98,41 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 called = (val);
             }
             auto code = static_cast<Code*>(called);
-            if (!code->scheduleForParallelExecution || !Future::acceptsThread()) {
+            if (true || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
                 BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
                 bool newReturnSignal(false);
                 if (context) {
                     bbassert(context->getType() == CODE, "Call context must be a code block.");
-                    result = executeBlock(static_cast<Code*>(context), &newMemory, newReturnSignal);
-                }
-                if(newReturnSignal) {
-                    if(result && result->getType()==CODE)
-                        static_cast<Code*>(result)->setDeclarationMemory(nullptr);
-                    break;
+                    Result returnedValue = executeBlock(static_cast<Code*>(context), &newMemory, newReturnSignal);
+                    if(newReturnSignal) {
+                        result = returnedValue.get();
+                        if(result && result->getType()==CODE)
+                            static_cast<Code*>(result)->setDeclarationMemory(nullptr);
+                        SET_RESULT;
+                        break;
+                    }
                 }
                 newMemory.detach(code->getDeclarationMemory());
                 newMemory.leak();
-                result = executeBlock(code, &newMemory, newReturnSignal);
-                if(result)
-                    result->removeFromOwner();  // countermand the return statement
+                Result returnedValue = executeBlock(code, &newMemory, newReturnSignal);
+                result = returnedValue.get();
                 if(result && result->getType()==CODE)
                     static_cast<Code*>(result)->setDeclarationMemory(nullptr);
+                SET_RESULT;
+                break;
             } 
             else {
                 auto newMemory = new BMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
                 bool newReturnSignal(false);
                 if (context) {
                     bbassert(context->getType() == CODE, "Call context must be a code block.");
-                    result = executeBlock(static_cast<Code*>(context), newMemory, newReturnSignal);
+                    Result returnedValue = executeBlock(static_cast<Code*>(context), newMemory, newReturnSignal);
+                    if(newReturnSignal) {
+                        result = returnedValue.get();
+                        if(result && result->getType()==CODE)
+                            static_cast<Code*>(result)->setDeclarationMemory(nullptr);
+                        SET_RESULT;
+                    }
                 }
                 if(newReturnSignal) {
                     if(result && result->getType()==CODE)
@@ -142,20 +153,20 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         case RETURN: {
             result = command->args[1] == variableManager.noneId ? nullptr : memory->get(command->args[1]);
             returnSignal = true;
-            // add to ghost memory waiting for consumption at the other end
-            if(result)
-                result->addOwner();
         } return;
 
         case GET: {
             result = memory->get(command->args[1]);
-            if (result->getType() == CODE) {
-                auto code = static_cast<Code*>(result);
-                result = code->getMetadata(command->args[2]);
-            } else if (result->getType() == STRUCT) {
+            if (result->getType() == STRUCT) {
                 auto obj = static_cast<Struct*>(result);
                 result = obj->getMemory()->get(command->args[2]);
             }
+            else if (result->getType() == CODE) {
+                auto code = static_cast<Code*>(result);
+                result = code->getMetadata(command->args[2]);
+            } 
+            else
+                bberror("get can only be called on struct or code");
         } break;
 
         case IS: {
@@ -179,6 +190,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             Data* setValue = memory->getOrNullShallow(command->args[3]);
             auto structMemory = structObj->getMemory();
             structMemory->unsafeSet(memory, command->args[2], setValue, nullptr);//structMemory->getOrNullShallow(command->args[2]));
+            result = nullptr;
         } break;
 
         case SETFINAL: {
@@ -187,6 +199,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto code = static_cast<Code*>(obj);
             Data* setValue = memory->get(command->args[3]);
             code->setMetadata(command->args[2], setValue);
+            result = nullptr;
         } break;
 
         case WHILE: {
@@ -196,10 +209,11 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto codeBody = static_cast<Code*>(body);
 
             while (condition->isTrue()) {
-                result = executeBlock(codeBody, memory, returnSignal);
-                if (returnSignal) break;
+                Result returnedValue = executeBlock(codeBody, memory, returnSignal);
+                if (returnSignal) {result = returnedValue.get();SET_RESULT;break;}
                 condition = memory->get(command->args[1]);
             }
+            result = nullptr;
         } break;
 
         case IF: {
@@ -209,10 +223,16 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
             if (condition->isTrue()) {
                 if (accept->getType() == CODE) {
-                    result = executeBlock(static_cast<Code*>(accept), memory, returnSignal);
+                    Result returnedValue = executeBlock(static_cast<Code*>(accept), memory, returnSignal);
+                    result = returnedValue.get();
+                    SET_RESULT;
                 }
+                else
+                    result = nullptr;
             } else if (reject && reject->getType() == CODE) {
-                result = executeBlock(static_cast<Code*>(reject), memory, returnSignal);
+                Result returnedValue = executeBlock(static_cast<Code*>(reject), memory, returnSignal);
+                result = returnedValue.get();
+                SET_RESULT;
             }
         } break;
 
@@ -275,9 +295,11 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 bbassert(condition->getType()==CODE, "Can only inline a non-called code block for try condition");
                 auto codeCondition = static_cast<Code*>(condition);
                 bool tryReturnSignal(false);
-                result = executeBlock(codeCondition, memory, tryReturnSignal);
-                if(!tryReturnSignal)
+                Result returnedValue = executeBlock(codeCondition, memory, tryReturnSignal);
+                result = returnedValue.get();
+                if(!tryReturnSignal) 
                     result = nullptr;
+                SET_RESULT;
             }
             catch (const BBError& e) {
                 result = new BError(e.what());
@@ -296,11 +318,17 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
             if(condition && condition->getType()==ERRORTYPE) { //&& !((BError*)condition)->isConsumed()) {
                 static_cast<BError*>(condition)->consume();
-                if(codeAccept) 
-                    result = executeBlock(codeAccept, memory, returnSignal);
+                if(codeAccept) {
+                    Result returnValue = executeBlock(codeAccept, memory, returnSignal);
+                    result = returnValue.get();
+                    SET_RESULT;
+                }
             }
-            else if(codeReject) 
-                result = executeBlock(codeReject, memory, returnSignal);
+            else if(codeReject) {
+                Result returnValue = executeBlock(codeReject, memory, returnSignal);
+                result = returnValue.get();
+                SET_RESULT;
+            }
         } break;
 
         case FAIL: {
@@ -318,8 +346,11 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     result = new Code(code->getProgram(), code->getStart(), code->getEnd(), nullptr, code->getAllMetadata());
                 }
                 else {
-                    result = compileAndLoad(static_cast<BFile*>(source)->getPath(), nullptr);
+                    Result returnValue = compileAndLoad(static_cast<BFile*>(source)->getPath(), nullptr);
+                    result = returnValue.get();
                     command->value = result;
+                    result->addOwner();
+                    SET_RESULT;
                 }
             }
             else if(source->getType()==STRUCT) 
@@ -328,7 +359,9 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 bberror("Can only inline a non-called code block or struct");
             else {
                 auto code = static_cast<Code*>(source);
-                result = executeBlock(code, memory, returnSignal);
+                Result returnedValue = executeBlock(code, memory, returnSignal);
+                result = returnedValue.get();
+                SET_RESULT;
             }
         } break;
 
@@ -353,25 +386,15 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             newMemory->unsafeSet(variableManager.thisId, thisObj, nullptr);
             newMemory->setFinal(variableManager.thisId);
             bool newReturnSignal(false);
-            result = executeBlock(code, newMemory, newReturnSignal);
+            Result returnedValue = executeBlock(code, newMemory, newReturnSignal);
+            result = returnedValue.get();
             newMemory->detach();
             if(result!=thisObj) {
-                if(result) {
-                    if(result->getType()==CODE) 
-                        static_cast<Code*>(result)->setDeclarationMemory(nullptr);
-                    if(command->args[0]!=variableManager.noneId)
-                        memory->unsafeSet(command->args[0], result, nullptr); // perform this first before accidentally deleting this by deleting thisObj
-                    result->removeFromOwner(); // countermand the return statement
-                }
+                if(result && result->getType()==CODE) 
+                    static_cast<Code*>(result)->setDeclarationMemory(nullptr);
                 thisObj->removeFromOwner();
-                return;
             }
-            else {
-                if(command->args[0]!=variableManager.noneId)
-                    memory->unsafeSet(command->args[0], result, nullptr); // perform this first before accidentally deleting
-                result->removeFromOwner(); // countermand the return statement
-                return;
-            }
+            SET_RESULT;
         } break;
 
         case TOLIST: {
@@ -400,16 +423,14 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 args.arg1 = MEMGET(memory, 2);
             if (nargs > 3) 
                 args.arg2 = MEMGET(memory, 3);
-            result = Data::run(command->operation, &args);
+            Result returnValue = Data::run(command->operation, &args);
+            result = returnValue.get();
+            SET_RESULT;
         } break;
     }
     //if(!result && command->knownLocal[0])
     //    bberror("Missing value encountered in intermediate computation "+variableManager.getSymbol(command->args[0])+". Explicitly use the `as` assignment to explicitly set potentially missing values\n");
     //Data* prevResult = command->knownLocal[0]?memory->getOrNullShallow(command->args[0]):memory->getOrNull(command->args[0], true)
-    if(command->args[0]==variableManager.noneId) {
-        if(result)
-            result->removeFromOwner();
-    }
-    else
+    if(command->args[0]!=variableManager.noneId) 
         memory->unsafeSet(command->args[0], result, nullptr);
 }

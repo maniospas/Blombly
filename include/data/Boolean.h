@@ -17,7 +17,7 @@ public:
     bool isTrue() const override;
     void setValue(bool val);
 
-    Data* implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
 
     friend class Integer; 
     friend class BFloat; 
