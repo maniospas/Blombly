@@ -36,7 +36,7 @@ public:
     
     void addOwner();
     virtual void removeFromOwner();
-protected:
+    void leak();
     std::atomic<int> referenceCounter;
 private:
     static int numObjects;

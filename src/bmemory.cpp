@@ -30,17 +30,12 @@ bool BMemory::isOrDerivedFrom(BMemory* memory) const {
     return false;
 }
 
-void BMemory::leak() {
-    /*for (const auto& element : data) {
+void BMemory::leak() { // only do this after detach so that there are no leftover values
+    for (const auto& element : data) {
         Data* dat = element.second;
-        if (dat && dat->getType() == FUTURE) {
-            auto prevRet = static_cast<Future*>(dat);
-            dat = prevRet->getResult();
-            data[element.first] = dat;
-        }
         if(dat)
             dat->leak();
-    }*/
+    }
 }
 
 void BMemory::release() {
@@ -96,8 +91,6 @@ Data* BMemory::get(int item) { // allowMutable = true
         auto resVal = prevRet->getResult();
         ret = resVal.get();
         ret = unsafeSet(item, ret); 
-        if(ret) 
-            ret->removeFromOwner(); // countermand the return statement now that everything has move in memory ret->removeFromOwner(); 
         attached_threads.erase(prevRet);
         return ret;
     }
@@ -118,8 +111,6 @@ Data* BMemory::get(int item, bool allowMutable) {
         auto resVal = prevRet->getResult();
         ret = resVal.get();
         ret = unsafeSet(item, ret); 
-        if(ret) 
-            ret->removeFromOwner(); // countermand the return statement now that everything has move in memory
         attached_threads.erase(prevRet);
         bbassert(ret, "Missing value: " + variableManager.getSymbol(item));
         return ret;
@@ -148,8 +139,6 @@ bool BMemory::contains(int item) {
         auto resVal = prevRet->getResult();
         ret = resVal.get();
         ret = unsafeSet(item, ret); 
-        if(ret) 
-            ret->removeFromOwner(); // countermand the return statement now that everything has move in memory
         attached_threads.erase(prevRet);
     }
     return ret!=nullptr;
@@ -163,13 +152,13 @@ Data* BMemory::getShallow(int item) {
         bberror("Missing value: " + variableManager.getSymbol(item));
     auto ret = it->second;
     if (ret && ret->getType() == FUTURE) {
+        //std::cout << "here4\n";
         auto prevRet = static_cast<Future*>(ret);
         auto resVal = prevRet->getResult();
         ret = resVal.get();
         ret = unsafeSet(item, ret);
-        if(ret)
-            ret->removeFromOwner(); // countermand the return statement now that everything has move in memory
         attached_threads.erase(prevRet);
+        //std::cout << "done\n";
     }
     if(!ret)
         bberror("Missing value: " + variableManager.getSymbol(item));
@@ -187,7 +176,7 @@ Data* BMemory::getOrNullShallow(int item) {
         auto prevRet = static_cast<Future*>(ret);
         auto resVal = prevRet->getResult();
         ret = resVal.get();
-        ret = unsafeSet(item, ret); if(ret) ret->removeFromOwner(); // countermand the return statement now that everything has move in memory
+        ret = unsafeSet(item, ret);
         attached_threads.erase(prevRet);
     }
     return ret;
@@ -202,8 +191,6 @@ Data* BMemory::getOrNull(int item, bool allowMutable) {
         auto resVal = prevRet->getResult();
         ret = resVal.get();
         ret = unsafeSet(item, ret);
-        if(ret)
-            ret->removeFromOwner(); // countermand the return statement now that everything has move in memory
         attached_threads.erase(prevRet);
     }
     if (ret && !allowMutable && !isFinal(item)) {
@@ -278,6 +265,7 @@ bool BMemory::isFinal(int item) const {
 void BMemory::pull(BMemory* other) {
     for (const auto& it : other->data) {
         if (it.second) {
+            it.second->leak();
             unsafeSet(it.first, it.second, getOrNullShallow(it.first));
         }
     }

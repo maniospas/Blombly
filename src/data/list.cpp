@@ -55,7 +55,7 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
                 auto ret = Result(contents.front());
                 ret.get()->removeFromOwner();
                 contents.erase(contents.begin());
-                return Result(ret);
+                return std::move(Result(ret));
             }
             case POP: {
                 if (contents.empty()) return std::move(Result(nullptr));
@@ -119,20 +119,22 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
     if (operation == PUSH && args->size == 2 && args->arg0 == this) {
         auto value = args->arg1;
         bbassert(value, "Cannot push a missing value to a list");
-        contents.push_back((value));
+        value->leak();
         //if(value)
             value->addOwner();
+        contents.push_back((value));
         return std::move(Result(nullptr));
     }
 
     if (operation == PUT && args->size == 3 && args->arg1->getType() == BB_INT) {
         int index = static_cast<Integer*>(args->arg1)->getValue();
-        if (index >= contents.size()) 
-            contents.resize(index + 1);
+        if (index < 0 || index >= contents.size()) 
+            bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents.size()) + ")");
         auto value = args->arg2;
         bbassert(value, "Cannot set a missing value on a list");
         Data* prev = contents[index];
         contents[index] = value;
+        value->leak();
         //if(prev)
             prev->removeFromOwner();
         //if(value)

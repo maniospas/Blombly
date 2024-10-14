@@ -10,15 +10,24 @@ Data::~Data() {
     //--numObjects;
 }
 
-
 void Data::addOwner() {
-    ++referenceCounter;
+    if(isContained) {
+        int& ref = *reinterpret_cast<int*>(&referenceCounter);
+        ++ref;
+    }
+    else
+        ++referenceCounter;
     //std::cout << "added "<<(referenceCounter)<<" "<<this<<"\n";
 }
 
 void Data::removeFromOwner() {
     //std::cout << "removed "<<(referenceCounter-1)<<" "<<this<<"\n";
-    if((--referenceCounter)==0) 
+    if(isContained) {
+        int& ref = *reinterpret_cast<int*>(&referenceCounter);
+        if((--ref)==0) 
+            delete this;
+    }
+    else if((--referenceCounter)==0) 
         delete this;
 }
 
@@ -26,9 +35,13 @@ int Data::countObjects() {
     return numObjects;
 }
 
+void Data::leak() {
+    isContained = false;
+}
+
 Result Data::run(const OperationType operation, BuiltinArgs *args) {
     try {
-        return args->arg0->implement(operation, args);
+        return std::move(args->arg0->implement(operation, args));
     }
     catch (Unimplemented&) {
         // Handle unimplemented methods

@@ -113,7 +113,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     }
                 }
                 newMemory.detach(code->getDeclarationMemory());
-                newMemory.leak();
+                //newMemory.leak(); (this is for testing only - we are not leaking any memory to other threads if we continue in the same thread, so no need to enable atomic reference counting)
                 Result returnedValue = executeBlock(code, &newMemory, newReturnSignal);
                 result = returnedValue.get();
                 if(result && result->getType()==CODE)
@@ -140,7 +140,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     break;
                 }
                 newMemory->detach(code->getDeclarationMemory());
-                newMemory->leak();
+                newMemory->leak(); // for all transferred variables, make their reference counter thread safe
 
                 auto futureResult = new ThreadResult();
                 auto future = new Future(futureResult);
@@ -152,6 +152,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
         case RETURN: {
             result = command->args[1] == variableManager.noneId ? nullptr : memory->get(command->args[1]);
+            //if(result)
+            //    result->leak();
             returnSignal = true;
         } return;
 
@@ -390,10 +392,13 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             Result returnedValue = executeBlock(code, newMemory, newReturnSignal);
             result = returnedValue.get();
             newMemory->detach();
+            newMemory->leak(); // TODO: investigate if this should be here or manually on getting and setting (here may be better to remove checks given that setting and getting are already slower)
             if(result!=thisObj) {
                 if(result && result->getType()==CODE) 
                     static_cast<Code*>(result)->setDeclarationMemory(nullptr);
-                thisObj->removeFromOwner();
+                if(command->args[0]!=variableManager.noneId) memory->unsafeSet(command->args[0], result, nullptr);
+                thisObj->removeFromOwner(); // do this after setting
+                return;
             }
             SET_RESULT;
         } break;
