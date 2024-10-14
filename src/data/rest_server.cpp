@@ -63,7 +63,7 @@ Result RestServer::implement(const OperationType operation, BuiltinArgs* args) {
             if(routeHandlers_[route])
                 routeHandlers_[route]->addOwner();
         }
-        return Result(nullptr);
+        return std::move(Result(nullptr));
     }
     throw Unimplemented();
 }

@@ -9,9 +9,8 @@ private:
 
 public:
     explicit Result(Data* data);
-    explicit Result(const Result& other);
-    explicit Result(Result& other);
-    explicit Result(Result&& other) noexcept;
+    explicit Result(Result& other) noexcept;
+    Result(Result&& other) noexcept;
     ~Result();
     Result& operator=(const Result& other);
     Result& operator=(Result&& other) noexcept;

@@ -1,7 +1,16 @@
-BEGIN _bb0
-BUILTIN _bb1 I1
-return # _bb1
+BEGIN _bb2
+BUILTIN z I1
+return # this
 END
-IS test _bb0
-call x # test
-print # x
+new x _bb2
+BEGIN _bb6
+BUILTIN z I2
+return # this
+END
+new y _bb6
+set # x x x
+get _bb11 x x
+get _bb10 _bb11 x
+get _bb9 _bb10 x
+get _bb8 _bb9 z
+print # _bb8

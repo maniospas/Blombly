@@ -54,5 +54,5 @@ Result Future::getResult() const {
         result->value = Result(nullptr);
         throw BBError(error_message);
     }
-    return Result(result->value.get());
+    return std::move(Result(result->value.get()));
 }

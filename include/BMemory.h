@@ -53,6 +53,7 @@ private:
     Data* fastData;
 
 public:
+    Data* thisObject;
     void release();
     BMemory* parent;
     tsl::hopscotch_set<Future*> attached_threads;
@@ -61,7 +62,7 @@ public:
     bool isOrDerivedFrom(BMemory* memory) const;
     void leak();
 
-    explicit BMemory(BMemory* par, int expectedAssignments);
+    explicit BMemory(BMemory* par, int expectedAssignments, Data* thisObject=nullptr);
     ~BMemory();
 
     bool contains(int item);

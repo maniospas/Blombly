@@ -16,7 +16,7 @@ void BMemory::verify_noleaks() {
     bbassert(countUnrealeasedMemories.load() == 0, "There are " + std::to_string(countUnrealeasedMemories.load()) + " leftover memory contexts");  // the main memory is a global object (needed to sync threads on errors)
 }
 
-BMemory::BMemory(BMemory* par, int expectedAssignments) : parent(par), allowMutables(true), fastId(-1) {
+BMemory::BMemory(BMemory* par, int expectedAssignments, Data* thisObject) : parent(par), allowMutables(true), fastId(-1), thisObject(thisObject) {
     //std::cout << "created "<<this<<"\n";
     countUnrealeasedMemories++;
     data.reserve(expectedAssignments);

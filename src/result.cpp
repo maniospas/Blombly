@@ -7,12 +7,7 @@ Result::Result(Data* data) : data(data) {
         data->addOwner();
 }
 
-Result::Result(const Result& other) : data(other.data) {
-    if (data) 
-        data->addOwner();
-}
-
-Result::Result(Result& other) : data(other.data) {
+Result::Result(Result& other) noexcept : data(other.data) {
     if (data) 
         data->addOwner();
 }

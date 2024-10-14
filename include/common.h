@@ -82,9 +82,9 @@ Result executeBlock(Code* code, BMemory* memory, bool  &returnSignal);
 #define MEMGET(memory, arg) (command->knownLocal[arg]?memory->getShallow(command->args[arg]):memory->get(command->args[arg]))
 
 // Code reused when returning various data from overridden Data::implement 
-#define STRING_RESULT(expr) return Result(new BString(expr))
-#define BB_BOOLEAN_RESULT(expr) return Result(new Boolean(expr))
-#define BB_INT_RESULT(expr) return Result(new Integer(expr))
-#define BB_FLOAT_RESULT(expr) return Result(new BFloat(expr))
+#define STRING_RESULT(expr) return std::move(Result(new BString(expr)))
+#define BB_BOOLEAN_RESULT(expr) return std::move(Result(new Boolean(expr)))
+#define BB_INT_RESULT(expr) return std::move(Result(new Integer(expr)))
+#define BB_FLOAT_RESULT(expr) return std::move(Result(new BFloat(expr)))
 
 #endif // COMMON_H

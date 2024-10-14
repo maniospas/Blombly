@@ -48,8 +48,8 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
     
     if (args->size == 1) {
         switch (operation) {
-            case LEN: return Result(new Integer(contents.size()));
-            case TOITER: return Result(new Iterator(args->arg0));
+            case LEN: return std::move(Result(new Integer(contents.size())));
+            case TOITER: return std::move(Result(new Iterator(args->arg0)));
             case NEXT: {
                 if (contents.empty()) return Result(nullptr);
                 auto ret = Result(contents.front());
@@ -58,11 +58,11 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
                 return Result(ret);
             }
             case POP: {
-                if (contents.empty()) return Result(nullptr);
+                if (contents.empty()) return std::move(Result(nullptr));
                 auto ret = Result(contents.back());
                 ret.get()->removeFromOwner();
                 contents.pop_back();
-                return Result(ret);
+                return std::move(Result(ret));
             }
             case TOMAP: {
                 auto map = new BHashMap();
@@ -75,7 +75,7 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
                         bberror("Can only create a map from a list of 2-element lists");
                     map->put(list->contents[0], list->contents[1]);
                 }
-                return Result(map);
+                return std::move(Result(map));
             }
             case TOVECTOR: {
                 int n = contents.size();
@@ -101,7 +101,7 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
                 catch (BBError& e) {
                     throw e;
                 }
-                return Result(vec);
+                return std::move(Result(vec));
             }
         }
         throw Unimplemented();
@@ -122,7 +122,7 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
         contents.push_back((value));
         //if(value)
             value->addOwner();
-        return Result(nullptr);
+        return std::move(Result(nullptr));
     }
 
     if (operation == PUT && args->size == 3 && args->arg1->getType() == BB_INT) {
@@ -137,7 +137,7 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
             prev->removeFromOwner();
         //if(value)
             value->addOwner();
-        return Result(nullptr);
+        return std::move(Result(nullptr));
     }
 
     throw Unimplemented();

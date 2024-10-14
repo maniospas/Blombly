@@ -73,7 +73,7 @@ Result Data::run(const OperationType operation, BuiltinArgs *args) {
     }
     err += ")";
     bberror(err);
-    return Result(nullptr);
+    return std::move(Result(nullptr));
 }
 
 Result Data::implement(const OperationType operation, BuiltinArgs* args) {

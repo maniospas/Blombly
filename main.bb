@@ -1,6 +1,6 @@
-test = {
-    return 1;
-}
+x = new{z=1}
+y = new{z=2}
+x.x = x;
 
-x = test();
-print(x);
+
+print(x.x.x.x.z);

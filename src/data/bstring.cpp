@@ -32,7 +32,7 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
                 char* endptr = nullptr;
                 int ret = std::strtol(value.c_str(), &endptr, 10);
                 if (endptr == value.c_str() || *endptr != '\0') {
-                    return Result(nullptr);
+                    return std::move(Result(nullptr));
                 }
                 BB_INT_RESULT(ret);
             }
@@ -41,13 +41,13 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
                 char* endptr = nullptr;
                 double ret = std::strtod(value.c_str(), &endptr);
                 if (endptr == value.c_str() || *endptr != '\0') {
-                    return Result(nullptr);
+                    return std::move(Result(nullptr));
                 }
                 BB_FLOAT_RESULT(ret);
             }
             case TOBB_BOOL: BB_BOOLEAN_RESULT(value == "true");
-            case TOITER: return Result(new Iterator(args->arg0));
-            case TOFILE: return Result(new BFile(value));
+            case TOITER: return std::move(Result(new Iterator(args->arg0)));
+            case TOFILE: return std::move(Result(new BFile(value)));
         }
         throw Unimplemented();
     }
@@ -56,9 +56,9 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
         int index = static_cast<Integer*>(args->arg1)->getValue();
         if (index < 0 || index >= value.size()) {
             bberror("String index " + std::to_string(index) + " out of range [0," + std::to_string(value.size()) + ")");
-            return Result(nullptr);
+            return std::move(Result(nullptr));
         }
-        return Result(new BString(std::string(1, value[index])));
+        return std::move(Result(new BString(std::string(1, value[index]))));
     }
 
     throw Unimplemented();

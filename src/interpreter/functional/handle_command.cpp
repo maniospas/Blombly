@@ -98,7 +98,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 called = (val);
             }
             auto code = static_cast<Code*>(called);
-            if (true || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
+            if (!code->scheduleForParallelExecution || !Future::acceptsThread()) {
                 BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
                 bool newReturnSignal(false);
                 if (context) {
@@ -383,6 +383,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto code = static_cast<Code*>(source);
             auto newMemory = new BMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
             auto thisObj = new Struct(newMemory); 
+            newMemory->thisObject = thisObj;
             newMemory->unsafeSet(variableManager.thisId, thisObj, nullptr);
             newMemory->setFinal(variableManager.thisId);
             bool newReturnSignal(false);

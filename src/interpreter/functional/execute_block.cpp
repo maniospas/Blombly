@@ -14,14 +14,14 @@ Result executeBlock(Code* code, BMemory* memory, bool &returnSignal) {
         for (; i <= end; ++i) {
             handleCommand(program, i, memory, returnSignal, args, value);
             if (returnSignal) 
-                return Result(value);
+                return std::move(Result(value));
         }
     } 
     catch (const BBError& e) {
         handleExecutionError(program, i, e);
     }
 
-    return Result(value);
+    return std::move(Result(value));
 }
 
 

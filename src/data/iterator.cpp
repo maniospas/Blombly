@@ -30,7 +30,7 @@ Result Iterator::implement(const OperationType operation, BuiltinArgs* args) {
         pos->value += 1; 
         int currentPos = pos->value;
         if (currentPos >= size) 
-            return Result(nullptr);
+            return std::move(Result(nullptr));
 
         args->arg0 = object;
         args->arg1 = pos;
@@ -39,8 +39,8 @@ Result Iterator::implement(const OperationType operation, BuiltinArgs* args) {
     }
     
     if (args->size == 1 && operation == LEN) 
-        return Result(new Integer(size));
+        return std::move(Result(new Integer(size)));
     if (args->size == 1 && operation == TOITER) 
-        return Result(this);
+        return std::move(Result(this));
     throw Unimplemented();
 }
