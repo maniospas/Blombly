@@ -17,7 +17,7 @@ void Data::addOwner() {
     }
     else
         ++referenceCounter;
-    //std::cout << "added "<<(referenceCounter)<<" "<<this<<"\n";
+    //std::cout << "added "<<(referenceCounter)<<" "<<this<<" "<<toString()<<"\n";
 }
 
 void Data::removeFromOwner() {
