@@ -6,7 +6,6 @@
 #include <cmath>
 #include "data/Data.h"
 
-
 class Integer : public Data {
 private:
     int value;
@@ -23,7 +22,7 @@ public:
         return std::hash<int>{}(value);
     }
 
-    friend class Iterator;
+    friend class AccessIterator;
     friend class BFloat;
     friend class Boolean;
     friend class BString;

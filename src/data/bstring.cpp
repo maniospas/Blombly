@@ -46,7 +46,7 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
                 BB_FLOAT_RESULT(ret);
             }
             case TOBB_BOOL: BB_BOOLEAN_RESULT(value == "true");
-            case TOITER: return std::move(Result(new Iterator(args->arg0)));
+            case TOITER: return std::move(Result(new AccessIterator(args->arg0)));
             case TOFILE: return std::move(Result(new BFile(value)));
         }
         throw Unimplemented();

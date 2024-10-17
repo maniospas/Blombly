@@ -3,6 +3,7 @@
 #include "data/BFloat.h"
 #include "data/Vector.h"
 #include "data/BString.h"
+#include "data/Iterator.h"
 #include "common.h"
 #include <iostream>
 #include <sstream>
@@ -83,8 +84,10 @@ Result Integer::implement(const OperationType operation, BuiltinArgs* args) {
                 case MOD: BB_INT_RESULT(v1 % v2);
                 case POW: BB_INT_RESULT(static_cast<int>(std::pow(v1, v2)));
                 case DIV: BB_FLOAT_RESULT(v1 / static_cast<float>(v2));
+                case TORANGE: return Result(new IntRange(v1, v2, 1));
             }
-        } else if ((type0 == BB_FLOAT || type0 == BB_INT) && (type1 == BB_FLOAT || type1 == BB_INT)) {
+        } 
+        else if ((type0 == BB_FLOAT || type0 == BB_INT) && (type1 == BB_FLOAT || type1 == BB_INT)) {
             double v1 = type0 == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg0)->getValue())
                                      : static_cast<BFloat*>(args->arg0)->getValue();
             double v2 = type1 == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg1)->getValue())
@@ -118,6 +121,7 @@ Result Integer::implement(const OperationType operation, BuiltinArgs* args) {
             case TOBB_FLOAT: BB_FLOAT_RESULT(value);
             case TOSTR: STRING_RESULT(std::to_string(value));
             case TOVECTOR: return Result(new Vector(value, true));
+            case TORANGE: return Result(new IntRange(0, value, 1));
         }
         throw Unimplemented();
     }

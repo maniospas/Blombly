@@ -49,7 +49,7 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 1) {
         switch (operation) {
             case LEN: return std::move(Result(new Integer(contents.size())));
-            case TOITER: return std::move(Result(new Iterator(args->arg0)));
+            case TOITER: return std::move(Result(new AccessIterator(args->arg0)));
             case NEXT: {
                 if (contents.empty()) return Result(nullptr);
                 auto ret = Result(contents.front());

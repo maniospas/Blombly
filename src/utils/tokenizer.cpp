@@ -23,6 +23,8 @@ bool isBool(const std::string& value) {
 bool isInt(const std::string& value) {
     if (value.length() > 3 && value.substr(0, 3) == "inf")
         return false;
+    if (value.find('.') != std::string::npos)
+        return false;
     try {
         std::stoi(value);
         return true;

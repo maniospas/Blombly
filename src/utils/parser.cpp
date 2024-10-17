@@ -38,6 +38,9 @@ const std::string PARSER_COPY = "copy";
 const std::string ANON = "_bb";
 extern std::string blombly_executable_path;
 
+
+extern void replaceAll(std::string &str, const std::string &from, const std::string &to);
+
 class Parser {
 private:
     std::vector<Token> tokens;
@@ -275,7 +278,7 @@ public:
                     if (type == 3)
                         ret += PARSER_BUILTIN + " " + var + " I" + first_name 
                                + "\n";
-                    if (type == 4)
+                    if (type == 4) 
                         ret += PARSER_BUILTIN + " " + var + " F" + first_name 
                                + "\n";
                     return var;
@@ -530,11 +533,10 @@ public:
                       "\n        only before any other block commands and only"
                       "\n        and immediately assigning a block. Metadata are not inlined.\n"
                       + show_position(start));
-
             
             if (first_name == "std::print" || first_name == "print") {
                 std::string parsed = parse_expression(start + 1, end);
-                bbassert(parsed != "#", "An expression that computes no value  was given to `" + first_name+"`.\n"+show_position(start+1));
+                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`.\n"+show_position(start+1));
                 std::string var = "#";
                 ret += "print " + var + " " + parsed + "\n";
                 return var;
@@ -549,7 +551,7 @@ public:
             
             if (first_name == "fail" || first_name == "std::fail") {
                 std::string parsed = parse_expression(start + 1, end);
-                bbassert(parsed != "#", "An expression that computes no value  was given to `" + first_name+"`.\n"+show_position(tokens, start+1));
+                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`.\n"+show_position(tokens, start+1));
                 std::string var = "#";
                 ret += "fail " + var + " " + parsed + "\n";
                 return var;
@@ -677,6 +679,26 @@ public:
                 std::string var = create_temp();
                 ret += "inline " + var + " " + parse_expression(start, end - 1) + "\n";
                 return var;
+            }
+
+            if (first_name == "std::range" || first_name=="range") {
+                bbassert(tokens[start + 1].name == "(", "Missing ( just after `" + first_name+"`.\n"+show_position(start+1));
+                bbassert(find_end(start + 2, end, ")") == end, "Leftover code after the last `)` for `" + first_name+"`.\n"+show_position(start+2));
+                int separator = find_end(start + 2, end, ",");
+                if(first_name.substr(0, 5)=="std::")
+                    first_name = first_name.substr(5);
+                std::string temp = create_temp();
+                if(separator==MISSING) {
+                    ret += first_name + " " + temp + " " + parse_expression(start + 2, end - 1) + "\n";
+                    return temp;
+                }
+                int separator2 = find_end(separator + 1, end, ",");
+                if(separator2==MISSING) {
+                    ret += first_name + " " + temp + " " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, end - 1) + "\n";
+                    return temp;
+                }
+                ret += first_name + " " + temp + " " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, separator2 - 1) + parse_expression(separator2 + 1, end - 1) + "\n";
+                return temp;
             }
 
             if (first_name == "std::push" || first_name=="push") {
@@ -874,7 +896,7 @@ void sanitize(std::vector<Token>& tokens) {
                      + Parser::show_position(tokens, i));
         if (tokens[i].builtintype == 3 && i < tokens.size() - 2 && 
             tokens[i + 1].name == "." && tokens[i + 2].builtintype == 3) {
-            tokens[i].name += "." + tokens[i + 2].name;
+            tokens[i].name = tokens[i].name.substr(0)+"." + tokens[i + 2].name;
             tokens[i].builtintype = 4;
             updatedTokens.push_back(tokens[i]);
             i += 2;
@@ -1075,6 +1097,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 if(involved.find(inv)==std::string::npos)
                     involved += "\n"+inv;
             }
+            replaceAll(message, "\\n", "\n");
             bberror(message+"\n"+involved);
         }
         else if (tokens[i].name == "#" && i < tokens.size() - 3 && tokens[i + 1].name == "spec") {

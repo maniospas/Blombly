@@ -1,36 +1,24 @@
-time tic
 BEGIN _bb1
-next n args
-BEGIN _bb2
-BUILTIN _bb3 I1
-return # _bb3
+BUILTIN name "loop"
+BUILTIN author "Emmanouil Krasanakis"
+BUILTIN license "Apache 2.0"
+BUILTIN version "1.1"
+BUILTIN release I0
+BUILTIN year I2024
+BUILTIN doc "     \n Provides macros that declare anonymous iterators for     \n faster code writting.     \n      \n loop::next     \n ----------     \n Allows iteration over all elements of a list or      \n other iterable, like so:     \n     \n |   A = 1,2,3;     \n |   while(x as loop::next(A))      \n |      print(x);     \n     \n This is a wrapper around `std::next` that creates      \n an iterator for the supplied expression just     \n before the loop's command.     \n      \n loop:range     \n ----------     \n Performs in-place construction of an iterator with     \n `std::range` and the same arguments and transfers that     \n to the loop. For example:     \n      \n |   while(i as loop::range(1, 5))     \n |       print(i);     \n     "
 END
-BUILTIN _bb5 I2
-le _bb4 n _bb5
-if # _bb4 _bb2
-BEGIN _bb8
-BUILTIN _bb10 I2
-sub _bb9 n _bb10
-list args _bb9
+AS loop::INFO _bb1
+final # loop::INFO
+exists _bb9 loop::INFO
+BUILTIN _bb11 I5
+range _bbmacro0 _bb11
+next _bb12 _bbmacro0
+AS i _bb12
+exists _bb13 i
+BEGIN _bb14
+print # i
+next _bb12 _bbmacro0
+AS i _bb12
+exists _bb13 i
 END
-call _bb7 _bb8 fib
-BEGIN _bb12
-BUILTIN _bb14 I1
-sub _bb13 n _bb14
-list args _bb13
-END
-call _bb11 _bb12 fib
-add _bb6 _bb11 _bb7
-return # _bb6
-END
-IS fib _bb1
-final # fib
-BEGIN _bb16
-BUILTIN _bb17 I32
-list args _bb17
-END
-call _bb15 _bb16 fib
-print # _bb15
-time _bb19
-sub _bb18 _bb19 tic
-print # _bb18
+while # _bb13 _bb14

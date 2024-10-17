@@ -36,7 +36,7 @@ int Data::countObjects() {
 }
 
 void Data::leak() {
-    //isContained = false;
+    isContained = false;
 }
 
 Result Data::run(const OperationType operation, BuiltinArgs *args) {

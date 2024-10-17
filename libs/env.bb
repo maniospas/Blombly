@@ -11,11 +11,23 @@ final env::INFO as {
     \n new libraries should contain a library::INFO
     \n code block that sets the following variables:
     \n name, author, license, version, release, year.
-    \n Then import both env and library and call one 
-    \n of the following methods:
+    \n Version control substitutes the import statement
+    \n and can track imported libraries. Available
+    \n macros follow.
     \n
-    \n - env::help(library::INFO); 
+    \n - env::include(library);
+    \n   Includes a library by its name (as a string).
+    \n - env::include(library|version=...;release=...);
+    \n 
+    \n   Includes a library with a specific version and
+    \n   release number. You may ommit the release.
+    \n
+    \n - env::help(library); 
     \n   Prints the details of the library.
+    \n 
+    \n - env::versions();
+    \n   Prints a summary of all libraries introduced
+    \n   through `env::include` statements.
     ";
 } // ---------------------------------------------------
 
@@ -72,7 +84,8 @@ final env::dependencies = list(new{env::INFO:});
 final env::ljust(text) = {
     text = str(text);
     default size = 20;
-    text = text + " "*(size-len(text));
+    while(len(text) < size)
+        text = text+" ";
     return text;
 }
 
@@ -80,7 +93,7 @@ final env::ljust(text) = {
 final env::versions() = {
     desc = env::hbar + "\n";
     desc = desc + env::ljust("Library") + " Version\n";
-    while(dependency as next(#of iter(env::dependencies))) 
+    while(dependency as std::next(#of std::iter(env::dependencies))) 
         desc = desc + "{env::ljust(dependency.name)} {dependency.version}.{dependency.release}\n";
     desc = desc + env::hbar;
     print(desc);

@@ -67,7 +67,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args) {
         STRING_RESULT(toString());
     }
     if (operation == TOITER) {
-        return std::move(Result(new Iterator(args->arg0)));
+        return std::move(Result(new AccessIterator(args->arg0)));
     }
     throw Unimplemented();
 }

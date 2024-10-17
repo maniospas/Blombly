@@ -7,19 +7,41 @@
 #include "data/Data.h"
 #include "data/Integer.h"
 
-// Iterator class representing an iterator over a data object
+
 class Iterator : public Data {
+public:
+    explicit Iterator();
+    std::string toString() const override;
+};
+
+
+class AccessIterator : public Iterator {
 private:
-    mutable std::recursive_mutex memoryLock;  // Use std::recursive_mutex for locking
+    mutable std::recursive_mutex memoryLock;
     int size;
     Data* object;
     Integer* pos;
 
 public:
-    explicit Iterator(Data* object_);
-    ~Iterator();
+    explicit AccessIterator(Data* object_);
+    ~AccessIterator();
+    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
+};
 
-    std::string toString() const override;
+
+class IntRange : public Iterator {
+private:
+    int first, last, step;
+public:
+    explicit IntRange(int first, int last, int step);
+    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
+};
+
+class FloatRange : public Iterator {
+private:
+    double first, last, step;
+public:
+    explicit FloatRange(double first, double last, double step);
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
 };
 
