@@ -11,23 +11,23 @@ Data::~Data() {
 }
 
 void Data::addOwner() {
-    if(isContained) {
+    /*if(isContained) {
         int& ref = *reinterpret_cast<int*>(&referenceCounter);
         ++ref;
     }
-    else
+    else*/
         ++referenceCounter;
     //std::cout << "added "<<(referenceCounter)<<" "<<this<<" "<<toString()<<"\n";
 }
 
 void Data::removeFromOwner() {
     //std::cout << "removed "<<(referenceCounter-1)<<" "<<this<<"\n";
-    if(isContained) {
+   /* if(isContained) {
         int& ref = *reinterpret_cast<int*>(&referenceCounter);
         if((--ref)==0) 
             delete this;
     }
-    else if((--referenceCounter)==0) 
+    else*/ if((--referenceCounter)==0) 
         delete this;
 }
 
@@ -36,7 +36,7 @@ int Data::countObjects() {
 }
 
 void Data::leak() {
-    isContained = false;
+    //isContained = false;
 }
 
 Result Data::run(const OperationType operation, BuiltinArgs *args) {

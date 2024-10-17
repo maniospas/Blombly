@@ -53,16 +53,16 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
             case NEXT: {
                 if (contents.empty()) return Result(nullptr);
                 auto ret = Result(contents.front());
-                ret.get()->removeFromOwner();
                 contents.erase(contents.begin());
-                return std::move(Result(ret));
+                ret.get()->removeFromOwner();
+                return std::move(ret);
             }
             case POP: {
                 if (contents.empty()) return std::move(Result(nullptr));
                 auto ret = Result(contents.back());
-                ret.get()->removeFromOwner();
                 contents.pop_back();
-                return std::move(Result(ret));
+                //ret.get()->removeFromOwner();
+                return std::move(ret);
             }
             case TOMAP: {
                 auto map = new BHashMap();
@@ -113,15 +113,14 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
         if (index < 0 || index >= contents.size()) 
             bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents.size()) + ")");
         auto res = contents.at(index);
-        return Result(res);
+        return std::move(Result(res));
     }   
 
     if (operation == PUSH && args->size == 2 && args->arg0 == this) {
         auto value = args->arg1;
         bbassert(value, "Cannot push a missing value to a list");
         value->leak();
-        //if(value)
-            value->addOwner();
+        value->addOwner();
         contents.push_back((value));
         return std::move(Result(nullptr));
     }
@@ -135,10 +134,8 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
         Data* prev = contents[index];
         contents[index] = value;
         value->leak();
-        //if(prev)
-            prev->removeFromOwner();
-        //if(value)
-            value->addOwner();
+        value->addOwner();
+        prev->removeFromOwner();
         return std::move(Result(nullptr));
     }
 

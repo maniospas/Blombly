@@ -23,9 +23,7 @@ Result::~Result() {
 }
 
 Result& Result::operator=(const Result& other) {
-    if (this != &other && data!=other.data) {
-        if(data)
-            data->removeFromOwner();
+    if (this != &other) {
         data = other.data;
         if (data) 
             data->addOwner();
@@ -34,9 +32,7 @@ Result& Result::operator=(const Result& other) {
 }
 
 Result& Result::operator=(Result&& other) noexcept {
-    if (this != &other && data!=other.data) {
-        if(data)
-            data->removeFromOwner();
+    if (this != &other) {
         data = other.data;
         other.data = nullptr;
     }

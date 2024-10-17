@@ -26,7 +26,7 @@ END
 IS fib _bb1
 final # fib
 BEGIN _bb16
-BUILTIN _bb17 I10
+BUILTIN _bb17 I32
 list args _bb17
 END
 call _bb15 _bb16 fib

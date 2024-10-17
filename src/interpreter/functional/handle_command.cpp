@@ -407,6 +407,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto list = new BList(command->nargs-1);
             for(int i=1;i<command->nargs;i++) {
                 Data* element = MEMGET(memory, i);
+                element->addOwner();
                 list->contents.push_back(element);
             }
             result = list;
