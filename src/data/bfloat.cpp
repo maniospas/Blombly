@@ -9,6 +9,8 @@
 #include "data/Integer.h"
 #include "data/Boolean.h"
 #include "data/BString.h"
+#include "data/Iterator.h"
+
 
 // Helper function for formatted output similar to Python's float formatting
 std::string __python_like_float_format(double number, const std::string& format) {
@@ -99,6 +101,13 @@ Result BFloat::implement(const OperationType operation, BuiltinArgs* args) {
             case TOSTR: STRING_RESULT(std::to_string(value));
         }
         throw Unimplemented();
+    }
+
+    if (args->size == 3 && operation == TORANGE) {
+        double v0 = args->arg0->getType() == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg0)->getValue()) : static_cast<BFloat*>(args->arg0)->getValue();
+        double v1 = args->arg1->getType() == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg1)->getValue()) : static_cast<BFloat*>(args->arg1)->getValue();
+        double v2 = args->arg2->getType() == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg2)->getValue()) : static_cast<BFloat*>(args->arg2)->getValue();
+        return std::move(Result(new FloatRange(v0, v1, v2)));
     }
 
     throw Unimplemented();

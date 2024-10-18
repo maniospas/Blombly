@@ -1,4 +1,3 @@
-#include "libs/loop"
-
-while(i as loop::range(5))
+it = range(2, 0, -0.5);
+while(i as next(it))
     print(i);

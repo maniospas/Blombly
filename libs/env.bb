@@ -17,10 +17,10 @@ final env::INFO as {
     \n
     \n - env::include(library);
     \n   Includes a library by its name (as a string).
-    \n - env::include(library|version=...;release=...);
-    \n 
+    \n
+    \n - env::include(library|version=...;minrelease=...);
     \n   Includes a library with a specific version and
-    \n   release number. You may ommit the release.
+    \n   minimum release number. You may ommit the latter.
     \n
     \n - env::help(library); 
     \n   Prints the details of the library.

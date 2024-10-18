@@ -107,7 +107,8 @@ void optimize(const std::string& source, const std::string& destination) {
         program.insert(program.begin(), std::make_shared<OptimizerCommand>("BUILTIN "+entry.second+" "+entry.first));
     }*/
 
-    // remove all IS (not AS) that follow an assignment
+    // remove all IS (not AS) that follow an assignment that is not AT or GET
+    // TODO: add assembly commands for atAS and getAS (or some other indicators for AS assignments)
     for(int i=0;i<program.size();i++) {
         std::shared_ptr<OptimizerCommand> command = program[i];
         if(command->args.size()<3 || command->args[0]!="IS")
@@ -116,7 +117,7 @@ void optimize(const std::string& source, const std::string& destination) {
         std::string symbol = command->args[2];
         int declaration = i-1; // for the time being this issue can arise only by adding an IS after an immediate command
         if(declaration>=0 && program[declaration]->args.size()>1 && program[declaration]->args[0]!="IS" 
-            && program[declaration]->args[1] == symbol) {
+            && program[declaration]->args[1] == symbol && program[declaration]->args[0] != "at" && program[declaration]->args[0] != "get") {
             program[declaration]->args[1] = to_replace;
             program[i]->enabled = false;
         }

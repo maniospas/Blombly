@@ -459,8 +459,27 @@ public:
                     first_name == "std::vector" || first_name == "std::iter" || 
                     first_name == "std::add" || first_name == "std::sub" || 
                     first_name == "std::min" || first_name == "std::max" || 
-                    first_name == "std::call") {
+                    first_name == "std::call" || first_name == "std::range" || 
+                    first_name == "std::print" || first_name == "std::read") {
                     bberror("Cannot assign to std implementation `" + first_name + "`.\n"+show_position(start));
+                }
+                if (first_name == "int" || first_name == "float" || 
+                    first_name == "str" || first_name == "file" || 
+                    first_name == "list" || first_name == "map" || 
+                    first_name == "pop" || first_name == "push" || 
+                    first_name == "len" || first_name == "next" || 
+                    first_name == "vector" || first_name == "iter" || 
+                    first_name == "add" || first_name == "sub" || 
+                    first_name == "min" || first_name == "max" || 
+                    first_name == "call" || first_name == "range" || 
+                    first_name == "print" || first_name == "read" 
+                    ) {
+                    bberror("Cannot assign to builtin symbol `" + first_name + "`."
+                            "\n   \033[33m!!!\033[0m This prevents confusion by making this always shorthand for `std::"+first_name+"` ."
+                            "\n       Consider assigning to \\"+first_name+" instead or adding a prefix `lib::` to indicate specialization."
+                            "\n       If you are sure you want to impact all subsequent code (as well as included code), you may reassign the"
+                            "\n       symbol with #macro {"+first_name+"} as {lib::"+first_name+"} after implementing the latter.\n"
+                            +show_position(start));
                 }
 
                 if (first_name == "default" || 
@@ -697,7 +716,7 @@ public:
                     ret += first_name + " " + temp + " " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, end - 1) + "\n";
                     return temp;
                 }
-                ret += first_name + " " + temp + " " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, separator2 - 1) + parse_expression(separator2 + 1, end - 1) + "\n";
+                ret += first_name + " " + temp + " " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, separator2 - 1) + " " + parse_expression(separator2 + 1, end - 1) + "\n";
                 return temp;
             }
 
@@ -894,9 +913,27 @@ void sanitize(std::vector<Token>& tokens) {
                     "\n   \033[33m!!!\033[0m Names starting with this prefix are reserved"
                     "\n        for VM local temporaries created by the compiler.\n"
                      + Parser::show_position(tokens, i));
+        
+        if (tokens[i].name=="-" && (i==0 || (tokens[i-1].name=="=" || tokens[i-1].name=="as" || tokens[i-1].name=="{" ||  tokens[i-1].name=="[" || tokens[i-1].name=="(" || tokens[i-1].name==",")) 
+            && i < tokens.size() - 1 && (tokens[i + 1].builtintype == 3 || tokens[i + 1].builtintype == 4)) {
+            tokens[i].name = "-" + tokens[i + 1].name;
+            tokens[i].builtintype = tokens[i + 1].builtintype;
+            i += 1;
+            // negative floats
+            if (tokens[i].builtintype == 3 && i < tokens.size() - 2 && 
+                tokens[i + 1].name == "." && tokens[i + 2].builtintype == 3) {
+                tokens[i].name = "-"+tokens[i].name+"." +tokens[i + 2].name;
+                tokens[i].builtintype = 4;
+                updatedTokens.push_back(tokens[i]);
+                i += 2;
+            }
+            else
+                updatedTokens.push_back(tokens[i-1]);
+            continue;
+        }
         if (tokens[i].builtintype == 3 && i < tokens.size() - 2 && 
             tokens[i + 1].name == "." && tokens[i + 2].builtintype == 3) {
-            tokens[i].name = tokens[i].name.substr(0)+"." + tokens[i + 2].name;
+            tokens[i].name = tokens[i].name+"." +tokens[i + 2].name;
             tokens[i].builtintype = 4;
             updatedTokens.push_back(tokens[i]);
             i += 2;
@@ -944,13 +981,13 @@ void sanitize(std::vector<Token>& tokens) {
             bberror("Invalid preprocessor instruction after `#` symbol."
                     "\n   \033[33m!!!\033[0m This symbol signifies preprocessor directives."
                     "\n        Valid directives are the following patterns:"
-                    "\n        - `#include @str;` inlines a file."
+                    "\n        - `#include @str` inlines a file."
                     "\n        - `#spec @property=@value;` declares a code block specification."
                     "\n        - `(#of @expression)` assigns the expression to a temporary variable just after the last command."
                     "\n        - `#macro {@expression} as {@implementation}` defines a macro."
                     "\n        - `#stringify (@tokens)` converts the tokens into a string at compile time."
                     "\n        - `#symbol (@tokens)` converts the tokens into a symbol name at compile time."
-                    "\n        - `#fail @message;` creates a compile-time failure."
+                    "\n        - `#fail @message` creates a compile-time failure."
                     "\n        - `#gcc @code;` is reserved for future use.\n"
                     + Parser::show_position(tokens, i));
         }

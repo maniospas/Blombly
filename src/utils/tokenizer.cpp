@@ -145,6 +145,7 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
             wordStream << "\"";
             inString = true;
             braceMode = false;  // Exit brace mode
+            specialCharacter = false;
             continue;
         }
 
@@ -154,6 +155,7 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
             }
             if (wordStream.str().size())
                 ret.emplace_back(wordStream.str(), file, line);
+            specialCharacter = false;
             wordStream.str("");  // Clear the stream
             wordStream.clear();  // Clear any errors
             if (!inString)
@@ -177,6 +179,7 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
 
                 braceMode = true;  // Enter the special brace mode
                 inString = false;
+                specialCharacter = false;
                 continue;
             } 
             wordStream << escapeSpecialCharacters(c);
@@ -187,8 +190,9 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
         if (c == '\\') {
             if (wordStream.str().size())
                 ret.emplace_back(wordStream.str(), file, line);
-            wordStream.str("\\");  // Reset the stream to store only the backslash
             wordStream.clear();
+            wordStream.str("");  // Reset the stream to store only the backslash
+            wordStream<<c;
             specialCharacter = false;
             continue;
         }
@@ -223,6 +227,7 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
         bberror("Missing `\"`. The file ended without closing the string: " + wordStream.str());
     if (wordStream.str().size())
         ret.emplace_back(wordStream.str(), file, line);
+    
     return ret;
 }
 

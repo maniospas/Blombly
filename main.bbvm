@@ -1,24 +1,14 @@
-BEGIN _bb1
-BUILTIN name "loop"
-BUILTIN author "Emmanouil Krasanakis"
-BUILTIN license "Apache 2.0"
-BUILTIN version "1.1"
-BUILTIN release I0
-BUILTIN year I2024
-BUILTIN doc "     \n Provides macros that declare anonymous iterators for     \n faster code writting.     \n      \n loop::next     \n ----------     \n Allows iteration over all elements of a list or      \n other iterable, like so:     \n     \n |   A = 1,2,3;     \n |   while(x as loop::next(A))      \n |      print(x);     \n     \n This is a wrapper around `std::next` that creates      \n an iterator for the supplied expression just     \n before the loop's command.     \n      \n loop:range     \n ----------     \n Performs in-place construction of an iterator with     \n `std::range` and the same arguments and transfers that     \n to the loop. For example:     \n      \n |   while(i as loop::range(1, 5))     \n |       print(i);     \n     "
-END
-AS loop::INFO _bb1
-final # loop::INFO
-exists _bb9 loop::INFO
-BUILTIN _bb11 I5
-range _bbmacro0 _bb11
-next _bb12 _bbmacro0
-AS i _bb12
-exists _bb13 i
-BEGIN _bb14
+BUILTIN _bb1 F-0.5
+BUILTIN _bb2 I0
+BUILTIN _bb3 I2
+range it _bb3 _bb2 _bb1
+next _bb4 it
+AS i _bb4
+exists _bb5 i
+BEGIN _bb6
 print # i
-next _bb12 _bbmacro0
-AS i _bb12
-exists _bb13 i
+next _bb4 it
+AS i _bb4
+exists _bb5 i
 END
-while # _bb13 _bb14
+while # _bb5 _bb6

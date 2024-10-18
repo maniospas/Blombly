@@ -107,13 +107,39 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
         throw Unimplemented();
     }
 
-    if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
-        int index = static_cast<Integer*>(args->arg1)->getValue();
-        // manual implementation of BList::at() to avoid deadlocks with its own lock
-        if (index < 0 || index >= contents.size()) 
-            bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents.size()) + ")");
-        auto res = contents.at(index);
-        return std::move(Result(res));
+    if (operation == AT && args->size == 2) {
+        if(args->arg1->getType() == BB_INT) {
+            int index = static_cast<Integer*>(args->arg1)->getValue();
+            // manual implementation of BList::at() to avoid deadlocks with its own lock
+            if (index < 0 || index >= contents.size()) 
+                return std::move(Result(nullptr));
+                //bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents.size()) + ")");
+            Data* res = contents.at(index);
+            return std::move(Result(res));
+        }
+        else if(args->arg1->getType()==STRUCT || args->arg1->getType()==LIST || args->arg1->getType()==ITERATOR) {
+            BuiltinArgs implargs;
+            implargs.size = 1;
+            implargs.arg0 = args->arg1;
+            Result iter = args->arg1->implement(TOITER, &implargs);
+            Data* iterator = iter.get();
+            bbassert(iterator && iterator->getType()==ITERATOR, "Can only find list indexes based on an iterable object, but a non-iterable struct was provided.");
+            BList* ret = new BList(contents.size());  // rough estimation because we can't get size from iterables necessarily
+            while(true) {
+                implargs.size = 1;
+                Result next = iterator->implement(NEXT, &implargs);
+                if(!next.get()) 
+                    break;
+                bbassert(next.get()->getType()==BB_INT, "Iterable list indexes can only contain integers.");
+                int id = static_cast<Integer*>(next.get())->getValue();
+                if(id<0 || id>=contents.size())
+                    bberror("List index " + std::to_string(id) + " retrieved by iterator is out of range [0," + std::to_string(contents.size()) + ")");
+                Data* element = contents.at(id);
+                element->addOwner();
+                ret->contents.push_back(element);
+            }
+            return std::move(Result(ret));
+        }
     }   
 
     if (operation == PUSH && args->size == 2 && args->arg0 == this) {
@@ -137,6 +163,17 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
         value->addOwner();
         prev->removeFromOwner();
         return std::move(Result(nullptr));
+    }
+    
+    if (operation == ADD && args->size == 2 && args->arg1->getType()==LIST) {
+        BList* other = static_cast<BList*>(args->arg1);
+        std::lock_guard<std::recursive_mutex> otherLock(other->memoryLock);
+        BList* ret = new BList(contents.size()+other->contents.size());
+        ret->contents.insert(ret->contents.end(), contents.begin(), contents.end());
+        ret->contents.insert(ret->contents.end(), other->contents.begin(), other->contents.end());
+        for(Data* dat : ret->contents)
+            dat->addOwner();
+        return std::move(Result(ret));
     }
 
     throw Unimplemented();

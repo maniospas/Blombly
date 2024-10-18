@@ -40,7 +40,7 @@ Result AccessIterator::implement(const OperationType operation, BuiltinArgs* arg
         args->arg0 = object;
         args->arg1 = pos;
         args->size = 2;
-        return object->implement(AT, args);
+        return std::move(object->implement(AT, args));
     }
     
     //if (args->size == 1 && operation == LEN) 
@@ -54,11 +54,12 @@ Result AccessIterator::implement(const OperationType operation, BuiltinArgs* arg
 
 IntRange::IntRange(int first, int last, int step) : first(first), last(last), step(step), Iterator() {
     bbassert(step, "A range iterator with zero step never ends.");
-    bbassert(step>0 == first<last || first==last, "A range iterator that never terminates was constructed (step should not have the opposite sign from last-first).");
 }
 Result IntRange::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 1 && operation == NEXT) {
-        if (first >= last) 
+        if (step>0 && first >= last) 
+            return std::move(Result(nullptr));
+        if (step<0 && first <= last) 
             return std::move(Result(nullptr));
         Result res = Result(new Integer(first));
         first += step;
@@ -73,11 +74,12 @@ Result IntRange::implement(const OperationType operation, BuiltinArgs* args) {
 
 FloatRange::FloatRange(double first, double last, double step) : first(first), last(last), step(step), Iterator() {
     bbassert(step, "A range iterator with zero step never ends.");
-    bbassert(step>0 == first<last || first==last, "A range iterator that never terminates was constructed (step should not have the opposite sign from last-first).");
 }
 Result FloatRange::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 1 && operation == NEXT) {
-        if (first >= last) 
+        if (step>0 && first >= last) 
+            return std::move(Result(nullptr));
+        if (step<0 && first <= last) 
             return std::move(Result(nullptr));
         Result res = Result(new BFloat(first));
         first += step;
