@@ -1,4 +1,4 @@
-# Sequential code
+# Introduction
 
 This section covers Blombly commands that are used in writing sequential code. It includes familiar concepts 
 like comments, variable handling, builtin datatypes, and flow control. 

@@ -3,11 +3,11 @@ nav:
   - Home: index.md
   - Setup: setup.md
   - The basics:
-      - Sequential code: basics/builtins.md
+      - Introduction: basics/builtins.md
       - Iterables: basics/iterables.md
       - Code blocks: basics/blocks.md
       - Structs: basics/structs.md
-  - Advanced features:
+  - Advanced:
       - The preprocessor: advanced/preprocessor.md
       - Signals: advanced/signals.md
       - Servers: advanced/servers.md

@@ -146,7 +146,7 @@ result = test(1, 2);
 print(result);
 ```
 
-## Both types of arguments
+## Mixed arguments
 
 Blombly allows mixing of positional arguments and code execution by separating the two with `|` inside the call 
 parenthesis. This notation is inspired by conditional probabilities, and we encourage Blombly programmers
