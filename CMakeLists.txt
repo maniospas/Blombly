@@ -8,7 +8,7 @@ set(CMAKE_C_COMPILER "gcc")
 set(CMAKE_CXX_COMPILER "g++")
 
 # Project name and version
-project(blombly VERSION 3.0 LANGUAGES CXX)
+project(blombly VERSION 3.1 LANGUAGES CXX)
 
 # Set C++20 standard
 set(CMAKE_CXX_STANDARD 20)
@@ -25,6 +25,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 file(GLOB_RECURSE SOURCES
     "${PROJECT_SOURCE_DIR}/blombly.cpp"
     "${PROJECT_SOURCE_DIR}/src/*.cpp"
+    "${PROJECT_SOURCE_DIR}/asmjit/src/*.cpp"
 )
 
 # Create the executable from the collected source files
@@ -40,10 +41,6 @@ if(ZLIB_FOUND)
 else()
     message(FATAL_ERROR "Zlib library not found.")
 endif()
-
-# Find and link Crow package (installed via vcpkg)
-find_package(Crow CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE Crow::Crow)
 
 # Manually include Civetweb headers and link library (installed via vcpkg)
 find_path(CIVETWEB_INCLUDE_DIR civetweb.h)
@@ -86,3 +83,14 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT_SOURCE_DIR}"
     RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECT_BINARY_DIR}/build/output"
 )
+
+# asmjit
+include_directories(${PROJECT_SOURCE_DIR}/asmjit/src)
+
+
+
+# LLVM
+#find_package(LLVM REQUIRED CONFIG)
+#include_directories(SYSTEM ${LLVM_INCLUDE_DIRS})
+#add_definitions(${LLVM_DEFINITIONS})
+#target_link_libraries(MyTarget PRIVATE LLVM)

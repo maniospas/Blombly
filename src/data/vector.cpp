@@ -107,13 +107,20 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
             }
         }
         if (index < 0 || index >= size) {
-            bberror("Vector index " + std::to_string(index) + " out of range [0," + std::to_string(size) + ")");
+            //bberror("Vector index " + std::to_string(index) + " out of range [0," + std::to_string(size) + ")");
             return Result(nullptr);
         }
         return std::move(Result(new BFloat(data[index])));
     }
 
-    if (operation == PUT && args->size == 3 && args->arg1->getType() == BB_INT && args->arg2->getType() == BB_FLOAT) {
+    if (operation == PUT && args->size == 3 && args->arg1->getType() == BB_INT) {
+        double value;
+        if(args->arg2->getType() == BB_FLOAT)
+            value = static_cast<BFloat*>(args->arg2)->getValue();
+        else if(args->arg2->getType() == BB_INT)
+            value = static_cast<Integer*>(args->arg2)->getValue();
+        else
+            throw Unimplemented();
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         int index = static_cast<Integer*>(args->arg1)->getValue();
         for (int i = 0; i < natdims; ++i) {
@@ -124,7 +131,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
             bberror("Vector index " + std::to_string(index) + " out of range [0," + std::to_string(size) + ")");
             return std::move(Result(nullptr));
         }
-        data[index] = static_cast<BFloat*>(args->arg2)->getValue();
+        data[index] = value;
         return std::move(Result(nullptr));
     }
 

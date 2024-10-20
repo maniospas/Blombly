@@ -2,6 +2,8 @@
 __pachache_/*
 temp/
 build/
-vcpkg/
 blombly.exe
 *.dll
+conan/
+vcpkg/
+asmjit/

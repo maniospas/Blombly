@@ -124,10 +124,14 @@ print(A[1,3]);
 
 ## Iterators
 
-Given any data structure, such as a list, that accepts an element getter and length methods,
-you can create an iterator to travers through its elements witjout modifying it. 
-Obtain an iterator with the `iter` operation as in the example below. Iterators admit only the 
-`next` operator and cannot modify data, expose random access or length, or restart.
+Given any data structure that accepts an element getter and length methods,
+you can create an iterator to traverses through its elements witjout modifying it. 
+Such data include lists and are called iterables.
+
+Obtain an iterator from an iterable with the `iter` typecasting as in the example below. 
+Iterators admit only the `next` operator, and always accept a convertion to `iter` that
+returns themselves. This is mostly done for ease of code writting. 
+One cannot modify data, perform random access, or restart traversal of the iterable's elements. 
 
 ```java
 // main.bb
@@ -136,6 +140,7 @@ it = iter(A);
 while(i as next(it)) 
     print(i);
 ```
+
 
 You can also create range-based iterators  using one of the expressions
 `range(end)`, `range(start, end)`, or `range(start, end, step)`,
@@ -150,16 +155,10 @@ while(i as next(it))
     print(i);
 ```
 
-```bash
-> blombly main.bb
-0
-1
-2
-```
 
 If all three arguments are used and any of them is a float number, the range will
 output floats everywhere. Negative steps are also allowed.
-Here is an example that demonstrates both of these concepts:
+Below is an example that demonstrates both of these concepts.
 
 ```java
 // main.bb
@@ -175,6 +174,38 @@ while(i as next(it))
 1.000000
 0.500000
 ```
+
+## Preview: `libs/loops`
+
+This is a library that is distributed alongside Blombly and, when included in your code,
+helps asimplify loop writting by removing the need to explicitly declare iterators. 
+Since its patterns are convenient for day-to-day
+development, usage is recommended and described here. Details, however, are left
+for [later](../advanced/libraries.md).
+
+This library provides the symbols
+`loop::next,loop::range` that transform your code under the hood.
+Here is some usage similar to previous examples:
+
+```java
+// main.bb
+#include "libs/loop"
+A = 1,2,3;
+while(x as loop::next(A))  // creates an iterator beforehand and calls next
+    print(x);
+```
+
+```java
+// main.bb
+#include "libs/loop"
+while(x as loop::range(2, 0, -0.5))  // creates a range beforehand and calls next
+    print(x);
+```
+
+Builtin operations are still accessible via `std::next,std::range`,
+which are the actual operations and only aliased by `next,range` respectively. However,
+the loop library also invalidates the aliases to prevent ambiguity and creates a descriptive
+error message explaining this concern in their stead.
 
 
 ## Vectors

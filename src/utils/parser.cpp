@@ -475,8 +475,9 @@ public:
                     first_name == "print" || first_name == "read" 
                     ) {
                     bberror("Cannot assign to builtin symbol `" + first_name + "`."
-                            "\n   \033[33m!!!\033[0m This prevents confusion by making this always shorthand for `std::"+first_name+"` ."
-                            "\n       Consider assigning to \\"+first_name+" instead or adding a prefix `lib::` to indicate specialization."
+                            "\n   \033[33m!!!\033[0m This prevents ambiguity by making `"+first_name+"` always a shorthand for `std::"+first_name+"` ."
+                            "\n       Consider assigning to \\"+first_name+"to override the builtin's implementation for a struct,"
+                            "\n       or adding a prefix like `lib::"+first_name+"` to indicate specialization."
                             "\n       If you are sure you want to impact all subsequent code (as well as included code), you may reassign the"
                             "\n       symbol with #macro {"+first_name+"} as {lib::"+first_name+"} after implementing the latter.\n"
                             +show_position(start));
@@ -779,8 +780,6 @@ public:
                 ret += first_name + " " + var + "\n";
                 return var;
             }
-
-            
 
             if (first_name == "new") {
                 std::string var = first_name == "default" ? "#" : create_temp();

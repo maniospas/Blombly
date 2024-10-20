@@ -10,19 +10,14 @@
 #include "interpreter/functional.h"
 
 // git clone https://github.com/microsoft/vcpkg.git
-// cd vcpkg
-// .\bootstrap-vcpkg.bat   or    ./bootstrap-vcpkg.sh
-// ./vcpkg install crow
-// cd ..
 
 // Experimental cmake build system (other compilers may be up to 1.5x slower than gcc):
 // mkdir build
 // cmake -B ./build
+// FOR LOCAL ENV:  cmake -B ./build -DCMAKE_C_COMPILER=C:/msys64/ucrt64/bin/gcc.exe -DCMAKE_CXX_COMPILER=C:\msys64\ucrt64\bin\gcc.exe
 // cmake --build ./build --config Release
 
 std::string blombly_executable_path;
-
-
 
 std::string get_executable_directory(const std::string& argv0) {
     #ifdef _WIN32
@@ -34,8 +29,6 @@ std::string get_executable_directory(const std::string& argv0) {
         return argv0.substr(0, pos);
     return ".";
 }
-
-
 
 int main(int argc, char* argv[]) {
     blombly_executable_path = get_executable_directory(argv[0]);
@@ -57,7 +50,7 @@ int main(int argc, char* argv[]) {
             threads = std::stoi(argv[++i]);
         } 
         else if (arg == "--version" || arg == "-v") {
-            std::cout << "Version: blombly 0.3.0\n";
+            std::cout << "Version: blombly 0.3.1\n";
             return 0;
         } 
         else if (arg == "--help" || arg == "-h") {

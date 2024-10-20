@@ -69,7 +69,7 @@ std::string getOperationTypeName(OperationType type);
 class Data;
 class Command;
 class BMemory;
-class BuiltinArgs;
+struct BuiltinArgs;
 class VariableManager;
 class Code;
 class Result;

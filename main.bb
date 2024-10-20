@@ -1,3 +1,5 @@
-it = range(2, 0, -0.5);
-while(i as next(it))
+i = 0;
+while(i<10) {
+    i = i + 1;
     print(i);
+}

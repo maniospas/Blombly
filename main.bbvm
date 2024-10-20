@@ -1,14 +1,11 @@
-BUILTIN _bb1 F-0.5
-BUILTIN _bb2 I0
-BUILTIN _bb3 I2
-range it _bb3 _bb2 _bb1
-next _bb4 it
-AS i _bb4
-exists _bb5 i
-BEGIN _bb6
+BUILTIN i I0
+BUILTIN _bb2 I10
+lt _bb1 i _bb2
+BEGIN _bb3
+BUILTIN _bb5 I1
+add i i _bb5
 print # i
-next _bb4 it
-AS i _bb4
-exists _bb5 i
+BUILTIN _bb2 I10
+lt _bb1 i _bb2
 END
-while # _bb5 _bb6
+while # _bb1 _bb3

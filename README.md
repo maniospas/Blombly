@@ -24,15 +24,18 @@ Do not move the executable without all the `libs/` and dynamically linked librar
 
 ## Build from source 
 
-Clone this repository and install gcc in your system. Then, follow the steps below, which include installing the `vcpkg` dependency manager:
+Clone this repository and install gcc in your system. Then, follow the steps below, which include installing the vcpkg dependency manager:
 
-```bash
+```
 # install vcpkg
 git clone https://github.com/microsoft/vcpkg.git
 cd vcpkg
 .\bootstrap-vcpkg.bat  # windows bootstraping (./bootstrap-vcpkg.sh for linux)
 ./vcpkg install zlib civetweb
 cd ..
+
+# install asmjit
+git clone https://github.com/asmjit/asmjit.git
 
 # build instructions
 mkdir build
