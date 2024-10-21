@@ -30,11 +30,20 @@ bool BMemory::isOrDerivedFrom(BMemory* memory) const {
     return false;
 }
 
-void BMemory::leak() { // only do this after detach so that there are no leftover values
+void BMemory::leak() { // only do this after detach so that there are no leftover FUTURE values
     for (const auto& element : data) {
-        Data* dat = element.second;
-        if(dat)
-            dat->leak();
+        Data* ret = element.second;
+        /*if(ret && ret->getType()==FUTURE) {
+            auto prevRet = static_cast<Future*>(ret);
+            auto resVal = prevRet->getResult();
+            ret = resVal.get();
+            unsafeSet(element.first, ret); 
+            attached_threads.erase(prevRet);
+            if(ret)
+                ret->leak();
+        }
+        else */if(ret)
+            ret->leak();
     }
 }
 
@@ -90,7 +99,7 @@ Data* BMemory::get(int item) { // allowMutable = true
         auto prevRet = static_cast<Future*>(ret);
         auto resVal = prevRet->getResult();
         ret = resVal.get();
-        ret = unsafeSet(item, ret); 
+        unsafeSet(item, ret); 
         attached_threads.erase(prevRet);
         return ret;
     }
@@ -110,7 +119,7 @@ Data* BMemory::get(int item, bool allowMutable) {
         auto prevRet = static_cast<Future*>(ret);
         auto resVal = prevRet->getResult();
         ret = resVal.get();
-        ret = unsafeSet(item, ret); 
+        unsafeSet(item, ret); 
         attached_threads.erase(prevRet);
         bbassert(ret, "Missing value: " + variableManager.getSymbol(item));
         return ret;
@@ -138,7 +147,7 @@ bool BMemory::contains(int item) {
         auto prevRet = static_cast<Future*>(ret);
         auto resVal = prevRet->getResult();
         ret = resVal.get();
-        ret = unsafeSet(item, ret); 
+        unsafeSet(item, ret); 
         attached_threads.erase(prevRet);
     }
     return ret!=nullptr;
@@ -156,7 +165,7 @@ Data* BMemory::getShallow(int item) {
         auto prevRet = static_cast<Future*>(ret);
         auto resVal = prevRet->getResult();
         ret = resVal.get();
-        ret = unsafeSet(item, ret);
+        unsafeSet(item, ret);
         attached_threads.erase(prevRet);
         //std::cout << "done\n";
     }
@@ -176,7 +185,7 @@ Data* BMemory::getOrNullShallow(int item) {
         auto prevRet = static_cast<Future*>(ret);
         auto resVal = prevRet->getResult();
         ret = resVal.get();
-        ret = unsafeSet(item, ret);
+        unsafeSet(item, ret);
         attached_threads.erase(prevRet);
     }
     return ret;
@@ -190,7 +199,7 @@ Data* BMemory::getOrNull(int item, bool allowMutable) {
         auto prevRet = static_cast<Future*>(ret);
         auto resVal = prevRet->getResult();
         ret = resVal.get();
-        ret = unsafeSet(item, ret);
+        unsafeSet(item, ret);
         attached_threads.erase(prevRet);
     }
     if (ret && !allowMutable && !isFinal(item)) {
@@ -243,7 +252,7 @@ void BMemory::unsafeSet(int item, Data* value, Data* prev) {
     //std::cout << "set "<<variableManager.getSymbol(item)<<" to "<<value<<"\n";
 }
 
-Data* BMemory::unsafeSet(int item, Data* value) {
+void BMemory::unsafeSet(int item, Data* value) {
     Data* prev = data[item];
     if(value)
         value->addOwner();
@@ -251,7 +260,6 @@ Data* BMemory::unsafeSet(int item, Data* value) {
         prev->removeFromOwner();
     data[item] = value;
     //std::cout << "set "<<variableManager.getSymbol(item)<<" to "<<value<<"\n";
-    return value;
 }
 
 void BMemory::setFinal(int item) {
@@ -284,6 +292,8 @@ void BMemory::replaceMissing(BMemory* other) {
 }
 
 void BMemory::detach() {
+    allowMutables = false;
+    parent = nullptr;
     std::string destroyerr = "";
     /*for (const auto& element : data) {
         if (element.second && element.second->getType() == FUTURE) {
@@ -307,13 +317,11 @@ void BMemory::detach() {
             destroyerr += std::string(e.what())+"\n";
         }
     }
-    if(destroyerr.size())
-        throw BBError(destroyerr.substr(0, destroyerr.size()-1));
     
     attached_threads.clear();
-
-    allowMutables = false;
-    parent = nullptr;
+    
+    if(destroyerr.size())
+        throw BBError(destroyerr.substr(0, destroyerr.size()-1));
 }
 
 void BMemory::detach(BMemory* par) {

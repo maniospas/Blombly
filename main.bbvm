@@ -1,11 +1,29 @@
-BUILTIN i I0
-BUILTIN _bb2 I10
-lt _bb1 i _bb2
+BEGIN _bb0
+next specs args
 BEGIN _bb3
-BUILTIN _bb5 I1
-add i i _bb5
-print # i
-BUILTIN _bb2 I10
-lt _bb1 i _bb2
+str specs specs
+BEGIN _bb5
+next x args
+get _bb7 this specs
+at _bb6 x _bb7
+return # _bb6
 END
-while # _bb1 _bb3
+IS \call _bb5
+return # this
+END
+new fmt _bb3
+return # fmt
+END
+IS fmt_generator _bb0
+final # fmt_generator
+BEGIN _bb9
+BUILTIN _bb11 F1.2345
+list args _bb11
+END
+BEGIN _bb13
+BUILTIN _bb14 ".3f"
+list args _bb14
+END
+call _bb12 _bb13 fmt_generator
+call _bb8 _bb9 _bb12
+print # _bb8

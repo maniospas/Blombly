@@ -245,14 +245,14 @@ public:
             bbassert(tokens[start].name != "#", 
                       "Expression cannot start with `#`.\n   \033[33m!!!\033[0m "
                       "This symbol is reserved for preprocessor directives "
-                      "and should have been eliminated.");
+                      "and should have been eliminated.\n"+show_position(start));
             if (is_final)
                 start += 1;
             bbassert(start <= end, "Empty final expression");
             bbassert(tokens[start].name != "#", 
                       "Expression cannot start with `#`.\n   \033[33m!!!\033[0m "
                       "This symbol is reserved for preprocessor directives "
-                      "and should have been eliminated.");
+                      "and should have been eliminated.\n"+show_position(start));
 
             std::string first_name = tokens[start].name;
             if (start == end) {
@@ -261,7 +261,7 @@ public:
                           "\n   \033[33m!!!\033[0m Positional arguments were "
                           "declared on an assignment's left-hand-side\n       "
                           "but the right-hand-side is not an explicit code "
-                          "block declaration.");
+                          "block declaration.\n"+show_position(start));
                 if(tokens[start].name=="return") {
                     ret += "return # #\n";
                     return "#";
@@ -289,7 +289,7 @@ public:
             if (first_name == "{" && find_end(start + 1, end, "}", true) == end) {
                 bbassert(!is_final, 
                           "Code block declarations cannot be final (only "
-                          "variables holding the blocks can be final)");
+                          "variables holding the blocks can be final)\n"+show_position(start-1));
                 std::string requested_var = create_temp();
                 ret += "BEGIN " + requested_var + "\n";
                 ret += code_block_prepend;
@@ -312,7 +312,7 @@ public:
             bbassert(code_block_prepend.size() == 0, 
                       "Positional arguments were declared on an assignment's "
                       "left-hand-side but the right-hand-side did not evaluate "
-                      "to a code block");
+                      "to a code block\n"+show_position(start));
 
             if (first_name == "if" || first_name == "catch" || 
                 first_name == "while") {
@@ -794,6 +794,48 @@ public:
                 return var;
             }
 
+            
+            int chain = find_last_end(start, end, "|");
+            if (chain!=MISSING) {
+                std::string var = create_temp();
+                std::string callable("");
+                if(end==chain+1)
+                    callable = tokens[chain+1].name;
+                if (callable == "int" || callable == "float" || 
+                    callable == "str" || callable == "file" || 
+                    callable == "list" || callable == "map" || 
+                    callable == "pop" || callable == "push" || 
+                    callable == "len" || callable == "next" || 
+                    callable == "vector" || callable == "iter" || 
+                    callable == "add" || callable == "sub" || 
+                    callable == "min" || callable == "max" || 
+                    callable == "call" || callable == "range" || 
+                    callable == "print" || callable == "read" ||
+                    callable == "std::int" || callable == "std::float" || 
+                    callable == "std::str" || callable == "std::file" || 
+                    callable == "std::list" || callable == "std::map" || 
+                    callable == "std::pop" || callable == "std::push" || 
+                    callable == "std::len" || callable == "std::next" || 
+                    callable == "std::vector" || callable == "std::iter" || 
+                    callable == "std::add" || callable == "std::sub" || 
+                    callable == "std::min" || callable == "std::max" || 
+                    callable == "std::call" || callable == "std::range" || 
+                    callable == "std::print" || callable == "std::read" 
+                    ) {
+                    ret += callable+" " + var + " " + parse_expression(start, chain - 1) + "\n";
+                }
+                else {
+                    std::string parsed_args = create_temp();
+                    std::string temp = create_temp();
+                    ret += "BEGIN " + parsed_args + "\n";
+                    ret += "list "+temp+" "+parse_expression(start, chain - 1)+"\n";
+                    ret += "IS args " + temp + "\n";
+                    ret += "END\n";
+                    ret += "call " + var + " " + parsed_args + " " + parse_expression(chain+1, end) + "\n";
+                }
+                return var;
+            }
+
             int call = find_last_end(start, end, "(");
             if (call != MISSING && find_end(call + 1, end, ")", true) == end) {
                 if (call == start)  // if it's just a redundant parenthesis
@@ -814,7 +856,8 @@ public:
                         parsed_args = parse_expression(call + 1, end - 1, true, true);
                     else if (call + 1 >= end ) {  // if we call with no argument whatsoever
                         parsed_args = "#";
-                    } else if (find_end(call + 1, end, ",") == MISSING && 
+                    } 
+                    else if (find_end(call + 1, end, ",") == MISSING && 
                                find_end(call + 1, end, "=") == MISSING && 
                                find_end(call + 1, end, "as") == MISSING && 
                                find_end(call + 1, end, ":") == MISSING && 
@@ -823,7 +866,8 @@ public:
                         ret += "BEGIN " + parsed_args + "\n";
                         ret += "list args " + parse_expression(call + 1, end - 1) + "\n";
                         ret += "END\n";
-                    } else {
+                    } 
+                    else {
                         parsed_args = create_temp();
                         ret += "BEGIN " + parsed_args + "\n";
                         ret += "IS args " + parse_expression(call + 1,  end - 1) + "\n";
@@ -913,6 +957,29 @@ void sanitize(std::vector<Token>& tokens) {
                     "\n        for VM local temporaries created by the compiler.\n"
                      + Parser::show_position(tokens, i));
         
+        if ((tokens[i].name=="=" || tokens[i].name=="as") && i 
+            && (tokens[i-1].name=="+" || tokens[i-1].name=="-" || tokens[i-1].name=="*" || tokens[i-1].name=="/" || tokens[i-1].name=="^" || tokens[i-1].name=="%" || tokens[i-1].name=="|")) {
+            int start = i-2;
+            while(start>=0) {
+                if(tokens[start].name=="final" || tokens[start].name==";")
+                    break;
+                start -= 1;
+                if(tokens[start].name=="(" || tokens[start].name=="{")// || tokens[start].name=="[") 
+                    break;
+                bbassert(tokens[start].name!="}", "For safety, you cannot use `"+tokens[i-1].name+ tokens[i].name +"` when the left-hand-side contains a bracket `}`. Please resort to var = expression assignment.\n"+Parser::show_position(tokens, i));
+                bbassert(tokens[start].name!=")", "For safety, you cannot use `"+tokens[i-1].name+ tokens[i].name +"` when the left-hand-side contains a parenthesis `)`. Please resort to var = expression assignment.\n"+Parser::show_position(tokens, i));
+                //bbassert(tokens[start].name!="]", "For safety, you cannot use `"+tokens[i-1].name+ tokens[i].name +"` when the left-hand-side contains a parenthesis `]`. Please resort to var = expression assignment.\n"+Parser::show_position(tokens, i));
+                bbassert(tokens[start].name!="=", "Previous code has not been balanced and there is a `=` before `"+tokens[i-1].name+ tokens[i].name +"`\n"+Parser::show_position(tokens, i));
+            }
+            //if(start==-1 || tokens[start].name==";" || tokens[start].name=="{")
+                start += 1;
+            updatedTokens.pop_back();
+            updatedTokens.push_back(tokens[i]);
+            updatedTokens.insert(updatedTokens.end(), tokens.begin()+start, tokens.begin()+i);
+            continue;
+        }
+
+
         if (tokens[i].name=="-" && (i==0 || (tokens[i-1].name=="=" || tokens[i-1].name=="as" || tokens[i-1].name=="{" ||  tokens[i-1].name=="[" || tokens[i-1].name=="(" || tokens[i-1].name==",")) 
             && i < tokens.size() - 1 && (tokens[i + 1].builtintype == 3 || tokens[i + 1].builtintype == 4)) {
             tokens[i].name = "-" + tokens[i + 1].name;

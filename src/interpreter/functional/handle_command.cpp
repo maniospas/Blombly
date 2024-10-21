@@ -190,6 +190,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             bbassert(obj->getType() == STRUCT, "Can only set fields in a struct.");
             auto structObj = static_cast<Struct*>(obj);
             Data* setValue = memory->getOrNullShallow(command->args[3]);
+            if(setValue)
+                setValue->leak();
             auto structMemory = structObj->getMemory();
             structMemory->unsafeSet(memory, command->args[2], setValue, nullptr);//structMemory->getOrNullShallow(command->args[2]));
             result = nullptr;
@@ -200,6 +202,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             bbassert(obj->getType() == CODE, "Can only set metadata for code blocks.");
             auto code = static_cast<Code*>(obj);
             Data* setValue = memory->get(command->args[3]);
+            if(setValue)
+                setValue->leak();
             code->setMetadata(command->args[2], setValue);
             result = nullptr;
         } break;
@@ -229,11 +233,17 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     result = returnedValue.get();
                     SET_RESULT;
                 }
-                else
-                    result = nullptr;
+                else {
+                    result = accept;
+                    SET_RESULT;
+                }
             } else if (reject && reject->getType() == CODE) {
                 Result returnedValue = executeBlock(static_cast<Code*>(reject), memory, returnSignal);
                 result = returnedValue.get();
+                SET_RESULT;
+            }
+            else {
+                result = reject;
                 SET_RESULT;
             }
         } break;
@@ -257,7 +267,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
         case CREATESERVER: {
             Data* port = memory->get(command->args[1]);
-            bbassert(port->getType()==BB_INT, "The server's port must be an integer.");
+            bbassert(port && port->getType()==BB_INT, "The server's port must be an integer.");
             auto res = new RestServer(static_cast<Integer*>(port)->getValue());
             res->runServer();
             result = res;

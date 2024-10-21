@@ -24,7 +24,7 @@ in which subsequent code can overwrite variable values. Each program starts from
 
 There are several builtin data types that are directly incorporated in the language.
 Exhaustively, these are `int`, `float`, `bool`, `str`, `list`, `vector`, `map`, `iter`, `code`, `struct`, `server`.
-Here we start with the first four, and split the rest to dedicated pages like the one describing [iterables](iterables.md).
+Here we start with the first four, and split the rest to dedicated pages, like the one describing [iterables](iterables.md).
 
 ```java
 // main.bb
@@ -35,16 +35,18 @@ s = "this is a string literal";
 ```
 
 Some well-known operations on the above types are listed below. These are computed as one might have come to learn from other programming
-languages.
+languages. Only difference to usual practices is that the `not` operation has higher priority than assignment.
 
-| **Category**             | **Operation**                          | **Description**                                          |
+| **Category**             | **Operations**                         | **Description**                                          |
 |--------------------------|----------------------------------------|----------------------------------------------------------|
+| **Assignment**           | `(expression)`                         | Compute the expression first. Also used in method calls later. |
+| **Assignment**           | `y=x`, `y as x`                        | The `as` assignment is covered below. |
+| **Typecasting**          | `typename(x)`                          | Everything can be converted from and to `str`.                                   |
+| **Elements**             | `a[i]`, `a[i]=x`                       | Element get and set for strings. |
 | **Arithmetics**          | `+`, `-`, `*`, `/` <br> `^` <br> `%`   | Basic arithmetics (division is floating-point). <br> Exponentiation. <br> Modulo for integers. |
-| **Comparisons**          | `<`, `>`, `<=`, `>=` <br>  `==`, `!=`  | Inequality comparisons. <br> Equality and inequality comparisons.                   |
-| **Boolean operations**   | `and`, `or` <br> `not`                 | Logical operations for booleans.  <br> Negation of any boolean value it prepends.   |
 | **String operations**    | `+`                                    | Concatenation.                                                                      |
-| **Convertion**           | Type names.                            | Everything can be converted from and to a string.                                   |
-| **Elements**             | `a[i]`, `a[i]=x`                       | Element get and set for strings. Multiple elements may be obtained for list inputs. |
+| **Comparisons**          | `<`, `>`, `<=`, `>=` <br>  `==`, `!=`  | Inequality comparisons. <br> Equality comparisons.                   |
+| **Boolean operations**   | `and`, `or` <br> `not`                 | Logical operations for booleans.  <br> Negation of any boolean value it prepends.   |
 
 
 Here is an example that contains some of these operations:
@@ -60,6 +62,48 @@ print("Sum is " + str(x+y)); // there is no implicit typecasting
 > Blombly main.bb
 Sum is 1.500000
 ```
+
+## String formatting
+
+Blombly supports string literals in which expressions enclosed in brackets
+are replaced with their evaluation and converted to `str`. For safety,
+expression terminating symbols (like brackets, inlining colons, or semicolons) 
+are not allowed within literals during parsing. However, you may still have 
+simple control flow as long as you avoid such symbols, like 
+for example `try if(x<0) return -1 else return 1` that is discussed later in this section.
+With string literals, the previous paragraph's example may be rewritten as:
+
+```java
+// main.bb
+x = int("1");
+y = float("0.5");
+print("Sum is {x+y}");
+```
+
+Format numbers using the element access notation by providing a string specification. Formatted numbers
+returns a string and looks like this:
+
+```java
+//main.bb
+x = 1.3456;
+print("Here is a number: " + x[".3f"]);
+```
+
+```bash
+> Blombly main.bb
+Here is a number: 1.346
+```
+
+Formatting numbers within literals is discussed alongside advanced typecasting [here](../advanced/typecasting.md).
+For now, we provide a first taste that the recommended syntax looks like below. Very briefly, a callable formatter is defined
+and then applied within the literal with typecast notation `x | fmt`, which is equivalent to `fmt(x)`.
+
+```java
+fmt(x) = {return x[".3f"]}
+x = 1;
+print("This is a number {x | fmt}");  
+```
+
 
 ## Final variables
 

@@ -134,6 +134,10 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
 
         if (braceMode && c == '{')
             bberror("Cannot open a bracket `{` within a string f-expression: " + wordStream.str());
+        if (braceMode && c == ';')
+            bberror("Cannot use a semicolon `;` within a string f-expression: " + wordStream.str());
+        if (braceMode && c == ':')
+            bberror("Cannot use a colon `:` within a string f-expression: " + wordStream.str());
 
         if (braceMode && c == '}') {
             if (wordStream.str().size())

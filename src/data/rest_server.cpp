@@ -63,6 +63,8 @@ Result RestServer::implement(const OperationType operation, BuiltinArgs* args) {
             if(routeHandlers_[route])
                 routeHandlers_[route]->addOwner();
         }
+        if(args->arg1)
+            args->arg1->leak();
         return std::move(Result(nullptr));
     }
     throw Unimplemented();

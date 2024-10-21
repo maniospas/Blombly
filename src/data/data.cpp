@@ -66,23 +66,22 @@ Result Data::run(const OperationType operation, BuiltinArgs *args) {
             }
         }
     }
-
     std::string err = "No valid builtin implementation for this method: " + getOperationTypeName(operation) + "(";
     int i = 0;
     if (args->size > 0) {
         auto arg = args->arg0;
         if (i++) err += ",";
-        if (arg != nullptr) err += datatypeName[arg->getType()];
+        if (arg) err += datatypeName[arg->getType()];
     }
     if (args->size > 1) {
         auto arg = args->arg1;
         if (i++) err += ",";
-        if (arg != nullptr) err += datatypeName[arg->getType()];
+        if (arg) err += datatypeName[arg->getType()];
     }
     if (args->size > 2) {
         auto arg = args->arg2;
         if (i++) err += ",";
-        if (arg != nullptr) err += datatypeName[arg->getType()];
+        if (arg) err += datatypeName[arg->getType()];
     }
     err += ")";
     bberror(err);

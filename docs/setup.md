@@ -12,13 +12,13 @@ print("Hello world!");
 ```
 
 To run this file, download Blombly's latest [release](https://github.com/maniospas/Blombly/releases/latest). Extract that into a folder
-and add the latter to your filepath to let your operating system know where `blombly.exe` is located. Alternatively, you may
-use the full path to the executable everywhere. Instructions to build the library from source for your environment are provided in repository's
+and add the latter to your filepath to let your operating system know where `blombly.exe` is located. Alternatively,
+use the full path to the executable everywhere. Instructions to build the library from source are in the
 [GitHub](https://github.com/maniospas/Blombly) page.
 
 
 Once you set things up, run the following console command. 
-If a message that starts with `( ERROR )` appears, everything properly but there was some syntax or logic error.
+If a message starting with `( ERROR )` appears, everything runs properly but there was some syntax or logic issue.
 For example, brackets may have closed with a semicolon, or there could be some other type of infraction. More on errors below.
 
 ```bash
@@ -32,8 +32,7 @@ Hello world!
 
 Compilation converts code to a BlomlyVM intermediate representation. 
 This looks like assembly code and is stored win files with the `.bbvm` extension. 
-It is also self-contained by packing all dependencies inside the intermediate files,
-which can can be shared with others and run directly.
+These are self-contained by packing all dependencies inside, and so can be shared with others and run directly.
 The following file is generated when you run`main.bb` above.
 
 ```asm
@@ -47,13 +46,13 @@ print # _bb0
 Hello world!
 ```
 
- To get a sense of internal commands, each one is a tuple of virtual machine command and its arguments
+ To get a sense for internal commands, each one is a tuple of virtual machine instruction and its arguments
  are separated by spaces. The first argument is always a variable to assign to, where `#` indicates
  assignment to nothing. Temporary variables start with `_bb`, 
- and code blocks are started by `BEGIN` and completing at `END`.
+ and code blocks start by `BEGIN` or `BEGINFINAL` and end at `END`.
 
  Compilation optimizes the code for faster execution,
- for example by creating unused variables that let the virtual machine reduce memory reallocation.
+ for example by removing unused variables.
  To convert back the compilation outcome to semi-readable Blombly,
  run the Python script `bbreader.py` (this is intensionally written in a different language
  to also help with development debugging).
@@ -61,11 +60,14 @@ Hello world!
 
 ## Errors
 
-Before jumping into actual coding, let us peek at errors that Blombly may create. Broadly, there are syntax errors, which are identified by the compiler and make it halt, and logical errors 
-that occur at runtime and can be caught with appropriate try clauses to avoid program termination. 
+Before jumping into actual coding, let us peek at errors that Blombly may create. There are two types:
 
-To see what a syntax error looks like, let us try to execute the following invalid code.
-We get an error telling us that the + operation for string concatenation has no right-hand side. The compiler shows the exact position of the missing expression within the source code.
+- Syntax errors are identified by the compiler and make it halt.
+- Logical errors occur at runtime and can be intercepted and handled with `try` and `catch` respectively. 
+
+To see what a syntax error looks like, execute the following invalid code.
+We get an error telling us that the + operation for string concatenation has no right-hand side. 
+The compiler shows the exact position of the missing expression within the source code.
 
 ```java
 // main.bb
@@ -82,11 +84,14 @@ print("Hello"+);  // CREATES AN ERROR
 Look at a logical error looks like by printing a variable that does not exist.
 This creates an error during runtime that points to the stack trace of compiled code and the original source. 
 You will see full traces, regardless of which computations are internally delegated to threads.
-Runtime errors can be caught to create self-healing code,
-but this is a more advanced concept that we talk about [later](success-fail.md).
+Such errors can be handled are runtime, but this is a more advanced concept that we talk about [later](success-fail.md).
 
 
 ```java
 // main.bb
 print(x);  // CREATES AN ERROR
 ```
+
+## What's next?
+
+Continue going through the language's description by clicking the navigation bar's "Next" button at the top.

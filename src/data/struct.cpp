@@ -22,20 +22,23 @@ std::string Struct::toString() const {
 }
 
 Result Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
-    if (args_->size == 1 && operation_ == TOCOPY) {
-        bberror("Cannot copy structs");
-    }
+    //if (args_->size == 1 && operation_ == TOCOPY) {
+    //    bberror("Cannot copy structs");
+    //}
 
     std::string operation = getOperationTypeName(operation_);
     auto mem = getMemory();
-    auto implementation = mem->getOrNull(variableManager.getId("\\" + operation), true);
+    Data* implementation = mem->getOrNullShallow(variableManager.getId("\\" + operation));
+    bbassert(implementation, "Must define \\" + operation + " for the struct operand");
 
     if (!implementation) {
+        //return std::move(Result(nullptr));
         throw Unimplemented();
     }
 
+    bbassert(args_->arg0 == this, "The first operand must be the struct itself");
+
     auto args = new BList(args_->size - 1);  // will be destroyed alongside the memory
-    bbassert(args_->arg0 == this, "Must define \\" + operation + " for the first operand");
 
     if (args_->size > 1) 
         args->contents.push_back(args_->arg1);

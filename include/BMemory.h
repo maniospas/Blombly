@@ -73,7 +73,7 @@ public:
     Data* getOrNullShallow(int item);
     void unsafeSet(BMemory* handler, int item, Data* value, Data* prev);
     void unsafeSet(int item, Data* value, Data* prev);
-    Data* unsafeSet(int item, Data* value);
+    void unsafeSet(int item, Data* value);
     int size() const;
     void removeWithoutDelete(int item);
     void setFinal(int item);

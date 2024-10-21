@@ -19,6 +19,7 @@ Result executeBlock(Code* code, BMemory* memory, bool &returnSignal) {
     } 
     catch (const BBError& e) {
         handleExecutionError(program, i, e);
+        // return std::move(Result(nullptr));
     }
 
     return std::move(Result(value));
