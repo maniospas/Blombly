@@ -80,7 +80,7 @@ final loop::INFO as {
 #macro {symb::lambda(@lhs->@rhs);} as {new {@transform(@lhs) = {return @rhs} return @transform}}
 
 // list convertion
-#macro {loop::tolist(@generator);} as {
+#macro {loop::tolist(@generator)} as {
     new {
         @list = @generator;
         @var = list();
@@ -91,7 +91,7 @@ final loop::INFO as {
 }
 
 // list convertion with semi-types
-#macro {loop::tolist(@generator|@transform);} as {
+#macro {loop::tolist(@generator|@transform)} as {
     new {
         @list = @generator;
         @var = list();
@@ -103,7 +103,7 @@ final loop::INFO as {
 }
 
 // list convertion with lambda semi-types
-#macro {loop::tolist(@generator|@lhs->@rhs);} as {
+#macro {loop::tolist(@generator|@lhs->@rhs)} as {
     new {
         @transform(@lhs) = {return @rhs}
         @list = @generator;

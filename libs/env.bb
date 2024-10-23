@@ -47,14 +47,14 @@ final env::str(info) = {
 final env::dependencies = list(new{env::INFO:});
 
 // include a library
-#macro {env::include(@lib);} as {
+#macro {env::include(@lib)} as {
     #include #stringify(libs/ @lib)
     @info = new{#symbol(@lib ::INFO):}
     push(env::dependencies, @info);
 }
 
 // include a library given some required features
-#macro {env::include(@lib|@code);} as {
+#macro {env::include(@lib|@code)} as {
     #include #stringify(libs/ @lib)
     @info = new{#symbol(@lib ::INFO):}
     push(env::dependencies, @info);
@@ -75,7 +75,7 @@ final env::dependencies = list(new{env::INFO:});
 }
 
 // print some help for the given library
-#macro {env::help(@lib);} as {
+#macro {env::help(@lib)} as {
     @info = #symbol(@lib ::INFO);
     print(env::str(@info));
 }

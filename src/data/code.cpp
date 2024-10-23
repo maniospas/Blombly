@@ -14,6 +14,8 @@ Code::Code(std::vector<Command*>* programAt, int startAt, int endAt, BMemory* de
     : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(metadata), scheduleForParallelExecution(false), Data(CODE) {}
 
 void Code::setMetadata(int id, Data* data) {
+    if(data)
+        data->addOwner();
     if (metadata->metadata[id] && metadata->metadata[id] != data) {
         bberror(toString() + " already has the specification entry: " + variableManager.getSymbol(id));
     }

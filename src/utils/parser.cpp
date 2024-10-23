@@ -1578,7 +1578,11 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                             }
                         }
                         tokens.erase(tokens.begin() + i, tokens.begin() + k);
-                        tokens.insert(tokens.begin() + i, newTokens.begin(), newTokens.end());
+
+                        if((newTokens[newTokens.size()-1].name==":" || newTokens[newTokens.size()-1].name==";" || newTokens[newTokens.size()-1].name=="}") && i<tokens.size() && tokens[i].name==";")  // must be i, not i+1, and after the erasure
+                            tokens.insert(tokens.begin() + i, newTokens.begin(), newTokens.end()-1);
+                        else
+                            tokens.insert(tokens.begin() + i, newTokens.begin(), newTokens.end());
                         i -= 1;
                         macro_found = true;
                         break;

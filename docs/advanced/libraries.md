@@ -184,7 +184,7 @@ This way, you can values like so:
 ```java
 // main.bb
 #include "libs/loop"
-A = loop::tolist("test", 1, 2|int);  // applis |int on all elements
+A = loop::tolist("test", 1, 2|int);  // applies |int on all elements
 print(A);
 ```
 
@@ -201,7 +201,7 @@ For further convenience, one may create a nameless method
 This is simplified for practical usage and follows the 
 pattern `loop::tolist(@iterable | @element->@expression)`.
 The expression is *not* a code block but only some simple
-calculation (of course, you can use `new` to start a complex
+calculation (though you can still use `new` to start a complex
 computation). Here is an example:
 
 ```java
