@@ -2,7 +2,7 @@ final loop::INFO as {
     name    = "loop";
     author  = "Emmanouil Krasanakis";
     license = "Apache 2.0";
-    version = "1.1";
+    version = "1.2";
     release = 0;
     year    = 2024;
     doc     = "
@@ -41,8 +41,8 @@ final loop::INFO as {
     \n |   inc = loop::lambda(x->x+1);
     \n |   print(inc(0));  // 1
     \n
-    \n loop:tolist
-    \n -----------
+    \n loop::tolist
+    \n ------------
     \n Gathers all the values of an iterable and converts
     \n them to a list. There are two variations to optionally
     \n apply element-wise transforms to the lists with the 

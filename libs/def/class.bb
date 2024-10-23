@@ -1,24 +1,24 @@
 
 // class definition
-#macro (oop::class @name(@args) {@code}) = {
-    final @name(@args) = {
+#macro {def::class @name(@args) {@code}} as {
+    def::fn @name(@args) {
         #spec type="class";
         #spec name=#stringify(@name);
         return new {
             final type = @name;
-            oop::uses @name;
+            def::uses @name;
             @code
         }
     }
 }
 
 // uses definitition
-#macro (oop::uses @name;) = {
+#macro {def::uses @name;} as {
     final @name = @name;
 }
 
 // abstract definition
-#macro (oop::abstract @name {@code}) = {
+#macro {def::abstract @name {@code}} as {
     final @name = {
         #spec type="abstract";
         #spec name=#stringify(@name); 
@@ -27,7 +27,7 @@
 }
 
 // module definition
-#macro (oop::module @name {@code}) = {
+#macro {def::module @name {@code}} as {
     final @name = new {
         final type="module";
         final name=#stringify(@name); 

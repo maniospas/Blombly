@@ -6,7 +6,7 @@ or are transformed to appropriate data, therefore introducing type correctness g
 for subsequent code. At its core, this is equivalent to expressing
 method calls of one argument. However, code writting is drastically simplified:
 
-- Conversions are easily chained using much fewer symbols.
+- Conversions are chained using fewer symbols and less nesting.
 - Conversions are read as variable type semantics, which we dub semi-types.
 
 ## Type conversion

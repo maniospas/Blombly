@@ -2,7 +2,7 @@ final env::INFO as {
     name    = "env";
     author  = "Emmanouil Krasanakis";
     license = "Apache 2.0";
-    version = "1.0";
+    version = "1.1";
     release = 0;
     year    = 2024;
     doc     = "
@@ -18,7 +18,7 @@ final env::INFO as {
     \n - env::include(library);
     \n   Includes a library by its name (as a string).
     \n
-    \n - env::include(library|version=...;minrelease=...);
+    \n - env::include(library|version=..;minrelease=..);
     \n   Includes a library with a specific version and
     \n   minimum release number. You may ommit the latter.
     \n
@@ -64,12 +64,16 @@ final env::dependencies = list(new{env::INFO:});
         // check whether imnported library satisfies the version or release
         while(dependency as std::next(#of iter(env::dependencies))) 
             if(dependency.name==@info.name) { 
-                if((version as version) and (dependency.version!=version))
-                    fail("Incompatible versions for library {@lib}:
-                          \nimported version is {dependency.version} but {version} is required.");
-                if((minrelease as minrelease) and (dependency.release<minrelease))
-                    fail("Incompatible versions for library {@lib} version {version}:
-                          \nimported minor release is {dependency.release} but a minimum of {minrelease} is required.");
+                if(version as version)
+                    if(dependency.version!=version)
+                        fail("Incompatible versions for library {@lib}:
+                            \nimported version is {dependency.version} but {version} is required.");
+                if(minrelease as minrelease) {
+                    if(dependency.release<minrelease)
+                        fail("Incompatible versions for library {@lib} version {version}:
+                            \nimported minor release is {dependency.release} but a minimum of {minrelease} is required.");
+                    dependency.release = minrelease;
+                }
             }
     }
 }
@@ -95,6 +99,16 @@ final env::versions() = {
     desc = desc + env::ljust("Library") + " Version\n";
     while(dependency as std::next(#of std::iter(env::dependencies))) 
         desc = desc + "{dependency.name|env::ljust} {dependency.version}.{dependency.release}\n";
+    desc = desc + env::hbar;
+    print(desc);
+}
+
+// print the full include statement
+final env::export() = {
+    ljust = {size=7;env::ljust:}
+    desc = env::hbar + "\n#include \"libs/env\"\n";
+    while(dependency as std::next(#of std::iter(env::dependencies)))  
+        desc = desc + "env::include({dependency.name|ljust} | version={dependency.version}, minrelease={dependency.release});\n";
     desc = desc + env::hbar;
     print(desc);
 }

@@ -127,7 +127,7 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
             else
                 inComment = false;
         }
-        if (c == '/' && i < text.size() - 1 && text[i + 1] == '/') {
+        if (c == '/' && i < text.size() - 1 && text[i + 1] == '/' && !inString) {
             wordStream.str("");  // Clear the stream
             inComment = true;
             continue;
@@ -170,6 +170,11 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
         }
 
         if (inString) {
+            if (c == '\\' && i<text.size()-1 && (text[i+1]=='{' || text[i+1]=='}' || text[i+1]=='"')) {
+                wordStream << text[i+1];
+                i += 1;
+                continue;
+            }
             if (c == '{') {
                 // Add current string
                 wordStream << "\"";

@@ -18,3 +18,4 @@ final symb::INFO as {
 }
 
 #macro {λ} as {symb::lambda}
+#macro {π} as {symb::pi}

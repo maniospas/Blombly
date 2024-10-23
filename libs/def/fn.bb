@@ -1,5 +1,5 @@
 // function with only positional arguments (overriden by subsequent versions)
-#macro (oop::fn @name(@args){@code}) = {
+#macro {def::fn @name(@args){@code}} as {
     final @name(@args) = {
         #spec type="fn";
         #spec name=#stringify(@name); 
@@ -7,7 +7,7 @@
     }
 }
 // function with no arguments
-#macro (oop::fn @name(){@code}) = {
+#macro {def::fn @name(){@code}} as {
     final @name = {
         #spec type="fn";
         #spec name=#stringify(@name); 
@@ -15,7 +15,7 @@
     }
 }
 // function with defaults 
-#macro (oop::fn @name(@args | @defaults){@code}) = {
+#macro {def::fn @name(@args | @defaults){@code}} as {
     final @name(@args) = {
         #spec type="fn";
         #spec name=#stringify(@name); 
@@ -24,7 +24,7 @@
     }
 }
 // function with only defaults (identified because it has an assignment)
-// #macro (oop::fn @name(@arg = @defaults){@code}) = {
+// #macro (def::fn @name(@arg = @defaults){@code}) = {
 //    final @name = {
 //        #spec type="fn";
 //        #spec name=#stringify(@name); 

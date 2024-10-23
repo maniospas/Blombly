@@ -1,4 +1,52 @@
-BUILTIN _bb2 "fff"
-float _bb1 _bb2
-int x _bb1
-print # x
+BEGIN _bb4
+BUILTIN name "env"
+END
+AS env::INFO _bb4
+final # env::INFO
+BEGIN _bb54
+inline _bb55 env::INFO
+return # this
+END
+new _bb52 _bb54
+list env::dependencies _bb52
+final # env::dependencies
+BEGIN _bb132
+BUILTIN name "loop"
+END
+AS loop::INFO _bb132
+final # loop::INFO
+BEGIN _bb143
+inline _bb144 loop::INFO
+return # this
+END
+new _bbmacro2 _bb143
+push # env::dependencies _bbmacro2
+BEGIN _bb145
+BUILTIN name "def"
+END
+AS def::INFO _bb145
+final # def::INFO
+BEGIN _bb156
+inline _bb157 def::INFO
+return # this
+END
+new _bbmacro3 _bb156
+push # env::dependencies _bbmacro3
+BEGIN _bb158
+next x args
+next y args
+add _bb159 x y
+return # _bb159
+END
+IS test _bb158
+final # test
+setfinal # test name test
+BUILTIN _bb160 "fn"
+setfinal # test type _bb160
+BEGIN _bb162
+BUILTIN _bb163 I1
+BUILTIN _bb164 I2
+list args _bb163 _bb164
+END
+call _bb161 _bb162 test
+print # _bb161

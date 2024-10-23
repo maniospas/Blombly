@@ -235,7 +235,73 @@ void optimize(const std::string& source, const std::string& destination) {
             --i;
         }
     }*/
+    
+    // remove unused methods
+    int changes = -1;
+    while(changes!=0) {
+        std::unordered_map<std::string, int> symbolUsageCount;
+        for (const auto& command : program) {
+            if(!command->enabled || command->args.size()==0)
+                continue;
+            if(command->args[0]=="END" || command->args[0]=="BEGIN" || command->args[0]=="BEGINFINAL" || command->args[0]=="final" || command->args[0]=="exists")
+                continue;
+            for (size_t j = 2; j < command->args.size(); ++j) {
+                const std::string& symbol = command->args[j];
+                if (symbol == "LAST")
+                    bberror("Internal error: the LAST keyword has been deprecated");
+                if (symbol != "#") 
+                    symbolUsageCount[symbol]++;
+            }
+        }
+        changes = 0;
+        for (int i=0;i<program.size();++i) {
+            auto& command = program[i];
+            if(!command->enabled)
+                continue;
+            if(command->args[0]=="exists" && command->args.size() && symbolUsageCount[command->args[1]]==0) {
+                command->enabled = false;
+                ++changes;
+                continue;
+            }
+            if(command->args.size()<=1)
+                continue;
+            if(command->args[0]=="final" && command->args.size()>=3 && symbolUsageCount[command->args[2]]==0) {
+                command->enabled = false;
+                ++changes;
+                continue;
+            }
+            if(command->args[0]=="BUILTIN" && command->args.size() && symbolUsageCount[command->args[1]]==0) {
+                command->enabled = false;
+                ++changes;
+                continue;
+            }
+            if((command->args[0]=="IS" || command->args[0]=="AS") && command->args.size() && symbolUsageCount[command->args[1]]==0) {
+                command->enabled = false;
+                ++changes;
+                continue;
+            }
+            if(command->args[0]!="BEGIN" && command->args[0]!="BEGINFINAL")
+                continue;
+            if(symbolUsageCount[command->args[1]]!=0)
+                continue;
+            // std::cout << "removing "<<command->args[0]<<" "<<command->args[1]<<" "<<command->enabled<<"\n";
+            i = i+1;
+            int depth = 1;
+            ++changes;
+            command->enabled = false;
+            while(i<program.size()) {
+                program[i]->enabled = false;
+                if(program[i]->args[0]=="BEGIN" || program[i]->args[0]=="BEGINFINAL")
+                    depth += 1;
+                if(program[i]->args[0]=="END")
+                    depth -= 1;
+                if(depth==0)
+                    break;
+                ++i;
+            }
+        }
 
+    }
 
 
     // save the compiled code to the destination file

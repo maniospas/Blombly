@@ -7,8 +7,6 @@ detailed here.
 
 ## env
 
-**Currently the env library is not working properly**
-
 This library provides an alternative to traditional import statements
 helps organizes and versions dependencies. 
 It essentially forms a programmatically-managed
