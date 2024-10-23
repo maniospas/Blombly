@@ -1,0 +1,185 @@
+BEGIN _bb3
+BUILTIN name "env"
+BUILTIN author "Emmanouil Krasanakis"
+BUILTIN license "Apache 2.0"
+BUILTIN version "1.0"
+BUILTIN release I0
+BUILTIN year I2024
+BUILTIN doc "     \n Introduces version control and documentation     \n capabilities for other libraries. In particular,     \n new libraries should contain a library::INFO     \n code block that sets the following variables:     \n name, author, license, version, release, year.     \n Version control substitutes the import statement     \n and can track imported libraries. Available     \n macros follow.     \n     \n - env::include(library);     \n   Includes a library by its name (as a string).     \n     \n - env::include(library|version=...;minrelease=...);     \n   Includes a library with a specific version and     \n   minimum release number. You may ommit the latter.     \n     \n - env::help(library);      \n   Prints the details of the library.     \n      \n - env::versions();     \n   Prints a summary of all libraries introduced     \n   through `env::include` statements.     "
+END
+AS env::INFO _bb3
+final # env::INFO
+exists _bb11 env::INFO
+BUILTIN env::hbar "-------------------------------------------------------------"
+final # env::hbar
+BEGIN _bb13
+next info args
+inline _bb14 info
+IS info env::hbar
+BUILTIN _bb16 ""
+str _bb18 release
+BUILTIN _bb20 "."
+str _bb22 version
+BUILTIN _bb24 " "
+str _bb26 name
+BUILTIN _bb28 "\n"
+add _bb27 info _bb28
+add _bb25 _bb27 _bb26
+add _bb23 _bb25 _bb24
+add _bb21 _bb23 _bb22
+add _bb19 _bb21 _bb20
+add _bb17 _bb19 _bb18
+add info _bb17 _bb16
+BUILTIN _bb30 ""
+str _bb32 author
+BUILTIN _bb34 ", "
+str _bb36 year
+BUILTIN _bb38 "\nCopyright (C) "
+add _bb37 info _bb38
+add _bb35 _bb37 _bb36
+add _bb33 _bb35 _bb34
+add _bb31 _bb33 _bb32
+add info _bb31 _bb30
+BUILTIN _bb40 " license"
+str _bb42 license
+BUILTIN _bb44 "\n"
+add _bb43 info _bb44
+add _bb41 _bb43 _bb42
+add info _bb41 _bb40
+BUILTIN _bb47 "\n"
+add _bb46 info _bb47
+add info _bb46 doc
+BUILTIN _bb50 "\n"
+add _bb49 info _bb50
+add info _bb49 env::hbar
+return # info
+END
+IS env::str _bb13
+final # env::str
+BEGIN _bb53
+inline _bb54 env::INFO
+return # this
+END
+new _bb51 _bb53
+list env::dependencies _bb51
+final # env::dependencies
+BEGIN _bb56
+next text args
+str text text
+BEGIN _bb59
+BUILTIN size I20
+END
+default # _bb59
+len _bb62 text
+lt _bb61 _bb62 size
+BEGIN _bb63
+BUILTIN _bb65 " "
+add text text _bb65
+len _bb62 text
+lt _bb61 _bb62 size
+END
+while # _bb61 _bb63
+return # text
+END
+IS env::ljust _bb56
+final # env::ljust
+BEGIN _bb66
+BUILTIN _bb68 "\n"
+add desc env::hbar _bb68
+BUILTIN _bb70 " Version\n"
+BEGIN _bb73
+BUILTIN _bb74 "Library"
+list args _bb74
+END
+call _bb72 _bb73 env::ljust
+add _bb71 desc _bb72
+add desc _bb71 _bb70
+iter _bbmacro0 env::dependencies
+next _bb76 _bbmacro0
+AS dependency _bb76
+exists _bb77 dependency
+BEGIN _bb78
+BUILTIN _bb80 "\n"
+get _bb82 dependency release
+str _bb83 _bb82
+BUILTIN _bb85 "."
+get _bb87 dependency version
+str _bb88 _bb87
+BUILTIN _bb90 " "
+BEGIN _bb93
+get _bb95 dependency name
+list args _bb95
+END
+call _bb92 _bb93 env::ljust
+str _bb96 _bb92
+BUILTIN _bb98 ""
+add _bb97 desc _bb98
+add _bb91 _bb97 _bb96
+add _bb89 _bb91 _bb90
+add _bb86 _bb89 _bb88
+add _bb84 _bb86 _bb85
+add _bb81 _bb84 _bb83
+add desc _bb81 _bb80
+next _bb76 _bbmacro0
+AS dependency _bb76
+exists _bb77 dependency
+END
+while # _bb77 _bb78
+add desc desc env::hbar
+print # desc
+END
+IS env::versions _bb66
+final # env::versions
+BEGIN _bb100
+BUILTIN name "loop"
+BUILTIN author "Emmanouil Krasanakis"
+BUILTIN license "Apache 2.0"
+BUILTIN version "1.1"
+BUILTIN release I0
+BUILTIN year I2024
+BUILTIN doc "     \n Provides macros that declare anonymous iterators for     \n faster code writting.     \n      \n loop::next     \n ----------     \n Allows iteration over all elements of a list or      \n other iterable, like so:     \n     \n |   A = 1,2,3;     \n |   while(x as loop::next(A))      \n |      print(x);     \n     \n This is a wrapper around `std::next` that creates      \n an iterator for the supplied expression just     \n before the loop's command.     \n      \n loop:range     \n ----------     \n Performs in-place construction of an iterator with     \n `std::range` and the same arguments and transfers that     \n to the loop. For example:     \n      \n |   while(i as loop::range(1, 5))     \n |       print(i);     \n     "
+END
+AS loop::INFO _bb100
+final # loop::INFO
+exists _bb108 loop::INFO
+BEGIN _bb111
+inline _bb112 loop::INFO
+return # this
+END
+new _bbmacro1 _bb111
+push # env::dependencies _bbmacro1
+BUILTIN _bb113 I1
+BUILTIN _bb114 I2
+BUILTIN _bb115 I3
+list A _bb113 _bb114 _bb115
+BUILTIN sum I0
+iter _bbmacro2 A
+next _bb119 _bbmacro2
+AS x _bb119
+exists _bb120 x
+BEGIN _bb121
+add sum sum x
+next _bb119 _bbmacro2
+AS x _bb119
+exists _bb120 x
+END
+while # _bb120 _bb121
+iter it A
+next _bb124 it
+AS x _bb124
+exists _bb125 x
+BEGIN _bb126
+sub sum sum x
+next _bb124 it
+AS x _bb124
+exists _bb125 x
+END
+while # _bb125 _bb126
+BEGIN _bb128
+BUILTIN _bb129 "Wrong operations"
+fail # _bb129
+END
+BUILTIN _bb131 I0
+neq _bb130 sum _bb131
+if # _bb130 _bb128
+print # sum

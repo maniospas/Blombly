@@ -62,7 +62,7 @@ final env::dependencies = list(new{env::INFO:});
     new {
         @code;
         // check whether imnported library satisfies the version or release
-        while(dependency as next(#of iter(env::dependencies))) 
+        while(dependency as std::next(#of iter(env::dependencies))) 
             if(dependency.name==@info.name) { 
                 if((version as version) and (dependency.version!=version))
                     fail("Incompatible versions for library {@lib}:
@@ -94,7 +94,7 @@ final env::versions() = {
     desc = env::hbar + "\n";
     desc = desc + env::ljust("Library") + " Version\n";
     while(dependency as std::next(#of std::iter(env::dependencies))) 
-        desc = desc + "{env::ljust(dependency.name)} {dependency.version}.{dependency.release}\n";
+        desc = desc + "{dependency.name|env::ljust} {dependency.version}.{dependency.release}\n";
     desc = desc + env::hbar;
     print(desc);
 }

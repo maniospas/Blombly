@@ -117,6 +117,7 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
     bool braceMode = false;  // Indicates we are in the custom brace mode
     char prevChar = '\n';
     bool specialCharacter = false;
+    bool justBrokenLine = false;
 
     for (int i = 0; i < text.size(); ++i) {
         char c = text[i];
@@ -136,7 +137,7 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
             bberror("Cannot open a bracket `{` within a string f-expression: " + wordStream.str());
         if (braceMode && c == ';')
             bberror("Cannot use a semicolon `;` within a string f-expression: " + wordStream.str());
-        if (braceMode && c == ':')
+        if (braceMode && c == ':' && !(text[i-1]==':' || (text[i+1]==':' && i+1<text.size())))
             bberror("Cannot use a colon `:` within a string f-expression: " + wordStream.str());
 
         if (braceMode && c == '}') {
@@ -200,6 +201,10 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
             specialCharacter = false;
             continue;
         }
+        /*if(c=='\n')
+            justBrokenLine = true;
+        else if(c != ' ' && c != '\t')
+            justBrokenLine = false;*/
         bool prevSpecialCharacter = specialCharacter;
         if (c == ' ' || c == '\t' || c == '\n'
             || c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '=' ||

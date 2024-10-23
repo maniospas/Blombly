@@ -8,7 +8,7 @@ final thread::INFO as {
     doc     = "
     \n Introduces the `thread::sync` macro that allows
     \n forceful synchronization of method calls. This
-    \n library that may not be supported in the future.
+    \n library may not be supported in the future.
     ";
     experimental = true;
 }

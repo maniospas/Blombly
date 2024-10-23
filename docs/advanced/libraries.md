@@ -7,6 +7,8 @@ detailed here.
 
 ## env
 
+**Currently the env library is not working properly**
+
 This library provides an alternative to traditional import statements
 helps organizes and versions dependencies. 
 It essentially forms a programmatically-managed
@@ -103,10 +105,13 @@ env::include("loop"|version="1.0";minrelease=0);
 
 ## loop
 
-This provides a couple of alternatives for constructing
+This provides methods to simplify list creation from iterables,
+as well as a couple of alternatives for constructing
 nameless iterators within loop bodies without naming them or 
 needing additional commands. It achieves this
 by employing the `#of` preprocessor statement under the hood.
+
+#### Nameless iterators
 
 The first type of iterator is one that is silently constructed
 to go through the elements of an iterable. This results to a syntax 
@@ -135,6 +140,111 @@ while(i as loop::range(1, 5))
 
 Both iterators invalidate the simple `next` and `range` keywords,
 forcing the developer to choose their behavior with the `std::` 
-or `loop::` prefixes.
+or `loop::` prefixes that they normally alias.
 The error message generated in the stead of these keywords explains 
 the reasoning.
+
+#### List generation
+
+Moving on to list generation, one may pack all the elements of
+an iterable into a list via the `loop::tolist` pattern macro.
+In the simplest case, this is used as follows:
+
+```java
+// main.bb
+#include "libs/loop"
+it = std::range(5);
+A = loop::tolist(is);
+print(A);
+```
+
+```bash
+>blombly main.bb
+[0, 1, 2, 3, 4]
+``` 
+
+The next section introduces [semi-types](semitypes.md) as 
+a notation that uses callables to transform values. As a preview,
+the main notation `var|func` is equivalent to calling `func(var)`.
+A similar notation can be used to create a callable to transform
+all iterable elements before adding them to the generated list.
+Here is an example:
+
+```java
+// main.bb
+#include "libs/loop"
+it = std::range(5);
+A = loop::tolist(is|float);  // convert all elements to float
+print(A);
+```
+
+Transformations that output missing values are skipped.
+This way, you can values like so:
+
+```java
+// main.bb
+#include "libs/loop"
+A = loop::tolist("test", 1, 2|int);  // applis |int on all elements
+print(A);
+```
+
+```bash
+>blombly main.bb
+[1, 2]
+```
+
+
+#### Lambda semi-types
+
+For further convenience, one may create a nameless method
+-also known as a lambda method- to perform the conversion.
+This is simplified for practical usage and follows the 
+pattern `loop::tolist(@iterable | @element->@expression)`.
+The expression is *not* a code block but only some simple
+calculation (of course, you can use `new` to start a complex
+computation). Here is an example:
+
+```java
+// main.bb
+#include "libs/loop"
+it = std::range(5);
+A = loop::tolist(is|x->"val {x}");
+print(A);
+```
+
+```bash
+>blombly main.bb
+[val 0, val 1, val 2, val 3, val 4]
+``` 
+
+
+The lambda notation above works only within the list convertion
+mechanism. However, lambdas are also convenient for one-liner method 
+definitions. In those cases, create them inside normal code with the
+expression `symb::lambda(@variable -> @expression)`. Here is an example:
+
+```java
+// main.bb
+#include "libs/loop"
+#include "libs/symb"  // allows λ as a shorthand for symb::lambda
+adder = λ(x,y->x+y);
+print(adder(1,2));
+```
+
+Do not forget that `try` intercepts returns from
+conditions or obtain missing values otherwise.
+Here is an example that filters values based on
+this pattern:
+
+```java
+// main.bb
+#include "libs/loop"
+A = 15, 1, 2;
+A = loop::tolist(A|x->try if(x<10) return x);
+print(A);
+```
+
+```bash
+>blombly main.bb
+[1, 2]
+```

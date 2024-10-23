@@ -18,7 +18,7 @@ final console::INFO as {
     - `console::enable;` removes the `console::` prefix 
       from the above macros. This overwrites the `print` 
       and `read` symbols.";
-} // ---------------------------------------------------
+} 
 
 
 final console::fmt = {
@@ -31,18 +31,20 @@ final console::fmt = {
     return formatted;
 }
 
+
 #macro {console::print(@code)} as {std::print(console::fmt(@code))}
 #macro {console::read(@code)} as {std::read(console::fmt(@code))}
 
 final console::out = new {
     final console::fmt = console::fmt;
     \next = {console::read(arg)}
-    push(arg) = {console::print(arg)}
+    \push(arg) = {console::print(arg)}
 }
 
-#macro {console::enable;} as {
+#macro {console:} as {
     #macro {out} as {console::out}
     #macro {read} as {console::read}
     #macro {print} as {console::print}
     #macro {fmt} as {console::fmt}
+    #macro {#include} as {#fail "There can be no include statement after console::enable;"}
 }

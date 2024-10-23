@@ -1,9 +1,5 @@
-final fmt_generator(specs) = {
-  fmt = new{
-    specs |= str;  // ensure str type for specs, make them
-    \call(x) = {return x[this.specs];}
-  }
-  return fmt;
-}
-
-print(1.2345 | fmt_generator(".3f"));
+#include "libs/loop"
+#include "libs/symb"
+A = 15, 1, 2;
+A = loop::tolist(A|x->try if(x<10) return x);
+print(A);

@@ -476,7 +476,7 @@ public:
                     ) {
                     bberror("Cannot assign to builtin symbol `" + first_name + "`."
                             "\n   \033[33m!!!\033[0m This prevents ambiguity by making `"+first_name+"` always a shorthand for `std::"+first_name+"` ."
-                            "\n       Consider assigning to \\"+first_name+"to override the builtin's implementation for a struct,"
+                            "\n       Consider assigning to \\"+first_name+" to override the builtin's implementation for a struct,"
                             "\n       or adding a prefix like `lib::"+first_name+"` to indicate specialization."
                             "\n       If you are sure you want to impact all subsequent code (as well as included code), you may reassign the"
                             "\n       symbol with #macro {"+first_name+"} as {lib::"+first_name+"} after implementing the latter.\n"
@@ -1077,8 +1077,15 @@ void sanitize(std::vector<Token>& tokens) {
             bberror("`else` cannot be the next statement after `;`. "
                     "\n   \033[33m!!!\033[0m You may have failed to close brackets"
                     "\n        or are using a bracketless if, which should not have `;`"
-                    "\n        after its first statement \n"
+                    "\n        after its first statement. \n"
                     + Parser::show_position(tokens, i));
+                    
+        if (tokens[i].name == ")" && i > 0 && tokens[i - 1].name == ";")
+            bberror("The pattern ';)' is not allowed. "
+                    "\n   \033[33m!!!\033[0m This error appears so that expressions inside parentheses"
+                    "\n        remain as consise as possible while keeping only one viable syntax.\n"
+                    + Parser::show_position(tokens, i-1));
+
         if ((tokens[i].name == "while" || tokens[i].name == "if" || 
              tokens[i].name == "catch") && i < tokens.size() - 1 && 
              tokens[i + 1].name != "(")
