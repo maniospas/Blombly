@@ -1042,7 +1042,7 @@ void sanitize(std::vector<Token>& tokens) {
             continue;
         }
         if (tokens[i].name == "#" && ((i >= tokens.size() - 1) || 
-            (tokens[i + 1].name != "include" && tokens[i + 1].name != "macro" && tokens[i + 1].name != "stringify" && tokens[i + 1].name != "symbol"
+            (tokens[i + 1].name != "include" && tokens[i + 1].name != "local" && tokens[i + 1].name != "macro" && tokens[i + 1].name != "stringify" && tokens[i + 1].name != "symbol"
              && tokens[i + 1].name != "spec" && tokens[i + 1].name != "fail" && tokens[i + 1].name != "of" && tokens[i + 1].name != "gcc"))) {
             bberror("Invalid preprocessor instruction after `#` symbol."
                     "\n   \033[33m!!!\033[0m This symbol signifies preprocessor directives."
@@ -1051,6 +1051,7 @@ void sanitize(std::vector<Token>& tokens) {
                     "\n        - `#spec @property=@value;` declares a code block specification."
                     "\n        - `(#of @expression)` assigns the expression to a temporary variable just after the last command."
                     "\n        - `#macro {@expression} as {@implementation}` defines a macro."
+                    "\n        - `#local {@expression} as {@implementation}` defines a macro that is invalidated when the current file ends."
                     "\n        - `#stringify (@tokens)` converts the tokens into a string at compile time."
                     "\n        - `#symbol (@tokens)` converts the tokens into a symbol name at compile time."
                     "\n        - `#fail @message` creates a compile-time failure."
@@ -1135,6 +1136,7 @@ class Macro {
 public:
     std::vector<Token> from;
     std::vector<Token> to;
+    std::string tied_to_file;
     Macro() {}
 };
 
@@ -1464,18 +1466,18 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
 
             i -= 1;
         } else if (tokens[i].name == "#" && i < tokens.size() - 4 && 
-                   tokens[i + 1].name == "macro") {
-            bbassert(tokens[i + 2].name == "{", "Macros should follow the pattern `#macro {@expression} as {@implementation}`.\n"+Parser::show_position(tokens, i));
+                   (tokens[i + 1].name == "macro" || tokens[i + 1].name == "local")) {
+            bbassert(tokens[i + 2].name == "{", "Your macro here should follow the pattern `#"+tokens[i + 1].name+" {@expression} as {@implementation}`.\n"+Parser::show_position(tokens, i));
             int macro_start = i + 2;
             int macro_end = macro_start;
             int depth = 1;
             int decl_end = macro_start;
             for (size_t pos = macro_start+1; pos < tokens.size(); ++pos) {
                 if ((tokens[pos].name == "=" || tokens[pos].name == "as") && depth == 0) {
-                    bbassert(tokens[pos].name != "=", "`=` was used instead of `as`.\n   \033[33m!!!\033[0m  Macros should follow the pattern `{@expression} as {@implementation}'.\n"+Parser::show_position(tokens, pos));
-                    bbassert(decl_end == macro_start, "Macro definition cannot have a second equality symbol.\n   \033[33m!!!\033[0m  Macros should follow the pattern `{@expression} as {@implementation}'.\n"+Parser::show_position(tokens, pos));
+                    bbassert(tokens[pos].name != "=", "`=` was used instead of `as`.\n   \033[33m!!!\033[0m  Your macro here should follow the pattern `#"+tokens[i + 1].name+" {@expression} as {@implementation}'.\n"+Parser::show_position(tokens, pos));
+                    bbassert(decl_end == macro_start, "Macro definition cannot have a second equality symbol.\n   \033[33m!!!\033[0m  Your macro here should follow the pattern `#"+tokens[i + 1].name+" {@expression} as {@implementation}'.\n"+Parser::show_position(tokens, pos));
                     bbassert(tokens[pos - 2].name == "}" && pos < tokens.size() - 1 && tokens[pos + 1].name == "{", 
-                             "Missing `{`.\n   \033[33m!!!\033[0m  Macros should follow the pattern `{@expression} as {@implementation}'.\n"+Parser::show_position(tokens, pos));
+                             "Missing `{`.\n   \033[33m!!!\033[0m  Your macro here should follow the pattern `#"+tokens[i + 1].name+" {@expression} as {@implementation}'.\n"+Parser::show_position(tokens, pos));
                     decl_end = pos;
                 } else if (tokens[pos].name == ";" && depth == 0 && decl_end!=macro_start) {
                     macro_end = pos;
@@ -1483,7 +1485,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 } else if (tokens[pos].name == "(" || tokens[pos].name == "[" || 
                            tokens[pos].name == "{") {
                     if(decl_end==macro_start)
-                        bbassert(depth!=0, "Missing `as` after macro `@expression` was closed.\n   \033[33m!!!\033[0m  Macros should follow the pattern `{@expression} as {@implementation}'.\n"+Parser::show_position(tokens, pos));
+                        bbassert(depth!=0, "Missing `as` after macro `@expression` was closed.\n   \033[33m!!!\033[0m  Your macro here  should follow the pattern `#"+tokens[i + 1].name+"{@expression} as {@implementation}'.\n"+Parser::show_position(tokens, pos));
                     depth += 1;
                 }
                 else if (tokens[pos].name == ")" || tokens[pos].name == "]" || 
@@ -1494,9 +1496,9 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     bberror("Cannot nest parentheses or brackets in the expression part of macro definitions.\n" + Parser::show_position(tokens, macro_start));
                 bbassert(depth >= 0, "Parentheses or brackets closed prematurely at macro definition.\n" + Parser::show_position(tokens, macro_start));
             }
-            bbassert(depth == 0, "Imbalanced parentheses or brackets at macro definition.\n" + Parser::show_position(tokens, macro_start));
+            bbassert(depth == 0, "Imbalanced parentheses or brackets at #"+tokens[i + 1].name+" definition.\n" + Parser::show_position(tokens, macro_start));
             bbassert(macro_end != macro_start, "Macro was never closed.\n" + Parser::show_position(tokens, macro_start));
-            bbassert(decl_end != macro_start, "Macros should follow the pattern `#macro {@expression} as {@implementation}`. \n"
+            bbassert(decl_end != macro_start, "Your macro here should follow the pattern `#"+tokens[i + 1].name+" {@expression} as {@implementation}`. \n"
                       + Parser::show_position(tokens, macro_start));
             std::shared_ptr<Macro> macro = std::make_shared<Macro>();
             for (int pos = macro_start + 1; pos < decl_end - 2; ++pos) {
@@ -1505,15 +1507,17 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             }
             for (int pos = decl_end + 2; pos < macro_end - 1; ++pos) 
                 macro->to.emplace_back(tokens[pos].name, macro->from[0].file, macro->from[0].line, tokens[pos].file, tokens[pos].line, tokens[pos].printable);
-            bbassert(macro->from[0].name[0] != '@', "The first token of a macro's @expression cannot be a variable starting with @.\n"
+            bbassert(macro->from[0].name[0] != '@', "The first token of a "+tokens[i + 1].name+"'s @expression cannot be a variable starting with @.\n   \033[33m!!!\033[0m  This restriction facilitates unambiguous parsing.\n"
                       + Parser::show_position(tokens, macro_start));
             macros.insert(macros.begin(), macro);
+            if(tokens[i + 1].name == "local")
+                macro->tied_to_file = tokens[i].file[tokens[i].file.size()-1];
             i = macro_end;
         } 
         else {
             bool macro_found = false;
             for (const auto& macro : macros) {
-                if (tokens[i].name == macro->from[0].name) {
+                if (tokens[i].name == macro->from[0].name && (macro->tied_to_file.size()==0 || macro->tied_to_file==tokens[i].file[tokens[i].file.size()-1])) {
                     std::unordered_map<std::string, std::vector<Token>> replacement;
                     bool match = true;
                     size_t j = 0;

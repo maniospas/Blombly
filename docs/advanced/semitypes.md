@@ -28,10 +28,10 @@ print(x);
 1.000000
 ```
 
-Observant readers may have already noted the lack of executable code in the arguments
-(recall that this is a generalization of the concencept of keyword arguments). There is also a lack of automatic unpacking
-to make the conversion mechanism callable with our notation by accepting only one argument.
-To add parameters to the conversion create is as a callable struct, like below:
+Observant readers may have already noted that conversion mechanisms are structured
+in a way that does not allow for executable code in the arguments (reminder that argument
+code is a generalization of keyword arguments).
+To add parameters to the conversion callable, create is as a struct like below:
 
 ```java
 final fmt_generator(specs) = {

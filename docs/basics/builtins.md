@@ -2,12 +2,13 @@
 
 This section covers Blombly commands that are used in writing sequential code. It includes familiar concepts 
 like comments, variable handling, builtin datatypes, and flow control. 
-But more features are added to the mix, like immutable variables, trying until return, and missing variable handling.
+But more features are added to the mix, like immutable variables, trying until return, and handling missing vallues.
 
 ## Comments
 
 Blombly only has line comments that start with `//`. However, it supports multi-line strings and these can be used for 
-documention as in the snippet below.
+documention as in the snippet below. Do not worry about bloating the size of intermediate representation files, as the
+compiler optimizes away unused code segments that cannot produce side-effects.
 
 ```java
 // main.bb

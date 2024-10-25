@@ -22,6 +22,7 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
             case NEQ: BB_BOOLEAN_RESULT(v1 != v2);
             case ADD: STRING_RESULT(v1 + v2);
         }
+        throw Unimplemented();
     }
 
     if (args->size == 1) {

@@ -272,7 +272,7 @@ bool BMemory::isFinal(int item) const {
 
 void BMemory::pull(BMemory* other) {
     for (const auto& it : other->data) {
-        if (it.second) {
+        if (it.second && it.first!=variableManager.thisId) {
             it.second->leak();
             unsafeSet(it.first, it.second, getOrNullShallow(it.first));
         }

@@ -162,6 +162,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             if (result->getType() == STRUCT) {
                 auto obj = static_cast<Struct*>(result);
                 result = obj->getMemory()->get(command->args[2]);
+                if(result->getType() == CODE)
+                    static_cast<Code*>(result)->setDeclarationMemory(obj->getMemory());
             }
             else if (result->getType() == CODE) {
                 auto code = static_cast<Code*>(result);

@@ -43,7 +43,7 @@ final env::str(info) = {
     info = info + "\n" + env::hbar;
     return info;
 }
-
+ 
 final env::dependencies = list(new{env::INFO:});
 
 // include a library
@@ -80,8 +80,10 @@ final env::dependencies = list(new{env::INFO:});
 
 // print some help for the given library
 #macro {env::help(@lib)} as {
-    @info = #symbol(@lib ::INFO);
-    print(env::str(@info));
+    new {
+        @info = #symbol(@lib ::INFO);
+        return env::str(@info);
+    }
 }
 
 // text justification
@@ -100,7 +102,7 @@ final env::versions() = {
     while(dependency as std::next(#of std::iter(env::dependencies))) 
         desc = desc + "{dependency.name|env::ljust} {dependency.version}.{dependency.release}\n";
     desc = desc + env::hbar;
-    print(desc);
+    return desc;
 }
 
 // print the full include statement
@@ -110,5 +112,5 @@ final env::export() = {
     while(dependency as std::next(#of std::iter(env::dependencies)))  
         desc = desc + "env::include({dependency.name|ljust} | version={dependency.version}, minrelease={dependency.release});\n";
     desc = desc + env::hbar;
-    print(desc);
+    return desc;
 }

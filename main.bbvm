@@ -1,52 +1,66 @@
-BEGIN _bb4
-BUILTIN name "env"
+BEGIN _bb9
+str \name name
 END
-AS env::INFO _bb4
-final # env::INFO
-BEGIN _bb54
-inline _bb55 env::INFO
+IS Animal _bb9
+final # Animal
+BEGIN _bb11
+BUILTIN _bb13 ""
+str _bb15 name
+str _bb16 _bb15
+BUILTIN _bb17 "My little "
+add _bb14 _bb17 _bb16
+add \name _bb14 _bb13
+final # \name
+END
+IS Friend _bb11
+final # Friend
+BEGIN _bb18
+BUILTIN _bb20 ""
+str _bb22 name
+str _bb23 _bb22
+BUILTIN _bb24 "A wild "
+add _bb21 _bb24 _bb23
+add \name _bb21 _bb20
+final # \name
+END
+IS Feral _bb18
+final # Feral
+BEGIN _bb25
+BEGIN _bb26
+BUILTIN _bb28 " barks: woof!"
+get _bb30 this \name
+str _bb31 _bb30
+BUILTIN _bb32 ""
+add _bb29 _bb32 _bb31
+add _bb27 _bb29 _bb28
+return # _bb27
+END
+IS bark _bb26
+final # bark
+setfinal # bark name bark
+BUILTIN _bb33 "fn"
+setfinal # bark type _bb33
+END
+IS Dog _bb25
+final # Dog
+BEGIN _bb36
+BUILTIN name "Rex"
+inline _bb38 Animal
+inline _bb39 Friend
+inline _bb40 Dog
 return # this
 END
-new _bb52 _bb54
-list env::dependencies _bb52
-final # env::dependencies
-BEGIN _bb132
-BUILTIN name "loop"
+new rex _bb36
+BEGIN _bb43
+BUILTIN name "Bela"
+inline _bb45 Feral
+BEGIN _bb47
+inline _bb48 rex
 END
-AS loop::INFO _bb132
-final # loop::INFO
-BEGIN _bb143
-inline _bb144 loop::INFO
+default # _bb47
 return # this
 END
-new _bbmacro2 _bb143
-push # env::dependencies _bbmacro2
-BEGIN _bb145
-BUILTIN name "def"
-END
-AS def::INFO _bb145
-final # def::INFO
-BEGIN _bb156
-inline _bb157 def::INFO
-return # this
-END
-new _bbmacro3 _bb156
-push # env::dependencies _bbmacro3
-BEGIN _bb158
-next x args
-next y args
-add _bb159 x y
-return # _bb159
-END
-IS test _bb158
-final # test
-setfinal # test name test
-BUILTIN _bb160 "fn"
-setfinal # test type _bb160
-BEGIN _bb162
-BUILTIN _bb163 I1
-BUILTIN _bb164 I2
-list args _bb163 _bb164
-END
-call _bb161 _bb162 test
-print # _bb161
+new bela _bb43
+get _bb50 bela bark
+call _bb49 # _bb50
+print # _bb49

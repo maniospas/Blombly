@@ -1,0 +1,10 @@
+!!Tasks
+tasks:
+  Blombly:
+    command: '{cmd} blombly.exe {path}{file}.bb'
+    extensions: [.bb]
+    highlighter: text/rust
+  View:
+    command: '{cmd} {open} "{path}{file}.html"'
+    extensions: [.html]
+    highlighter: text/html

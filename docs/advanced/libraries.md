@@ -103,7 +103,7 @@ env::include("loop"|version="1.0";minrelease=0);
 
 ## loop
 
-This provides methods to simplify list creation from iterables,
+This library provides methods to simplify list creation from iterables,
 as well as a couple of alternatives for constructing
 nameless iterators within loop bodies without naming them or 
 needing additional commands. It achieves this
