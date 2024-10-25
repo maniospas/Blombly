@@ -61,8 +61,8 @@ void BMemory::release() {
     attached_threads.clear();
     for (const auto& element : data) {
         auto dat = element.second;
-        if (dat && dat->getType() == ERRORTYPE && !static_cast<BError*>(dat)->isConsumed()) 
-            destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:"+dat->toString()+"\n";
+        if (dat && dat->getType() == ERRORTYPE && !static_cast<BError*>(dat)->isConsumed())  
+            destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:\n"+dat->toString()+"\n";
         try {
             if(dat) 
                 dat->removeFromOwner();
@@ -72,7 +72,7 @@ void BMemory::release() {
         }
     }
 
-    if(destroyerr.size())
+    if(destroyerr.size()) 
         throw BBError(destroyerr.substr(0, destroyerr.size()-1));
         //bberror("The following error(s) were found while releasing a struct or memory:"+destroyerr);
 }
@@ -295,17 +295,6 @@ void BMemory::detach() {
     allowMutables = false;
     parent = nullptr;
     std::string destroyerr = "";
-    /*for (const auto& element : data) {
-        if (element.second && element.second->getType() == FUTURE) {
-            try {
-                data[element.first] = static_cast<Future*>(element.second)->getResult();
-            }
-            catch (const BBError& e) {
-                //destroyerr += std::string(e.what())+"\n";
-            }
-        }
-    }*/
-
 
     for (const auto& thread : attached_threads) {
         try {
@@ -319,6 +308,13 @@ void BMemory::detach() {
     }
     
     attached_threads.clear();
+    for (const auto& element : data) {
+        auto dat = element.second;
+        if (dat && dat->getType() == ERRORTYPE && !static_cast<BError*>(dat)->isConsumed())  {
+            static_cast<BError*>(dat)->consume();
+            destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:\n"+dat->toString()+"\n";
+        }
+    }
     
     if(destroyerr.size())
         throw BBError(destroyerr.substr(0, destroyerr.size()-1));

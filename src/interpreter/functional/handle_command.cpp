@@ -329,7 +329,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             bbverify(reject, !reject || reject->getType()==CODE, "Can only inline a code block for catch rejection");
             auto codeAccept = static_cast<Code*>(accept);
             auto codeReject = static_cast<Code*>(reject);
-
+            
             if(condition && condition->getType()==ERRORTYPE) { //&& !((BError*)condition)->isConsumed()) {
                 static_cast<BError*>(condition)->consume();
                 if(codeAccept) {

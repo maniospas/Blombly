@@ -2,7 +2,7 @@
 
 This section covers Blombly commands that are used in writing sequential code. It includes familiar concepts 
 like comments, variable handling, builtin datatypes, and flow control. 
-But more features are added to the mix, like immutable variables, trying until return, and handling missing vallues.
+But more features are added to the mix, like immutable variables, trying until return, and handling missing values.
 
 ## Comments
 
@@ -42,7 +42,7 @@ languages. Only difference to usual practices is that the `not` operation has hi
 |--------------------------|----------------------------------------|----------------------------------------------------------|
 | **Assignment**           | `(expression)`                         | Compute the expression first. Also used in method calls later. |
 | **Assignment**           | `y=x`, `y as x`                        | The `as` assignment is covered below. |
-| **Typecasting**          | `typename(x)`                          | Everything can be converted from and to `str`.                                   |
+| **Conversion**           | `typename(x)`                          | Everything can be converted to `str`, numbers can be converted from `str`.  |
 | **Elements**             | `a[i]`, `a[i]=x`                       | Element get and set for strings. |
 | **Arithmetics**          | `+`, `-`, `*`, `/` <br> `^` <br> `%`   | Basic arithmetics (division is floating-point). <br> Exponentiation. <br> Modulo for integers. |
 | **String operations**    | `+`                                    | Concatenation.                                                                      |

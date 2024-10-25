@@ -1,66 +1,17 @@
 BEGIN _bb9
-str \name name
+BEGIN _bb12
+print # x
+BUILTIN _bb13 I1
+return # _bb13
 END
-IS Animal _bb9
-final # Animal
-BEGIN _bb11
-BUILTIN _bb13 ""
-str _bb15 name
-str _bb16 _bb15
-BUILTIN _bb17 "My little "
-add _bb14 _bb17 _bb16
-add \name _bb14 _bb13
-final # \name
+try a _bb12
+BUILTIN _bb14 "end"
+return # _bb14
 END
-IS Friend _bb11
-final # Friend
-BEGIN _bb18
-BUILTIN _bb20 ""
-str _bb22 name
-str _bb23 _bb22
-BUILTIN _bb24 "A wild "
-add _bb21 _bb24 _bb23
-add \name _bb21 _bb20
-final # \name
-END
-IS Feral _bb18
-final # Feral
-BEGIN _bb25
-BEGIN _bb26
-BUILTIN _bb28 " barks: woof!"
-get _bb30 this \name
-str _bb31 _bb30
-BUILTIN _bb32 ""
-add _bb29 _bb32 _bb31
-add _bb27 _bb29 _bb28
-return # _bb27
-END
-IS bark _bb26
-final # bark
-setfinal # bark name bark
-BUILTIN _bb33 "fn"
-setfinal # bark type _bb33
-END
-IS Dog _bb25
-final # Dog
-BEGIN _bb36
-BUILTIN name "Rex"
-inline _bb38 Animal
-inline _bb39 Friend
-inline _bb40 Dog
-return # this
-END
-new rex _bb36
-BEGIN _bb43
-BUILTIN name "Bela"
-inline _bb45 Feral
-BEGIN _bb47
-inline _bb48 rex
-END
-default # _bb47
-return # this
-END
-new bela _bb43
-get _bb50 bela bark
-call _bb49 # _bb50
-print # _bb49
+IS test _bb9
+final # test
+setfinal # test name test
+BUILTIN _bb15 "fn"
+setfinal # test type _bb15
+call _bb16 # test
+print # _bb16

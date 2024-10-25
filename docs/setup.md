@@ -30,10 +30,11 @@ Hello world!
 
 ## VM code
 
-Compilation converts code to a BlomlyVM intermediate representation. 
-This looks like assembly code and is stored win files with the `.bbvm` extension. 
-These are self-contained by packing all dependencies inside, and so can be shared with others and run directly.
-The following file is generated when you run`main.bb` above.
+Compilation converts code to the BlomlyVM intermediate representation. 
+This looks like assembly code and is stored in files with the `.bbvm` extension. 
+The representation are self-contained by packing all dependencies inside, 
+and therefore can be shared with others to run directly, without pesky dependency
+management. The following file is generated when you run `main.bb` above.
 
 ```asm
 % blombly.bbvm
@@ -52,15 +53,17 @@ Hello world!
  and code blocks start by `BEGIN` or `BEGINFINAL` and end at `END`.
 
  Compilation optimizes the code for faster execution,
- for example by removing unused variables.
- To convert back the compilation outcome to semi-readable Blombly,
+ for example by removing unused variables or code segments.
+ This keeps representations small even if a lot of large dependent
+ libraries are used.
+ To convert the compilation outcome to semi-readable blombly code,
  run the Python script `bbreader.py` (this is intensionally written in a different language
- to also help with development debugging).
+ to also help with debugging during development).
 
 
 ## Errors
 
-Before jumping into actual coding, let us peek at errors that Blombly may create. There are two types:
+Finally, before jumping into actual coding, let us peek at errors that Blombly may create. There are two types:
 
 - Syntax errors are identified by the compiler and make it halt.
 - Logical errors occur at runtime and can be intercepted and handled with `try` and `catch` respectively. 
@@ -94,4 +97,4 @@ print(x);  // CREATES AN ERROR
 
 ## What's next?
 
-Continue going through the language's description by clicking the navigation bar's "Next" button at the top.
+Continue going through the language's documentation by clicking the navigation bar's "Next" button at the top.

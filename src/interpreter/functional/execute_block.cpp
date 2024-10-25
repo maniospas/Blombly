@@ -2,6 +2,7 @@
 #define EXECUTE_BLOCK_CPP
 
 #include "interpreter/functional.h"
+#include "data/berror.h"
 
 Result executeBlock(Code* code, BMemory* memory, bool &returnSignal) {
     BuiltinArgs args;
@@ -18,6 +19,7 @@ Result executeBlock(Code* code, BMemory* memory, bool &returnSignal) {
         }
     } 
     catch (const BBError& e) {
+        //return std::move(Result(new BError(std::move(e.what()))));
         handleExecutionError(program, i, e);
         // return std::move(Result(nullptr));
     }
