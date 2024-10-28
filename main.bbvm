@@ -1,17 +1,15 @@
 BEGIN _bb9
+next x args
+next y args
+add _bb10 x y
+return # _bb10
+END
+IS adder _bb9
+final # adder
 BEGIN _bb12
-print # x
 BUILTIN _bb13 I1
-return # _bb13
+BUILTIN _bb14 I2
+list args _bb13 _bb14
 END
-try a _bb12
-BUILTIN _bb14 "end"
-return # _bb14
-END
-IS test _bb9
-final # test
-setfinal # test name test
-BUILTIN _bb15 "fn"
-setfinal # test type _bb15
-call _bb16 # test
-print # _bb16
+call _bb11 _bb12 adder
+print # _bb11

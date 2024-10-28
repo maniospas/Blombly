@@ -1,13 +1,6 @@
-#include "libs/def"
-def::simplify;
+#include "libs/final"
 
-fn test() {
-	a = try {
-		print(x);
-		return 1;
-	}
-	return "end";
+final::fn adder(x, y) {
+	return x+y;
 }
-
-
-print(test());
+print(adder(1, 2));
