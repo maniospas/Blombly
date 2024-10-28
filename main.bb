@@ -1,6 +1,5 @@
-#include "libs/final"
+x = new{}
+y = new{}
 
-final::fn adder(x, y) {
-	return x+y;
-}
-print(adder(1, 2));
+x.y = y;
+y.x = x;

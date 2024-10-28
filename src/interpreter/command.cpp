@@ -9,6 +9,7 @@
 #include "data/Boolean.h"
 #include "BMemory.h"
 #include "common.h"
+#include <string>
 
 void replaceAll(std::string &str, const std::string &from, const std::string &to) {
     size_t start_pos = 0;
@@ -26,7 +27,7 @@ CommandContext::CommandContext(const std::string& source) : source(source) {}
 
 // Command constructor
 Command::Command(const std::string& command, SourceFile* source_, int line_, CommandContext* descriptor_) 
-    : source((source_)), line(line_), descriptor((descriptor_)), value(nullptr) {
+    : source((source_)), line(line_), descriptor((descriptor_)), value(nullptr), jitable(false), hascheckedjitable(false) {
 
     std::vector<std::string> argNames;
     argNames.reserve(4);
@@ -91,12 +92,78 @@ Command::Command(const std::string& command, SourceFile* source_, int line_, Com
 
 // Command toString method
 std::string Command::toString() const {
-    if (descriptor) {
+    if (descriptor) 
         return descriptor->source;
-    }
     std::string ret = getOperationTypeName(operation);
     for (int i = 0; i < nargs; ++i) {
         ret += " " + variableManager.getSymbol(args[i]);
     }
+    return ret;
+}
+
+
+std::string Command::tocpp(bool first_assignment) const {
+    if(operation==FINAL) 
+        return "";
+    if(operation==RETURN)
+        return "this is a return value";
+    if(operation==PUSH) 
+        return (first_assignment?"auto ":"")+variableManager.getSymbol(args[1])+".push_back("+variableManager.getSymbol(args[2])+");";
+    if(operation==NEXT) {
+        std::string ret = (first_assignment?"auto ":"")+variableManager.getSymbol(args[0])+"="+variableManager.getSymbol(args[1])+".front("+variableManager.getSymbol(args[2])+");";
+        ret += variableManager.getSymbol(args[1])+".pop_front();";
+        return ret;
+    }
+    if(operation==POP) {
+        std::string ret = (first_assignment?"auto ":"")+variableManager.getSymbol(args[0])+"="+variableManager.getSymbol(args[1])+".back("+variableManager.getSymbol(args[2])+");";
+        ret += variableManager.getSymbol(args[1])+".pop_back();";
+        return ret;
+    }
+    if(operation==BB_PRINT) {
+        std::string ret = "std::cout";
+        for (int i = 1; i < nargs; ++i) 
+            ret += "<<"+variableManager.getSymbol(args[i]);
+        ret += "<<std::endl;";
+        return ret;
+    }
+    if(operation==TOLIST) {
+        std::string ret = (first_assignment?"std::list ":"")+variableManager.getSymbol(args[0])+" = {";
+        for (int i = 1; i < nargs; ++i) {
+            if(i!=1)
+                ret+=",";
+            ret += variableManager.getSymbol(args[i]);
+        }
+        ret += "};";
+        return ret;
+    }
+    if(operation==BUILTIN) {
+        if(value->getType()==BB_INT) 
+            return (first_assignment?"int ":"")+variableManager.getSymbol(args[0])+" = "+value->toString()+";";
+        if(value->getType()==BB_FLOAT) 
+            return (first_assignment?"double ":"")+variableManager.getSymbol(args[0])+" = "+value->toString()+";";
+        if(value->getType()==BB_BOOL) 
+            return (first_assignment?"bool ":"")+variableManager.getSymbol(args[0])+" = "+value->toString()+";";
+        if(value->getType()==STRING) 
+            return (first_assignment?"string ":"")+variableManager.getSymbol(args[0])+" = \""+value->toString()+"\";";
+        
+        return "unknown type";
+    }
+    if(operation==ADD) 
+        return (first_assignment?"auto ":"")+variableManager.getSymbol(args[0]) + "="+variableManager.getSymbol(args[1])+"+"+variableManager.getSymbol(args[2])+";";
+    if(operation==SUB) 
+        return (first_assignment?"auto ":"")+variableManager.getSymbol(args[0]) + "="+variableManager.getSymbol(args[1])+"-"+variableManager.getSymbol(args[2])+";";
+    if(operation==MUL) 
+        return (first_assignment?"auto ":"")+variableManager.getSymbol(args[0]) + "="+variableManager.getSymbol(args[1])+"*"+variableManager.getSymbol(args[2])+";";
+    if(operation==DIV) 
+        return (first_assignment?"auto ":"")+variableManager.getSymbol(args[0]) + "="+variableManager.getSymbol(args[1])+"/"+variableManager.getSymbol(args[2])+";";
+    if(nargs==0)
+        return "unknown command";
+    std::string ret = (first_assignment?"auto ":"")+variableManager.getSymbol(args[0]) + "="+getOperationTypeName(operation)+"(";
+    for (int i = 1; i < nargs; ++i) {
+        if(i!=1)
+            ret+=",";
+        ret += variableManager.getSymbol(args[i]);
+    }
+    ret += ");";
     return ret;
 }

@@ -1,15 +1,10 @@
-BEGIN _bb9
-next x args
-next y args
-add _bb10 x y
-return # _bb10
+BEGIN _bb2
+return # this
 END
-IS adder _bb9
-final # adder
-BEGIN _bb12
-BUILTIN _bb13 I1
-BUILTIN _bb14 I2
-list args _bb13 _bb14
+new x _bb2
+BEGIN _bb5
+return # this
 END
-call _bb11 _bb12 adder
-print # _bb11
+new y _bb5
+set # x y y
+set # y x x

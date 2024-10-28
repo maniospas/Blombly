@@ -73,7 +73,7 @@ Use a `return` statement to yield back a call value. Here is an example:
 final add = {
     return x + y;
 }
-result = add(x=1;y=2); 
+result = adder(x=1;y=2); 
 print(result);
 ```
 
@@ -82,21 +82,22 @@ print(result);
 3
 ```
 
-Being able to execute code as part of the arguments can be very dynamic.
-For example, one can
-declare configuration blocks that generate the arguments 
+Being able to execute code as part of the arguments allows more
+dynamic patterns than regular keyword arguments, namely the reuse
+of arbitrary preparations before calling methods. For example, one
+can declare configuration blocks that generate the arguments 
 and inline them within the calling parenthesis. Here is an example:
 
 ```java
 // main.bb
-final add = {return x + y + bias}
-final sub = {return x - y + bias}
+final adder = {return x + y + bias}
+final suber = {return x - y + bias}
 final increase = {if(increment) bias=1 else bias=0}
 final nobias = {bias=0}
 
 increment = true;
-a = add(increase:x=1;y=2);
-b = sub(nobias:x=1;y=2);
+a = adder(increase:x=1;y=2);
+b = suber(nobias:x=1;y=2);
 print(a);
 print(b);
 ```
@@ -115,7 +116,8 @@ schedule certain block calls to run in parallel threads for speedup.
 
 ## Positional arguments
 
-Blocks can be called using comma-separated positional arguments. This is a common programming pattern, 
+Blocks can be called using comma-separated positional arguments. 
+This is a common programming pattern, 
 though we stress that it is better to execute code to determine configurations. 
 Positional arguments are stored in a list called `args`. For safery, 
 this is considered a language keyword and the compiler does not allow its usage.
@@ -123,12 +125,12 @@ You can then access list elements or use `next` to obtain their values like so:
 
 ```java
 // main.bb
-final add = { 
+final adder = { 
     x = next(args); 
     y = next(args); 
     return x + y; 
 }
-result = add(1, 2); 
+result = adder(1, 2); 
 print(result);
 ```
 
@@ -138,10 +140,10 @@ within other definitions given that they have the correct remainder `args`.
 
 ```java
 // main.bb
-final add(x, y) = { // shorthand for front-popping these values with next 
+final adder(x, y) = { // shorthand for front-popping these values with next 
     return x + y; 
 } 
-test = add; // can still transfer the definition this way
+test = adder; // can still transfer the definition this way
 result = test(1, 2);
 print(result);
 ```
@@ -154,13 +156,53 @@ to adopt a similar way of thinking of positional vs generated arguments.
 
 ```java
 // main.bb
-final add(x, y) = { 
+final adder(x, y) = { 
     default wx = 1; 
     default wy = 1; 
     return x*wx + y*wy;
 }
-result = add(1,2 | wx=1;wy=2); 
+result = adder(1,2 | wx=1;wy=2); 
 print(result);
 ```
 
 Positional arguments are created first from the calling scope, so further argument generation can modify them.
+
+
+## Cleaner notation with the `final` library
+
+A cleaner notation for function definitions is provided by the `libs/final` library.
+This is packaged alongside blombly releases and fully described [later](../advanced/libraries.md),
+but let us take a quick look for its method calling here.
+
+The library inserts the `final::def` macro (mind you that this is one keyword - blombly treats `::` as
+one character) to declare final functions. 
+The library name and `final::` prefix of the macro's evokation keyword are purposefully chosen as 
+reminders of finality. Using this library, you can create the following equivalent definition of
+the above notation:
+
+```java
+// main.bb
+#include "libs/final"  // use the library
+
+final::def adder(x,y | wx=1;wy=1) {
+    return x*wx + y*wy;
+}
+result = adder(1,2 | wx=1;wy=2); 
+print(result);
+```
+
+In the above snippet, the optionally executed code following the horizontal bar `|`
+is injected in the body of the function via `default` execution (recall that this
+sets only variables not already set). The function's call still runs first. In
+simpler scenarios, you may ommit the default runnable block like so:
+
+```java
+// main.bb
+#include "libs/final"
+
+final::def adder(x,y) {
+    return x+y;
+}
+result = adder(1,2); 
+print(result);
+```

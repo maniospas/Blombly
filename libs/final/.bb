@@ -6,19 +6,19 @@ final def::INFO as {
     release = 0;
     year    = 2024;
     doc     = "
-    \n Introduces class and function definition semantics
-.
+    \n Introduces class and function definition semantics.
     \n All declarations provided by this library create
-    \n final values.
+    \n final values, thus the name as a mnemonic.
     \n 
-    \n def::fn
-    \n -------
-    \n Defines a final code block with a given name and
-    \n arguments. Positional arguments (in fact, a runnable
+    \n final::def
+    \n ----------
+    \n Defines a function. This is a final code block with a 
+    \n given name and arguments. Positional arguments
+    \n (in fact, a runnable
     \n default code block) are also supported like below.
     \n Additional arguments can also be provided.
     \n
-    \n |   final::fn adder(x, y|bias=0) \{return x+y+bias\}
+    \n |   final::def adder(x, y|bias=0) \{return x+y+bias\}
     \n
     \n final::class
     \n ------------
@@ -49,12 +49,3 @@ final def::INFO as {
 
 #include "libs/final/fn"
 #include "libs/final/class"
-
-// enables the 
-#macro {final::simplify;} as {
-    #local {fn} as {final::fn}
-    #local {struct} as {final::struct}
-    #local {abstract} as {final::abstract}
-    #local {use} as {final::use}
-    #local {class} as {final::class}
-}
