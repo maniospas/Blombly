@@ -1,10 +1,10 @@
 BEGIN _bb2
+BEGIN _bb3
+BUILTIN _bb4 "x"
+return # _bb4
+END
+IS \str _bb3
 return # this
 END
 new x _bb2
-BEGIN _bb5
-return # this
-END
-new y _bb5
-set # x y y
-set # y x x
+print # x

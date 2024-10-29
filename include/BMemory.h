@@ -51,7 +51,7 @@ private:
     tsl::hopscotch_set<int> finals;
     int fastId;
     Data* fastData;
-
+    void unsafeSet(int item, Data* value);
 public:
     Data* thisObject;
     void release();
@@ -73,11 +73,11 @@ public:
     Data* getOrNullShallow(int item);
     void unsafeSet(BMemory* handler, int item, Data* value, Data* prev);
     void unsafeSet(int item, Data* value, Data* prev);
-    void unsafeSet(int item, Data* value);
     int size() const;
     void removeWithoutDelete(int item);
     void setFinal(int item);
     bool isFinal(int item) const;
+    bool containsAnywhere(BMemory* other);
 
     void pull(BMemory* other);
     void replaceMissing(BMemory* other);

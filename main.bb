@@ -1,5 +1,3 @@
-x = new{}
-y = new{}
+x = new{\str={return "x"}}
 
-x.y = y;
-y.x = x;
+print(x);

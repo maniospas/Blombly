@@ -251,6 +251,7 @@ void optimize(const std::string& source, const std::string& destination) {
                     bberror("Internal error: the LAST keyword has been deprecated");
                 if (symbol != "#") 
                     symbolUsageCount[symbol]++;
+
             }
         }
         changes = 0;
@@ -258,7 +259,9 @@ void optimize(const std::string& source, const std::string& destination) {
             auto& command = program[i];
             if(!command->enabled)
                 continue;
-            if(command->args[0]=="exists" && command->args.size() && symbolUsageCount[command->args[1]]==0) {
+            if(command->args.size()>=2 && command->args[1].size() && command->args[1][0]=='\\')  // operators are still valid
+                continue;
+            if(command->args.size() && command->args[0]=="exists" && symbolUsageCount[command->args[1]]==0) {
                 command->enabled = false;
                 ++changes;
                 continue;

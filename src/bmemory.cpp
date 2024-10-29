@@ -8,7 +8,7 @@
 #include <unordered_set>  
 
 tsl::hopscotch_set<BMemory*> memories;
-std::atomic<int> countUnrealeasedMemories;
+std::atomic<unsigned long long> countUnrealeasedMemories(0);
 extern VariableManager variableManager;
 
 void BMemory::verify_noleaks() {
@@ -18,7 +18,7 @@ void BMemory::verify_noleaks() {
 
 BMemory::BMemory(BMemory* par, int expectedAssignments, Data* thisObject) : parent(par), allowMutables(true), fastId(-1), thisObject(thisObject) {
     //std::cout << "created "<<this<<"\n";
-    countUnrealeasedMemories++;
+    ++countUnrealeasedMemories;
     data.reserve(expectedAssignments);
 }
 
@@ -136,6 +136,17 @@ Data* BMemory::get(int item, bool allowMutable) {
 }
 
 
+bool BMemory::containsAnywhere(BMemory* other) {
+    if(other==this)
+        return true;
+    detach(parent); // synchronize all threads
+    for(const auto& it : data)
+        if(it.second && it.second->getType()==STRUCT && it.first!=variableManager.thisId && static_cast<Struct*>(it.second)->getMemory()->containsAnywhere(other)) 
+            return true;
+    return false;
+}
+
+
 bool BMemory::contains(int item) {
     if(item==fastId)
         return fastData;
@@ -237,9 +248,11 @@ void BMemory::unsafeSet(BMemory* handler, int item, Data* value, Data* prev) {
 void BMemory::unsafeSet(int item, Data* value, Data* prev) {
     if (isFinal(item))
         bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
-    if(value && value->getType()!=FUTURE) {
-        fastId = item;
-        fastData = value;
+    if(value) {
+        if(value->getType()!=FUTURE) {
+            fastId = item;
+            fastData = value;
+        }
     }
     else
         fastId = -1;
@@ -254,7 +267,7 @@ void BMemory::unsafeSet(int item, Data* value, Data* prev) {
 
 void BMemory::unsafeSet(int item, Data* value) {
     Data* prev = data[item];
-    if(value)
+    if(value) 
         value->addOwner();
     if(prev)
         prev->removeFromOwner();

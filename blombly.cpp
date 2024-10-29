@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
             threads = std::stoi(argv[++i]);
         } 
         else if (arg == "--version" || arg == "-v") {
-            std::cout << "Version: blombly 0.3.1\n";
+            std::cout << "Version: blombly 1.2.7\n";
             return 0;
         } 
         else if (arg == "--help" || arg == "-h") {
