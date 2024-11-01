@@ -16,8 +16,5 @@ final functors(n) = {
 }
 
 
-a = try {
-    values = functors("abc");
-}
-catch(a)
-print("found an error");
+catch(try values = functors("abc"))
+    print("found an error");

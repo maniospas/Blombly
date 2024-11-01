@@ -11,55 +11,74 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [windows-latest, ubuntu-latest]
         include:
+          # Windows Configuration
           - os: windows-latest
             triplet: x64-windows
             build-script: .\vcpkg\bootstrap-vcpkg.bat
             cmake-command: |
               cmake -B ./build
               cmake --build ./build --config Release
+            package-command: |
+              mkdir release
+              copy .\build\Release\*.exe release\ || echo "No executables found"
+              copy .\build\Release\*.dll release\ || echo "No DLLs found"
+              copy .\libs\* release\ || echo "No libs directory found"
+              powershell Compress-Archive -Path release\* -DestinationPath windows_release.zip
+            artifact-name: windows-build
+            artifact-path: windows_release.zip
+          # Linux Configuration
+          - os: ubuntu-latest
+            triplet: x64-linux
+            build-script: ./vcpkg/bootstrap-vcpkg.sh
+            cmake-command: |
+              cmake -B ./build
+              cmake --build ./build --config Release
+            package-command: |
+              mkdir release
+              cp ./build/* release/ || echo "No executables found"
+              cp ./build/*.so release/ || echo "No shared libraries found"
+              cp -r libs/ release/ || echo "No libs directory found"
+              tar -czvf linux_release.tar.gz -C release .
+            artifact-name: linux-build
+            artifact-path: linux_release.tar.gz
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Install vcpkg
-      run: |
-        git clone https://github.com/microsoft/vcpkg.git
-        ${{ matrix.build-script }}
+      - name: Install vcpkg
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git
+          ${{ matrix.build-script }}
 
-    - name: Install dependencies
-      run: |
-        ./vcpkg/vcpkg install crow civetweb zlib --triplet=${{ matrix.triplet }}
+      - name: Install dependencies
+        run: |
+          ./vcpkg/vcpkg install crow civetweb zlib --triplet=${{ matrix.triplet }}
 
-    - name: Configure and build
-      run: |
-        ${{ matrix.cmake-command }}
+      - name: Configure and build
+        run: |
+          ${{ matrix.cmake-command }}
 
-    - name: Package executable for Windows
-      run: |
-        mkdir -p release
-        cp ./*.exe release/ || echo "No executables found"
-        cp ./*.dll release/ || echo "No DLLs found"
-        cp -r libs/ release/ || echo "No libs directory found"
-        # Use PowerShell's Compress-Archive for zipping files on Windows
-        powershell Compress-Archive -Path release/* -DestinationPath windows_release.zip
+      - name: Package executable
+        run: |
+          ${{ matrix.package-command }}
 
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: windows-build
-        path: windows_release.zip
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: ${{ matrix.artifact-path }}
 
   release:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Download Windows build artifact
+      - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
-          name: windows-build
+          name: '**-build'
           path: .
 
       - name: List downloaded files (Debugging step)
@@ -68,6 +87,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: windows_release.zip
+          files: |
+            windows_release.zip
+            linux_release.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}

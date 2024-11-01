@@ -36,16 +36,16 @@ return # ret
 END
 IS functors _bb10
 final # functors
-BEGIN _bb33
+BEGIN _bb31
+BUILTIN _bb32 "found an error"
+print # _bb32
+END
 BEGIN _bb35
-BUILTIN _bb36 "abc"
-list args _bb36
-END
-call values _bb35 functors
-END
-try a _bb33
 BEGIN _bb37
-BUILTIN _bb38 "found an error"
-print # _bb38
+BUILTIN _bb38 "abc"
+list args _bb38
 END
-catch # a _bb37
+call values _bb37 functors
+END
+try _bb33 _bb35
+catch # _bb33 _bb31
