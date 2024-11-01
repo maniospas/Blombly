@@ -1,7 +1,8 @@
 #include "libs/final"
 #include "libs/loop"
 
-final::def functors(n) {
+final functors(n) = {
+    n |= int;
     ret = list();
     sqrtn = int(n^0.5+1);
     while(i as loop::range(1, sqrtn)) {
@@ -16,4 +17,7 @@ final::def functors(n) {
 }
 
 
-print(functors(100));
+a = try {
+    values = functors("abc");
+}
+print(a);

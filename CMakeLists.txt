@@ -15,7 +15,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexec-charset=UTF-8 -finput-charset=UTF-8 /utf-8 -O2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexec-charset=UTF-8 -finput-charset=UTF-8 -O2")
 #add_definitions(-D_WIN32_WINNT=0x0A00)
 
 # Include directories: add your project's include folder
@@ -34,14 +34,6 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 # Find and link zlib for compression support
 find_package(ZLIB REQUIRED)
 
-# Include zlib directory and link the necessary libraries
-if(ZLIB_FOUND)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${ZLIB_INCLUDE_DIRS})
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${ZLIB_LIBRARIES})
-else()
-    message(FATAL_ERROR "Zlib library not found.")
-endif()
-
 # Manually include Civetweb headers and link library (installed via vcpkg)
 find_path(CIVETWEB_INCLUDE_DIR civetweb.h)
 find_library(CIVETWEB_LIBRARY civetweb)
@@ -52,6 +44,14 @@ if(CIVETWEB_INCLUDE_DIR AND CIVETWEB_LIBRARY)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${CIVETWEB_LIBRARY})
 else()
     message(FATAL_ERROR "Civetweb library not found. Make sure it is installed via vcpkg.")
+endif()
+
+# Include zlib directory and link the necessary libraries
+if(ZLIB_FOUND)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${ZLIB_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${ZLIB_LIBRARIES})
+else()
+    message(FATAL_ERROR "Zlib library not found.")
 endif()
 
 # Specify where to place the final executable

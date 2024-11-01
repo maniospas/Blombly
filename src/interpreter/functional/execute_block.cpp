@@ -2,7 +2,7 @@
 #define EXECUTE_BLOCK_CPP
 
 #include "interpreter/functional.h"
-#include "data/berror.h"
+#include "data/BError.h"
 
 Result executeBlock(Code* code, BMemory* memory, bool &returnSignal) {
     BuiltinArgs args;

@@ -7,3 +7,4 @@ blombly.exe
 conan/
 vcpkg/
 asmjit/
+venv/

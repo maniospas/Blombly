@@ -1424,7 +1424,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             std::string source = libpath.substr(1, libpath.size() - 2);
             std::error_code ec;
             if(std::filesystem::is_directory(source, ec))
-                source = source+"\\.bb";
+                source = source+"/.bb";
             else 
                 source += ".bb";
 
