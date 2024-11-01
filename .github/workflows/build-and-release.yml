@@ -17,8 +17,10 @@ jobs:
           - os: windows-latest
             triplet: x64-windows
             build-script: .\vcpkg\bootstrap-vcpkg.bat
+            cmake-generator: "Visual Studio 16 2019"
+            cmake-arch: x64
             cmake-command: |
-              cmake -B ./build
+              cmake -G "${{ matrix.cmake-generator }}" -A ${{ matrix.cmake-arch }} -B ./build -DCMAKE_BUILD_TYPE=Release
               cmake --build ./build --config Release
             package-command: |
               mkdir release
@@ -33,7 +35,7 @@ jobs:
             triplet: x64-linux
             build-script: ./vcpkg/bootstrap-vcpkg.sh
             cmake-command: |
-              cmake -B ./build
+              cmake -B ./build -DCMAKE_BUILD_TYPE=Release
               cmake --build ./build --config Release
             package-command: |
               mkdir release
@@ -60,6 +62,11 @@ jobs:
       - name: Configure and build
         run: |
           ${{ matrix.cmake-command }}
+
+      - name: List build directory (Debugging)
+        run: |
+          dir build
+          dir build\Release
 
       - name: Package executable
         run: |
