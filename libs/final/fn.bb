@@ -1,5 +1,5 @@
 // function with only positional arguments (overriden by subsequent versions)
-#macro {final::fn @name(@args){@code}} as {
+#macro {final::def @name(@args){@code}} as {
     final @name(@args) = {
         //#spec type="fn";
         //#spec name=#stringify(@name); 
@@ -7,7 +7,7 @@
     }
 }
 // function with no arguments
-#macro {final::fn @name(){@code}} as {
+#macro {final::def @name(){@code}} as {
     final @name = {
         //#spec type="fn";
         //#spec name=#stringify(@name); 
@@ -15,7 +15,7 @@
     }
 }
 // function with defaults 
-#macro {final::fn @name(@args | @defaults){@code}} as {
+#macro {final::def @name(@args | @defaults){@code}} as {
     final @name(@args) = {
         //#spec type="fn";
         //#spec name=#stringify(@name); 
@@ -24,7 +24,7 @@
     }
 }
 // function with only defaults (identified because it has an assignment)
-// #macro (final::fn @name(@arg = @defaults){@code}) = {
+// #macro (final::def @name(@arg = @defaults){@code}) = {
 //    final @name = {
 //        #spec type="fn";
 //        #spec name=#stringify(@name); 

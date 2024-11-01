@@ -1,0 +1,49 @@
+#include "libs/final"
+
+final tape = { return new {  // TODO: investigate but if we add (args) to tape
+    final contents = args;
+    front = 0;
+
+    final::def \at(i) {
+        return contents[i+this.front];
+    }
+    final::def \put(i, value) {
+        contents[i+this.front] = value; 
+        return this;
+    }
+    final::def \len() {
+        ret = len(contents)-this.front;
+        if(ret<0)
+            return 0;
+        return ret;
+    }
+    final::def ipush(value) {
+        push(contents, value); 
+        return this;
+    }
+    final::def ipop() {
+        return pop(contents);
+    }
+    final::def inext() {
+        prev = this.front;
+        this.front = prev+1;
+        if(found as contents[prev])
+            return found;
+    }
+    final::def reset() {
+        this.front = 0;
+        return this;
+    }
+}}
+
+
+x = tape(1,2,3,4);
+while(i as x.inext()) {
+    print(i);
+}
+x = x.reset(); 
+print("end");
+
+while(i as x.inext()) {
+    print(i);
+}

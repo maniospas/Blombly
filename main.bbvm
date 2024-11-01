@@ -1,10 +1,43 @@
-BEGIN _bb2
-BEGIN _bb3
-BUILTIN _bb4 "x"
-return # _bb4
+BEGIN _bb19
+next n args
+list ret
+BUILTIN _bb22 I1
+BUILTIN _bb24 F0.5
+pow _bb23 n _bb24
+add _bb21 _bb23 _bb22
+int sqrtn _bb21
+BUILTIN _bb27 I1
+range _bbmacro0 _bb27 sqrtn
+next _bb28 _bbmacro0
+AS i _bb28
+exists _bb29 i
+BEGIN _bb30
+BEGIN _bb31
+push # ret i
+div _bb32 n i
+int complement _bb32
+BEGIN _bb34
+push # ret complement
 END
-IS \str _bb3
-return # this
+neq _bb35 i complement
+if # _bb35 _bb34
 END
-new x _bb2
-print # x
+BUILTIN _bb37 I0
+mod _bb38 n i
+eq _bb36 _bb38 _bb37
+if # _bb36 _bb31
+next _bb28 _bbmacro0
+AS i _bb28
+exists _bb29 i
+END
+while # _bb29 _bb30
+return # ret
+END
+IS functors _bb19
+final # functors
+BEGIN _bb40
+BUILTIN _bb41 I100
+list args _bb41
+END
+call _bb39 _bb40 functors
+print # _bb39
