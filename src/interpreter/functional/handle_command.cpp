@@ -304,12 +304,14 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             return;
 
         case TRY: {
+            memory->detach(memory->parent);
             try {
                 Data* condition = MEMGET(memory, 1);
                 bbassert(condition->getType()==CODE, "Can only inline a non-called code block for try condition");
                 auto codeCondition = static_cast<Code*>(condition);
                 bool tryReturnSignal(false);
                 Result returnedValue = executeBlock(codeCondition, memory, tryReturnSignal);
+                memory->detach(memory->parent);
                 result = returnedValue.get();
                 if(!tryReturnSignal) 
                     result = nullptr;

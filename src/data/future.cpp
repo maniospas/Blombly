@@ -51,7 +51,7 @@ Result Future::getResult() const {
     }
 
     if (result->error) {
-        std::string error_message = (result->error->what());
+        std::string error_message = std::move(result->error->what());
         result->error = nullptr;
         result->value = Result(nullptr);
         throw BBError(error_message);

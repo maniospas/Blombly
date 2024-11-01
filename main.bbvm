@@ -1,47 +1,51 @@
-BEGIN _bb19
+BEGIN _bb10
 next n args
 int n n
 list ret
-BUILTIN _bb23 I1
-BUILTIN _bb25 F0.5
-pow _bb24 n _bb25
-add _bb22 _bb24 _bb23
-int sqrtn _bb22
-BUILTIN _bb28 I1
-range _bbmacro0 _bb28 sqrtn
-next _bb29 _bbmacro0
-AS i _bb29
-exists _bb30 i
-BEGIN _bb31
-BEGIN _bb32
+BUILTIN _bb14 I1
+BUILTIN _bb16 F0.5
+pow _bb15 n _bb16
+add _bb13 _bb15 _bb14
+int sqrtn _bb13
+BUILTIN _bb19 I1
+range _bbmacro0 _bb19 sqrtn
+next _bb20 _bbmacro0
+AS i _bb20
+exists _bb21 i
+BEGIN _bb22
+BEGIN _bb23
 push # ret i
-div _bb33 n i
-int complement _bb33
-BEGIN _bb35
+div _bb24 n i
+int complement _bb24
+BEGIN _bb26
 push # ret complement
 END
-neq _bb36 i complement
-if # _bb36 _bb35
+neq _bb27 i complement
+if # _bb27 _bb26
 END
-BUILTIN _bb38 I0
-mod _bb39 n i
-eq _bb37 _bb39 _bb38
-if # _bb37 _bb32
-next _bb29 _bbmacro0
-AS i _bb29
-exists _bb30 i
+BUILTIN _bb29 I0
+mod _bb30 n i
+eq _bb28 _bb30 _bb29
+if # _bb28 _bb23
+next _bb20 _bbmacro0
+AS i _bb20
+exists _bb21 i
 END
-while # _bb30 _bb31
+while # _bb21 _bb22
 return # ret
 END
-IS functors _bb19
+IS functors _bb10
 final # functors
-BEGIN _bb42
-BEGIN _bb44
-BUILTIN _bb45 "abc"
-list args _bb45
+BEGIN _bb33
+BEGIN _bb35
+BUILTIN _bb36 "abc"
+list args _bb36
 END
-call values _bb44 functors
+call values _bb35 functors
 END
-try a _bb42
-print # a
+try a _bb33
+BEGIN _bb37
+BUILTIN _bb38 "found an error"
+print # _bb38
+END
+catch # a _bb37

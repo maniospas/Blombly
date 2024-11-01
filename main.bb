@@ -1,4 +1,3 @@
-#include "libs/final"
 #include "libs/loop"
 
 final functors(n) = {
@@ -20,4 +19,5 @@ final functors(n) = {
 a = try {
     values = functors("abc");
 }
-print(a);
+catch(a)
+print("found an error");
