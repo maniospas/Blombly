@@ -17,17 +17,16 @@ jobs:
           - os: windows-latest
             triplet: x64-windows
             build-script: .\vcpkg\bootstrap-vcpkg.bat
-            cmake-generator: "Visual Studio 16 2019"
-            cmake-arch: x64
             cmake-command: |
-              cmake -G "${{ matrix.cmake-generator }}" -A ${{ matrix.cmake-arch }} -B ./build -DCMAKE_BUILD_TYPE=Release
+              cmake -B ./build
               cmake --build ./build --config Release
             package-command: |
               mkdir release
-              copy .\build\Release\*.exe release\ || echo "No executables found"
-              copy .\build\Release\*.dll release\ || echo "No DLLs found"
-              copy .\libs\* release\ || echo "No libs directory found"
-              powershell Compress-Archive -Path release\* -DestinationPath windows_release.zip
+              cp ./*.exe release/ || echo "No executables found"
+              cp ./*.dll release/ || echo "No DLLs found"
+              cp -r libs/ release/ || echo "No libs directory found"
+              # Use PowerShell's Compress-Archive for zipping files on Windows
+              powershell Compress-Archive -Path release/* -DestinationPath windows_release.zip
             artifact-name: windows-build
             artifact-path: windows_release.zip
           # Linux Configuration
@@ -35,12 +34,12 @@ jobs:
             triplet: x64-linux
             build-script: ./vcpkg/bootstrap-vcpkg.sh
             cmake-command: |
-              cmake -B ./build -DCMAKE_BUILD_TYPE=Release
+              cmake -B ./build
               cmake --build ./build --config Release
             package-command: |
               mkdir release
-              cp ./build/* release/ || echo "No executables found"
-              cp ./build/*.so release/ || echo "No shared libraries found"
+              cp ./blombly release/ || echo "No executables found"
+              cp ./*.so release/ || echo "No shared libraries found"
               cp -r libs/ release/ || echo "No libs directory found"
               tar -czvf linux_release.tar.gz -C release .
             artifact-name: linux-build
@@ -62,11 +61,6 @@ jobs:
       - name: Configure and build
         run: |
           ${{ matrix.cmake-command }}
-
-      - name: List build directory (Debugging)
-        run: |
-          dir build
-          dir build\Release
 
       - name: Package executable
         run: |
