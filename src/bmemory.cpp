@@ -325,7 +325,7 @@ void BMemory::detach() {
         auto dat = element.second;
         if (dat && dat->getType() == ERRORTYPE && !static_cast<BError*>(dat)->isConsumed())  {
             static_cast<BError*>(dat)->consume();
-            destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:\n"+dat->toString()+"\n";
+            destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was intercepted with `try` but never handled:\n"+dat->toString()+"\n";
         }
     }
     

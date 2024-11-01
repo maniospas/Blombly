@@ -180,11 +180,20 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
         case AS: {
             result = memory->getOrNull(command->args[1], true);
+            if(result && result->getType()==ERRORTYPE) //{
+                static_cast<BError*>(result)->consume();
+                //result = new BError(true);
+            //}
         } break;
 
         case EXISTS: {
-            bool exists = memory->contains(command->args[1]);
-            result = new Boolean(exists);
+            Data* res = memory->getOrNull(command->args[1], true);
+            if(res) 
+                result = new Boolean(res->getType()!=ERRORTYPE);
+            else
+                result = new Boolean(false);
+            //bool exists = memory->contains(command->args[1]);
+            //result = new Boolean(exists);
         } break;
 
         case SET: {

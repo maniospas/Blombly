@@ -1,51 +1,17 @@
-BEGIN _bb10
-next n args
-int n n
-list ret
-BUILTIN _bb14 I1
-BUILTIN _bb16 F0.5
-pow _bb15 n _bb16
-add _bb13 _bb15 _bb14
-int sqrtn _bb13
-BUILTIN _bb19 I1
-range _bbmacro0 _bb19 sqrtn
-next _bb20 _bbmacro0
-AS i _bb20
-exists _bb21 i
-BEGIN _bb22
-BEGIN _bb23
-push # ret i
-div _bb24 n i
-int complement _bb24
-BEGIN _bb26
-push # ret complement
+BEGIN _bb1
+BEGIN _bb4
+BUILTIN _bb5 "failed"
+fail # _bb5
 END
-neq _bb27 i complement
-if # _bb27 _bb26
+try _bb2 _bb4
+AS _bbmacro0 _bb2
+return # _bbmacro0
 END
-BUILTIN _bb29 I0
-mod _bb30 n i
-eq _bb28 _bb30 _bb29
-if # _bb28 _bb23
-next _bb20 _bbmacro0
-AS i _bb20
-exists _bb21 i
-END
-while # _bb21 _bb22
-return # ret
-END
-IS functors _bb10
-final # functors
-BEGIN _bb31
-BUILTIN _bb32 "found an error"
-print # _bb32
-END
-BEGIN _bb35
-BEGIN _bb37
-BUILTIN _bb38 "abc"
-list args _bb38
-END
-call values _bb37 functors
-END
-try _bb33 _bb35
-catch # _bb33 _bb31
+IS test _bb1
+call x # test
+str _bb9 x
+BUILTIN _bb10 "test "
+add _bb8 _bb10 _bb9
+print # _bb8
+BUILTIN _bb11 "here"
+print # _bb11
