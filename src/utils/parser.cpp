@@ -458,7 +458,8 @@ public:
                     first_name == "std::len" || first_name == "std::next" || 
                     first_name == "std::vector" || first_name == "std::iter" || 
                     first_name == "std::add" || first_name == "std::sub" || 
-                    first_name == "std::min" || first_name == "std::max" || 
+                    first_name == "std::min" || first_name == "std::max" ||  
+                    first_name == "std::sum" || 
                     first_name == "std::call" || first_name == "std::range" || 
                     first_name == "std::print" || first_name == "std::read") {
                     bberror("Cannot assign to std implementation `" + first_name + "`.\n"+show_position(start));
@@ -471,6 +472,7 @@ public:
                     first_name == "vector" || first_name == "iter" || 
                     first_name == "add" || first_name == "sub" || 
                     first_name == "min" || first_name == "max" || 
+                    first_name == "sum" ||
                     first_name == "call" || first_name == "range" || 
                     first_name == "print" || first_name == "read" 
                     ) {
@@ -735,6 +737,8 @@ public:
             if (first_name == "std::len" || first_name == "std::iter" || 
                 first_name == "std::int" || first_name == "std::float" || 
                 first_name == "std::str" || first_name == "std::bool" || 
+                first_name == "std::max" || first_name == "std::min" || 
+                first_name == "std::sum" || 
                 first_name == "std::pop" || 
                 first_name == "std::file" || first_name == "std::next" || 
                 first_name == "std::list" || first_name == "std::map" || 
@@ -742,6 +746,8 @@ public:
                 first_name == "len" || first_name == "iter" || 
                 first_name == "int" || first_name == "float" || 
                 first_name == "str" || first_name == "bool" || 
+                first_name == "max" || first_name == "min" || 
+                first_name == "sum" || 
                 first_name == "pop" || 
                 first_name == "file" || first_name == "next" || 
                 first_name == "list" || first_name == "map" || 
@@ -809,6 +815,7 @@ public:
                     callable == "vector" || callable == "iter" || 
                     callable == "add" || callable == "sub" || 
                     callable == "min" || callable == "max" || 
+                    callable == "sum" || 
                     callable == "call" || callable == "range" || 
                     callable == "print" || callable == "read" ||
                     callable == "std::int" || callable == "std::float" || 
@@ -819,6 +826,7 @@ public:
                     callable == "std::vector" || callable == "std::iter" || 
                     callable == "std::add" || callable == "std::sub" || 
                     callable == "std::min" || callable == "std::max" || 
+                    callable == "std::sum" || 
                     callable == "std::call" || callable == "std::range" || 
                     callable == "std::print" || callable == "std::read" 
                     ) {

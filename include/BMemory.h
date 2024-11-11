@@ -81,7 +81,7 @@ public:
 
     void pull(BMemory* other);
     void replaceMissing(BMemory* other);
-    void detach();
+    void await();
     void detach(BMemory* par);
 
     static void verify_noleaks();

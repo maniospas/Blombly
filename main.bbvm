@@ -1,17 +1,44 @@
-BEGIN _bb1
-BEGIN _bb4
-BUILTIN _bb5 "failed"
-fail # _bb5
+BUILTIN _bb11 I1
+BUILTIN _bb12 I2
+BUILTIN _bb13 I3
+list A _bb11 _bb12 _bb13
+iter _bbmacro0 A
+next _bb16 _bbmacro0
+AS x _bb16
+exists _bb17 x
+BEGIN _bb18
+BEGIN _bb21
+BEGIN _bb22
+return # #
 END
-try _bb2 _bb4
-AS _bbmacro0 _bb2
-return # _bbmacro0
+BUILTIN _bb24 I2
+eq _bb23 x _bb24
+if # _bb23 _bb22
+print # x
 END
-IS test _bb1
-call x # test
-str _bb9 x
-BUILTIN _bb10 "test "
-add _bb8 _bb10 _bb9
-print # _bb8
-BUILTIN _bb11 "here"
-print # _bb11
+try _bb19 _bb21
+next _bb16 _bbmacro0
+AS x _bb16
+exists _bb17 x
+END
+while # _bb17 _bb18
+iter _bbmacro1 A
+next _bb26 _bbmacro1
+AS x _bb26
+exists _bb27 x
+BEGIN _bb28
+BEGIN _bb31
+BEGIN _bb32
+return # #
+END
+BUILTIN _bb34 I2
+eq _bb33 x _bb34
+if # _bb33 _bb32
+print # x
+END
+try _bb29 _bb31
+next _bb26 _bbmacro1
+AS x _bb26
+exists _bb27 x
+END
+while # _bb27 _bb28

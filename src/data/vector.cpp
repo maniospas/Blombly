@@ -333,6 +333,12 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
     
     if(operation==TOITER && args->size==1) 
         return std::move(Result(new AccessIterator(args->arg0)));
+    
+    if(operation==TOVECTOR && args->size==1) 
+        return std::move(Result(this));
+
+    if(operation==LEN && args->size==1) 
+        return std::move(Result(new Integer(dims[0])));
 
     throw Unimplemented();
 }

@@ -1,8 +1,14 @@
-#include "libs/err"
+#include "libs/loop"
 
-test = {
-    return err::invalid("failed");
+A = 1,2,3;
+while(x as loop::next(A)) try {
+    if(x==2)
+        return;
+    print(x);
 }
-x = test();
-print("test "+str(x));
-print("here");
+
+while(x as loop::next(A)) try {
+    if(x==2)
+        return;
+    print(x);
+}

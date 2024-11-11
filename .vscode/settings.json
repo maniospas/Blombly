@@ -1,6 +1,7 @@
 {
     "cmake.configureOnOpen": false,
     "files.associations": {
+        "*.cm": "rust",
         "*.bb": "java",
         "fstream": "cpp",
         "unordered_map": "cpp",
@@ -114,6 +115,7 @@
         "stack": "cpp",
         "strstream": "cpp",
         "hash_map": "cpp",
-        "hash_set": "cpp"
+        "hash_set": "cpp",
+        "text_encoding": "cpp"
     }
 }

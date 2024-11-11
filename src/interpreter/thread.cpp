@@ -14,7 +14,7 @@ void threadExecute(Code* code,
             value = nullptr;
             returnValue = (Result(nullptr));
         }
-        memory->detach(); // synchronizes threads
+        memory->detach(nullptr); // synchronizes threads
         if(value)
             value->leak();
         if(value && value->getType()==CODE)

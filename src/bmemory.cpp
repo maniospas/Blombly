@@ -213,10 +213,8 @@ Data* BMemory::getOrNull(int item, bool allowMutable) {
         unsafeSet(item, ret);
         attached_threads.erase(prevRet);
     }
-    if (ret && !allowMutable && !isFinal(item)) {
+    if (ret && !allowMutable && !isFinal(item)) 
         bberror("Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));
-        return nullptr;
-    }
     if (!ret && parent) 
         ret = parent->getOrNull(item, allowMutables && allowMutable);
     
@@ -304,9 +302,7 @@ void BMemory::replaceMissing(BMemory* other) {
     }
 }
 
-void BMemory::detach() {
-    allowMutables = false;
-    parent = nullptr;
+void BMemory::await() {
     std::string destroyerr = "";
 
     for (const auto& thread : attached_threads) {
@@ -334,6 +330,8 @@ void BMemory::detach() {
 }
 
 void BMemory::detach(BMemory* par) {
-    detach();
+    await();
+    if(!par)
+        allowMutables = false;
     parent = par;
 }

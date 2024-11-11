@@ -114,15 +114,3 @@ final loop::INFO as {
         return @var;
     }
 }
-
-// invalidate vanilla next and range aliases
-#macro {next} as {
-    #fail "`next` has been invalidated.
-    \n  !!! The loop library introduces `loop::next` as an alternative to `std::next`.
-    \n      The prefix-less symbol is invalidated to force explicit selection between the two."
-}
-#macro {range} as {
-    #fail "`range` has been invalidated.
-    \n  !!! The loop library introduces `loop::range` as an alternative to `std::range`.
-    \n      The prefix-less symbol is invalidated to force explicit selection between the two."
-}

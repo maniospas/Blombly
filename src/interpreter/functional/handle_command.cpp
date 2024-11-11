@@ -417,7 +417,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             bool newReturnSignal(false);
             Result returnedValue = executeBlock(code, newMemory, newReturnSignal);
             result = returnedValue.get();
-            newMemory->detach();
+            newMemory->detach(nullptr);
             newMemory->leak(); // TODO: investigate if this should be here or manually on getting and setting (here may be better to remove checks given that setting and getting are already slower)
             if(result!=thisObj) {
                 if(result && result->getType()==CODE) 
