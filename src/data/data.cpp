@@ -93,5 +93,9 @@ Result Data::implement(const OperationType operation, BuiltinArgs* args) {
 }
 
 size_t Data::toHash() const {
-    return std::hash<std::string>{}(toString());
+    return (size_t)this;
+}
+
+bool Data::isSame(Data* other) const {
+    return other==this;
 }

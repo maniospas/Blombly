@@ -14,6 +14,8 @@ public:
 
     std::string toString() const override;
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual bool isSame(Data* other) const override;
+    virtual size_t toHash() const override;
 
     friend class Boolean;
     friend class BFloat;

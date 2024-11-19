@@ -41,7 +41,7 @@ final loop::INFO as {
     \n |   inc = loop::lambda(x->x+1);
     \n |   print(inc(0));  // 1
     \n
-    \n loop::tolist
+    \n loop::list
     \n ------------
     \n Gathers all the values of an iterable and converts
     \n them to a list. There are two variations to optionally
@@ -50,14 +50,14 @@ final loop::INFO as {
     \n Here is the pattern of gathering elements only:
     \n 
     \n |   iterable = std::range(5);
-    \n |   A = loop::tolist(iterable);
+    \n |   A = loop::list(iterable);
     \n |   print(A);
     \n
     \n Next is an example of how to apply a transformation.
     \n This is consistent with typical transformation notation.
     \n 
     \n |   iterable = std::range(5);
-    \n |   A = loop::tolist(iterable|str);
+    \n |   A = loop::tist(iterable|str);
     \n |   print(A);
     \n 
     \n Finally, there is no need to explicitly use the 
@@ -66,7 +66,7 @@ final loop::INFO as {
     \n like this:
     \n 
     \n |   iterable = 1, 2, 3;
-    \n |   A = loop::tolist(iterable|x->x+1);
+    \n |   A = loop::list(iterable|x->x+1);
     \n |   print(A);
     \n
     ";
@@ -80,7 +80,7 @@ final loop::INFO as {
 #macro {symb::lambda(@lhs->@rhs);} as {new {@transform(@lhs) = {return @rhs} return @transform}}
 
 // list convertion
-#macro {loop::tolist(@generator)} as {
+#macro {loop::list(@generator)} as {
     new {
         @list = @generator;
         @var = list();
@@ -91,7 +91,7 @@ final loop::INFO as {
 }
 
 // list convertion with semi-types
-#macro {loop::tolist(@generator|@transform)} as {
+#macro {loop::list(@generator|@transform)} as {
     new {
         @list = @generator;
         @var = list();
@@ -103,7 +103,7 @@ final loop::INFO as {
 }
 
 // list convertion with lambda semi-types
-#macro {loop::tolist(@generator|@lhs->@rhs)} as {
+#macro {loop::list(@generator|@lhs->@rhs)} as {
     new {
         @transform(@lhs) = {return @rhs}
         @list = @generator;

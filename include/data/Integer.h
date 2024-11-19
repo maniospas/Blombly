@@ -17,10 +17,8 @@ public:
     int getValue() const;
 
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
-
-    size_t toHash() const override {
-        return std::hash<int>{}(value);
-    }
+    virtual bool isSame(Data* other) const override;
+    virtual size_t toHash() const override;
 
     friend class AccessIterator;
     friend class BFloat;

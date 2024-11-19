@@ -298,6 +298,10 @@ public:
                 ret += "END\n";
                 return requested_var;
             }
+            if (first_name == "(" && find_end(start + 1, end, ")", true) == end) {
+                bbassert(!is_final, "Final is only an acceptable qualifier for variables (not parenthesis outcomes)");
+                return parse_expression(start+1, end-1, request_block, ignore_empty);
+            }
 
             if (request_block) {
                 std::string requested_var = create_temp();
@@ -390,25 +394,61 @@ public:
             if (assignment != MISSING) {
                 bool negation = first_name=="not";
                 if(negation) {
-                    bbassert(asAssignment==assignment, "Keyword `not` can precede an `as` but not a `=` assignment.");
+                    bbassert(asAssignment==assignment, "Keyword `not` can precede an `as` but not a `=` assignment (the latter does not return).");
                     start += 1;
                     first_name = tokens[start].name;
                 }
-                    
                 bbassert(assignment != start, "Missing a variable to assign to.\n"+show_position(assignment));
+                int isSelfOperation = 0;
+                if(assignment && 
+                    (  tokens[assignment-1].name=="+" 
+                    || tokens[assignment-1].name=="-"
+                    || tokens[assignment-1].name=="*"
+                    || tokens[assignment-1].name=="/"
+                    || tokens[assignment-1].name=="^"
+                    || tokens[assignment-1].name=="|"
+                    || tokens[assignment-1].name=="%"
+                    )) {
+                    isSelfOperation = 1; 
+                    // if for whatever reason operations like +as become available (which shouldn't) then don't forget to fix subsequent code
+                    bbassert(asAssignment!=assignment, "Pattern `"+tokens[assignment-1].name+"as` is not allowed. Use `"+tokens[assignment-1].name+"=` or write the full self-operation\n"+show_position(assignment));
+                }
+                if(isSelfOperation)
+                    bbassert(assignment-1 != start, "Missing a variable to operate and assign to.\n"+show_position(assignment-1));
+
                 int start_assignment = find_last_end(start, assignment, ".");
-                int start_entry = find_last_end((start_assignment == MISSING ? 
-                                 start : start_assignment) + 1, assignment, "[");
+                int start_entry = find_last_end((start_assignment == MISSING ? start : start_assignment-isSelfOperation) + 1, assignment-isSelfOperation, "[");
                 if (start_entry != MISSING && start_entry > start_assignment) {
-                    int end_entry = find_end(start_entry + 1, assignment, "]", true);
-                    bbassert(end_entry == assignment - 1, "Non-empty expression between last closing `]` and `"+tokens[assignment].name+"`.\n"+show_position(end_entry+1));
+                    int end_entry = find_end(start_entry + 1, assignment-isSelfOperation, "]", true);
+                    bbassert(end_entry == assignment - 1 - isSelfOperation, "Non-empty expression between last closing `]` and `"+tokens[assignment-isSelfOperation].name+"`.\n"+show_position(end_entry+1));
                     std::string obj = parse_expression(start, start_entry - 1);
                     bbassert(obj != "#", "There is no expression outcome to assign to.\n"+show_position(start));
                     bbassert(!is_final, "Entries cannot be set to final.\n"+show_position(start-1));
-                    ret += "put # " + obj + " " + parse_expression(start_entry 
-                          + 1, end_entry - 1) + " " + parse_expression(
-                          assignment + 1, end) + "\n";
-                    if (asAssignment != MISSING) {
+
+                    if (isSelfOperation) {
+                        std::string entry = parse_expression(start_entry + 1, end_entry - 1);
+                        std::string rhs = parse_expression(assignment + 1, end);
+                        std::string entryvalue = create_temp();
+                        ret += "at " + entryvalue + " "+ obj + " " + entry + "\n";
+                        if (tokens[assignment - 1].name == "+") {
+                            ret += "add " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        } else if (tokens[assignment - 1].name == "-") {
+                            ret += "sub " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        } else if (tokens[assignment - 1].name == "*") {
+                            ret += "mul " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        } else if (tokens[assignment - 1].name == "/") {
+                            ret += "div " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        } else if (tokens[assignment - 1].name == "^") {
+                            ret += "pow " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        } else if (tokens[assignment - 1].name == "%") {
+                            ret += "mod " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        }
+                        ret += "put # " + obj + " " + entry + " " + entryvalue + "\n";
+                    }
+                    else
+                        ret += "put # " + obj + " " + parse_expression(start_entry + 1, end_entry - 1) + " " + parse_expression(assignment + 1, end) + "\n";
+                    if (asAssignment==assignment) {
+                        bberror("`as` cannot be used for setting values outside of the current scope. Use only `=` and catch on failure. This prevents leaking missing values."); // proper integration is to have "asset" and "assetfinal" keywords, but I changed my mind: this is unsafe behavior
                         std::string temp = create_temp();
                         ret += "exists " + temp + " " + first_name + "\n";
                         return temp;
@@ -416,16 +456,16 @@ public:
                     return "#";
                 }
                 if (start_assignment != MISSING) {
-                    bbassert(start_assignment >= start + 1, "Assignment expression can not start with `.`.\n"+show_position(start));
-                    int parenthesis_start = find_end(start_assignment + 1,  assignment - 1, "(");
+                    bbassert(start_assignment >= start + 1-isSelfOperation, "Assignment expression can not start with `.`.\n"+show_position(start));
+                    int parenthesis_start = find_end(start_assignment + 1,  assignment - 1-isSelfOperation, "(");
                     std::string obj = parse_expression(start, start_assignment - 1);
                     bbassert(obj != "#", "There is no expression outcome to assign to.\n"+show_position(start));
                     if (parenthesis_start != MISSING) {
                         code_block_prepend = "";
                         int parenthesis_end = find_end(parenthesis_start + 1, 
-                                                       assignment - 1, ")", 
+                                                       assignment - 1-isSelfOperation, ")", 
                                                        true);
-                        bbassert(parenthesis_end == assignment - 1, 
+                        bbassert(parenthesis_end == assignment - 1-isSelfOperation, 
                                   "There is leftover code after last "
                                   "parenthesis in assignment's left hand side.\n"+show_position(parenthesis_end));
                         for (int j = parenthesis_start + 1; j < parenthesis_end; ++j) {
@@ -434,13 +474,35 @@ public:
                             }
                         }
                     } else {
-                        parenthesis_start = assignment;
+                        parenthesis_start = assignment-isSelfOperation;
                     }
-                    ret += (is_final ? "setfinal # " : "set # ") + obj + " " + 
-                           parse_expression(start_assignment + 1, 
-                           parenthesis_start - 1) + " " + parse_expression(
-                           assignment + 1, end) + "\n";
-                    if (asAssignment != MISSING) {
+
+                    if(isSelfOperation) {
+                        std::string entry = parse_expression(start_assignment + 1, parenthesis_start - 1);
+                        std::string rhs = parse_expression(assignment + 1, end);
+                        std::string entryvalue = create_temp();
+                        ret += "get " + entryvalue + " "+ obj + " " + entry + "\n";
+                        if (tokens[assignment - 1].name == "+") {
+                            ret += "add " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        } else if (tokens[assignment - 1].name == "-") {
+                            ret += "sub " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        } else if (tokens[assignment - 1].name == "*") {
+                            ret += "mul " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        } else if (tokens[assignment - 1].name == "/") {
+                            ret += "div " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        } else if (tokens[assignment - 1].name == "^") {
+                            ret += "pow " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        } else if (tokens[assignment - 1].name == "%") {
+                            ret += "mod " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        }
+                        ret += (is_final ? "setfinal # " : "set # ") + obj + " " + entry + " " + entryvalue + "\n";
+                    }
+                    else 
+                        ret += (is_final ? "setfinal # " : "set # ") + obj + " " 
+                                    + parse_expression(start_assignment + 1, parenthesis_start - 1) + " " 
+                                    + parse_expression(assignment + 1, end) + "\n";
+                    if (asAssignment==assignment) {
+                        bberror("`as` cannot be used for setting values outside of the current scope. Use only `=` and catch on failure. This prevents leaking missing values."); // proper integration is to have "asset" and "assetfinal" keywords, but I changed my mind: this is unsafe behavior
                         std::string temp = create_temp();
                         ret += "exists " + temp + " " + first_name + "\n";
                         return temp;
@@ -448,8 +510,8 @@ public:
                     return "#";
                 }
 
-                int parenthesis_start = find_end(start + 1, assignment - 1, "(");
-                bbassert(parenthesis_start == MISSING ? assignment == start + 1 : parenthesis_start == start + 1, 
+                int parenthesis_start = find_end(start + 1, assignment - 1-isSelfOperation, "(");
+                bbassert(parenthesis_start == MISSING ? assignment == start + 1+isSelfOperation : parenthesis_start == start + 1+isSelfOperation, 
                           "Cannot understrand what to assign to left from the assignment.\n"+show_position(assignment));
                 if (first_name == "std::int" || first_name == "std::float" || 
                     first_name == "std::str" || first_name == "std::file" || 
@@ -513,9 +575,8 @@ public:
 
                 if (parenthesis_start != MISSING) {
                     code_block_prepend = "";
-                    int parenthesis_end = find_end(parenthesis_start + 1, 
-                                                   assignment - 1, ")", true);
-                    bbassert(parenthesis_end == assignment - 1, 
+                    int parenthesis_end = find_end(parenthesis_start + 1, assignment - 1-isSelfOperation, ")", true);
+                    bbassert(parenthesis_end == assignment - 1-isSelfOperation, 
                               "Leftover code after last parenthesis in assignment's left hand side.\n"
                               + show_position(parenthesis_end));
                     for (int j = parenthesis_start + 1; j < parenthesis_end; ++j) {
@@ -524,11 +585,28 @@ public:
                     }
                 }
 
-                ret += (asAssignment != MISSING?"AS ":"IS ") + first_name + " " + parse_expression(
-                       assignment + 1, end) + "\n";
+                if(isSelfOperation) {
+                    bbassert(asAssignment!=assignment, "Cannot have a self-operation to. This error should never occur as there is a previous assert. (This is just future-proofing.)");
+                    if(tokens[assignment-1].name=="+")
+                        ret += "add "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    else if(tokens[assignment-1].name=="-")
+                        ret += "sub "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    else if(tokens[assignment-1].name=="*")
+                        ret += "mul "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    else if(tokens[assignment-1].name=="/")
+                        ret += "div "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    else if(tokens[assignment-1].name=="%")
+                        ret += "mod "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    if(tokens[assignment-1].name=="^")
+                        ret += "pow "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    // the |= expression is handled by the sanitizer
+                }
+                else
+                    ret += (asAssignment == assignment?"AS ":"IS ") + first_name + " " + parse_expression(assignment + 1, end) + "\n";
+                
                 if (is_final) {
-                    bbassert(first_name.size() < 3 || first_name.substr(0, 3) 
-                              != "_bb", "_bb variables cannot be made final\n"
+                    bbassert(first_name.size() < 3 || first_name.substr(0, 3) != "_bb", 
+                              "_bb variables cannot be made final\n"
                               "   \033[33m!!!\033[0m This error indicates an\n"
                               "        internal logical bug of the compiler's "
                               "parser.\n"+show_position(start));
@@ -860,7 +938,7 @@ public:
                 int conditional = find_end(call + 1, end, "|");
                 std::string parsed_args;
                 if (conditional == MISSING) {
-                    if (find_end(call + 1, end, "=") != MISSING)  // if there are equalities, we are on kwarg mode 
+                    if (find_end(call + 1, end, "=") != MISSING || find_end(call + 1, end, "as") != MISSING)  // if there are equalities, we are on kwarg mode 
                         parsed_args = parse_expression(call + 1, end - 1, true, true);
                     else if (call + 1 >= end ) {  // if we call with no argument whatsoever
                         parsed_args = "#";
@@ -966,7 +1044,7 @@ void sanitize(std::vector<Token>& tokens) {
                      + Parser::show_position(tokens, i));
         
         if ((tokens[i].name=="=" || tokens[i].name=="as") && i 
-            && (tokens[i-1].name=="+" || tokens[i-1].name=="-" || tokens[i-1].name=="*" || tokens[i-1].name=="/" || tokens[i-1].name=="^" || tokens[i-1].name=="%" || tokens[i-1].name=="|")) {
+            && (tokens[i-1].name=="|")) { // "this is handled here, other operations by the same parse, allow |as for this specifically"
             int start = i-2;
             while(start>=0) {
                 if(tokens[start].name=="final" || tokens[start].name==";")
@@ -1176,14 +1254,19 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                         depth += 1;
                     if(tokens[iend].name==")" || tokens[iend].name=="}" || tokens[iend].name=="]")
                         depth -= 1;
-                    if(depth==0) 
+                    if(depth==0)
                         break;
                     iend += 1;
                 }
                 bbassert(iend<tokens.size() && (tokens[iend].name==")" || tokens[iend].name=="]"), tokens[i - 1].name == "("?"`(#of @code)` statement was never closed with a right symbol.":"`[#of @code]` statement was never closed with a right symbol.");
                 int position = updatedTokens.size();
+                //depth = 0;
                 while(position>0)  {
                     position -= 1;
+                    /*if(updatedTokens[position].name=="(" || updatedTokens[position].name=="{" || updatedTokens[position].name=="[")
+                        depth -= 1;
+                    if(updatedTokens[position].name==")" || updatedTokens[position].name=="}" || updatedTokens[position].name=="]")
+                        depth += 1;*/
                     if(updatedTokens[position].name==";" || updatedTokens[position].name=="{") {
                         position += 1;
                         break;
@@ -1374,6 +1457,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     created_string += tokens[pos].name;
                 ++pos;
             }
+            created_string = "\""+created_string+"\"";
             bbassert(depth==0, "Missing `)`."
                                 "\n   \033[33m!!!\033[0m  `#stringify(@tokens)` parenthesis was never closed.\n"
                                 + Parser::show_position(tokens, i));

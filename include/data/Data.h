@@ -32,6 +32,7 @@ public:
     static Result run(const OperationType operation, BuiltinArgs* args);
     virtual Result implement(const OperationType operation, BuiltinArgs* args);
     virtual size_t toHash() const;
+    virtual bool isSame(Data* other) const;
     static int countObjects();
     
     void addOwner();

@@ -8,19 +8,15 @@
 
 // BHashMap class representing a hashmap data type
 class BHashMap : public Data {
-private:
-    tsl::hopscotch_map<size_t, Data*> contents;
-    mutable std::recursive_mutex memoryLock;  // mutable to allow locking in const methods
-
 public:
-    explicit BHashMap();
-    ~BHashMap();
-
+    BHashMap();
+    virtual ~BHashMap();
     std::string toString() const override;
-    size_t toHash() const override { return 0; }  // Implement if necessary
     void put(Data* from, Data* to);
+    Result implement(const OperationType operation, BuiltinArgs* args) override;
 
-    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
+private:
+    mutable std::recursive_mutex memoryLock;
+    std::unordered_map<size_t, std::vector<std::pair<Data*, Data*>>> contents;
 };
-
 #endif // BHASHMAP_H

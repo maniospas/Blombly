@@ -19,6 +19,12 @@ void Boolean::setValue(bool val) {
     value = val;
 }
 
+bool Boolean::isSame(Data* other) const {
+    if(other->getType()!=BB_BOOL)
+        return false;
+    return static_cast<Boolean*>(other)->value==value;
+}
+
 Result Boolean::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 2 && args->arg0->getType() == BB_BOOL && args->arg1->getType() == BB_BOOL) {
         bool v1 = static_cast<Boolean*>(args->arg0)->getValue();

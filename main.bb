@@ -1,14 +1,10 @@
-#include "libs/loop"
+x = 1,2,3;
 
-A = 1,2,3;
-while(x as loop::next(A)) try {
-    if(x==2)
-        return;
-    print(x);
-}
+x[0] += 1;
 
-while(x as loop::next(A)) try {
-    if(x==2)
-        return;
-    print(x);
-}
+print(x);
+
+
+x = new{value=0}
+x.value += 3;
+print(x.value);

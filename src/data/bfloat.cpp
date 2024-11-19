@@ -63,6 +63,16 @@ double BFloat::getValue() const {
     return value;
 }
 
+bool BFloat::isSame(Data* other) const {
+    if(other->getType()!=BB_FLOAT)
+        return false;
+    return static_cast<BFloat*>(other)->value==value;
+}
+
+size_t BFloat::toHash() const {
+    return std::hash<double>{}(value); 
+}
+
 Result BFloat::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 2) {
         int type0 = args->arg0->getType();

@@ -18,6 +18,7 @@ public:
     void setValue(bool val);
 
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual bool isSame(Data* other) const override;
 
     friend class Integer; 
     friend class BFloat; 

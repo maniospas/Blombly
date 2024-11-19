@@ -1,44 +1,21 @@
-BUILTIN _bb11 I1
-BUILTIN _bb12 I2
-BUILTIN _bb13 I3
-list A _bb11 _bb12 _bb13
-iter _bbmacro0 A
-next _bb16 _bbmacro0
-AS x _bb16
-exists _bb17 x
-BEGIN _bb18
-BEGIN _bb21
-BEGIN _bb22
-return # #
-END
-BUILTIN _bb24 I2
-eq _bb23 x _bb24
-if # _bb23 _bb22
+BUILTIN _bb0 I1
+BUILTIN _bb1 I2
+BUILTIN _bb2 I3
+list x _bb0 _bb1 _bb2
+BUILTIN _bb4 I0
+BUILTIN _bb5 I1
+at _bb6 x _bb4
+add _bb6 _bb6 _bb5
+put # x _bb4 _bb6
 print # x
+BEGIN _bb9
+BUILTIN value I0
+return # this
 END
-try _bb19 _bb21
-next _bb16 _bbmacro0
-AS x _bb16
-exists _bb17 x
-END
-while # _bb17 _bb18
-iter _bbmacro1 A
-next _bb26 _bbmacro1
-AS x _bb26
-exists _bb27 x
-BEGIN _bb28
-BEGIN _bb31
-BEGIN _bb32
-return # #
-END
-BUILTIN _bb34 I2
-eq _bb33 x _bb34
-if # _bb33 _bb32
-print # x
-END
-try _bb29 _bb31
-next _bb26 _bbmacro1
-AS x _bb26
-exists _bb27 x
-END
-while # _bb27 _bb28
+new x _bb9
+BUILTIN _bb11 I3
+get _bb12 x value
+add _bb12 _bb12 _bb11
+set # x value _bb12
+get _bb13 x value
+print # _bb13

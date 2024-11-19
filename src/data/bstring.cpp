@@ -12,6 +12,16 @@ std::string BString::toString() const {
     return value;
 }
 
+bool BString::isSame(Data* other) const {
+    if(other->getType()!=STRING)
+        return false;
+    return static_cast<BString*>(other)->value==value;
+}
+
+size_t BString::toHash() const {
+    return std::hash<std::string>{}(value);
+}
+
 Result BString::implement(const OperationType operation, BuiltinArgs* args) {
 
     if (args->size == 2 && args->arg0->getType() == STRING && args->arg1->getType() == STRING) {

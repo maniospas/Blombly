@@ -62,6 +62,17 @@ int Integer::getValue() const {
     return value;
 }
 
+bool Integer::isSame(Data* other) const {
+    if(other->getType()!=BB_INT)
+        return false;
+    return static_cast<Integer*>(other)->value==value;
+}
+
+
+size_t Integer::toHash() const {
+    return std::hash<int>{}(value);
+}
+
 Result Integer::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 2) {
         int type0 = args->arg0->getType();

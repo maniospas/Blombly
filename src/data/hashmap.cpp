@@ -21,17 +21,33 @@ std::string BHashMap::toString() const {
     for (const auto& pair : contents) {
         if (result.size() > 1) 
             result += ", ";
-        result += pair.second->toString();
+        for (const auto& item : pair.second) {
+            result += item.first->toString() + ": " + item.second->toString();
+        }
     }
     return result + "}";
 }
 
 void BHashMap::put(Data* from, Data* to) {
-    bbassert(from, "Missing key value");
+    bbassert(from, "Missing key");
+    bbassert(to, "Missing value");
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     size_t key = from->toHash();
-    auto& existing = contents[key];
-    contents[key] = to;
+    auto& entryList = contents[key];
+
+    // Check if an equivalent key exists and overwrite its value if found
+    for (auto& pair : entryList) {
+        if (pair.first->isSame(from)) {
+            Data* prev = pair.second; 
+            pair.second = to;
+            to->addOwner(); // don't add owner to "from" as we are keeping the old one
+            prev->removeFromOwner();
+            return;
+        }
+    }
+    entryList.emplace_back(from, to);
+    to->addOwner();
+    from->addOwner();
 }
 
 Result BHashMap::implement(const OperationType operation, BuiltinArgs* args) {
@@ -48,7 +64,11 @@ Result BHashMap::implement(const OperationType operation, BuiltinArgs* args) {
         auto it = contents.find(key);
         if (it == contents.end()) 
             return std::move(Result(nullptr));
-        return std::move(Result(it->second));
+        for (const auto& pair : it->second) {
+            if (pair.first->isSame(args->arg1)) 
+                return std::move(Result(pair.second));
+        }
+        return std::move(Result(nullptr));
     }
 
     if (operation == PUT && args->size == 3) {

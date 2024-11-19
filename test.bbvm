@@ -1,0 +1,24 @@
+BUILTIN _bb12 I5
+range _bbmacro0 _bb12
+BUILTIN _bb14 I5
+range _bbmacro1 _bb14
+next _bb15 _bbmacro0
+AS i _bb15
+exists _bb16 i
+BEGIN _bb17
+next _bb18 _bbmacro1
+AS j _bb18
+exists _bb19 j
+BEGIN _bb20
+list _bb21 i j
+print # _bb21
+next _bb18 _bbmacro1
+AS j _bb18
+exists _bb19 j
+END
+while # _bb19 _bb20
+next _bb15 _bbmacro0
+AS i _bb15
+exists _bb16 i
+END
+while # _bb16 _bb17
