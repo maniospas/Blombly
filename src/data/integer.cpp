@@ -133,6 +133,7 @@ Result Integer::implement(const OperationType operation, BuiltinArgs* args) {
             case TOSTR: STRING_RESULT(std::to_string(value));
             case TOVECTOR: return Result(new Vector(value, true));
             case TORANGE: return Result(new IntRange(0, value, 1));
+            case TOBB_BOOL: BB_BOOLEAN_RESULT(value);
         }
         throw Unimplemented();
     }

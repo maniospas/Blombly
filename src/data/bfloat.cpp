@@ -109,6 +109,7 @@ Result BFloat::implement(const OperationType operation, BuiltinArgs* args) {
             case TOBB_FLOAT: BB_FLOAT_RESULT(value);
             case TOBB_INT: BB_INT_RESULT(static_cast<int>(value));
             case TOSTR: STRING_RESULT(std::to_string(value));
+            case TOBB_BOOL: BB_BOOLEAN_RESULT(value);
         }
         throw Unimplemented();
     }

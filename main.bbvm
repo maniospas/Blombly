@@ -1,21 +1,2 @@
-BUILTIN _bb0 I1
-BUILTIN _bb1 I2
-BUILTIN _bb2 I3
-list x _bb0 _bb1 _bb2
-BUILTIN _bb4 I0
-BUILTIN _bb5 I1
-at _bb6 x _bb4
-add _bb6 _bb6 _bb5
-put # x _bb4 _bb6
-print # x
-BEGIN _bb9
-BUILTIN value I0
-return # this
-END
-new x _bb9
-BUILTIN _bb11 I3
-get _bb12 x value
-add _bb12 _bb12 _bb11
-set # x value _bb12
-get _bb13 x value
-print # _bb13
+BUILTIN _bb0 ""test"
+print # _bb0

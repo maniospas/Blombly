@@ -515,6 +515,7 @@ public:
                           "Cannot understrand what to assign to left from the assignment.\n"+show_position(assignment));
                 if (first_name == "std::int" || first_name == "std::float" || 
                     first_name == "std::str" || first_name == "std::file" || 
+                    first_name == "std::bool" ||
                     first_name == "std::list" || first_name == "std::map" || 
                     first_name == "std::pop" || first_name == "std::push" || 
                     first_name == "std::len" || first_name == "std::next" || 
@@ -528,6 +529,7 @@ public:
                 }
                 if (first_name == "int" || first_name == "float" || 
                     first_name == "str" || first_name == "file" || 
+                    first_name == "bool" || 
                     first_name == "list" || first_name == "map" || 
                     first_name == "pop" || first_name == "push" || 
                     first_name == "len" || first_name == "next" || 
@@ -814,7 +816,8 @@ public:
 
             if (first_name == "std::len" || first_name == "std::iter" || 
                 first_name == "std::int" || first_name == "std::float" || 
-                first_name == "std::str" || first_name == "std::bool" || 
+                first_name == "std::str" || first_name == "std::bool" ||
+                first_name == "std::file" ||  
                 first_name == "std::max" || first_name == "std::min" || 
                 first_name == "std::sum" || 
                 first_name == "std::pop" || 
@@ -824,6 +827,7 @@ public:
                 first_name == "len" || first_name == "iter" || 
                 first_name == "int" || first_name == "float" || 
                 first_name == "str" || first_name == "bool" || 
+                first_name == "file" ||
                 first_name == "max" || first_name == "min" || 
                 first_name == "sum" || 
                 first_name == "pop" || 
@@ -887,6 +891,7 @@ public:
                     callable = tokens[chain+1].name;
                 if (callable == "int" || callable == "float" || 
                     callable == "str" || callable == "file" || 
+                    callable == "bool" ||
                     callable == "list" || callable == "map" || 
                     callable == "pop" || callable == "push" || 
                     callable == "len" || callable == "next" || 
@@ -898,6 +903,7 @@ public:
                     callable == "print" || callable == "read" ||
                     callable == "std::int" || callable == "std::float" || 
                     callable == "std::str" || callable == "std::file" || 
+                    callable == "std::bool" ||
                     callable == "std::list" || callable == "std::map" || 
                     callable == "std::pop" || callable == "std::push" || 
                     callable == "std::len" || callable == "std::next" || 

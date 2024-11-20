@@ -11,7 +11,7 @@
 
 // Check if the string is a quoted string
 bool isString(const std::string& value) {
-    return value[0] == '"' && value[value.size() - 1] == '"';
+    return value.size()>=2 && value[0] == '"' && value[value.size() - 1] == '"';
 }
 
 // Check if the string is a boolean

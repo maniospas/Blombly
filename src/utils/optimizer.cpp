@@ -18,8 +18,14 @@ public:
         int pos = 0;
         bool inString = false;
         while(pos<command.size()){
-            if(command[pos]=='"')
+            // strings can only be the last arguments of builtin types
+            if(command[pos]=='"' && !inString)
                 inString = !inString;
+            if(inString && pos==command.size()-1) {
+                accumulate += command[pos];
+                args.push_back(accumulate);
+                break;
+            }
             if(!inString && (command[pos]==' ' || pos==command.size()-1)){
                 if(command[pos]!=' ')
                     accumulate += command[pos];
@@ -307,7 +313,7 @@ void optimize(const std::string& source, const std::string& destination) {
     }
 
 
-    // save the compiled code to the destination file
+    // save the compiled code to the de tination file
     std::ofstream outputFile(destination);
     if (!outputFile.is_open())  
         bberror("Unable to write to file: " + source);
