@@ -15,6 +15,7 @@
 #include "data/BError.h"
 #include "data/Integer.h"
 #include "data/RestServer.h"
+#include "data/Jitable.h"
 #include "interpreter/Command.h"
 #include "interpreter/functional.h"
 #include "interpreter/thread.h"
@@ -46,6 +47,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 auto code = static_cast<Code*>(command->value);
                 auto val = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory, code->getAllMetadata());
                 val->scheduleForParallelExecution = code->scheduleForParallelExecution;
+                val->jitable = code->jitable;
                 result = val;
                 if (command->operation == BEGINFINAL) 
                     memory->setFinal(command->args[0]);
@@ -74,6 +76,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto cache = new Code(program, i + 1, pos, memory);
             cache->addOwner();
             auto val = new Code(program, i + 1, pos, memory, cache->getAllMetadata());
+            val->jitable = jit(val);
+            cache->jitable = val->jitable;
             val->scheduleForParallelExecution = scheduleForParallelExecution;
             cache->scheduleForParallelExecution = scheduleForParallelExecution;
             command->value = cache;
@@ -226,6 +230,12 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto codeBody = static_cast<Code*>(body);
 
             while (condition->isTrue()) {
+                if(codeBody->jitable && codeBody->jitable->run(memory, result, returnSignal)) {
+                    if(returnSignal)
+                        break;
+                    condition = memory->get(command->args[1]);
+                    continue;
+                }
                 Result returnedValue = executeBlock(codeBody, memory, returnSignal);
                 if (returnSignal) {result = returnedValue.get();SET_RESULT;break;}
                 condition = memory->get(command->args[1]);
@@ -240,7 +250,12 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
             if (condition->isTrue()) {
                 if (accept->getType() == CODE) {
-                    Result returnedValue = executeBlock(static_cast<Code*>(accept), memory, returnSignal);
+
+                    Code* code = static_cast<Code*>(accept);
+                    if(code->jitable && code->jitable->run(memory, result, returnSignal)) 
+                        return;
+
+                    Result returnedValue = executeBlock(code, memory, returnSignal);
                     result = returnedValue.get();
                     SET_RESULT;
                 }
@@ -248,8 +263,13 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     result = accept;
                     SET_RESULT;
                 }
-            } else if (reject && reject->getType() == CODE) {
-                Result returnedValue = executeBlock(static_cast<Code*>(reject), memory, returnSignal);
+            } 
+            else if (reject && reject->getType() == CODE) {
+
+                Code* code = static_cast<Code*>(reject);
+                if(code->jitable && code->jitable->run(memory, result, returnSignal)) 
+                    return;
+                Result returnedValue = executeBlock(code, memory, returnSignal);
                 result = returnedValue.get();
                 SET_RESULT;
             }
@@ -371,7 +391,9 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             if(source->getType()==FILETYPE) {
                 if(command->value) {
                     auto code = static_cast<Code*>(command->value);
-                    result = new Code(code->getProgram(), code->getStart(), code->getEnd(), nullptr, code->getAllMetadata());
+                    auto res = new Code(code->getProgram(), code->getStart(), code->getEnd(), nullptr, code->getAllMetadata());
+                    res->jitable = jit(res);
+                    result = res;
                 }
                 else {
                     Result returnValue = compileAndLoad(static_cast<BFile*>(source)->getPath(), nullptr);

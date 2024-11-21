@@ -49,9 +49,9 @@ print(1.2345 | fmt_generator(".3f"));
 
 ## Implicit types
 
-Similarly to numeric operations, the expression `variable |= convertion;` reassigns to a variable
-after applying the convertion. All reassignment operators replace source code tokens and
-that leftwise convertions are performed first, which in this case enables `variable |= convertion1|convertion2|...;` 
+Similarly to numeric operations, the expression `variable |= convertion;` reassigns to a variable. 
+In this case, however, the leftwise convertions is performed first, enabling the pattern
+`variable |= convertion1|convertion2|...;` 
 This notation is intentionally similar to 
 [double turnstile](https://en.wikipedia.org/wiki/Double_turnstile) and may be thought as 
 variable modeling some property.
@@ -80,3 +80,28 @@ print(safediv("1", 2));
 >blombly main.bb
 0.5
 ```
+
+## Type overloading
+
+In theory, you can handle various scenarios of your data in a function
+that is used as a semi-type. However, most problems require some kind
+of adjustment on their input data. Since blombly intentionally avoids 
+reflections or a hierarchical type system, whar you can do instead is
+create a semitype that evokes respective methods of structs.
+Here is an example:
+
+```java
+safenumber = {
+  nonzero = {if(this.value==0) fail("zero value"); return this.value}
+  \float = {return this.value}
+}
+
+x = new{safenumber:value=1}
+y = new{safenumber:value=0}
+
+semitype nonzero; // declares the existence of the semitype for next code
+
+ratio = try x|float / y|nonzero;  // immediately intercept the value
+print(ratio|str);
+```
+

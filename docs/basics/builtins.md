@@ -157,58 +157,6 @@ while (counter<10) {
 }
 ```
 
-## Try until return
-
-Here we make a soft introduction to return signals; if errors indicate
-unsuccessful algorithms, return statements indicate successful conclusion of
-computations. The introduction focuses on returning (not on error handling), as
-this supports what other languages dub as continue and break statements 
-without needing such keywords.
-
-To intercept return or error signals, use the `value = try{@code}` pattern. 
-This is the same mechanism as the one we [next](blocks.md) use to
-return values from called methods and unwind error stack traces.
-By ommiting brackets when only one command is tried, we can conveniently
-combine the interception mechanism with other control flows like so:
-
-```java
-// main.bb
-x = read("Give a number:");
-x = float(x);
-sgn = try if(x>=0) return 1 else return -1;
-print("Sign is "+str(sgn));
-```
-
-A similar syntax breaks away from loops below, though we will not dabble on 
-handling returned values for now. Contrary to error handling overheads, 
-tt is lightweight to intercept returns.
-
-```java
-// main.bb
-counter = 0;
-try while (true) {
-    counter = counter + 1;
-    print("Counter is: " + str(counter));
-    if(counter==10)
-        return;  // keeps exiting the code until intercepted by try
-}
-```
-
-Finally, prepend `try` to loop bodies to let internal returns skip the rest of the body. 
-All covered syntax allows at most one irregular exit point from control flows,
-which makes code simpler.
-
-```java
-// main.bb
-counter = 0;
-while (counter<10) try {
-    counter = counter + 1;
-    if (counter % 2==0) 
-        return;
-    print("Odd value: " + str(counter));
-}
-```
-
 
 ## Missing values
 
@@ -250,4 +198,71 @@ print(number);
 > Give a number: number
 > Give a number: 12
 12
+```
+
+## Try until return
+
+Here we make a soft introduction to return signals; if errors indicate
+unsuccessful algorithms, return statements indicate successful conclusion of
+computations. This introduction focuses on returning (not on error handling), as
+this supports what other languages dub as continue and break statements 
+without needing such keywords.
+
+To intercept return or error signals, use the `value = try{@code}` pattern. 
+This is the same mechanism as the one we [next](blocks.md) use to
+return values from called methods and unwind error stack traces.
+By ommiting brackets when only one command is tried, we can conveniently
+combine the interception mechanism with other control flows like so:
+
+```java
+// main.bb
+x = read("Give a number:");
+x = float(x);
+sgn = try if(x>=0) return 1 else return -1;
+print("Sign is "+str(sgn));
+```
+
+A similar syntax breaks away from loops below, though we will not dabble on 
+handling returned values for now. Contrary to error handling overheads, 
+tt is lightweight to intercept returns.
+
+```java
+// main.bb
+counter = 0;
+try while (true) {
+    counter = counter + 1;
+    print("Counter is: " + str(counter));
+    if(counter==10)
+        return;  // keeps exiting the code until intercepted by try
+}
+```
+
+Similarly, prepend `try` to loop bodies to let internal returns skip the rest of the body. 
+All covered syntax allows at most one irregular exit point from control flows,
+which makes code simpler.
+
+```java
+// main.bb
+counter = 0;
+while (counter<10) try {
+    counter = counter + 1;
+    if (counter % 2==0) 
+        return;
+    print("Odd value: " + str(counter));
+}
+```
+
+As a simpler example, use `try` to effectively create switch-like statements like below:
+
+```java
+// main.bb
+value = "Give a number:"|read|float;
+test = try {
+    if(value>1)
+        return "large"
+    if(value<-1)
+        return "small"
+    return "in unit interval";
+}
+print(test);
 ```

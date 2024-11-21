@@ -1,6 +1,7 @@
 #include "data/Code.h"
 #include "common.h"
 #include "BMemory.h"
+#include "data/Jitable.h"
 
 Metadata::Metadata() {}
 
@@ -8,10 +9,10 @@ Metadata::~Metadata() {
 }
 
 Code::Code(std::vector<Command*>* programAt, int startAt, int endAt, BMemory* declMemory)
-    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(new Metadata()), scheduleForParallelExecution(false), Data(CODE) {}
+    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(new Metadata()), scheduleForParallelExecution(false), Data(CODE), jitable(nullptr) {}
 
 Code::Code(std::vector<Command*>* programAt, int startAt, int endAt, BMemory* declMemory, Metadata* metadata)
-    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(metadata), scheduleForParallelExecution(false), Data(CODE) {}
+    : program(programAt), start(startAt), end(endAt), declarationMemory(declMemory), metadata(metadata), scheduleForParallelExecution(false), Data(CODE), jitable(nullptr) {}
 
 void Code::setMetadata(int id, Data* data) {
     if(data)

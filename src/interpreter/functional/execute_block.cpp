@@ -3,10 +3,12 @@
 
 #include "interpreter/functional.h"
 #include "data/BError.h"
+#include "data/Jitable.h"
 
 Result executeBlock(Code* code, BMemory* memory, bool &returnSignal) {
     BuiltinArgs args;
     Data* value = nullptr;
+
     auto program = code->getProgram();
     int end = code->getEnd();
     int i = code->getStart();

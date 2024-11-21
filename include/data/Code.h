@@ -10,6 +10,8 @@
 // Forward declaration for Memory and Command classes
 class BMemory;
 class Command;
+class Jitable;
+
 
 class Metadata {
 public:
@@ -28,6 +30,7 @@ private:
 
 public:
     bool scheduleForParallelExecution;
+    Jitable* jitable;
     
     explicit Code(std::vector<Command*>* programAt, int startAt, int endAt, BMemory* declMemory);
     explicit Code(std::vector<Command*>* programAt, int startAt, int endAt, BMemory* declMemory, Metadata* metadata);

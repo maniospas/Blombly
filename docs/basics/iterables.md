@@ -175,7 +175,7 @@ while(i as next(it))
 0.500000
 ```
 
-## `in` iteration
+## `in` 
 
 The blombly compiler preloads a couple of common macros. Edit the file `libs/,bb` to change
 what is preloaded in your local build. The important part for iterables is that an `in` operator

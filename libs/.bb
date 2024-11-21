@@ -3,3 +3,5 @@
 
 // semitype declarations
 !macro {semitype @name;} as {@name(value) = {return value. !symbol(@name)()}}
+
+!macro {:=} as {= try return}
