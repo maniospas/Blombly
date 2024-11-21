@@ -1,17 +1,15 @@
 BUILTIN _bb1 I1
 BUILTIN _bb2 I2
 BUILTIN _bb3 I3
-list A _bb1 _bb2 _bb3
-BUILTIN _bb6 I10
-range _bb5 _bb6
-iter _bbmacro0 _bb5
-next _bb8 _bbmacro0
-AS i _bb8
-exists _bb9 i
-BEGIN _bb10
+list _bb4 _bb1 _bb2 _bb3
+iter _bbmacro0 _bb4
+next _bb6 _bbmacro0
+AS i _bb6
+exists _bb7 i
+BEGIN _bb8
 print # i
-next _bb8 _bbmacro0
-AS i _bb8
-exists _bb9 i
+next _bb6 _bbmacro0
+AS i _bb6
+exists _bb7 i
 END
-while # _bb9 _bb10
+while # _bb7 _bb8

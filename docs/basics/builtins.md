@@ -174,6 +174,7 @@ combine the interception mechanism with other control flows like so:
 ```java
 // main.bb
 x = read("Give a number:");
+x = float(x);
 sgn = try if(x>=0) return 1 else return -1;
 print("Sign is "+str(sgn));
 ```
@@ -234,6 +235,16 @@ reading from the console until a number if provided:
 while(not number as float(read("Give a number:"))) {}
 print(number);
 ```
+
+Or, equivalently based on function-based typecasting, which effectively chains
+functions with only one argument on the argument before the `|` symbol.
+
+```java
+while(not number as "Give a number:"|read|float) {}
+print(number);
+```
+
+
 ```bash
 > blombly main.bb
 > Give a number: number

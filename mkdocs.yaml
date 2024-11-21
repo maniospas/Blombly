@@ -11,7 +11,6 @@ nav:
       - The preprocessor: advanced/preprocessor.md
       - Signals: advanced/signals.md
       - Servers: advanced/servers.md
-      - Prepacked libraries: advanced/libraries.md
       - Semi-types: advanced/semitypes.md
 theme:
   name: united

@@ -20,7 +20,7 @@ the `len` builtin to obtain the number of elements:
 A = 1,2,3;
 A[0] = 4;
 print(A);
-print(len(A));
+print(len(A));  // or print(A|len) is equivalent
 ```
 
 ```bash
@@ -175,37 +175,18 @@ while(i as next(it))
 0.500000
 ```
 
-## Preview: `libs/loops`
+## `in` iteration
 
-This is a library that is distributed alongside Blombly and, when included in your code,
-helps asimplify loop writting by removing the need to explicitly declare iterators. 
-Since its patterns are convenient for day-to-day
-development, usage is recommended and described here. Details, however, are left
-for [later](../advanced/libraries.md).
-
-This library provides the symbols
-`loop::next,loop::range` that transform your code under the hood.
-Here is some usage similar to previous examples:
+The blombly compiler preloads a couple of common macros. Edit the file `libs/,bb` to change
+what is preloaded in your local build. The important part for iterables is that an `in` operator
+is provided. This is equivalent to preconstructing an iterator from any given data type
+and running `as next` on it, and is implemented as a so-called *macro* that substitutes parts of
+the code. More on macros later.
 
 ```java
-// main.bb
-#include "libs/loop"
-A = 1,2,3;
-while(x as loop::next(A))  // creates an iterator beforehand and calls next
-    print(x);
+while(i in 1,2,3)
+    print(i);
 ```
-
-```java
-// main.bb
-#include "libs/loop"
-while(x as loop::range(2, 0, -0.5))  // creates a range beforehand and calls next
-    print(x);
-```
-
-Builtin operations are still accessible via `std::next,std::range`,
-which are the actual operations and only aliased by `next,range` respectively. However,
-the loop library also invalidates the aliases to prevent ambiguity and creates a descriptive
-error message explaining this concern in their stead.
 
 
 ## Vectors
