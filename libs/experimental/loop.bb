@@ -18,14 +18,14 @@ final loop::INFO as {
     \n |   while(x as loop::next(A)) 
     \n |      print(x);
     \n
-    \n This is a wrapper around `std::next` that creates 
+    \n This is a wrapper around `bbvm::next` that creates 
     \n an iterator for the supplied expression just
     \n before the loop's command.
     \n 
     \n loop:range
     \n ----------
     \n Performs in-place construction of an iterator with
-    \n `std::range` and the same arguments and transfers that
+    \n `bbvm::range` and the same arguments and transfers that
     \n to the loop. For example:
     \n 
     \n |   while(i as loop::range(1, 5))
@@ -49,14 +49,14 @@ final loop::INFO as {
     \n semi-typing notation.
     \n Here is the pattern of gathering elements only:
     \n 
-    \n |   iterable = std::range(5);
+    \n |   iterable = bbvm::range(5);
     \n |   A = loop::list(iterable);
     \n |   print(A);
     \n
     \n Next is an example of how to apply a transformation.
     \n This is consistent with typical transformation notation.
     \n 
-    \n |   iterable = std::range(5);
+    \n |   iterable = bbvm::range(5);
     \n |   A = loop::tist(iterable|str);
     \n |   print(A);
     \n 
@@ -73,8 +73,8 @@ final loop::INFO as {
 }
 
 // iterators
-#macro {loop::next(@name)} as {std::next(#of std::iter(@name))}
-#macro {loop::range(@data)} as {std::next(#of std::range(@data))}
+#macro {loop::next(@name)} as {bbvm::next(#of bbvm::iter(@name))}
+#macro {loop::range(@data)} as {bbvm::next(#of bbvm::range(@data))}
 
 // lambdas
 #macro {symb::lambda(@lhs->@rhs);} as {new {@transform(@lhs) = {return @rhs} return @transform}}

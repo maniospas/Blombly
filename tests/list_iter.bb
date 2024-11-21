@@ -2,16 +2,14 @@
 env::include(loop);
 
 A = 1,2,3;
-sum = 0;
-while(x as loop::next(A)) { 
-    sum += x;
-}
+s = 0;
+while(x as loop::next(A)) 
+    s += x;
 
 it = iter(A);
-while(x as std::next(it)) {
-    sum -= x;
-}
+while(x as bbvm::next(it))
+    s -= x;
 
-if(sum!=0)
+if(s!=0)
     fail("Wrong operations");
-print(sum);
+print(s);

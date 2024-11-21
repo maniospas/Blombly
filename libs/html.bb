@@ -1,24 +1,41 @@
-#include "libs/loop"
+final html::INFO as {
+    name    = "html";
+    author  = "Emmanouil Krasanakis";
+    license = "Apache 2.0";
+    version = "1.0";
+    release = 0;
+    year    = 2024;
+    doc     = "
+    \n Provides functions to help write and manage
+    \n simple html dom. This can be converted to
+    \n string.
+    \n
+    ";
+}
 
 
-final html(title, body) = {
+html(title, body) = {
     default script = "";
+    default src = "";
+    default stylesheet = "";
     return "<!DOCTYPE html>
         <html>
         <head>
             <title>{title|str}</title>
-            <script>{script|str}</script>
+            <link href='{stylesheet}' rel='stylesheet'>
         </head>
         <body>
-        {body}
+            <script src='{src|str}'>{script|str}</script>
+            {body}
         </body>
         </html>
     ";
 }
 
-final dom(name) = {
+dom(name) = {
     default style = "";
     return new {
+        dom = dom;
         name |= str;
         style = "";
         cssclass = "";
@@ -26,7 +43,7 @@ final dom(name) = {
         \str = {
             // combine contents
             contents = "";
-            while(element as loop::next(this.contents))
+            while(element as next(!of this.contents|iter))
                 contents = contents + element|str;
             // additional element values
             preample = "";
@@ -36,11 +53,19 @@ final dom(name) = {
             ret = "<{this.name}{preample}>{contents}</{this.name}>";
             return ret;
         }
-        \add(other) = {push(this.contents, other);return this}
+        child(name) = {
+            child = name|(this.dom);
+            push(this.contents, child);
+            return child;
+        }
+        \add(other) = {
+            push(this.contents, other);
+            return this;
+        }
     }
 }
 
-final cssclass(cssclass) = {
+cssclass(cssclass) = {
     return new {
         cssclass |= str;
         \call(dom) = {
@@ -51,7 +76,7 @@ final cssclass(cssclass) = {
     }
 }
 
-final style(style) = {
+style(style) = {
     return new {
         style |= str;
         \call(dom) = {

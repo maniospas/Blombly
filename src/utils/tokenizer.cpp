@@ -112,6 +112,9 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
     std::stringstream wordStream;
     int line = 1;
     std::vector<Token> ret;
+    ret.emplace_back("!", "automatically injected by the vm", 0, true);
+    ret.emplace_back("include", "automatically injected by the vm", 0, true);
+    ret.emplace_back("\"libs\"", "automatically injected by the vm", 0, true);
     bool inComment = false;
     bool inString = false;
     bool braceMode = false;  // Indicates we are in the custom brace mode

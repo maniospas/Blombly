@@ -13,13 +13,14 @@ final docfmt::INFO as {
     \n Converts various documentation formats to each other.";
 }
 
-struct docfmt {
+
+struct docfmt {
     use env::hbar;
     fn \lines(text) {
         var it = iter(text|str);
         lines = list();
         current = "";
-        while(c as std::next(it)) try {
+        while(c as bbv::next(it)) try {
             if(c=="\n") {
                 push(lines, current);
                 current = "";
@@ -52,7 +53,7 @@ final docfmt::INFO as {
         }
         result = "";
         it = iter(lines);
-        while(line as std::next(lines))
+        while(line as bbv::next(lines))
             result = result + line + "\n";
         return result;
     }

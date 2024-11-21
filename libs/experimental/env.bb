@@ -62,7 +62,7 @@ final env::dependencies = list(new{env::INFO:});
     new {
         @code;
         // check whether imnported library satisfies the version or release
-        while(dependency as std::next(#of iter(env::dependencies))) 
+        while(dependency as bbv::next(#of iter(env::dependencies))) 
             if(dependency.name==@info.name) { 
                 if(version as version)
                     if(dependency.version!=version)
@@ -99,7 +99,7 @@ final env::ljust(text) = {
 final env::versions() = {
     desc = env::hbar + "\n";
     desc = desc + env::ljust("Library") + " Version\n";
-    while(dependency as std::next(#of std::iter(env::dependencies))) 
+    while(dependency as bbv::next(#of bbv::iter(env::dependencies))) 
         desc = desc + "{dependency.name|env::ljust} {dependency.version}.{dependency.release}\n";
     desc = desc + env::hbar;
     return desc;
@@ -109,7 +109,7 @@ final env::versions() = {
 final env::export() = {
     ljust = {size=7;env::ljust:}
     desc = env::hbar + "\n#include \"libs/env\"\n";
-    while(dependency as std::next(#of std::iter(env::dependencies)))  
+    while(dependency as bbv::next(#of bbv::iter(env::dependencies)))  
         desc = desc + "env::include({dependency.name|ljust} | version={dependency.version}, minrelease={dependency.release});\n";
     desc = desc + env::hbar;
     return desc;

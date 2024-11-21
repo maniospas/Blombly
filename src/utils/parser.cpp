@@ -327,7 +327,7 @@ public:
                 std::string condition;
                 if(first_name=="while") {
                     condition = parse_expression(start + 1, start_if_body - 1);
-                    if (first_name == "while" && ret.substr(condition_start_in_ret, 5) != "BEGIN")
+                    if (first_name == "while" && (ret.size()<5 || ret.substr(condition_start_in_ret, 5) != "BEGIN"))
                         condition_text = ret.substr(condition_start_in_ret);
                     bbassert(condition != "#", first_name + " condition does not evaluate to anything\n"+show_position(start_parenthesis+1));
                 }
@@ -379,7 +379,7 @@ public:
                 std::string var = first_name == "default" ? "#" : create_temp();
                 std::string called = create_temp();
                 std::string parsed = parse_expression(start + 1, end, tokens[start + 1].name != "{");
-                if (first_name == "new" && ret.substr(ret.size() - 4) == "END\n")
+                if (first_name == "new" && ret.size()>=4 && ret.substr(ret.size() - 4) == "END\n")
                     ret = ret.substr(0, ret.size() - 4) + "return # this\nEND\n";
                 bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`\n"+show_position(start+1));
                 ret += first_name + " " + var + " " + parsed + "\n";
@@ -408,6 +408,8 @@ public:
                     || tokens[assignment-1].name=="^"
                     || tokens[assignment-1].name=="|"
                     || tokens[assignment-1].name=="%"
+                    || tokens[assignment-1].name=="and"
+                    || tokens[assignment-1].name=="or"
                     )) {
                     isSelfOperation = 1; 
                     // if for whatever reason operations like +as become available (which shouldn't) then don't forget to fix subsequent code
@@ -442,6 +444,10 @@ public:
                             ret += "pow " + entryvalue + " " + entryvalue + " " + rhs + "\n";
                         } else if (tokens[assignment - 1].name == "%") {
                             ret += "mod " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        } else if (tokens[assignment - 1].name == "and") {
+                            ret += "and " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        } else if (tokens[assignment - 1].name == "or") {
+                            ret += "or " + entryvalue + " " + entryvalue + " " + rhs + "\n";
                         }
                         ret += "put # " + obj + " " + entry + " " + entryvalue + "\n";
                     }
@@ -494,6 +500,10 @@ public:
                             ret += "pow " + entryvalue + " " + entryvalue + " " + rhs + "\n";
                         } else if (tokens[assignment - 1].name == "%") {
                             ret += "mod " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        } else if (tokens[assignment - 1].name == "and") {
+                            ret += "and " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        } else if (tokens[assignment - 1].name == "or") {
+                            ret += "or " + entryvalue + " " + entryvalue + " " + rhs + "\n";
                         }
                         ret += (is_final ? "setfinal # " : "set # ") + obj + " " + entry + " " + entryvalue + "\n";
                     }
@@ -513,18 +523,18 @@ public:
                 int parenthesis_start = find_end(start + 1, assignment - 1-isSelfOperation, "(");
                 bbassert(parenthesis_start == MISSING ? assignment == start + 1+isSelfOperation : parenthesis_start == start + 1+isSelfOperation, 
                           "Cannot understrand what to assign to left from the assignment.\n"+show_position(assignment));
-                if (first_name == "std::int" || first_name == "std::float" || 
-                    first_name == "std::str" || first_name == "std::file" || 
-                    first_name == "std::bool" ||
-                    first_name == "std::list" || first_name == "std::map" || 
-                    first_name == "std::pop" || first_name == "std::push" || 
-                    first_name == "std::len" || first_name == "std::next" || 
-                    first_name == "std::vector" || first_name == "std::iter" || 
-                    first_name == "std::add" || first_name == "std::sub" || 
-                    first_name == "std::min" || first_name == "std::max" ||  
-                    first_name == "std::sum" || 
-                    first_name == "std::call" || first_name == "std::range" || 
-                    first_name == "std::print" || first_name == "std::read") {
+                if (first_name == "bbvm::int" || first_name == "bbvm::float" || 
+                    first_name == "bbvm::str" || first_name == "bbvm::file" || 
+                    first_name == "bbvm::bool" ||
+                    first_name == "bbvm::list" || first_name == "bbvm::map" || 
+                    first_name == "bbvm::pop" || first_name == "bbvm::push" || 
+                    first_name == "bbvm::len" || first_name == "bbvm::next" || 
+                    first_name == "bbvm::vector" || first_name == "bbvm::iter" || 
+                    first_name == "bbvm::add" || first_name == "bbvm::sub" || 
+                    first_name == "bbvm::min" || first_name == "bbvm::max" ||  
+                    first_name == "bbvm::sum" || 
+                    first_name == "bbvm::call" || first_name == "bbvm::range" || 
+                    first_name == "bbvm::print" || first_name == "bbvm::read") {
                     bberror("Cannot assign to std implementation `" + first_name + "`.\n"+show_position(start));
                 }
                 if (first_name == "int" || first_name == "float" || 
@@ -545,7 +555,7 @@ public:
                             "\n       Consider assigning to \\"+first_name+" to override the builtin's implementation for a struct,"
                             "\n       or adding a prefix like `lib::"+first_name+"` to indicate specialization."
                             "\n       If you are sure you want to impact all subsequent code (as well as included code), you may reassign the"
-                            "\n       symbol with #macro {"+first_name+"} as {lib::"+first_name+"} after implementing the latter.\n"
+                            "\n       symbol with !macro {"+first_name+"} as {lib::"+first_name+"} after implementing the latter.\n"
                             +show_position(start));
                 }
 
@@ -601,6 +611,10 @@ public:
                         ret += "mod "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
                     if(tokens[assignment-1].name=="^")
                         ret += "pow "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    if(tokens[assignment-1].name=="and")
+                        ret += "and "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    if(tokens[assignment-1].name=="or")
+                        ret += "or "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
                     // the |= expression is handled by the sanitizer
                 }
                 else
@@ -636,7 +650,7 @@ public:
                       "\n        and immediately assigning a block. Metadata are not inlined.\n"
                       + show_position(start));
             
-            if (first_name == "std::print" || first_name == "print") {
+            if (first_name == "bbvm::print" || first_name == "print") {
                 std::string parsed = parse_expression(start + 1, end);
                 bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`.\n"+show_position(start+1));
                 std::string var = "#";
@@ -644,14 +658,14 @@ public:
                 return var;
             }
             
-            if (first_name == "std::read" || first_name == "read") {
+            if (first_name == "bbvm::read" || first_name == "read") {
                 std::string parsed = parse_expression(start + 1, end);
                 std::string var = create_temp();
                 ret += "read " + var + " " + parsed + "\n";
                 return var;
             }
             
-            if (first_name == "fail" || first_name == "std::fail") {
+            if (first_name == "fail" || first_name == "bbvm::fail") {
                 std::string parsed = parse_expression(start + 1, end);
                 bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`.\n"+show_position(tokens, start+1));
                 std::string var = "#";
@@ -783,12 +797,12 @@ public:
                 return var;
             }
 
-            if (first_name == "std::range" || first_name=="range") {
+            if (first_name == "bbvm::range" || first_name=="range") {
                 bbassert(tokens[start + 1].name == "(", "Missing ( just after `" + first_name+"`.\n"+show_position(start+1));
                 bbassert(find_end(start + 2, end, ")") == end, "Leftover code after the last `)` for `" + first_name+"`.\n"+show_position(start+2));
                 int separator = find_end(start + 2, end, ",");
-                if(first_name.substr(0, 5)=="std::")
-                    first_name = first_name.substr(5);
+                if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::")
+                    first_name = first_name.substr(6);
                 std::string temp = create_temp();
                 if(separator==MISSING) {
                     ret += first_name + " " + temp + " " + parse_expression(start + 2, end - 1) + "\n";
@@ -803,27 +817,27 @@ public:
                 return temp;
             }
 
-            if (first_name == "std::push" || first_name=="push") {
+            if (first_name == "bbvm::push" || first_name=="push") {
                 bbassert(tokens[start + 1].name == "(", "Missing ( just after `" + first_name+"`.\n"+show_position(start+1));
                 bbassert(find_end(start + 2, end, ")") == end, "Leftover code after the last `)` for `" + first_name+"`.\n"+show_position(start+2));
                 int separator = find_end(start + 2, end, ",");
                 bbassert(separator != MISSING, "push requires at least two arguments.\n"+show_position(end));
-                if(first_name.substr(0, 5)=="std::")
-                    first_name = first_name.substr(5);
+                if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::")
+                    first_name = first_name.substr(6);
                 ret += first_name + " # " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, end - 1) + "\n";
                 return "#";
             }
 
-            if (first_name == "std::len" || first_name == "std::iter" || 
-                first_name == "std::int" || first_name == "std::float" || 
-                first_name == "std::str" || first_name == "std::bool" ||
-                first_name == "std::file" ||  
-                first_name == "std::max" || first_name == "std::min" || 
-                first_name == "std::sum" || 
-                first_name == "std::pop" || 
-                first_name == "std::file" || first_name == "std::next" || 
-                first_name == "std::list" || first_name == "std::map" || 
-                first_name == "std::server" || first_name == "std::vector" ||
+            if (first_name == "bbvm::len" || first_name == "bbvm::iter" || 
+                first_name == "bbvm::int" || first_name == "bbvm::float" || 
+                first_name == "bbvm::str" || first_name == "bbvm::bool" ||
+                first_name == "bbvm::file" ||  
+                first_name == "bbvm::max" || first_name == "bbvm::min" || 
+                first_name == "bbvm::sum" || 
+                first_name == "bbvm::pop" || 
+                first_name == "bbvm::file" || first_name == "bbvm::next" || 
+                first_name == "bbvm::list" || first_name == "bbvm::map" || 
+                first_name == "bbvm::server" || first_name == "bbvm::vector" ||
                 first_name == "len" || first_name == "iter" || 
                 first_name == "int" || first_name == "float" || 
                 first_name == "str" || first_name == "bool" || 
@@ -838,22 +852,22 @@ public:
                 if (start + 1 >= end - 1 && (first_name == "map" || 
                                              first_name == "list")) {
                     std::string var = create_temp();
-                    if(first_name.substr(0, 5)=="std::")
-                        first_name = first_name.substr(5);
+                    if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::")
+                        first_name = first_name.substr(6);
                     ret += first_name + " " + var + "\n";
                     return var;
                 }
                 std::string parsed = parse_expression(start + 1, end);
                 bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name + "`.\n"+show_position(start+1));
                 std::string var = create_temp();
-                if(first_name.substr(0, 5)=="std::")
-                    first_name = first_name.substr(5);
+                if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::")
+                    first_name = first_name.substr(6);
                 ret += first_name + " " + var + " " + parsed + "\n";
                 return var;
             }
 
-            if (first_name == "std::time" || first_name == "std::random" || first_name == "std::server" || first_name == "std::list") {
-                first_name = first_name.substr(5);
+            if (first_name == "bbvm::time" || first_name == "bbvm::random" || first_name == "bbvm::server" || first_name == "bbvm::list") {
+                first_name = first_name.substr(6);
                 bbassert(tokens[start + 1].name == "(", "Missing ( after " 
                           + first_name);
                 if (first_name == "list") {
@@ -901,19 +915,21 @@ public:
                     callable == "sum" || 
                     callable == "call" || callable == "range" || 
                     callable == "print" || callable == "read" ||
-                    callable == "std::int" || callable == "std::float" || 
-                    callable == "std::str" || callable == "std::file" || 
-                    callable == "std::bool" ||
-                    callable == "std::list" || callable == "std::map" || 
-                    callable == "std::pop" || callable == "std::push" || 
-                    callable == "std::len" || callable == "std::next" || 
-                    callable == "std::vector" || callable == "std::iter" || 
-                    callable == "std::add" || callable == "std::sub" || 
-                    callable == "std::min" || callable == "std::max" || 
-                    callable == "std::sum" || 
-                    callable == "std::call" || callable == "std::range" || 
-                    callable == "std::print" || callable == "std::read" 
+                    callable == "bbvm::int" || callable == "bbvm::float" || 
+                    callable == "bbvm::str" || callable == "bbvm::file" || 
+                    callable == "bbvm::bool" ||
+                    callable == "bbvm::list" || callable == "bbvm::map" || 
+                    callable == "bbvm::pop" || callable == "bbvm::push" || 
+                    callable == "bbvm::len" || callable == "bbvm::next" || 
+                    callable == "bbvm::vector" || callable == "bbvm::iter" || 
+                    callable == "bbvm::add" || callable == "bbvm::sub" || 
+                    callable == "bbvm::min" || callable == "bbvm::max" || 
+                    callable == "bbvm::sum" || 
+                    callable == "bbvm::call" || callable == "bbvm::range" || 
+                    callable == "bbvm::print" || callable == "bbvm::read" 
                     ) {
+                        if(callable.size()>=6 && callable.substr(0, 6)=="bbvm::")
+                            callable = callable.substr(6);
                     ret += callable+" " + var + " " + parse_expression(start, chain - 1) + "\n";
                 }
                 else {
@@ -1133,20 +1149,20 @@ void sanitize(std::vector<Token>& tokens) {
             ++i;
             continue;
         }
-        if (tokens[i].name == "#" && ((i >= tokens.size() - 1) || 
+        if ((tokens[i].name == "#" || tokens[i].name == "!") && ((i >= tokens.size() - 1) || 
             (tokens[i + 1].name != "include" && tokens[i + 1].name != "local" && tokens[i + 1].name != "macro" && tokens[i + 1].name != "stringify" && tokens[i + 1].name != "symbol"
              && tokens[i + 1].name != "spec" && tokens[i + 1].name != "fail" && tokens[i + 1].name != "of" && tokens[i + 1].name != "gcc"))) {
-            bberror("Invalid preprocessor instruction after `#` symbol."
+            bberror("Invalid preprocessor instruction after `"+tokens[i].name+"` symbol."
                     "\n   \033[33m!!!\033[0m This symbol signifies preprocessor directives."
                     "\n        Valid directives are the following patterns:"
-                    "\n        - `#include @str` inlines a file."
-                    "\n        - `#spec @property=@value;` declares a code block specification."
-                    "\n        - `(#of @expression)` assigns the expression to a temporary variable just after the last command."
-                    "\n        - `#macro {@expression} as {@implementation}` defines a macro."
-                    "\n        - `#local {@expression} as {@implementation}` defines a macro that is invalidated when the current file ends."
-                    "\n        - `#stringify (@tokens)` converts the tokens into a string at compile time."
-                    "\n        - `#symbol (@tokens)` converts the tokens into a symbol name at compile time."
-                    "\n        - `#fail @message` creates a compile-time failure."
+                    "\n        - `!include @str` inlines a file."
+                    "\n        - `!spec @property=@value;` declares a code block specification."
+                    "\n        - `(!of @expression)` assigns the expression to a temporary variable just after the last command."
+                    "\n        - `!macro {@expression} as {@implementation}` defines a macro."
+                    "\n        - `!local {@expression} as {@implementation}` defines a macro that is invalidated when the current file ends."
+                    "\n        - `!stringify (@tokens)` converts the tokens into a string at compile time."
+                    "\n        - `!symbol (@tokens)` converts the tokens into a symbol name at compile time."
+                    "\n        - `!fail @message` creates a compile-time failure."
                     "\n        - `#gcc @code;` is reserved for future use.\n"
                     + Parser::show_position(tokens, i));
         }
@@ -1239,19 +1255,19 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
     previousImports.insert(first_source);
 
     for (size_t i = 0; i < tokens.size(); ++i) {
-        if ((tokens[i].name == "iter" || tokens[i].name == "std::iter") && i>0 && tokens[i-1].name != "as" && tokens[i-1].name != "=" && tokens[i-1].name != ",")
+        /*if ((tokens[i].name == "iter" || tokens[i].name == "bbvm::iter") && i>0 && tokens[i-1].name != "as" && tokens[i-1].name != "=" && tokens[i-1].name != ",")
             bberror("`"+tokens[i].name+"` statements must be preceded by one of `=`, `as`, or ','. "
                     "\n   \033[33m!!!\033[0m This way, you may only directly assign to an iterator or add it to a list."
-                    "\n       For example, the pattern `A = 1,2,3; while(x as next(std::iter(A))) {}` that leads to an infinite loop is prevented."
+                    "\n       For example, the pattern `A = 1,2,3; while(x as next(bbvm::iter(A))) {}` that leads to an infinite loop is prevented."
                     "\n       You may instead consider the preprocessor #of directive to precompute the contents of a parenthesis"
-                    "\n       before the current commend. Here is an example `A = 1,2,3; while(x as next(#of std::iter(A))) {}`.\n"
-                    + Parser::show_position(tokens, i));
+                    "\n       before the current commend. Here is an example `A = 1,2,3; while(x as next(#of bbvm::iter(A))) {}`.\n"
+                    + Parser::show_position(tokens, i));*/
 
-        if (tokens[i].name == "#" && i < tokens.size() - 3 && tokens[i + 1].name == "of") {
+        if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && tokens[i + 1].name == "of") {
                 bbassert(tokens[i - 1].name == "(" || tokens[i - 1].name == "[", 
                           "Unexpected `#of` encountered after `"+tokens[i - 1].name +"`."
                           "\n   \033[33m!!!\033[0m  Each `#of` declaration can only start after a parenthesis or square bracket."
-                          "\n        Here is an example `A = 1,2,3; while(x as next(#of std::iter(A))) {}`.\n"
+                          "\n        Here is an example `A = 1,2,3; while(x as next(#of bbvm::iter(A))) {}`.\n"
                           +Parser::show_position(tokens, i));
                 int iend = i+2;
                 int depth = 1;
@@ -1280,17 +1296,17 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 }
                 std::vector<Token> newTokens;
                 std::string temp = Parser::create_macro_temp();
-                newTokens.emplace_back(temp, tokens[i].file, tokens[i].line, false);
-                newTokens.emplace_back("=", tokens[i].file, tokens[i].line, false);
+                newTokens.emplace_back(temp, tokens[i].file, tokens[i].line, true);
+                newTokens.emplace_back("=", tokens[i].file, tokens[i].line, true);
                 newTokens.insert(newTokens.end(), tokens.begin()+i+2, tokens.begin()+iend);
-                newTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
+                newTokens.emplace_back(";", tokens[i].file, tokens[i].line, true);
 
                 updatedTokens.insert(updatedTokens.begin()+position, newTokens.begin(), newTokens.end());
-                updatedTokens.emplace_back(temp, tokens[i].file, tokens[i].line, false);
+                updatedTokens.emplace_back(temp, tokens[i].file, tokens[i].line, true);
                 i = iend;
         }
 
-        if (tokens[i].name == "#" && i < tokens.size() - 3 && tokens[i + 1].name == "fail") {
+        if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && tokens[i + 1].name == "fail") {
             std::string message;
             int pos = i+2;
             std::string involved = Parser::show_position(tokens, i);
@@ -1309,7 +1325,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             replaceAll(message, "\\n", "\n");
             bberror(message+"\n"+involved);
         }
-        else if (tokens[i].name == "#" && i < tokens.size() - 3 && tokens[i + 1].name == "spec") {
+        else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && tokens[i + 1].name == "spec") {
             int specNameEnd = MISSING;
             int specNameStart = MISSING;
             if (i > 1) {
@@ -1410,10 +1426,10 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             tokens.insert(tokens.begin() + position, newTokens.begin(), newTokens.end());
             tokens.erase(tokens.begin() + i, tokens.begin() + specend + 1);
             i -= 1;
-        }  else if (tokens[i].name == "#" && i < tokens.size() - 2 && tokens[i + 1].name == "symbol") {
+        }  else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 2 && tokens[i + 1].name == "symbol") {
             bbassert(tokens[i+2].name=="(", "Missing `(`."
-            "\n   \033[33m!!!\033[0m  `#symbol` should be followed by a parenthesis. "
-            "\n       The only valid syntax is `#symbol(@tokens)`.\n"
+            "\n   \033[33m!!!\033[0m  `!symbol` should be followed by a parenthesis. "
+            "\n       The only valid syntax is `!symbol(@tokens)`.\n"
             + Parser::show_position(tokens, i));
             int pos = i+3;
             std::string created_string;
@@ -1432,7 +1448,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 ++pos;
             }
             bbassert(depth==0, "Missing `)`."
-                                "\n   \033[33m!!!\033[0m  `#symbol(@tokens)` parenthesis was never closed.\n"
+                                "\n   \033[33m!!!\033[0m  `!symbol(@tokens)` parenthesis was never closed.\n"
                                 + Parser::show_position(tokens, i));
             //updatedTokens.emplace_back(created_string, tokens[i].file, tokens[i].line, false);
             //i = pos;
@@ -1440,10 +1456,10 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             tokens.emplace(tokens.begin()+i, created_string, tokens[i].file, tokens[i].line, true);
             i = i-1;
         }
-        else if (tokens[i].name == "#" && i < tokens.size() - 2 && tokens[i + 1].name == "stringify") {
+        else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 2 && tokens[i + 1].name == "stringify") {
             bbassert(tokens[i+2].name=="(", "Missing `(`."
-            "\n   \033[33m!!!\033[0m  `#stringify` should be followed by a parenthesis. "
-            "\n       The only valid syntax is `#stringify(@tokens)`.\n"
+            "\n   \033[33m!!!\033[0m  `!stringify` should be followed by a parenthesis. "
+            "\n       The only valid syntax is `!stringify(@tokens)`.\n"
             + Parser::show_position(tokens, i));
             int pos = i+3;
             std::string created_string;
@@ -1465,7 +1481,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             }
             created_string = "\""+created_string+"\"";
             bbassert(depth==0, "Missing `)`."
-                                "\n   \033[33m!!!\033[0m  `#stringify(@tokens)` parenthesis was never closed.\n"
+                                "\n   \033[33m!!!\033[0m  `!stringify(@tokens)` parenthesis was never closed.\n"
                                 + Parser::show_position(tokens, i));
             //updatedTokens.emplace_back("\""+created_string+"\"", tokens[i].file, tokens[i].line, false);
             //i = pos;
@@ -1473,18 +1489,18 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             tokens.emplace(tokens.begin()+i, created_string, tokens[i].file, tokens[i].line, true);
             i = i-1;
         }
-        else if (tokens[i].name == "#" && i < tokens.size() - 2 && tokens[i + 1].name == "include") {
+        else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 2 && tokens[i + 1].name == "include") {
             std::string libpath = tokens[i + 2].name;
             int libpathend = i+2;
-            // find what is actually being imported (account for #include #stringify(...) statement)
+            // find what is actually being imported (account for #include !stringify(...) statement)
             if(libpath=="#") {
                 bbassert(i<tokens.size()-5 && tokens[i+3].name=="stringify", "Missing `stringify`."
-                    "\n   \033[33m!!!\033[0m  `#include` should be followed by either a string of `#stringify`. "
+                    "\n   \033[33m!!!\033[0m  `!include` should be followed by either a string of `!stringify`. "
                     "\n       but another preprocessor isntruction follows `#`.\n"
                     + Parser::show_position(tokens, i));
                 bbassert(tokens[i+4].name=="(", "Missing `(`."
-                    "\n   \033[33m!!!\033[0m  `#stringify` should be followed by a parenthesis. "
-                    "\n       The only valid syntax is `#stringify(@tokens)` so here it should be `#include #stringify(tokens)`.\n"
+                    "\n   \033[33m!!!\033[0m  `!stringify` should be followed by a parenthesis. "
+                    "\n       The only valid syntax is `!stringify(@tokens)` so here it should be `#include !stringify(tokens)`.\n"
                 + Parser::show_position(tokens, i));
                 libpathend = i+5;
                 libpath = "\"";
@@ -1563,7 +1579,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             tokens.insert(tokens.begin() + i, newTokens.begin(), newTokens.end());
 
             i -= 1;
-        } else if (tokens[i].name == "#" && i < tokens.size() - 4 && 
+        } else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 4 && 
                    (tokens[i + 1].name == "macro" || tokens[i + 1].name == "local")) {
             bbassert(tokens[i + 2].name == "{", "Your macro here should follow the pattern `#"+tokens[i + 1].name+" {@expression} as {@implementation}`.\n"+Parser::show_position(tokens, i));
             int macro_start = i + 2;
@@ -1628,20 +1644,31 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                         }
                         if (macro->from[j].name[0] == '@') {
                             std::string placeholder = macro->from[j].name;
-                            while (k < tokens.size() && (depth > 0 || tokens[k].name != ";" 
-                                   || tokens[k].name != "}" || tokens[k].name != "]" 
-                                   || tokens[k].name != ")") && (j == macro->from.size() - 1 
-                                   || (tokens[k].name != macro->from[j + 1].name || depth > 0))) {
-                                if (tokens[k].name == "(" || tokens[k].name == "[" || 
-                                    tokens[k].name == "{") {
-                                    depth += 1;
-                                } else if (tokens[k].name == ")" || tokens[k].name == "]" || 
-                                           tokens[k].name == "}") {
-                                    depth -= 1;
-                                }
-                                replacement[placeholder].push_back(tokens[k]);
-                                k++;
+                            if(macro->from[j].name.size()>=2 && macro->from[j].name[1] == '@') {
+                                // macro defining macros
+                                replacement[placeholder].emplace_back(macro->from[j].name.substr(1), macro->from[j].file, macro->from[j].line, true);
                             }
+                            else
+                                while (k < tokens.size() && (depth > 0 || tokens[k].name != ";" 
+                                    || tokens[k].name != "}" || tokens[k].name != "]" 
+                                    || tokens[k].name != ")") && (j == macro->from.size() - 1 
+                                    || (tokens[k].name != macro->from[j + 1].name || depth > 0))) {
+                                    if (tokens[k].name == "(" || tokens[k].name == "[" || 
+                                        tokens[k].name == "{") {
+                                        depth += 1;
+                                    } else if (tokens[k].name == ")" || tokens[k].name == "]" || 
+                                            tokens[k].name == "}") {
+                                        depth -= 1;
+                                    }
+                                    if(depth<0) {
+                                        break; // break off
+                                    }
+                                    replacement[placeholder].push_back(tokens[k]);
+                                    k++;
+                                    /*if(depth==0) {
+                                        break ; // break at the singleton point where we finished nesting
+                                    }*/
+                                }
                             j++;
                         } else if (macro->from[j].name != tokens[k].name) {
                             match = false;
@@ -1703,7 +1730,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
 std::string gcc(std::vector<Token>& tokens) {
     std::string cprogram;
     for (size_t i = 0; i < tokens.size(); ++i) {
-        if (tokens[i].name == "#" && i < tokens.size() - 2 && 
+        if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 2 && 
             tokens[i + 1].name == "gcc") {
             int depth = 0;
             i += 2;

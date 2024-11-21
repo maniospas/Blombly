@@ -23,17 +23,17 @@ final console::INFO as {
 
 final console::fmt = {
     formatted = "";
-    argiter = std::iter(args);
-    while(arg as std::next(argiter)) {
-        formatted = formatted + std::str(arg);
+    argiter = bbv::iter(args);
+    while(arg as bbv::next(argiter)) {
+        formatted = formatted + bbv::str(arg);
         formatted = formatted + " ";  
     }
     return formatted;
 }
 
 
-#macro {console::print(@code)} as {std::print(console::fmt(@code))}
-#macro {console::read(@code)} as {std::read(console::fmt(@code))}
+#macro {console::print(@code)} as {bbv::print(console::fmt(@code))}
+#macro {console::read(@code)} as {bbv::read(console::fmt(@code))}
 
 final console::out = new {
     final console::fmt = console::fmt;
