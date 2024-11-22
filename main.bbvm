@@ -12,8 +12,6 @@ AS x _bb3
 exists _bb6 x
 not _bb7 _bb6
 BEGIN _bb8
-BUILTIN _bb9 "This was not a number"
-print # _bb9
 BUILTIN _bb5 "Give a number:"
 read _bb4 _bb5
 float _bb3 _bb4
@@ -22,13 +20,13 @@ exists _bb6 x
 not _bb7 _bb6
 END
 while # _bb7 _bb8
-BUILTIN _bb11 ""
-BEGIN _bb14
+BUILTIN _bb10 ""
+BEGIN _bb13
 list args x
 END
-call _bb13 _bb14 myformat
-str _bb16 _bb13
-BUILTIN _bb17 "Your number is "
-add _bb12 _bb17 _bb16
-add _bb10 _bb12 _bb11
-print # _bb10
+call _bb12 _bb13 myformat
+str _bb15 _bb12
+BUILTIN _bb16 "Your number is "
+add _bb11 _bb16 _bb15
+add _bb9 _bb11 _bb10
+print # _bb9

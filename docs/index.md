@@ -11,7 +11,7 @@ So, who is Blombly for? It might be a good choice if you are looking for a langu
 
 ## 🚩 Reusable
 
-The language is _behaviorizeable_, which means that modular interfaces written in it [learnable usage rules](https://www.sciencedirect.com/science/article/pii/S2352220821000778). This way, you can trully learn to work with the code of others instead of copying recipes.
+The language is _behaviorizeable_, which means that modular interfaces written in it have [learnable usage rules](https://www.sciencedirect.com/science/article/pii/S2352220821000778). This way, code has learnable usage patterns instead of promoting recipe copy-ing.
 
 ## 🚀 Expressive
 
