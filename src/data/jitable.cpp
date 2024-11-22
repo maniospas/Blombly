@@ -2,6 +2,7 @@
 #include "BMemory.h"
 #include "interpreter/Command.h"
 #include "common.h"
+#include <unordered_set>
 
 // Constructor for ReturnPrimitiveJitable
 ReturnPrimitiveJitable::ReturnPrimitiveJitable(Data* primitive) : primitive(primitive) {}
@@ -24,6 +25,13 @@ Jitable* jit(const Code* code) {
         Command* c1 = program->at(start+1);
         if(c0->operation==BUILTIN && c1->operation==RETURN && c0->args[0]==c1->args[1]) 
             return new ReturnPrimitiveJitable(c0->value);
+    }
+
+    std::unordered_set<int> inputs;
+    std::unordered_set<int> outputs;
+
+    for(int i=start;i<=end;++i) {
+
     }
     return nullptr;
 }

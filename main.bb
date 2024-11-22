@@ -1,16 +1,6 @@
-x = list();
+myformat(x) = {return x[".3f"];}
 
-while(i in range(100000))
-    push(x, i);
+while(not x as "Give a number:"|read|float) 
+    print("Failed to convert to a float");
 
-
-tic = bbvm::time();
-
-s = 0;
-while(i in x) {
-    s = s+i;
-}
-
-toc = bbvm::time();
-print(s);
-print(toc-tic);
+print("Your number is {x|myformat}");

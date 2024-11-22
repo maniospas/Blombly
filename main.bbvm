@@ -1,31 +1,34 @@
-list x
-BUILTIN _bb4 I100000
-range _bb3 _bb4
-iter _bbmacro0 _bb3
-next _bb6 _bbmacro0
-AS i _bb6
-exists _bb7 i
+BEGIN _bb0
+next x args
+BUILTIN _bb2 ".3f"
+at _bb1 x _bb2
+return # _bb1
+END
+IS myformat _bb0
+BUILTIN _bb5 "Give a number:"
+read _bb4 _bb5
+float _bb3 _bb4
+AS x _bb3
+exists _bb6 x
+not _bb7 _bb6
 BEGIN _bb8
-push # x i
-next _bb6 _bbmacro0
-AS i _bb6
-exists _bb7 i
+BUILTIN _bb9 "This was not a number"
+print # _bb9
+BUILTIN _bb5 "Give a number:"
+read _bb4 _bb5
+float _bb3 _bb4
+AS x _bb3
+exists _bb6 x
+not _bb7 _bb6
 END
 while # _bb7 _bb8
-time tic
-BUILTIN s I0
-iter _bbmacro1 x
-next _bb12 _bbmacro1
-AS i _bb12
-exists _bb13 i
+BUILTIN _bb11 ""
 BEGIN _bb14
-add s s i
-next _bb12 _bbmacro1
-AS i _bb12
-exists _bb13 i
+list args x
 END
-while # _bb13 _bb14
-time toc
-print # s
-sub _bb17 toc tic
-print # _bb17
+call _bb13 _bb14 myformat
+str _bb16 _bb13
+BUILTIN _bb17 "Your number is "
+add _bb12 _bb17 _bb16
+add _bb10 _bb12 _bb11
+print # _bb10

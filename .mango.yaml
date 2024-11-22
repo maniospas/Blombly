@@ -1,7 +1,7 @@
-!!Tasks
+!!utils.Tasks
 tasks:
   Blombly:
-    command: '{cmd} blombly.exe {path}{file}.bb'
+    command: '{cmd}./blombly {path}{file}.bb'
     extensions: [.bb]
     highlighter: text/rust
   View:
