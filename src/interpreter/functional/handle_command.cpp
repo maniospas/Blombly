@@ -148,8 +148,9 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
                 auto futureResult = new ThreadResult();
                 auto future = new Future(futureResult);
-                futureResult->start(code, newMemory, futureResult, command);
                 memory->attached_threads.insert(future);
+                //newMemory->attached_threads.insert(future);
+                futureResult->start(code, newMemory, futureResult, command);
                 result = future;
             }
         } break;

@@ -7,6 +7,7 @@ nav:
       - Iterables: basics/iterables.md
       - Code blocks: basics/blocks.md
       - Structs: basics/structs.md
+      - File system: basics/files.md
   - Advanced:
       - The preprocessor: advanced/preprocessor.md
       - Signals: advanced/signals.md

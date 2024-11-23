@@ -15,7 +15,7 @@ The language is _behaviorizeable_, which means that modular interfaces written i
 
 ## 🚀 Expressive
 
-Focus on writing algorithms. These are compiled into an intermediate representation that is interpreted by the **BLO**ck ase**MBLY** **V**irtual **M**achine (blomblyVM), which handles details like parallelization itself. 
+Focus on writing algorithms. These are compiled into an intermediate representation that is interpreted by the **BLO**ck ase**MBLY** **V**irtual **M**achine (blomblyVM), which handles details like parallelization on its own. 
 
 _Note: The current implementation is purely interpreted, but a JIT may be added in the future._
 

@@ -54,6 +54,12 @@ else()
     message(FATAL_ERROR "Zlib library not found.")
 endif()
 
+find_package(CURL REQUIRED)
+
+# Link your executable or library with libcurl
+target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl)
+
+
 # Specify where to place the final executable
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}"

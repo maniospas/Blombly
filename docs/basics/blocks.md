@@ -1,10 +1,11 @@
 # Code blocks
 
-The main logic compartmentalization mechanism in Blombly are code blocks; these are flexible coding segments that can be treated as methods, used to define various control flows, or called inline. 
+The main logic compartmentalization mechanism in Blombly are code blocks; these are flexible coding segments that can be treated as methods, 
+used to define various control flows, or called inline. 
 Code blocks are declared by enclosing some code in brackets and assigning them to a variable. 
 
 There is no trailing semicolon, and the compiler will create an error if you do try to add one so that only one syntax is promoted. 
-Block declaration only sets a variable and does not execute code. As a good practice, prefer making blocks final for visibility and to ensure logic safety.
+Block declaration only sets a variable and does not execute code.
 
 
 ## Inlining
@@ -15,7 +16,7 @@ This way, it enriches the current code with a snippet that is defined elsewhere,
 
 ```java
 // main.bb
-final test = {
+test = {
     print("Hello world"); 
 } 
 test:
@@ -32,30 +33,29 @@ In the example below specifications are set for a code block. The final keyword 
 
 ```java
 // main.bb
-final hello = {
+hello = {
     print("Hello world!"); 
 } 
-final tehellost.version = 1.0; // setting metadata is always final 
+final tehellost.version = "1.0.0"; // setting metadata is always final 
 final hello.license = "CC0";
 
-print("Running test version "+str(hello.version) +" under "+hello.license+" license...");
-hello: // block code directly runs here
+print("Running test version {hello.version} under {hello.license} license...");
+hello: // the block's code directly runs here
 ```
 
-A shorthand for declaring specifications consists of defining them at the beginning of respective blocks using the #spec directive for the preprocessor. 
-This cannot use any of the block's variables, but has normal access to the block's declaring scope. The next example is identical to the previous one.
-As a coding standard, usage of the following metadata fields is encouraged:
+A shorthand for declaring specifications consists of defining them at the beginning of respective blocks using the `!spec` directive of the [preprocessor](../advanced/preprocessor.md). 
+This firective cannot use any of the block's variables, but has normal access to the block's declaring scope. The next example is identical to the previous one.
 
 ```java
 // main.bb
-final hello = { 
-    #spec version = 1.0;
-    #spec license = "CC0";
+hello = { 
+    !spec version = "1.0.0";
+    !spec license = "CC0";
     print("Hello world!"); 
 }
 
-print("Running test version "+str(hello.version) +" under "+hello.license+" license...");
-hello: // block code directly runs here
+print("Running test version {hello.version} under {hello.license} license...");
+hello:
 ```
 
 
@@ -64,13 +64,13 @@ hello: // block code directly runs here
 Blombly can call code blocks by executing some code inside a paranthesis. Variables
 declared inside the parenthesis are transferred to the called block. 
 The last semicolon may be ommited from code blocks,
-so this mostly looks like keyword arguments seperated by a semicolon (`;`). 
-We later show a modification of code block declarations that accepts positional arguments too.
+so this mostly looks like keyword arguments seperated by semicolons (`;`). 
+We later show a modification that accepts positional arguments too.
 Use a `return` statement to yield back a call value. Here is an example:
 
 ```java 
 // main.bb
-final add = {
+adder = {
     return x + y;
 }
 result = adder(x=1;y=2); 
@@ -125,7 +125,7 @@ You can then access list elements or use `next` to obtain their values like so:
 
 ```java
 // main.bb
-final adder = { 
+adder = { 
     x = next(args); 
     y = next(args); 
     return x + y; 
@@ -140,7 +140,7 @@ within other definitions given that they have the correct remainder `args`.
 
 ```java
 // main.bb
-final adder(x, y) = { // shorthand for front-popping these values with next 
+adder(x, y) = { // shorthand for front-popping these values with next 
     return x + y; 
 } 
 test = adder; // can still transfer the definition this way
@@ -150,59 +150,18 @@ print(result);
 
 ## Mixed arguments
 
-Blombly allows mixing of positional arguments and code execution by separating the two with `|` inside the call 
-parenthesis. This notation is inspired by conditional probabilities, and we encourage Blombly programmers
-to adopt a similar way of thinking of positional vs generated arguments. 
+Blombly allows mixing of positional arguments and code execution by separating the two with double doubledots 
+(`::`) inside the call parenthesis.
 
 ```java
 // main.bb
-final adder(x, y) = { 
+adder(x, y) = {
     default wx = 1; 
     default wy = 1; 
     return x*wx + y*wy;
 }
-result = adder(1,2 | wx=1;wy=2); 
+result = adder(1,2 :: wx=1;wy=2); 
 print(result);
 ```
 
 Positional arguments are created first from the calling scope, so further argument generation can modify them.
-
-
-## Cleaner notation with the `final` library
-
-A cleaner notation for function definitions is provided by the `libs/final` library.
-This is packaged alongside blombly releases and fully described [later](../advanced/libraries.md),
-but let us take a quick look for its method calling here.
-
-The library inserts the `final::def` macro (mind you that this is one keyword - blombly treats `::` as
-one character) to declare final functions. 
-The library name and `final::` prefix of the macro's evokation keyword are purposefully chosen as 
-reminders of finality. Using this library, you can create the following equivalent definition of
-the above notation:
-
-```java
-// main.bb
-#include "libs/final"  // use the library
-
-final::def adder(x,y | wx=1;wy=1) {
-    return x*wx + y*wy;
-}
-result = adder(1,2 | wx=1;wy=2); 
-print(result);
-```
-
-In the above snippet, the optionally executed code following the horizontal bar `|`
-is injected in the body of the function via `default` execution (recall that this
-sets only variables not already set). The function's call still runs first. In
-simpler scenarios, you may ommit the default runnable block like so:
-
-```java
-// main.bb
-#include "libs/final"
-
-final::def adder(x,y) {
-    return x+y;
-}
-result = adder(1,2); 
-print(result);
-```

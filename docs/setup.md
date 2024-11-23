@@ -32,7 +32,7 @@ Hello world!
 
 Compilation converts code to the BlomlyVM intermediate representation. 
 This looks like assembly code and is stored in files with the `.bbvm` extension. 
-The representation are self-contained by packing all dependencies inside, 
+It is also self-contained by packing all dependencies inside, 
 and therefore can be shared with others to run directly, without pesky dependency
 management. The following file is generated when you run `main.bb` above.
 
@@ -66,7 +66,7 @@ Hello world!
 Finally, before jumping into actual coding, let us peek at errors that Blombly may create. There are two types:
 
 - Syntax errors are identified by the compiler and make it halt.
-- Logical errors occur at runtime and can be intercepted and handled with `try` and `catch` respectively. 
+- Logical errors occur at runtime and can be intercepted with `try` and intercepted with `catch`. 
 
 To see what a syntax error looks like, execute the following invalid code.
 We get an error telling us that the + operation for string concatenation has no right-hand side. 
@@ -87,7 +87,7 @@ print("Hello"+);  // CREATES AN ERROR
 Look at a logical error looks like by printing a variable that does not exist.
 This creates an error during runtime that points to the stack trace of compiled code and the original source. 
 You will see full traces, regardless of which computations are internally delegated to threads.
-Such errors can be handled are runtime, but this is a more advanced concept that we talk about [later](success-fail.md).
+Such errors can be handled are runtime, but this is a more advanced concept that we talk about [later](advanced/signals.md).
 
 
 ```java

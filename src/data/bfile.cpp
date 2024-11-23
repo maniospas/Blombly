@@ -6,18 +6,65 @@
 #include "common.h"
 #include <iostream>
 #include <fstream>
+#include <sstream> 
+#include <curl/curl.h> // Include libcurl
 
+// Helper function to handle HTTP GET responses
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* response) {
+    size_t totalSize = size * nmemb;
+    response->append((char*)contents, totalSize);
+    return totalSize;
+}
+
+// Function to perform HTTP GET request
+std::string fetchHttpContent(const std::string& url) {
+    CURL* curl;
+    CURLcode res;
+    std::string response;
+
+    curl = curl_easy_init();
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+        // Perform the request
+        res = curl_easy_perform(curl);
+        if (res != CURLE_OK) {
+            bberror("Failed to fetch URL: " + url + ", error: " + curl_easy_strerror(res));
+        }
+
+        // Cleanup
+        curl_easy_cleanup(curl);
+    } else {
+        bberror("Failed to initialize CURL");
+    }
+    return response;
+}
 
 BFile::BFile(const std::string& path_) : path(path_), size(0), Data(FILETYPE) {
-    std::ifstream file(path);
-    if (file.is_open()) {
-        std::string line;
-        while (std::getline(file, line)) {
-            contents.push_back(line);
+    if (path.rfind("http", 0) == 0) { // Check if path starts with "http"
+        std::string httpContent = fetchHttpContent(path);
+        if (!httpContent.empty()) {
+            std::istringstream stream(httpContent);
+            std::string line;
+            while (std::getline(stream, line)) {
+                contents.push_back(line);
+            }
+        } else {
+            bberror("Failed to fetch content from HTTP path: " + path);
         }
-        file.close();
     } else {
-        bberror("Failed to open file: " + path);
+        std::ifstream file(path);
+        if (file.is_open()) {
+            std::string line;
+            while (std::getline(file, line)) {
+                contents.push_back(line);
+            }
+            file.close();
+        } else {
+            bberror("Failed to open file: " + path);
+        }
     }
     size = contents.size();
 }
@@ -47,16 +94,6 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args) {
         std::string lineContent = contents[lineNum];
         STRING_RESULT(lineContent);
     }
-    /*if (operation == PUT && args->size == 3 && args->arg1->getType() == BB_INT && args->arg2->getType() == STRING) {
-        int lineNum = static_cast<Integer*>(args->arg1)->getValue();
-        std::string newContent = args->arg2->toString();
-        if (lineNum < 0 || lineNum >= contents.size()) {
-            bberror("Line number " + std::to_string(lineNum) + " out of range [0," + std::to_string(contents.size()) + ")");
-            return std::move(Result(nullptr));
-        }
-        contents[lineNum] = newContent;
-        return std::move(Result(nullptr));
-    }*/
     if (args->size == 1) {
         if (operation == LEN) {
             int ret = contents.size();
@@ -74,7 +111,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args) {
         if (operation == TOLIST) {
             int n = contents.size();
             BList* list = new BList(n);
-            for(int i=0;i<n;++i) {
+            for (int i = 0; i < n; ++i) {
                 BString* element = new BString(contents[i]);
                 element->addOwner();
                 element->leak();

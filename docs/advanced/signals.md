@@ -24,8 +24,8 @@ result = try while (i <= 100) {
     if (i >= least) return i;
 }
 print("Finished searching.");
-catch (result) fail("Found nothing: " + str(result));
-print("The least multiple of 3 in range [" + str(least) + ", 100] is: " + str(result));
+catch (result) fail("Found nothing: {result|str}");
+print("The least multiple of 3 in range [{least|str}, 100] is: {result|str});
 ```
 
 If nothing is intercepted by a try statement, then a missing value is yielded. In this case, use the as syntax like normally to identify if there is a return value. For example, the following snippet inlines an algorithm and checks that it returns a value. Remove the return statement from the algorithm code block (leave it empty) and see how the fail statement correctly creates an error.

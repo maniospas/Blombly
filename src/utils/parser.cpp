@@ -957,7 +957,7 @@ public:
                               "\n        any code inside the parethesis to transfer evaluated content to"
                               "\n        the method. This looks like this: `func(x=1;y=2)`\n"
                               +show_position(call+1));
-                int conditional = find_end(call + 1, end, "|");
+                int conditional = find_end(call + 1, end, "::"); // call conditional
                 std::string parsed_args;
                 if (conditional == MISSING) {
                     if (find_end(call + 1, end, "=") != MISSING || find_end(call + 1, end, "as") != MISSING)  // if there are equalities, we are on kwarg mode 

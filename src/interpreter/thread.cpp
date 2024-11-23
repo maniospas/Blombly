@@ -20,6 +20,9 @@ void threadExecute(Code* code,
         if(value && value->getType()==CODE)
             static_cast<Code*>(value)->setDeclarationMemory(nullptr);
         result->value = std::move(returnValue);
+
+        //memory->await(); // await here to prevent awaiting during the destructor
+
     } catch (const BBError& e) {
         // Capture and format the error message
         std::string comm = command->toString();

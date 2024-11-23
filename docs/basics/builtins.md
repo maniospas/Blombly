@@ -24,7 +24,7 @@ Otherwise, a new variable is created. Subsequent code in the same scope will ret
 in which subsequent code can overwrite variable values. Each program starts from one initial scope, but new ones are created when creating new objects or calling methods.
 
 There are several builtin data types that are directly incorporated in the language.
-Exhaustively, these are `int`, `float`, `bool`, `str`, `list`, `vector`, `map`, `iter`, `code`, `struct`, `server`.
+Exhaustively, these are `int`, `float`, `bool`, `str`, `list`, `vector`, `map`, `iter`, `code`, `struct`, `file`, `server`.
 Here we start with the first four, and split the rest to dedicated pages, like the one describing [iterables](iterables.md).
 
 ```java
@@ -32,7 +32,7 @@ Here we start with the first four, and split the rest to dedicated pages, like t
 i = 1;     // int 
 f = 1.2;   // float 
 b = false; // bool (or true)
-s = "this is a string literal";
+s = "this is a string";
 ```
 
 Some well-known operations on the above types are listed below. These are computed as one might have come to learn from other programming
@@ -42,7 +42,7 @@ languages. Only difference to usual practices is that the `not` operation has hi
 |--------------------------|----------------------------------------|----------------------------------------------------------|
 | **Assignment**           | `(expression)`                         | Compute the expression first. Also used in method calls later. |
 | **Assignment**           | `y=x`, `y as x`                        | The `as` assignment is covered below. |
-| **Conversion**           | `typename(x)`                          | Everything can be converted to `str`, numbers can be converted from `str`.  |
+| **Conversion**           | `typename(x)`                          | Everything can be converted to `str`, numbers can be converted from `str`. You will see the equivalent `x|typename` a lot too. |
 | **Elements**             | `a[i]`, `a[i]=x`                       | Element get and set for strings. |
 | **Arithmetics**          | `+`, `-`, `*`, `/` <br> `^` <br> `%`   | Basic arithmetics (division is floating-point). <br> Exponentiation. <br> Modulo for integers. |
 | **String operations**    | `+`                                    | Concatenation.                                                                      |
@@ -95,7 +95,7 @@ print("Here is a number: " + x[".3f"]);
 Here is a number: 1.346
 ```
 
-Formatting numbers within literals is discussed alongside advanced typecasting [here](../advanced/typecasting.md).
+Formatting numbers within literals is discussed alongside advanced typecasting [here](../advanced/semitypes.md).
 For now, we provide a first taste that the recommended syntax looks like below. Very briefly, a callable formatter is defined
 and then applied within the literal with typecast notation `x | fmt`, which is equivalent to `fmt(x)`.
 
@@ -161,13 +161,12 @@ while (counter<10) {
 ## Missing values
 
 Computations like converting invalid strings to numbers may 
-generate missing values. These are different than errors in that they denote a completed algorithm 
-that returns with nothing as an expected potential outcome. As a different example,
-getting or setting out-of-bounds list element
+generate missing values. These are different than errors in that they denote a completed algorithm
+whose outcome cannot be used further. For example, getting or setting out-of-bounds list element
 creates errors, but the `next` operator of iterators returns a messing value once there are no
 more items to iterate through.
 
-Missing values also create errors, but only to the extend that the assignment
+Missing values also create errors only to the extend that the assignment
 operator (`=`) prevents assigning such values to variables. In this case,
 substitute the assignment with the `as` keyword. 
 The differences are two: a) previous values are removed when overwritten with missing ones,
@@ -184,8 +183,9 @@ while(not number as float(read("Give a number:"))) {}
 print(number);
 ```
 
-Or, equivalently based on function-based typecasting, which effectively chains
-functions with only one argument on the argument before the `|` symbol.
+Equivalently, use function-based typecasting, like below. This chains
+function calls of one argument with the `|` symbol; the function name
+comes after the symbol and the the function calls all stuff on the symbol's left.
 
 ```java
 while(not number as "Give a number:"|read|float) {}
@@ -204,7 +204,7 @@ print(number);
 
 Here we make a soft introduction to return signals; if errors indicate
 unsuccessful algorithms, return statements indicate successful conclusion of
-computations. This introduction focuses on returning (not on error handling), as
+computations. This introduction focuses on the returning part (not on error handling), as
 this supports what other languages dub as continue and break statements 
 without needing such keywords.
 

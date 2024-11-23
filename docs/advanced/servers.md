@@ -3,7 +3,9 @@
 Blombly offers the ability to set up REST services.
 Instantiating a server is as simple as calling `routes=std::server(port)`,
 where the port is provided. The server starts running immediately,
-and you can dynamically add or remove routes from it.
+and you can dynamically add or remove routes from it. You can execute 
+client requrests to online serves through blombly's [file system](../basics/files.md).
+
 
 ## Routes
 

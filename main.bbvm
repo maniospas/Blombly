@@ -1,32 +1,48 @@
-BEGIN _bb0
-next x args
-BUILTIN _bb2 ".3f"
-at _bb1 x _bb2
-return # _bb1
+BEGIN _bb2
+BUILTIN value I0
+BUILTIN _bb4 I8080
+server routes _bb4
+BEGIN _bb6
+BEGIN _bb7
+BUILTIN _bb8 "The number of hi must be an integer."
+return # _bb8
 END
-IS myformat _bb0
-BUILTIN _bb5 "Give a number:"
-read _bb4 _bb5
-float _bb3 _bb4
-AS x _bb3
-exists _bb6 x
-not _bb7 _bb6
-BEGIN _bb8
-BUILTIN _bb5 "Give a number:"
-read _bb4 _bb5
-float _bb3 _bb4
-AS x _bb3
-exists _bb6 x
-not _bb7 _bb6
+int _bb9 number
+AS number _bb9
+exists _bb10 number
+not _bb11 _bb10
+if # _bb11 _bb7
+BEGIN _bb12
+BUILTIN _bb13 "Need a positive number of hi. Why must you take them away? :-("
+return # _bb13
 END
-while # _bb7 _bb8
-BUILTIN _bb10 ""
-BEGIN _bb13
-list args x
+BUILTIN _bb15 I0
+le _bb14 number _bb15
+if # _bb14 _bb12
+BUILTIN _bb17 I1
+get _bb18 this value
+add _bb16 _bb18 _bb17
+set # this value _bb16
+BUILTIN _bb20 " hi"
+str _bb22 number
+BUILTIN _bb24 " hello your "
+get _bb26 this value
+add _bb25 _bb26 number
+str _bb27 _bb25
+add _bb23 _bb27 _bb24
+add _bb21 _bb23 _bb22
+add _bb19 _bb21 _bb20
+return # _bb19
 END
-call _bb12 _bb13 myformat
-str _bb15 _bb12
-BUILTIN _bb16 "Your number is "
-add _bb11 _bb16 _bb15
-add _bb9 _bb11 _bb10
-print # _bb9
+BUILTIN _bb28 "/hi/<number>"
+put # routes _bb28 _bb6
+return # this
+END
+new _bb0 _bb2
+BUILTIN _bb29 "Give me some greetings at localhost:8000/hi/<number>"
+print # _bb29
+BUILTIN _bb30 Btrue
+BEGIN _bb31
+BUILTIN _bb30 Btrue
+END
+while # _bb30 _bb31
