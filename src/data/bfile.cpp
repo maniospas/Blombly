@@ -3,11 +3,14 @@
 #include "data/BString.h"
 #include "data/Iterator.h"
 #include "data/List.h"
+#include "data/BError.h"
 #include "common.h"
 #include <iostream>
 #include <fstream>
 #include <sstream> 
 #include <curl/curl.h> // Include libcurl
+
+extern BError* OUT_OF_RANGE;
 
 // Helper function to handle HTTP GET responses
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* response) {
@@ -87,8 +90,8 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args) {
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
         int lineNum = static_cast<Integer*>(args->arg1)->getValue();
         if (lineNum < 0 || lineNum >= contents.size()) {
-            bberror("Line number " + std::to_string(lineNum) + " out of range [0," + std::to_string(contents.size()) + ")");
-            return std::move(Result(nullptr));
+            //bberror("Line number " + std::to_string(lineNum) + " out of range [0," + std::to_string(contents.size()) + ")");
+            return std::move(Result(OUT_OF_RANGE));
         }
         std::string lineContent = contents[lineNum];
         STRING_RESULT(lineContent);

@@ -3,8 +3,11 @@
 #include "data/Integer.h"
 #include "data/BFloat.h"
 #include "data/BFile.h"
+#include "data/BError.h"
 #include "data/Iterator.h"
 #include "common.h"
+
+extern BError* OUT_OF_RANGE;
 
 BString::BString(const std::string& val) : value(val), Data(STRING) {}
 
@@ -43,7 +46,7 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
                 char* endptr = nullptr;
                 int ret = std::strtol(value.c_str(), &endptr, 10);
                 if (endptr == value.c_str() || *endptr != '\0') {
-                    return std::move(Result(nullptr));
+                    return std::move(Result(new BError("Failed to convert string to int")));
                 }
                 BB_INT_RESULT(ret);
             }
@@ -52,7 +55,7 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
                 char* endptr = nullptr;
                 double ret = std::strtod(value.c_str(), &endptr);
                 if (endptr == value.c_str() || *endptr != '\0') {
-                    return std::move(Result(nullptr));
+                    return std::move(Result(new BError("Failed to convert string to float")));
                 }
                 BB_FLOAT_RESULT(ret);
             }
@@ -66,8 +69,8 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
         int index = static_cast<Integer*>(args->arg1)->getValue();
         if (index < 0 || index >= value.size()) {
-            bberror("String index " + std::to_string(index) + " out of range [0," + std::to_string(value.size()) + ")");
-            return std::move(Result(nullptr));
+            //bberror("String index " + std::to_string(index) + " out of range [0," + std::to_string(value.size()) + ")");
+            return std::move(Result(OUT_OF_RANGE));
         }
         return std::move(Result(new BString(std::string(1, value[index]))));
     }

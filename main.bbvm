@@ -1,32 +1,22 @@
-BEGIN _bb0
-next x args
-next y args
-BEGIN _bb2
-BUILTIN bias I0
+BUILTIN _bb2 I10
+range _bb1 _bb2
+iter _bbmacro0 _bb1
+BEGIN _bb6
+next _bb7 _bbmacro0
+AS i _bb7
+exists _bb8 i
+BEGIN _bb9
+BEGIN _bb10
+return # i
 END
-default # _bb2
-BEGIN _bb4
-BUILTIN _bb5 "Assertion failed: len(args)==0"
-fail # _bb5
+BUILTIN _bb12 I1
+eq _bb11 i _bb12
+if # _bb11 _bb10
+next _bb7 _bbmacro0
+AS i _bb7
+exists _bb8 i
 END
-BUILTIN _bb7 Bfalse
-BUILTIN _bb9 I0
-len _bb10 args
-eq _bb8 _bb10 _bb9
-eq _bb6 _bb8 _bb7
-if # _bb6 _bb4
-float x x
-float y y
-add _bb14 x y
-add _bb13 _bb14 bias
-return # _bb13
+while # _bb8 _bb9
 END
-IS adder _bb0
-BEGIN _bb16
-BUILTIN _bb17 I1
-BUILTIN _bb18 I2
-list args _bb17 _bb18
-BUILTIN bias I1
-END
-call _bb15 _bb16 adder
-print # _bb15
+try x _bb6
+print # x

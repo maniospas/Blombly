@@ -236,6 +236,8 @@ void BMemory::unsafeSet(BMemory* handler, int item, Data* value, Data* prev) {
         fastId = item;
         fastData = value;
     }
+    if(prev && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev)->isConsumed()) 
+        bberror("Trying to overwrite an unhandled error:\n"+prev->toString());
     if(value)
         value->addOwner();
     if(prev)
@@ -255,6 +257,8 @@ void BMemory::unsafeSet(int item, Data* value, Data* prev) {
     else
         fastId = -1;
     prev = data[item];
+    if(prev && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev)->isConsumed()) 
+        bberror("Trying to overwrite an unhandled error:\n"+prev->toString());
     if(value)
         value->addOwner();
     if(prev)
@@ -265,9 +269,11 @@ void BMemory::unsafeSet(int item, Data* value, Data* prev) {
 
 void BMemory::unsafeSet(int item, Data* value) {
     Data* prev = data[item];
+    if(prev && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev)->isConsumed()) 
+        bberror("Trying to overwrite an unhandled error:\n"+prev->toString());
     if(value) 
         value->addOwner();
-    if(prev)
+    if(prev) 
         prev->removeFromOwner();
     data[item] = value;
     //std::cout << "set "<<variableManager.getSymbol(item)<<" to "<<value<<"\n";

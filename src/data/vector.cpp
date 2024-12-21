@@ -4,8 +4,12 @@
 #include "data/BString.h"
 #include "common.h"
 #include "data/Iterator.h"
+#include "data/BError.h"
 #include <iostream>
 #include <cmath>
+
+extern BError* OUT_OF_RANGE;
+extern BError* INCOMPATIBLE_SIZES;
 
 #define POS(v, i, j) (i * v + j)
 
@@ -108,7 +112,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
         }
         if (index < 0 || index >= size) {
             //bberror("Vector index " + std::to_string(index) + " out of range [0," + std::to_string(size) + ")");
-            return Result(nullptr);
+            return Result(OUT_OF_RANGE);
         }
         return std::move(Result(new BFloat(data[index])));
     }
@@ -128,11 +132,11 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
             index += atdims[i];
         }
         if (index < 0 || index >= size) {
-            bberror("Vector index " + std::to_string(index) + " out of range [0," + std::to_string(size) + ")");
-            return std::move(Result(nullptr));
+            //bberror("Vector index " + std::to_string(index) + " out of range [0," + std::to_string(size) + ")");
+            return std::move(Result(OUT_OF_RANGE));
         }
         data[index] = value;
-        return std::move(Result(nullptr));
+        return std::move(Result(INCOMPATIBLE_SIZES));
     }
 
 
@@ -142,7 +146,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
 
         if (a1->size != a2->size) {
             bberror("Vector sizes do not match for addition.");
-            return std::move(Result(nullptr));
+            return std::move(Result(INCOMPATIBLE_SIZES));
         }
 
         std::lock_guard<std::recursive_mutex> lock1(a1->memoryLock);
@@ -161,7 +165,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
 
         if (a1->size != a2->size) {
             bberror("Vector sizes do not match for subtraction.");
-            return std::move(Result(nullptr));
+            return std::move(Result(INCOMPATIBLE_SIZES));
         }
 
         std::lock_guard<std::recursive_mutex> lock1(a1->memoryLock);
@@ -179,7 +183,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
         Vector* a2 = static_cast<Vector*>(args->arg1);
         if (a1->size != a2->size) {
             bberror("Vector sizes do not match for multiplication.");
-            return std::move(Result(nullptr));
+            return std::move(Result(INCOMPATIBLE_SIZES));
         }
         std::lock_guard<std::recursive_mutex> lock1(a1->memoryLock);
         std::lock_guard<std::recursive_mutex> lock2(a2->memoryLock);
@@ -194,7 +198,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
         Vector* a2 = static_cast<Vector*>(args->arg1);
         if (a1->size != a2->size) {
             bberror("Vector sizes do not match for multiplication.");
-            return std::move(Result(nullptr));
+            return std::move(Result(INCOMPATIBLE_SIZES));
         }
         std::lock_guard<std::recursive_mutex> lock1(a1->memoryLock);
         std::lock_guard<std::recursive_mutex> lock2(a2->memoryLock);
@@ -210,7 +214,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
 
         if (a1->size != a2->size) {
             bberror("Vector sizes do not match for power operation.");
-            return std::move(Result(nullptr));
+            return std::move(Result(INCOMPATIBLE_SIZES));
         }
 
         std::lock_guard<std::recursive_mutex> lock1(a1->memoryLock);
@@ -240,7 +244,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
 
         if (vec->size == 0) {
             bberror("Cannot apply max on an empty vector.");
-            return std::move(Result(nullptr));
+            return std::move(Result(OUT_OF_RANGE));
         }
 
         std::lock_guard<std::recursive_mutex> lock(vec->memoryLock);
@@ -260,7 +264,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
 
         if (vec->size == 0) {
             bberror("Cannot apply min on an empty vector.");
-            return Result(nullptr);
+            return Result(OUT_OF_RANGE);
         }
 
         std::lock_guard<std::recursive_mutex> lock(vec->memoryLock);

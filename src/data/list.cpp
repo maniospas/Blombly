@@ -6,9 +6,12 @@
 #include "data/Vector.h"
 #include "data/BString.h"
 #include "data/BHashMap.h"
+#include "data/BError.h"
 #include "common.h"
 #include <iostream>
 #include <mutex>
+
+extern BError* OUT_OF_RANGE;
 
 // BList constructor
 BList::BList() : Data(LIST) {}
@@ -51,14 +54,16 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
             case LEN: return std::move(Result(new Integer(contents.size())));
             case TOITER: return std::move(Result(new AccessIterator(args->arg0)));
             case NEXT: {
-                if (contents.empty()) return Result(nullptr);
+                if (contents.empty()) 
+                    return std::move(Result(OUT_OF_RANGE));
                 auto ret = Result(contents.front());
                 contents.erase(contents.begin());
                 ret.get()->removeFromOwner();
                 return std::move(ret);
             }
             case POP: {
-                if (contents.empty()) return std::move(Result(nullptr));
+                if (contents.empty()) 
+                    return std::move(Result(OUT_OF_RANGE));
                 auto ret = Result(contents.back());
                 contents.pop_back();
                 //ret.get()->removeFromOwner();
@@ -112,7 +117,7 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
             int index = static_cast<Integer*>(args->arg1)->getValue();
             // manual implementation of BList::at() to avoid deadlocks with its own lock
             if (index < 0 || index >= contents.size()) 
-                return std::move(Result(nullptr));
+                    return std::move(Result(OUT_OF_RANGE));
                 //bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents.size()) + ")");
             Data* res = contents.at(index);
             return std::move(Result(res));

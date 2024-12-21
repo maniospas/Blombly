@@ -5,6 +5,7 @@
 #include "BMemory.h"
 #include "data/Code.h"
 #include "data/Future.h"
+#include "data/BError.h"
 #include "interpreter/Command.h"
 #include "utils.h"
 #include "interpreter/functional.h"
@@ -19,6 +20,10 @@
 
 std::string blombly_executable_path;
 
+BError* OUT_OF_RANGE = new BError("Out of range");
+BError* INCOMPATIBLE_SIZES = new BError("Incompatible sizes");
+
+
 std::string get_executable_directory(const std::string& argv0) {
     #ifdef _WIN32
         size_t pos = argv0.find_last_of("\\");
@@ -31,6 +36,9 @@ std::string get_executable_directory(const std::string& argv0) {
 }
 
 int main(int argc, char* argv[]) {
+    OUT_OF_RANGE->addOwner();
+    INCOMPATIBLE_SIZES->addOwner();
+    
     blombly_executable_path = get_executable_directory(argv[0]);
     Terminal::enableVirtualTerminalProcessing();
     initializeOperationMapping();   
@@ -76,5 +84,10 @@ int main(int argc, char* argv[]) {
     }
     
     program_start = std::chrono::steady_clock::now();
-    return vm(fileName, threads);
+    auto ret = vm(fileName, threads);
+
+    OUT_OF_RANGE->removeFromOwner();
+    INCOMPATIBLE_SIZES->removeFromOwner();
+
+    return ret;
 }

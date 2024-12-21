@@ -181,10 +181,17 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         case IS: {
             result = command->knownLocal[1]?memory->getShallow(command->args[1]):memory->get(command->args[1], true);
             bbassert(result, "Missing value: " + variableManager.getSymbol(command->args[1]));
+            if(result->getType()==ERRORTYPE) {
+                std::string comm = command->toString();
+                comm.resize(40, ' ');
+                bberror(static_cast<BError*>(result)->toString() + std::string("\n   \x1B[34m\u2192\033[0m ") + comm + " \t\x1B[90m " + command->source->path + " line " + std::to_string(command->line));
+            }
         } break;
 
         case AS: {
             result = memory->getOrNull(command->args[1], true);
+            //result = command->knownLocal[1]?memory->getShallow(command->args[1]):memory->get(command->args[1], true);
+            bbassert(result, "Missing value: " + variableManager.getSymbol(command->args[1]));
             if(result && result->getType()==ERRORTYPE) //{
                 static_cast<BError*>(result)->consume();
                 //result = new BError(true);
@@ -344,8 +351,13 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 Result returnedValue = executeBlock(codeCondition, memory, tryReturnSignal);
                 memory->detach(memory->parent);
                 result = returnedValue.get();
-                if(!tryReturnSignal) 
-                    result = nullptr;
+                if(!tryReturnSignal) {
+                    //result = nullptr;
+                    std::string comm = command->toString();
+                    comm.resize(40, ' ');
+                    std::string message = "No error or return statement intercepted with `try`." + std::string("\n   \x1B[34m\u2192\033[0m ") + comm + " \t\x1B[90m " + command->source->path + " line " + std::to_string(command->line);
+                    result = new BError(std::move(message));
+                }
                 SET_RESULT;
             }
             catch (const BBError& e) {

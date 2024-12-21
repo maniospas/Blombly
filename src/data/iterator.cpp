@@ -3,9 +3,12 @@
 #include "data/Data.h"
 #include "data/Boolean.h"
 #include "data/BFloat.h"
+#include "data/BError.h"
 #include "common.h"
 #include <iostream>
 #include <mutex>
+
+extern BError* OUT_OF_RANGE;
 
 
 Iterator::Iterator() : Data(ITERATOR) {
@@ -35,7 +38,7 @@ Result AccessIterator::implement(const OperationType operation, BuiltinArgs* arg
         pos->value += 1; 
         int currentPos = pos->value;
         if (currentPos >= size) 
-            return std::move(Result(nullptr));
+            return std::move(Result(OUT_OF_RANGE));
 
         args->arg0 = object;
         args->arg1 = pos;
@@ -58,9 +61,9 @@ IntRange::IntRange(int first, int last, int step) : first(first), last(last), st
 Result IntRange::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 1 && operation == NEXT) {
         if (step>0 && first >= last) 
-            return std::move(Result(nullptr));
+            return std::move(Result(OUT_OF_RANGE));
         if (step<0 && first <= last) 
-            return std::move(Result(nullptr));
+            return std::move(Result(OUT_OF_RANGE));
         Result res = Result(new Integer(first));
         first += step;
         return std::move(res);
