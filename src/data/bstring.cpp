@@ -10,7 +10,7 @@
 extern BError* OUT_OF_RANGE;
 
 void BString::consolidate() {
-    if (buffer.size() > 1) {
+    if (buffer.size() != 1) {
         std::string merged;
         merged.reserve(size);
         for (const auto& part : buffer) 
@@ -45,7 +45,7 @@ size_t BString::toHash() const {
 }
 
 Result BString::implement(const OperationType operation, BuiltinArgs* args) {
-    if(operation!=ADD && operation!=LEN)
+    if((operation!=ADD && operation!=LEN) || buffer.size()>16)
         consolidate();
 
     if (args->size == 2 && args->arg0->getType() == STRING && args->arg1->getType() == STRING) {
@@ -63,6 +63,7 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
         switch (operation) {
             case EQ: BB_BOOLEAN_RESULT(v1 == v2);
             case NEQ: BB_BOOLEAN_RESULT(v1 != v2);
+            case ADD: STRING_RESULT(v1+v2);
         }
         throw Unimplemented();
     }
