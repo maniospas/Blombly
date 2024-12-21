@@ -15,7 +15,7 @@ BHashMap::BHashMap() : Data(MAP) {}
 
 BHashMap::~BHashMap() {}
 
-std::string BHashMap::toString() const {
+std::string BHashMap::toString(){
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     std::string result = "{";
     for (const auto& pair : contents) {

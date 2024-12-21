@@ -18,7 +18,7 @@ public:
     explicit BList(int reserve);
     ~BList();
 
-    std::string toString() const override;
+    std::string toString()override;
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
     Data* at(int index) const;
 };

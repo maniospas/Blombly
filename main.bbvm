@@ -1,22 +1,18 @@
-BUILTIN _bb2 I10
-range _bb1 _bb2
-iter _bbmacro0 _bb1
-BEGIN _bb6
-next _bb7 _bbmacro0
-AS i _bb7
-exists _bb8 i
-BEGIN _bb9
-BEGIN _bb10
-return # i
+BUILTIN buff ""
+BUILTIN _bb3 I1000
+range _bb2 _bb3
+iter _bbmacro0 _bb2
+next _bb5 _bbmacro0
+AS i _bb5
+exists _bb6 i
+BEGIN _bb7
+BUILTIN _bb9 ","
+str _bb11 i
+add _bb10 buff _bb11
+add buff _bb10 _bb9
+next _bb5 _bbmacro0
+AS i _bb5
+exists _bb6 i
 END
-BUILTIN _bb12 I1
-eq _bb11 i _bb12
-if # _bb11 _bb10
-next _bb7 _bbmacro0
-AS i _bb7
-exists _bb8 i
-END
-while # _bb8 _bb9
-END
-try x _bb6
-print # x
+while # _bb6 _bb7
+print # buff

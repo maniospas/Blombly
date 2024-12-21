@@ -474,11 +474,95 @@ public:
                         bbassert(parenthesis_end == assignment - 1-isSelfOperation, 
                                   "There is leftover code after last "
                                   "parenthesis in assignment's left hand side.\n"+show_position(parenthesis_end));
-                        for (int j = parenthesis_start + 1; j < parenthesis_end; ++j) {
+                        int j = parenthesis_start+1;
+                        while(j<parenthesis_end) {
+                            int next_j = find_end(j+1, parenthesis_end, ",");
+                            if(next_j==MISSING)
+                                next_j = parenthesis_end;
+                            bbassert(next_j!=j, "Empty argument.\n"+show_position(j));
+                            std::string name = tokens[next_j-1].name;
+                            code_block_prepend += "next " + name + " args\n";
+
+                            if (name == "bbvm::int" || name == "bbvm::float" || 
+                                name == "bbvm::str" || name == "bbvm::file" || 
+                                name == "bbvm::bool" ||
+                                name == "bbvm::list" || name == "bbvm::map" || 
+                                name == "bbvm::pop" || name == "bbvm::push" || 
+                                name == "bbvm::len" || name == "bbvm::next" || 
+                                name == "bbvm::vector" || name == "bbvm::iter" || 
+                                name == "bbvm::add" || name == "bbvm::sub" || 
+                                name == "bbvm::min" || name == "bbvm::max" ||  
+                                name == "bbvm::sum" || 
+                                name == "bbvm::call" || name == "bbvm::range" || 
+                                name == "bbvm::print" || name == "bbvm::read") {
+                                bberror("Cannot have bbvm implementation as argument `" + name + "`.\n"+show_position(next_j-1));
+                            }
+                            if (name == "int" || name == "float" || 
+                                name == "str" || name == "file" || 
+                                name == "bool" || 
+                                name == "list" || name == "map" || 
+                                name == "pop" || name == "push" || 
+                                name == "len" || name == "next" || 
+                                name == "vector" || name == "iter" || 
+                                name == "add" || name == "sub" || 
+                                name == "min" || name == "max" || 
+                                name == "sum" ||
+                                name == "call" || name == "range" || 
+                                name == "print" || name == "read" 
+                                ) {
+                                bberror("Cannot have builtin symbol `" + name + "` as argument."
+                                        "\n   \033[33m!!!\033[0m This prevents ambiguity by making `"+name+"` always a shorthand for `bbvm::"+name+"` .\n"
+                                        +show_position(next_j-1));
+                            }
+
+                            if (name == "default" || 
+                                name == "try" || name == "new" || 
+                                name == "return" || name == "if" || 
+                                name == "else" || name == "while" || 
+                                name == "args" || name == "as" || 
+                                name == "final" ||
+                                name == "this" || 
+                                name == "and" || 
+                                name == "or" || 
+                                name == "not" || 
+                                name == "=" || name == "+" || 
+                                name == "-" || name == "*" || 
+                                name == "^" || name == "/" || 
+                                name == "%" || name == "==" || 
+                                name == "<=" || name == ">=" || 
+                                name == "!=" || name == "(" || 
+                                name == ")" || name == "{" || 
+                                name == "}" || name == "[" || 
+                                name == "]" || name == "." || 
+                                name == "," || name == ":" || 
+                                name == ";" || name == "#") {
+                                bberror("Cannot have blombly keyword `" + name + "` as argument."+
+                                        "\n   \033[33m!!!\033[0m For safety, all keywords are considered final.\n"
+                                        + show_position(next_j-1));
+                            }
+
+                            for(int jj=j;jj<next_j-1;++jj) {
+                                std::string semitype = tokens[jj].name;
+                                if(semitype=="float" || semitype=="int" || semitype=="str" || semitype=="bool"
+                                    || semitype=="bbvm::float" || semitype=="bbvm::int" || semitype=="bbvm::str" || semitype=="bbvm::bool")
+                                    code_block_prepend += semitype+" "+name+" "+name+"\n";
+                                else {
+                                    std::string args = create_temp();
+                                    std::string temp = create_temp();
+                                    code_block_prepend += "BEGIN " + args + "\n";
+                                    code_block_prepend += "list "+temp+" "+name+"\n";
+                                    code_block_prepend += "IS args " + temp + "\n";
+                                    code_block_prepend += "END\n";
+                                    code_block_prepend += "call "+name+" "+args+" "+semitype+"\n";
+                                }
+                            }
+                            j = next_j+1;
+                        }
+                        /*for (int j = parenthesis_start + 1; j < parenthesis_end; ++j) {
                             if (tokens[j].name != ",") {
                                 code_block_prepend += "next " + tokens[j].name + " args\n";
                             }
-                        }
+                        }*/
                     } else {
                         parenthesis_start = assignment-isSelfOperation;
                     }
@@ -535,7 +619,7 @@ public:
                     first_name == "bbvm::sum" || 
                     first_name == "bbvm::call" || first_name == "bbvm::range" || 
                     first_name == "bbvm::print" || first_name == "bbvm::read") {
-                    bberror("Cannot assign to std implementation `" + first_name + "`.\n"+show_position(start));
+                    bberror("Cannot assign to bbvm implementation `" + first_name + "`.\n"+show_position(start));
                 }
                 if (first_name == "int" || first_name == "float" || 
                     first_name == "str" || first_name == "file" || 
@@ -551,7 +635,7 @@ public:
                     first_name == "print" || first_name == "read" 
                     ) {
                     bberror("Cannot assign to builtin symbol `" + first_name + "`."
-                            "\n   \033[33m!!!\033[0m This prevents ambiguity by making `"+first_name+"` always a shorthand for `std::"+first_name+"` ."
+                            "\n   \033[33m!!!\033[0m This prevents ambiguity by making `"+first_name+"` always a shorthand for `bbvm::"+first_name+"` ."
                             "\n       Consider assigning to \\"+first_name+" to override the builtin's implementation for a struct,"
                             "\n       or adding a prefix like `lib::"+first_name+"` to indicate specialization."
                             "\n       If you are sure you want to impact all subsequent code (as well as included code), you may reassign the"
@@ -586,7 +670,7 @@ public:
                 }
 
                 if (parenthesis_start != MISSING) {
-                    code_block_prepend = "";
+                    /*code_block_prepend = "";
                     int parenthesis_end = find_end(parenthesis_start + 1, assignment - 1-isSelfOperation, ")", true);
                     bbassert(parenthesis_end == assignment - 1-isSelfOperation, 
                               "Leftover code after last parenthesis in assignment's left hand side.\n"
@@ -594,7 +678,102 @@ public:
                     for (int j = parenthesis_start + 1; j < parenthesis_end; ++j) {
                         if (tokens[j].name != ",") 
                             code_block_prepend += "next " + tokens[j].name + " args\n";
-                    }
+                    }*/
+
+
+                    code_block_prepend = "";
+                        int parenthesis_end = find_end(parenthesis_start + 1, 
+                                                       assignment - 1-isSelfOperation, ")", 
+                                                       true);
+                        bbassert(parenthesis_end == assignment - 1-isSelfOperation, 
+                                  "There is leftover code after last "
+                                  "parenthesis in assignment's left hand side.\n"+show_position(parenthesis_end));
+                        int j = parenthesis_start+1;
+                        while(j<parenthesis_end) {
+                            int next_j = find_end(j+1, parenthesis_end, ",");
+                            if(next_j==MISSING)
+                                next_j = parenthesis_end;
+                            bbassert(next_j!=j, "Empty argument.\n"+show_position(j));
+                            std::string name = tokens[next_j-1].name;
+                            code_block_prepend += "next " + name + " args\n";
+
+                            if (name == "bbvm::int" || name == "bbvm::float" || 
+                                name == "bbvm::str" || name == "bbvm::file" || 
+                                name == "bbvm::bool" ||
+                                name == "bbvm::list" || name == "bbvm::map" || 
+                                name == "bbvm::pop" || name == "bbvm::push" || 
+                                name == "bbvm::len" || name == "bbvm::next" || 
+                                name == "bbvm::vector" || name == "bbvm::iter" || 
+                                name == "bbvm::add" || name == "bbvm::sub" || 
+                                name == "bbvm::min" || name == "bbvm::max" ||  
+                                name == "bbvm::sum" || 
+                                name == "bbvm::call" || name == "bbvm::range" || 
+                                name == "bbvm::print" || name == "bbvm::read") {
+                                bberror("Cannot have bbvm implementation as argument `" + name + "`.\n"+show_position(next_j-1));
+                            }
+                            if (name == "int" || name == "float" || 
+                                name == "str" || name == "file" || 
+                                name == "bool" || 
+                                name == "list" || name == "map" || 
+                                name == "pop" || name == "push" || 
+                                name == "len" || name == "next" || 
+                                name == "vector" || name == "iter" || 
+                                name == "add" || name == "sub" || 
+                                name == "min" || name == "max" || 
+                                name == "sum" ||
+                                name == "call" || name == "range" || 
+                                name == "print" || name == "read" 
+                                ) {
+                                bberror("Cannot have builtin symbol `" + name + "` as argument."
+                                        "\n   \033[33m!!!\033[0m This prevents ambiguity by making `"+name+"` always a shorthand for `bbvm::"+name+"` .\n"
+                                        +show_position(next_j-1));
+                            }
+
+                            if (name == "default" || 
+                                name == "try" || name == "new" || 
+                                name == "return" || name == "if" || 
+                                name == "else" || name == "while" || 
+                                name == "args" || name == "as" || 
+                                name == "final" ||
+                                name == "this" || 
+                                name == "and" || 
+                                name == "or" || 
+                                name == "not" || 
+                                name == "=" || name == "+" || 
+                                name == "-" || name == "*" || 
+                                name == "^" || name == "/" || 
+                                name == "%" || name == "==" || 
+                                name == "<=" || name == ">=" || 
+                                name == "!=" || name == "(" || 
+                                name == ")" || name == "{" || 
+                                name == "}" || name == "[" || 
+                                name == "]" || name == "." || 
+                                name == "," || name == ":" || 
+                                name == ";" || name == "#") {
+                                bberror("Cannot have blombly keyword `" + name + "` as argument."+
+                                        "\n   \033[33m!!!\033[0m For safety, all keywords are considered final.\n"
+                                        + show_position(next_j-1));
+                            }
+
+                            for(int jj=j;jj<next_j-1;++jj) {
+                                std::string semitype = tokens[jj].name;
+                                if(semitype=="float" || semitype=="int" || semitype=="str" || semitype=="bool" || semitype=="list" || semitype=="vector" || semitype=="iter"
+                                    || semitype=="bbvm::float" || semitype=="bbvm::int" || semitype=="bbvm::str" || semitype=="bbvm::bool" || semitype=="bbvm::iter"
+                                    || semitype=="bbvm::list" || semitype=="bbvm::vector")
+                                    code_block_prepend += semitype+" "+name+" "+name+"\n";
+                                else {
+                                    std::string args = create_temp();
+                                    std::string temp = create_temp();
+                                    code_block_prepend += "BEGIN " + args + "\n";
+                                    code_block_prepend += "list "+temp+" "+name+"\n";
+                                    code_block_prepend += "IS args " + temp + "\n";
+                                    code_block_prepend += "END\n";
+                                    code_block_prepend += "call "+name+" "+args+" "+semitype+"\n";
+                                }
+                            }
+                            j = next_j+1;
+                        }
+
                 }
 
                 if(isSelfOperation) {

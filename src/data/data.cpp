@@ -96,6 +96,6 @@ size_t Data::toHash() const {
     return (size_t)this;
 }
 
-bool Data::isSame(Data* other) const {
+bool Data::isSame(Data* other) {
     return other==this;
 }

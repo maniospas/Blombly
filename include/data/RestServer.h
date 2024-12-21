@@ -15,7 +15,7 @@ public:
     ~RestServer();
 
     // Overrides from Data
-    std::string toString() const override;
+    std::string toString()override;
 
     void runServer();
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;

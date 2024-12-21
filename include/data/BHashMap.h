@@ -11,7 +11,7 @@ class BHashMap : public Data {
 public:
     BHashMap();
     virtual ~BHashMap();
-    std::string toString() const override;
+    std::string toString()override;
     void put(Data* from, Data* to);
     Result implement(const OperationType operation, BuiltinArgs* args) override;
 

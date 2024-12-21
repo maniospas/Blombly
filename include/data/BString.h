@@ -5,16 +5,27 @@
 #include <memory>
 #include "data/Data.h"
 
+class BufferedString {
+public:
+    std::string value;
+
+    explicit BufferedString(const std::string& val) : value(val) {}
+};
+
+
 class BString : public Data {
 private:
-    std::string value;
+    std::vector<std::shared_ptr<BufferedString>> buffer;
+    void consolidate();
+    int size;
+    explicit BString();
 
 public:
     explicit BString(const std::string& val);
 
-    std::string toString() const override;
+    std::string toString()override;
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
-    virtual bool isSame(Data* other) const override;
+    virtual bool isSame(Data* other) override;
     virtual size_t toHash() const override;
 
     friend class Boolean;

@@ -45,7 +45,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             // Start a block of code
             if (command->value) {
                 auto code = static_cast<Code*>(command->value);
-                auto val = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory, code->getAllMetadata());
+                auto val = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory, nullptr);//, code->getAllMetadata());
                 val->scheduleForParallelExecution = code->scheduleForParallelExecution;
                 val->jitable = code->jitable;
                 result = val;
@@ -75,7 +75,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             bbassert(depth >= 0, "Code block never ended.");
             auto cache = new Code(program, i + 1, pos, memory);
             cache->addOwner();
-            auto val = new Code(program, i + 1, pos, memory, cache->getAllMetadata());
+            auto val = new Code(program, i + 1, pos, memory, nullptr);//cache->getAllMetadata());
             val->jitable = jit(val);
             cache->jitable = val->jitable;
             val->scheduleForParallelExecution = scheduleForParallelExecution;
@@ -405,7 +405,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             if(source->getType()==FILETYPE) {
                 if(command->value) {
                     auto code = static_cast<Code*>(command->value);
-                    auto res = new Code(code->getProgram(), code->getStart(), code->getEnd(), nullptr, code->getAllMetadata());
+                    auto res = new Code(code->getProgram(), code->getStart(), code->getEnd(), nullptr, nullptr);//code->getAllMetadata());
                     res->jitable = jit(res);
                     result = res;
                 }

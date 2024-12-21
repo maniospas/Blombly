@@ -17,8 +17,11 @@ print("nonexisting filename"|file|bool); // false
 
 ## Reading directories
 
-You can similarly list the file paths of a directory. Paths can be added to files
+You can similarly list the file paths of a directory. Paths can be added to files,
+but the original file location cannot be retrieved.
 *This lets paths remain confidential once first declared.*
+For example, one cannot expose local directory structure when running servers
+or printing logs, unless this information is explicitly encoded.
 
 ```java
 isfolder(path) = {return bool(path+".")}

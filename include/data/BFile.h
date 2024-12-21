@@ -16,7 +16,7 @@ private:
 public:
     explicit BFile(const std::string& path_);
 
-    std::string toString() const override;
+    std::string toString()override;
     std::string getPath() const;
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
 

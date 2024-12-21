@@ -12,13 +12,13 @@ private:
 public:
     explicit Boolean(bool val);
     
-    std::string toString() const override;
+    std::string toString()override;
     bool getValue() const;
     bool isTrue() const override;
     void setValue(bool val);
 
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
-    virtual bool isSame(Data* other) const override;
+    virtual bool isSame(Data* other) override;
 
     friend class Integer; 
     friend class BFloat; 

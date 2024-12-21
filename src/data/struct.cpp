@@ -8,7 +8,7 @@
 #include "common.h"
 
 
-std::string Struct::toString() const {
+std::string Struct::toString(){
     try {
         BuiltinArgs args;
         args.size = 1;

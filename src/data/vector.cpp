@@ -73,7 +73,7 @@ Vector::~Vector() {
     delete[] dims;
 }
 
-std::string Vector::toString() const {
+std::string Vector::toString(){
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     std::string result = "[";
     for (std::size_t i = 0; i < std::min(static_cast<std::size_t>(size), static_cast<std::size_t>(10)); ++i) {

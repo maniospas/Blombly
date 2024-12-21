@@ -1,8 +1,8 @@
 # Introduction
 
-This section covers Blombly commands that are used in writing sequential code. It includes familiar concepts 
-like comments, variable handling, builtin datatypes, and flow control. 
-But more features are added to the mix, like immutable variables, trying until return, and handling missing values.
+This section covers Blombly commands that are used in writing sequential code. It includes concepts 
+that may already be familiar, such as comments, variable handling, builtin datatypes, and flow control. 
+But more features are added to the mix, like immutable variables and trying until return.
 
 ## Comments
 
@@ -158,22 +158,18 @@ while (counter<10) {
 ```
 
 
-## Missing values
+## Errors as values
 
 Computations like converting invalid strings to numbers may 
-generate missing values. These are different than errors in that they denote a completed algorithm
-whose outcome cannot be used further. For example, getting or setting out-of-bounds list element
-creates errors, but the `next` operator of iterators returns a messing value once there are no
-more items to iterate through.
+generate errors, or using the `next` operator of iterators,
+return errors as values. These do not immediately stop execution
+but only halt control flow if they are overwritten,
+used in subsequent computations, or not handled.
 
-Missing values also create errors only to the extend that the assignment
-operator (`=`) prevents assigning such values to variables. In this case,
-substitute the assignment with the `as` keyword. 
-The differences are two: a) previous values are removed when overwritten with missing ones,
-and b) this new kind of assignment yields a boolean value that indicates whether the set value 
-was not missing.
-
-For example, here is an a simple one-liner that retries
+One way of handling errors -aside from the catch statement that will not be covered here- is
+via the `as` keyword. This performs an assignment without breaking normal code writting 
+on encountering an error value, but by returning a true/false value depending on whether
+an error was found. For example, below is a simple one-liner that retries
 reading from the console until a number if provided:
 
 ```java

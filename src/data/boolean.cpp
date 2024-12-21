@@ -7,7 +7,7 @@ bool Boolean::isTrue() const {
     return value;
 }
 
-std::string Boolean::toString() const {
+std::string Boolean::toString(){
     return value ? "true" : "false";
 }
 
@@ -19,7 +19,7 @@ void Boolean::setValue(bool val) {
     value = val;
 }
 
-bool Boolean::isSame(Data* other) const {
+bool Boolean::isSame(Data* other) {
     if(other->getType()!=BB_BOOL)
         return false;
     return static_cast<Boolean*>(other)->value==value;

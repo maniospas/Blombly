@@ -9,70 +9,98 @@
 
 extern BError* OUT_OF_RANGE;
 
-BString::BString(const std::string& val) : value(val), Data(STRING) {}
-
-std::string BString::toString() const {
-    return value;
+void BString::consolidate() {
+    if (buffer.size() > 1) {
+        std::string merged;
+        merged.reserve(size);
+        for (const auto& part : buffer) 
+            merged += part->value; 
+        buffer.clear();
+        buffer.push_back(std::make_shared<BufferedString>(std::move(merged)));
+    }
 }
 
-bool BString::isSame(Data* other) const {
-    if(other->getType()!=STRING)
+
+BString::BString(const std::string& val) : Data(STRING), size(val.size()) {
+    buffer.push_back(std::make_shared<BufferedString>(val));
+}
+
+BString::BString() : Data(STRING), size(0) {
+}
+
+std::string BString::toString(){
+    consolidate();
+    return buffer.front()->value;
+}
+
+bool BString::isSame(Data* other) {
+    if (other->getType() != STRING) {
         return false;
-    return static_cast<BString*>(other)->value==value;
+    }
+    return toString() == static_cast<BString*>(other)->toString();
 }
 
 size_t BString::toHash() const {
-    return std::hash<std::string>{}(value);
+    return std::hash<std::string>{}(buffer.front()->value);
 }
 
 Result BString::implement(const OperationType operation, BuiltinArgs* args) {
+    if(operation!=ADD && operation!=LEN)
+        consolidate();
 
     if (args->size == 2 && args->arg0->getType() == STRING && args->arg1->getType() == STRING) {
-        std::string v1 = static_cast<BString*>(args->arg0)->value;
-        std::string v2 = static_cast<BString*>(args->arg1)->value;
+        if(operation==ADD) {
+            auto v1 = static_cast<BString*>(args->arg0);
+            auto v2 = static_cast<BString*>(args->arg1);
+            BString* ret = new BString();
+            ret->buffer.insert(ret->buffer.end(), v1->buffer.begin(), v1->buffer.end());
+            ret->buffer.insert(ret->buffer.end(), v2->buffer.begin(), v2->buffer.end());
+            ret->size = v1->size + v2->size;
+            return std::move(Result(ret)); 
+        }
+        std::string v1 = static_cast<BString*>(args->arg0)->toString();
+        std::string v2 = static_cast<BString*>(args->arg1)->toString();
         switch (operation) {
             case EQ: BB_BOOLEAN_RESULT(v1 == v2);
             case NEQ: BB_BOOLEAN_RESULT(v1 != v2);
-            case ADD: STRING_RESULT(v1 + v2);
         }
         throw Unimplemented();
     }
 
     if (args->size == 1) {
         switch (operation) {
-            case TOCOPY: 
-            case TOSTR: STRING_RESULT(value);
+            case TOCOPY:
+            case TOSTR: STRING_RESULT(toString());
             case TOBB_INT: {
                 char* endptr = nullptr;
-                int ret = std::strtol(value.c_str(), &endptr, 10);
-                if (endptr == value.c_str() || *endptr != '\0') {
+                int ret = std::strtol(toString().c_str(), &endptr, 10);
+                if (endptr == toString().c_str() || *endptr != '\0') {
                     return std::move(Result(new BError("Failed to convert string to int")));
                 }
                 BB_INT_RESULT(ret);
             }
-            case LEN: BB_INT_RESULT(value.size());
+            case LEN: BB_INT_RESULT(size);
             case TOBB_FLOAT: {
                 char* endptr = nullptr;
-                double ret = std::strtod(value.c_str(), &endptr);
-                if (endptr == value.c_str() || *endptr != '\0') {
+                double ret = std::strtod(toString().c_str(), &endptr);
+                if (endptr == toString().c_str() || *endptr != '\0') {
                     return std::move(Result(new BError("Failed to convert string to float")));
                 }
                 BB_FLOAT_RESULT(ret);
             }
-            case TOBB_BOOL: BB_BOOLEAN_RESULT(value == "true");
+            case TOBB_BOOL: BB_BOOLEAN_RESULT(toString() == "true");
             case TOITER: return std::move(Result(new AccessIterator(args->arg0)));
-            case TOFILE: return std::move(Result(new BFile(value)));
+            case TOFILE: return std::move(Result(new BFile(toString())));
         }
         throw Unimplemented();
     }
 
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
         int index = static_cast<Integer*>(args->arg1)->getValue();
-        if (index < 0 || index >= value.size()) {
-            //bberror("String index " + std::to_string(index) + " out of range [0," + std::to_string(value.size()) + ")");
+        if (index < 0 || index >= toString().size()) {
             return std::move(Result(OUT_OF_RANGE));
         }
-        return std::move(Result(new BString(std::string(1, value[index]))));
+        return std::move(Result(new BString(std::string(1, toString()[index]))));
     }
 
     throw Unimplemented();

@@ -54,7 +54,7 @@ std::string __python_like_int_format(int int_number, const std::string& format) 
 
 Integer::Integer(int val) : value(val), Data(BB_INT) {}
 
-std::string Integer::toString() const {
+std::string Integer::toString(){
     return std::to_string(value);
 }
 
@@ -62,7 +62,7 @@ int Integer::getValue() const {
     return value;
 }
 
-bool Integer::isSame(Data* other) const {
+bool Integer::isSame(Data* other) {
     if(other->getType()!=BB_INT)
         return false;
     return static_cast<Integer*>(other)->value==value;

@@ -1,2 +1,4 @@
-x := while(i in range(10)) if(i==1) return i;
-print(x);
+buff = "";
+while(i in range(1000))
+    buff = buff+str(i)+",";
+print(buff);

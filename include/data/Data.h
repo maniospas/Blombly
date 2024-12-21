@@ -22,7 +22,7 @@ struct BuiltinArgs {
 // Abstract base class for all data types
 class Data {
 public:
-    virtual std::string toString() const = 0;
+    virtual std::string toString()= 0;
     virtual bool isTrue() const { return false; }
     inline uint8_t getType() const { return type; }
 
@@ -32,7 +32,7 @@ public:
     static Result run(const OperationType operation, BuiltinArgs* args);
     virtual Result implement(const OperationType operation, BuiltinArgs* args);
     virtual size_t toHash() const;
-    virtual bool isSame(Data* other) const;
+    virtual bool isSame(Data* other);
     static int countObjects();
     
     void addOwner();

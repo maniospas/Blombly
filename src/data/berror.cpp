@@ -15,7 +15,7 @@ bool BError::isConsumed() const {
     return consumed; 
 }
 
-std::string BError::toString() const {
+std::string BError::toString(){
     return value;
 }
 

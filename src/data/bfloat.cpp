@@ -55,7 +55,7 @@ std::string __python_like_float_format(double number, const std::string& format)
 
 BFloat::BFloat(double val) : value(val), Data(BB_FLOAT) {}
 
-std::string BFloat::toString() const {
+std::string BFloat::toString(){
     return std::to_string(value);
 }
 
@@ -63,7 +63,7 @@ double BFloat::getValue() const {
     return value;
 }
 
-bool BFloat::isSame(Data* other) const {
+bool BFloat::isSame(Data* other) {
     if(other->getType()!=BB_FLOAT)
         return false;
     return static_cast<BFloat*>(other)->value==value;

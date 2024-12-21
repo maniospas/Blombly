@@ -24,28 +24,32 @@ void Code::setMetadata(int id, Data* data) {
 }
 
 Metadata* Code::getAllMetadata() const {
-    return metadata;
+    bberror("Code secifications are temporarily unavailable.");
+    //return metadata;
 }
 
 Data* Code::getMetadata(int id) const {
-    if (metadata->metadata.empty())
-        bberror(toString() + " has no declared specification");
+    bberror("Code secifications are temporarily unavailable.");
+    /*if (metadata->metadata.empty())
+        bberror("Codehas no declared specification");
     Data* ret = metadata->metadata[id];
     if (!ret)
         bberror(toString() + " has no specification entry: " + variableManager.getSymbol(id));
-    return ret;
+    return ret;*/
 }
 
 bool Code::getMetadataBool(int id, bool def) const {
+    bberror("Code secifications are temporarily unavailable.");
+    /*
     if (metadata->metadata.empty())
         return def;
     Data* ret = metadata->metadata[id];
     if (!ret)
         return def;
-    return ret->isTrue();
+    return ret->isTrue();*/
 }
 
-std::string Code::toString() const {
+std::string Code::toString(){
     return "code block in lines " + std::to_string(start) + " to " + std::to_string(end);
 }
 

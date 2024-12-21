@@ -29,7 +29,7 @@ public:
     Vector(double* data, int size1, int size2);
     ~Vector();
 
-    std::string toString() const override;
+    std::string toString()override;
     double* getValue() const;
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
 

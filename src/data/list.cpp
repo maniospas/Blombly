@@ -24,7 +24,7 @@ BList::~BList() {
             dat->removeFromOwner();
 }
 
-std::string BList::toString() const {
+std::string BList::toString(){
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     std::string result = "[";
     for (const auto& element : contents) {

@@ -18,7 +18,7 @@ public:
     void consume();
     bool isConsumed() const;
 
-    std::string toString() const override;
+    std::string toString()override;
     virtual Result implement(const OperationType operation, BuiltinArgs* args);
 };
 

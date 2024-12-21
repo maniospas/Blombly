@@ -31,7 +31,7 @@ public:
     CommandContext* descriptor;
 
     Command(const std::string& command, SourceFile* source, int line, CommandContext* descriptor);
-    std::string toString() const;
+    std::string toString();
     std::string tocpp(bool first_assignment) const;
     bool jitable;
     bool hascheckedjitable;

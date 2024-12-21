@@ -13,11 +13,11 @@ private:
 public:
     explicit Integer(int val);
 
-    std::string toString() const override;
+    std::string toString()override;
     int getValue() const;
 
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
-    virtual bool isSame(Data* other) const override;
+    virtual bool isSame(Data* other) override;
     virtual size_t toHash() const override;
 
     friend class AccessIterator;

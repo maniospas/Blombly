@@ -72,7 +72,7 @@ BFile::BFile(const std::string& path_) : path(path_), size(0), Data(FILETYPE) {
     size = contents.size();
 }
 
-std::string BFile::toString() const {
+std::string BFile::toString(){
     std::string result = "";
     for (std::size_t i = 1; i<contents.size(); ++i) {
         if(i)

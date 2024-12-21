@@ -11,7 +11,7 @@
 class Iterator : public Data {
 public:
     explicit Iterator();
-    std::string toString() const override;
+    std::string toString()override;
 };
 
 

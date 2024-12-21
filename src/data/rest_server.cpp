@@ -35,7 +35,7 @@ RestServer::~RestServer() {
     }
 }
 
-std::string RestServer::toString() const {
+std::string RestServer::toString(){
     return "Server on port " + std::to_string(port_);
 }
 

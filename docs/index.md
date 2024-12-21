@@ -5,7 +5,7 @@ A programming language for reusable interfaces.
 [Get started](setup.md) | [Download](https://github.com/maniospas/Blombly/releases/latest) | [GitHub](https://github.com/maniospas/Blombly)
 
 
-There are many programming languages for writing dynamic yet safe code. You might already have a favorite one! However, safety often reduces expressiveness or relies on non-infallible programmers. Blombly addresses these issues with a small instruction set that is easy to learn and use. It also focuses on programming logic by automating details of how algorithms execute, like parallelization. 
+There are many programming languages for writing dynamic yet safe code. You might already have a favorite one! However, safety often reduces expressiveness or relies on non-infallible programmers. Blombly addresses these issues with a small instruction set that is easy to learn and use. It also focuses on programming logic by automating details of how algorithms run, like parallelization. 
 
 So, who is Blombly for? It might be a good choice if you are looking for a language that is:
 

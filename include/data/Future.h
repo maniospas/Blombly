@@ -35,7 +35,7 @@ public:
     explicit Future(ThreadResult* result);
     ~Future();
 
-    std::string toString() const override;
+    std::string toString()override;
     Result getResult() const;
 
     static bool acceptsThread();

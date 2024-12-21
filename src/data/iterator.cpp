@@ -14,7 +14,7 @@ extern BError* OUT_OF_RANGE;
 Iterator::Iterator() : Data(ITERATOR) {
 }
 
-std::string Iterator::toString() const {
+std::string Iterator::toString(){
     return "iterator";
 }
 
