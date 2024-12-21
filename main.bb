@@ -1,16 +1,9 @@
-// main.bb
-new {
-    value = 0;
-    routes = server(8000);
-    routes["/hi/<number>"] = {
-        if(not number as number|int)
-            return "The number of hi must be an integer.";
-        if(number<=0)
-            return "Need a positive number of hi. Why must you take them away? :-(";
-        this.value = this.value + 1;
-        return str(this.value+number)+" hello your {number|str} hi";
-    }
+adder(x, y) = {
+    default bias = 0;
+    assert len(args) == 0;
+    x |= float;
+    y |= float;
+    return x + y + bias;
 }
 
-print("Give me some greetings at localhost:8000/hi/<number>");
-while(true) {}  // wait indefinitely
+print(adder(1, 2 :: bias=1));

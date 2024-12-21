@@ -318,7 +318,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 std::lock_guard<std::recursive_mutex> lock(printMutex);
                 std::cout << printing;
                 printing = "";
-                std::cin >> printing;
+                std::getline(std::cin, printing);
+                //std::cin >> printing;
             }
             result = new BString(printing);
         } break;

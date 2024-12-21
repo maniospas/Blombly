@@ -70,12 +70,11 @@ BFile::BFile(const std::string& path_) : path(path_), size(0), Data(FILETYPE) {
 }
 
 std::string BFile::toString() const {
-    std::string result = "file@" + path + ":";
-    for (std::size_t i = 0; i<contents.size()&&i<5; ++i) {
-        result += "\n" + contents[i];
-    }
-    if (contents.size() > 5) {
-        result += "\n...";
+    std::string result = "";
+    for (std::size_t i = 1; i<contents.size(); ++i) {
+        if(i)
+            result += "\n";
+        result += contents[i];
     }
     return result;
 }

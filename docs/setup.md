@@ -80,8 +80,8 @@ print("Hello"+);  // CREATES AN ERROR
 ```bash
 > blombly main.bb
  (<ERROR>) Empty expression
-   → std::print("Hello"+);  main.bb line 1
-     ~~~~~~~~~~~~~~~~~~~^
+   → bbvm::print("Hello"+);  main.bb line 1
+     ~~~~~~~~~~~~~~~~~~~~^
 ```
 
 Look at a logical error looks like by printing a variable that does not exist.

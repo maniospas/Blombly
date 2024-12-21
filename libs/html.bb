@@ -1,19 +1,3 @@
-final html::INFO as {
-    name    = "html";
-    author  = "Emmanouil Krasanakis";
-    license = "Apache 2.0";
-    version = "1.0";
-    release = 0;
-    year    = 2024;
-    doc     = "
-    \n Provides functions to help write and manage
-    \n simple html dom. This can be converted to
-    \n string.
-    \n
-    ";
-}
-
-
 html(title, body) = {
     default script = "";
     default src = "";
@@ -35,7 +19,7 @@ html(title, body) = {
 dom(name) = {
     default style = "";
     return new {
-        dom = dom;
+        uses dom;
         name |= str;
         style = "";
         cssclass = "";
@@ -43,7 +27,7 @@ dom(name) = {
         \str = {
             // combine contents
             contents = "";
-            while(element as next(!of this.contents|iter))
+            while(element in this.contents)
                 contents = contents + element|str;
             // additional element values
             preample = "";
@@ -54,18 +38,19 @@ dom(name) = {
             return ret;
         }
         child(name) = {
-            child = name|(this.dom);
+            child = name|str|dom;
             push(this.contents, child);
             return child;
         }
-        \add(other) = {
+        \lt(other) = {
             push(this.contents, other);
             return this;
         }
+        \div(other) = {return this.child(other)}
     }
 }
 
-cssclass(cssclass) = {
+class(cssclass) = {
     return new {
         cssclass |= str;
         \call(dom) = {
@@ -73,10 +58,11 @@ cssclass(cssclass) = {
             dom.cssclass += this.cssclass;
             return dom;
         }
+        \lt(dom) = {return this\call(dom)}
     }
 }
 
-style(style) = {
+css(style) = {
     return new {
         style |= str;
         \call(dom) = {
@@ -84,5 +70,19 @@ style(style) = {
             dom.style += this.style;
             return dom;
         }
+        \lt(dom) = {return this\call(dom)}
     }
 }
+
+
+final tr = "tr";
+final td = "td";
+final div = "div";
+final p = "p";
+final h1 = "h1";
+final h2 = "h2";
+final h3 = "h3";
+final h4 = "h4";
+final h5 = "h5";
+final table = "table";
+final tbody = "tbody";

@@ -66,7 +66,7 @@ Sum is 1.500000
 
 ## String formatting
 
-Blombly supports string literals in which expressions enclosed in brackets
+Blombly supports string literals; expressions enclosed in brackets
 are replaced with their evaluation and converted to `str`. For safety,
 expression terminating symbols (like brackets, inlining colons, or semicolons) 
 are not allowed within literals during parsing. However, you may still have 
@@ -81,8 +81,8 @@ y = float("0.5");
 print("Sum is {x+y}");
 ```
 
-Format numbers using the element access notation by providing a string specification. Formatted numbers
-returns a string and looks like this:
+Format numbers using providing a string specification in the element access notation.
+Formatting returns a string and looks like this:
 
 ```java
 //main.bb
@@ -96,7 +96,7 @@ Here is a number: 1.346
 ```
 
 Formatting numbers within literals is discussed alongside advanced typecasting [here](../advanced/semitypes.md).
-For now, we provide a first taste that the recommended syntax looks like below. Very briefly, a callable formatter is defined
+For now, we provide a first taste that the recommended syntax looks like below. Briefly, a callable formatter is defined
 and then applied within the literal with typecast notation `x | fmt`, which is equivalent to `fmt(x)`.
 
 ```java
@@ -128,7 +128,7 @@ x = x+1; // CREATES AN ERROR
 
 Control flow alters which code segments are executed next. Blombly offers similar options to most programming languages in terms of conditional branching, loops, method calling,
 and error handling. The first two of those are described here, whereas method calling is described [seperately](blocks.md) because it offers more options than other languages. 
-Error handling also has its own dedicated page [here](errors.md), though below give a first taste of the `try` keyword's dynamic usage in other cases.
+Error handling also has its own dedicated page [here](../advanced/signals.md), though below give a first taste of the `try` keyword's dynamic usage in other cases.
 
 Conditionals take the form `if(@condition){@accept}else{@reject}` where `@` denotes code segments (by the way, this is the macro declaration notation). 
 The condition must yield a boolean and makes the respective branch execute, where the `else` branch is optional.
