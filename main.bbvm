@@ -1,21 +1,58 @@
-BUILTIN buff I0
-time tic
-BUILTIN _bb4 I100000
-range _bb3 _bb4
-iter _bbmacro0 _bb3
-next _bb6 _bbmacro0
-AS i _bb6
-exists _bb7 i
-BEGIN _bb8
-add buff buff i
-next _bb6 _bbmacro0
-AS i _bb6
-exists _bb7 i
+BEGIN _bb1
+next element args
+BEGIN _bb4
+IS element element
+final # element
+BEGIN _bb5
+next A args
+push # A element
+return # A
 END
-while # _bb7 _bb8
+IS \call _bb5
+return # this
+END
+new _bb2 _bb4
+return # _bb2
+END
+IS back _bb1
+list A
+BEGIN _bb8
+list args A
+END
+BEGIN _bb11
+BUILTIN _bb12 I1
+list args _bb12
+END
+call _bb10 _bb11 back
+call _bb7 _bb8 _bb10
+IS A _bb7
+print # A
+BUILTIN buff ""
+time tic
+BUILTIN _bb16 I100000
+range _bb15 _bb16
+iter _bbmacro0 _bb15
+next _bb18 _bbmacro0
+AS i _bb18
+exists _bb19 i
+BEGIN _bb20
+str _bb22 i
+BUILTIN _bb24 " "
+add _bb23 buff _bb24
+add buff _bb23 _bb22
+next _bb18 _bbmacro0
+AS i _bb18
+exists _bb19 i
+END
+while # _bb19 _bb20
 time toc
-print # buff
-sub _bb10 toc tic
-BUILTIN _bb11 "sec"
-list _bb12 _bb10 _bb11
-print # _bb12
+len _bb26 buff
+print # _bb26
+sub _bb27 toc tic
+BUILTIN _bb28 "sec"
+list _bb29 _bb27 _bb28
+print # _bb29
+BUILTIN _bb32 I20
+range _bb31 _bb32
+at _bb30 buff _bb31
+print # _bb30

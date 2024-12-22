@@ -4,12 +4,18 @@
 #include <string>
 #include <memory>
 #include "data/Data.h"
+#include <mutex>
 
 class BufferedString {
 public:
     std::string value;
-
-    explicit BufferedString(const std::string& val) : value(val) {}
+    int start;
+    int size;
+    explicit BufferedString(const std::string& val) : value(val), start(0), size(val.size()) {}
+    explicit BufferedString(const std::string& val, int start, int size) : value(val), start(start), size(size) {
+        bbassert(start>=0, "Internal error: negative start index at BufferedString");
+        bbassert(size<=val.size(), "Internal error: out of bounds at BufferedString");
+    }
 };
 
 
@@ -19,6 +25,7 @@ private:
     void consolidate();
     int size;
     explicit BString();
+    mutable std::recursive_mutex memoryLock; 
 
 public:
     explicit BString(const std::string& val);

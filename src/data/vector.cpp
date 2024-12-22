@@ -145,7 +145,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
         Vector* a2 = static_cast<Vector*>(args->arg1);
 
         if (a1->size != a2->size) {
-            bberror("Vector sizes do not match for addition.");
+            //bberror("Vector sizes do not match for addition.");
             return std::move(Result(INCOMPATIBLE_SIZES));
         }
 
@@ -164,7 +164,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
         Vector* a2 = static_cast<Vector*>(args->arg1);
 
         if (a1->size != a2->size) {
-            bberror("Vector sizes do not match for subtraction.");
+            //bberror("Vector sizes do not match for subtraction.");
             return std::move(Result(INCOMPATIBLE_SIZES));
         }
 
@@ -182,7 +182,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
         Vector* a1 = static_cast<Vector*>(args->arg0);
         Vector* a2 = static_cast<Vector*>(args->arg1);
         if (a1->size != a2->size) {
-            bberror("Vector sizes do not match for multiplication.");
+            //bberror("Vector sizes do not match for multiplication.");
             return std::move(Result(INCOMPATIBLE_SIZES));
         }
         std::lock_guard<std::recursive_mutex> lock1(a1->memoryLock);
@@ -197,7 +197,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
         Vector* a1 = static_cast<Vector*>(args->arg0);
         Vector* a2 = static_cast<Vector*>(args->arg1);
         if (a1->size != a2->size) {
-            bberror("Vector sizes do not match for multiplication.");
+            //bberror("Vector sizes do not match for multiplication.");
             return std::move(Result(INCOMPATIBLE_SIZES));
         }
         std::lock_guard<std::recursive_mutex> lock1(a1->memoryLock);
@@ -213,7 +213,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
         Vector* a2 = static_cast<Vector*>(args->arg1);
 
         if (a1->size != a2->size) {
-            bberror("Vector sizes do not match for power operation.");
+            //bberror("Vector sizes do not match for power operation.");
             return std::move(Result(INCOMPATIBLE_SIZES));
         }
 
@@ -243,7 +243,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
         Vector* vec = static_cast<Vector*>(args->arg0);
 
         if (vec->size == 0) {
-            bberror("Cannot apply max on an empty vector.");
+            //bberror("Cannot apply max on an empty vector.");
             return std::move(Result(OUT_OF_RANGE));
         }
 
@@ -263,7 +263,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
         Vector* vec = static_cast<Vector*>(args->arg0);
 
         if (vec->size == 0) {
-            bberror("Cannot apply min on an empty vector.");
+            //bberror("Cannot apply min on an empty vector.");
             return Result(OUT_OF_RANGE);
         }
 

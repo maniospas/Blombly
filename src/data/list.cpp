@@ -113,39 +113,69 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
     }
 
     if (operation == AT && args->size == 2) {
-        if(args->arg1->getType() == BB_INT) {
+        if (args->arg1->getType() == BB_INT) {
             int index = static_cast<Integer*>(args->arg1)->getValue();
-            // manual implementation of BList::at() to avoid deadlocks with its own lock
+            // Manual implementation of BList::at() to avoid deadlocks with its own lock
             if (index < 0 || index >= contents.size()) 
-                    return std::move(Result(OUT_OF_RANGE));
-                //bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents.size()) + ")");
+                return std::move(Result(OUT_OF_RANGE));
             Data* res = contents.at(index);
             return std::move(Result(res));
-        }
-        else if(args->arg1->getType()==STRUCT || args->arg1->getType()==LIST || args->arg1->getType()==ITERATOR) {
+        } 
+        else if (args->arg1->getType() == STRUCT || args->arg1->getType() == LIST || args->arg1->getType() == ITERATOR) {
             BuiltinArgs implargs;
             implargs.size = 1;
             implargs.arg0 = args->arg1;
+
             Result iter = args->arg1->implement(TOITER, &implargs);
             Data* iterator = iter.get();
-            bbassert(iterator && iterator->getType()==ITERATOR, "Can only find list indexes based on an iterable object, but a non-iterable struct was provided.");
-            BList* ret = new BList(contents.size());  // rough estimation because we can't get size from iterables necessarily
-            while(true) {
-                implargs.size = 1;
-                Result next = iterator->implement(NEXT, &implargs);
-                if(!next.get()) 
-                    break;
-                bbassert(next.get()->getType()==BB_INT, "Iterable list indexes can only contain integers.");
-                int id = static_cast<Integer*>(next.get())->getValue();
-                if(id<0 || id>=contents.size())
-                    bberror("List index " + std::to_string(id) + " retrieved by iterator is out of range [0," + std::to_string(contents.size()) + ")");
-                Data* element = contents.at(id);
-                element->addOwner();
-                ret->contents.push_back(element);
+            bbassert(iterator && iterator->getType() == ITERATOR, "Can only find list indexes based on an iterable object, but a non-iterable struct was provided.");
+
+            Iterator* iterPtr = static_cast<Iterator*>(iterator);
+
+            // Handle contiguous iterators efficiently
+            if (iterPtr->isContiguous()) {
+                int start = iterPtr->getStart();
+                int end = iterPtr->getEnd();
+                if (start < 0 || start >= contents.size() || end < 0 || end > contents.size() || start > end) 
+                    return std::move(Result(OUT_OF_RANGE));
+
+                // Reserve size and copy elements
+                BList* ret = new BList(end - start);
+                for (int i = start; i < end; ++i) {
+                    Data* element = contents.at(i);
+                    element->addOwner();
+                    ret->contents.push_back(element);
+                }
+                return std::move(Result(ret));
+            } 
+            else {
+                // Handle non-contiguous iterators
+                BList* ret = new BList(contents.size());  // Estimate size
+                ret->contents.reserve(iterPtr->expectedSize());  // Use expectedSize() for better reservation
+
+                while (true) {
+                    implargs.size = 1;
+                    Result next = iterator->implement(NEXT, &implargs);
+                    Data* indexData = next.get();
+
+                    if (!indexData) 
+                        break;
+
+                    bbassert(indexData->getType() == BB_INT, "Iterable list indexes can only contain integers.");
+                    int id = static_cast<Integer*>(indexData)->getValue();
+
+                    if (id < 0 || id >= contents.size())
+                        return std::move(Result(OUT_OF_RANGE));
+
+                    Data* element = contents.at(id);
+                    element->addOwner();
+                    ret->contents.push_back(element);
+                }
+                return std::move(Result(ret));
             }
-            return std::move(Result(ret));
         }
-    }   
+    }
+
 
     if (operation == PUSH && args->size == 2 && args->arg0 == this) {
         auto value = args->arg1;
