@@ -45,7 +45,7 @@ size_t BString::toHash() const {
 }
 
 Result BString::implement(const OperationType operation, BuiltinArgs* args) {
-    if((operation!=ADD && operation!=LEN) || buffer.size()>16)
+    if((operation!=ADD && operation!=LEN && operation!=AT && operation!=TOITER) || buffer.size()>2048)
         consolidate();
 
     if (args->size == 2 && args->arg0->getType() == STRING && args->arg1->getType() == STRING) {
@@ -98,6 +98,8 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
 
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
         int index = static_cast<Integer*>(args->arg1)->getValue();
+        if(index>=buffer.front()->value.size())
+            consolidate();
         if (index < 0 || index >= toString().size()) {
             return std::move(Result(OUT_OF_RANGE));
         }

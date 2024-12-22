@@ -251,7 +251,7 @@ void optimize(const std::string& source, const std::string& destination) {
         for (const auto& command : program) {
             if(!command->enabled || command->args.size()==0)
                 continue;
-            if(command->args[0]=="END" || command->args[0]=="BEGIN" || command->args[0]=="BEGINFINAL" || command->args[0]=="final" || command->args[0]=="exists")
+            if(command->args[0]=="END" || command->args[0]=="BEGIN" || command->args[0]=="BEGINFINAL" || command->args[0]=="final")  // TODO: why was there an "exists" at some point here?
                 continue;
             for (size_t j = 2; j < command->args.size(); ++j) {
                 const std::string& symbol = command->args[j];

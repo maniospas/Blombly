@@ -27,11 +27,11 @@ Jitable* jit(const Code* code) {
             return new ReturnPrimitiveJitable(c0->value);
     }
 
-    std::unordered_set<int> inputs;
+    /*std::unordered_set<int> inputs;
     std::unordered_set<int> outputs;
 
     for(int i=start;i<=end;++i) {
 
-    }
+    }*/
     return nullptr;
 }

@@ -1,25 +1,21 @@
-BUILTIN buff ""
+BUILTIN buff I0
 time tic
-BUILTIN _bb4 I10000
+BUILTIN _bb4 I100000
 range _bb3 _bb4
 iter _bbmacro0 _bb3
 next _bb6 _bbmacro0
 AS i _bb6
 exists _bb7 i
 BEGIN _bb8
-str _bb10 i
-BUILTIN _bb12 " "
-add _bb11 buff _bb12
-add buff _bb11 _bb10
+add buff buff i
 next _bb6 _bbmacro0
 AS i _bb6
 exists _bb7 i
 END
 while # _bb7 _bb8
 time toc
-len _bb14 buff
-print # _bb14
-sub _bb15 toc tic
-BUILTIN _bb16 "sec"
-list _bb17 _bb15 _bb16
-print # _bb17
+print # buff
+sub _bb10 toc tic
+BUILTIN _bb11 "sec"
+list _bb12 _bb10 _bb11
+print # _bb12

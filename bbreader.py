@@ -1,6 +1,6 @@
 allcode = list()
 tab = 0
-path = "test.bbvm"
+path = "main.bbvm"
 anons = [dict()]
 with open(path) as file:
     for line in file:
