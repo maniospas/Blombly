@@ -3,3 +3,11 @@
 !macro {:=} as {= try}
 !macro {uses @name;} as {final @name = @name;}
 !macro {assert @expr;} as {if((@expr)==false) fail(!stringify("Assertion failed: " @expr));}
+
+final back(element) = {return new {
+    final element = element;
+    \call(A) = {
+        bbvm::push(A, element);
+        return A;
+    }
+}}

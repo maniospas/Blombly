@@ -1160,7 +1160,15 @@ public:
                         ret += "IS args " + parse_expression(call + 1,  end - 1) + "\n";
                         ret += "END\n";
                     }
-                } else {
+                } 
+                else if (find_end(call + 1, end, ",") == MISSING) {
+                    parsed_args = create_temp();
+                    ret += "BEGIN " + parsed_args + "\n";
+                    ret += "list args " + parse_expression(call + 1, conditional - 1) + "\n";
+                    parse(conditional + 1, end - 1);
+                    ret += "END\n";
+                }
+                else {
                     parsed_args = create_temp();
                     ret += "BEGIN " + parsed_args + "\n";
                     ret += "IS args " + parse_expression(call + 1, conditional - 1) + "\n";

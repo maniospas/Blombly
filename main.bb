@@ -1,22 +1,12 @@
-back(element) = {return new {
-    final element = element;
-    \call(A) = {
-        push(A, element);
-        return A;
+A = new {
+    elements = vector(128);
+    dosum() = {return sum(this.elements)}
+    modify(int position) = {
+        default value=0;
+        this.elements[position]=value;
+        return this;
     }
-}}
+}
 
-A = list();
-A = A|back(1);
-print(A);
-
-
-buff = "";
-tic = bbvm::time();
-while(i in range(100000)) 
-    buff = buff+" "+str(i);
-
-toc = bbvm::time();
-print(len(buff));
-print((toc-tic), "sec");
-print(buff[range(20)]);
+A = A.modify(1 :: value=2);
+print(A.elements);
