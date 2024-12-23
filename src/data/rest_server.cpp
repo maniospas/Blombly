@@ -75,7 +75,7 @@ Data* RestServer::executeCodeWithMemory(Data* called, BMemory* memory) const {
     if(called->getType()==STRUCT) {
         auto strct = static_cast<Struct*>(called);
         auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
-        bbassert(val && val->getType()==CODE, "Struct was called like a method but has no implemented code for `\\call`.");
+        bbassert(val && val->getType()==CODE, "Struct was called like a method but has no implemented code for `call`.");
         called = (val);
     }
     bbassert(called->getType()==CODE, "Internally corrupted server callable is neither code nor struct (this message should never appear due to earlier error checking)");

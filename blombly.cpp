@@ -58,12 +58,12 @@ int main(int argc, char* argv[]) {
             threads = std::stoi(argv[++i]);
         } 
         else if (arg == "--version" || arg == "-v") {
-            std::cout << "Version: blombly 1.2.7\n";
+            std::cout << "Version: blombly 1.2.26\n";
             return 0;
         } 
         else if (arg == "--help" || arg == "-h") {
             std::cout << "Usage: blombly [options] [file]\n";
-            std::cout << "--threads <num>   Set max threads. Default: " << default_threads << "\n";
+            std::cout << "--threads <num>   Set max threads. Default for this machine: " << default_threads << "\n";
             return 0;
         } 
         else {

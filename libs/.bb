@@ -5,7 +5,7 @@
 
 final back(element) = {return new {
     final element = element;
-    \call(A) = {
+    call(A) = {
         bbvm::push(A, element);
         return A;
     }

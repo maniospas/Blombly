@@ -98,7 +98,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 // struct calls are never executed in parallel
                 auto strct = static_cast<Struct*>(called);
                 auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
-                bbassert(val && val->getType()==CODE, "Struct was called like a method but has no implemented code for `\\call`.");
+                bbassert(val && val->getType()==CODE, "Struct was called like a method but has no implemented code for `call`.");
                 called = (val);
             }
             auto code = static_cast<Code*>(called);

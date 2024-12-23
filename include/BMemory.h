@@ -29,7 +29,7 @@ public:
         thisId = getId("this");
         argsId = getId("args");
         noneId = getId("#");
-        callId = getId("\\call");
+        callId = getId("call");
     }
     int getId(const std::string& symbol) {
         if(registeredSymbols.find(symbol) == registeredSymbols.end()) {

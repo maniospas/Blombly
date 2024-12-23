@@ -270,7 +270,7 @@ void optimize(const std::string& source, const std::string& destination) {
             //if(command->args.size()>=2 && command->args[1].size() && command->args[1][0]=='\\')  // operators are still valid
             //    continue;
             if(command->args.size()>=2 && (command->args[1]=="put"
-                || command->args[1]=="at"))
+                || command->args[1]=="at" || command->args[1]=="call"))
                 continue;
             
             if(command->args.size() && command->args[0]=="exists" && symbolUsageCount[command->args[1]]==0) {
