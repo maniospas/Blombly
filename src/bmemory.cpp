@@ -59,6 +59,12 @@ void BMemory::release() {
         }
     }
     attached_threads.clear();
+    try {
+        runFinally();
+    }
+    catch (const BBError& e) {
+        destroyerr += std::string(e.what())+"\n";
+    }
     for (const auto& element : data) {
         auto dat = element.second;
         if (dat && dat->getType() == ERRORTYPE && !static_cast<BError*>(dat)->isConsumed())  
@@ -321,8 +327,15 @@ void BMemory::await() {
             destroyerr += std::string(e.what())+"\n";
         }
     }
-    
     attached_threads.clear();
+
+    try {
+        runFinally();
+    }
+    catch (const BBError& e) {
+        destroyerr += std::string(e.what())+"\n";
+    }
+
     for (const auto& element : data) {
         auto dat = element.second;
         if (dat && dat->getType() == ERRORTYPE && !static_cast<BError*>(dat)->isConsumed())  {
@@ -340,4 +353,32 @@ void BMemory::detach(BMemory* par) {
     if(!par)
         allowMutables = false;
     parent = par;
+}
+
+void BMemory::runFinally() {
+    std::string destroyerr = "";
+    std::vector<Code*> tempFinally = std::move(finally);
+    finally.clear();
+
+    for(Code* code : tempFinally) {
+        try {
+            bool returnSignal;
+            Result returnedValue = executeBlock(code, this, returnSignal);
+            bbassert(!returnSignal, "Cannot return a value from within `defer`");
+        }
+        catch (const BBError& e) {
+            destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error occurred within `defer`:\n";
+            destroyerr += std::string(e.what()) + "\n";
+        }
+    }
+
+    bbassert(finally.size()==0, "Leftover `defer` handling.");
+
+    if(destroyerr.size())
+        throw BBError(destroyerr.substr(0, destroyerr.size() - 1));
+}
+
+
+void BMemory::addFinally(Code* code) {
+    finally.push_back(code);
 }

@@ -52,6 +52,7 @@ private:
     int fastId;
     Data* fastData;
     void unsafeSet(int item, Data* value);
+    std::vector<Code*> finally;
 public:
     Data* thisObject;
     void release();
@@ -83,6 +84,8 @@ public:
     void replaceMissing(BMemory* other);
     void await();
     void detach(BMemory* par);
+    void runFinally();
+    void addFinally(Code* code);
 
     static void verify_noleaks();
 };

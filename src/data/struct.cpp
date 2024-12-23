@@ -28,10 +28,10 @@ Result Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
 
     std::string operation = getOperationTypeName(operation_);
     auto mem = getMemory();
-    Data* implementation = mem->getOrNullShallow(variableManager.getId("\\" + operation));
+    Data* implementation = mem->getOrNullShallow(variableManager.getId(operation));
 
-    bbassert(implementation, "Must define \\" + operation + " for the struct");
-    bbassert(implementation->getType() == CODE, "\\" + operation + " is not a method");
+    bbassert(implementation, "Must define " + operation + " for the struct");
+    bbassert(implementation->getType() == CODE, operation + " is not a method");
 
     if (!implementation) {
         //return std::move(Result(nullptr));
@@ -59,7 +59,7 @@ Result Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
 
     bool hasReturned(false);
     Result value = executeBlock(code, &newMemory, hasReturned);
-    bbassert(hasReturned, "Implementation for \\" + operation + " did not return anything");
+    bbassert(hasReturned || operation_==PUT || operation_==PUSH, "Implementation for `" + operation + "` did not return anything");
     return Result(value);
 }
 

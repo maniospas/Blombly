@@ -1,28 +1,54 @@
+BEGIN _bb5
 BEGIN _bb7
-BUILTIN _bb8 I128
-vector elements _bb8
-BEGIN _bb13
+BEGIN _bb9
+BUILTIN size I32
+END
+default # _bb9
+vector elements size
+END
+defer # _bb7
+BEGIN _bb12
+get _bb13 this elements
+sum _bb14 _bb13
+return # _bb14
+END
+IS dosum _bb12
+BEGIN _bb15
 next position args
 int position position
-BEGIN _bb15
-BUILTIN value I0
-END
-default # _bb15
-get _bb17 this elements
-put # _bb17 position value
+next value args
+float value value
+get _bb16 this elements
+put # _bb16 position value
 return # this
 END
-IS modify _bb13
+IS put _bb15
+BEGIN _bb17
+next position args
+int position position
+get _bb19 this elements
+at _bb18 _bb19 position
+return # _bb18
+END
+IS at _bb17
+END
+IS A _bb5
+final # A
+BEGIN _bb22
+inline _bb23 A
+BUILTIN size I64
 return # this
 END
-new A _bb7
-BEGIN _bb19
-BUILTIN _bb20 I1
-list args _bb20
-BUILTIN value I2
-END
-get _bb22 A modify
-call _bb18 _bb19 _bb22
-IS A _bb18
-get _bb23 A elements
-print # _bb23
+new a _bb22
+BUILTIN _bb25 I2
+BUILTIN _bb26 I1
+put # a _bb26 _bb25
+BUILTIN _bb28 I1
+at _bb27 a _bb28
+print # _bb27
+get _bb30 a elements
+len _bb29 _bb30
+print # _bb29
+get _bb32 a dosum
+call _bb31 # _bb32
+print # _bb31

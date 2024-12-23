@@ -402,7 +402,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
         case INLINE: {
             Data* source = MEMGET(memory, 1);
-            if(source->getType()==FILETYPE) {
+            /*if(source->getType()==FILETYPE) {
                 if(command->value) {
                     auto code = static_cast<Code*>(command->value);
                     auto res = new Code(code->getProgram(), code->getStart(), code->getEnd(), nullptr, nullptr);//code->getAllMetadata());
@@ -417,10 +417,13 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     SET_RESULT;
                 }
             }
-            else if(source->getType()==STRUCT) 
+            else */
+            if(source->getType()==STRUCT) {
                 memory->pull(static_cast<Struct*>(source)->getMemory());
+                result = nullptr;
+            }
             else if(source->getType()!=CODE) 
-                bberror("Can only inline a non-called code block or struct");
+                bberror("Can only inline a code block or struct");
             else {
                 auto code = static_cast<Code*>(source);
                 Result returnedValue = executeBlock(code, memory, returnSignal);
@@ -428,6 +431,14 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 SET_RESULT;
             }
         } break;
+
+        case DEFER: {
+            Data* source = MEMGET(memory, 1);
+            if(source->getType()!=CODE) 
+                bberror("Finally can only inline a code block or struct");
+            memory->addFinally(static_cast<Code*>(source));
+            break;
+        }
 
         case DEFAULT: {
             Data* source = MEMGET(memory, 1);

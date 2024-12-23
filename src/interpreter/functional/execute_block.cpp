@@ -16,8 +16,10 @@ Result executeBlock(Code* code, BMemory* memory, bool &returnSignal) {
     try {
         for (; i <= end; ++i) {
             handleCommand(program, i, memory, returnSignal, args, value);
-            if (returnSignal) 
+            if (returnSignal) {
+                memory->runFinally();
                 return std::move(Result(value));
+            }
         }
     } 
     catch (const BBError& e) {
@@ -25,7 +27,7 @@ Result executeBlock(Code* code, BMemory* memory, bool &returnSignal) {
         handleExecutionError(program, i, e);
         // return std::move(Result(nullptr));
     }
-
+    //memory->runFinally();
     return std::move(Result(value));
 }
 

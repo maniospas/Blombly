@@ -375,8 +375,8 @@ public:
                 return "#";
             }
 
-            if (first_name == "default" || first_name == "try") {
-                std::string var = first_name == "default" ? "#" : create_temp();
+            if (first_name == "default" || first_name == "defer" || first_name == "try") {
+                std::string var = first_name != "try" ? "#" : create_temp();
                 std::string called = create_temp();
                 std::string parsed = parse_expression(start + 1, end, tokens[start + 1].name != "{");
                 if (first_name == "new" && ret.size()>=4 && ret.substr(ret.size() - 4) == "END\n")
@@ -492,16 +492,18 @@ public:
                                 name == "bbvm::vector" || name == "bbvm::iter" || 
                                 name == "bbvm::add" || name == "bbvm::sub" || 
                                 name == "bbvm::min" || name == "bbvm::max" ||  
+                                name == "bbvm::put" || 
                                 name == "bbvm::sum" || 
                                 name == "bbvm::call" || name == "bbvm::range" || 
                                 name == "bbvm::print" || name == "bbvm::read") {
                                 bberror("Cannot have bbvm implementation as argument `" + name + "`.\n"+show_position(next_j-1));
                             }
-                            if (name == "int" || name == "float" || 
+                            /*if (name == "int" || name == "float" || 
                                 name == "str" || name == "file" || 
                                 name == "bool" || 
                                 name == "list" || name == "map" || 
                                 name == "pop" || name == "push" || 
+                                name == "put" || 
                                 name == "len" || name == "next" || 
                                 name == "vector" || name == "iter" || 
                                 name == "add" || name == "sub" || 
@@ -513,10 +515,11 @@ public:
                                 bberror("Cannot have builtin symbol `" + name + "` as argument."
                                         "\n   \033[33m!!!\033[0m This prevents ambiguity by making `"+name+"` always a shorthand for `bbvm::"+name+"` .\n"
                                         +show_position(next_j-1));
-                            }
+                            }*/
 
                             if (name == "default" || 
                                 name == "try" || name == "new" || 
+                                name == "defer" || 
                                 name == "return" || name == "if" || 
                                 name == "else" || name == "while" || 
                                 name == "args" || name == "as" || 
@@ -612,6 +615,7 @@ public:
                     first_name == "bbvm::bool" ||
                     first_name == "bbvm::list" || first_name == "bbvm::map" || 
                     first_name == "bbvm::pop" || first_name == "bbvm::push" || 
+                    first_name == "bbvm::put" ||
                     first_name == "bbvm::len" || first_name == "bbvm::next" || 
                     first_name == "bbvm::vector" || first_name == "bbvm::iter" || 
                     first_name == "bbvm::add" || first_name == "bbvm::sub" || 
@@ -621,11 +625,12 @@ public:
                     first_name == "bbvm::print" || first_name == "bbvm::read") {
                     bberror("Cannot assign to bbvm implementation `" + first_name + "`.\n"+show_position(start));
                 }
-                if (first_name == "int" || first_name == "float" || 
+                /*if (first_name == "int" || first_name == "float" || 
                     first_name == "str" || first_name == "file" || 
                     first_name == "bool" || 
                     first_name == "list" || first_name == "map" || 
                     first_name == "pop" || first_name == "push" || 
+                    first_name == "put" ||
                     first_name == "len" || first_name == "next" || 
                     first_name == "vector" || first_name == "iter" || 
                     first_name == "add" || first_name == "sub" || 
@@ -641,10 +646,11 @@ public:
                             "\n       If you are sure you want to impact all subsequent code (as well as included code), you may reassign the"
                             "\n       symbol with !macro {"+first_name+"} as {lib::"+first_name+"} after implementing the latter.\n"
                             +show_position(start));
-                }
+                }*/
 
                 if (first_name == "default" || 
                     first_name == "try" || first_name == "new" || 
+                    first_name == "defer" || 
                     first_name == "return" || first_name == "if" || 
                     first_name == "else" || first_name == "while" || 
                     first_name == "args" || first_name == "as" || 
@@ -711,11 +717,12 @@ public:
                                 name == "bbvm::print" || name == "bbvm::read") {
                                 bberror("Cannot have bbvm implementation as argument `" + name + "`.\n"+show_position(next_j-1));
                             }
-                            if (name == "int" || name == "float" || 
+                            /*if (name == "int" || name == "float" || 
                                 name == "str" || name == "file" || 
                                 name == "bool" || 
                                 name == "list" || name == "map" || 
                                 name == "pop" || name == "push" || 
+                                name == "put" ||
                                 name == "len" || name == "next" || 
                                 name == "vector" || name == "iter" || 
                                 name == "add" || name == "sub" || 
@@ -727,10 +734,11 @@ public:
                                 bberror("Cannot have builtin symbol `" + name + "` as argument."
                                         "\n   \033[33m!!!\033[0m This prevents ambiguity by making `"+name+"` always a shorthand for `bbvm::"+name+"` .\n"
                                         +show_position(next_j-1));
-                            }
+                            }*/
 
                             if (name == "default" || 
                                 name == "try" || name == "new" || 
+                                name == "defer" || 
                                 name == "return" || name == "if" || 
                                 name == "else" || name == "while" || 
                                 name == "args" || name == "as" || 
@@ -1180,17 +1188,6 @@ public:
                 return var;
             }
 
-            int access = find_last_end(start, end, ".");
-            if (access != MISSING) {
-                std::string var = create_temp();
-                ret += "get " + var + " " + parse_expression(start, 
-                                                             access - 1) + " " 
-                                                             + parse_expression(
-                                                             access + 1, end) 
-                                                             + "\n";
-                return var;
-            }
-
             int arrayaccess = find_last_end(start, end, "[");
             if (arrayaccess != MISSING) {
                 int arrayend = find_end(arrayaccess + 1, end, "]", true);
@@ -1203,6 +1200,17 @@ public:
                                                             arrayaccess + 1, 
                                                             arrayend - 1) + 
                                                             "\n";
+                return var;
+            }
+
+            int access = find_last_end(start, end, ".");
+            if (access != MISSING) {
+                std::string var = create_temp();
+                ret += "get " + var + " " + parse_expression(start, 
+                                                             access - 1) + " " 
+                                                             + parse_expression(
+                                                             access + 1, end) 
+                                                             + "\n";
                 return var;
             }
             bberror("Unknown type of command\n"+show_position(start));

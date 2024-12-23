@@ -1,12 +1,22 @@
-A = new {
-    elements = vector(128);
-    dosum() = {return sum(this.elements)}
-    modify(int position) = {
-        default value=0;
-        this.elements[position]=value;
+final A = {
+    defer {
+        default size = 32;
+        elements = vector(size);
+    }
+    dosum() = {
+        return sum(this.elements);
+    }
+    put(int position, float value) = {
+        this.elements[position] = value;
         return this;
+    }
+    at(int position) = {
+        return this.elements[position];
     }
 }
 
-A = A.modify(1 :: value=2);
-print(A.elements);
+a = new {A:size=64}
+a[1] = 2;
+print(a[1]);
+print(a.elements|len);
+print(a.dosum());
