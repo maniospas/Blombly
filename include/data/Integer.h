@@ -15,6 +15,7 @@ public:
 
     std::string toString()override;
     int getValue() const;
+    void setValue(int val);
 
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
     virtual bool isSame(Data* other) override;

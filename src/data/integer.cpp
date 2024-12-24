@@ -62,6 +62,10 @@ int Integer::getValue() const {
     return value;
 }
 
+void Integer::setValue(int val) {
+    value = val;
+}
+
 bool Integer::isSame(Data* other) {
     if(other->getType()!=BB_INT)
         return false;

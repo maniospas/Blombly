@@ -1070,6 +1070,23 @@ public:
                 return var;
             }
 
+
+            if (first_name == "time" || first_name == "random" || first_name == "server" || first_name == "list") {
+                bbassert(tokens[start + 1].name == "(", "Missing ( after " 
+                          + first_name);
+                if (first_name == "list") {
+                    bbassert(tokens[start + 2].name == ")", "`"+first_name + "` accepts no arguments"
+                              "\n   \033[33m!!!\033[0m Create lists of more arguments by pushing elements to"
+                              "\n        an empty list, or by separating values by commas like this: `l=1,2,3;`.\n"
+                              +show_position(start+2));
+                } else {
+                    bbassert(tokens[start + 2].name == ")", "`"+first_name +"` accepts no arguments.\n"+show_position(start+2));
+                }
+                std::string var = create_temp();
+                ret += first_name + " " + var + "\n";
+                return var;
+            }
+
             if (first_name == "new") {
                 std::string var = first_name == "default" ? "#" : create_temp();
                 std::string called = create_temp();

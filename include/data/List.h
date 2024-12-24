@@ -10,6 +10,8 @@
 class BList : public Data {
 private:
     mutable std::recursive_mutex memoryLock; 
+    int front;
+    void resizeContents();
 
 public:
     std::vector<Data*> contents;

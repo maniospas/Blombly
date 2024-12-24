@@ -14,24 +14,26 @@
 extern BError* OUT_OF_RANGE;
 
 // BList constructor
-BList::BList() : Data(LIST) {}
-BList::BList(int reserve) : Data(LIST)  {
+BList::BList() : Data(LIST), front(0) {}
+BList::BList(int reserve) : Data(LIST), front(0)  {
     contents.reserve(reserve);
 }
 BList::~BList() {
-    for(Data* dat : contents)
-        if(dat)
-            dat->removeFromOwner();
+    int n = contents.size();
+    for(int i=front;i<n;++i)
+        if(contents[i])
+            contents[i]->removeFromOwner();
 }
 
 std::string BList::toString(){
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     std::string result = "[";
-    for (const auto& element : contents) {
+    int n = contents.size();
+    for(int i=front;i<n;++i) {
         if (result.size()!=1) 
             result += ", ";
-        if(element)
-            result += element->toString();
+        if(contents[i])
+            result += contents[i]->toString();
         else
             result += " ";
     }
@@ -40,8 +42,11 @@ std::string BList::toString(){
 
 Data* BList::at(int index) const {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
-    if (index < 0 || index >= contents.size()) 
-        bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents.size()) + ")");
+    if (index < 0) 
+        return OUT_OF_RANGE;
+    index += front;
+    if (index>=contents.size())
+        return OUT_OF_RANGE;
     auto res = contents.at(index);
     return res;
 }
@@ -51,13 +56,15 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
     
     if (args->size == 1) {
         switch (operation) {
-            case LEN: return std::move(Result(new Integer(contents.size())));
+            case LEN: return std::move(Result(new Integer(contents.size()-front)));
             case TOITER: return std::move(Result(new AccessIterator(args->arg0)));
             case NEXT: {
-                if (contents.empty()) 
+                if (front >= contents.size()) 
                     return std::move(Result(OUT_OF_RANGE));
-                auto ret = Result(contents.front());
-                contents.erase(contents.begin());
+                auto ret = Result(contents[front]);
+                //contents.erase(contents.begin());
+                front++;
+                resizeContents();
                 ret.get()->removeFromOwner();
                 return std::move(ret);
             }
@@ -72,7 +79,7 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
             case TOMAP: {
                 auto map = new BHashMap();
                 int n = contents.size();
-                for (int i = 0; i < n; ++i) {
+                for (int i = front; i < n; ++i) {
                     if(contents[i]->getType()!=LIST)
                         bberror("Can only create a map from a list of 2-element lists");
                     BList* list = (BList*)contents[i];
@@ -90,15 +97,15 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
                 //args.preallocResult = new BFloat(0);
                 args.size = 1;
                 try {
-                    for (int i = 0; i < n; ++i) {
-                        args.arg0 = contents.at(i);
+                    for (int i = front; i < n; ++i) {
+                        args.arg0 = contents[i];
                         Result tempValue = args.arg0->implement(TOBB_FLOAT, &args);
                         Data* temp = tempValue.get();
                         auto type = temp->getType();
                         if (type == BB_INT) 
-                            rawret[i] = static_cast<Integer*>(temp)->getValue();
+                            rawret[i-front] = static_cast<Integer*>(temp)->getValue();
                         else if (type == BB_FLOAT) 
-                            rawret[i] = static_cast<BFloat*>(temp)->getValue();
+                            rawret[i-front] = static_cast<BFloat*>(temp)->getValue();
                         else 
                             bberror("Non-numeric value in list during conversion to vector");
                     }
@@ -115,10 +122,12 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
     if (operation == AT && args->size == 2) {
         if (args->arg1->getType() == BB_INT) {
             int index = static_cast<Integer*>(args->arg1)->getValue();
-            // Manual implementation of BList::at() to avoid deadlocks with its own lock
-            if (index < 0 || index >= contents.size()) 
+            if (index < 0) 
                 return std::move(Result(OUT_OF_RANGE));
-            Data* res = contents.at(index);
+            index += front;
+            if (index>=contents.size())
+                return std::move(Result(OUT_OF_RANGE));
+            Data* res = contents[index];
             return std::move(Result(res));
         } 
         else if (args->arg1->getType() == STRUCT || args->arg1->getType() == LIST || args->arg1->getType() == ITERATOR) {
@@ -136,13 +145,23 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
             if (iterPtr->isContiguous()) {
                 int start = iterPtr->getStart();
                 int end = iterPtr->getEnd();
-                if (start < 0 || start >= contents.size() || end < 0 || end > contents.size() || start > end) 
+
+                if (start < 0) 
+                    return std::move(Result(OUT_OF_RANGE));
+                start += front;
+                if (start>=contents.size())
+                    return std::move(Result(OUT_OF_RANGE));
+
+                if (end < 0) 
+                    return std::move(Result(OUT_OF_RANGE));
+                end += front;
+                if (end>=contents.size())
                     return std::move(Result(OUT_OF_RANGE));
 
                 // Reserve size and copy elements
                 BList* ret = new BList(end - start);
                 for (int i = start; i < end; ++i) {
-                    Data* element = contents.at(i);
+                    Data* element = contents[i];
                     element->addOwner();
                     ret->contents.push_back(element);
                 }
@@ -164,10 +183,13 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
                     bbassert(indexData->getType() == BB_INT, "Iterable list indexes can only contain integers.");
                     int id = static_cast<Integer*>(indexData)->getValue();
 
-                    if (id < 0 || id >= contents.size())
+                    if (id < 0) 
+                        return std::move(Result(OUT_OF_RANGE));
+                    id += front;
+                    if (id>=contents.size())
                         return std::move(Result(OUT_OF_RANGE));
 
-                    Data* element = contents.at(id);
+                    Data* element = contents[id];
                     element->addOwner();
                     ret->contents.push_back(element);
                 }
@@ -188,8 +210,11 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
 
     if (operation == PUT && args->size == 3 && args->arg1->getType() == BB_INT) {
         int index = static_cast<Integer*>(args->arg1)->getValue();
-        if (index < 0 || index >= contents.size()) 
-            bberror("List index " + std::to_string(index) + " out of range [0," + std::to_string(contents.size()) + ")");
+        if (index < 0) 
+            return std::move(Result(OUT_OF_RANGE));
+        index += front;
+        if (index>=contents.size())
+            return std::move(Result(OUT_OF_RANGE));
         auto value = args->arg2;
         bbassert(value, "Cannot set a missing value on a list");
         Data* prev = contents[index];
@@ -212,4 +237,11 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
     }
 
     throw Unimplemented();
+}
+
+void BList::resizeContents() {
+    if(front>32 && front>contents.size()/3) {
+        contents.erase(contents.begin(), contents.begin() + front);
+        front = 0;
+    }
 }

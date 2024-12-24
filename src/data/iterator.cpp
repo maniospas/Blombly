@@ -58,15 +58,18 @@ Result AccessIterator::implement(const OperationType operation, BuiltinArgs* arg
 IntRange::IntRange(int first, int last, int step) : first(first), last(last), step(step), Iterator() {
     bbassert(step, "A range iterator with zero step never ends.");
 }
+IntRange::~IntRange() {
+}
 Result IntRange::implement(const OperationType operation, BuiltinArgs* args) {
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
     if (args->size == 1 && operation == NEXT) {
         if (step>0 && first >= last) 
             return std::move(Result(OUT_OF_RANGE));
         if (step<0 && first <= last) 
             return std::move(Result(OUT_OF_RANGE));
-        Result res = Result(new Integer(first));
+        Result ret = Result(new Integer(first));
         first += step;
-        return std::move(res);
+        return std::move(ret);
     }
     if (args->size == 1 && operation == TOITER) 
         return std::move(Result(this));
@@ -78,15 +81,17 @@ Result IntRange::implement(const OperationType operation, BuiltinArgs* args) {
 FloatRange::FloatRange(double first, double last, double step) : first(first), last(last), step(step), Iterator() {
     bbassert(step, "A range iterator with zero step never ends.");
 }
+FloatRange::~FloatRange() {
+}
 Result FloatRange::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 1 && operation == NEXT) {
         if (step>0 && first >= last) 
             return std::move(Result(nullptr));
         if (step<0 && first <= last) 
             return std::move(Result(nullptr));
-        Result res = Result(new BFloat(first));
+        Result ret = Result(new BFloat(first));
         first += step;
-        return std::move(res);
+        return std::move(ret);
     }
     if (args->size == 1 && operation == TOITER) 
         return std::move(Result(this));

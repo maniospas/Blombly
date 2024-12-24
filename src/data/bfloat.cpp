@@ -63,6 +63,10 @@ double BFloat::getValue() const {
     return value;
 }
 
+void BFloat::setValue(double val) {
+    value = val;
+}
+
 bool BFloat::isSame(Data* other) {
     if(other->getType()!=BB_FLOAT)
         return false;

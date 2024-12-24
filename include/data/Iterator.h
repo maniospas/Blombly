@@ -6,12 +6,14 @@
 #include <mutex>
 #include "data/Data.h"
 #include "data/Integer.h"
+#include "data/BFloat.h"
 
 
 class Iterator : public Data {
 public:
     explicit Iterator();
-    std::string toString()override;
+    virtual ~Iterator() {}
+    std::string toString() override;
     virtual int expectedSize() const {
         return 0;
     }
@@ -45,17 +47,21 @@ public:
 
 class IntRange : public Iterator {
 private:
+    mutable std::recursive_mutex memoryLock; 
     int first, last, step;
 public:
     explicit IntRange(int first, int last, int step);
+    ~IntRange();
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
     int expectedSize() const override {
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
         return (last-first)/step;
     }
     bool isContiguous() const override {
         return step==1;
     }
     int getStart() const override {
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
         return first;
     }
     int getEnd() const override {
@@ -65,9 +71,11 @@ public:
 
 class FloatRange : public Iterator {
 private:
+    mutable std::recursive_mutex memoryLock; 
     double first, last, step;
 public:
     explicit FloatRange(double first, double last, double step);
+    ~FloatRange();
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
 };
 

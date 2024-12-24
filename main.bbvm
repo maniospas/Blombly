@@ -1,33 +1,33 @@
-BEGIN _bb0
-next element args
-BEGIN _bb3
-IS element element
-final # element
-BEGIN _bb4
-next A args
-push # A element
-return # A
-END
-IS call _bb4
-return # this
-END
-new _bb1 _bb3
-return # _bb1
-END
-IS back _bb0
-final # back
-BUILTIN _bb5 I1
-BUILTIN _bb6 I2
-BUILTIN _bb7 I3
-list A _bb5 _bb6 _bb7
-BEGIN _bb10
-list args A
-END
+time tic
+list A
+BUILTIN _bb9 I10000
+range _bb8 _bb9
+iter _bbmacro0 _bb8
+next _bb11 _bbmacro0
+AS i _bb11
+exists _bb12 i
 BEGIN _bb13
-BUILTIN _bb14 I4
-list args _bb14
+push # A i
+next _bb11 _bbmacro0
+AS i _bb11
+exists _bb12 i
 END
-call _bb12 _bb13 back
-call _bb9 _bb10 _bb12
-IS A _bb9
-print # A
+while # _bb12 _bb13
+time toc
+sub _bb15 toc tic
+print # _bb15
+time tic
+list B
+next _bb18 A
+AS i _bb18
+exists _bb19 i
+BEGIN _bb20
+push # B i
+next _bb18 A
+AS i _bb18
+exists _bb19 i
+END
+while # _bb19 _bb20
+time toc
+sub _bb22 toc tic
+print # _bb22
