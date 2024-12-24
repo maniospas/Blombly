@@ -1,96 +1,28 @@
 BEGIN _bb18
-IS Adder Adder
-final # Adder
-BEGIN _bb20
+next x args
 BEGIN _bb21
+IS x x
+final # x
 return # this
 END
-IS getThis _bb21
-END
-defer # _bb20
+new _bb19 _bb21
 BEGIN _bb22
-get _bb24 this parent
-float _bb25 _bb24
-get _bb26 this element
-add _bb23 _bb26 _bb25
+next y args
+add _bb23 x y
 return # _bb23
 END
-IS float _bb22
-BEGIN _bb27
-float _bb29 this
-str _bb28 _bb29
-return # _bb28
+set # _bb19 call _bb22
+return # _bb19
 END
-IS str _bb27
-BEGIN _bb30
-next newElement args
-BEGIN _bb33
-BEGIN _bb34
-BUILTIN _bb35 "Assertion failed: len(args)==0"
-fail # _bb35
+IS add _bb18
+BEGIN _bb25
+BUILTIN _bb26 I2
+list args _bb26
 END
-BUILTIN _bb37 Bfalse
-BUILTIN _bb39 I0
-len _bb40 args
-eq _bb38 _bb40 _bb39
-eq _bb36 _bb38 _bb37
-if # _bb36 _bb34
-inline _bb41 Adder
-call _bb42 # getThis
-IS parent _bb42
-IS element newElement
-return # this
+BEGIN _bb28
+BUILTIN _bb29 I1
+list args _bb29
 END
-new _bb31 _bb33
-return # _bb31
-END
-IS call _bb30
-END
-IS Adder _bb18
-final # Adder
-BEGIN _bb43
-next x args
-BEGIN _bb46
-inline _bb47 Adder
-IS element x
-BUILTIN parent I0
-return # this
-END
-new _bb44 _bb46
-return # _bb44
-END
-IS adder _bb43
-BEGIN _bb49
-BEGIN _bb51
-BUILTIN _bb52 I0
-list args _bb52
-END
-call _bb50 _bb51 adder
-IS ret _bb50
-next _bb53 args
-AS x _bb53
-exists _bb54 x
-BEGIN _bb55
-float x x
-BEGIN _bb58
-list args x
-END
-call _bb57 _bb58 ret
-IS ret _bb57
-next _bb53 args
-AS x _bb53
-exists _bb54 x
-END
-while # _bb54 _bb55
-return # ret
-END
-IS add _bb49
-BEGIN _bb60
-BUILTIN _bb61 I1
-BUILTIN _bb62 I2
-BUILTIN _bb63 I3
-BUILTIN _bb64 I4
-list args _bb61 _bb62 _bb63 _bb64
-END
-call _bb59 _bb60 add
-print # _bb59
+call _bb27 _bb28 add
+call _bb24 _bb25 _bb27
+print # _bb24

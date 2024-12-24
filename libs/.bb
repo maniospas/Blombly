@@ -1,6 +1,5 @@
 !macro {in @expr} as {as bbvm::next(!anon bbvm::iter(@expr))}
 !macro {semitype @name;} as {@name(value) = {return value. !symbol(@name)()}}
-!macro {uses @name;} as {final @name = @name;}
 !macro {assert @expr;} as {if((@expr)==false) fail(!stringify("Assertion failed: " @expr));}
 //!macro {:=} as {= try}
 
@@ -23,4 +22,8 @@ final apply(func) = {return new {
 }}
 
 
-!macro {->@expr;} as {={return @expr;}}
+!macro {=>@expr;} as {={return @expr;}}
+!macro {->} as {return}
+!macro {monad(@symbol)} as {new {final @symbol=@symbol}}
+!macro {monad(@symbol);} as {new {final @symbol=@symbol}}
+!macro {monad(@symbol).} as {new {final @symbol=@symbol}.}

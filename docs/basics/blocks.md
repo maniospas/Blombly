@@ -121,7 +121,7 @@ This is a common programming pattern,
 though we stress that it is better to execute code to determine configurations. 
 Positional arguments are stored in a list called `args`. For safery, 
 this is considered a language keyword and the compiler does not allow its usage.
-You can then access list elements or use `next` to obtain their values like so:
+You can then access list elements or use `next` to obtain their values like below.
 
 ```java
 // main.bb
@@ -151,7 +151,7 @@ print(result);
 ## Mixed arguments
 
 Blombly allows mixing of positional arguments and code execution by separating the two with double doubledots 
-(`::`) inside the call parenthesis.
+(`::`) inside the call parenthesis. These also require whitespaces before and after them.
 
 ```java
 // main.bb
@@ -165,3 +165,22 @@ print(result);
 ```
 
 Positional arguments are created first from the calling scope, so further argument generation can modify them.
+
+## =>
+
+Blombly comes alongside several [macros](../advanced/preprocessor.md). 
+One of this is `@signature => @expression`, which is a shorthand for code blocks that only consist of returning a value.
+This should not be confused with the `->` notation, which represents a consise return statement. 
+As a mnemonic, think of the shorthand notation we present here
+as the amalgamation of various symbols from the equivalent `@signature = {->@expression}`. Below is an example.
+
+```java
+// main.bb
+adder(x, y) => x+y;
+print(adder(1,2));
+```
+
+```bash
+> blombly main.bb
+3
+```

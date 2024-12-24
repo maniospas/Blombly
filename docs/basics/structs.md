@@ -44,8 +44,8 @@ the compiler prevents access to `.this` with the dot notation. Here is an exampl
 ```java
 // main.bb
 point = new { 
-    sum2d = {return this.x+this.y;} 
-    sum3d = {return this.sum2d()+this.z;} 
+    sum2d => this.x+this.y;
+    sum3d => this.sum2d()+this.z;
     x = 1; 
     y = 2; 
     z = 3; 
@@ -66,8 +66,8 @@ Point = {
     norm = {return (this.x^2+this.y^2)^0.5;} 
 } 
 XYSetter = { 
-    setx(value) = {this.x = value;} 
-    sety(value) = {this.y = value;}
+    setx(value) = {this.x = value} 
+    sety(value) = {this.y = value}
 } 
 point = new {Point: XYSetter: x = 0; y = 0} 
 point.sety(4);
@@ -79,12 +79,12 @@ final struct fields cannot be set (e.g., with `final a.value = ...`). That is, a
 This imposes a clear distinction between mutable and immutable properties. 
 
 As structs are completely detached from their declaring scope after creation, you will often want to bring values -mainly code blocks- from that context locally with
-the pattern `final @name = @name;`. A shorthand for this exact notation is the macro `uses @name;` shipped with the language. Here is an example:
+the pattern `final @name = @name;`. Below is an example.
 
 ```java
 Point = {
-    uses Point;
-    copy = {return new {Point:x=this.x;y=this.y}}
+    final Point = Point;
+    copy => new {Point:x=this.x;y=this.y}
 }
 point = new{Point:x=1;y=2}
 point = point.copy();
@@ -141,14 +141,14 @@ print("Time", time() - tic);
 One particular wrinkle to iron out in our understanding is what it means to return a code block that is later used as a method. 
 To maintain memory safety, all returned blocks are detached from their declaring scope. While being scopeless, they can only be inlined.
 We said this already, but let us make this distinction clear: **code blocks only transfer code, use structs to transfer state.**
-Overload `\call` methods to create callable structs.
+Overload `call` to create callable structs.
 
 That said, code blocks get re-attached to a new scope by either setting them as struct fields 
 (in which case they are attached to the struct) or by being assigned to a scope's variable. An example of this pattern is presented below:
 
 ```java
 // main.bb
-final method = new {
+final method = {
     final message = "Declared in a first scope";
     final printer = {
         print(message);
@@ -171,7 +171,7 @@ method();  // CREATES AN ERROR
 
 Running the code demonstrates the handling of memory context and how returned blocks lose their attachment to a memory context:
 
-```bash
+```text
 > blombly main.bb
 Declared in an object
 Declared in external scope
@@ -188,18 +188,17 @@ Therefore, it provides a powerful way to create user-defined types that can be m
 
 Overloading is achieved by defining methods with specific names inside structs that are used when the corresponding operation is performed. The most commonly overloaded operations are arithmetic operators (`+`, `-`, `*`, `/`) and the call operator `()` for making objects callable.
 
-Let's start with a basic example where we overload the `+` operator for a struct that represents a 2D point.
-In this example, we define a method add that performs the addition of two points and returns a new point. When the + operator is used, the add method is invoked automatically.
+Let's start with a basic example where we overload the addition operator for a struct that represents a 2D point.
+In this example, we define a method add that performs the addition of two points and returns a new point. 
+When the addition operator is used, the `add` method is invoked automatically.
 
 ```java
 Point = {
-    uses Point;
-    \add(p) = {
-        return new {
-            Point:
-            x = this.x + p.x;
-            y = this.y + p.y;
-        }
+    final Point = Point;
+    add(p) => new {
+        Point:
+        x = this.x + p.x;
+        y = this.y + p.y;
     }
 }
 
@@ -212,18 +211,17 @@ print(p3.x, p3.y);  // Outputs 4, 6
 
 One of the most useful applications of overloading is making structs callable, meaning they can be used as functions. This is done by overloading the call operator ().
 
-Below is an example where we define a Multiplier struct that can be called like a function:
+Below is an example where we define a Multiplier struct that can be called like a function. Notice the usage of `defer` as a means of inserting a default factor
+at the end of *new* only if no factor is defined by that time.
 
 ```java
 // main.bb
-Multiplier = new {
-    factor = 2;
-    \call(x) = {
-        return x * this.factor;
-    }
-};
+Multiplier = {
+    defer default factor = 2;
+    call(x) => x * this.factor;
+}
 
-mul = new {Multiplier: factor = 5};
+mul = new {Multiplier: factor = 5}
 
 result = mul(10);  // Calls the overloaded call method
 print(result);  // Outputs 50
@@ -235,19 +233,16 @@ This demonstrates how overloading can be used together with error handling to ca
 
 ```java
 //main.bb
-Point = new {
-    uses Point;
-    \mul(factor) = {
+Point = {
+    final Point = Point;
+    mul(factor) => new {
         if (factor == 0) fail("Factor cannot be zero");
-        return new {
-            x = this.x * factor;
-            y = this.y * factor;
-        };
+        x = this.x * factor;
+        y = this.y * factor;
     }
-};
+}
 
-p = new {Point: x = 2; y = 3};
+p = new {Point: x = 2; y = 3}
 scaled = try p * 0;  // This will fail
-catch(scaled) 
-    print("Error: " + str(scaled));  // Outputs: Error: Factor cannot be zero
+catch(scaled) print("Error: " + str(scaled));  // Outputs: Error: Factor cannot be zero
 ```

@@ -386,6 +386,14 @@ public:
                 return var;
             }
 
+            if (first_name == "return") {
+                std::string parsed = parse_expression(start + 1, end);
+                bbassert(parsed != "#", "An expression that computes no value  was given to `" + first_name+"`.\n"+show_position(start+1));
+                std::string var = "#";
+                ret += first_name + " " + var + " " + parsed + "\n";
+                return var;
+            }
+
             int assignment = find_end(start, end, "=");
             int asAssignment = find_end(start, end, "as");
             if ((asAssignment < assignment && asAssignment!=MISSING) || assignment==MISSING)
@@ -418,6 +426,7 @@ public:
                 if(isSelfOperation)
                     bbassert(assignment-1 != start, "Missing a variable to operate and assign to.\n"+show_position(assignment-1));
 
+                std::string returned_value = "#"; // this is set only by start_assigment!=MISSING
                 int start_assignment = find_last_end(start, assignment, ".");
                 int start_entry = find_last_end((start_assignment == MISSING ? start : start_assignment-isSelfOperation) + 1, assignment-isSelfOperation, "[");
                 if (start_entry != MISSING && start_entry > start_assignment) {
@@ -465,7 +474,8 @@ public:
                     bbassert(start_assignment >= start + 1-isSelfOperation, "Assignment expression can not start with `.`.\n"+show_position(start));
                     int parenthesis_start = find_end(start_assignment + 1,  assignment - 1-isSelfOperation, "(");
                     std::string obj = parse_expression(start, start_assignment - 1);
-                    bbassert(obj != "#", "There is no expression outcome to assign to.\n"+show_position(start));
+                    bbassert(obj != "#", "There is no expression outcome to assign to.\n"+show_position(start)+"\n");
+                    returned_value = obj;
                     if (parenthesis_start != MISSING) {
                         code_block_prepend = "";
                         int parenthesis_end = find_end(parenthesis_start + 1, 
@@ -602,9 +612,10 @@ public:
                         bberror("`as` cannot be used for setting values outside of the current scope. Use only `=` and catch on failure. This prevents leaking missing values."); // proper integration is to have "asset" and "assetfinal" keywords, but I changed my mind: this is unsafe behavior
                         std::string temp = create_temp();
                         ret += "exists " + temp + " " + first_name + "\n";
+                        //bbassert(returned_value=="#", "Cannot set struct fields with `A.x as y`. Use `A.x = y` instread. To ignore errors instead use `if(y as y) A.x=y;` \n"+show_position(assignment));
                         return temp;
                     }
-                    return "#";
+                    return returned_value;
                 }
 
                 int parenthesis_start = find_end(start + 1, assignment - 1-isSelfOperation, "(");

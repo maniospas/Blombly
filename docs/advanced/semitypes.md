@@ -24,23 +24,20 @@ print(x);
 ```
 
 ```bash
->blombly main.bb
+> blombly main.bb
 1.000000
 ```
 
 Observant readers may have already noted that conversion mechanisms are structured
 in a way that does not allow for executable code in the arguments (reminder that argument
 code is a generalization of keyword arguments).
-To add parameters to the conversion callable, create is as a struct like below:
+To add parameters to the conversion callable, create it as a struct like below.
 
 ```java
-final fmt_generator(specs) = {
-  return new{
-    specs = specs|str;       // ensure str type for specs while bringing them within new
-    \call(x) = {             // make the returned struct a callable
-      return x[this.specs];  // apply the numeric formatting pattern
-    }  
-  }
+final fmt_generator(specs) => new{
+    // make the returned struct a callable that applies the numeric formatting pattern
+    specs = specs|str; // ensure str type for specs while bringing them within new
+    call(x) => x[this.specs]; 
 }
 
 print(1.2345 | fmt_generator(".3f"));
@@ -62,8 +59,7 @@ Here is an example:
 
 ```java
 final nonzero(x) = {
-  if(x==0) 
-    fail("Zero not allowed"); 
+  if(x==0) fail("Zero not allowed"); 
   return x;
 }
 
@@ -77,7 +73,7 @@ print(safediv("1", 2));
 ```
 
 ```bash
->blombly main.bb
+> blombly main.bb
 0.5
 ```
 
@@ -93,7 +89,7 @@ Here is an example:
 ```java
 safenumber = {
   nonzero = {if(this.value==0) fail("zero value"); return this.value}
-  \float = {return this.value}
+  float => this.value;
 }
 
 x = new{safenumber:value=1}

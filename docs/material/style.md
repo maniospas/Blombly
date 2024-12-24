@@ -1,7 +1,8 @@
 # Style guide
 
 Here is a style guide that works well with Blombly's principles 
-of simplicity and easy comprehension.
+of simplicity and easy comprehension. 
+**This style is optional but highly encouraged.**
 
 
 ## Spacing
@@ -38,19 +39,29 @@ adder(x, y) = {
 print(adder(1, 2));
 ```
 
-However, if code blocks comprise only one statement, prefer
+If code blocks comprise only one statement, prefer
 placing everything in one line. In this case, also forgo the
-trailitng semicolon for ease of aesthetics. Here is an example:
+trailitng semicolon for less symbol clutter.
+Notably, code blocks implemented in one line usually
+just return a value. This brings us to the practice of applying 
+`=>` whenever this happens to reduce the amount of nesting.
+Two equivalent examples follow.
 
 ```java
-// main.bb
+// main.bb (without applyign =>, which is not preferred)
 fmt(x) = {return x[".3f"]}
 number = "Give a number:"|read|float;
 print("This is a number {number:fmt}");
 ```
 
+```java
+// main.bb (preferred)
+fmt(x) => x[".3f"];
+number = "Give a number:"|read|float;
+print("This is a number {number:fmt}");
+```
 
-Preffer using control flow without brackets. If so,
+Similarly, preffer using control flow without brackets. If so,
 prefer bracketless statements in the same line as their
 controlling condition. The language's syntax is curated so
 that only the trailing semicolon will appear in each line.
@@ -79,11 +90,28 @@ Avoid module conflicts by placing include statements
 within `new` declarations. Here is an example:
 
 ```java
-final html = new {#include "libs/html"}
+final html = new {!include "libs/html"}
 print(html.html); // this will tell you that this is a code block
 ```
 
-**Prefer !local instead of !macro to redefine stuff for
+**Prefer !local instead of !macro to redefine macros for
 only one file.** In general, macros should be avoided
 for anything that is not injecting metaprogramming patterns.
 
+
+## ->
+
+The `->` symbol is equivalent to return. Prefer using it
+only when you are meaning to return from try statements.
+Here is an example:
+
+```java
+// main.bb
+value = "Please give a number"|read|float;
+sgn = try {
+    if(value<0) -> -1;
+    if(value>0) -> 1;
+    -> 0;
+}
+print("Sign is {sgn}");
+```

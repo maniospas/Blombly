@@ -41,7 +41,7 @@ languages. Only difference to usual practices is that the `not` operation has hi
 | **Category**             | **Operations**                         | **Description**                                          |
 |--------------------------|----------------------------------------|----------------------------------------------------------|
 | **Assignment**           | `(expression)`                         | Compute the expression first. Also used in method calls later. |
-| **Assignment**           | `y=x`, `y as x`                        | The `as` assignment is covered below. |
+| **Assignment**           | `y=x`, `y as x`                        | The return values of assignments are covered below. |
 | **Conversion**           | `typename(x)`                          | Everything can be converted to `str`, numbers can be converted from `str`. You will see the equivalent `x|typename` a lot too. |
 | **Elements**             | `a[i]`, `a[i]=x`                       | Element get and set for strings. |
 | **Arithmetics**          | `+`, `-`, `*`, `/` <br> `^` <br> `%`   | Basic arithmetics (division is floating-point). <br> Exponentiation. <br> Modulo for integers. |
@@ -119,15 +119,16 @@ x = x+1; // CREATES AN ERROR
 ```
 
 ```bash
-> Blombly main.bb
+> blombly main.bb
  (ERROR) Cannot overwrite final value: x
     → add x x _bb2 main.bbvm line 4
 ```
 
 ## Control flow
 
-Control flow alters which code segments are executed next. Blombly offers similar options to most programming languages in terms of conditional branching, loops, method calling,
-and error handling. The first two of those are described here, whereas method calling is described [seperately](blocks.md) because it offers more options than other languages. 
+Control flow alters which code segments are executed next. Blombly offers similar options to most programming languages in terms of conditional branching, loops, deffering
+execution for later, method calling,
+and error handling. The first three of those are described here, whereas method calling is described [seperately](blocks.md) because it offers more options than other languages. 
 Error handling also has its own dedicated page [here](../advanced/signals.md), though below give a first taste of the `try` keyword's dynamic usage in other cases.
 
 Conditionals take the form `if(@condition){@accept}else{@reject}` where `@` denotes code segments (by the way, this is the macro declaration notation). 
@@ -144,8 +145,8 @@ else if(x<0)
 ```
 
 Similarly, loops take the form `while (condition) {@code}` and keep executing the code while the condition is `true`. 
-To avoid ambiguity, there are no other ways in the language's core to declare a loop. 
-Again, you may ommit brackets if only one command runs.
+To avoid ambiguity, there are no other ways in the language's core to declare a loop, albeit the `in` keywords allows
+you to iterate through lists and the like. Again, you may ommit brackets if only one command runs.
 Here is an example:
 
 ```java
@@ -157,6 +158,27 @@ while (counter<10) {
 }
 ```
 
+Finally, deferring is a command that declares code but makes it run later. *The deferred code always runs*, even
+if errors occur in the interim. Normally, it is executed just before return statements, including returning from
+`new` statements creating structs.
+In advanced settings, you can remove cyclic struct references. Here is a usage of defer where we ignore the brackers
+of the deferred code block.
+
+```java
+// main.bb
+A = new { // this is how structs are created
+    x=0;
+    defer x=1; // executed just before the end of struct creation
+    print(x);
+}
+print(A.x);
+```
+
+```bash
+> blombly main.bb
+0
+1
+```
 
 ## Errors as values
 
@@ -218,9 +240,19 @@ sgn = try if(x>=0) return 1 else return -1;
 print("Sign is "+str(sgn));
 ```
 
+The language comes with the macro `->` as shorthand for `return`, 
+which means that the above sign computation could also be written 
+like below. Prefer this notation to write consise statements.
+
+```python
+sgn = try if(x>=0) ->1 else ->-1;
+```
+
+
+
 A similar syntax breaks away from loops below, though we will not dabble on 
 handling returned values for now. Contrary to error handling overheads, 
-tt is lightweight to intercept returns.
+it is lightweight to intercept returns.
 
 ```java
 // main.bb
@@ -228,8 +260,7 @@ counter = 0;
 try while (true) {
     counter = counter + 1;
     print("Counter is: " + str(counter));
-    if(counter==10)
-        return;  // keeps exiting the code until intercepted by try
+    if(counter==10) return;  // keeps exiting the code until intercepted by try
 }
 ```
 
@@ -242,23 +273,20 @@ which makes code simpler.
 counter = 0;
 while (counter<10) try {
     counter = counter + 1;
-    if (counter % 2==0) 
-        return;
+    if (counter % 2==0) return;
     print("Odd value: " + str(counter));
 }
 ```
 
-As a simpler example, use `try` to effectively create switch-like statements like below:
+As a simpler example, use `try` to create switch statements, like below:
 
 ```java
 // main.bb
 value = "Give a number:"|read|float;
 test = try {
-    if(value>1)
-        return "large"
-    if(value<-1)
-        return "small"
-    return "in unit interval";
+    if(value>1) -> "large";
+    if(value<-1) -> "small";
+    -> "in unit interval";
 }
 print(test);
 ```

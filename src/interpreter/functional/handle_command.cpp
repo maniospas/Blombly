@@ -99,6 +99,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 auto strct = static_cast<Struct*>(called);
                 auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
                 bbassert(val && val->getType()==CODE, "Struct was called like a method but has no implemented code for `call`.");
+                static_cast<Code*>(val)->setDeclarationMemory(static_cast<Struct*>(called)->getMemory());
                 called = (val);
             }
             auto code = static_cast<Code*>(called);

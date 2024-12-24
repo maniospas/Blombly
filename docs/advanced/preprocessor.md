@@ -53,7 +53,7 @@ but you can use things like this to customize the language to your tastes, effec
 
 ```java
 // main.bb
-#include "oop"
+!include "oop"
 
 class Finder { 
     fn contains(number) {
@@ -66,7 +66,7 @@ class Finder {
         return true;
     }
 
-    fn \next() {
+    fn next() {
         while (true) {
             this.number = this.number + 1;
             if (this.contains(number)) return this.number;
@@ -107,6 +107,13 @@ A = 1,2,3;
 it = iter(A);
 while(x as next(it))
     print(x);
+```
+
+```bash
+> blombly main.bb
+1
+2
+3
 ```
 
 Blombly's `in` macro that is shipped with the language
