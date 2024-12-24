@@ -1,7 +1,8 @@
-!macro {in @expr} as {as bbvm::next(!of bbvm::iter(@expr))}
+!macro {in @expr} as {as bbvm::next(!anon bbvm::iter(@expr))}
 !macro {semitype @name;} as {@name(value) = {return value. !symbol(@name)()}}
 !macro {uses @name;} as {final @name = @name;}
 !macro {assert @expr;} as {if((@expr)==false) fail(!stringify("Assertion failed: " @expr));}
+//!macro {:=} as {= try}
 
 final back(element) = {return new {
     final element = element;
@@ -10,3 +11,16 @@ final back(element) = {return new {
         return A;
     }
 }}
+
+final apply(func) = {return new {
+    final func = func;
+    call(A) = {
+        ret = list();
+        while(x in A)
+            push(ret, func(x));
+        return ret;
+    }
+}}
+
+
+!macro {->@expr;} as {={return @expr;}}

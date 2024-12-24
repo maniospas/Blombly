@@ -810,9 +810,7 @@ public:
                 if (is_final) {
                     bbassert(first_name.size() < 3 || first_name.substr(0, 3) != "_bb", 
                               "_bb variables cannot be made final\n"
-                              "   \033[33m!!!\033[0m This error indicates an\n"
-                              "        internal logical bug of the compiler's "
-                              "parser.\n"+show_position(start));
+                              "   \033[33m!!!\033[0m This is an internal or macro issue.\n"+show_position(start));
                     ret += "final # " + first_name + "\n";
                 }
                 if (asAssignment != MISSING) {
@@ -1299,6 +1297,12 @@ void sanitize(std::vector<Token>& tokens) {
             continue;
         }
 
+        /*if(tokens[i].name=="-" && i<tokens.size()-1 && tokens[i+1].name==">") {
+            i += 1;
+            updatedTokens.emplace_back("return", tokens[i].file, tokens[i].line, true); // => as return statement
+            continue;
+        }*/
+
 
         if (tokens[i].name=="-" && (i==0 || (tokens[i-1].name=="=" || tokens[i-1].name=="as" || tokens[i-1].name=="{" ||  tokens[i-1].name=="[" || tokens[i-1].name=="(" || tokens[i-1].name==",")) 
             && i < tokens.size() - 1 && (tokens[i + 1].builtintype == 3 || tokens[i + 1].builtintype == 4)) {
@@ -1344,6 +1348,15 @@ void sanitize(std::vector<Token>& tokens) {
             continue;
         }
 
+        if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 1 && tokens[i + 1].name == "x") {
+            updatedTokens.emplace_back("next", tokens[i].file, tokens[i].line, true);
+            updatedTokens.emplace_back("(", tokens[i].file, tokens[i].line, true);
+            updatedTokens.emplace_back("args", tokens[i].file, tokens[i].line, true);
+            updatedTokens.emplace_back(")", tokens[i].file, tokens[i].line, true);
+            i += 1;
+            continue;
+        }
+
         if (tokens[i].name == "." && i < tokens.size() - 1 && tokens[i+1].name == "this") {
             bberror("Directly accessing `.this` as a field is not allowed."
                     "\n   \033[33m!!!\033[0m You may assign it to a new accessible variable per `scope=this;`,"
@@ -1363,13 +1376,15 @@ void sanitize(std::vector<Token>& tokens) {
         }
         if ((tokens[i].name == "#" || tokens[i].name == "!") && ((i >= tokens.size() - 1) || 
             (tokens[i + 1].name != "include" && tokens[i + 1].name != "local" && tokens[i + 1].name != "macro" && tokens[i + 1].name != "stringify" && tokens[i + 1].name != "symbol"
+             && tokens[i + 1].name != "anon" && tokens[i + 1].name != "x"
              && tokens[i + 1].name != "spec" && tokens[i + 1].name != "fail" && tokens[i + 1].name != "of" && tokens[i + 1].name != "gcc"))) {
             bberror("Invalid preprocessor instruction after `"+tokens[i].name+"` symbol."
                     "\n   \033[33m!!!\033[0m This symbol signifies preprocessor directives."
                     "\n        Valid directives are the following patterns:"
                     "\n        - `!include @str` inlines a file."
                     "\n        - `!spec @property=@value;` declares a code block specification."
-                    "\n        - `(!of @expression)` assigns the expression to a temporary variable just after the last command."
+                    "\n        - `(!of @expression)` or (!anon @expression)` assigns the expression to a temporary variable just after the last command."
+                    "\n        - `!x` is a shorthand for `next(args)`."
                     "\n        - `!macro {@expression} as {@implementation}` defines a macro."
                     "\n        - `!local {@expression} as {@implementation}` defines a macro that is invalidated when the current file ends."
                     "\n        - `!stringify (@tokens)` converts the tokens into a string at compile time."
@@ -1475,10 +1490,10 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     "\n       before the current commend. Here is an example `A = 1,2,3; while(x as next(#of bbvm::iter(A))) {}`.\n"
                     + Parser::show_position(tokens, i));*/
 
-        if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && tokens[i + 1].name == "of") {
+        if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && (tokens[i + 1].name == "of" || tokens[i + 1].name == "anon")) {
                 bbassert(tokens[i - 1].name == "(" || tokens[i - 1].name == "[", 
                           "Unexpected `#of` encountered after `"+tokens[i - 1].name +"`."
-                          "\n   \033[33m!!!\033[0m  Each `#of` declaration can only start after a parenthesis or square bracket."
+                          "\n   \033[33m!!!\033[0m  Each `!of` (or equivalently `!anon`) declaration can only start after a parenthesis or square bracket."
                           "\n        Here is an example `A = 1,2,3; while(x as next(#of bbvm::iter(A))) {}`.\n"
                           +Parser::show_position(tokens, i));
                 int iend = i+2;
@@ -1492,7 +1507,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                         break;
                     iend += 1;
                 }
-                bbassert(iend<tokens.size() && (tokens[iend].name==")" || tokens[iend].name=="]"), tokens[i - 1].name == "("?"`(#of @code)` statement was never closed with a right symbol.":"`[#of @code]` statement was never closed with a right symbol.");
+                bbassert(iend<tokens.size() && (tokens[iend].name==")" || tokens[iend].name=="]"), tokens[i - 1].name == "("?"`(!of @code)` or `(!anon @code)` statement was never closed with a right symbol.":"`[!of @code]` or `(!anon @code)` statement was never closed with a right symbol.");
                 int position = updatedTokens.size();
                 //depth = 0;
                 while(position>0)  {
@@ -1517,7 +1532,6 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 updatedTokens.emplace_back(temp, tokens[i].file, tokens[i].line, true);
                 i = iend;
         }
-
         if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && tokens[i + 1].name == "fail") {
             std::string message;
             int pos = i+2;

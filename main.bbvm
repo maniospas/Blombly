@@ -1,33 +1,96 @@
-time tic
-list A
-BUILTIN _bb9 I10000
-range _bb8 _bb9
-iter _bbmacro0 _bb8
-next _bb11 _bbmacro0
-AS i _bb11
-exists _bb12 i
-BEGIN _bb13
-push # A i
-next _bb11 _bbmacro0
-AS i _bb11
-exists _bb12 i
-END
-while # _bb12 _bb13
-time toc
-sub _bb15 toc tic
-print # _bb15
-time tic
-list B
-next _bb18 A
-AS i _bb18
-exists _bb19 i
+BEGIN _bb18
+IS Adder Adder
+final # Adder
 BEGIN _bb20
-push # B i
-next _bb18 A
-AS i _bb18
-exists _bb19 i
+BEGIN _bb21
+return # this
 END
-while # _bb19 _bb20
-time toc
-sub _bb22 toc tic
-print # _bb22
+IS getThis _bb21
+END
+defer # _bb20
+BEGIN _bb22
+get _bb24 this parent
+float _bb25 _bb24
+get _bb26 this element
+add _bb23 _bb26 _bb25
+return # _bb23
+END
+IS float _bb22
+BEGIN _bb27
+float _bb29 this
+str _bb28 _bb29
+return # _bb28
+END
+IS str _bb27
+BEGIN _bb30
+next newElement args
+BEGIN _bb33
+BEGIN _bb34
+BUILTIN _bb35 "Assertion failed: len(args)==0"
+fail # _bb35
+END
+BUILTIN _bb37 Bfalse
+BUILTIN _bb39 I0
+len _bb40 args
+eq _bb38 _bb40 _bb39
+eq _bb36 _bb38 _bb37
+if # _bb36 _bb34
+inline _bb41 Adder
+call _bb42 # getThis
+IS parent _bb42
+IS element newElement
+return # this
+END
+new _bb31 _bb33
+return # _bb31
+END
+IS call _bb30
+END
+IS Adder _bb18
+final # Adder
+BEGIN _bb43
+next x args
+BEGIN _bb46
+inline _bb47 Adder
+IS element x
+BUILTIN parent I0
+return # this
+END
+new _bb44 _bb46
+return # _bb44
+END
+IS adder _bb43
+BEGIN _bb49
+BEGIN _bb51
+BUILTIN _bb52 I0
+list args _bb52
+END
+call _bb50 _bb51 adder
+IS ret _bb50
+next _bb53 args
+AS x _bb53
+exists _bb54 x
+BEGIN _bb55
+float x x
+BEGIN _bb58
+list args x
+END
+call _bb57 _bb58 ret
+IS ret _bb57
+next _bb53 args
+AS x _bb53
+exists _bb54 x
+END
+while # _bb54 _bb55
+return # ret
+END
+IS add _bb49
+BEGIN _bb60
+BUILTIN _bb61 I1
+BUILTIN _bb62 I2
+BUILTIN _bb63 I3
+BUILTIN _bb64 I4
+list args _bb61 _bb62 _bb63 _bb64
+END
+call _bb59 _bb60 add
+print # _bb59
