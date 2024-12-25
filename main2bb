@@ -65,6 +65,5 @@ print(add(1,2,3,4));
 
 
 
-
-add(x)=>new{final x=x}.call(y)=>x+y;
+add(x) => new{final x}.call(y) => x+y;
 print(add(1)(2));

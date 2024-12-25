@@ -556,8 +556,10 @@ public:
 
                             for(int jj=j;jj<next_j-1;++jj) {
                                 std::string semitype = tokens[jj].name;
-                                if(semitype=="float" || semitype=="int" || semitype=="str" || semitype=="bool"
-                                    || semitype=="bbvm::float" || semitype=="bbvm::int" || semitype=="bbvm::str" || semitype=="bbvm::bool")
+                                if(semitype=="float" || semitype=="int" || semitype=="str" || semitype=="bool" || semitype=="list" || semitype=="vector" || semitype=="iter"
+                                    || semitype=="file" 
+                                    || semitype=="bbvm::float" || semitype=="bbvm::int" || semitype=="bbvm::str" || semitype=="bbvm::bool" || semitype=="bbvm::iter"
+                                    || semitype=="bbvm::list" || semitype=="bbvm::vector" || semitype=="bbvm::file")
                                     code_block_prepend += semitype+" "+name+" "+name+"\n";
                                 else {
                                     std::string args = create_temp();
@@ -777,8 +779,9 @@ public:
                             for(int jj=j;jj<next_j-1;++jj) {
                                 std::string semitype = tokens[jj].name;
                                 if(semitype=="float" || semitype=="int" || semitype=="str" || semitype=="bool" || semitype=="list" || semitype=="vector" || semitype=="iter"
+                                    || semitype=="file" 
                                     || semitype=="bbvm::float" || semitype=="bbvm::int" || semitype=="bbvm::str" || semitype=="bbvm::bool" || semitype=="bbvm::iter"
-                                    || semitype=="bbvm::list" || semitype=="bbvm::vector")
+                                    || semitype=="bbvm::list" || semitype=="bbvm::vector" || semitype=="bbvm::file")
                                     code_block_prepend += semitype+" "+name+" "+name+"\n";
                                 else {
                                     std::string args = create_temp();

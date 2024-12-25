@@ -90,8 +90,8 @@ and inline them within the calling parenthesis. Here is an example:
 
 ```java
 // main.bb
-final adder = {return x + y + bias}
-final suber = {return x - y + bias}
+final adder => x + y + bias;
+final suber => x - y + bias;
 final increase = {if(increment) bias=1 else bias=0}
 final nobias = {bias=0}
 

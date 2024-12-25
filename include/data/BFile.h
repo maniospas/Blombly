@@ -12,7 +12,8 @@ private:
     std::string path;
     int size;
     std::vector<std::string> contents;
-
+    bool contentsLoaded;
+    void loadContents();
 public:
     explicit BFile(const std::string& path_);
 

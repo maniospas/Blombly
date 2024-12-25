@@ -1,28 +1,39 @@
-BEGIN _bb18
-next x args
-BEGIN _bb21
-IS x x
-final # x
-return # this
+BEGIN _bb19
+next path args
+BUILTIN _bb21 "/."
+add _bb20 path _bb21
+bool _bb22 _bb20
+return # _bb22
 END
-new _bb19 _bb21
-BEGIN _bb22
-next y args
-add _bb23 x y
-return # _bb23
-END
-set # _bb19 call _bb22
-return # _bb19
-END
-IS add _bb18
+IS isfolder _bb19
+BEGIN _bb23
+next path args
+file path path
+print # path
 BEGIN _bb25
-BUILTIN _bb26 I2
-list args _bb26
 END
-BEGIN _bb28
-BUILTIN _bb29 I1
-list args _bb29
+default # _bb25
+file _bb27 path
+iter _bbmacro1 _bb27
+next _bb29 _bbmacro1
+AS subpath _bb29
+exists _bb30 subpath
+BEGIN _bb31
+BEGIN _bb33
+list args subpath
 END
-call _bb27 _bb28 add
-call _bb24 _bb25 _bb27
-print # _bb24
+call _bb32 _bb33 isfolder
+list _bb35 subpath _bb32
+print # _bb35
+next _bb29 _bbmacro1
+AS subpath _bb29
+exists _bb30 subpath
+END
+while # _bb30 _bb31
+END
+IS list_contents _bb23
+BEGIN _bb37
+BUILTIN _bb38 "src"
+list args _bb38
+END
+call _bb36 _bb37 list_contents

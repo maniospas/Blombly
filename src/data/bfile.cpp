@@ -7,8 +7,11 @@
 #include "common.h"
 #include <iostream>
 #include <fstream>
-#include <sstream> 
+#include <sstream>
 #include <curl/curl.h> // Include libcurl
+#include <filesystem> // Include filesystem library
+
+namespace fs = std::filesystem;
 
 extern BError* OUT_OF_RANGE;
 
@@ -45,7 +48,11 @@ std::string fetchHttpContent(const std::string& url) {
     return response;
 }
 
-BFile::BFile(const std::string& path_) : path(path_), size(0), Data(FILETYPE) {
+BFile::BFile(const std::string& path_) : path(path_), size(0), Data(FILETYPE), contentsLoaded(false) {}
+
+void BFile::loadContents() {
+    if (contentsLoaded) return;
+
     if (path.rfind("http", 0) == 0) { // Check if path starts with "http"
         std::string httpContent = fetchHttpContent(path);
         if (!httpContent.empty()) {
@@ -57,7 +64,11 @@ BFile::BFile(const std::string& path_) : path(path_), size(0), Data(FILETYPE) {
         } else {
             bberror("Failed to fetch content from HTTP path: " + path);
         }
-    } else {
+    } else if (fs::is_directory(path)) { // Check if path is a directory
+        for (const auto& entry : fs::directory_iterator(path)) {
+            contents.push_back(entry.path().string());
+        }
+    } else { // Assume path is a file
         std::ifstream file(path);
         if (file.is_open()) {
             std::string line;
@@ -70,12 +81,14 @@ BFile::BFile(const std::string& path_) : path(path_), size(0), Data(FILETYPE) {
         }
     }
     size = contents.size();
+    contentsLoaded = true;
 }
 
-std::string BFile::toString(){
+std::string BFile::toString() {
+    loadContents();
     std::string result = "";
-    for (std::size_t i = 1; i<contents.size(); ++i) {
-        if(i)
+    for (std::size_t i = 1; i < contents.size(); ++i) {
+        if (i)
             result += "\n";
         result += contents[i];
     }
@@ -87,10 +100,11 @@ std::string BFile::getPath() const {
 }
 
 Result BFile::implement(const OperationType operation, BuiltinArgs* args) {
+    loadContents();
+
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
         int lineNum = static_cast<Integer*>(args->arg1)->getValue();
         if (lineNum < 0 || lineNum >= contents.size()) {
-            //bberror("Line number " + std::to_string(lineNum) + " out of range [0," + std::to_string(contents.size()) + ")");
             return std::move(Result(OUT_OF_RANGE));
         }
         std::string lineContent = contents[lineNum];
