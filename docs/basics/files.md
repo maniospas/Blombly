@@ -21,7 +21,8 @@ You can similarly list the file paths of a directory. Paths can be added to file
 but the original file location cannot be retrieved.
 *This lets paths remain confidential once first declared.*
 For example, one cannot expose local directory structure when running servers
-or printing logs, unless this information is explicitly encoded.
+or printing logs, unless this information is explicitly retained
+or leaked in file data.
 
 ```java
 final isfolder(file path) => bool(path/".");

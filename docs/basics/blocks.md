@@ -23,42 +23,6 @@ test:
 ```
 
 
-## Specifications
-
-One can declare and retrieve specifications from code blocks. 
-In the simplest case, Blombly offers the dot . notation, like the language's [structs](structs.md) to read and write specification data. 
-However, specifications differ from struct fields in that they declare immutable properties, like documentation and source code versions.
-In the example below specifications are set for a code block. The final keyword is mandatory to signify their immutable nature.
- For logic safety, an error will occur otherwise.
-
-```java
-// main.bb
-hello = {
-    print("Hello world!"); 
-} 
-final tehellost.version = "1.0.0"; // setting metadata is always final 
-final hello.license = "CC0";
-
-print("Running test version {hello.version} under {hello.license} license...");
-hello: // the block's code directly runs here
-```
-
-A shorthand for declaring specifications consists of defining them at the beginning of respective blocks using the `!spec` directive of the [preprocessor](../advanced/preprocessor.md). 
-This firective cannot use any of the block's variables, but has normal access to the block's declaring scope. The next example is identical to the previous one.
-
-```java
-// main.bb
-hello = { 
-    !spec version = "1.0.0";
-    !spec license = "CC0";
-    print("Hello world!"); 
-}
-
-print("Running test version {hello.version} under {hello.license} license...");
-hello:
-```
-
-
 ## Method calling
 
 Blombly can call code blocks by executing some code inside a paranthesis. Variables
@@ -66,7 +30,8 @@ declared inside the parenthesis are transferred to the called block.
 The last semicolon may be ommited from code blocks,
 so this mostly looks like keyword arguments seperated by semicolons (`;`). 
 We later show a modification that accepts positional arguments too.
-Use a `return` statement to yield back a call value. Here is an example:
+Use a `return` statement to yield back a call value. An example of running 
+a code block follows.
 
 ```java 
 // main.bb
@@ -86,7 +51,16 @@ Being able to execute code as part of the arguments allows more
 dynamic patterns than regular keyword arguments, namely the reuse
 of arbitrary preparations before calling methods. For example, one
 can declare configuration blocks that generate the arguments 
-and inline them within the calling parenthesis. Here is an example:
+and inline them within the calling parenthesis.
+
+
+Blombly comes alongside several [macros](../advanced/preprocessor.md). 
+One of this is `@signature => @expression`, which is a shorthand for code blocks that only consist of returning a value.
+This should not be confused with the `->` notation, which represents a consise return statement. 
+As a mnemonic, think of the shorthand notation we present here
+as the amalgamation of various symbols from the equivalent `@signature = {->@expression}`.
+Below is an example that combines all terminology up to now.
+
 
 ```java
 // main.bb
@@ -108,10 +82,32 @@ print(b);
 -1
 ```
 
-Once arguments are transferred and the code block starts running, it can view only final
+## Closure
+
+Once arguments are transferred and the code block starts running, the latter can view only final
 variables of the scope from which it is called. This means that moving blocks between scopes
 makes them adapt to the finals of the new scope. This lets the language internally
-schedule certain block calls to run in parallel threads for speedup.
+schedule certain block calls to run in parallel threads for speedup. Below is an example.
+
+```java
+// main.bb
+scope = {
+    final value = "Declaration scope";
+    value_printer = {print(value)}
+    value_printer();
+    return value_printer;
+}
+
+final value = "Running scope";
+value_printer = scope();
+value_printer();
+```
+
+The property of obtaining values from a surrounding context is broadly called *closure*.
+Contrary to most interpreted languages, Blombly aims for efficient memory management
+and parallelization. It therefore adopts the low-level language paradigm of method 
+calling by using the scope in which methods are called (instead of where they are defined)
+as their closure.
 
 
 ## Positional arguments
@@ -148,9 +144,17 @@ result = test(1, 2);
 print(result);
 ```
 
-## Mixed arguments
 
-Blombly allows mixing of positional arguments and code execution by separating the two with double doubledots 
+```java
+// main.bb (simpler code writting -preferred)
+adder(x, y) => x+y;
+test = adder; // can still transfer the definition this way
+result = test(1, 2);
+print(result);
+```
+
+
+Blombly mixes positional arguments and code execution by separating the two with double doubledots 
 (`::`) inside the call parenthesis. These also require whitespaces before and after them.
 
 ```java
@@ -166,21 +170,3 @@ print(result);
 
 Positional arguments are created first from the calling scope, so further argument generation can modify them.
 
-## =>
-
-Blombly comes alongside several [macros](../advanced/preprocessor.md). 
-One of this is `@signature => @expression`, which is a shorthand for code blocks that only consist of returning a value.
-This should not be confused with the `->` notation, which represents a consise return statement. 
-As a mnemonic, think of the shorthand notation we present here
-as the amalgamation of various symbols from the equivalent `@signature = {->@expression}`. Below is an example.
-
-```java
-// main.bb
-adder(x, y) => x+y;
-print(adder(1,2));
-```
-
-```bash
-> blombly main.bb
-3
-```

@@ -1,13 +1,11 @@
-final isfolder(file path) => bool(path/".");
-final files(file path) = {
-    default tab = "";
-    ret = list();
-    while(subpath in path|file) try {
-        if(subpath=="." or subpath=="..") return;
-        if(subpath|isfolder) ret += files(subpath :: tab="{tab}  ") else push(ret, subpath);
-    }
-    return ret;
+// main.bb
+scope = {
+    final value = "Declaration scope";
+    value_printer = {print(value)}
+    value_printer();
+    return value_printer;
 }
 
-while(path in files("src"))
-    print(path);
+final value = "Running scope";
+value_printer = scope();
+value_printer();

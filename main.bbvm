@@ -1,81 +1,16 @@
+BEGIN _bb18
+BUILTIN value "Declaration scope"
+final # value
 BEGIN _bb20
-next path args
-file path path
-BUILTIN _bb22 "."
-div _bb21 path _bb22
-bool _bb23 _bb21
-return # _bb23
+print # value
 END
-IS isfolder _bb20
-final # isfolder
-BEGIN _bb24
-next path args
-file path path
-BEGIN _bb26
-BUILTIN tab ""
+IS value_printer _bb20
+call _bb21 # value_printer
+return # value_printer
 END
-default # _bb26
-list ret
-file _bb29 path
-iter _bbmacro1 _bb29
-next _bb31 _bbmacro1
-AS subpath _bb31
-exists _bb32 subpath
-BEGIN _bb33
-BEGIN _bb36
-BEGIN _bb37
-return # #
-END
-BUILTIN _bb40 ".."
-eq _bb39 subpath _bb40
-BUILTIN _bb42 "."
-eq _bb41 subpath _bb42
-or _bb38 _bb41 _bb39
-if # _bb38 _bb37
-BEGIN _bb43
-BEGIN _bb45
-list args subpath
-BUILTIN _bb47 "  "
-str _bb49 tab
-BUILTIN _bb50 ""
-add _bb48 _bb50 _bb49
-add tab _bb48 _bb47
-END
-call _bb44 _bb45 files
-add ret ret _bb44
-END
-BEGIN _bb51
-push # ret subpath
-END
-BEGIN _bb53
-list args subpath
-END
-call _bb52 _bb53 isfolder
-if # _bb52 _bb43 _bb51
-END
-try _bb34 _bb36
-next _bb31 _bbmacro1
-AS subpath _bb31
-exists _bb32 subpath
-END
-while # _bb32 _bb33
-return # ret
-END
-IS files _bb24
-final # files
-BEGIN _bb56
-BUILTIN _bb57 "src"
-list args _bb57
-END
-call _bb55 _bb56 files
-iter _bbmacro2 _bb55
-next _bb59 _bbmacro2
-AS path _bb59
-exists _bb60 path
-BEGIN _bb61
-print # path
-next _bb59 _bbmacro2
-AS path _bb59
-exists _bb60 path
-END
-while # _bb60 _bb61
+IS scope _bb18
+BUILTIN value "Running scope"
+final # value
+call _bb23 # scope
+IS value_printer _bb23
+call _bb24 # value_printer

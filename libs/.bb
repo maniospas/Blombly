@@ -21,7 +21,6 @@ final apply(func) = {return new {
     }
 }}
 
-
 !macro {=>@expr;} as {={return @expr;}}
 !macro {->} as {return}
 !macro {monad(@symbol)} as {new {final @symbol=@symbol}}
