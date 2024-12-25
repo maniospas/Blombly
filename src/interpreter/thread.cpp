@@ -20,7 +20,7 @@ void threadExecute(Code* code,
         if(value && value->getType()==CODE)
             static_cast<Code*>(value)->setDeclarationMemory(nullptr);
         result->value = std::move(returnValue);
-
+        memory->unsafeSet(variableManager.thisId, nullptr, nullptr);
         //memory->await(); // await here to prevent awaiting during the destructor
 
     } catch (const BBError& e) {

@@ -1,6 +1,7 @@
 #include "data/BFile.h"
 #include "data/Integer.h"
 #include "data/BString.h"
+#include "data/Boolean.h"
 #include "data/Iterator.h"
 #include "data/List.h"
 #include "data/BError.h"
@@ -99,10 +100,15 @@ std::string BFile::getPath() const {
     return path;
 }
 
+bool BFile::exists() const {
+    if (path.rfind("http", 0) == 0) return true; 
+    return fs::exists(path);
+}
+
 Result BFile::implement(const OperationType operation, BuiltinArgs* args) {
-    loadContents();
 
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
+        loadContents();
         int lineNum = static_cast<Integer*>(args->arg1)->getValue();
         if (lineNum < 0 || lineNum >= contents.size()) {
             return std::move(Result(OUT_OF_RANGE));
@@ -110,8 +116,19 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args) {
         std::string lineContent = contents[lineNum];
         STRING_RESULT(lineContent);
     }
+    if(operation == DIV && args->size == 2 && args->arg1->getType() == STRING) {
+        std::string subpath = args->arg1->toString();
+        fs::path basePath(path);
+        fs::path combinedPath = basePath / subpath;
+        return std::move(Result(new BFile(combinedPath.string())));
+    }
+    if (operation == TOBB_BOOL && args->size == 1) {
+        bool fileExists = exists();
+        BB_BOOLEAN_RESULT(fileExists);
+    }
     if (args->size == 1) {
         if (operation == LEN) {
+            loadContents();
             int ret = contents.size();
             BB_INT_RESULT(ret);
         }
@@ -119,12 +136,14 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args) {
             return std::move(Result(this));
         }
         if (operation == TOSTR) {
+            loadContents();
             STRING_RESULT(toString());
         }
         if (operation == TOITER) {
             return std::move(Result(new AccessIterator(args->arg0)));
         }
         if (operation == TOLIST) {
+            loadContents();
             int n = contents.size();
             BList* list = new BList(n);
             for (int i = 0; i < n; ++i) {

@@ -73,7 +73,7 @@ BMemory* Struct::getMemory() const {
 void Struct::removeFromOwner() {
     int counter = --referenceCounter;
     //std::cout << "removing "<<this<<" from "<<data<<" with counter "<<referenceCounter<<"\n";
-    if(counter==1 || counter==0) {// its held memory will always hold this, in which case we do want a destruction
+    if(counter<=1) {// its held memory will always hold this, in which case we do want a destruction
         //std::cout << "destroying "<<toString()<<" "<<this<<"\n";
         delete this;
     }

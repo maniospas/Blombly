@@ -67,3 +67,33 @@ print(add(1,2,3,4));
 
 add(x) => new{final x}.call(y) => x+y;
 print(add(1)(2));
+
+
+
+
+
+final system = new {
+    final isfolder(file path) => bool(path/".");
+    final files(file path) = {
+        default tab = "";
+        ret = list();
+        while(subpath in path|file) try {
+            if(subpath=="." or subpath=="..") return;
+            if(subpath|isfolder) ret += files(subpath :: tab="{tab}  ") else push(ret, subpath);
+        }
+        return ret;
+    }
+    final log = {
+        message = "";
+        while(arg in args) {
+            if(message|len!=0) message += " ";
+            message += arg|str;
+        }
+        bbvm::print(message)
+    }
+}
+
+while(path in system.files("src"))
+    print(path);
+
+system.log("system message", "test");

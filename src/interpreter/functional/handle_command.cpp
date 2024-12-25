@@ -100,6 +100,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
                 bbassert(val && val->getType()==CODE, "Struct was called like a method but has no implemented code for `call`.");
                 static_cast<Code*>(val)->setDeclarationMemory(static_cast<Struct*>(called)->getMemory());
+                static_cast<Code*>(val)->scheduleForParallelExecution = false;
                 called = (val);
             }
             auto code = static_cast<Code*>(called);
@@ -117,12 +118,20 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                         break;
                     }
                 }
-                newMemory.detach(code->getDeclarationMemory());
+                //newMemory.detach(code->getDeclarationMemory());
+                Data* thisObj = nullptr;
+                if(code->getDeclarationMemory())
+                    thisObj = code->getDeclarationMemory()->getOrNull(variableManager.thisId, true);
+                if(thisObj)
+                    newMemory.unsafeSet(variableManager.thisId, thisObj, nullptr);
+                newMemory.allowMutables = false;
                 //newMemory.leak(); (this is for testing only - we are not leaking any memory to other threads if we continue in the same thread, so no need to enable atomic reference counting)
                 Result returnedValue = executeBlock(code, &newMemory, newReturnSignal);
                 result = returnedValue.get();
                 if(result && result->getType()==CODE)
                     static_cast<Code*>(result)->setDeclarationMemory(nullptr);
+                if(thisObj)
+                    newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
                 SET_RESULT;
                 break;
             } 
@@ -144,7 +153,13 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                         static_cast<Code*>(result)->setDeclarationMemory(nullptr);
                     break;
                 }
-                newMemory->detach(code->getDeclarationMemory());
+                //newMemory->detach(code->getDeclarationMemory());
+                Data* thisObj = nullptr;
+                if(code->getDeclarationMemory())
+                    thisObj = code->getDeclarationMemory()->getOrNull(variableManager.thisId, true);
+                if(thisObj)
+                    newMemory->unsafeSet(variableManager.thisId, thisObj, nullptr);
+                newMemory->allowMutables = false;
                 newMemory->leak(); // for all transferred variables, make their reference counter thread safe
 
                 auto futureResult = new ThreadResult();
@@ -176,7 +191,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 result = code->getMetadata(command->args[2]);
             } 
             else
-                bberror("get can only be called on struct or code");
+                bberror("Can only get elements from struct or code");
         } break;
 
         case IS: {
@@ -354,10 +369,12 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 result = returnedValue.get();
                 if(!tryReturnSignal) {
                     //result = nullptr;
-                    std::string comm = command->toString();
-                    comm.resize(40, ' ');
-                    std::string message = "No error or return statement intercepted with `try`." + std::string("\n   \x1B[34m\u2192\033[0m ") + comm + " \t\x1B[90m " + command->source->path + " line " + std::to_string(command->line);
-                    result = new BError(std::move(message));
+                    //std::string comm = command->toString();
+                    //comm.resize(40, ' ');
+                    std::string message = "No error or return statement intercepted with `try`.";//+ std::string("\n   \x1B[34m\u2192\033[0m ") + comm + " \t\x1B[90m " + command->source->path + " line " + std::to_string(command->line);
+                    BError* res = new BError(std::move(message));
+                    res->consume();
+                    result = res;
                 }
                 SET_RESULT;
             }
@@ -465,7 +482,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             bool newReturnSignal(false);
             Result returnedValue = executeBlock(code, newMemory, newReturnSignal);
             result = returnedValue.get();
-            newMemory->detach(nullptr);
+            // newMemory->detach(nullptr);
             newMemory->leak(); // TODO: investigate if this should be here or manually on getting and setting (here may be better to remove checks given that setting and getting are already slower)
             if(result!=thisObj) {
                 if(result && result->getType()==CODE) 

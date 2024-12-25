@@ -1,11 +1,13 @@
-isfolder(path) => bool(path+"/.");
-
-list_contents(file path) = {
-    print(path);
+final isfolder(file path) => bool(path/".");
+final files(file path) = {
     default tab = "";
-    while(subpath in path|file)
-        print(subpath, subpath|isfolder);
-        //if(subpath|isfolder)
-        //    list_contents(subpath :: tab="{tab}  ");
+    ret = list();
+    while(subpath in path|file) try {
+        if(subpath=="." or subpath=="..") return;
+        if(subpath|isfolder) ret += files(subpath :: tab="{tab}  ") else push(ret, subpath);
+    }
+    return ret;
 }
-list_contents("src");
+
+while(path in files("src"))
+    print(path);

@@ -1,39 +1,81 @@
-BEGIN _bb19
-next path args
-BUILTIN _bb21 "/."
-add _bb20 path _bb21
-bool _bb22 _bb20
-return # _bb22
-END
-IS isfolder _bb19
-BEGIN _bb23
+BEGIN _bb20
 next path args
 file path path
-print # path
-BEGIN _bb25
+BUILTIN _bb22 "."
+div _bb21 path _bb22
+bool _bb23 _bb21
+return # _bb23
 END
-default # _bb25
-file _bb27 path
-iter _bbmacro1 _bb27
-next _bb29 _bbmacro1
-AS subpath _bb29
-exists _bb30 subpath
-BEGIN _bb31
+IS isfolder _bb20
+final # isfolder
+BEGIN _bb24
+next path args
+file path path
+BEGIN _bb26
+BUILTIN tab ""
+END
+default # _bb26
+list ret
+file _bb29 path
+iter _bbmacro1 _bb29
+next _bb31 _bbmacro1
+AS subpath _bb31
+exists _bb32 subpath
 BEGIN _bb33
+BEGIN _bb36
+BEGIN _bb37
+return # #
+END
+BUILTIN _bb40 ".."
+eq _bb39 subpath _bb40
+BUILTIN _bb42 "."
+eq _bb41 subpath _bb42
+or _bb38 _bb41 _bb39
+if # _bb38 _bb37
+BEGIN _bb43
+BEGIN _bb45
+list args subpath
+BUILTIN _bb47 "  "
+str _bb49 tab
+BUILTIN _bb50 ""
+add _bb48 _bb50 _bb49
+add tab _bb48 _bb47
+END
+call _bb44 _bb45 files
+add ret ret _bb44
+END
+BEGIN _bb51
+push # ret subpath
+END
+BEGIN _bb53
 list args subpath
 END
-call _bb32 _bb33 isfolder
-list _bb35 subpath _bb32
-print # _bb35
-next _bb29 _bbmacro1
-AS subpath _bb29
-exists _bb30 subpath
+call _bb52 _bb53 isfolder
+if # _bb52 _bb43 _bb51
 END
-while # _bb30 _bb31
+try _bb34 _bb36
+next _bb31 _bbmacro1
+AS subpath _bb31
+exists _bb32 subpath
 END
-IS list_contents _bb23
-BEGIN _bb37
-BUILTIN _bb38 "src"
-list args _bb38
+while # _bb32 _bb33
+return # ret
 END
-call _bb36 _bb37 list_contents
+IS files _bb24
+final # files
+BEGIN _bb56
+BUILTIN _bb57 "src"
+list args _bb57
+END
+call _bb55 _bb56 files
+iter _bbmacro2 _bb55
+next _bb59 _bbmacro2
+AS path _bb59
+exists _bb60 path
+BEGIN _bb61
+print # path
+next _bb59 _bbmacro2
+AS path _bb59
+exists _bb60 path
+END
+while # _bb60 _bb61

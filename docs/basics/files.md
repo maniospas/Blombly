@@ -24,15 +24,19 @@ For example, one cannot expose local directory structure when running servers
 or printing logs, unless this information is explicitly encoded.
 
 ```java
-isfolder(path) = {return bool(path+".")}
-
-list_contents(path) = {
+final isfolder(file path) => bool(path/".");
+final files(file path) = {
     default tab = "";
-    while(subpath in path|file)
-        if(subpath|isfolder)
-            list_contents(subpath :: tab="{tab}  ");
+    ret = list();
+    while(subpath in path|file) try {
+        if(subpath=="." or subpath=="..") return;
+        if(subpath|isfolder) ret += files(subpath :: tab="{tab}  ") else push(ret, subpath);
+    }
+    return ret;
 }
-list_contents("libs");
+
+while(path in files("src"))
+    print(path);
 ```
 
 ## Reading web resources
@@ -43,9 +47,7 @@ or from disk). Here is an example:
 
 
 ```java
-get(url) = {
-    return url|file|str;  // equivalent to str(file(url))
-}
+get(url) => url|file|str;  // equivalent to str(file(url))
 
 start = bbvm::time();
 print("Waiting");

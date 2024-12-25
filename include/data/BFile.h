@@ -14,6 +14,7 @@ private:
     std::vector<std::string> contents;
     bool contentsLoaded;
     void loadContents();
+    bool exists() const;
 public:
     explicit BFile(const std::string& path_);
 
