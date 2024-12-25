@@ -95,12 +95,11 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             bbassert(called, "Cannot call a missing value.");
             bbassert(called->getType()==CODE || called->getType()==STRUCT, "Only structs or code blocks can be called.");
             if(called->getType()==STRUCT) {
-                // struct calls are never executed in parallel
                 auto strct = static_cast<Struct*>(called);
                 auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
                 bbassert(val && val->getType()==CODE, "Struct was called like a method but has no implemented code for `call`.");
                 static_cast<Code*>(val)->setDeclarationMemory(static_cast<Struct*>(called)->getMemory());
-                static_cast<Code*>(val)->scheduleForParallelExecution = false;
+                static_cast<Code*>(val)->scheduleForParallelExecution = false; // struct calls are never executed in parallel
                 called = (val);
             }
             auto code = static_cast<Code*>(called);
@@ -119,6 +118,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     }
                 }
                 //newMemory.detach(code->getDeclarationMemory());
+                newMemory.detach(memory);
                 Data* thisObj = nullptr;
                 if(code->getDeclarationMemory())
                     thisObj = code->getDeclarationMemory()->getOrNull(variableManager.thisId, true);
@@ -154,6 +154,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     break;
                 }
                 //newMemory->detach(code->getDeclarationMemory());
+                newMemory->detach(memory);
                 Data* thisObj = nullptr;
                 if(code->getDeclarationMemory())
                     thisObj = code->getDeclarationMemory()->getOrNull(variableManager.thisId, true);
@@ -180,18 +181,11 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
         case GET: {
             result = memory->get(command->args[1]);
-            if (result->getType() == STRUCT) {
-                auto obj = static_cast<Struct*>(result);
-                result = obj->getMemory()->get(command->args[2]);
-                if(result->getType() == CODE)
-                    static_cast<Code*>(result)->setDeclarationMemory(obj->getMemory());
-            }
-            else if (result->getType() == CODE) {
-                auto code = static_cast<Code*>(result);
-                result = code->getMetadata(command->args[2]);
-            } 
-            else
-                bberror("Can only get elements from struct or code");
+            bbassert(result->getType() == STRUCT, "Can only get elements from structs");
+            auto obj = static_cast<Struct*>(result);
+            result = obj->getMemory()->get(command->args[2]);
+            if(result->getType() == CODE)
+                static_cast<Code*>(result)->setDeclarationMemory(obj->getMemory());
         } break;
 
         case IS: {
@@ -206,22 +200,14 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
         case AS: {
             result = memory->getOrNull(command->args[1], true);
-            //result = command->knownLocal[1]?memory->getShallow(command->args[1]):memory->get(command->args[1], true);
             bbassert(result, "Missing value: " + variableManager.getSymbol(command->args[1]));
-            if(result->getType()==ERRORTYPE) //{
+            if(result->getType()==ERRORTYPE) 
                 static_cast<BError*>(result)->consume();
-                //result = new BError(true);
-            //}
         } break;
 
         case EXISTS: {
             Data* res = memory->getOrNull(command->args[1], true);
-            if(res) 
-                result = new Boolean(res->getType()!=ERRORTYPE);
-            else
-                result = new Boolean(false);
-            //bool exists = memory->contains(command->args[1]);
-            //result = new Boolean(exists);
+            result = new Boolean(res?res->getType()!=ERRORTYPE:false);
         } break;
 
         case SET: {
@@ -238,13 +224,16 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
         case SETFINAL: {
             Data* obj = memory->get(command->args[1]);
+            bbassert(obj->getType() == STRUCT, "Can only set fields in a struct.");
+            bberror("Cannot set final fields in a struct outside of a `new` statement.");
+            /*Data* obj = memory->get(command->args[1]);
             bbassert(obj->getType() == CODE, "Can only set metadata for code blocks.");
             auto code = static_cast<Code*>(obj);
             Data* setValue = memory->get(command->args[3]);
             if(setValue)
                 setValue->leak();
             code->setMetadata(command->args[2], setValue);
-            result = nullptr;
+            result = nullptr;*/
         } break;
 
         case WHILE: {
@@ -482,12 +471,13 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             bool newReturnSignal(false);
             Result returnedValue = executeBlock(code, newMemory, newReturnSignal);
             result = returnedValue.get();
-            // newMemory->detach(nullptr);
+            newMemory->detach(nullptr);
             newMemory->leak(); // TODO: investigate if this should be here or manually on getting and setting (here may be better to remove checks given that setting and getting are already slower)
             if(result!=thisObj) {
                 if(result && result->getType()==CODE) 
                     static_cast<Code*>(result)->setDeclarationMemory(nullptr);
-                if(command->args[0]!=variableManager.noneId) memory->unsafeSet(command->args[0], result, nullptr);
+                if(command->args[0]!=variableManager.noneId) 
+                    memory->unsafeSet(command->args[0], result, nullptr);
                 thisObj->removeFromOwner(); // do this after setting
                 return;
             }

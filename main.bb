@@ -1,11 +1,17 @@
-// main.bb
-scope = {
-    final value = "Declaration scope";
-    value_printer = {print(value)}
-    value_printer();
-    return value_printer;
+Point = {
+    Point = Point;
+    str => "({this.x},{this.y})";
+    copy = {
+        super = this;
+        Point = super.Point; // Point: will need to know what Point is
+        return new {
+            Point:
+            x=super.x;
+            y=super.y;
+        }
+    }
 }
-
-final value = "Running scope";
-value_printer = scope();
-value_printer();
+point = new{Point:x=1;y=2}
+Point = {fail("Should never be called");}
+point = point.copy();
+print(point);

@@ -1,15 +1,20 @@
 # Structs
 
 This section describes the process with which to make structs, that is, objects that hold certain variables that can be accessed and set with the dot notation. Similarly to scopes, structs can have final variables. 
-**Prefer using structs only to transer state between code block executions.** Do not store intermediate computational values in struct fields if you use it from multiple methods.
+Prefer using structs only to transer state between code block executions. Do not store intermediate computational values in struct fields if you plan to use them from multiple methods.
 
-There are three mechanisms to keep in mind: a) usage of the `new` keyword to create a scope for declaring structs (all scope assignments are transferred to the produced struct), b) the `this` keyword from which struct members can be accessed from called code blocks, and c) private variables that are not exposed externally.
+<div style="background-color: rgb(159, 236, 199); color: black; text-align: center; padding: 20px 0; font-size: 24px; border: 1px solid black;">
+    Code blocks only transfer code. Use structs to transfer state.
+</div>
 
-In addition to these concepts, here we demonstrate usage of code blocks as constructors to be inlined within struct creation. Boilerplate best practices that support object-oriented programming are provided as macros in the "std/oop" include covered in section 3.1. For the time being, though, we stick to base language features.
+<br>
+There are three notations for working with structs: a) `new` creates a scope for declaring structs (all scope assignments are transferred to the produced struct), b) `this` accesses struct members from called code blocks, and c) private variables are not exposed externally. In addition to these concepts, here we demonstrate usage of code blocks as constructors to be inlined within struct creation. 
 
 ## New
 
-You can create a data structure (aka object) with the `new {@code}` syntax. This creates a new scope that sees its parent's variables but keeps track of all new assignments. A struct holding those assignments as fields is returned, unless another return statement is encountered first. Struct fields can be accessed with the dot (`.`) operator afterwards. The example below demonstrates field access.
+You can create a data structure (aka object) with the `new {@code}` syntax. This creates a new scope that sees its parent's variables but keeps track of all new assignments. A struct holding those assignments as fields is returned, unless another return statement is encountered first. 
+
+Struct fields can be accessed with the dot (`.`) operator afterwards. The example below demonstrates field access.
 It also creates an error because `new` only retains the assignments inside it. The created struct is detached from its creating scope and cannot "see" any of its variables or blocks (e.g., used as functions), such as the variable `zbias` in the example.
 
 ```java
@@ -55,10 +60,9 @@ print(point.sum3d());
 
 Normal variable visibility rules apply too; to let a struct's code blocks call each other, either make them final or access them from `this`, like above. For conciseness and portability (inlining in non-struct methods), the first option is preferred. Boilerplate that applies best practices for object-oriented programming is provided by std/oop import in the form of macros (basically syntax enrichments). Related material can be found in section 3.1.
 
-## Inlined code blocks as constructors
+## Inlined constructors
 
-In Blombly, inlining can be used to treat code blocks as part of constructors. This is a generalization of multi-inheritance that allows any number of blocks to work together during struct definitions. 
-Inline the declaration of member functions as in the following example:
+In Blombly, inlining can be used to treat code blocks as part of constructors. This is a generalization of multi-inheritance that allows any number of blocks to work together during struct definitions. Inline the declaration of member functions as in the following example.
 
 ```java
 // main.bb
@@ -74,21 +78,37 @@ point.sety(4);
 print(point.norm());
 ```
 
-To prevent code smells, the compiler does not accept the notation `new @block` where `@block` is a code block. Instead, inline that block per `new {@block:}`. Similarly, 
+To prevent code smells, the compiler does not accept the notation `new @block` where `@block` is a code block. If you must, inline that block per `new {@block:}`. Similarly, 
 final struct fields cannot be set (e.g., with `final a.value = ...`). That is, any field that is not made final during a struct definition cannot be made final in the future. 
-This imposes a clear distinction between mutable and immutable properties. 
+This imposes a clear distinction between conceptually mutable and immutable properties. 
 
-As structs are completely detached from their declaring scope after creation, you will often want to bring values -mainly code blocks- from that context locally with
-the pattern `final @name = @name;`. Below is an example.
+Similarly to code blocks structs are completely detached from their declaring scope after creation and reattached to the running scope upon execution.
+You may sometimes want to bring values -mainly code blocks- from that context locally with the pattern `@name = @name;`. Below is an example where a
+code block is overwritten in the top-level scope but a reference to it still resides within the constructed object for future use.
 
 ```java
 Point = {
-    final Point = Point;
-    copy => new {Point:x=this.x;y=this.y}
+    Point = Point;
+    str => "({this.x},{this.y})";
+    copy = {
+        super = this;
+        Point = super.Point; // Point: will need to know what Point is
+        return new {
+            Point:
+            x=super.x;
+            y=super.y;
+        }
+    }
 }
 point = new{Point:x=1;y=2}
+Point = {fail("Should never be called");}
 point = point.copy();
-print(point.x);
+print(point);
+```
+
+```text
+> blombly main.bb
+(1,2)
 ```
 
 
@@ -123,9 +143,9 @@ print(point.dimadd());
 
 ## Returning from new
 
-Return statements from within `new {...}` statements may change the retrieved value to something other than the struct being created.
+Return statements from within `new {...}` may change the retrieved value to something other than the struct being created.
 For example, the following snippet is a valid (though not efficient in terms of asymptotic complexity) method for recursively computing 
-a term of the Fibonacci sequence. BlomblyVM always schedules `new` for direct execution, that is, without spawning a separate thread.
+a term of the Fibonacci sequence. Blombly always schedules `new` for direct execution, that is, without spawning a separate thread.
 
 ```java
 final fib = {  
@@ -136,48 +156,6 @@ final fib = {
 tic = time();
 print("Result", fib(n = 21));
 print("Time", time() - tic);
-```
-
-One particular wrinkle to iron out in our understanding is what it means to return a code block that is later used as a method. 
-To maintain memory safety, all returned blocks are detached from their declaring scope. While being scopeless, they can only be inlined.
-We said this already, but let us make this distinction clear: **code blocks only transfer code, use structs to transfer state.**
-Overload `call` to create callable structs.
-
-That said, code blocks get re-attached to a new scope by either setting them as struct fields 
-(in which case they are attached to the struct) or by being assigned to a scope's variable. An example of this pattern is presented below:
-
-```java
-// main.bb
-final method = {
-    final message = "Declared in a first scope";
-    final printer = {
-        print(message);
-    }
-    return printer;
-}
-
-final obj = new {
-    final message = "Declared in an object";
-}
-
-final message = "Declared in external scope";
-rebased_method = {method:}
-obj.method = method;
-
-rebased_method();
-obj.method();
-method();  // CREATES AN ERROR
-```
-
-Running the code demonstrates the handling of memory context and how returned blocks lose their attachment to a memory context:
-
-```text
-> blombly main.bb
-Declared in an object
-Declared in external scope
-ERROR: Memoryless code block cannot be called.
-   !!! Returned code blocks are not attached to any memory context.
-   Consider setting it as a field in an object.
 ```
 
 
@@ -209,8 +187,7 @@ p3 = p1 + p2;  // Calls the overloaded add method
 print(p3.x, p3.y);  // Outputs 4, 6
 ```
 
-One of the most useful applications of overloading is making structs callable, meaning they can be used as functions. This is done by overloading the call operator ().
-
+One of the most useful applications of overloading is making structs callable, meaning they can be used as functions. This is done by overloading the call operator (`call`).
 Below is an example where we define a Multiplier struct that can be called like a function. Notice the usage of `defer` as a means of inserting a default factor
 at the end of *new* only if no factor is defined by that time.
 
@@ -222,9 +199,13 @@ Multiplier = {
 }
 
 mul = new {Multiplier: factor = 5}
-
 result = mul(10);  // Calls the overloaded call method
-print(result);  // Outputs 50
+print(result);
+```
+
+```text
+> main.bb
+50
 ```
 
 Overloading becomes even more powerful when combined with code blocks. 

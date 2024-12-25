@@ -131,8 +131,7 @@ Data* BMemory::get(int item, bool allowMutable) {
         return ret;
     }
     if (ret) {
-        bbassert(allowMutable || isFinal(item), 
-            "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));
+        bbassert(allowMutable || isFinal(item), "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));
     } 
     else if (parent) 
         ret = parent->get(item, allowMutables && allowMutable);
@@ -219,9 +218,10 @@ Data* BMemory::getOrNull(int item, bool allowMutable) {
         unsafeSet(item, ret);
         attached_threads.erase(prevRet);
     }
-    if (ret && !allowMutable && !isFinal(item)) 
-        bberror("Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));
-    if (!ret && parent) 
+    if (ret) {
+        bbassert(allowMutables || isFinal(item), "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));
+    }
+    else if (parent) 
         ret = parent->getOrNull(item, allowMutables && allowMutable);
     
     return ret;
@@ -350,8 +350,8 @@ void BMemory::await() {
 
 void BMemory::detach(BMemory* par) {
     await();
-    if(!par)
-        allowMutables = false;
+    //if(!par)
+    //    allowMutables = false;
     parent = par;
 }
 
