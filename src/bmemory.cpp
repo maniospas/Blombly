@@ -286,6 +286,7 @@ void BMemory::unsafeSet(int item, Data* value) {
 }
 
 void BMemory::setFinal(int item) {
+    await();//
     finals.insert(item);
 }
 
