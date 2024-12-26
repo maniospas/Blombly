@@ -2,7 +2,7 @@
 
 int Data::numObjects = 0;
 
-Data::Data(int type) : type(type), isContained(true), referenceCounter(0) {
+Data::Data(uint8_t type) : type(type), isContained(true), referenceCounter(0) {
     //++numObjects;
 }
 

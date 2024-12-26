@@ -286,7 +286,7 @@ void BMemory::unsafeSet(int item, Data* value) {
 }
 
 void BMemory::setFinal(int item) {
-    await();//
+    await();
     finals.insert(item);
 }
 
@@ -316,6 +316,8 @@ void BMemory::replaceMissing(BMemory* other) {
 }
 
 void BMemory::await() {
+    if(attached_threads.size()==0)  // we don't need to lock because on zero threads we are ok, on >=1 threads we don't care about the number
+        return;
     std::string destroyerr = "";
 
     for (const auto& thread : attached_threads) {

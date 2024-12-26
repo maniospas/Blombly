@@ -14,27 +14,28 @@ public:
     explicit Iterator();
     virtual ~Iterator() {}
     std::string toString() override;
-    virtual int expectedSize() const {
+    virtual int64_t expectedSize() const {
         return 0;
     }
     virtual bool isContiguous() const {
         return false;
     }
-    virtual int getStart() const {
+    virtual int64_t getStart() const {
         bberror("Internal error: thechosen iterator type does not implement `getStart`, which means that `isContiguous` was not checked first.");
         return 0;
     }
-    virtual int getEnd() const {
+    virtual int64_t getEnd() const {
         bberror("Internal error: the chosen iterator type does not implement `getEnd`, which means that `isContiguous` was not checked first.");
         return 0;
     }
+    virtual Data* fastNext() {return nullptr;} // signify to JIT using this that it needs to fallback to implement to guarantee memory safety
 };
 
 
 class AccessIterator : public Iterator {
 private:
     mutable std::recursive_mutex memoryLock;
-    int size;
+    int64_t size;
     Data* object;
     Integer* pos;
 
@@ -48,35 +49,39 @@ public:
 class IntRange : public Iterator {
 private:
     mutable std::recursive_mutex memoryLock; 
-    int first, last, step;
+    int64_t first, last, step;
+    //Integer* cache;
 public:
-    explicit IntRange(int first, int last, int step);
+    explicit IntRange(int64_t first, int64_t last, int64_t step);
     ~IntRange();
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
-    int expectedSize() const override {
+    int64_t expectedSize() const override {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         return (last-first)/step;
     }
     bool isContiguous() const override {
         return step==1;
     }
-    int getStart() const override {
+    int64_t getStart() const override {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         return first;
     }
-    int getEnd() const override {
+    int64_t getEnd() const override {
         return last;
     }
+    virtual Data* fastNext() override;
 };
 
 class FloatRange : public Iterator {
 private:
     mutable std::recursive_mutex memoryLock; 
     double first, last, step;
+    //BFloat* cache;
 public:
     explicit FloatRange(double first, double last, double step);
     ~FloatRange();
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Data* fastNext() override;
 };
 
 #endif // ITERATOR_H

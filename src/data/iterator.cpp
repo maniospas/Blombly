@@ -32,11 +32,12 @@ AccessIterator::AccessIterator(Data* object_) : object(object_), pos(new Integer
 AccessIterator::~AccessIterator() {
     delete pos;
 }
+
 Result AccessIterator::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 1 && operation == NEXT) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         pos->value += 1; 
-        int currentPos = pos->value;
+        int64_t currentPos = pos->value;
         if (currentPos >= size) 
             return std::move(Result(OUT_OF_RANGE));
 
@@ -55,8 +56,10 @@ Result AccessIterator::implement(const OperationType operation, BuiltinArgs* arg
 
 
 
-IntRange::IntRange(int first, int last, int step) : first(first), last(last), step(step), Iterator() {
+IntRange::IntRange(int64_t first, int64_t last, int64_t step) : first(first), last(last), step(step), Iterator() {
     bbassert(step, "A range iterator with zero step never ends.");
+    //cache = new Integer(first);
+    //cache->addOwner();
 }
 IntRange::~IntRange() {
 }
@@ -67,33 +70,70 @@ Result IntRange::implement(const OperationType operation, BuiltinArgs* args) {
             return std::move(Result(OUT_OF_RANGE));
         if (step<0 && first <= last) 
             return std::move(Result(OUT_OF_RANGE));
-        Result ret = Result(new Integer(first));
+        Integer* cache = new Integer(first);
+        /*if(cache->referenceCounter<=3) { // this, the temporary variable holding the value, and the named variable with the value assigned
+            cache->setValue(first);
+        }
+        else {
+            cache->removeFromOwner();
+            cache = new Integer(first);
+            cache->addOwner();
+        }*/
         first += step;
-        return std::move(ret);
+        return std::move(Result(cache));
     }
     if (args->size == 1 && operation == TOITER) 
         return std::move(Result(this));
     throw Unimplemented();
 }
 
+Data* IntRange::fastNext() {
+    if (step>0 && first >= last) 
+        return OUT_OF_RANGE;
+    if (step<0 && first <= last) 
+        return OUT_OF_RANGE;
+    Integer* cache = new Integer(first);
+    first += step;
+    return cache;
+}
 
 
 FloatRange::FloatRange(double first, double last, double step) : first(first), last(last), step(step), Iterator() {
     bbassert(step, "A range iterator with zero step never ends.");
+    //cache = new BFloat(first);
+    //cache->addOwner();
 }
 FloatRange::~FloatRange() {
 }
 Result FloatRange::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 1 && operation == NEXT) {
         if (step>0 && first >= last) 
-            return std::move(Result(nullptr));
+            return std::move(Result(OUT_OF_RANGE));
         if (step<0 && first <= last) 
-            return std::move(Result(nullptr));
-        Result ret = Result(new BFloat(first));
+            return std::move(Result(OUT_OF_RANGE));
+        BFloat* cache = new BFloat(first);
+        /*if(cache->referenceCounter<=3) { // this, the temporary variable holding the value, and the named variable with the value assigned
+            cache->setValue(first);
+        }
+        else {
+            cache->removeFromOwner();
+            cache = new BFloat(first);
+            cache->addOwner();
+        }*/
         first += step;
-        return std::move(ret);
+        return std::move(Result(cache));
     }
     if (args->size == 1 && operation == TOITER) 
         return std::move(Result(this));
     throw Unimplemented();
+}
+
+Data* FloatRange::fastNext() {
+    if (step>0 && first >= last) 
+        return OUT_OF_RANGE;
+    if (step<0 && first <= last) 
+        return OUT_OF_RANGE;
+    BFloat* cache = new BFloat(first);
+    first += step;
+    return cache;
 }

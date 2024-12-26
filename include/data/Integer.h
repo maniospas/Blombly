@@ -8,14 +8,14 @@
 
 class Integer : public Data {
 private:
-    int value;
+    int64_t value;
 
 public:
-    explicit Integer(int val);
+    explicit Integer(int64_t val);
 
     std::string toString()override;
-    int getValue() const;
-    void setValue(int val);
+    int64_t getValue() const;
+    void setValue(int64_t val);
 
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
     virtual bool isSame(Data* other) override;

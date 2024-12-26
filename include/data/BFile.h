@@ -10,7 +10,7 @@
 class BFile : public Data {
 private:
     std::string path;
-    int size;
+    int64_t size;
     std::vector<std::string> contents;
     bool contentsLoaded;
     void loadContents();

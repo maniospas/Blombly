@@ -109,7 +109,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args) {
 
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
         loadContents();
-        int lineNum = static_cast<Integer*>(args->arg1)->getValue();
+        int64_t lineNum = static_cast<Integer*>(args->arg1)->getValue();
         if (lineNum < 0 || lineNum >= contents.size()) {
             return std::move(Result(OUT_OF_RANGE));
         }
@@ -129,7 +129,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 1) {
         if (operation == LEN) {
             loadContents();
-            int ret = contents.size();
+            int64_t ret = contents.size();
             BB_INT_RESULT(ret);
         }
         if (operation == TOFILE) {
@@ -144,9 +144,9 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args) {
         }
         if (operation == TOLIST) {
             loadContents();
-            int n = contents.size();
+            int64_t n = contents.size();
             BList* list = new BList(n);
-            for (int i = 0; i < n; ++i) {
+            for (int64_t i = 0; i < n; ++i) {
                 BString* element = new BString(contents[i]);
                 element->addOwner();
                 element->leak();

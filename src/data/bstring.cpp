@@ -85,7 +85,7 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
             case TOSTR: STRING_RESULT(toString());
             case TOBB_INT: {
                 char* endptr = nullptr;
-                int ret = std::strtol(toString().c_str(), &endptr, 10);
+                int64_t ret = std::strtol(toString().c_str(), &endptr, 10);
                 if (endptr == toString().c_str() || *endptr != '\0') {
                     return std::move(Result(new BError("Failed to convert string to int")));
                 }
@@ -108,7 +108,7 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
     }
 
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
-        int index = static_cast<Integer*>(args->arg1)->getValue();
+        int64_t index = static_cast<Integer*>(args->arg1)->getValue();
         if(index>=buffer.front()->value.size())
             consolidate();
         if (index < 0 || index >= toString().size()) {
@@ -129,8 +129,8 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
 
         // Treat contiguous iterators more efficiently
         if (iterator->isContiguous()) {
-            int start = iterator->getStart();
-            int end = iterator->getEnd();
+            int64_t start = iterator->getStart();
+            int64_t end = iterator->getEnd();
             if (start < 0 || start >= toString().size() || end < 0 || end > toString().size() || start > end) 
                 return std::move(Result(OUT_OF_RANGE));
             std::string result = toString().substr(start, end - start);

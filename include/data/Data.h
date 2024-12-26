@@ -26,7 +26,7 @@ public:
     virtual bool isTrue() const { return false; }
     inline uint8_t getType() const { return type; }
 
-    Data(int type);
+    Data(uint8_t type);
     virtual ~Data();
 
     static Result run(const OperationType operation, BuiltinArgs* args);
@@ -35,7 +35,7 @@ public:
     virtual bool isSame(Data* other);
     static int countObjects();
     
-    void addOwner();
+    virtual void addOwner();
     virtual void removeFromOwner();
     void leak();
     std::atomic<int> referenceCounter;

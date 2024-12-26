@@ -8,14 +8,17 @@
 class Boolean : public Data {
 private:
     bool value;
-
-public:
     explicit Boolean(bool val);
+public:
+    static Boolean* valueTrue;
+    static Boolean* valueFalse;
     
     std::string toString()override;
     bool getValue() const;
     bool isTrue() const override;
     void setValue(bool val);
+    virtual void addOwner(){}
+    virtual void removeFromOwner(){}
 
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
     virtual bool isSame(Data* other) override;

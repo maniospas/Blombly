@@ -13,20 +13,20 @@ private:
     int natdims;      // Number of accessed dimensions
     int* dims;        // Shape of the vector
     int ndims;        // Number of dimensions
-    int size;         // Size of the vector
+    uint64_t size;         // Size of the vector
     mutable std::recursive_mutex memoryLock;   // Mutex for thread safety
     int lockable;     // Counts shared instances-1
 
 public:
     double* data;  // Raw data
     
-    explicit Vector(int size);
-    Vector(int size, bool setToZero);
-    Vector(int size1, int size2);
-    Vector(int size1, int size2, bool setToZero);
+    explicit Vector(uint64_t size);
+    Vector(uint64_t size, bool setToZero);
+    Vector(uint64_t size1, uint64_t size2);
+    Vector(uint64_t size1, uint64_t size2, bool setToZero);
     Vector(double* data, const Vector* prototype);
-    Vector(double* data, const Vector* prototype, int new_dim_access);
-    Vector(double* data, int size1, int size2);
+    Vector(double* data, const Vector* prototype, uint64_t new_dim_access);
+    Vector(double* data, uint64_t size1, uint64_t size2);
     ~Vector();
 
     std::string toString()override;

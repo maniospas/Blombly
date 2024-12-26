@@ -36,6 +36,8 @@ std::string get_executable_directory(const std::string& argv0) {
 }
 
 int main(int argc, char* argv[]) {
+    OUT_OF_RANGE->consume();
+    INCOMPATIBLE_SIZES->consume();
     OUT_OF_RANGE->addOwner();
     INCOMPATIBLE_SIZES->addOwner();
     

@@ -22,15 +22,6 @@ public:
     virtual bool run(BMemory* memory, Data*& returnValue, bool &returnSignal) = 0;
 };
 
-// Class representing a Jitable that returns a primitive
-class ReturnPrimitiveJitable : public Jitable {
-private:
-    Data* primitive;
-public:
-    explicit ReturnPrimitiveJitable(Data* primitive);
-    virtual bool run(BMemory* memory, Data*& returnValue, bool &returnSignal) override;
-};
-
 // Function to perform JIT compilation of code
 Jitable* jit(const Code* code);
 

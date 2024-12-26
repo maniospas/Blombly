@@ -10,19 +10,19 @@
 class BList : public Data {
 private:
     mutable std::recursive_mutex memoryLock; 
-    int front;
+    int64_t front;
     void resizeContents();
 
 public:
     std::vector<Data*> contents;
     
     explicit BList();
-    explicit BList(int reserve);
+    explicit BList(int64_t reserve);
     ~BList();
 
     std::string toString()override;
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
-    Data* at(int index) const;
+    Data* at(int64_t index) const;
 };
 
 #endif // LIST_H

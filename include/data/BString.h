@@ -23,7 +23,7 @@ class BString : public Data {
 private:
     std::vector<std::shared_ptr<BufferedString>> buffer;
     void consolidate();
-    int size;
+    int64_t size;
     explicit BString();
     mutable std::recursive_mutex memoryLock; 
 

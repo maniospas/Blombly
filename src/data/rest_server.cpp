@@ -145,7 +145,7 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                     //mem->setFinal(variableManager.getId("http"));
                 }
                 mem->unsafeSet(variableManager.getId("ip"), new BString(req_info->remote_addr), nullptr);
-                mem->unsafeSet(variableManager.getId("ssl"), new Boolean(req_info->is_ssl), nullptr);
+                mem->unsafeSet(variableManager.getId("ssl"), req_info->is_ssl?Boolean::valueTrue:Boolean::valueFalse, nullptr);
                 //mem->setFinal(variableManager.getId("ip"));
                 //mem->setFinal(variableManager.getId("ssl"));
 

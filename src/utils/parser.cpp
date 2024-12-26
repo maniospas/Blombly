@@ -326,10 +326,14 @@ public:
                 std::string condition_text;
                 std::string condition;
                 if(first_name=="while") {
-                    condition = parse_expression(start + 1, start_if_body - 1);
-                    if (first_name == "while" && (ret.size()<5 || ret.substr(condition_start_in_ret, 5) != "BEGIN"))
-                        condition_text = ret.substr(condition_start_in_ret);
-                    bbassert(condition != "#", first_name + " condition does not evaluate to anything\n"+show_position(start_parenthesis+1));
+                    #ifdef WHILE_WITH_CODE_BLOCKS
+                        condition = parse_expression(start + 1, start_if_body - 1, true);
+                    #else
+                        condition = parse_expression(start + 1, start_if_body - 1);
+                        if (first_name == "while" && (ret.size()<5 || ret.substr(condition_start_in_ret, 5) != "BEGIN"))
+                            condition_text = ret.substr(condition_start_in_ret);
+                        bbassert(condition != "#", first_name + " condition does not evaluate to anything\n"+show_position(start_parenthesis+1));
+                    #endif
                 }
                 int body_end = first_name == "while" ? MISSING : 
                                find_end(start_if_body, end, "else");

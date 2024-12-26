@@ -207,7 +207,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
         case EXISTS: {
             Data* res = memory->getOrNull(command->args[1], true);
-            result = new Boolean(res?res->getType()!=ERRORTYPE:false);
+            result = (res?res->getType()!=ERRORTYPE:false)?::Boolean::valueTrue:Boolean::valueFalse;
         } break;
 
         case SET: {
@@ -237,6 +237,59 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         } break;
 
         case WHILE: {
+            // WE HAVE TWO OPTIONS: either the block-based mechanism or the inlined mechanism. Do not forget to fix the parser too.
+            #ifdef WHILE_WITH_CODE_BLOCKS
+            Data* condition = memory->get(command->args[1]);
+            Data* body = memory->get(command->args[2]);
+            bbassert(body->getType() == CODE, "While body can only be a code block.");
+            bbassert(condition->getType() == CODE, "While condition can only be a code block.");
+            auto codeBody = static_cast<Code*>(body);
+            auto codeCondition = static_cast<Code*>(condition);
+            
+            bool checkValue;
+            if(codeCondition->jitable && codeCondition->jitable->run(memory, result, returnSignal)){
+                Data* check = result;
+                if (returnSignal) {result = check;SET_RESULT;break;}
+                bbassert(check, "Nothing was evaluated in while condition");
+                bbassert(check->getType()==BB_BOOL, "Condition did not evaluate to a boolean");
+                checkValue = check->isTrue();
+            }
+            else
+            {
+                Result returnedValue = executeBlock(codeCondition, memory, returnSignal);
+                Data* check = returnedValue.get();
+                if (returnSignal) {result = check;SET_RESULT;break;}
+                bbassert(check, "Nothing was evaluated in while condition");
+                bbassert(check->getType()==BB_BOOL, "Condition did not evaluate to a boolean");
+                checkValue = check->isTrue();
+            }
+            while(checkValue) {
+                if(codeBody->jitable && codeBody->jitable->run(memory, result, returnSignal)) {
+                    if(returnSignal) {SET_RESULT;break;}
+                }
+                else {
+                    Result returnedValue = executeBlock(codeBody, memory, returnSignal);
+                    if (returnSignal) {result = returnedValue.get();SET_RESULT;break;}
+                }
+                if(codeCondition->jitable && codeCondition->jitable->run(memory, result, returnSignal)){
+                    Data* check = result;
+                    if (returnSignal) {result = check;SET_RESULT;break;}
+                    bbassert(check, "Nothing was evaluated in while condition");
+                    bbassert(check->getType()==BB_BOOL, "Condition did not evaluate to a boolean");
+                    checkValue = check->isTrue();
+                }
+                else
+                {
+                    Result returnedValue = executeBlock(codeCondition, memory, returnSignal);
+                    Data* check = returnedValue.get();
+                    if (returnSignal) {result = check;SET_RESULT;break;}
+                    bbassert(check, "Nothing was evaluated in while condition");
+                    bbassert(check->getType()==BB_BOOL, "Condition did not evaluate to a boolean");
+                    checkValue = check->isTrue();
+                }
+            }
+            result = nullptr;
+            #else
             Data* condition = memory->get(command->args[1]);
             Data* body = memory->get(command->args[2]);
             bbassert(body->getType() == CODE, "While body can only be a code block.");
@@ -254,6 +307,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 condition = memory->get(command->args[1]);
             }
             result = nullptr;
+            #endif
         } break;
 
         case IF: {

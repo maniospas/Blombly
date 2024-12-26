@@ -1,51 +1,20 @@
-BEGIN _bb18
-IS Point Point
-BEGIN _bb19
-BUILTIN _bb21 ")"
-get _bb23 this y
-str _bb24 _bb23
-BUILTIN _bb26 ","
-get _bb28 this x
-str _bb29 _bb28
-BUILTIN _bb30 "("
-add _bb27 _bb30 _bb29
-add _bb25 _bb27 _bb26
-add _bb22 _bb25 _bb24
-add _bb20 _bb22 _bb21
-return # _bb20
+BUILTIN buff I0
+time tic
+BUILTIN _bb23 I10000000
+range _bb22 _bb23
+iter _bbmacro1 _bb22
+BEGIN _bb25
+next _bb26 _bbmacro1
+AS i _bb26
+exists _bb27 i
 END
-IS str _bb19
-BEGIN _bb31
-IS super this
-get _bb32 super Point
-IS Point _bb32
-BEGIN _bb35
-inline _bb36 Point
-get _bb37 super x
-IS x _bb37
-get _bb38 super y
-IS y _bb38
-return # this
+BEGIN _bb28
+add buff buff i
 END
-new _bb33 _bb35
-return # _bb33
-END
-IS copy _bb31
-END
-IS Point _bb18
-BEGIN _bb41
-inline _bb42 Point
-BUILTIN x I1
-BUILTIN y I2
-return # this
-END
-new point _bb41
-BEGIN _bb45
-BUILTIN _bb46 "Should never be called"
-fail # _bb46
-END
-IS Point _bb45
-get _bb48 point copy
-call _bb47 # _bb48
-IS point _bb47
-print # point
+while # _bb25 _bb28
+time toc
+print # buff
+sub _bb30 toc tic
+BUILTIN _bb31 "sec"
+list _bb32 _bb30 _bb31
+print # _bb32

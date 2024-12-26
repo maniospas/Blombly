@@ -8,6 +8,9 @@
 #include <cstring>
 #include <stdexcept>
 
+
+#define WHILE_WITH_CODE_BLOCKS  // this changes the while loop parsing and implementation. define for slower but more easily jitable loops
+
 // Exception classes
 class Unimplemented : public std::exception {
 public:
@@ -85,7 +88,7 @@ Result executeBlock(Code* code, BMemory* memory, bool  &returnSignal);
 
 // Code reused when returning various data from overridden Data::implement 
 #define STRING_RESULT(expr) return std::move(Result(new BString(expr)))
-#define BB_BOOLEAN_RESULT(expr) return std::move(Result(new Boolean(expr)))
+#define BB_BOOLEAN_RESULT(expr) return std::move(Result((expr)?Boolean::valueTrue:Boolean::valueFalse))
 #define BB_INT_RESULT(expr) return std::move(Result(new Integer(expr)))
 #define BB_FLOAT_RESULT(expr) return std::move(Result(new BFloat(expr)))
 

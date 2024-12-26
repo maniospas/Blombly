@@ -73,7 +73,7 @@ Command::Command(const std::string& command, SourceFile* source_, int line_, Com
         } else if (raw[0] == 'F') {
             value = new BFloat(std::atof(raw.substr(1).c_str()));
         } else if (raw[0] == 'B') {
-            value = new Boolean(raw == "Btrue");
+            value = (raw == "Btrue")?Boolean::valueTrue:Boolean::valueFalse;
         } else {
             bberror("Unable to understand builtin value prefix (should be one of I,F,B,\"): " + raw);
         }

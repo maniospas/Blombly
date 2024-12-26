@@ -267,6 +267,10 @@ void optimize(const std::string& source, const std::string& destination) {
             auto& command = program[i];
             if(!command->enabled)
                 continue;
+
+            if(i<program.size()-1 && program[i+1]->args[0]=="END")
+                continue;
+
             //if(command->args.size()>=2 && command->args[1].size() && command->args[1][0]=='\\')  // operators are still valid
             //    continue;
             if(command->args.size()>=2 && (command->args[1]=="put"

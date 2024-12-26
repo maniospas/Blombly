@@ -52,17 +52,17 @@ std::string __python_like_int_format(int int_number, const std::string& format) 
     return output.str();
 }
 
-Integer::Integer(int val) : value(val), Data(BB_INT) {}
+Integer::Integer(int64_t val) : value(val), Data(BB_INT) {}
 
 std::string Integer::toString(){
     return std::to_string(value);
 }
 
-int Integer::getValue() const {
+int64_t Integer::getValue() const {
     return value;
 }
 
-void Integer::setValue(int val) {
+void Integer::setValue(int64_t val) {
     value = val;
 }
 
@@ -79,12 +79,12 @@ size_t Integer::toHash() const {
 
 Result Integer::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 2) {
-        int type0 = args->arg0->getType();
-        int type1 = args->arg1->getType();
+        int64_t type0 = args->arg0->getType();
+        int64_t type1 = args->arg1->getType();
 
         if (type0 == BB_INT && type1 == BB_INT) {
-            int v1 = static_cast<Integer*>(args->arg0)->getValue();
-            int v2 = static_cast<Integer*>(args->arg1)->getValue();
+            int64_t v1 = static_cast<Integer*>(args->arg0)->getValue();
+            int64_t v2 = static_cast<Integer*>(args->arg1)->getValue();
 
             switch (operation) {
                 case EQ: BB_BOOLEAN_RESULT(v1 == v2);
@@ -145,9 +145,9 @@ Result Integer::implement(const OperationType operation, BuiltinArgs* args) {
     
     if (args->size == 3 && operation == TORANGE) {
         if(args->arg0->getType()==BB_INT && args->arg1->getType()==BB_INT && args->arg2->getType()==BB_INT) {
-            int v0 = static_cast<Integer*>(args->arg0)->getValue();
-            int v1 = static_cast<Integer*>(args->arg1)->getValue();
-            int v2 = static_cast<Integer*>(args->arg2)->getValue();
+            int64_t v0 = static_cast<Integer*>(args->arg0)->getValue();
+            int64_t v1 = static_cast<Integer*>(args->arg1)->getValue();
+            int64_t v2 = static_cast<Integer*>(args->arg2)->getValue();
             return std::move(Result(new IntRange(v0, v1, v2)));
         }
         else {
