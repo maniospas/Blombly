@@ -271,15 +271,14 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     Result returnedValue = executeBlock(codeBody, memory, returnSignal);
                     if (returnSignal) {result = returnedValue.get();SET_RESULT;break;}
                 }
-                if(codeCondition->jitable && codeCondition->jitable->run(memory, result, returnSignal)){
+                if(codeCondition->jitable && codeCondition->jitable->run(memory, result, returnSignal)) {
                     Data* check = result;
                     if (returnSignal) {result = check;SET_RESULT;break;}
                     bbassert(check, "Nothing was evaluated in while condition");
                     bbassert(check->getType()==BB_BOOL, "Condition did not evaluate to a boolean");
                     checkValue = check->isTrue();
                 }
-                else
-                {
+                else {
                     Result returnedValue = executeBlock(codeCondition, memory, returnSignal);
                     Data* check = returnedValue.get();
                     if (returnSignal) {result = check;SET_RESULT;break;}

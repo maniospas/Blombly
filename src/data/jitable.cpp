@@ -33,7 +33,6 @@ private:
     int exists;
     bool setNext;
     bool setExists;
-    Iterator* it;
 public:
     explicit NextAsExistsJitable(int from, int next, int as, int exists, bool setNext, bool setExists): from(from), next(next), as(as), exists(exists), setNext(setNext), setExists(setExists) {}
     virtual bool run(BMemory* memory, Data*& returnValue, bool &returnSignal) override {
@@ -42,15 +41,21 @@ public:
             return false;
         auto it = static_cast<Iterator*>(iterator);
         Data* nextValue = it->fastNext();
-        if(!nextValue) return false;
-        /*if(!next) {
+        //if(!nextValue) return false;
+        if(!nextValue) {
             BuiltinArgs args;
             args.size = 1;
             args.arg0 = it;
             Result res = it->implement(NEXT, &args);
-            Data* ret = res.get();
-            if(ret==OUT_OF_RANGE)
-        }*/
+            nextValue = res.get();
+            
+            if(setNext) memory->unsafeSet(next, nextValue, nullptr);
+            memory->unsafeSet(as, nextValue, nullptr);
+            Data* ret = (nextValue==OUT_OF_RANGE)?Boolean::valueFalse:Boolean::valueTrue;
+            if(setExists) memory->unsafeSet(exists, ret, nullptr);
+            returnValue = ret;
+            return true;
+        }
         if(setNext) memory->unsafeSet(next, nextValue, nullptr);
         memory->unsafeSet(as, nextValue, nullptr);
         Data* ret = (nextValue==OUT_OF_RANGE)?Boolean::valueFalse:Boolean::valueTrue;
