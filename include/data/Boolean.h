@@ -15,10 +15,9 @@ public:
     
     std::string toString()override;
     bool getValue() const;
-    bool isTrue() const override;
     void setValue(bool val);
-    virtual void addOwner(){}
-    virtual void removeFromOwner(){}
+    virtual void addOwner() const{}
+    virtual void removeFromOwner() const{}
 
     virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
     virtual bool isSame(Data* other) override;

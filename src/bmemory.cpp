@@ -254,11 +254,9 @@ void BMemory::unsafeSet(BMemory* handler, int item, Data* value, Data* prev) {
 void BMemory::unsafeSet(int item, Data* value, Data* prev) {
     if (isFinal(item))
         bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
-    if(value) {
-        if(value->getType()!=FUTURE) {
-            fastId = item;
-            fastData = value;
-        }
+    if(value && value->getType()!=FUTURE) {
+        fastId = item;
+        fastData = value;
     }
     else
         fastId = -1;

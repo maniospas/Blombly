@@ -23,26 +23,22 @@ struct BuiltinArgs {
 class Data {
 public:
     virtual std::string toString()= 0;
-    virtual bool isTrue() const { return false; }
-    inline uint8_t getType() const { return type; }
+    inline Datatype getType() const { return type; }
 
-    Data(uint8_t type);
-    virtual ~Data();
+    Data(Datatype type);
+    virtual ~Data() = default;
 
     static Result run(const OperationType operation, BuiltinArgs* args);
     virtual Result implement(const OperationType operation, BuiltinArgs* args);
     virtual size_t toHash() const;
     virtual bool isSame(Data* other);
-    static int countObjects();
     
     virtual void addOwner();
     virtual void removeFromOwner();
     void leak();
     std::atomic<int> referenceCounter;
 private:
-    static int numObjects;
-    uint8_t type;
-    bool isContained;
+    Datatype type;
 };
 
 #endif // DATA_H

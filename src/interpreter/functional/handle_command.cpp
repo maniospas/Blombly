@@ -247,12 +247,15 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto codeCondition = static_cast<Code*>(condition);
             
             bool checkValue;
-            if(codeCondition->jitable && codeCondition->jitable->run(memory, result, returnSignal)){
+            if(codeCondition->jitable && codeCondition->jitable->runWithBooleanIntent(memory, checkValue)){
+
+            }
+            else if(codeCondition->jitable && codeCondition->jitable->run(memory, result, returnSignal)){
                 Data* check = result;
                 if (returnSignal) {result = check;SET_RESULT;break;}
                 bbassert(check, "Nothing was evaluated in while condition");
                 bbassert(check->getType()==BB_BOOL, "Condition did not evaluate to a boolean");
-                checkValue = check->isTrue();
+                checkValue = check==Boolean::valueTrue;
             }
             else
             {
@@ -261,7 +264,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 if (returnSignal) {result = check;SET_RESULT;break;}
                 bbassert(check, "Nothing was evaluated in while condition");
                 bbassert(check->getType()==BB_BOOL, "Condition did not evaluate to a boolean");
-                checkValue = check->isTrue();
+                checkValue = check==Boolean::valueTrue;
             }
             while(checkValue) {
                 if(codeBody->jitable && codeBody->jitable->run(memory, result, returnSignal)) {
@@ -271,12 +274,15 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     Result returnedValue = executeBlock(codeBody, memory, returnSignal);
                     if (returnSignal) {result = returnedValue.get();SET_RESULT;break;}
                 }
+                if(codeCondition->jitable && codeCondition->jitable->runWithBooleanIntent(memory, checkValue)){
+                }
+                else 
                 if(codeCondition->jitable && codeCondition->jitable->run(memory, result, returnSignal)) {
                     Data* check = result;
                     if (returnSignal) {result = check;SET_RESULT;break;}
                     bbassert(check, "Nothing was evaluated in while condition");
                     bbassert(check->getType()==BB_BOOL, "Condition did not evaluate to a boolean");
-                    checkValue = check->isTrue();
+                    checkValue = check==Boolean::valueTrue;
                 }
                 else {
                     Result returnedValue = executeBlock(codeCondition, memory, returnSignal);
@@ -284,7 +290,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     if (returnSignal) {result = check;SET_RESULT;break;}
                     bbassert(check, "Nothing was evaluated in while condition");
                     bbassert(check->getType()==BB_BOOL, "Condition did not evaluate to a boolean");
-                    checkValue = check->isTrue();
+                    checkValue = check==Boolean::valueTrue;
                 }
             }
             result = nullptr;
@@ -294,7 +300,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             bbassert(body->getType() == CODE, "While body can only be a code block.");
             auto codeBody = static_cast<Code*>(body);
 
-            while (condition->isTrue()) {
+            while (condition==Boolean::valueTrue) {
                 if(codeBody->jitable && codeBody->jitable->run(memory, result, returnSignal)) {
                     if(returnSignal)
                         break;
@@ -314,7 +320,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             Data* accept = memory->get(command->args[2]);
             Data* reject = command->nargs > 3 ? memory->get(command->args[3]) : nullptr;
 
-            if (condition->isTrue()) {
+            if (condition==Boolean::valueTrue) {
                 if (accept->getType() == CODE) {
 
                     Code* code = static_cast<Code*>(accept);

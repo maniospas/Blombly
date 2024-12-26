@@ -6,6 +6,7 @@
 #include "data/Code.h"
 #include "data/Future.h"
 #include "data/BError.h"
+#include "data/Boolean.h"
 #include "interpreter/Command.h"
 #include "utils.h"
 #include "interpreter/functional.h"
@@ -40,6 +41,8 @@ int main(int argc, char* argv[]) {
     INCOMPATIBLE_SIZES->consume();
     OUT_OF_RANGE->addOwner();
     INCOMPATIBLE_SIZES->addOwner();
+    Boolean::valueTrue->addOwner();
+    Boolean::valueFalse->addOwner();
     
     blombly_executable_path = get_executable_directory(argv[0]);
     Terminal::enableVirtualTerminalProcessing();

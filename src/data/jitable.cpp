@@ -36,6 +36,10 @@ private:
 public:
     explicit NextAsExistsJitable(int from, int next, int as, int exists, bool setNext, bool setExists): from(from), next(next), as(as), exists(exists), setNext(setNext), setExists(setExists) {}
     virtual bool run(BMemory* memory, Data*& returnValue, bool &returnSignal) override {
+        bberror("Internal error: runWithBooleanIntent should always be returning true for NextAsExistsJitable.");
+    }
+
+    virtual bool runWithBooleanIntent(BMemory* memory, bool &returnValue) {
         auto iterator = memory->get(from);
         if(iterator->getType()!=ITERATOR) // optimize only for iterators
             return false;
@@ -48,19 +52,17 @@ public:
             args.arg0 = it;
             Result res = it->implement(NEXT, &args);
             nextValue = res.get();
-            
+                
             if(setNext) memory->unsafeSet(next, nextValue, nullptr);
-            memory->unsafeSet(as, nextValue, nullptr);
-            Data* ret = (nextValue==OUT_OF_RANGE)?Boolean::valueFalse:Boolean::valueTrue;
-            if(setExists) memory->unsafeSet(exists, ret, nullptr);
-            returnValue = ret;
+            returnValue = nextValue!=OUT_OF_RANGE;
+            if(setExists) memory->unsafeSet(exists, returnValue?Boolean::valueTrue:Boolean::valueFalse, nullptr);
+            memory->unsafeSet(as, nextValue, nullptr); // set last to optimize with unsafeSet
             return true;
         }
         if(setNext) memory->unsafeSet(next, nextValue, nullptr);
-        memory->unsafeSet(as, nextValue, nullptr);
-        Data* ret = (nextValue==OUT_OF_RANGE)?Boolean::valueFalse:Boolean::valueTrue;
-        if(setExists) memory->unsafeSet(exists, ret, nullptr);
-        returnValue = ret;
+        returnValue = nextValue!=OUT_OF_RANGE;
+        if(setExists) memory->unsafeSet(exists, returnValue?Boolean::valueTrue:Boolean::valueFalse, nullptr);
+        memory->unsafeSet(as, nextValue, nullptr); // set last to optimize with unsafeSet
         return true;
     }
 };

@@ -6,10 +6,6 @@ Boolean* Boolean::valueFalse = new Boolean(false);
 
 Boolean::Boolean(bool val) : value(val), Data(BB_BOOL) {}
 
-bool Boolean::isTrue() const {
-    return value;
-}
-
 std::string Boolean::toString(){
     return value ? "true" : "false";
 }

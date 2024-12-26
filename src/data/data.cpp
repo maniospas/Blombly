@@ -1,69 +1,26 @@
 #include "data/Data.h"
 
-int Data::numObjects = 0;
-
-Data::Data(uint8_t type) : type(type), isContained(true), referenceCounter(0) {
-    //++numObjects;
-}
-
-Data::~Data() {
-    //--numObjects;
-}
-
-void Data::addOwner() {
-    /*if(isContained) {
-        int& ref = *reinterpret_cast<int*>(&referenceCounter);
-        ++ref;
-    }
-    else*/
-        ++referenceCounter;
-    //std::cout << "added "<<(referenceCounter)<<" "<<this<<" "<<toString()<<"\n";
-}
-
-void Data::removeFromOwner() {
-    //std::cout << "removed "<<(referenceCounter-1)<<" "<<this<<"\n";
-   /* if(isContained) {
-        int& ref = *reinterpret_cast<int*>(&referenceCounter);
-        if((--ref)==0) 
-            delete this;
-    }
-    else*/ if((--referenceCounter)==0) 
-        delete this;
-}
-
-int Data::countObjects() {
-    return numObjects;
-}
-
-void Data::leak() {
-    isContained = false;
-}
+Data::Data(Datatype type) : type(type), referenceCounter(0) {}
+void Data::addOwner() {++referenceCounter;}
+void Data::removeFromOwner() {if((--referenceCounter)==0) delete this;}
+void Data::leak() {}
+bool Data::isSame(Data* other) {return other==this;}
+size_t Data::toHash() const {return (size_t)this;}
+Result Data::implement(const OperationType operation, BuiltinArgs* args) {throw Unimplemented();}
 
 Result Data::run(const OperationType operation, BuiltinArgs *args) {
-    try {
-        return std::move(args->arg0->implement(operation, args));
-    }
-    catch (Unimplemented&) {
-        // Handle unimplemented methods
-    }
+    try {return std::move(args->arg0->implement(operation, args));}
+    catch (Unimplemented&) {}
 
     int size = args->size;
     --size;
     if (size) {
-        try {
-            return args->arg1->implement(operation, args);
-        }
-        catch (Unimplemented&) {
-            // Handle unimplemented methods
-        }
+        try {return args->arg1->implement(operation, args);}
+        catch (Unimplemented&) {}
         --size;
         if (size) {
-            try {
-                return args->arg2->implement(operation, args);
-            }
-            catch (Unimplemented&) {
-                // Handle unimplemented methods
-            }
+            try {return args->arg2->implement(operation, args);}
+            catch (Unimplemented&) {}
         }
     }
     std::string err = "No valid builtin implementation for this method: " + getOperationTypeName(operation) + "(";
@@ -86,16 +43,4 @@ Result Data::run(const OperationType operation, BuiltinArgs *args) {
     err += ")";
     bberror(err);
     return std::move(Result(nullptr));
-}
-
-Result Data::implement(const OperationType operation, BuiltinArgs* args) {
-    throw Unimplemented();
-}
-
-size_t Data::toHash() const {
-    return (size_t)this;
-}
-
-bool Data::isSame(Data* other) {
-    return other==this;
 }
