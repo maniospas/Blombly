@@ -1,20 +1,167 @@
-BUILTIN buff I0
-time tic
-BUILTIN _bb23 I10000000
-range _bb22 _bb23
-iter _bbmacro1 _bb22
-BEGIN _bb25
-next _bb26 _bbmacro1
-AS i _bb26
-exists _bb27 i
+BEGIN _bb23
+BUILTIN red "\e[0;31m"
+final # red
+BUILTIN green "\e[0;32m"
+final # green
+BUILTIN reset "\e[0m"
+final # reset
+return # this
 END
-BEGIN _bb28
-add buff buff i
+new ansi _bb23
+final # ansi
+BEGIN _bb41
+IS Point2D Point2D
+BEGIN _bb42
+BUILTIN _bb44 ")"
+get _bb46 this y
+str _bb47 _bb46
+BUILTIN _bb49 ", "
+get _bb51 this x
+str _bb52 _bb51
+BUILTIN _bb53 "("
+add _bb50 _bb53 _bb52
+add _bb48 _bb50 _bb49
+add _bb45 _bb48 _bb47
+add _bb43 _bb45 _bb44
+return # _bb43
 END
-while # _bb25 _bb28
-time toc
-print # buff
-sub _bb30 toc tic
-BUILTIN _bb31 "sec"
-list _bb32 _bb30 _bb31
-print # _bb32
+IS str _bb42
+BEGIN _bb54
+next other args
+IS super this
+BEGIN _bb57
+inline _bb58 Point2D
+get _bb60 other x
+get _bb61 super x
+add x _bb61 _bb60
+get _bb63 other y
+get _bb64 super y
+add y _bb64 _bb63
+return # this
+END
+new _bb55 _bb57
+return # _bb55
+END
+IS add _bb54
+BEGIN _bb65
+next other args
+get _bb68 other y
+get _bb69 this y
+mul _bb67 _bb69 _bb68
+get _bb71 other x
+get _bb72 this x
+mul _bb70 _bb72 _bb71
+add _bb66 _bb70 _bb67
+return # _bb66
+END
+IS dot _bb65
+END
+IS Point2D _bb41
+final # Point2D
+BEGIN _bb73
+BEGIN _bb76
+inline _bb77 Point2D
+BUILTIN x I0
+BUILTIN y I0
+return # this
+END
+new a _bb76
+BEGIN _bb82
+inline _bb83 Point2D
+BUILTIN x I0
+BUILTIN y I0
+return # this
+END
+new b _bb82
+END
+IS ab_points _bb73
+BEGIN _bb88
+inline _bb89 ab_points
+BEGIN _bb91
+list args b
+END
+get _bb92 a dot
+call _bb90 _bb91 _bb92
+return # _bb90
+END
+try _bbmacro1 _bb88
+BEGIN _bb93
+str _bb95 _bbmacro1
+BUILTIN _bb97 "\n"
+BUILTIN _bb99 "dot product"
+BUILTIN _bb101 " ] "
+get _bb103 ansi reset
+str _bb104 _bb103
+BUILTIN _bb106 "fail"
+get _bb108 ansi red
+str _bb109 _bb108
+BUILTIN _bb110 "[ "
+add _bb107 _bb110 _bb109
+add _bb105 _bb107 _bb106
+add _bb102 _bb105 _bb104
+add _bb100 _bb102 _bb101
+add _bb98 _bb100 _bb99
+add _bb96 _bb98 _bb97
+add _bb94 _bb96 _bb95
+print # _bb94
+END
+BEGIN _bb111
+BUILTIN _bb113 "dot product"
+BUILTIN _bb115 "  ] "
+get _bb117 ansi reset
+str _bb118 _bb117
+BUILTIN _bb120 "ok"
+get _bb122 ansi green
+str _bb123 _bb122
+BUILTIN _bb124 "[  "
+add _bb121 _bb124 _bb123
+add _bb119 _bb121 _bb120
+add _bb116 _bb119 _bb118
+add _bb114 _bb116 _bb115
+add _bb112 _bb114 _bb113
+print # _bb112
+END
+catch # _bbmacro1 _bb93 _bb111
+BEGIN _bb127
+inline _bb128 ab_points
+add _bb129 a b
+return # _bb129
+END
+try _bbmacro2 _bb127
+BEGIN _bb130
+str _bb132 _bbmacro2
+BUILTIN _bb134 "\n"
+BUILTIN _bb136 "addition"
+BUILTIN _bb138 " ] "
+get _bb140 ansi reset
+str _bb141 _bb140
+BUILTIN _bb143 "fail"
+get _bb145 ansi red
+str _bb146 _bb145
+BUILTIN _bb147 "[ "
+add _bb144 _bb147 _bb146
+add _bb142 _bb144 _bb143
+add _bb139 _bb142 _bb141
+add _bb137 _bb139 _bb138
+add _bb135 _bb137 _bb136
+add _bb133 _bb135 _bb134
+add _bb131 _bb133 _bb132
+print # _bb131
+END
+BEGIN _bb148
+BUILTIN _bb150 "addition"
+BUILTIN _bb152 "  ] "
+get _bb154 ansi reset
+str _bb155 _bb154
+BUILTIN _bb157 "ok"
+get _bb159 ansi green
+str _bb160 _bb159
+BUILTIN _bb161 "[  "
+add _bb158 _bb161 _bb160
+add _bb156 _bb158 _bb157
+add _bb153 _bb156 _bb155
+add _bb151 _bb153 _bb152
+add _bb149 _bb151 _bb150
+print # _bb149
+END
+catch # _bbmacro2 _bb130 _bb148

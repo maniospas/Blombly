@@ -280,7 +280,16 @@ void optimize(const std::string& source, const std::string& destination) {
                 || command->args[1]=="int" 
                 || command->args[1]=="bool"
                 || command->args[1]=="list"
-                || command->args[1]=="vector"))
+                || command->args[1]=="vector"
+                || command->args[1]=="add" 
+                || command->args[1]=="sub" 
+                || command->args[1]=="mul" 
+                || command->args[1]=="div" 
+                || command->args[1]=="mod" 
+                || command->args[1]=="pow" 
+                || command->args[1]=="and" 
+                || command->args[1]=="or"
+                ))
                 continue;
             
             if(command->args.size() && command->args[0]=="exists" && symbolUsageCount[command->args[1]]==0) {

@@ -30,11 +30,11 @@ Hello world!
 
 ## VM code
 
-Compilation converts code to the BlomlyVM intermediate representation. 
-This looks like assembly code and is stored in files with the `.bbvm` extension. 
-It is also self-contained by packing all dependencies inside, 
-and therefore can be shared with others to run directly, without pesky dependency
-management. The following file is generated when you run `main.bb` above.
+Compilation converts code to the intermediate representation of BlomlyVM. 
+This representation is stored in files with the `.bbvm` extension.
+These are self-contained by packing all dependencies inside, 
+and therefore can be shared with others to run directly. 
+The following file is generated when you run `main.bb` above.
 
 ```asm
 % blombly.bbvm
@@ -66,7 +66,7 @@ Hello world!
 Finally, before jumping into actual coding, let us peek at errors that Blombly may create. There are two types:
 
 - Syntax errors are identified by the compiler and make it halt.
-- Logical errors occur at runtime and can be intercepted with `try` and intercepted with `catch`. 
+- Logical errors occur at runtime and can be intercepted with `try` and separated from other data types with `catch`. This is the only usage of reflection in the whole language.
 
 To see what a syntax error looks like, execute the following invalid code.
 We get an error telling us that the + operation for string concatenation has no right-hand side. 

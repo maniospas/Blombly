@@ -21,6 +21,40 @@
 #include "interpreter/thread.h"
 
 
+std::string replaceEscapeSequences(const std::string& input) {
+    std::string output;
+    size_t pos = 0;
+    while (pos < input.size()) {
+        // Look for \e[ in the string
+        size_t found = input.find("\\e[", pos);
+        if (found != std::string::npos) {
+            // Copy everything up to the \e[
+            output.append(input, pos, found - pos);
+
+            // Replace \e with the ANSI escape code \033
+            output += '\033';
+
+            // Find the end of the ANSI sequence (looking for 'm')
+            size_t end = input.find('m', found);
+            if (end != std::string::npos) {
+                // Copy the rest of the ANSI sequence including 'm'
+                output.append(input, found + 2, end - found - 2 + 1);
+                pos = end + 1;
+            } else {
+                // If no 'm' is found, treat it as an incomplete sequence
+                output += input.substr(found + 2);
+                break;
+            }
+        } else {
+            // No more \e[ found, copy the rest of the string
+            output.append(input, pos, input.size() - pos);
+            break;
+        }
+    }
+    return output;
+}
+
+
 std::chrono::steady_clock::time_point program_start;
 std::recursive_mutex printMutex;
 std::recursive_mutex compileMutex;
@@ -360,6 +394,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     printing += out + " ";
                 }
             }
+            printing = replaceEscapeSequences(printing);
             printing += "\n";
             {
                 std::lock_guard<std::recursive_mutex> lock(printMutex);
