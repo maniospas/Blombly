@@ -1,4 +1,4 @@
-BEGIN _bb23
+BEGIN _bb5
 BUILTIN red "\e[0;31m"
 final # red
 BUILTIN green "\e[0;32m"
@@ -7,7 +7,7 @@ BUILTIN reset "\e[0m"
 final # reset
 return # this
 END
-new ansi _bb23
+new ansi _bb5
 final # ansi
 BEGIN _bb41
 IS Point2D Point2D
