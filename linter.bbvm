@@ -1,0 +1,496 @@
+BEGIN _bb3
+BUILTIN green "\e[0;32m"
+final # green
+BUILTIN yellow "\e[0;33m"
+final # yellow
+BUILTIN cyan "\e[0;36m"
+final # cyan
+BUILTIN lightgreen "\e[0;92m"
+final # lightgreen
+BUILTIN lightpurple "\e[0;95m"
+final # lightpurple
+BUILTIN reset "\e[0m"
+final # reset
+return # this
+END
+new ansi _bb3
+final # ansi
+BEGIN _bb39
+next code args
+BEGIN _bb40
+BEGIN _bb43
+BEGIN _bb44
+return # #
+END
+BUILTIN _bb46 Bfalse
+len _bb48 word
+bool _bb47 _bb48
+eq _bb45 _bb47 _bb46
+if # _bb45 _bb44
+BEGIN _bb49
+get _bb51 ansi reset
+get _bb53 ansi lightgreen
+add _bb52 _bb53 word
+add _bb50 _bb52 _bb51
+add ret ret _bb50
+return # #
+END
+if # in_comment _bb49
+BEGIN _bb54
+get _bb56 ansi reset
+get _bb58 ansi green
+add _bb57 _bb58 word
+add _bb55 _bb57 _bb56
+add ret ret _bb55
+return # #
+END
+if # in_string _bb54
+BEGIN _bb59
+get _bb61 ansi reset
+get _bb63 ansi cyan
+add _bb62 _bb63 word
+add _bb60 _bb62 _bb61
+add ret ret _bb60
+return # #
+END
+BUILTIN _bb66 "next"
+eq _bb65 word _bb66
+BUILTIN _bb69 "pop"
+eq _bb68 word _bb69
+BUILTIN _bb72 "push"
+eq _bb71 word _bb72
+BUILTIN _bb75 "in"
+eq _bb74 word _bb75
+BUILTIN _bb77 "as"
+eq _bb76 word _bb77
+or _bb73 _bb76 _bb74
+or _bb70 _bb73 _bb71
+or _bb67 _bb70 _bb68
+or _bb64 _bb67 _bb65
+if # _bb64 _bb59
+BEGIN _bb78
+get _bb80 ansi reset
+get _bb82 ansi yellow
+add _bb81 _bb82 word
+add _bb79 _bb81 _bb80
+add ret ret _bb79
+return # #
+END
+BUILTIN _bb84 "!"
+BUILTIN _bb86 I0
+at _bb85 word _bb86
+eq _bb83 _bb85 _bb84
+if # _bb83 _bb78
+BEGIN _bb87
+get _bb89 ansi reset
+get _bb91 ansi yellow
+add _bb90 _bb91 word
+add _bb88 _bb90 _bb89
+add ret ret _bb88
+return # #
+END
+BUILTIN _bb93 "@"
+BUILTIN _bb95 I0
+at _bb94 word _bb95
+eq _bb92 _bb94 _bb93
+if # _bb92 _bb87
+BEGIN _bb96
+get _bb98 ansi reset
+get _bb100 ansi lightpurple
+add _bb99 _bb100 word
+add _bb97 _bb99 _bb98
+add ret ret _bb97
+return # #
+END
+BUILTIN _bb103 "fail"
+eq _bb102 word _bb103
+BUILTIN _bb106 "try"
+eq _bb105 word _bb106
+BUILTIN _bb109 "default"
+eq _bb108 word _bb109
+BUILTIN _bb112 "defer"
+eq _bb111 word _bb112
+BUILTIN _bb115 "assert"
+eq _bb114 word _bb115
+BUILTIN _bb118 "bbvm"
+eq _bb117 word _bb118
+BUILTIN _bb121 "else"
+eq _bb120 word _bb121
+BUILTIN _bb124 "return"
+eq _bb123 word _bb124
+BUILTIN _bb127 "catch"
+eq _bb126 word _bb127
+BUILTIN _bb130 "while"
+eq _bb129 word _bb130
+BUILTIN _bb133 "if"
+eq _bb132 word _bb133
+BUILTIN _bb135 "new"
+eq _bb134 word _bb135
+or _bb131 _bb134 _bb132
+or _bb128 _bb131 _bb129
+or _bb125 _bb128 _bb126
+or _bb122 _bb125 _bb123
+or _bb119 _bb122 _bb120
+or _bb116 _bb119 _bb117
+or _bb113 _bb116 _bb114
+or _bb110 _bb113 _bb111
+or _bb107 _bb110 _bb108
+or _bb104 _bb107 _bb105
+or _bb101 _bb104 _bb102
+if # _bb101 _bb96
+BEGIN _bb136
+get _bb138 ansi reset
+get _bb140 ansi cyan
+add _bb139 _bb140 word
+add _bb137 _bb139 _bb138
+add ret ret _bb137
+return # #
+END
+BUILTIN _bb143 "true"
+eq _bb142 word _bb143
+BUILTIN _bb146 "bool"
+eq _bb145 word _bb146
+BUILTIN _bb149 "random"
+eq _bb148 word _bb149
+BUILTIN _bb152 "time"
+eq _bb151 word _bb152
+BUILTIN _bb155 "not"
+eq _bb154 word _bb155
+BUILTIN _bb158 "and"
+eq _bb157 word _bb158
+BUILTIN _bb161 "or"
+eq _bb160 word _bb161
+BUILTIN _bb164 "pow"
+eq _bb163 word _bb164
+BUILTIN _bb167 "mod"
+eq _bb166 word _bb167
+BUILTIN _bb170 "div"
+eq _bb169 word _bb170
+BUILTIN _bb173 "mul"
+eq _bb172 word _bb173
+BUILTIN _bb176 "sub"
+eq _bb175 word _bb176
+BUILTIN _bb179 "add"
+eq _bb178 word _bb179
+BUILTIN _bb182 "false"
+eq _bb181 word _bb182
+BUILTIN _bb185 "this"
+eq _bb184 word _bb185
+BUILTIN _bb188 "iter"
+eq _bb187 word _bb188
+BUILTIN _bb191 "file"
+eq _bb190 word _bb191
+BUILTIN _bb194 "print"
+eq _bb193 word _bb194
+BUILTIN _bb197 "server"
+eq _bb196 word _bb197
+BUILTIN _bb200 "str"
+eq _bb199 word _bb200
+BUILTIN _bb203 "server"
+eq _bb202 word _bb203
+BUILTIN _bb206 "float"
+eq _bb205 word _bb206
+BUILTIN _bb209 "final"
+eq _bb208 word _bb209
+BUILTIN _bb212 "int"
+eq _bb211 word _bb212
+BUILTIN _bb215 "bool"
+eq _bb214 word _bb215
+BUILTIN _bb217 "len"
+eq _bb216 word _bb217
+or _bb213 _bb216 _bb214
+or _bb210 _bb213 _bb211
+or _bb207 _bb210 _bb208
+or _bb204 _bb207 _bb205
+or _bb201 _bb204 _bb202
+or _bb198 _bb201 _bb199
+or _bb195 _bb198 _bb196
+or _bb192 _bb195 _bb193
+or _bb189 _bb192 _bb190
+or _bb186 _bb189 _bb187
+or _bb183 _bb186 _bb184
+or _bb180 _bb183 _bb181
+or _bb177 _bb180 _bb178
+or _bb174 _bb177 _bb175
+or _bb171 _bb174 _bb172
+or _bb168 _bb171 _bb169
+or _bb165 _bb168 _bb166
+or _bb162 _bb165 _bb163
+or _bb159 _bb162 _bb160
+or _bb156 _bb159 _bb157
+or _bb153 _bb156 _bb154
+or _bb150 _bb153 _bb151
+or _bb147 _bb150 _bb148
+or _bb144 _bb147 _bb145
+or _bb141 _bb144 _bb142
+if # _bb141 _bb136
+add ret ret word
+END
+try _bb41 _bb43
+BUILTIN word ""
+END
+IS end_word _bb40
+get _bb219 ansi reset
+IS ret _bb219
+BUILTIN word ""
+BUILTIN pos I0
+len n code
+BUILTIN in_string Bfalse
+BUILTIN in_fstring Bfalse
+BUILTIN in_comment Bfalse
+BEGIN _bb226
+lt _bb227 pos n
+END
+BEGIN _bb228
+BEGIN _bb231
+at _bb232 code pos
+IS c _bb232
+BUILTIN _bb233 I1
+add pos pos _bb233
+BEGIN _bb234
+inline _bb235 end_word
+add ret ret c
+BUILTIN in_comment Bfalse
+return # #
+END
+BUILTIN _bb239 "\n"
+eq _bb238 c _bb239
+and _bb237 _bb238 in_comment
+if # _bb237 _bb234
+BEGIN _bb240
+BEGIN _bb241
+BUILTIN in_comment Btrue
+END
+BUILTIN _bb244 "/"
+at _bb245 code pos
+eq _bb243 _bb245 _bb244
+if # _bb243 _bb241
+END
+lt _bb247 pos n
+BUILTIN _bb249 "/"
+eq _bb248 c _bb249
+and _bb246 _bb248 _bb247
+if # _bb246 _bb240
+BEGIN _bb250
+add word word c
+return # #
+END
+if # in_comment _bb250
+BEGIN _bb251
+BEGIN _bb252
+add word word c
+inline _bb253 end_word
+BUILTIN in_string Bfalse
+return # #
+END
+if # in_string _bb252
+inline _bb255 end_word
+BUILTIN in_string Btrue
+END
+BUILTIN _bb258 """
+eq _bb257 c _bb258
+if # _bb257 _bb251
+BEGIN _bb259
+BEGIN _bb260
+inline _bb261 end_word
+get _bb263 ansi reset
+get _bb265 ansi cyan
+add _bb264 _bb265 c
+add _bb262 _bb264 _bb263
+add ret ret _bb262
+BUILTIN in_string Btrue
+BUILTIN in_fstring Bfalse
+return # #
+END
+BUILTIN _bb270 "}"
+eq _bb269 c _bb270
+and _bb268 in_fstring _bb269
+if # _bb268 _bb260
+BEGIN _bb271
+inline _bb272 end_word
+get _bb274 ansi reset
+get _bb276 ansi cyan
+add _bb275 _bb276 c
+add _bb273 _bb275 _bb274
+add ret ret _bb273
+BUILTIN in_fstring Btrue
+BUILTIN in_string Bfalse
+return # #
+END
+BUILTIN _bb281 "{"
+eq _bb280 c _bb281
+not _bb282 in_fstring
+and _bb279 _bb282 _bb280
+if # _bb279 _bb271
+BEGIN _bb283
+add word word c
+return # #
+END
+not _bb284 in_fstring
+if # _bb284 _bb283
+END
+or _bb285 in_string in_fstring
+if # _bb285 _bb259
+BEGIN _bb286
+BEGIN _bb287
+inline _bb288 end_word
+get _bb290 ansi reset
+BUILTIN _bb292 "=>"
+get _bb293 ansi lightpurple
+add _bb291 _bb293 _bb292
+add _bb289 _bb291 _bb290
+add ret ret _bb289
+BUILTIN _bb294 I1
+add pos pos _bb294
+return # #
+END
+BUILTIN _bb296 ">"
+at _bb297 code pos
+eq _bb295 _bb297 _bb296
+if # _bb295 _bb287
+END
+lt _bb299 pos n
+BUILTIN _bb301 "="
+eq _bb300 c _bb301
+and _bb298 _bb300 _bb299
+if # _bb298 _bb286
+BEGIN _bb302
+BEGIN _bb303
+inline _bb304 end_word
+get _bb306 ansi reset
+BUILTIN _bb308 "->"
+get _bb309 ansi lightpurple
+add _bb307 _bb309 _bb308
+add _bb305 _bb307 _bb306
+add ret ret _bb305
+BUILTIN _bb310 I1
+add pos pos _bb310
+return # #
+END
+BUILTIN _bb312 ">"
+at _bb313 code pos
+eq _bb311 _bb313 _bb312
+if # _bb311 _bb303
+END
+lt _bb315 pos n
+BUILTIN _bb317 "-"
+eq _bb316 c _bb317
+and _bb314 _bb316 _bb315
+if # _bb314 _bb302
+BEGIN _bb318
+inline _bb319 end_word
+get _bb321 ansi reset
+get _bb323 ansi cyan
+add _bb322 _bb323 c
+add _bb320 _bb322 _bb321
+add ret ret _bb320
+return # #
+END
+BUILTIN _bb325 ":"
+eq _bb324 c _bb325
+if # _bb324 _bb318
+BEGIN _bb326
+inline _bb327 end_word
+get _bb329 ansi reset
+get _bb331 ansi cyan
+add _bb330 _bb331 c
+add _bb328 _bb330 _bb329
+add ret ret _bb328
+return # #
+END
+BUILTIN _bb334 "}"
+eq _bb333 c _bb334
+BUILTIN _bb336 "{"
+eq _bb335 c _bb336
+or _bb332 _bb335 _bb333
+if # _bb332 _bb326
+BEGIN _bb337
+inline _bb338 end_word
+get _bb340 ansi reset
+get _bb342 ansi reset
+add _bb341 _bb342 c
+add _bb339 _bb341 _bb340
+add ret ret _bb339
+return # #
+END
+BUILTIN _bb345 ","
+eq _bb344 c _bb345
+BUILTIN _bb348 ";"
+eq _bb347 c _bb348
+BUILTIN _bb351 ")"
+eq _bb350 c _bb351
+BUILTIN _bb354 "("
+eq _bb353 c _bb354
+BUILTIN _bb357 "]"
+eq _bb356 c _bb357
+BUILTIN _bb360 "["
+eq _bb359 c _bb360
+BUILTIN _bb363 "/"
+eq _bb362 c _bb363
+BUILTIN _bb366 "="
+eq _bb365 c _bb366
+BUILTIN _bb369 "."
+eq _bb368 c _bb369
+BUILTIN _bb372 "|"
+eq _bb371 c _bb372
+BUILTIN _bb375 "%"
+eq _bb374 c _bb375
+BUILTIN _bb378 "^"
+eq _bb377 c _bb378
+BUILTIN _bb381 "*"
+eq _bb380 c _bb381
+BUILTIN _bb384 "-"
+eq _bb383 c _bb384
+BUILTIN _bb387 "+"
+eq _bb386 c _bb387
+BUILTIN _bb390 "<"
+eq _bb389 c _bb390
+BUILTIN _bb392 ">"
+eq _bb391 c _bb392
+or _bb388 _bb391 _bb389
+or _bb385 _bb388 _bb386
+or _bb382 _bb385 _bb383
+or _bb379 _bb382 _bb380
+or _bb376 _bb379 _bb377
+or _bb373 _bb376 _bb374
+or _bb370 _bb373 _bb371
+or _bb367 _bb370 _bb368
+or _bb364 _bb367 _bb365
+or _bb361 _bb364 _bb362
+or _bb358 _bb361 _bb359
+or _bb355 _bb358 _bb356
+or _bb352 _bb355 _bb353
+or _bb349 _bb352 _bb350
+or _bb346 _bb349 _bb347
+or _bb343 _bb346 _bb344
+if # _bb343 _bb337
+BEGIN _bb393
+inline _bb394 end_word
+add ret ret c
+return # #
+END
+BUILTIN _bb397 "\n"
+eq _bb396 c _bb397
+BUILTIN _bb399 " "
+eq _bb398 c _bb399
+or _bb395 _bb398 _bb396
+if # _bb395 _bb393
+add word word c
+END
+try _bb229 _bb231
+END
+while # _bb226 _bb228
+inline _bb400 end_word
+get _bb402 ansi reset
+add _bb401 ret _bb402
+return # _bb401
+END
+IS highlight _bb39
+BUILTIN _bb405 "main.bb"
+file _bb404 _bb405
+str code _bb404
+BEGIN _bb407
+list args code
+END
+call _bb406 _bb407 highlight
+print # _bb406

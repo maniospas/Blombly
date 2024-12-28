@@ -88,7 +88,7 @@ void BFile::loadContents() {
 std::string BFile::toString() {
     loadContents();
     std::string result = "";
-    for (std::size_t i = 1; i < contents.size(); ++i) {
+    for (std::size_t i = 0; i < contents.size(); ++i) {
         if (i)
             result += "\n";
         result += contents[i];

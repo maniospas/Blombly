@@ -353,7 +353,8 @@ public:
                     bbassert(first_name != "while", "`while` expressions cannot have an else branch.\n"+show_position(body_end));
                 }
                 if (tokens[start_if_body].name == "{") {
-                    bbassert(find_end(start_if_body + 1, body_end, "}", true) == body_end, "There is leftover code after closing `}`\n"+show_position(body_end));
+                    bbassert(find_end(start_if_body + 1, body_end, "}", true) == body_end || tokens[body_end].name=="else", 
+                    "There is leftover code after closing `}`\n"+show_position(body_end));
                     parse(start_if_body + 1, body_end - 1);
                 } else if (tokens[body_end].name == "else") {
                     parse(start_if_body, body_end - 1);
@@ -368,7 +369,7 @@ public:
                     int else_end = end;
                     if (tokens[body_end + 1].name == "{") {
                         else_end = find_end(body_end + 2, end, "}", true);
-                        bbassert(else_end == end, "There is leftover code after closing `}`\n"+show_position(else_end));
+                        bbassert(else_end == end, "There is leftover code after closing `}` for else\n"+show_position(else_end));
                     }
                     std::string endvar = create_temp();
                     ret += "BEGIN " + endvar + "\n";
@@ -1539,7 +1540,10 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                         && updatedTokens[pos-3].name=="final") {
                             alreadyDone = true;
                         }
-                    if(updatedTokens[pos].name=="{" && (updatedTokens[pos-1].name=="new" || (crossover && updatedTokens[pos-1].name=="=")))
+                    if(updatedTokens[pos].name=="{" && (updatedTokens[pos-1].name=="new" || (crossover && (
+                            updatedTokens[pos-1].name=="=" 
+                            || updatedTokens[pos-1].name=="return"
+                            || updatedTokens[pos-1].name=="as"))))
                         break;
                     if(updatedTokens[pos].name=="{")
                         ++crossover;

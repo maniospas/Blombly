@@ -2,74 +2,55 @@ BEGIN _bb3
 return # this
 END
 new ansi _bb3
-BEGIN _bb39
-IS Point Point
-final # Point
-BEGIN _bb40
-next other args
-IS super this
-get _bb41 this Point
-IS Point _bb41
-BEGIN _bb44
-inline _bb45 Point
-get _bb47 other x
-get _bb48 super x
-add x _bb48 _bb47
-get _bb50 other y
-get _bb51 super y
-add y _bb51 _bb50
-return # this
+BEGIN _bb41
+BUILTIN value I0
+BUILTIN _bb43 I8000
+server routes _bb43
+BEGIN _bb45
+BEGIN _bb46
+BUILTIN _bb47 "The number of hi must be an integer."
+return # _bb47
 END
-new _bb42 _bb44
-return # _bb42
-END
-IS add _bb40
+BUILTIN _bb49 Bfalse
+int _bb50 number
+AS number _bb50
+exists _bb51 number
+eq _bb48 _bb51 _bb49
+if # _bb48 _bb46
 BEGIN _bb52
-BUILTIN _bb54 ")"
-get _bb56 this y
-str _bb57 _bb56
-BUILTIN _bb59 ", "
-get _bb61 this x
-str _bb62 _bb61
-BUILTIN _bb63 "("
-add _bb60 _bb63 _bb62
-add _bb58 _bb60 _bb59
-add _bb55 _bb58 _bb57
-add _bb53 _bb55 _bb54
+BUILTIN _bb53 "Need a positive number of hi. Why must you take them away? :-("
 return # _bb53
 END
-IS str _bb52
-BEGIN _bb64
-BUILTIN _bb66 F0.5
-BUILTIN _bb69 I2
-get _bb70 this y
-pow _bb68 _bb70 _bb69
-BUILTIN _bb72 I2
-get _bb73 this x
-pow _bb71 _bb73 _bb72
-add _bb67 _bb71 _bb68
-pow _bb65 _bb67 _bb66
-return # _bb65
+BUILTIN _bb55 I0
+le _bb54 number _bb55
+if # _bb54 _bb52
+BUILTIN _bb56 I1
+get _bb57 this value
+add _bb57 _bb57 _bb56
+set # this value _bb57
+BUILTIN _bb59 " hi"
+str _bb61 number
+BUILTIN _bb63 " hello your to "
+get _bb66 this value
+add _bb65 _bb66 number
+str _bb67 _bb65
+BUILTIN _bb68 ""
+add _bb64 _bb68 _bb67
+add _bb62 _bb64 _bb63
+add _bb60 _bb62 _bb61
+add _bb58 _bb60 _bb59
+return # _bb58
 END
-IS norm _bb64
-END
-IS Point _bb39
-BEGIN _bb76
-inline _bb77 Point
-BUILTIN x I1
-BUILTIN y I2
+BUILTIN _bb69 "/hi/<number>"
+put # routes _bb69 _bb45
 return # this
 END
-new p1 _bb76
-BEGIN _bb82
-inline _bb83 Point
-BUILTIN x I2
-BUILTIN y I3
-return # this
+new _bb39 _bb41
+BUILTIN _bb70 "Give me some greetings at localhost:8000/hi/<number>"
+print # _bb70
+BEGIN _bb71
+BUILTIN _bb72 Btrue
 END
-new p2 _bb82
-add _bb86 p1 p2
-print # _bb86
-get _bb88 p1 norm
-call _bb87 # _bb88
-print # _bb87
+BEGIN _bb73
+END
+while # _bb71 _bb73
