@@ -486,11 +486,18 @@ add _bb401 ret _bb402
 return # _bb401
 END
 IS highlight _bb39
-BUILTIN _bb405 "main.bb"
-file _bb404 _bb405
-str code _bb404
-BEGIN _bb407
+BUILTIN _bb404 "File for code highlighting:"
+read path _bb404
+BUILTIN _bb405 ""
+print # _bb405
+BUILTIN _bb406 "===================================================="
+print # _bb406
+file _bb408 path
+str code _bb408
+BEGIN _bb410
 list args code
 END
-call _bb406 _bb407 highlight
-print # _bb406
+call _bb409 _bb410 highlight
+print # _bb409
+BUILTIN _bb412 "===================================================="
+print # _bb412

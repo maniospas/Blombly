@@ -3,54 +3,55 @@ return # this
 END
 new ansi _bb3
 BEGIN _bb41
-BUILTIN value I0
-BUILTIN _bb43 I8000
-server routes _bb43
-BEGIN _bb45
-BEGIN _bb46
-BUILTIN _bb47 "The number of hi must be an integer."
-return # _bb47
-END
-BUILTIN _bb49 Bfalse
-int _bb50 number
-AS number _bb50
-exists _bb51 number
-eq _bb48 _bb51 _bb49
-if # _bb48 _bb46
-BEGIN _bb52
-BUILTIN _bb53 "Need a positive number of hi. Why must you take them away? :-("
-return # _bb53
-END
-BUILTIN _bb55 I0
-le _bb54 number _bb55
-if # _bb54 _bb52
-BUILTIN _bb56 I1
-get _bb57 this value
-add _bb57 _bb57 _bb56
-set # this value _bb57
-BUILTIN _bb59 " hi"
-str _bb61 number
-BUILTIN _bb63 " hello your to "
-get _bb66 this value
-add _bb65 _bb66 number
-str _bb67 _bb65
-BUILTIN _bb68 ""
-add _bb64 _bb68 _bb67
-add _bb62 _bb64 _bb63
-add _bb60 _bb62 _bb61
-add _bb58 _bb60 _bb59
-return # _bb58
-END
-BUILTIN _bb69 "/hi/<number>"
-put # routes _bb69 _bb45
 return # this
 END
 new _bb39 _bb41
-BUILTIN _bb70 "Give me some greetings at localhost:8000/hi/<number>"
-print # _bb70
-BEGIN _bb71
-BUILTIN _bb72 Btrue
+BEGIN _bb42
+next x args
+BEGIN _bb45
+IS x x
+final # x
+return # this
 END
-BEGIN _bb73
+new _bb43 _bb45
+BEGIN _bb46
+next y args
+get _bb49 this x
+add _bb48 _bb49 y
+add _bb47 _bb48 z
+return # _bb47
 END
-while # _bb71 _bb73
+set # _bb43 call _bb46
+return # _bb43
+END
+set # _bb39 call _bb42
+IS adder _bb39
+final # adder
+BEGIN _bb50
+next z args
+final # z
+BEGIN _bb52
+BUILTIN _bb53 I2
+list args _bb53
+END
+BEGIN _bb55
+BUILTIN _bb56 I1
+list args _bb56
+END
+call _bb54 _bb55 adder
+call _bb51 _bb52 _bb54
+return # _bb51
+END
+IS test _bb50
+BEGIN _bb58
+BUILTIN _bb59 I1
+list args _bb59
+END
+call _bb57 _bb58 test
+print # _bb57
+BEGIN _bb61
+BUILTIN _bb62 I2
+list args _bb62
+END
+call _bb60 _bb61 test
+print # _bb60

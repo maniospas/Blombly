@@ -151,5 +151,10 @@ highlight(code) = {
     return ret+ansi.reset;
 }
 
-code = "main.bb"|file|str;
+
+path = "File for code highlighting:"|read;
+print("");
+print("====================================================");
+code = path|file|str;
 print(code|highlight);
+print("====================================================");

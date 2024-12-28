@@ -1,19 +1,9 @@
-!include "libs"
+final adder = new{}.call(x) => new{}.call(y) => !closure.x+y+z;
 
-Point = {
-    add(p) = {
-        super = this;
-        Point = !closure.Point;
-        return new {
-            Point:
-            x = super.x + p.x;
-            y = super.y + p.y;
-        }
-    }
+test(z) = {
+    final z = z;  // any functions running now can access this value
+    return adder(1)(2);
 }
 
-p1 = new {Point: x = 1; y = 2}
-p2 = new {Point: x = 3; y = 4}
-
-p3 = p1 + p2;  // Calls the overloaded add method
-print(p3.x, p3.y);
+print(test(1));
+print(test(2));
