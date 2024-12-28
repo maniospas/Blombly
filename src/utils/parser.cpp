@@ -327,7 +327,15 @@ public:
                 std::string condition;
                 if(first_name=="while") {
                     #ifdef WHILE_WITH_CODE_BLOCKS
-                        condition = parse_expression(start + 1, start_if_body - 1, true);
+                        std::string requested_var = create_temp();
+                        ret += "BEGIN " + requested_var + "\n";
+                        ret += code_block_prepend;
+                        code_block_prepend = "";
+                        if (start <= end)
+                            parse(start+1, start_if_body-1);  // important to do a full parse
+                        ret += "END\n";
+                        condition = requested_var;
+                        //condition = parse_expression(start + 1, start_if_body - 1, true);
                     #else
                         condition = parse_expression(start + 1, start_if_body - 1);
                         if (first_name == "while" && (ret.size()<5 || ret.substr(condition_start_in_ret, 5) != "BEGIN"))
@@ -1395,13 +1403,14 @@ void sanitize(std::vector<Token>& tokens) {
         if ((tokens[i].name == "#" || tokens[i].name == "!") && ((i >= tokens.size() - 1) || 
             (tokens[i + 1].name != "include" && tokens[i + 1].name != "local" && tokens[i + 1].name != "macro" && tokens[i + 1].name != "stringify" && tokens[i + 1].name != "symbol"
              && tokens[i + 1].name != "anon" && tokens[i + 1].name != "x"
-             && tokens[i + 1].name != "spec" && tokens[i + 1].name != "fail" && tokens[i + 1].name != "of" && tokens[i + 1].name != "gcc"))) {
+             && tokens[i + 1].name != "spec" && tokens[i + 1].name != "fail" && tokens[i + 1].name != "of" && tokens[i + 1].name != "closure" && tokens[i + 1].name != "gcc"))) {
             bberror("Invalid preprocessor instruction after `"+tokens[i].name+"` symbol."
                     "\n   \033[33m!!!\033[0m This symbol signifies preprocessor directives."
                     "\n        Valid directives are the following patterns:"
                     "\n        - `!include @str` inlines a file."
                     "\n        - `!spec @property=@value;` declares a code block specification."
                     "\n        - `(!of @expression)` or (!anon @expression)` assigns the expression to a temporary variable just after the last command."
+                    "\n        - `!closure.value` is replaced by `this.value` and adds `value=value` just within the beginning of a `new` statement"
                     "\n        - `!x` is a shorthand for `next(args)`."
                     "\n        - `!macro {@expression} as {@implementation}` defines a macro."
                     "\n        - `!local {@expression} as {@implementation}` defines a macro that is invalidated when the current file ends."
@@ -1508,11 +1517,55 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     "\n       before the current commend. Here is an example `A = 1,2,3; while(x as next(#of bbvm::iter(A))) {}`.\n"
                     + Parser::show_position(tokens, i));*/
 
-        if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && (tokens[i + 1].name == "of" || tokens[i + 1].name == "anon")) {
+        if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && (tokens[i + 1].name == "closure")) {
+                bbassert(tokens[i + 2].name == ".", 
+                          "Unexpected `!closure` encountered before `"+tokens[i+2].name +"`."
+                          "\n   \033[33m!!!\033[0m  Each `!closure` declaration can only be followed by `.`."
+                          "\n        Here is an example `value=1; new{float=>!closure.value}`.\n"
+                          +Parser::show_position(tokens, i));
+                int pos = updatedTokens.size();
+                int crossover = 0;
+                bool alreadyDone = false;
+                while(true) {
+                    bbassert(pos>=0, 
+                            "Unexpected `!closure` encountered without being within `new` or within a code block declaration."
+                            "\n   \033[33m!!!\033[0m  Each `!closure` declaration can only reside within code blocks within `new` statements or block declarations."
+                            "\n        Here is an example `value=1; new{float=>!closure.value}`.\n"
+                            +Parser::show_position(tokens, i));
+                    if(pos>=4 && updatedTokens[pos].name==";" 
+                        && updatedTokens[pos-1].name==tokens[i+3].name
+                        && updatedTokens[pos-2].name=="="
+                        && updatedTokens[pos-3].name==tokens[i+3].name
+                        && updatedTokens[pos-3].name=="final") {
+                            alreadyDone = true;
+                        }
+                    if(updatedTokens[pos].name=="{" && (updatedTokens[pos-1].name=="new" || (crossover && updatedTokens[pos-1].name=="=")))
+                        break;
+                    if(updatedTokens[pos].name=="{")
+                        ++crossover;
+                    --pos;
+                }
+                bbassert(crossover, 
+                        "Unexpected `!closure` encountered within the body of `new` or within a code block."
+                        "\n   \033[33m!!!\033[0m  Each `!closure` declaration can only reside within code blocks within `new` statements or code blocks within code blocks."
+                        "\n        Here is an example `value=1; new{float=>!closure.value}`.\n"
+                        +Parser::show_position(tokens, i));
+                if(!alreadyDone) {
+                    updatedTokens.emplace(updatedTokens.begin()+pos+1, "final", tokens[i+3].file, tokens[i+3].line, true);
+                    updatedTokens.insert(updatedTokens.begin()+pos+2, tokens[i+3]);
+                    updatedTokens.emplace(updatedTokens.begin()+pos+3, "=", tokens[i+3].file, tokens[i+3].line, true);
+                    updatedTokens.insert(updatedTokens.begin()+pos+4, tokens[i+3]);
+                    updatedTokens.emplace(updatedTokens.begin()+pos+5, ";", tokens[i+3].file, tokens[i+3].line, true);
+                }
+
+                updatedTokens.emplace_back("this", tokens[i].file, tokens[i].line, true);
+                i += 2;
+        }
+        else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && (tokens[i + 1].name == "of" || tokens[i + 1].name == "anon")) {
                 bbassert(tokens[i - 1].name == "(" || tokens[i - 1].name == "[", 
-                          "Unexpected `#of` encountered after `"+tokens[i - 1].name +"`."
+                          "Unexpected `!of` encountered after `"+tokens[i - 1].name +"`."
                           "\n   \033[33m!!!\033[0m  Each `!of` (or equivalently `!anon`) declaration can only start after a parenthesis or square bracket."
-                          "\n        Here is an example `A = 1,2,3; while(x as next(#of bbvm::iter(A))) {}`.\n"
+                          "\n        Here is an example `A = 1,2,3; while(x as next(!of bbvm::iter(A))) {}`.\n"
                           +Parser::show_position(tokens, i));
                 int iend = i+2;
                 int depth = 1;

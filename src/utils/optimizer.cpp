@@ -289,6 +289,7 @@ void optimize(const std::string& source, const std::string& destination) {
                 || command->args[1]=="pow" 
                 || command->args[1]=="and" 
                 || command->args[1]=="or"
+                || command->args[1]=="type"
                 ))
                 continue;
             

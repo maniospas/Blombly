@@ -21,7 +21,7 @@ run code and open the browser and visit `localhost:8000/echo/MyTest` to see this
 ```java
 // main.bb
 routes = server(8000);
-routes["/echo/<input>"] = {return input;}
+routes["/echo/<input>"] => input; // equivalent to `... = {return input}`
 while(true) {}  // wait indefinitely
 ```
 
@@ -48,12 +48,10 @@ new {
     value = 0;
     routes = server(8000);
     routes["/hi/<number>"] = {
-        if((number as int(number))==false)
-            return "The number of hi must be an integer.";
-        if(number<=0)
-            return "Need a positive number of hi. Why must you take them away? :-(";
-        this.value = this.value + 1;
-        return str(this.value+number)+" hello your "+str(number)+" hi";
+        if((number as int(number))==false) return "The number of hi must be an integer.";
+        if(number<=0) return "Need a positive number of hi. Why must you take them away? :-(";
+        this.value += 1;
+        return "{this.value+number} hello your to {number} hi";
     }
 }
 
@@ -63,4 +61,23 @@ while(true) {}  // wait indefinitely
 
 ## Non-text results
 
-*This segment is under constructions.*
+Non-text results for server methods are declared by returning
+a struct with text and type fields, like below.
+
+```java
+content = "
+    <!DOCTYPE html>
+    <html>
+        <head><title>Hi world!</title></head>
+        <body><h1>Hi world!</h1>This is your website. Add content in a <a href='https://perfectmotherfuckingwebsite.com/'>nice format</a>.</body>
+    </html>";
+    
+routes = server(8000);
+routes[""] => new {
+    str => !closure.content; // runs `context=content` in `new` and replaces `!closure` with `this`
+    type = "text/html";
+}
+
+print("Server running at http://localhost:8000/");
+while(true){}
+```

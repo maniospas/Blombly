@@ -1,22 +1,18 @@
-// point.bb
-final Point2D = {
-    Point2D = Point2D;
-    str => "({this.x}, {this.y})";
+Point = {
     add(other) = {
         super = this;
+        Point = !closure.Point;
         return new {
-            Point2D:
+            Point:
             x = super.x + other.x;
             y = super.y + other.y;
         }
     }
-    dot(other) => this.x*other.x + this.y*other.y;
+    str => "({this.x}, {this.y})";
+    norm => (this.x^2+this.y^2)^0.5;
 }
 
-ab_points = {
-    a = new {Point2D:x=0;y=0}
-    b = new {Point2D:x=0;y=0}
-}
-
-bbvm::test("dot product") {ab_points:return a.dot(b)}
-bbvm::test("addition") {ab_points:return a+b}
+p1 = new {Point:x=1;y=2}
+p2 = new {Point:x=2;y=3}
+print(p1.norm()); // 2.236
+print(p1+p2); // (3, 5)

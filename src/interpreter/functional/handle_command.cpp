@@ -152,12 +152,12 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     }
                 }
                 //newMemory.detach(code->getDeclarationMemory());
-                newMemory.detach(memory);
                 Data* thisObj = nullptr;
                 if(code->getDeclarationMemory())
                     thisObj = code->getDeclarationMemory()->getOrNull(variableManager.thisId, true);
                 if(thisObj)
                     newMemory.unsafeSet(variableManager.thisId, thisObj, nullptr);
+                newMemory.detach(thisObj?memory:nullptr);
                 newMemory.allowMutables = false;
                 //newMemory.leak(); (this is for testing only - we are not leaking any memory to other threads if we continue in the same thread, so no need to enable atomic reference counting)
                 Result returnedValue = executeBlock(code, &newMemory, newReturnSignal);

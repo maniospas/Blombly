@@ -24,20 +24,12 @@ std::vector<std::string> splitRoute(const std::string& route) {
     return routeParts;
 }
 
-
 extern std::recursive_mutex printMutex;
+int RestServer::resultType = variableManager.getId("type");
 
 RestServer::RestServer(int port) : port_(port), context_(nullptr), Data(SERVER) {}
-
-RestServer::~RestServer() {
-    if (context_) {
-        mg_stop(context_);
-    }
-}
-
-std::string RestServer::toString(){
-    return "Server on port " + std::to_string(port_);
-}
+RestServer::~RestServer() {if (context_) mg_stop(context_);}
+std::string RestServer::toString(){return "Server on port " + std::to_string(port_);}
 
 void RestServer::runServer() {
     const char* options[] = {
@@ -46,8 +38,7 @@ void RestServer::runServer() {
         nullptr
     };
     context_ = mg_start(nullptr, 0, options);
-    if (context_ == nullptr) 
-        bberror("Failed to start server on port " + std::to_string(port_));
+    if (context_ == nullptr) bberror("Failed to start server on port " + std::to_string(port_));
     mg_set_request_handler(context_, "/", requestHandler, (void*)this);
 }
 
@@ -88,20 +79,14 @@ Data* RestServer::executeCodeWithMemory(Data* called, BMemory* memory) const {
     Result returnValue = executeBlock(code, memory, hasReturned);
     Data* result = returnValue.get();
 
-    if (!hasReturned) 
-        bberror("Server route handler did not reach a return statement.");
-    if (!result) 
-        bberror("Server route handler returned no value.");
-    if (result->getType()!=Datatype::STRING) 
-        bberror("Server route handler did not return a string.");
-
+    bbassert(hasReturned, "Server route handler did not reach a return statement.");
+    bbassert(result, "Server route handler returned no value.");
     return result;   
 }
 
 int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
     RestServer* server = static_cast<RestServer*>(cbdata);
     const mg_request_info* req_info = mg_get_request_info(conn);
-
 
     std::string route(req_info->request_uri);
     std::vector<std::string> routeParts = splitRoute(route);
@@ -124,28 +109,27 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                     break;
                 }
             }
-            if (!isMatch) 
-                continue;
+            if (!isMatch) continue;
 
             try {
                 if(req_info->request_uri) {
-                    mem->unsafeSet(variableManager.getId("uri"), new BString(req_info->request_uri), nullptr);
+                    mem->unsafeSet(variableManager.getId("server::uri"), new BString(req_info->request_uri), nullptr);
                     //mem->setFinal(variableManager.getId("uri"));
                 }
                 if(req_info->query_string) {
-                    mem->unsafeSet(variableManager.getId("query"), new BString(req_info->query_string), nullptr);
+                    mem->unsafeSet(variableManager.getId("server::query"), new BString(req_info->query_string), nullptr);
                     //mem->setFinal(variableManager.getId("query"));
                 }
                 if(req_info->request_method) {
-                    mem->unsafeSet(variableManager.getId("method"), new BString(req_info->request_method), nullptr);
+                    mem->unsafeSet(variableManager.getId("server::method"), new BString(req_info->request_method), nullptr);
                     //mem->setFinal(variableManager.getId("method"));
                 }
                 if(req_info->http_version) {
-                    mem->unsafeSet(variableManager.getId("http"), new BString(req_info->http_version), nullptr);
+                    mem->unsafeSet(variableManager.getId("server::http"), new BString(req_info->http_version), nullptr);
                     //mem->setFinal(variableManager.getId("http"));
                 }
-                mem->unsafeSet(variableManager.getId("ip"), new BString(req_info->remote_addr), nullptr);
-                mem->unsafeSet(variableManager.getId("ssl"), req_info->is_ssl?Boolean::valueTrue:Boolean::valueFalse, nullptr);
+                mem->unsafeSet(variableManager.getId("server::ip"), new BString(req_info->remote_addr), nullptr);
+                mem->unsafeSet(variableManager.getId("server::ssl"), req_info->is_ssl?Boolean::valueTrue:Boolean::valueFalse, nullptr);
                 //mem->setFinal(variableManager.getId("ip"));
                 //mem->setFinal(variableManager.getId("ssl"));
 
@@ -156,29 +140,48 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                     if (bytesRead > 0) {
                         bodyData[bytesRead] = '\0';
                         std::string requestBody(&bodyData[0]);
-                        mem->unsafeSet(variableManager.getId("content"), new BString(requestBody), nullptr);
+                        mem->unsafeSet(variableManager.getId("server::content"), new BString(requestBody), nullptr);
                     }
                 }
 
                 Data* result = server->executeCodeWithMemory(entry.second, mem);
-                std::string response = result->toString();
+                if(result->getType()==STRUCT) {
+                    Struct* resultStruct = static_cast<Struct*>(result);
+                    //Data* resultContentData = resultStruct->getMemory()->get(resultContent);
+                    //bbassert(resultContentData, "Route returned a struct without a `content` field.");
+                    std::string response = result->toString();
+                    Data* resultTypeData = resultStruct->getMemory()->getOrNull(resultType, true);
+                    bbassert(resultTypeData, "Server route returned a struct without a `type` field.");
+                    bbassert(resultTypeData->getType()==Datatype::STRING, "Server route `type` field was not a string.");
 
-                std::string html_prefix = "<!DOCTYPE html>";
-                if(html_prefix.size()>=html_prefix.length() && response.substr(0, html_prefix.length())==html_prefix) {
                     mg_printf(conn,
                             "HTTP/1.1 200 OK\r\n"
-                            "Content-Type: text/html\r\n"
+                            "Content-Type: %s\r\n"
                             "Content-Length: %lu\r\n"
                             "\r\n%s",
+                            resultTypeData->toString().c_str(),
                             response.length(), response.c_str());
                 }
-                else
+                else {
+                    bbassert(result->getType()==Datatype::STRING, "Server route handler did not return a string or struct with `str` and `type`.");
+                    std::string response = result->toString();
+                    /*std::string html_prefix = "<!DOCTYPE html>";
+                    if(html_prefix.size()>=html_prefix.length() && response.substr(0, html_prefix.length())==html_prefix) {
+                        mg_printf(conn,
+                                "HTTP/1.1 200 OK\r\n"
+                                "Content-Type: text/html\r\n"
+                                "Content-Length: %lu\r\n"
+                                "\r\n%s",
+                                response.length(), response.c_str());
+                    }
+                    else*/
                     mg_printf(conn,
                             "HTTP/1.1 200 OK\r\n"
                             "Content-Type: text/plain\r\n"
                             "Content-Length: %lu\r\n"
                             "\r\n%s",
                             response.length(), response.c_str());
+                }
                 return 200;
             } 
             catch (const BBError& e) {

@@ -24,6 +24,7 @@ void threadExecute(Code* code,
         //memory->await(); // await here to prevent awaiting during the destructor
 
     } catch (const BBError& e) {
+        memory->unsafeSet(variableManager.thisId, nullptr, nullptr);
         // Capture and format the error message
         std::string comm = command->toString();
         comm.resize(40, ' ');
@@ -31,6 +32,7 @@ void threadExecute(Code* code,
             ("\n   \x1B[34m\u2192\033[0m " + comm + " \t\x1B[90m " + command->source->path + " line " + std::to_string(command->line)));
     }
     try {
+        memory->unsafeSet(variableManager.thisId, nullptr, nullptr);
         // value should have been 
         delete memory;
     } catch (const BBError& e) {

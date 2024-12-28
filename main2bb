@@ -97,3 +97,28 @@ while(path in system.files("src"))
     print(path);
 
 system.log("system message", "test");
+
+
+
+
+
+Overloading becomes even more powerful when combined with code blocks. 
+For example, overloaded operators may inline code blocks dynamically during execution.
+In the next example, we overload multiplication (`*`) for a point struct to scale it by a factor. 
+Overloading in this case is used together with error handling to catch invalid operations and gracefully handle them.
+
+```java
+//main.bb
+Point = {
+    final Point = Point;
+    mul(factor) => new {
+        if (factor == 0) fail("Factor cannot be zero");
+        x = this.x * factor;
+        y = this.y * factor;
+    }
+}
+
+p = new {Point: x = 2; y = 3}
+scaled = try p * 0;  // This will fail
+catch(scaled) print("Error: " + str(scaled));  // Outputs: Error: Factor cannot be zero
+```

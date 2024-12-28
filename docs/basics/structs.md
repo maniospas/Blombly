@@ -8,14 +8,25 @@ Prefer using structs only to transer state between code block executions. Do not
 </div>
 
 <br>
-There are three notations for working with structs: a) `new` creates a scope for declaring structs (all scope assignments are transferred to the produced struct), b) `this` accesses struct members from called code blocks, and c) private variables are not exposed externally. In addition to these concepts, here we demonstrate usage of code blocks as constructors to be inlined within struct creation. 
+There are four notations for working with structs: 
+
+- `new` creates a scope for declaring structs. 
+- `this` accesses struct members when calling its methods (code blocks defined inside).
+- `!closure` simplifies usage of external variables from struct methods.
+- Private variables start with `\` and are not exposed externally. 
+
+All scope assignments are transferred to the produced struct, and the latter is completely detached from its creating scope afterwards.
+Below you will see that expressions like `value=value;` are therefore needed, but they are made easier to manage with the `!closure`
+[preprocessor](../advanced/preprocessor.md) directive.
+In addition to these concepts, here we demonstrate usage of code blocks as constructors to be inlined within struct creation. 
 
 ## New
 
-You can create a data structure (aka object) with the `new {@code}` syntax. This creates a new scope that sees its parent's variables but keeps track of all new assignments. A struct holding those assignments as fields is returned, unless another return statement is encountered first. 
+Create a data structure (aka object) with the `new {@code}` syntax. This creates a new scope that sees its parent's variables but keeps track of all new assignments. A struct holding those assignments as fields is returned, unless another return statement is encountered first. 
 
 Struct fields can be accessed with the dot (`.`) operator afterwards. The example below demonstrates field access.
-It also creates an error because `new` only retains the assignments inside it. The created struct is detached from its creating scope and cannot "see" any of its variables or blocks (e.g., used as functions), such as the variable `zbias` in the example.
+It also creates an error because `new` only retains the assignments inside it. The created struct is detached from its creating scope and cannot "see" any of 
+its variables or blocks (e.g., used as functions), such as the variable `zbias` in the example.
 
 ```java
 main.bb
@@ -42,9 +53,8 @@ print(point.zbias); // CREATES AN ERROR
         → get _bb12 point zbias main.bbvm line 20
 ```
 
-Blocks declared within new have access to a final variable called `this` that holds the struct. Access to this as a means of setting and writing fields 
-is possible only after the struct's creation concludes. Furthermore, unless exposed through a different mechanism, 
-the compiler prevents access to `.this` with the dot notation. Here is an example:
+Blocks declared within new have access to a variable called `this` that holds the struct. 
+Here is an example:
 
 ```java
 // main.bb
@@ -58,7 +68,22 @@ point = new {
 print(point.sum3d());
 ```
 
-Normal variable visibility rules apply too; to let a struct's code blocks call each other, either make them final or access them from `this`, like above. For conciseness and portability (inlining in non-struct methods), the first option is preferred. Boilerplate that applies best practices for object-oriented programming is provided by std/oop import in the form of macros (basically syntax enrichments). Related material can be found in section 3.1.
+
+Return statements from within `new {...}` may change the retrieved value to something other than the struct being created.
+For example, the following snippet is a valid (though not efficient in terms of asymptotic complexity) method for recursively computing 
+a term of the Fibonacci sequence. Blombly always schedules `new` for direct execution, that is, without spawning a separate thread.
+
+```java
+final fib = {  
+    if (n < 2) return 1;  
+    return new {n = n - 1; fib:} + new {n = n - 2; fib:};
+}
+
+tic = time();
+print("Result", fib(n = 21));
+print("Time", time() - tic);
+```
+
 
 ## Inlined constructors
 
@@ -111,7 +136,6 @@ print(point);
 (1,2)
 ```
 
-
 ## Private variables
 
 It is often important to declare local variables that may not be directly exposed outside their enclosing structs. 
@@ -140,25 +164,6 @@ point = point.set(x=1); // signify that we are making an update
 print(point.dimadd());
 ```
 
-
-## Returning from new
-
-Return statements from within `new {...}` may change the retrieved value to something other than the struct being created.
-For example, the following snippet is a valid (though not efficient in terms of asymptotic complexity) method for recursively computing 
-a term of the Fibonacci sequence. Blombly always schedules `new` for direct execution, that is, without spawning a separate thread.
-
-```java
-final fib = {  
-    if (n < 2) return 1;  
-    return new {n = n - 1; fib:} + new {n = n - 2; fib:};
-}
-
-tic = time();
-print("Result", fib(n = 21));
-print("Time", time() - tic);
-```
-
-
 ## Operator overloading
 
 Blombly supports operation overloading, which allows you to define custom behavior for your structs for standard operations like addition, subtraction, and even method calls. 
@@ -168,15 +173,22 @@ Overloading is achieved by defining methods with specific names inside structs t
 
 Let's start with a basic example where we overload the addition operator for a struct that represents a 2D point.
 In this example, we define a method add that performs the addition of two points and returns a new point. 
-When the addition operator is used, the `add` method is invoked automatically.
+When the addition operator is used, the addition's method is invoked automatically. Since structs
+hold data autonomously, we need to bring knowledge of the code block generating points into the ones being
+created with `Point=Point`. More on this and simplifications later.
 
 ```java
+// main.bb
 Point = {
-    final Point = Point;
-    add(p) => new {
-        Point:
-        x = this.x + p.x;
-        y = this.y + p.y;
+    Point = Point;
+    add(p) = {
+        super = this;
+        Point = this.Point; // needed for Point=Point to run in `new`
+        return new {
+            Point:
+            x = super.x + p.x;
+            y = super.y + p.y;
+        }
     }
 }
 
@@ -184,7 +196,12 @@ p1 = new {Point: x = 1; y = 2}
 p2 = new {Point: x = 3; y = 4}
 
 p3 = p1 + p2;  // Calls the overloaded add method
-print(p3.x, p3.y);  // Outputs 4, 6
+print(p3.x, p3.y);
+```
+
+```text
+> main.bb
+[4, 6]
 ```
 
 One of the most useful applications of overloading is making structs callable, meaning they can be used as functions. This is done by overloading the call operator (`call`).
@@ -208,22 +225,40 @@ print(result);
 50
 ```
 
-Overloading becomes even more powerful when combined with code blocks. 
-You can define overloaded operators that inline code blocks dynamically during execution.In the next example, we overload multiplication (`*`) for a point struct to scale it by a factor. 
-This demonstrates how overloading can be used together with error handling to catch invalid operations and gracefully handle them.
+## `!closure`
+
+We already touched on needing to retain values from the struct's creation scope.
+We previously did this by adding the pattern `final @value = @value;` 
+-with or without the final keyword- to the creation and then
+accessing the values as struct fields.
+
+Blombly offers a significant simplication, namely `!closure.@value`, that 
+replaces struct field access while automatically adding the pattern if not already
+present. Below are two equivalent snippets, where the second one uses this to bring 
+values inside structs without unecessary effort.
 
 ```java
-//main.bb
-Point = {
-    final Point = Point;
-    mul(factor) => new {
-        if (factor == 0) fail("Factor cannot be zero");
-        x = this.x * factor;
-        y = this.y * factor;
-    }
+// main.bb (complex - DISCOURAGED UNLESS NECESSARY)
+value = 1;
+A = new {
+    value = value; // bring the value to the created struct - the struct is detached from the surrounding scope afterwards
+    float => this.value; // basically `float = {return this.value}` to overload float conversion
 }
+value = 2; // ignored as `value=value` is called upon `new`
+print(A|float);
+```
 
-p = new {Point: x = 2; y = 3}
-scaled = try p * 0;  // This will fail
-catch(scaled) print("Error: " + str(scaled));  // Outputs: Error: Factor cannot be zero
+```java
+// main.bb (simplified equivalent)
+value = 1;
+A = new {
+    float => !closure.value;
+}
+value = 2;
+print(A|float);
+```
+
+```text
+> blombly main.bb
+1
 ```

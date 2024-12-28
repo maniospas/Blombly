@@ -1,9 +1,11 @@
 # Typeless OOP
 
-Blombly aims to support object-oriented programming (OOP) patterns;
-created structs are essentially objects with attached fields
+Blombly aims to support object-oriented programming (OOP) patterns,
+where structs created with `new` are essentially objects with attached fields
 and values. At the same time, OOP is simplified to the level
 of not having classes/types.
+
+## Consistency checks
 
 The main supposition is that struct "types"
 are checked implicitly during execution by not creating errors.

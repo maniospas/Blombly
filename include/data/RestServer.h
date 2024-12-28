@@ -22,6 +22,7 @@ public:
 
 private:
     int port_;
+    static int resultType;
     struct mg_context* context_;
     std::unordered_map<std::string, Data*> routeHandlers_;
     Data* executeCodeWithMemory(Data* called, BMemory* memory) const;
