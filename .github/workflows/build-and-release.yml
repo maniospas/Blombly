@@ -18,7 +18,7 @@ jobs:
             triplet: x64-windows
             build-script: .\vcpkg\bootstrap-vcpkg.bat
             cmake-command: |
-              cmake -B ./build
+              cmake -B ./build -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake
               cmake --build ./build --config Release
             package-command: |
               mkdir release
