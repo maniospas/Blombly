@@ -34,7 +34,7 @@ jobs:
             triplet: x64-linux
             build-script: ./vcpkg/bootstrap-vcpkg.sh
             cmake-command: |
-              cmake -B ./build
+              cmake -B ./build -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake
               cmake --build ./build --config Release
             package-command: |
               mkdir release
