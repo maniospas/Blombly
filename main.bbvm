@@ -1,40 +1,27 @@
 %map() //main.bb line 1
 map A
-%{float={return3;}} //main.bb line 3
-BEGIN _bb165
-%{return3;} //main.bb line 4
-BEGIN _bb166
-BUILTIN _bb167 I3
-%return3 //main.bb line 4
-return # _bb167
+%A["X"]=1 //main.bb line 2
+BUILTIN _bb164 I1
+BUILTIN _bb165 "X"
+put # A _bb165 _bb164
+%A[2]=2 //main.bb line 3
+BUILTIN _bb166 I2
+BUILTIN _bb167 I2
+put # A _bb167 _bb166
+%bbvm::iter(A) //main.bb line 5
+iter _bbmacro5 A
+%while(ias bbvm::next(_bbmacro5))print(i| //main.bb line 5
+BEGIN _bb169
+%bbvm::next(_bbmacro5) //main.bb line 5
+next _bb170 _bbmacro5
+AS i _bb170
+exists _bb171 i
 END
-IS float _bb166
-return # this
+BEGIN _bb172
+%i|next //main.bb line 6
+next _bb173 i
+%print(i|next) //main.bb line 6
+print # _bb173
 END
-%new{float={return3;}} //main.bb line 3
-new test _bb165
-%A["X"]=1 //main.bb line 7
-BUILTIN _bb168 I1
-BUILTIN _bb169 "X"
-put # A _bb169 _bb168
-%A[2]=2 //main.bb line 8
-BUILTIN _bb170 I2
-BUILTIN _bb171 I2
-put # A _bb171 _bb170
-%A[test]=3 //main.bb line 9
-BUILTIN _bb172 I3
-put # A test _bb172
-%A["X"] //main.bb line 10
-BUILTIN _bb174 "X"
-%A["X"] //main.bb line 10
-at _bb173 A _bb174
-%A[2] //main.bb line 10
-BUILTIN _bb176 I2
-%A[2] //main.bb line 10
-at _bb175 A _bb176
-%A[test] //main.bb line 10
-at _bb177 A test
-%A["X"],A[2],A[test] //main.bb line 10
-list _bb178 _bb173 _bb175 _bb177
-%print(A["X"],A[2],A[test]) //main.bb line 10
-print # _bb178
+%while(ias bbvm::next(_bbmacro5))print(i| //main.bb line 5
+while # _bb169 _bb172

@@ -456,7 +456,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 if(!tryReturnSignal) {
                     std::string message = "No error or return statement intercepted with `try`.";//+ std::string("\n   \x1B[34m\u2192\033[0m ") + comm + " \t\x1B[90m " + command->source->path + " line " + std::to_string(command->line);
                     BError* res = new BError(std::move(message));
-                    res->consume();
+                    //res->consume();
                     result = res;
                 }
                 SET_RESULT;

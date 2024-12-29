@@ -18,5 +18,6 @@ public:
 private:
     mutable std::recursive_mutex memoryLock;
     std::unordered_map<size_t, std::vector<std::pair<Data*, Data*>>> contents;
+    friend class MapIterator; 
 };
 #endif // BHASHMAP_H
