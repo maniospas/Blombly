@@ -29,11 +29,11 @@ private:
 
 public:
     explicit BString(const std::string& val);
-
-    std::string toString()override;
-    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
+    
+    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
     virtual bool isSame(Data* other) override;
     virtual size_t toHash() const override;
+    virtual std::string toString(BMemory* memory) override;
 
     friend class Boolean;
     friend class BFloat;

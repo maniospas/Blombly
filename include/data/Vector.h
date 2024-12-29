@@ -29,9 +29,9 @@ public:
     Vector(double* data, uint64_t size1, uint64_t size2);
     ~Vector();
 
-    std::string toString()override;
+    std::string toString(BMemory* memory)override;
     double* getValue() const;
-    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
 
     void lock() const;
     void unlock() const;

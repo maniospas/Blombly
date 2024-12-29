@@ -32,7 +32,7 @@ void Future::setMaxThreads(int maxThreads) {
 }
 
 // Convert to string representation
-std::string Future::toString(){
+std::string Future::toString(BMemory* memory){
     return "future";
 }
 

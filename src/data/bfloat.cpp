@@ -55,7 +55,7 @@ std::string __python_like_float_format(double number, const std::string& format)
 
 BFloat::BFloat(double val) : value(val), Data(BB_FLOAT) {}
 
-std::string BFloat::toString(){
+std::string BFloat::toString(BMemory* memory){
     return std::to_string(value);
 }
 
@@ -77,7 +77,7 @@ size_t BFloat::toHash() const {
     return std::hash<double>{}(value); 
 }
 
-Result BFloat::implement(const OperationType operation, BuiltinArgs* args) {
+Result BFloat::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     if (args->size == 2) {
         int type0 = args->arg0->getType();
         int type1 = args->arg1->getType();
@@ -101,7 +101,7 @@ Result BFloat::implement(const OperationType operation, BuiltinArgs* args) {
 
         // Handle formatted string conversion
         if (operation == AT && type1 == STRING) 
-            STRING_RESULT(__python_like_float_format(value, args->arg1->toString()));
+            STRING_RESULT(__python_like_float_format(value, args->arg1->toString(memory)));
         
         throw Unimplemented();
     }

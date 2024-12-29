@@ -38,7 +38,7 @@ BString::BString(const std::string& val) : Data(STRING), size(val.size()) {
 BString::BString() : Data(STRING), size(0) {
 }
 
-std::string BString::toString(){
+std::string BString::toString(BMemory* memory){
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     consolidate();
     return buffer.front()->value;
@@ -47,14 +47,14 @@ std::string BString::toString(){
 bool BString::isSame(Data* other) {
     if (other->getType() != STRING) 
         return false;
-    return toString() == static_cast<BString*>(other)->toString();
+    return toString(nullptr) == static_cast<BString*>(other)->toString(nullptr);
 }
 
 size_t BString::toHash() const {
     return std::hash<std::string>{}(buffer.front()->value);
 }
 
-Result BString::implement(const OperationType operation, BuiltinArgs* args) {
+Result BString::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     if((operation!=ADD && operation!=LEN && operation!=AT && operation!=TOITER) || buffer.size()>512)
         consolidate();
@@ -69,8 +69,8 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
             ret->size = v1->size + v2->size;
             return std::move(Result(ret)); 
         }
-        std::string v1 = static_cast<BString*>(args->arg0)->toString();
-        std::string v2 = static_cast<BString*>(args->arg1)->toString();
+        std::string v1 = static_cast<BString*>(args->arg0)->toString(memory);
+        std::string v2 = static_cast<BString*>(args->arg1)->toString(memory);
         switch (operation) {
             case EQ: BB_BOOLEAN_RESULT(v1 == v2);
             case NEQ: BB_BOOLEAN_RESULT(v1 != v2);
@@ -82,11 +82,11 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
     if (args->size == 1) {
         switch (operation) {
             case TOCOPY:
-            case TOSTR: STRING_RESULT(toString());
+            case TOSTR: STRING_RESULT(toString(memory));
             case TOBB_INT: {
                 char* endptr = nullptr;
-                int64_t ret = std::strtol(toString().c_str(), &endptr, 10);
-                if (endptr == toString().c_str() || *endptr != '\0') {
+                int64_t ret = std::strtol(toString(memory).c_str(), &endptr, 10);
+                if (endptr == toString(memory).c_str() || *endptr != '\0') {
                     return std::move(Result(new BError("Failed to convert string to int")));
                 }
                 BB_INT_RESULT(ret);
@@ -94,15 +94,15 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
             case LEN: BB_INT_RESULT(size);
             case TOBB_FLOAT: {
                 char* endptr = nullptr;
-                double ret = std::strtod(toString().c_str(), &endptr);
-                if (endptr == toString().c_str() || *endptr != '\0') {
+                double ret = std::strtod(toString(memory).c_str(), &endptr);
+                if (endptr == toString(memory).c_str() || *endptr != '\0') {
                     return std::move(Result(new BError("Failed to convert string to float")));
                 }
                 BB_FLOAT_RESULT(ret);
             }
-            case TOBB_BOOL: BB_BOOLEAN_RESULT(toString() == "true");
+            case TOBB_BOOL: BB_BOOLEAN_RESULT(toString(memory) == "true");
             case TOITER: return std::move(Result(new AccessIterator(args->arg0)));
-            case TOFILE: return std::move(Result(new BFile(toString())));
+            case TOFILE: return std::move(Result(new BFile(toString(memory))));
         }
         throw Unimplemented();
     }
@@ -111,10 +111,10 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
         int64_t index = static_cast<Integer*>(args->arg1)->getValue();
         if(index>=buffer.front()->value.size())
             consolidate();
-        if (index < 0 || index >= toString().size()) {
+        if (index < 0 || index >= toString(memory).size()) {
             return std::move(Result(OUT_OF_RANGE));
         }
-        return std::move(Result(new BString(std::string(1, toString()[index]))));
+        return std::move(Result(new BString(std::string(1, toString(memory)[index]))));
     }
 
     if (operation == AT && args->size == 2 && (args->arg1->getType()==STRUCT || args->arg1->getType()==LIST || args->arg1->getType()==ITERATOR)) {
@@ -122,18 +122,18 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
         BuiltinArgs implargs;
         implargs.size = 1;
         implargs.arg0 = args->arg1;
-        auto res = args->arg1->implement(TOITER, &implargs);
+        auto res = args->arg1->implement(TOITER, &implargs, memory);
         Data* _iterator = res.get();
-        bbassert(_iterator && _iterator->getType() == ITERATOR, "String index is neither an integer nor can be converted to an iterator viat `iter`: "+args->arg1->toString());
+        bbassert(_iterator && _iterator->getType() == ITERATOR, "String index is neither an integer nor can be converted to an iterator viat `iter`: "+args->arg1->toString(memory));
         Iterator* iterator = static_cast<Iterator*>(_iterator);
 
         // Treat contiguous iterators more efficiently
         if (iterator->isContiguous()) {
             int64_t start = iterator->getStart();
             int64_t end = iterator->getEnd();
-            if (start < 0 || start >= toString().size() || end < 0 || end > toString().size() || start > end) 
+            if (start < 0 || start >= toString(memory).size() || end < 0 || end > toString(memory).size() || start > end) 
                 return std::move(Result(OUT_OF_RANGE));
-            std::string result = toString().substr(start, end - start);
+            std::string result = toString(memory).substr(start, end - start);
             return std::move(Result(new BString(std::move(result))));
         } else {
             // Handle non-contiguous iterators
@@ -144,11 +144,11 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args) {
             nextArgs.arg0 = iterator;
             while (true) {
                 nextArgs.size = 1;  // important to have this here, as the iterator adds an argument to nextArgs internally to save up on memory
-                Result nextResult = iterator->implement(NEXT, &nextArgs);
+                Result nextResult = iterator->implement(NEXT, &nextArgs, memory);
                 Data* indexData = nextResult.get();
                 if (indexData == OUT_OF_RANGE) 
                     break; 
-                bbassert(indexData && indexData->getType() == BB_INT, "String index iterator must contain integers: "+args->arg1->toString());
+                bbassert(indexData && indexData->getType() == BB_INT, "String index iterator must contain integers: "+args->arg1->toString(memory));
                 int index = static_cast<Integer*>(indexData)->getValue();
                 if (index < 0 || index >= size) 
                     return std::move(Result(OUT_OF_RANGE));

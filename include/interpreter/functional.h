@@ -17,6 +17,7 @@ extern std::recursive_mutex printMutex;
 extern std::recursive_mutex compileMutex;
 
 Result executeBlock(Code* code, BMemory* memory, bool &returnSignal);
+std::string enrichErrorDescription(Command*, std::string message);
 void handleExecutionError(std::vector<Command*>* program, int i, const BBError& e);
 void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool &returnSignal, BuiltinArgs &args, Data*& result);
 

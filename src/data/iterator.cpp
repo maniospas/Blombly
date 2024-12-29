@@ -14,26 +14,29 @@ extern BError* OUT_OF_RANGE;
 Iterator::Iterator() : Data(ITERATOR) {
 }
 
-std::string Iterator::toString(){
+std::string Iterator::toString(BMemory* memory){
     return "iterator";
 }
 
 
-AccessIterator::AccessIterator(Data* object_) : object(object_), pos(new Integer(-1)), Iterator() {
-    BuiltinArgs args;
-    args.arg0 = object;
-    args.size = 1;
-    Result lenValue = object->implement(LEN, &args);
-    Data* len = lenValue.get();
-    bbassert(len && len->getType()==BB_INT, "`len` failed to return an integer");
-    size = static_cast<Integer*>(len)->getValue();
+AccessIterator::AccessIterator(Data* object_) : object(object_), pos(new Integer(-1)), Iterator(), size(-1) {
 }
 
 AccessIterator::~AccessIterator() {
     delete pos;
 }
 
-Result AccessIterator::implement(const OperationType operation, BuiltinArgs* args) {
+Result AccessIterator::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
+    if(size==-1) {
+        BuiltinArgs args;
+        args.arg0 = object;
+        args.size = 1;
+        Result lenValue = object->implement(LEN, &args, memory);
+        Data* len = lenValue.get();
+        bbassert(len && len->getType()==BB_INT, "`len` failed to return an integer");
+        size = static_cast<Integer*>(len)->getValue();
+    }
+
     if (args->size == 1 && operation == NEXT) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         pos->value += 1; 
@@ -44,7 +47,7 @@ Result AccessIterator::implement(const OperationType operation, BuiltinArgs* arg
         args->arg0 = object;
         args->arg1 = pos;
         args->size = 2;
-        return std::move(object->implement(AT, args));
+        return std::move(object->implement(AT, args, memory));
     }
     
     //if (args->size == 1 && operation == LEN) 
@@ -63,7 +66,7 @@ IntRange::IntRange(int64_t first, int64_t last, int64_t step) : first(first), la
 }
 IntRange::~IntRange() {
 }
-Result IntRange::implement(const OperationType operation, BuiltinArgs* args) {
+Result IntRange::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     if (args->size == 1 && operation == NEXT) {
         if (step>0 && first >= last) 
@@ -105,7 +108,7 @@ FloatRange::FloatRange(double first, double last, double step) : first(first), l
 }
 FloatRange::~FloatRange() {
 }
-Result FloatRange::implement(const OperationType operation, BuiltinArgs* args) {
+Result FloatRange::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     if (args->size == 1 && operation == NEXT) {
         if (step>0 && first >= last) 
             return std::move(Result(OUT_OF_RANGE));

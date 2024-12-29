@@ -29,7 +29,7 @@ int RestServer::resultType = variableManager.getId("type");
 
 RestServer::RestServer(int port) : port_(port), context_(nullptr), Data(SERVER) {}
 RestServer::~RestServer() {if (context_) mg_stop(context_);}
-std::string RestServer::toString(){return "Server on port " + std::to_string(port_);}
+std::string RestServer::toString(BMemory* memory){return "Server on port " + std::to_string(port_);}
 
 void RestServer::runServer() {
     const char* options[] = {
@@ -42,11 +42,11 @@ void RestServer::runServer() {
     mg_set_request_handler(context_, "/", requestHandler, (void*)this);
 }
 
-Result RestServer::implement(const OperationType operation, BuiltinArgs* args) {
+Result RestServer::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     if (operation == PUT && args->size == 3 && args->arg1->getType() == STRING &&
         (args->arg2->getType() == CODE || args->arg2->getType() == STRUCT)) {
         std::lock_guard<std::recursive_mutex> lock(serverModification);
-        std::string route = static_cast<BString*>(args->arg1)->toString();
+        std::string route = static_cast<BString*>(args->arg1)->toString(memory);
         if(routeHandlers_[route]!=args->arg2) {
             if(routeHandlers_[route])
                 routeHandlers_[route]->removeFromOwner();
@@ -149,7 +149,7 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                     Struct* resultStruct = static_cast<Struct*>(result);
                     //Data* resultContentData = resultStruct->getMemory()->get(resultContent);
                     //bbassert(resultContentData, "Route returned a struct without a `content` field.");
-                    std::string response = result->toString();
+                    std::string response = result->toString(mem);
                     Data* resultTypeData = resultStruct->getMemory()->getOrNull(resultType, true);
                     bbassert(resultTypeData, "Server route returned a struct without a `type` field.");
                     bbassert(resultTypeData->getType()==Datatype::STRING, "Server route `type` field was not a string.");
@@ -159,12 +159,12 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                             "Content-Type: %s\r\n"
                             "Content-Length: %lu\r\n"
                             "\r\n%s",
-                            resultTypeData->toString().c_str(),
+                            resultTypeData->toString(mem).c_str(),
                             response.length(), response.c_str());
                 }
                 else {
                     bbassert(result->getType()==Datatype::STRING, "Server route handler did not return a string or struct with `str` and `type`.");
-                    std::string response = result->toString();
+                    std::string response = result->toString(mem);
                     /*std::string html_prefix = "<!DOCTYPE html>";
                     if(html_prefix.size()>=html_prefix.length() && response.substr(0, html_prefix.length())==html_prefix) {
                         mg_printf(conn,

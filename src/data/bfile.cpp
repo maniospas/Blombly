@@ -85,7 +85,7 @@ void BFile::loadContents() {
     contentsLoaded = true;
 }
 
-std::string BFile::toString() {
+std::string BFile::toString(BMemory* memory) {
     loadContents();
     std::string result = "";
     for (std::size_t i = 0; i < contents.size(); ++i) {
@@ -105,7 +105,7 @@ bool BFile::exists() const {
     return fs::exists(path);
 }
 
-Result BFile::implement(const OperationType operation, BuiltinArgs* args) {
+Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
 
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
         loadContents();
@@ -117,7 +117,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args) {
         STRING_RESULT(lineContent);
     }
     if(operation == DIV && args->size == 2 && args->arg1->getType() == STRING) {
-        std::string subpath = args->arg1->toString();
+        std::string subpath = args->arg1->toString(memory);
         fs::path basePath(path);
         fs::path combinedPath = basePath / subpath;
         return std::move(Result(new BFile(combinedPath.string())));
@@ -137,7 +137,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args) {
         }
         if (operation == TOSTR) {
             loadContents();
-            STRING_RESULT(toString());
+            STRING_RESULT(toString(memory));
         }
         if (operation == TOITER) {
             return std::move(Result(new AccessIterator(args->arg0)));

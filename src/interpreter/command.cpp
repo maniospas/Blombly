@@ -143,13 +143,13 @@ std::string Command::tocpp(bool first_assignment) const {
     }
     if(operation==BUILTIN) {
         if(value->getType()==BB_INT) 
-            return (first_assignment?"int ":"")+variableManager.getSymbol(args[0])+" = "+value->toString()+";";
+            return (first_assignment?"int ":"")+variableManager.getSymbol(args[0])+" = "+value->toString(nullptr)+";";
         if(value->getType()==BB_FLOAT) 
-            return (first_assignment?"double ":"")+variableManager.getSymbol(args[0])+" = "+value->toString()+";";
+            return (first_assignment?"double ":"")+variableManager.getSymbol(args[0])+" = "+value->toString(nullptr)+";";
         if(value->getType()==BB_BOOL) 
-            return (first_assignment?"bool ":"")+variableManager.getSymbol(args[0])+" = "+value->toString()+";";
+            return (first_assignment?"bool ":"")+variableManager.getSymbol(args[0])+" = "+value->toString(nullptr)+";";
         if(value->getType()==STRING) 
-            return (first_assignment?"string ":"")+variableManager.getSymbol(args[0])+" = \""+value->toString()+"\";";
+            return (first_assignment?"string ":"")+variableManager.getSymbol(args[0])+" = \""+value->toString(nullptr)+"\";";
         
         return "unknown type";
     }

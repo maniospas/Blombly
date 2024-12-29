@@ -13,13 +13,13 @@ public:
     static Boolean* valueTrue;
     static Boolean* valueFalse;
     
-    std::string toString()override;
+    std::string toString(BMemory* memory)override;
     bool getValue() const;
     void setValue(bool val);
     virtual void addOwner() const{}
     virtual void removeFromOwner() const{}
 
-    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
     virtual bool isSame(Data* other) override;
 
     friend class Integer; 

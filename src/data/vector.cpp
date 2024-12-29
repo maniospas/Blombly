@@ -73,7 +73,7 @@ Vector::~Vector() {
     delete[] dims;
 }
 
-std::string Vector::toString(){
+std::string Vector::toString(BMemory* memory){
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     std::string result = "[";
     for (std::size_t i = 0; i < std::min(static_cast<std::size_t>(size), static_cast<std::size_t>(10)); ++i) {
@@ -100,7 +100,7 @@ void Vector::unlock() const {
     memoryLock.unlock();
 }
 
-Result Vector::implement(const OperationType operation, BuiltinArgs* args) {
+Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         int index = static_cast<Integer*>(args->arg1)->getValue();

@@ -69,7 +69,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
     //Data* toReplace = command->nargs?memory->getOrNullShallow(command->args[0]):nullptr;
     //BMemory* memory = memory_.get();
 
-    //std::cout<<command->toString()<<"\t "<<std::this_thread::get_id()<<"\n";
+    //std::cout<<command->toString(memory)<<"\t "<<std::this_thread::get_id()<<"\n";
     
     switch (command->operation) {
         case BUILTIN:
@@ -229,9 +229,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             result = command->knownLocal[1]?memory->getShallow(command->args[1]):memory->get(command->args[1], true);
             bbassert(result, "Missing value: " + variableManager.getSymbol(command->args[1]));
             if(result->getType()==ERRORTYPE) {
-                std::string comm = command->toString();
-                comm.resize(40, ' ');
-                bberror(static_cast<BError*>(result)->toString() + std::string("\n   \x1B[34m\u2192\033[0m ") + comm + " \t\x1B[90m " + command->source->path + " line " + std::to_string(command->line));
+                bberror(enrichErrorDescription(command, result->toString(memory)));
             }
         } break;
 
@@ -395,7 +393,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             for(int i = 1; i < command->nargs; i++) {
                 Data* printable = MEMGET(memory, i);
                 if(printable) {
-                    std::string out = printable->toString();
+                    std::string out = printable->toString(memory);
                     printing += out + " ";
                 }
             }
@@ -421,7 +419,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             for(int i=1;i<command->nargs;i++) {
                 Data* printable = MEMGET(memory, i);
                 if(printable) {
-                    std::string out = printable->toString();
+                    std::string out = printable->toString(memory);
                     printing += out+" ";
                 }
             }
@@ -456,9 +454,6 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 memory->detach(memory->parent);
                 result = returnedValue.get();
                 if(!tryReturnSignal) {
-                    //result = nullptr;
-                    //std::string comm = command->toString();
-                    //comm.resize(40, ' ');
                     std::string message = "No error or return statement intercepted with `try`.";//+ std::string("\n   \x1B[34m\u2192\033[0m ") + comm + " \t\x1B[90m " + command->source->path + " line " + std::to_string(command->line);
                     BError* res = new BError(std::move(message));
                     res->consume();
@@ -467,11 +462,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 SET_RESULT;
             }
             catch (const BBError& e) {
-                std::string comm = command->toString();
-                comm.resize(40, ' ');
-                std::string message = std::move(e.what()) + std::string("\n   \x1B[34m\u2192\033[0m ") + comm + " \t\x1B[90m " + command->source->path + " line " + std::to_string(command->line);
-                result = new BError(std::move(message));
-                //handleExecutionError(program, i, e);
+                result = new BError(std::move(enrichErrorDescription(command, e.what())));
             }
         } break;
         
@@ -501,9 +492,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
         case FAIL: {
             Data* result = MEMGET(memory, 1);
-            std::string comm = command->toString();
-            comm.resize(40, ' ');
-            throw BBError(result->toString()+("\n   \x1B[34m\u2192\033[0m "+comm+" \t\x1B[90m "+command->source->path+" line "+std::to_string(command->line)));
+            bberror(std::move(enrichErrorDescription(command, result->toString(memory))));
         } break;
 
         case INLINE: {
@@ -601,7 +590,6 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         case TIME:
             result = new BFloat(std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now()-program_start).count());
         break;
-
         default: {
             int nargs = command->nargs;
             args.size = nargs - 1;
@@ -611,7 +599,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 args.arg1 = MEMGET(memory, 2);
             if (nargs > 3) 
                 args.arg2 = MEMGET(memory, 3);
-            Result returnValue = Data::run(command->operation, &args);
+            Result returnValue = Data::run(command->operation, &args, memory);
             result = returnValue.get();
             SET_RESULT;
         } break;

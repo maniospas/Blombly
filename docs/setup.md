@@ -48,26 +48,24 @@ print # _bb162
 Hello world!
 ```
 
-To get a sense for internal commands, line starting with `%` contain
+To get a sense for internal commands, lines starting with `%` contain
 debugging info and can be ignored. The rest of the commands are space-separated 
-tuples of virtual machine instructions. The first argument is always a variable to assign to, where `#` indicates
-assignment to nothing. Temporary variables start with `_bb`, 
+tuples of virtual machine instructions. The first element is the command name and the
+second a variable to assign to, where `#` indicates
+assignment to nothing. Temporary variables have the `_bb` prefix,
 and code blocks start by `BEGIN` or `BEGINFINAL` and end at `END`.
 
 Compilation optimizes the code for faster execution,
 for example by removing unused variables or code segments.
-For example, notice that above there are no leftover instructions
-from the standard library (imported from `libs/.bb`), 
-despite the latter being included in every program.
+For example, notice that above there are no needless instructions
+from the standard library `libs/.bb`, despite this being
+imported in every program.
 
-To convert the compilation outcome to semi-readable blombly code,
-run the Python script `bbreader.py` (this is intensionally written in a different language
-to help with debugging during development). 
-
-Finally, the `--strip` or `-s` option skips debugging symbols during compilation to let
-it finish faster while producing a small bbvm file. Below is the same compilation outcome
-while stripping debug info; in this case error will contain virtual machine instructions
-instead of a source code stack trace.
+Do not generate debugging symbols during compilation with the `--strip` or `-s` option.
+This lets compilation and optimization finish faster while producing a much smaller bbvm file - arround 
+half the size. For example, below is the same compilation outcome
+with stripped away debug info. In this case, any errors will contain virtual machine instructions
+instead of a source code stack traces.
 
 ```java
 > blombly main.bb --strip
@@ -83,7 +81,7 @@ print # _bb162
 Before jumping into actual coding, let us peek at errors that Blombly may create. There are two types:
 
 - Syntax errors are identified by the compiler and make it halt.
-- Logical errors occur at runtime and can be intercepted with `try` and separated from other data types with `catch`. This is the only usage of reflection in the whole language.
+- Logical errors occur at runtime. They are intercepted with `try` and identified with `catch`.
 
 To see what a syntax error looks like, execute the following invalid code.
 We get an error telling us that the + operation for string concatenation has no right-hand side. 

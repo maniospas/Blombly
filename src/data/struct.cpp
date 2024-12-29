@@ -8,20 +8,20 @@
 #include "common.h"
 
 
-std::string Struct::toString(){
+std::string Struct::toString(BMemory* memory){
     try {
         BuiltinArgs args;
         args.size = 1;
         args.arg0 = (Data*)this;
-        Result reprValue = args.arg0->implement(TOSTR, &args);
+        Result reprValue = args.arg0->implement(TOSTR, &args, memory);
         Data* repr = reprValue.get();
-        return repr->toString();
+        return repr->toString(memory);
     } catch (Unimplemented&) {
         return "struct";
     }
 }
 
-Result Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
+Result Struct::implement(const OperationType operation_, BuiltinArgs* args_, BMemory* calledMemory) {
     //if (args_->size == 1 && operation_ == TOCOPY) {
     //    bberror("Cannot copy structs");
     //}
@@ -50,7 +50,7 @@ Result Struct::implement(const OperationType operation_, BuiltinArgs* args_) {
     }
 
     Code* code = (Code*)implementation;
-    BMemory newMemory(nullptr, LOCAL_EXPECTATION_FROM_CODE(code));
+    BMemory newMemory(calledMemory, LOCAL_EXPECTATION_FROM_CODE(code));
     newMemory.unsafeSet(variableManager.thisId, this, nullptr);
     newMemory.unsafeSet(variableManager.argsId, args, nullptr);
 

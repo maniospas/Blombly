@@ -11,9 +11,9 @@ class BHashMap : public Data {
 public:
     BHashMap();
     virtual ~BHashMap();
-    std::string toString()override;
+    std::string toString(BMemory* memory)override;
     void put(Data* from, Data* to);
-    Result implement(const OperationType operation, BuiltinArgs* args) override;
+    Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
 
 private:
     mutable std::recursive_mutex memoryLock;

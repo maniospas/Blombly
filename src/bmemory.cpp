@@ -67,9 +67,9 @@ void BMemory::release() {
     }
     for (const auto& element : data) {
         auto dat = element.second;
-        if (dat && dat->getType() == ERRORTYPE && !static_cast<BError*>(dat)->isConsumed())  
-            destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:\n"+dat->toString()+"\n";
         try {
+            if (dat && dat->getType() == ERRORTYPE && !static_cast<BError*>(dat)->isConsumed())  
+                destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:\n"+dat->toString(this)+"\n";
             if(dat) 
                 dat->removeFromOwner();
         }
@@ -243,7 +243,7 @@ void BMemory::unsafeSet(BMemory* handler, int item, Data* value, Data* prev) {
         fastData = value;
     }
     if(prev && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev)->isConsumed()) 
-        bberror("Trying to overwrite an unhandled error:\n"+prev->toString());
+        bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
     if(value)
         value->addOwner();
     if(prev)
@@ -262,7 +262,7 @@ void BMemory::unsafeSet(int item, Data* value, Data* prev) {
         fastId = -1;
     prev = data[item];
     if(prev && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev)->isConsumed()) 
-        bberror("Trying to overwrite an unhandled error:\n"+prev->toString());
+        bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
     if(value)
         value->addOwner();
     if(prev)
@@ -274,7 +274,7 @@ void BMemory::unsafeSet(int item, Data* value, Data* prev) {
 void BMemory::unsafeSet(int item, Data* value) {
     Data* prev = data[item];
     if(prev && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev)->isConsumed()) 
-        bberror("Trying to overwrite an unhandled error:\n"+prev->toString());
+        bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
     if(value) 
         value->addOwner();
     if(prev) 
@@ -341,7 +341,7 @@ void BMemory::await() {
         auto dat = element.second;
         if (dat && dat->getType() == ERRORTYPE && !static_cast<BError*>(dat)->isConsumed())  {
             static_cast<BError*>(dat)->consume();
-            destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was intercepted with `try` but never handled:\n"+dat->toString()+"\n";
+            destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was intercepted with `try` but never handled:\n"+dat->toString(this)+"\n";
         }
     }
     

@@ -15,10 +15,10 @@ public:
     ~RestServer();
 
     // Overrides from Data
-    std::string toString()override;
+    std::string toString(BMemory* memory)override;
 
     void runServer();
-    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
 
 private:
     int port_;

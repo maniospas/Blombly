@@ -18,7 +18,7 @@ void Code::setMetadata(int id, Data* data) {
     if(data)
         data->addOwner();
     if (metadata->metadata[id] && metadata->metadata[id] != data) {
-        bberror(toString() + " already has the specification entry: " + variableManager.getSymbol(id));
+        bberror(toString(nullptr) + " already has the specification entry: " + variableManager.getSymbol(id));
     }
     metadata->metadata[id] = data;
 }
@@ -49,7 +49,7 @@ bool Code::getMetadataBool(int id, bool def) const {
     return ret->isTrue();*/
 }
 
-std::string Code::toString(){
+std::string Code::toString(BMemory* memory){
     return "code block in lines " + std::to_string(start) + " to " + std::to_string(end);
 }
 
@@ -73,7 +73,7 @@ void Code::setDeclarationMemory(BMemory* newMemory) {
     declarationMemory = newMemory;
 }
 
-Result Code::implement(const OperationType operation, BuiltinArgs* args) {
+Result Code::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     //if (args->size == 1)
     //    return this;
     

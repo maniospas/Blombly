@@ -25,7 +25,7 @@ BList::~BList() {
             contents[i]->removeFromOwner();
 }
 
-std::string BList::toString(){
+std::string BList::toString(BMemory* memory){
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     std::string result = "[";
     int64_t n = contents.size();
@@ -33,7 +33,7 @@ std::string BList::toString(){
         if (result.size()!=1) 
             result += ", ";
         if(contents[i])
-            result += contents[i]->toString();
+            result += contents[i]->toString(memory);
         else
             result += " ";
     }
@@ -51,7 +51,7 @@ Data* BList::at(int64_t index) const {
     return res;
 }
 
-Result BList::implement(const OperationType operation, BuiltinArgs* args) {
+Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     
     if (args->size == 1) {
@@ -99,7 +99,7 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
                 try {
                     for (int64_t i = front; i < n; ++i) {
                         args.arg0 = contents[i];
-                        Result tempValue = args.arg0->implement(TOBB_FLOAT, &args);
+                        Result tempValue = args.arg0->implement(TOBB_FLOAT, &args, memory);
                         Data* temp = tempValue.get();
                         auto type = temp->getType();
                         if (type == BB_INT) 
@@ -135,7 +135,7 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
             implargs.size = 1;
             implargs.arg0 = args->arg1;
 
-            Result iter = args->arg1->implement(TOITER, &implargs);
+            Result iter = args->arg1->implement(TOITER, &implargs, memory);
             Data* iterator = iter.get();
             bbassert(iterator && iterator->getType() == ITERATOR, "Can only find list indexes based on an iterable object, but a non-iterable struct was provided.");
 
@@ -174,7 +174,7 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args) {
 
                 while (true) {
                     implargs.size = 1;
-                    Result next = iterator->implement(NEXT, &implargs);
+                    Result next = iterator->implement(NEXT, &implargs, memory);
                     Data* indexData = next.get();
 
                     if (!indexData) 

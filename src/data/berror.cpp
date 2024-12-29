@@ -15,12 +15,12 @@ bool BError::isConsumed() const {
     return consumed; 
 }
 
-std::string BError::toString(){
+std::string BError::toString(BMemory* memory){
     return value;
 }
 
 // Implement the specified operation
-Result BError::implement(const OperationType operation, BuiltinArgs* args)  {
+Result BError::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory)  {
     if (args->size == 1) {
         switch(operation) {
             case TOSTR: consumed=true;STRING_RESULT(value);

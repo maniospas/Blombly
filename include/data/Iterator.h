@@ -13,7 +13,7 @@ class Iterator : public Data {
 public:
     explicit Iterator();
     virtual ~Iterator() {}
-    std::string toString() override;
+    std::string toString(BMemory* memory) override;
     virtual int64_t expectedSize() const {
         return 0;
     }
@@ -42,7 +42,7 @@ private:
 public:
     explicit AccessIterator(Data* object_);
     ~AccessIterator();
-    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
 };
 
 
@@ -54,7 +54,7 @@ private:
 public:
     explicit IntRange(int64_t first, int64_t last, int64_t step);
     ~IntRange();
-    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
     int64_t expectedSize() const override {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         return (last-first)/step;
@@ -80,7 +80,7 @@ private:
 public:
     explicit FloatRange(double first, double last, double step);
     ~FloatRange();
-    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
     virtual Data* fastNext() override;
 };
 

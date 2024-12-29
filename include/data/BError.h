@@ -18,8 +18,8 @@ public:
     void consume();
     bool isConsumed() const;
 
-    std::string toString()override;
-    virtual Result implement(const OperationType operation, BuiltinArgs* args);
+    std::string toString(BMemory* memory)override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory);
 };
 
 #endif // BERROR_H

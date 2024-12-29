@@ -15,14 +15,14 @@ BHashMap::BHashMap() : Data(MAP) {}
 
 BHashMap::~BHashMap() {}
 
-std::string BHashMap::toString(){
+std::string BHashMap::toString(BMemory* memory){
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     std::string result = "{";
     for (const auto& pair : contents) {
         if (result.size() > 1) 
             result += ", ";
         for (const auto& item : pair.second) {
-            result += item.first->toString() + ": " + item.second->toString();
+            result += item.first->toString(memory) + ": " + item.second->toString(memory);
         }
     }
     return result + "}";
@@ -50,7 +50,7 @@ void BHashMap::put(Data* from, Data* to) {
     from->addOwner();
 }
 
-Result BHashMap::implement(const OperationType operation, BuiltinArgs* args) {
+Result BHashMap::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     if (args->size == 1) {
         switch (operation) {
             case LEN: return std::move(Result(new Integer(contents.size())));

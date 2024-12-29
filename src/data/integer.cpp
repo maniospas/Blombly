@@ -54,7 +54,7 @@ std::string __python_like_int_format(int int_number, const std::string& format) 
 
 Integer::Integer(int64_t val) : value(val), Data(BB_INT) {}
 
-std::string Integer::toString(){
+std::string Integer::toString(BMemory* memory){
     return std::to_string(value);
 }
 
@@ -77,7 +77,7 @@ size_t Integer::toHash() const {
     return std::hash<int>{}(value);
 }
 
-Result Integer::implement(const OperationType operation, BuiltinArgs* args) {
+Result Integer::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     if (args->size == 2) {
         int64_t type0 = args->arg0->getType();
         int64_t type1 = args->arg1->getType();
@@ -97,7 +97,7 @@ Result Integer::implement(const OperationType operation, BuiltinArgs* args) {
                 case SUB: BB_INT_RESULT(v1 - v2);
                 case MUL: BB_INT_RESULT(v1 * v2);
                 case MOD: BB_INT_RESULT(v1 % v2);
-                case POW: BB_INT_RESULT(static_cast<int>(std::pow(v1, v2)));
+                case POW: BB_INT_RESULT(static_cast<int64_t>(std::pow(v1, v2)));
                 case DIV: BB_FLOAT_RESULT(v1 / static_cast<float>(v2));
                 case TORANGE: return Result(new IntRange(v1, v2, 1));
             }
@@ -124,7 +124,7 @@ Result Integer::implement(const OperationType operation, BuiltinArgs* args) {
         }
 
         if (operation == AT && type1 == STRING) {
-            STRING_RESULT((__python_like_int_format(value, args->arg1->toString())));
+            STRING_RESULT((__python_like_int_format(value, args->arg1->toString(memory))));
         }
         throw Unimplemented();
     }

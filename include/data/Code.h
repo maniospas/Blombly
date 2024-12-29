@@ -35,7 +35,7 @@ public:
     explicit Code(std::vector<Command*>* programAt, int startAt, int endAt, BMemory* declMemory);
     explicit Code(std::vector<Command*>* programAt, int startAt, int endAt, BMemory* declMemory, Metadata* metadata);
     
-    std::string toString()override;
+    std::string toString(BMemory* memory)override;
     int getStart() const;
     int getEnd() const;
     std::vector<Command*>* getProgram() const;
@@ -48,7 +48,7 @@ public:
     BMemory* getDeclarationMemory() const;
     Metadata* getAllMetadata() const;
 
-    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
 };
 
 #endif // CODE_H

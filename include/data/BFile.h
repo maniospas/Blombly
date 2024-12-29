@@ -18,9 +18,9 @@ private:
 public:
     explicit BFile(const std::string& path_);
 
-    std::string toString()override;
+    std::string toString(BMemory* memory)override;
     std::string getPath() const;
-    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
 
     friend class Boolean;
     friend class Integer;

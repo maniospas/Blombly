@@ -20,8 +20,8 @@ public:
     explicit BList(int64_t reserve);
     ~BList();
 
-    std::string toString()override;
-    virtual Result implement(const OperationType operation, BuiltinArgs* args) override;
+    std::string toString(BMemory* memory)override;
+    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
     Data* at(int64_t index) const;
 };
 

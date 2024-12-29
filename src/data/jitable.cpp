@@ -50,7 +50,7 @@ public:
             BuiltinArgs args;
             args.size = 1;
             args.arg0 = it;
-            Result res = it->implement(NEXT, &args);
+            Result res = it->implement(NEXT, &args, memory);
             nextValue = res.get();
                 
             if(setNext) memory->unsafeSet(next, nextValue, nullptr);

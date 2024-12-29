@@ -22,14 +22,14 @@ struct BuiltinArgs {
 // Abstract base class for all data types
 class Data {
 public:
-    virtual std::string toString()= 0;
+    virtual std::string toString(BMemory* memory)= 0;
     inline Datatype getType() const { return type; }
 
     Data(Datatype type);
     virtual ~Data() = default;
 
-    static Result run(const OperationType operation, BuiltinArgs* args);
-    virtual Result implement(const OperationType operation, BuiltinArgs* args);
+    static Result run(const OperationType operation, BuiltinArgs* args, BMemory* memory);
+    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory);
     virtual size_t toHash() const;
     virtual bool isSame(Data* other);
     
