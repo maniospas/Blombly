@@ -1,64 +1,17 @@
-BEGIN _bb162
-IS .Point2D Point2D
-BEGIN _bb163
-next other args
-get _bb164 this y
-IS .y _bb164
-get _bb165 this x
-IS .x _bb165
-get _bb166 this .Point2D
-IS ..Point2D _bb166
-BEGIN _bb169
-IS ..y .y
-IS ..x .x
-IS ...Point2D ..Point2D
-IS Point2D ...Point2D
-inline _bb170 Point2D
-get _bb172 other x
-add x ..x _bb172
-get _bb174 other y
-add y ..y _bb174
+BUILTIN value I1
+BEGIN _bb165
+IS .value value
+BEGIN _bb166
+get _bb167 this .value
+IS ..value _bb167
+BUILTIN ..value I2
+return # ..value
+END
+IS test _bb166
 return # this
 END
-new _bb167 _bb169
-return # _bb167
-END
-IS add _bb163
-BEGIN _bb175
-BUILTIN _bb177 ")"
-get _bb179 this y
-str _bb180 _bb179
-BUILTIN _bb182 ", "
-get _bb184 this x
-str _bb185 _bb184
-BUILTIN _bb186 "("
-add _bb183 _bb186 _bb185
-add _bb181 _bb183 _bb182
-add _bb178 _bb181 _bb180
-add _bb176 _bb178 _bb177
-return # _bb176
-END
-IS str _bb175
-END
-IS Point2D _bb162
-BEGIN _bb189
-inline _bb190 Point2D
-BUILTIN x I1
-BUILTIN y I2
-return # this
-END
-new p1 _bb189
-BEGIN _bb195
-inline _bb196 Point2D
-BUILTIN x I2
-BUILTIN y I3
-return # this
-END
-new p2 _bb195
-BEGIN _bb199
-BUILTIN _bb200 "Point2D has been invalidated"
-fail # _bb200
-END
-IS Point2D _bb199
-add _bb201 p1 p2
-print # _bb201
+new a _bb165
+print # value
+get _bb170 a test
+call _bb169 # _bb170
+print # _bb169

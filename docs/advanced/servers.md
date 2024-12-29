@@ -74,7 +74,7 @@ content = "
     
 routes = server(8000);
 routes[""] => new {
-    str => !closure.content; // runs `context=content` in `new` and replaces `!closure` with `this`
+    str => this..content; // definition time closure
     type = "text/html";
 }
 
