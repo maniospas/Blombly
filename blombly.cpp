@@ -17,7 +17,7 @@
 // mkdir build
 // cmake -B ./build
 // FOR LOCAL ENV:  cmake -B ./build -DCMAKE_C_COMPILER=C:/msys64/ucrt64/bin/gcc.exe -DCMAKE_CXX_COMPILER=C:\msys64\ucrt64\bin\gcc.exe
-// cmake --build ./build --config Release
+// cmake --build ./build --config Release --parallel 24
 
 std::string blombly_executable_path;
 

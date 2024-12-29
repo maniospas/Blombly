@@ -31,7 +31,7 @@ Clone this repository and install gcc in your system. Then, follow the steps bel
 git clone https://github.com/microsoft/vcpkg.git
 cd vcpkg
 .\bootstrap-vcpkg.bat  # windows bootstraping (./bootstrap-vcpkg.sh for linux)
-./vcpkg install zlib civetweb curl[ssl]
+./vcpkg install zlib civetweb curl[core] --recurse 
 cd ..
 
 # install asmjit
