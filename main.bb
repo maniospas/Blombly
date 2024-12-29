@@ -1,7 +1,10 @@
-buff = 0;
-tic = time();
-while(i in range(10000000)) buff += i;
-toc = time();
+A = map();
 
-print((toc - tic), "sec");
-print((buff));
+test = new {
+    float => 3;
+}
+
+A["X"] = 1;
+A[2] = 2;
+A[test] = 3;
+print(A["X"], A[2], A[test]);

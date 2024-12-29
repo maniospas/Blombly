@@ -202,6 +202,7 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
     if (operation == PUSH && args->size == 2 && args->arg0 == this) {
         auto value = args->arg1;
         bbassert(value, "Cannot push a missing value to a list");
+        bbassert(value->getType()!=ERRORTYPE, "Cannot push an error to a list");
         value->leak();
         value->addOwner();
         contents.push_back((value));
@@ -217,6 +218,7 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
             return std::move(Result(OUT_OF_RANGE));
         auto value = args->arg2;
         bbassert(value, "Cannot set a missing value on a list");
+        bbassert(value->getType()!=ERRORTYPE, "Cannot set an error on a list");
         Data* prev = contents[index];
         contents[index] = value;
         value->leak();

@@ -22,7 +22,7 @@
 std::string blombly_executable_path;
 bool debug_info = true;
 BError* OUT_OF_RANGE = new BError("Out of range");
-BError* INCOMPATIBLE_SIZES = new BError("Incompatible sizes");
+BError* INCOMPATIBLE_SIZES = new BError("Incompatible sizes in operation");
 
 
 std::string get_executable_directory(const std::string& argv0) {

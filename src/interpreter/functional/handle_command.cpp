@@ -576,6 +576,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto list = new BList(command->nargs-1);
             for(int i=1;i<command->nargs;i++) {
                 Data* element = MEMGET(memory, i);
+                bbassert(element->getType()!=ERRORTYPE, "Cannot push an error to a list");
                 element->addOwner();
                 element->leak();
                 list->contents.push_back(element);

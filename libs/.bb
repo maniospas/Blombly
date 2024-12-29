@@ -3,6 +3,7 @@
 !macro {=>@expr;} as {={return @expr;}}
 !macro {=>{@expr}} as {!fail "`=>` followed by a code block is likely a code editing error and not allowed."}
 !macro {->} as {return}
+!macro {do} as {try}
 
 // include after core language definitions
 !include "libs/ansi"
