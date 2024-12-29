@@ -1,15 +1,103 @@
-BUILTIN value I1
-BEGIN _bb165
-IS .value value
-BEGIN _bb166
-get _bb167 this .value
-IS ..value _bb167
-return # ..value
-END
-IS test _bb166
+%{.Point2D=Point2D;add(other)={.y=this.y; //main.bb line 1
+BEGIN _bb162
+%.Point2D=Point2D //main.bb line 2
+IS .Point2D Point2D
+%{.y=this.y;.x=this.x;..Point2D=this..Poi //main.bb line 2
+BEGIN _bb163
+next other args
+%this.y //main.bb line 2
+get _bb164 this y
+IS .y _bb164
+%this.x //main.bb line 2
+get _bb165 this x
+IS .x _bb165
+%this..Point2D //main.bb line 2
+get _bb166 this .Point2D
+IS ..Point2D _bb166
+%{..y=.y;..x=.x;...Point2D=..Point2D;Poin //main.bb line 2
+BEGIN _bb169
+%..y=.y //main.bb line 2
+IS ..y .y
+%..x=.x //main.bb line 2
+IS ..x .x
+%...Point2D=..Point2D //main.bb line 2
+IS ...Point2D ..Point2D
+%Point2D=...Point2D //main.bb line 2
+IS Point2D ...Point2D
+%Point2D: //main.bb line 2
+inline _bb170 Point2D
+%other.x //main.bb line 2
+get _bb172 other x
+add x ..x _bb172
+%other.y //main.bb line 2
+get _bb174 other y
+add y ..y _bb174
 return # this
 END
-new a _bb165
-get _bb169 a test
-call _bb168 # _bb169
-print # _bb168
+%new{..y=.y;..x=.x;...Point2D=..Point2D;P //main.bb line 2
+new _bb167 _bb169
+%return new{..y=.y;..x=.x;...Point2D=..Po //main.bb line 2
+return # _bb167
+END
+IS add _bb163
+%{return "("+str(this.x)+", "+str(this.y) //main.bb line 8
+BEGIN _bb175
+%"("+str(this.x)+", "+str(this.y)+")" //main.bb line 8
+BUILTIN _bb177 ")"
+%this.y //main.bb line 8
+get _bb179 this y
+%str(this.y) //main.bb line 8
+str _bb180 _bb179
+%"("+str(this.x)+", " //main.bb line 8
+BUILTIN _bb182 ", "
+%this.x //main.bb line 8
+get _bb184 this x
+%str(this.x) //main.bb line 8
+str _bb185 _bb184
+BUILTIN _bb186 "("
+add _bb183 _bb186 _bb185
+add _bb181 _bb183 _bb182
+add _bb178 _bb181 _bb180
+add _bb176 _bb178 _bb177
+%return "("+str(this.x)+", "+str(this.y)+ //main.bb line 8
+return # _bb176
+END
+IS str _bb175
+END
+IS Point2D _bb162
+%{Point2D:x=1;y=2} //main.bb line 11
+BEGIN _bb189
+%Point2D: //main.bb line 11
+inline _bb190 Point2D
+%x=1 //main.bb line 11
+BUILTIN x I1
+%y=2 //main.bb line 11
+BUILTIN y I2
+return # this
+END
+%new{Point2D:x=1;y=2} //main.bb line 11
+new p1 _bb189
+%{Point2D:x=2;y=3} //main.bb line 12
+BEGIN _bb195
+%Point2D: //main.bb line 12
+inline _bb196 Point2D
+%x=2 //main.bb line 12
+BUILTIN x I2
+%y=3 //main.bb line 12
+BUILTIN y I3
+return # this
+END
+%new{Point2D:x=2;y=3} //main.bb line 12
+new p2 _bb195
+%{fail("Point2D has been invalidated")} //main.bb line 13
+BEGIN _bb199
+%("Point2D has been invalidated") //main.bb line 13
+BUILTIN _bb200 "Point2D has been invalidated"
+%fail("Point2D has been invalidated") //main.bb line 13
+fail # _bb200
+END
+IS Point2D _bb199
+%p1+p2 //main.bb line 14
+add _bb201 p1 p2
+%print(p1+p2) //main.bb line 14
+print # _bb201

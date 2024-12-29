@@ -12,7 +12,14 @@ class OptimizerCommand {
 public:
     std::vector<std::string> args;
     bool enabled;
+    std::string info;
     OptimizerCommand(std::string command) {
+        if(command.size() && command[0]=='%') {
+            info = command;
+            enabled = false;
+            args.push_back("");
+            return;
+        }
         enabled = true;
         std::string accumulate;
         int pos = 0;
@@ -343,8 +350,18 @@ void optimize(const std::string& source, const std::string& destination) {
     std::ofstream outputFile(destination);
     if (!outputFile.is_open())  
         bberror("Unable to write to file: " + source);
-    for(int i=0;i<program.size();i++) 
-        outputFile << program[i]->toString();
+    int n = program.size();
+    std::string towrite;
+    for(int i=0;i<n;i++) {
+        if(program[i]->enabled && towrite.size()) {
+            outputFile << towrite << "\n";
+            towrite.clear();
+        }
+        if(program[i]->info.size())
+            towrite = program[i]->info;
+        else
+            outputFile << program[i]->toString();
+    }
     outputFile.close(); 
 }
 

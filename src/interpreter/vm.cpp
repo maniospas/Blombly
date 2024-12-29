@@ -63,10 +63,14 @@ int vm(const std::string& fileName, int numThreads) {
             auto source = new SourceFile(fileName);
             std::string line;
             int i = 1;
-
+            
+            CommandContext* descriptor = nullptr;
             while (std::getline(inputFile, line)) {
                 if (line[0] != '%') {
-                    program->push_back(new Command(line, source, i, nullptr));
+                    program->push_back(new Command(line, source, i, descriptor));
+                }
+                else {
+                    descriptor = new CommandContext(line.substr(1));
                 }
                 ++i;
             }

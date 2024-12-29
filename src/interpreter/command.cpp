@@ -97,8 +97,8 @@ Command::Command(const std::string& command, SourceFile* source_, int line_, Com
 
 // Command toString method
 std::string Command::toString(){
-    if (descriptor) 
-        return descriptor->source;
+    //if (descriptor) 
+    //    return descriptor->source;
     std::string ret = getOperationTypeName(operation);
     for (int i = 0; i < nargs; ++i) {
         ret += " " + variableManager.getSymbol(args[i]);

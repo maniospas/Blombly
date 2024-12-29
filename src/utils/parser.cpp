@@ -37,6 +37,7 @@ const std::string PARSER_PRBB_INT = "print";
 const std::string PARSER_COPY = "copy";
 const std::string ANON = "_bb";
 extern std::string blombly_executable_path;
+extern bool debug_info;
 
 
 extern void replaceAll(std::string &str, const std::string &from, const std::string &to);
@@ -151,17 +152,29 @@ public:
 
     std::string to_string(int start, int end) const {
         std::string expr;
-        for (int i = start; i <= end; i++)
-            if (tokens[i].printable)
-                expr += tokens[i].name + " ";
+        std::string prev;
+        for (int i = start; i <= end; i++) {
+            if (!tokens[i].printable) 
+                continue;
+            if(prev.size()>1 && tokens[i].name.size()>1)
+                expr += " ";
+            prev = tokens[i].name;
+            expr += prev;
+        }
         return expr;
     }
 
     static std::string to_string(const std::vector<Token>& tokens, int start, int end) {
         std::string expr;
-        for (int i = start; i <= end; i++)
-            if (tokens[i].printable)
-                expr += tokens[i].name + " ";
+        std::string prev;
+        for (int i = start; i <= end; i++) {
+            if (!tokens[i].printable) 
+                continue;
+            if(prev.size()>1 && tokens[i].name.size()>1)
+                expr += " ";
+            prev = tokens[i].name;
+            expr += prev;
+        }
         return expr;
     }
 
@@ -214,7 +227,8 @@ public:
                 if (tokens[i].printable) {
                     expr += tokens[i].name;
                     if(i<end-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
-                                && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]")
+                                && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
+                                 && tokens[i].name!=".")
                         expr += " ";
                 }
             expr += " \x1B[90m "+tokens[pos].toString();
@@ -224,7 +238,8 @@ public:
                     for(int k=0;k<tokens[i].name.size();++k)
                         expr += "~";
                     if(i<end-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
-                                && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]")
+                                && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
+                                 && tokens[i].name!=".")
                         expr += "~";
                 }
             expr += "^";
@@ -233,10 +248,21 @@ public:
         return expr;
     }
 
+    void breakpoint(int start, int end) {
+        if(!debug_info)
+            return;
+        std::string comm = to_string(start, end);
+        if(comm.size()>40)
+            comm.resize(40);
+        ret += "%"+comm+" //"+tokens[start].file.back()+" line "+std::to_string(tokens[start].line.back())+"\n";
+    }
+
     std::string parse_expression(int start, int end, bool request_block = false, 
                                  bool ignore_empty = false) {
             if (ignore_empty && start >= end)
                 return "#";
+            if(end>start+1)
+                breakpoint(start, end);
         //try {
             bool is_final = tokens[start].name == "final";
             bbassert(start <= end || (request_block && 
@@ -384,6 +410,7 @@ public:
                 bbassert(body_end == end, "`"+first_name + "` statement body terminated before end of expression.\n"+show_position(body_end));
                 if(first_name!="while") // parse condition last to take advantage of blomblyvm hotpaths
                     condition = parse_expression(start + 1, start_if_body - 1);
+                breakpoint(start, end);
                 ret += first_name + " # " + condition + " " + bodyvar + "\n";
                 return "#";
             }
@@ -395,6 +422,7 @@ public:
                 if (first_name == "new" && ret.size()>=4 && ret.substr(ret.size() - 4) == "END\n")
                     ret = ret.substr(0, ret.size() - 4) + "return # this\nEND\n";
                 bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`\n"+show_position(start+1));
+                breakpoint(start, end);
                 ret += first_name + " " + var + " " + parsed + "\n";
                 return var;
             }
@@ -403,6 +431,7 @@ public:
                 std::string parsed = parse_expression(start + 1, end);
                 bbassert(parsed != "#", "An expression that computes no value  was given to `" + first_name+"`.\n"+show_position(start+1));
                 std::string var = "#";
+                breakpoint(start, end);
                 ret += first_name + " " + var + " " + parsed + "\n";
                 return var;
             }
@@ -866,6 +895,7 @@ public:
                 std::string parsed = parse_expression(start + 1, end);
                 bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`.\n"+show_position(start+1));
                 std::string var = "#";
+                breakpoint(start, end);
                 ret += "print " + var + " " + parsed + "\n";
                 return var;
             }
@@ -873,6 +903,7 @@ public:
             if (first_name == "bbvm::read" || first_name == "read") {
                 std::string parsed = parse_expression(start + 1, end);
                 std::string var = create_temp();
+                breakpoint(start, end);
                 ret += "read " + var + " " + parsed + "\n";
                 return var;
             }
@@ -881,6 +912,7 @@ public:
                 std::string parsed = parse_expression(start + 1, end);
                 bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`.\n"+show_position(tokens, start+1));
                 std::string var = "#";
+                breakpoint(start, end);
                 ret += "fail " + var + " " + parsed + "\n";
                 return var;
             }
@@ -889,6 +921,7 @@ public:
                 std::string parsed = parse_expression(start + 1, end);
                 bbassert(parsed != "#", "An expression that computes no value  was given to `" + first_name+"`.\n"+show_position(start+1));
                 std::string var = "#";
+                breakpoint(start, end);
                 ret += first_name + " " + var + " " + parsed + "\n";
                 return var;
             }
@@ -904,6 +937,7 @@ public:
                         list_vars += " " + parse_expression(listgen + 1, next - 1);
                     listgen = next;
                 }
+                breakpoint(start, end);
                 std::string var = create_temp();
                 ret += "list " + var + " " + list_vars + "\n";
                 return var;
@@ -1005,7 +1039,9 @@ public:
 
             if (tokens[end].name == ":") {
                 std::string var = create_temp();
-                ret += "inline " + var + " " + parse_expression(start, end - 1) + "\n";
+                std::string toret = "inline " + var + " " + parse_expression(start, end - 1) + "\n";
+                breakpoint(start, end);
+                ret += toret;
                 return var;
             }
 
@@ -1017,15 +1053,21 @@ public:
                     first_name = first_name.substr(6);
                 std::string temp = create_temp();
                 if(separator==MISSING) {
-                    ret += first_name + " " + temp + " " + parse_expression(start + 2, end - 1) + "\n";
+                    auto toret = first_name + " " + temp + " " + parse_expression(start + 2, end - 1) + "\n";
+                    breakpoint(start, end);
+                    ret += toret;
                     return temp;
                 }
                 int separator2 = find_end(separator + 1, end, ",");
                 if(separator2==MISSING) {
-                    ret += first_name + " " + temp + " " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, end - 1) + "\n";
+                    auto toret = first_name + " " + temp + " " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, end - 1) + "\n";
+                    breakpoint(start, end);
+                    ret += toret;
                     return temp;
                 }
-                ret += first_name + " " + temp + " " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, separator2 - 1) + " " + parse_expression(separator2 + 1, end - 1) + "\n";
+                auto toret = first_name + " " + temp + " " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, separator2 - 1) + " " + parse_expression(separator2 + 1, end - 1) + "\n";
+                breakpoint(start, end);
+                ret += toret;
                 return temp;
             }
 
@@ -1036,7 +1078,9 @@ public:
                 bbassert(separator != MISSING, "push requires at least two arguments.\n"+show_position(end));
                 if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::")
                     first_name = first_name.substr(6);
-                ret += first_name + " # " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, end - 1) + "\n";
+                auto toret = first_name + " # " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, end - 1) + "\n";
+                breakpoint(start, end);
+                ret += toret;
                 return "#";
             }
 
@@ -1066,7 +1110,9 @@ public:
                     std::string var = create_temp();
                     if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::")
                         first_name = first_name.substr(6);
-                    ret += first_name + " " + var + "\n";
+                    auto toret = first_name + " " + var + "\n";
+                    breakpoint(start, end);
+                    ret += toret;
                     return var;
                 }
                 std::string parsed = parse_expression(start + 1, end);
@@ -1074,7 +1120,9 @@ public:
                 std::string var = create_temp();
                 if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::")
                     first_name = first_name.substr(6);
-                ret += first_name + " " + var + " " + parsed + "\n";
+                auto toret = first_name + " " + var + " " + parsed + "\n";
+                breakpoint(start, end);
+                ret += toret;
                 return var;
             }
 
@@ -1121,7 +1169,9 @@ public:
                 if (first_name == "new" && ret.substr(ret.size() - 4) == "END\n")
                     ret = ret.substr(0, ret.size() - 4) + "return # this\nEND\n";
                 bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`\n"+show_position(start+1));
-                ret += first_name + " " + var + " " + parsed + "\n";
+                auto toret = first_name + " " + var + " " + parsed + "\n";
+                breakpoint(start, end);
+                ret += toret;
                 return var;
             }
 
@@ -1159,7 +1209,9 @@ public:
                     ) {
                         if(callable.size()>=6 && callable.substr(0, 6)=="bbvm::")
                             callable = callable.substr(6);
-                    ret += callable+" " + var + " " + parse_expression(start, chain - 1) + "\n";
+                    auto toret = callable+" " + var + " " + parse_expression(start, chain - 1) + "\n";
+                    breakpoint(start, end);
+                    ret += toret;
                 }
                 else {
                     std::string parsed_args = create_temp();
@@ -1168,7 +1220,9 @@ public:
                     ret += "list "+temp+" "+parse_expression(start, chain - 1)+"\n";
                     ret += "IS args " + temp + "\n";
                     ret += "END\n";
-                    ret += "call " + var + " " + parsed_args + " " + parse_expression(chain+1, end) + "\n";
+                    auto toret = "call " + var + " " + parsed_args + " " + parse_expression(chain+1, end) + "\n";
+                    breakpoint(start, end);
+                    ret += toret;
                 }
                 return var;
             }
@@ -1225,8 +1279,9 @@ public:
                     parse(conditional + 1, end - 1);
                     ret += "END\n";
                 }
-                ret += "call " + var + " " + parsed_args + " " + 
-                       parse_expression(start, call - 1) + "\n";
+                auto toret = "call " + var + " " + parsed_args + " " +  parse_expression(start, call - 1) + "\n";
+                breakpoint(start, end);
+                ret += toret;
                 return var;
             }
 
@@ -1235,24 +1290,28 @@ public:
                 int arrayend = find_end(arrayaccess + 1, end, "]", true);
                 bbassert(arrayend == end, "Array access `]` ended before expression end.\n"+show_position(arrayend));
                 std::string var = create_temp();
-                ret += "at " + var + " " + parse_expression(start, 
+                auto toret = "at " + var + " " + parse_expression(start, 
                                                             arrayaccess - 1) 
                                                             + " " + 
                                                             parse_expression(
                                                             arrayaccess + 1, 
                                                             arrayend - 1) + 
                                                             "\n";
+                breakpoint(start, end);
+                ret += toret;
                 return var;
             }
 
             int access = find_last_end(start, end, ".");
             if (access != MISSING) {
                 std::string var = create_temp();
-                ret += "get " + var + " " + parse_expression(start, 
+                auto toret = "get " + var + " " + parse_expression(start, 
                                                              access - 1) + " " 
                                                              + parse_expression(
                                                              access + 1, end) 
                                                              + "\n";
+                breakpoint(start, end);
+                ret += toret;
                 return var;
             }
             bberror("Unknown type of command\n"+show_position(start));

@@ -34,12 +34,13 @@ Compilation converts code to the intermediate representation of BlomlyVM.
 This representation is stored in files with the `.bbvm` extension.
 These are self-contained by packing all dependencies inside, 
 and therefore can be shared with others to run directly. 
-The following file is generated when you run `main.bb` above.
+The following `main.bbvm` file is generated when you run the above snippet.
 
-```asm
-% blombly.bbvm
-BUILTIN _bb0 "Hello world!"
-print # _bb0
+```java
+%("Hello world!") //main.bb line 1
+BUILTIN _bb162 "Hello world!"
+%print("Hello world!") //main.bb line 1
+print # _bb162
 ```
 
 ```bash
@@ -47,23 +48,39 @@ print # _bb0
 Hello world!
 ```
 
- To get a sense for internal commands, each one is a tuple of virtual machine instruction and its arguments
- are separated by spaces. The first argument is always a variable to assign to, where `#` indicates
- assignment to nothing. Temporary variables start with `_bb`, 
- and code blocks start by `BEGIN` or `BEGINFINAL` and end at `END`.
+To get a sense for internal commands, line starting with `%` contain
+debugging info and can be ignored. The rest of the commands are space-separated 
+tuples of virtual machine instructions. The first argument is always a variable to assign to, where `#` indicates
+assignment to nothing. Temporary variables start with `_bb`, 
+and code blocks start by `BEGIN` or `BEGINFINAL` and end at `END`.
 
- Compilation optimizes the code for faster execution,
- for example by removing unused variables or code segments.
- This keeps representations small even if a lot of large dependent
- libraries are used.
- To convert the compilation outcome to semi-readable blombly code,
- run the Python script `bbreader.py` (this is intensionally written in a different language
- to also help with debugging during development).
+Compilation optimizes the code for faster execution,
+for example by removing unused variables or code segments.
+For example, notice that above there are no leftover instructions
+from the standard library (imported from `libs/.bb`), 
+despite the latter being included in every program.
+
+To convert the compilation outcome to semi-readable blombly code,
+run the Python script `bbreader.py` (this is intensionally written in a different language
+to help with debugging during development). 
+
+Finally, the `--strip` or `-s` option skips debugging symbols during compilation to let
+it finish faster while producing a small bbvm file. Below is the same compilation outcome
+while stripping debug info; in this case error will contain virtual machine instructions
+instead of a source code stack trace.
+
+```java
+> blombly main.bb --strip
+Hello world!
+> cat main.bbvm
+BUILTIN _bb162 "Hello world!"
+print # _bb162
+```
 
 
 ## Errors
 
-Finally, before jumping into actual coding, let us peek at errors that Blombly may create. There are two types:
+Before jumping into actual coding, let us peek at errors that Blombly may create. There are two types:
 
 - Syntax errors are identified by the compiler and make it halt.
 - Logical errors occur at runtime and can be intercepted with `try` and separated from other data types with `catch`. This is the only usage of reflection in the whole language.
@@ -77,10 +94,10 @@ The compiler shows the exact position of the missing expression within the sourc
 print("Hello"+);  // CREATES AN ERROR
 ```
 
-```text
+```java
 > blombly main.bb
- (<ERROR>) Empty expression
-   → print("Hello"+);  main.bb line 1
+( ERROR ) Empty expression
+   → print("Hello"+);                                     main.bb line 1
      ~~~~~~~~~~~~~~^
 ```
 
@@ -94,6 +111,16 @@ Intercepting and handling errors like this is left for [later](advanced/signals.
 // main.bb
 print(x);  // CREATES AN ERROR
 ```
+
+```java
+> blombly main.bb
+( ERROR ) Missing value: x
+   → print(x)                                            main.bb line 2
+```
+
+*Logical errors do not point to the exact position in the code but only at the
+expression being parsed. Follow the stack trace to the corresponding files for 
+the full source code.*
 
 ## What's next?
 

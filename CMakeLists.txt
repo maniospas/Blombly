@@ -16,7 +16,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexec-charset=UTF-8 -finput-charset=UTF-8 -O2 -s")  # for optimization use -g for debug symbols, don't strip them with -s
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexec-charset=UTF-8 -finput-charset=UTF-8 -O2 -s")  # for debugging/tuning use -g for debug symbols, don't strip them with -s
 
 # Include directories
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -52,7 +52,6 @@ endif()
 
 ## Curl
 find_package(CURL REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl)
 target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl)
 
 # Output directories

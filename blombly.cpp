@@ -20,7 +20,7 @@
 // cmake --build ./build --config Release --parallel 24
 
 std::string blombly_executable_path;
-
+bool debug_info = true;
 BError* OUT_OF_RANGE = new BError("Out of range");
 BError* INCOMPATIBLE_SIZES = new BError("Incompatible sizes");
 
@@ -70,6 +70,9 @@ int main(int argc, char* argv[]) {
             std::cout << "Usage: blombly [options] [file]\n";
             std::cout << "--threads <num>   Set max threads. Default for this machine: " << default_threads << "\n";
             return 0;
+        } 
+        else if (arg == "--strip" || arg == "-s") {
+            debug_info = false;
         } 
         else {
             fileName = arg;
