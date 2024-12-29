@@ -32,6 +32,7 @@ highlight(code) = {
                 or word=="int" 
                 or word=="final" 
                 or word=="float" 
+                or word=="call" 
                 or word=="server" 
                 or word=="str" 
                 or word=="server" 

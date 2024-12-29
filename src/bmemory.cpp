@@ -219,7 +219,7 @@ Data* BMemory::getOrNull(int item, bool allowMutable) {
         attached_threads.erase(prevRet);
     }
     if (ret) {
-        bbassert(allowMutables || isFinal(item), "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));
+        bbassert(allowMutable || isFinal(item), "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));
     }
     else if (parent) 
         ret = parent->getOrNull(item, allowMutables && allowMutable);

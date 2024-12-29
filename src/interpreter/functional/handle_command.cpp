@@ -20,6 +20,8 @@
 #include "interpreter/functional.h"
 #include "interpreter/thread.h"
 
+#define WHILE_WITH_CODE_BLOCKS
+
 
 std::string replaceEscapeSequences(const std::string& input) {
     std::string output;
@@ -329,6 +331,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 }
             }
             result = nullptr;
+            if(returnSignal)
+                break;
             #else
             Data* condition = memory->get(command->args[1]);
             Data* body = memory->get(command->args[2]);

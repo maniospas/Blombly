@@ -77,17 +77,17 @@ The compiler shows the exact position of the missing expression within the sourc
 print("Hello"+);  // CREATES AN ERROR
 ```
 
-```bash
+```text
 > blombly main.bb
  (<ERROR>) Empty expression
-   → bbvm::print("Hello"+);  main.bb line 1
-     ~~~~~~~~~~~~~~~~~~~~^
+   → print("Hello"+);  main.bb line 1
+     ~~~~~~~~~~~~~~^
 ```
 
-Look at a logical error looks like by printing a variable that does not exist.
-This creates an error during runtime that points to the stack trace of compiled code and the original source. 
+Look at a logical error by printing a variable that does not exist.
+This is missing during interpretation and comprises a stack trace of compiled code. 
 You will see full traces, regardless of which computations are internally delegated to threads.
-Such errors can be handled are runtime, but this is a more advanced concept that we talk about [later](advanced/signals.md).
+Intercepting and handling errors like this is left for [later](advanced/signals.md).
 
 
 ```java

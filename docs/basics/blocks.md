@@ -82,7 +82,7 @@ print(b);
 -1
 ```
 
-## Closure
+## Execution closure
 
 Once arguments are transferred and the code block starts running, the latter can view only final
 variables of the scope from which it is called. This means that moving blocks between scopes

@@ -6,16 +6,17 @@
 
 ## 🚩 Reusable
 
-Blombly is _behaviorizeable_, which means that modular interfaces written in it have [learnable usage rules](https://www.sciencedirect.com/science/article/pii/S2352220821000778). This way, code has learnable usage patterns instead of promoting recipe copy-ing.
+Blombly is _behaviorizeable_, which means that modular interfaces written in it have [learnable usage rules](https://www.sciencedirect.com/science/article/pii/S2352220821000778). This way, code exhibits actual usage patterns instead of promoting recipe copy-ing.
 
 ## 🚀 Expressive
 
-Focus on writing algorithms. These are compiled into an intermediate representation that is interpreted by the **BLO**ck ase**MBLY** **V**irtual **M**achine (blomblyVM), which handles details like parallelization on its own.
+Focus on writing algorithms. These are interpreted by the **BLO**ck ase**MBLY** **V**irtual **M**achine (blomblyVM), which automates details like parallelization. The standard library includes operating system and web tools.
 
 ## 🦆 Dynamic
 
-Take advantage of features like duck typing, automatic garbage collection, and changing which code blocks are inlined. Use `try` to intercept and handle algorithm results, namely errors and returns. Blombly also follows [typeless structs](material/typeless.md).
+Take advantage of features like duck typing, automatic reference counting, and changing which code blocks are inlined. Use `try` to intercept both errors and returns. Blombly syntax is opinionated on not allowing reflection; use [typeless struct](material/typeless.md) principles instead by testing on-the-fly and catching errors.
 
 ## 💡Simple
 
-Learn a few simple commands, with altenatives available only for drastic code simplification. For example, the same loop command (`while`) combines with others to iterate over list elements or ranges, or break prematurely.
+There are only a few core commands; in addition to declaring and calling code blocks, it is sufficient to know about
+`final` `default` `as` `:` `|` `new` `.` `this` `if` `while` `iter` `try` `catch` `fail` `return` `!import`. There is no duplicate functionality aside from the symbols `=>` `!defer` `in` that massively simplify code.

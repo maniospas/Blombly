@@ -4,25 +4,23 @@ This section describes the process with which to make structs, that is, objects 
 Prefer using structs only to transer state between code block executions. Do not store intermediate computational values in struct fields if you plan to use them from multiple methods.
 
 <div style="background-color: rgb(159, 236, 199); color: black; text-align: center; padding: 20px 0; font-size: 24px; border: 1px solid black;">
-    Code blocks only transfer code. Use structs to transfer state.
+    Code blocks only contain code. Use structs to transfer state.
 </div>
 
 <br>
 There are four notations for working with structs: 
 
 - `new` creates a scope for declaring structs. 
-- `this` accesses struct members when calling its methods (code blocks defined inside).
-- `!closure` simplifies usage of external variables from struct methods.
+- `this` accesses struct members when calling its code blocks. 
+- `.` accesses struct members, multiple of them retain values from its creating scope.
 - Private variables start with `\` and are not exposed externally. 
 
-All scope assignments are transferred to the produced struct, and the latter is completely detached from its creating scope afterwards.
-Below you will see that expressions like `value=value;` are therefore needed, but they are made easier to manage with the `!closure`
-[preprocessor](../advanced/preprocessor.md) directive.
-In addition to these concepts, here we demonstrate usage of code blocks as constructors to be inlined within struct creation. 
+All assignments during initialization are transferred to the produced struct. The latter is afterwards detached from its creating scope.
+In addition to these above, we demonstrate usage of code blocks as constructors to be inlined within struct creation. 
 
 ## New
 
-Create a data structure (aka object) with the `new {@code}` syntax. This creates a new scope that sees its parent's variables but keeps track of all new assignments. A struct holding those assignments as fields is returned, unless another return statement is encountered first. 
+Create a data structure (aka object) with the `new {@code}` syntax. This creates a new scope that sees its parent's variables but keeps track of all new assignments. A struct holding those assignments as fields is returned.
 
 Struct fields can be accessed with the dot (`.`) operator afterwards. The example below demonstrates field access.
 It also creates an error because `new` only retains the assignments inside it. The created struct is detached from its creating scope and cannot "see" any of 
@@ -53,7 +51,8 @@ print(point.zbias); // CREATES AN ERROR
         → get _bb12 point zbias main.bbvm line 20
 ```
 
-Blocks declared within new have access to a variable called `this` that holds the struct. 
+Blocks declared within new have access to a variable called `this` that holds a representation of the struct. 
+
 Here is an example:
 
 ```java
@@ -68,8 +67,20 @@ point = new {
 print(point.sum3d());
 ```
 
+```java
+// main.bb
+point = new {
+    sum2d => this.x+this.y;
+    sum3d => this.sum2d()+this.z;
+    x = 1; 
+    y = 2; 
+    z = 3; 
+} 
+print(point.sum3d());
+```
 
-Return statements from within `new {...}` may change the retrieved value to something other than the struct being created.
+
+Interrupting struct creation with a return statement can change the created value to something else, effectively doing so in an isolated scope.
 For example, the following snippet is a valid (though not efficient in terms of asymptotic complexity) method for recursively computing 
 a term of the Fibonacci sequence. Blombly always schedules `new` for direct execution, that is, without spawning a separate thread.
 
@@ -139,10 +150,11 @@ print(point);
 ## Private variables
 
 It is often important to declare local variables that may not be directly exposed outside their enclosing structs. 
-This promotes code safety in the form of hidden states that cannot be altered externally. Private variables are denoted with the \ prefix at the beginning of their name (e.g., `\test` is private). 
-Aside from their scope, they can be accessed only if their name (including the slash) follows the keyword this specifically. In the last case, they are retrieved from the namesake object. 
+This promotes code safety in the form of hidden states that cannot be altered externally. 
+Private variables are denoted with the slash (`\`) prefix at the beginning of their name. For example, `\test` is private. 
+Once struct creation is completed, accessing private variables is possible only if ther name (including the slash) follows `this`. 
 
-These restrictions are enforced by the compiler but not during interpretation (so .bbvm files can circumvent code safety in your own code).
+These restrictions are enforced by the compiler but not during interpretation (so .bbvm files can be altered to circumvent code safety).
 For example, the following snippet declares an object with private variables that cannot be directly accessed externally.
 
 ```java
@@ -166,13 +178,10 @@ print(point.dimadd());
 
 ## Operator overloading
 
-Blombly supports operation overloading, which allows you to define custom behavior for your structs for standard operations like addition, subtraction, and even method calls. 
-Therefore, it provides a powerful way to create user-defined types that can be manipulated as if they were built-in types, leading to more expressive code.
-
-Overloading is achieved by defining methods with specific names inside structs that are used when the corresponding operation is performed. The most commonly overloaded operations are arithmetic operators (`+`, `-`, `*`, `/`) and the call operator `()` for making objects callable.
+Blombly supports operation overloading to loet structs emulate other data structures. Do so by defining methods with specific names inside structs that are used when the corresponding operation is performed. The most commonly overloaded operations are arithmetic operators (`+`, `-`, `*`, `/`) and the call operator `()` for making objects callable.
 
 Let's start with a basic example where we overload the addition operator for a struct that represents a 2D point.
-In this example, we define a method add that performs the addition of two points and returns a new point. 
+In this example, define an appropriately named method that performs the addition of two points and returns a new one. 
 When the addition operator is used, the addition's method is invoked automatically. Since structs
 hold data autonomously, we need to bring knowledge of the code block generating points into the ones being
 created with `Point=Point`. More on this and simplifications later.
@@ -204,8 +213,9 @@ print(p3.x, p3.y);
 [4, 6]
 ```
 
-One of the most useful applications of overloading is making structs callable, meaning they can be used as functions. This is done by overloading the call operator (`call`).
-Below is an example where we define a Multiplier struct that can be called like a function. Notice the usage of `defer` as a means of inserting a default factor
+Structs can be made callable by overloading the corresponding operator (`call`).
+Below is an example where we define a Multiplier struct that can be called like a function. 
+Notice the usage of `defer` as a means of inserting a default factor
 at the end of *new* only if no factor is defined by that time.
 
 ```java
@@ -225,16 +235,20 @@ print(result);
 50
 ```
 
-## `!closure`
+## Definition closure
 
-We already touched on needing to retain values from the struct's creation scope.
-We previously did this by adding the pattern `final @value = @value;` 
--with or without the final keyword- to the creation and then
-accessing the values as struct fields.
+Running code blocks -or callable structs- can access the final variables of their
+calling blocks. However, we already saw that it may useful to retain values 
+from the struct's creation scope.
 
-Blombly offers a significant simplication, namely `!closure.@value`, that 
-replaces struct field access while automatically adding the pattern if not already
-present. Below are two equivalent snippets, where the second one uses this to bring 
+We previously did this with the pattern `@value = @value;`. Howver, this may be clunky
+and could be shadowed by other struct fields. For this reason, Blombly offers an
+automatic way to bring external values to the struct; access them
+as members while using more than one dots. When doing so, each additional dot
+injects a pattern from obtaining a value from an enclosing scope.
+
+For example, below are two equivalent snippets, 
+where the second one uses the new notation to bring 
 values inside structs without unecessary effort.
 
 ```java
@@ -252,7 +266,7 @@ print(A|float);
 // main.bb (simplified equivalent)
 value = 1;
 A = new {
-    float => !closure.value;
+    float => this..value; // escape from float and then from A
 }
 value = 2;
 print(A|float);
@@ -261,4 +275,29 @@ print(A|float);
 ```text
 > blombly main.bb
 1
+```
+
+The same pattern may be used in more levels of nesting. Here is an example similar to the previous 2D point.
+But, even in the more complicate scenario, we retain the same small level of nesting.
+
+```java
+Point2D = {
+    add(other) => new {
+        Point2D = this...Point2D; // needed to assign to Point2D so that inlining can see it again
+        Point2D:
+        x = this..x + other.x;  // no need for super
+        y = this..y + other.y;
+    }
+    str() => "({this.x}, {this.y})"; 
+}
+
+p1 = new {Point2D:x=1;y=2} 
+p2 = new {Point2D:x=2;y=3}
+Point2D = {fail("Point2D has been invalidated")}
+print(p1+p2);
+```
+
+```text
+> blombly main.bb
+(3,5)
 ```

@@ -1,9 +1,14 @@
-final adder = new{}.call(x) => new{}.call(y) => !closure.x+y+z;
-
-test(z) = {
-    final z = z;  // any functions running now can access this value
-    return adder(1)(2);
+Point2D = {
+    add(other) => new {
+        Point2D = this...Point2D; // needed to assign to Point2D so that inlining can see it again
+        Point2D:
+        x = this..x + other.x;
+        y = this..y + other.y;
+    }
+    str() => "({this.x}, {this.y})"; 
 }
 
-print(test(1));
-print(test(2));
+p1 = new {Point2D:x=1;y=2} 
+p2 = new {Point2D:x=2;y=3}
+Point2D = {fail("Point2D has been invalidated")}
+print(p1+p2);

@@ -1387,9 +1387,9 @@ void sanitize(std::vector<Token>& tokens) {
         if (tokens[i].name == "." && i < tokens.size() - 1 && tokens[i+1].name == "this") {
             bberror("Directly accessing `.this` as a field is not allowed."
                     "\n   \033[33m!!!\033[0m You may assign it to a new accessible variable per `scope=this;`,"
-                    "\n        But this error message invalidates the pattern `obj.this\\field`, as"
-                    "\n        private fields like `\\field`` are only accessible from the keyword `this`"
-                    "\n        like so: `this\\field`.\n"
+                    "\n       This error message prevents the pattern `obj.this\\field`, that would be able"
+                    "\n       to leak infomration. The prevention works because private fields like `\\field`"
+                    "\n       are only directly accessible from the keyword `this` like so: `this\\field`.\n"
                     + Parser::show_position(tokens, i));
 
         }
@@ -1402,16 +1402,19 @@ void sanitize(std::vector<Token>& tokens) {
             continue;
         }
         if ((tokens[i].name == "#" || tokens[i].name == "!") && ((i >= tokens.size() - 1) || 
-            (tokens[i + 1].name != "include" && tokens[i + 1].name != "local" && tokens[i + 1].name != "macro" && tokens[i + 1].name != "stringify" && tokens[i + 1].name != "symbol"
+            (tokens[i + 1].name != "include" && tokens[i + 1].name != "local"
+             && tokens[i + 1].name != "macro" && tokens[i + 1].name != "stringify" 
+             && tokens[i + 1].name != "symbol"
              && tokens[i + 1].name != "anon" && tokens[i + 1].name != "x"
-             && tokens[i + 1].name != "spec" && tokens[i + 1].name != "fail" && tokens[i + 1].name != "of" && tokens[i + 1].name != "closure" && tokens[i + 1].name != "gcc"))) {
+             && tokens[i + 1].name != "spec" && tokens[i + 1].name != "fail" 
+             && tokens[i + 1].name != "of" && tokens[i + 1].name != "closure"
+             && tokens[i + 1].name != "defer" && tokens[i + 1].name != "gcc"))) {
             bberror("Invalid preprocessor instruction after `"+tokens[i].name+"` symbol."
                     "\n   \033[33m!!!\033[0m This symbol signifies preprocessor directives."
                     "\n        Valid directives are the following patterns:"
                     "\n        - `!include @str` inlines a file."
                     "\n        - `!spec @property=@value;` declares a code block specification."
                     "\n        - `(!of @expression)` or (!anon @expression)` assigns the expression to a temporary variable just after the last command."
-                    "\n        - `!closure.value` is replaced by `this.value` and adds `value=value` just within the beginning of a `new` statement"
                     "\n        - `!x` is a shorthand for `next(args)`."
                     "\n        - `!macro {@expression} as {@implementation}` defines a macro."
                     "\n        - `!local {@expression} as {@implementation}` defines a macro that is invalidated when the current file ends."
@@ -1517,53 +1520,95 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     "\n       You may instead consider the preprocessor #of directive to precompute the contents of a parenthesis"
                     "\n       before the current commend. Here is an example `A = 1,2,3; while(x as next(#of bbvm::iter(A))) {}`.\n"
                     + Parser::show_position(tokens, i));*/
+        if(tokens[i].name == "." && i<tokens.size()-1 && tokens[i+1].name==".") {
+            bberror("`Unexpected `..`. "
+                    "\n   \033[33m!!!\033[0m More than one fullstop can only follow `this` to indicate values"
+                    "\n       obtained from its declration closure.\n"
+                    + Parser::show_position(tokens, i));
+        }
 
-        if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && (tokens[i + 1].name == "closure")) {
-                bbassert(tokens[i + 2].name == ".", 
-                          "Unexpected `!closure` encountered before `"+tokens[i+2].name +"`."
-                          "\n   \033[33m!!!\033[0m  Each `!closure` declaration can only be followed by `.`."
-                          "\n        Here is an example `value=1; new{float=>!closure.value}`.\n"
-                          +Parser::show_position(tokens, i));
+        if (tokens[i].name == "this" && i<tokens.size()-2 && tokens[i+1].name=="." && tokens[i+2].name==".") {
+                ++i; // skip this
+                int originali = i;
+                int countWedges = 1;
+                ++i;
+                while(i<tokens.size()) {
+                    if(tokens[i].name==".") ++countWedges; else break;
+                    ++i;
+                }
+                bbassert(i<tokens.size(), "Runaway `.` at end of file.\n"+Parser::show_position(tokens, i));
                 int pos = updatedTokens.size();
-                int crossover = 0;
                 bool alreadyDone = false;
+                std::string closureName = tokens[i].name;
+                for(int k=0;k<countWedges;++k) closureName = "."+closureName;
+                std::string nextName = closureName.substr(1);
+
+                updatedTokens.emplace(updatedTokens.end(), closureName, tokens[i].file, tokens[i].line, true);
+                int prevInMethod = 0;
+                bool hasProgressed = false;
                 while(true) {
                     bbassert(pos>=0, 
-                            "Unexpected `!closure` encountered without being within `new` or within a code block declaration."
-                            "\n   \033[33m!!!\033[0m  Each `!closure` declaration can only reside within code blocks within `new` statements or block declarations."
-                            "\n        Here is an example `value=1; new{float=>!closure.value}`.\n"
-                            +Parser::show_position(tokens, i));
-                    if(pos>=4 && updatedTokens[pos].name==";" 
-                        && updatedTokens[pos-1].name==tokens[i+3].name
+                            "Closure of `this` specified by a number of `.` that is higher than the actual code recursion."
+                            "\n   \033[33m!!!\033[0m  Each `.` declaration can only correspond to structs being created with `new` statements or block declarations."
+                            "\n        Here is an example `value=1; a = new{float=>this..value} print(a|float);`.\n"
+                            +Parser::show_position(tokens, originali));
+                    if(pos>=3 && updatedTokens[pos].name==";" 
+                        && updatedTokens[pos-1].name==nextName
                         && updatedTokens[pos-2].name=="="
-                        && updatedTokens[pos-3].name==tokens[i+3].name
-                        && updatedTokens[pos-3].name=="final") {
+                        && updatedTokens[pos-3].name==closureName) {
                             alreadyDone = true;
                         }
-                    if(updatedTokens[pos].name=="{" && (updatedTokens[pos-1].name=="new" || (crossover && (
-                            updatedTokens[pos-1].name=="=" 
+                    if(pos>=5 && updatedTokens[pos].name==";" 
+                        && updatedTokens[pos-1].name==nextName
+                        && updatedTokens[pos-2].name=="."
+                        && updatedTokens[pos-3].name=="this"
+                        && updatedTokens[pos-4].name=="="
+                        && updatedTokens[pos-5].name==closureName) {
+                            alreadyDone = true;
+                        }
+                        
+                    if(updatedTokens[pos].name=="{" && (updatedTokens[pos-1].name=="new" 
+                            || updatedTokens[pos-1].name=="=" 
                             || updatedTokens[pos-1].name=="return"
-                            || updatedTokens[pos-1].name=="as"))))
-                        break;
-                    if(updatedTokens[pos].name=="{")
-                        ++crossover;
+                            || updatedTokens[pos-1].name=="as")) {
+                        bool isClassDefinition = false;
+                        bbassert(hasProgressed || !prevInMethod || updatedTokens[pos-1].name=="new", "Attempted to obtain a closure from within a closure.\n"
+                                                    +Parser::show_position(tokens, i)
+                                                    +"\nHere is where there was an attempt to obtain the closure::\n"+Parser::show_position(updatedTokens, prevInMethod)
+                                                    +"\nHere is the parent from which the closure would be obtained (it's not a struct declaration):\n"+Parser::show_position(updatedTokens, pos));
+                        if(!alreadyDone) { 
+                            if(updatedTokens[pos-1].name!="new" && !prevInMethod) {
+                                updatedTokens.emplace(updatedTokens.begin()+pos+1, closureName, tokens[i].file, tokens[i].line, true);
+                                updatedTokens.emplace(updatedTokens.begin()+pos+2, "=", tokens[i].file, tokens[i].line, true);
+                                updatedTokens.emplace(updatedTokens.begin()+pos+3, "this", tokens[i].file, tokens[i].line, true);
+                                updatedTokens.emplace(updatedTokens.begin()+pos+4, ".", tokens[i].file, tokens[i].line, true);
+                                updatedTokens.emplace(updatedTokens.begin()+pos+5, nextName, tokens[i].file, tokens[i].line, true);
+                                updatedTokens.emplace(updatedTokens.begin()+pos+6, ";", tokens[i].file, tokens[i].line, true);
+                            }
+                            else {
+                                if(tokens[i].name=="this" && countWedges==1) {
+                                    nextName = "."+nextName;
+                                    ++countWedges;
+                                }
+                                updatedTokens.emplace(updatedTokens.begin()+pos+1, closureName, tokens[i].file, tokens[i].line, true);
+                                updatedTokens.emplace(updatedTokens.begin()+pos+2, "=", tokens[i].file, tokens[i].line, true);
+                                updatedTokens.emplace(updatedTokens.begin()+pos+3, nextName, tokens[i].file, tokens[i].line, true);
+                                updatedTokens.emplace(updatedTokens.begin()+pos+4, ";", tokens[i].file, tokens[i].line, true);
+                            }
+                        }
+                        if(updatedTokens[pos-1].name!="new") prevInMethod = pos; else prevInMethod = 0;
+                        closureName = nextName;
+                        nextName = closureName.substr(1);
+                        hasProgressed = true;
+                        --countWedges;
+                        if(countWedges==0) break;
+                        alreadyDone = false;
+                    }
+
                     --pos;
                 }
-                bbassert(crossover, 
-                        "Unexpected `!closure` encountered within the body of `new` or within a code block."
-                        "\n   \033[33m!!!\033[0m  Each `!closure` declaration can only reside within code blocks within `new` statements or code blocks within code blocks."
-                        "\n        Here is an example `value=1; new{float=>!closure.value}`.\n"
-                        +Parser::show_position(tokens, i));
-                if(!alreadyDone) {
-                    updatedTokens.emplace(updatedTokens.begin()+pos+1, "final", tokens[i+3].file, tokens[i+3].line, true);
-                    updatedTokens.insert(updatedTokens.begin()+pos+2, tokens[i+3]);
-                    updatedTokens.emplace(updatedTokens.begin()+pos+3, "=", tokens[i+3].file, tokens[i+3].line, true);
-                    updatedTokens.insert(updatedTokens.begin()+pos+4, tokens[i+3]);
-                    updatedTokens.emplace(updatedTokens.begin()+pos+5, ";", tokens[i+3].file, tokens[i+3].line, true);
-                }
-
-                updatedTokens.emplace_back("this", tokens[i].file, tokens[i].line, true);
-                i += 2;
+            ++i;
+            //std::cout<<Parser::to_string(updatedTokens, 0, updatedTokens.size())<<"\n";
         }
         else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && (tokens[i + 1].name == "of" || tokens[i + 1].name == "anon")) {
                 bbassert(tokens[i - 1].name == "(" || tokens[i - 1].name == "[", 

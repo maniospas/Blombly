@@ -310,7 +310,7 @@ void optimize(const std::string& source, const std::string& destination) {
                 ++changes;
                 continue;
             }
-            if((command->args[0]=="IS" || command->args[0]=="AS") && command->args.size() && symbolUsageCount[command->args[1]]==0) {
+            if((command->args[0]=="IS" || command->args[0]=="AS" || command->args[0]=="new") && command->args.size() && symbolUsageCount[command->args[1]]==0) {
                 command->enabled = false;
                 ++changes;
                 continue;
