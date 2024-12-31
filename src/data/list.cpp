@@ -176,9 +176,9 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
 
     if (operation == PUT && args->size == 3 && args->arg1->getType() == BB_INT) {
         int64_t index = static_cast<Integer*>(args->arg1)->getValue();
-        if (index < 0) return std::move(Result(OUT_OF_RANGE));
+        if (index < 0) bberror("Out of range");//return std::move(Result(OUT_OF_RANGE));
         index += front;
-        if (index>=contents.size()) return std::move(Result(OUT_OF_RANGE));
+        if (index>=contents.size()) bberror("Out of range");//return std::move(Result(OUT_OF_RANGE));
         auto value = args->arg2;
         bbassert(value, "Cannot set a missing value on a list");
         bbassert(value->getType()!=ERRORTYPE, "Cannot set an error on a list");

@@ -1,16 +1,16 @@
-final back(element) => new {
-    final element = element;
-    call(A) = {
-        push(A, element);
-        return A;
+final collection = new {
+    final push_back(element) => new {
+        call(A) = {
+            push(A, this..element);
+            return A;
+        }
     }
-}
-
-final apply(func) => new {
-    call(A) = {
-        ret = list();
-        while(x in A) push(ret, this..func(x));
-        return ret;
+    final transform(func) => new {
+        call(A) = {
+            ret = list();
+            while(x in A) push(ret, this..func(x));
+            return ret;
+        }
     }
 }
 
@@ -38,9 +38,10 @@ final string = new {
         }
     }
     final index(str query) => new {
+        catch(try {pos=pos; return}) pos = 0;
         call(str search) = {
             query = this..query;
-            pos = this..pos;
+            pos = this.pos;
             nsearch = search|len;
             nquery = query|len;
             while(i in range(pos, nsearch-nquery+1)) {
@@ -59,7 +60,7 @@ final string = new {
             if(nquery==0) fail("Cannot split on a zero-length string");
             ret = list();
             pos = 0;
-            try while(pos<nsearch) {
+            while(pos<nsearch) {
                 prev_pos = pos;
                 pos = search|string.index(query :: pos=pos);
                 s = search[range(prev_pos, pos)];

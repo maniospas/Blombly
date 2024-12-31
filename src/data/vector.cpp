@@ -101,21 +101,70 @@ void Vector::unlock() const {
 }
 
 Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
-    if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
-        std::lock_guard<std::recursive_mutex> lock(memoryLock);
-        int index = static_cast<Integer*>(args->arg1)->getValue();
-        if (natdims) {
-            for (int i = 0; i < natdims; ++i) {
-                index *= dims[i + 1];
-                index += atdims[i];
+    if (operation == AT && args->size == 2) {
+        if (args->arg1->getType() == BB_INT) {
+            std::lock_guard<std::recursive_mutex> lock(memoryLock);
+            int index = static_cast<Integer*>(args->arg1)->getValue();
+            if (natdims) {
+                for (int i = 0; i < natdims; ++i) {
+                    index *= dims[i + 1];
+                    index += atdims[i];
+                }
+            }
+            if (index < 0 || index >= size) {
+                return Result(OUT_OF_RANGE);
+            }
+            return std::move(Result(new BFloat(data[index])));
+        }
+
+        if (args->arg1->getType() == LIST || args->arg1->getType() == ITERATOR) {
+            BuiltinArgs implargs;
+            implargs.size = 1;
+            implargs.arg0 = args->arg1;
+
+            Result iter = args->arg1->implement(TOITER, &implargs, memory);
+            Data* iterator = iter.get();
+            bbassert(iterator && iterator->getType() == ITERATOR, 
+                    "Can only find vector indexes based on an iterable object, but a non-iterable struct was provided.");
+
+            Iterator* iterPtr = static_cast<Iterator*>(iterator);
+
+            // Efficiently handle contiguous iterators
+            if (iterPtr->isContiguous()) {
+                int64_t start = iterPtr->getStart();
+                int64_t end = iterPtr->getEnd();
+                if (start < 0 || end < 0 || start >= size || end > size) {
+                    return std::move(Result(OUT_OF_RANGE));
+                }
+
+                auto* resultVec = new Vector(end - start);
+                for (int64_t i = start; i < end; ++i) {
+                    resultVec->data[i - start] = data[i];
+                }
+                return std::move(Result(resultVec));
+            } else {
+                // Handle arbitrary iterators
+                auto* resultVec = new Vector(iterPtr->expectedSize());
+                int indexCount = 0;
+
+                while (true) {
+                    implargs.size = 1;
+                    Result next = iterator->implement(NEXT, &implargs, memory);
+                    Data* indexData = next.get();
+                    if (!indexData || indexData == OUT_OF_RANGE) break;
+                    bbassert(indexData->getType() == BB_INT, 
+                            "Iterable vector indexes can only contain integers.");
+
+                    int64_t idx = static_cast<Integer*>(indexData)->getValue();
+                    if (idx < 0 || idx >= size) return std::move(Result(OUT_OF_RANGE));
+
+                    resultVec->data[indexCount++] = data[idx];
+                }
+                return std::move(Result(resultVec));
             }
         }
-        if (index < 0 || index >= size) {
-            //bberror("Vector index " + std::to_string(index) + " out of range [0," + std::to_string(size) + ")");
-            return Result(OUT_OF_RANGE);
-        }
-        return std::move(Result(new BFloat(data[index])));
     }
+
 
     if (operation == PUT && args->size == 3 && args->arg1->getType() == BB_INT) {
         double value;

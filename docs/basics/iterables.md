@@ -1,14 +1,24 @@
 # Iterables
 
 Here we cover builtin types that represent collections of elements.
-These are `list`, `vector`, `map`, and the complementary `iter`
+These are `list`, `vector`, `map`, `range`, and the complementary `iter`
 that helps loops iterate through elements. All the aforementioned
 data types are called iterables because they can successfully be
-typecasted into `iter` instances. Some [structs](structs.md) are
-also iterables, but more on this later.
+typecasted into `iter` instances. 
+
+Some [structs](structs.md) are
+also treated as iterables if they overload the appropriate opreations, 
+but more on this elsewhere. For now, keep in mind that converting to
+iterators is done automatically when you use the `in` syntactic sugar presented
+later in this page.
 
 
 ## Lists
+
+
+<div style="background-color: rgb(159, 236, 199); color: black; text-align: center; padding: 20px 0; font-size: 24px; border: 1px solid black;">
+    All list modifications are efficient; even front popping with next.
+</div>
 
 Declare lists by separating values with a comma. Access and set
 its elements with square brackets (`[...]`) where element indexes
@@ -30,7 +40,7 @@ print(len(A));  // or print(A|len) is equivalent
 ```
 
 You may initialize lists based on one element like below.
-This notation in general converts data to lists (e.g., 
+This notation in general converts data to lists (and 
 can be overloaded by structs) which means that
 you may have more elements in the parenthesis without 
 issue if you want to write verbose code.
@@ -53,18 +63,17 @@ A[3] = 0; // CREATES AN ERROR
 
 ```bash
 > blombly main.bb
-[5]
-( ERROR ) List index 3 out of range [0,1)
-   → put # A _bb3 _bb2                           main.bbvm line 6
+[5] 
+( ERROR ) Out of range
+   → A[3]=0                                              main.bb line 4
 ```
 
 The above examples do not modify lists during execution.
-This is instead achieved with the `next` and `pop` operators 
+To extract while removing data from lists `next` and `pop` operators 
 that extract and remove the first or last list elements respectively. 
-They yield missing values if the list is empty. 
-Thus, the `as` assignment in a loop can
-extract list elements until either a missing one is found or the whole
-list is consumed:
+
+These yield error values if the list is empty, so use the `as` assignment in a loop to
+extract all list elements.
 
 ```java
 // main.bb
@@ -80,8 +89,8 @@ while(a as next(A))
 3
 ```
 
-Append elements at the end using the `push` operator,
-like so:
+
+Append elements at the end using the `push` operator, like below.
 
 ```java
 // main.bb
@@ -95,7 +104,7 @@ print(A);
 [1, 2, 3, 4]
 ```
 
-You may concatenate lists by adding them like below:
+Concatenate lists by adding them like below.
 
 ```java
 // main.bb
@@ -107,19 +116,21 @@ print((1,2,3)+(4,5));
 [1, 2, 3, 4, 5]
 ```
 
-Finally, lists support sub-indexing by any iterable that contains integer identifiers.
-Internally, they obtain an iterator from that iterable and traverse its values like below.
-Value repetitions are allowed. If the iterable contains missing values (this
-happens only for certain iterable structs), sub-indexing will stop at the first missing value. 
+Finally, lists can yield multiple elements at once by providing any iterable yielding integer identifiers.
+Internally, lists obtain an iterator from that iterable and traverse its values like below.
+Value repetitions are allowed. If the iterable yields an out-of-range value, 
+sub-indexing will stop at the first missing one. 
 
 ```java
 A = 1,2,3,4,5;
 print(A[1,3]);
+print(A[range(1,4)]);  // more on ranges later
 ```
 
 ```bash
 > blombly main.bb
 [2, 4] 
+[2, 3, 4] 
 ```
 
 ## Iterators
@@ -142,23 +153,16 @@ while(i as next(it))
 ```
 
 
-You can also create range-based iterators  using one of the expressions
-`range(end)`, `range(start, end)`, or `range(start, end, step)`,
-where the range starts and ends at integer values, and the end is non-inclusive.
-In the first version, the `start=0`, and in the first two 
-the `step=1`. Here is an example:
+An addition to other iterators, Blombly provide ranges that represent values in a specified range. 
+These are iterators that can only consumed once and there are four construction
+patterns for them:
 
-```java
-// main.bb
-it = range(3);
-while(i as next(it))
-    print(i);
-```
+- `range(int end)` creates a range from `0` up to `end-1` and step `1`.
+- `range(int start, int end)` starts from the newlly specified number.
+- `range(int start, int end, int step)` is similar, where the step with which values increase is also specified.
+- `range(float start, float end, float step)` also handles real numbers or a mixture of real numbers and integers instead of only integers (there will be an error otherwise)
 
-
-If all three arguments are used and any of them is a float number, the range will
-output floats everywhere. Negative steps are also allowed.
-Below is an example that demonstrates both of these concepts.
+Negative steps are also allowed. Below is a demonstration.
 
 ```java
 // main.bb
@@ -167,13 +171,14 @@ while(i as next(it))
     print(i);
 ```
 
-```bash
+```text
 > blombly main.bb
 2.000000 
 1.500000
 1.000000
 0.500000
 ```
+
 
 ## `in` 
 
@@ -191,8 +196,68 @@ while(i in 1,2,3)
 
 ## Vectors
 
-*This segment is unders construction.*
+Vectors correspond collections to concecutive float values of fixed size. You can perform
+element-by-element arithmetic operations on them for fast scientific computations. Treat them
+as lists of values whose elements can not be inserted or modified - only set. Element default
+values are zeros.
+
+Vectors can be created either from their number of zero elements or from a list of numbers.
+They also support sub-indexing from iterables yielding integer identifiers. This is especially fast
+when ranges are provided, as in the following example.
+
+```java
+// main.bb
+x = vector(1,2,3,4,5);
+y = vector(1,2,3,4,5);
+z = x+y-1;
+z = z[range(3)];
+print(z);
+```
+
+```text
+> blombly main.bb
+[1.000000, 3.000000, 5.000000] 
+```
+
+**Current implementations run purely in the CPU, but future BlomblyVM implementation will consider scheduling GPU operations via any supported CUDA.**
+
 
 ## Maps
 
-*This segment is unders construction.*
+Maps contain transformations between iterable objects
+that match keys to values. Use any objects or non-error primitives
+as keys and values. For keys, numbers and strings keys are considered
+the same based on their value, whereas other data match only themselves.
+
+Maps implement member access and set operators. But they are also iterables
+that yield `key, value` pairs as lists of two entries. Pop from the frnt or back of the pair 
+with the `|` notation to extract keys and values with concise syntax that retains
+clear semantics.
+
+
+```java
+// main.bb
+A = map();
+A["A"] = 1;
+A["B"] = 2;
+A["C"] = 3;
+
+print("---- Pairs");
+while(pair in A) print(pair);
+print("---- Keys");
+while(pair in A) print(pair|next); // equivalent to next(pair)
+```
+
+```text
+> blombly main.bb
+---- Pairs
+[B, 2] 
+[C, 3] 
+[A, 1] 
+---- Keys
+B
+C
+A
+```
+
+*Blombly does not implement sets. Instead, treat those as maps from objects to `true`.*

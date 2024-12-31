@@ -22,6 +22,7 @@
 
 #define WHILE_WITH_CODE_BLOCKS
 
+extern BError* NO_TRY_INTERCEPT;
 
 std::string replaceEscapeSequences(const std::string& input) {
     std::string output;
@@ -65,7 +66,7 @@ std::recursive_mutex compileMutex;
 
 
 void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool &returnSignal, BuiltinArgs &args, Data*& result) {
-    Command* command = program->at(i);
+    Command* command = (*program)[i];
     //Data* toReplace = command->nargs?memory->getOrNullShallow(command->args[0]):nullptr;
     //BMemory* memory = memory_.get();
 
@@ -96,7 +97,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             OperationType command_type;
             bool scheduleForParallelExecution = true;
             while (pos <= program->size()) {
-                command_type = program->at(pos)->operation;
+                command_type = (*program)[pos]->operation;
                 if (command_type == BEGIN || command_type == BEGINFINAL)
                     depth += 1;
                 //if (command_type == WHILE)
@@ -139,7 +140,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 called = (val);
             }
             auto code = static_cast<Code*>(called);
-            if (!code->scheduleForParallelExecution || !Future::acceptsThread()) {
+            if (!code->scheduleForParallelExecution || !Future::acceptsThread() || true) {
                 BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
                 bool newReturnSignal(false);
                 if (context) {
@@ -163,13 +164,18 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 //newMemory.detach(thisObj?nullptr:memory);
                 newMemory.allowMutables = false;
                 //newMemory.leak(); (this is for testing only - we are not leaking any memory to other threads if we continue in the same thread, so no need to enable atomic reference counting)
-                Result returnedValue = executeBlock(code, &newMemory, newReturnSignal);
-                result = returnedValue.get();
-                if(result && result->getType()==CODE)
-                    static_cast<Code*>(result)->setDeclarationMemory(nullptr);
-                if(thisObj)
-                    newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
-                SET_RESULT;
+                if(code->jitable && code->jitable->run(&newMemory, result, newReturnSignal)) {
+                    SET_RESULT;
+                }
+                else {
+                    Result returnedValue = executeBlock(code, &newMemory, newReturnSignal);
+                    result = returnedValue.get();
+                    if(result && result->getType()==CODE)
+                        static_cast<Code*>(result)->setDeclarationMemory(nullptr);
+                    if(thisObj)
+                        newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
+                    SET_RESULT;
+                }
                 break;
             } 
             else {
@@ -454,10 +460,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 memory->detach(memory->parent);
                 result = returnedValue.get();
                 if(!tryReturnSignal) {
-                    std::string message = "No error or return statement intercepted with `try`.";//+ std::string("\n   \x1B[34m\u2192\033[0m ") + comm + " \t\x1B[90m " + command->source->path + " line " + std::to_string(command->line);
-                    BError* res = new BError(std::move(message));
-                    //res->consume();
-                    result = res;
+                    result = NO_TRY_INTERCEPT;
                 }
                 SET_RESULT;
             }
@@ -594,12 +597,9 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         default: {
             int nargs = command->nargs;
             args.size = nargs - 1;
-            if (nargs > 1) 
-                args.arg0 = MEMGET(memory, 1);
-            if (nargs > 2) 
-                args.arg1 = MEMGET(memory, 2);
-            if (nargs > 3) 
-                args.arg2 = MEMGET(memory, 3);
+            if (nargs > 1) args.arg0 = MEMGET(memory, 1);
+            if (nargs > 2) args.arg1 = MEMGET(memory, 2);
+            if (nargs > 3) args.arg2 = MEMGET(memory, 3);
             Result returnValue = Data::run(command->operation, &args, memory);
             result = returnValue.get();
             SET_RESULT;

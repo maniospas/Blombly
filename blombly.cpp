@@ -17,12 +17,13 @@
 // mkdir build
 // cmake -B ./build
 // FOR LOCAL ENV:  cmake -B ./build -DCMAKE_C_COMPILER=C:/msys64/ucrt64/bin/gcc.exe -DCMAKE_CXX_COMPILER=C:\msys64\ucrt64\bin\gcc.exe
-// cmake --build ./build --config Release --parallel 24
+// cmake --build ./build --config Release --parallel 8
 
 std::string blombly_executable_path;
 bool debug_info = true;
 BError* OUT_OF_RANGE = new BError("Out of range");
 BError* INCOMPATIBLE_SIZES = new BError("Incompatible sizes in operation");
+BError* NO_TRY_INTERCEPT = new BError("No error or return statement intercepted with `try`.");
 
 
 std::string get_executable_directory(const std::string& argv0) {
@@ -37,10 +38,13 @@ std::string get_executable_directory(const std::string& argv0) {
 }
 
 int main(int argc, char* argv[]) {
+
     OUT_OF_RANGE->consume();
-    INCOMPATIBLE_SIZES->consume();
     OUT_OF_RANGE->addOwner();
+    INCOMPATIBLE_SIZES->consume();
     INCOMPATIBLE_SIZES->addOwner();
+    NO_TRY_INTERCEPT->consume();
+    NO_TRY_INTERCEPT->addOwner();
     Boolean::valueTrue->addOwner();
     Boolean::valueFalse->addOwner();
     

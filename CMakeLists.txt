@@ -25,7 +25,6 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 file(GLOB_RECURSE SOURCES
     "${PROJECT_SOURCE_DIR}/blombly.cpp"
     "${PROJECT_SOURCE_DIR}/src/*.cpp"
-    "${PROJECT_SOURCE_DIR}/asmjit/src/*.cpp"
 )
 
 # Create the executable from the collected source files
@@ -89,14 +88,3 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT_SOURCE_DIR}"
     RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECT_BINARY_DIR}/build/output"
 )
-
-# asmjit
-include_directories(${PROJECT_SOURCE_DIR}/asmjit/src)
-
-
-
-# LLVM
-#find_package(LLVM REQUIRED CONFIG)
-#include_directories(SYSTEM ${LLVM_INCLUDE_DIRS})
-#add_definitions(${LLVM_DEFINITIONS})
-#target_link_libraries(MyTarget PRIVATE LLVM)
