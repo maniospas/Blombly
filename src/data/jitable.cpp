@@ -118,20 +118,24 @@ private:
     std::vector<Command*>* program;
     int start;
     int preparationEnd;
-    std::map<int, int> arguments;
+    std::unordered_map<int, int> arguments;
+    std::vector<int> argumentOrder;
     size_t expected_size;
     int returnType;
 public:
     virtual std::string toString() {return "JIT: used gcc to compile away everything after line "+std::to_string(preparationEnd);}
 
-    explicit JitCode(const std::string& code, const std::string& func, std::vector<Command*>* program, int start, int preparationEnd, std::map<int, int> arguments, int returnType): 
-        compile(code, func), program(program), start(start), preparationEnd(preparationEnd), arguments(arguments), returnType(returnType) {
+    explicit JitCode(const std::string& code, const std::string& func, std::vector<Command*>* program, int start, int preparationEnd, 
+                    std::unordered_map<int, int> arguments, std::vector<int> argumentOrder, int returnType): 
+        compile(code, func), program(program), start(start), preparationEnd(preparationEnd), arguments(arguments), argumentOrder(argumentOrder), returnType(returnType) {
             expected_size = 0;
-            for (const auto& [symbol, type] : arguments)
+            for (int symbol : argumentOrder) {
+                int type = arguments[symbol];
                 if(type==TOBB_BOOL) expected_size += sizeof(bool);
                 else if(type==TOBB_FLOAT) expected_size += sizeof(double);
                 else if(type==TOBB_INT)  expected_size += sizeof(int64_t);
                 else bberror("Internal error: some jit functionality has not been implemented yet");
+            }
         }
     virtual bool run(BMemory* memory, Data*& returnValue, bool &returnSignal) override {
         // preample
@@ -152,7 +156,8 @@ public:
         std::vector<char> argBuffer(expected_size);
         char* argPtr = argBuffer.data();
 
-        for (const auto& [symbol, type] : arguments) {
+        for (int symbol : argumentOrder) {
+            int type = arguments[symbol];
             Data* data = memory->get(symbol);
             if (type == TOBB_BOOL) {
                 bbassert(data->getType()==BB_BOOL, "Internal JIT error: Preparation failed to create a bool");
@@ -315,12 +320,14 @@ Jitable* jit(const Code* code) {
             //std::cout << "    " << cmd->toString() << "\n";
         }
 
-        std::map<int, int> arguments;
+        std::unordered_map<int, int> arguments;
+        std::vector<int> argumentOrder;
         std::string body;
         body += "  char* _bbjitargs = (char*)_bbjitargsvoid;\n";
         for (const auto& [symbol, counts] : assignmentCounts) {
             if(totalAssignmentCounts[symbol]==counts) continue;
             arguments[symbol] = knownStates[symbol];
+            argumentOrder.push_back(symbol);
             std::string type = int2type(knownStates[symbol]);
             body += "  "+type+" "+variableManager.getSymbol(symbol)+"=*("+type+"*)_bbjitargs; _bbjitargs+=sizeof("+type+");\n";
         }
@@ -356,7 +363,7 @@ Jitable* jit(const Code* code) {
         body = "#include <stdint.h>\n"+int2type(returnType)+" call(void* _bbjitargsvoid) {\n"+body+"}";
         //std::cout << body << "\n\n";
         //return nullptr;
-        return new JitCode(body, "call", program, start, start_jit_from, arguments, returnType);
+        return new JitCode(body, "call", program, start, start_jit_from, arguments, argumentOrder, returnType);
     }
 
 
