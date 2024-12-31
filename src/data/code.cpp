@@ -50,7 +50,8 @@ bool Code::getMetadataBool(int id, bool def) const {
 }
 
 std::string Code::toString(BMemory* memory){
-    return "code block in lines " + std::to_string(start) + " to " + std::to_string(end);
+    if(jitable) return "code block in .bbvm file lines " + std::to_string(start) + " to " + std::to_string(end) + " with "+jitable->toString();
+    return "code block in .bbvm file lines " + std::to_string(start) + " to " + std::to_string(end);
 }
 
 int Code::getStart() const {

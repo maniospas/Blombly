@@ -7,10 +7,8 @@
 
 
 class BFloat : public Data {
-private:
-    double value;
-
 public:
+    double value;
     explicit BFloat(double val);
 
     std::string toString(BMemory* memory)override;

@@ -21,6 +21,7 @@ public:
     virtual ~Jitable() = default;
     virtual bool run(BMemory* memory, Data*& returnValue, bool &returnSignal) = 0;
     virtual bool runWithBooleanIntent(BMemory* memory, bool &returnValue) {return false;}
+    virtual std::string toString() = 0;
 };
 
 // Function to perform JIT compilation of code

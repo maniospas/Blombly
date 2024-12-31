@@ -1,10 +1,15 @@
+def add(x, y):
+    return x + y + y
+
+print(add)
+
 import time
 
-buff = 0
 tic = time.time()
-for i in range(10000000):
-    buff += i
-toc = time.time()
+ret = 0
 
-print((toc - tic), "sec")
-print((buff))
+for i in range(1000000):
+    ret += i+1+1
+
+print(time.time() - tic)
+print(ret)

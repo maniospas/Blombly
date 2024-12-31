@@ -21,9 +21,10 @@ extern BError* OUT_OF_RANGE;
 
 std::string int2type(int type) {
     if(type==TOBB_FLOAT) return "double";
-    if(type==TOBB_INT) return "long long int";
+    if(type==TOBB_INT) return "int64_t";
     if(type==TOBB_BOOL) return "bool";
-    if(type==TOSTR) return "char*";
+    if(type==TOVECTOR) return "double*";
+    //if(type==TOSTR) return "char*";
     return "void";
 }
 
@@ -39,6 +40,7 @@ public:
         returnSignal = true;
         return true;
     }
+    virtual std::string toString() {return "JIT: converted to returning a primitive";}
 };
 
 
@@ -83,9 +85,10 @@ public:
         memory->unsafeSet(as, nextValue, nullptr); // set last to optimize with unsafeSet
         return true;
     }
+    virtual std::string toString() {return "JIT: the sequence of .bbvm instructions next as exists has been optimized to not store intermediate variables";}
 };
 
-
+int compilationCounter = 0;
 
 
 class Compile {
@@ -93,7 +96,7 @@ class Compile {
     void *func;
 public:
     Compile(const std::string& code, const std::string& name) {
-        std::string filename = "temp.jit.bb";
+        std::string filename = "temp"+std::to_string(compilationCounter)+".jit.bb";
         std::ofstream(filename+".c") << code;
         int ret = system(("gcc -shared -fPIC ./"+filename+".c -o ./"+filename+".so -O2 -march=native").c_str());
         bbassert(ret == 0, "Compilation failed");
@@ -117,9 +120,12 @@ private:
     int preparationEnd;
     std::map<int, int> arguments;
     size_t expected_size;
+    int returnType;
 public:
-    explicit JitCode(const std::string& code, const std::string& func, std::vector<Command*>* program, int start, int preparationEnd, std::map<int, int> arguments): 
-        compile(code, func), program(program), start(start), preparationEnd(preparationEnd), arguments(arguments) {
+    virtual std::string toString() {return "JIT: used gcc to compile away everything after line "+std::to_string(preparationEnd);}
+
+    explicit JitCode(const std::string& code, const std::string& func, std::vector<Command*>* program, int start, int preparationEnd, std::map<int, int> arguments, int returnType): 
+        compile(code, func), program(program), start(start), preparationEnd(preparationEnd), arguments(arguments), returnType(returnType) {
             expected_size = 0;
             for (const auto& [symbol, type] : arguments)
                 if(type==TOBB_BOOL) expected_size += sizeof(bool);
@@ -149,50 +155,37 @@ public:
         for (const auto& [symbol, type] : arguments) {
             Data* data = memory->get(symbol);
             if (type == TOBB_BOOL) {
-                bbassert(data->getType()==BB_BOOL, "Preparation failed to create a bool");
-                bool value = static_cast<Boolean*>(data)->getValue();
-                std::memcpy(argPtr, &value, sizeof(bool));
+                bbassert(data->getType()==BB_BOOL, "Internal JIT error: Preparation failed to create a bool");
+                std::memcpy(argPtr, &static_cast<Boolean*>(data)->value, sizeof(bool));
                 argPtr += sizeof(bool);
             } else if (type == TOBB_FLOAT) {
-                bbassert(data->getType()==BB_FLOAT, "Preparation failed to create a float");
-                double value = static_cast<BFloat*>(data)->getValue();
-                std::memcpy(argPtr, &value, sizeof(double));
+                bbassert(data->getType()==BB_FLOAT, "Internal JIT error: Preparation failed to create a float");
+                std::memcpy(argPtr, &static_cast<BFloat*>(data)->value, sizeof(double));
                 argPtr += sizeof(double);
             } else if (type == TOBB_INT) {
-                bbassert(data->getType()==BB_INT, "Preparation failed to create an integer");
-                int64_t value = static_cast<Integer*>(data)->getValue();
-                std::memcpy(argPtr, &value, sizeof(int64_t));
+                bbassert(data->getType()==BB_INT, "Internal JIT error: Preparation failed to create an integer");
+                std::memcpy(argPtr, &static_cast<Integer*>(data)->value, sizeof(int64_t));
                 argPtr += sizeof(int64_t);
             } else {
-                bberror("Unhandled argument type during argument transfer.");
+                bberror("Internal JIT error: Unhandled argument type during argument transfer.");
             }
         }
 
         // Call the function
-        int isReturning;
-        void* resultPtr = reinterpret_cast<void* (*)(int*, void*)>(compile.get())(&isReturning, argBuffer.data());
-
-        returnSignal = !resultPtr;
         // Based on the returned type, set what is being returned
-        if (isReturning == TOBB_INT) {
-            int64_t value;
-            std::memcpy(&value, resultPtr, sizeof(int64_t));
+        returnSignal = true;
+        if (returnType == TOBB_INT) {
+            int64_t value = reinterpret_cast<int64_t (*)(void*)>(compile.get())(argBuffer.data());
             returnValue = new Integer(value);
-        } else if (isReturning == TOBB_FLOAT) {
-            double value;
-            std::memcpy(&value, resultPtr, sizeof(double));
+        } else if (returnType == TOBB_FLOAT) {
+            double value = reinterpret_cast<double (*)(void*)>(compile.get())(argBuffer.data());
             returnValue = new BFloat(value);
-        } else if (isReturning == TOBB_BOOL) {
-            bool value;
-            std::memcpy(&value, resultPtr, sizeof(bool));
-            returnValue = value ? Boolean::valueTrue : Boolean::valueFalse;
+        } else if (returnType == TOBB_BOOL) {
+            bool value = reinterpret_cast<bool (*)(void*)>(compile.get())(argBuffer.data());
+            returnValue = value?Boolean::valueTrue:Boolean::valueFalse;
         } else {
             bberror("Unsupported return type from JIT function.");
         }
-
-        // Free the allocated memory by the JIT function
-        std::free(resultPtr);
-
         
         // close defer statements
         if(returnSignal)
@@ -266,14 +259,17 @@ Jitable* jit(const Code* code) {
         if(cmd->operation==POW && knownStates[cmd->args[1]]==TOBB_INT && knownStates[cmd->args[2]]==TOBB_FLOAT) knownStates[cmd->args[0]] = TOBB_FLOAT;
         if(cmd->operation==POW && knownStates[cmd->args[1]]==TOBB_FLOAT && knownStates[cmd->args[2]]==TOBB_INT) knownStates[cmd->args[0]] = TOBB_FLOAT;
         if(cmd->operation==POW && knownStates[cmd->args[1]]==TOBB_INT && knownStates[cmd->args[2]]==TOBB_INT) knownStates[cmd->args[0]] = TOBB_INT;
-
+        //if(cmd->operation==TOLIST) return nullptr;
+        
         bool known_state_for_everything = start_jit_from==-1 || prev_known_state==knownStates[cmd->args[0]] || prev_known_state==TOCOPY;
+        if(cmd->operation==TOLIST)
+            known_state_for_everything = false;
         if(known_state_for_everything)
             for (const auto& [symbol, operation] : knownStates) 
                 if (operation != TOBB_FLOAT 
                     && operation != TOBB_INT 
                     && operation != TOBB_BOOL
-                    && operation != TOSTR
+                    && operation != TOVECTOR
                     && operation != BUILTIN 
                     && operation != TOCOPY 
                     && usageCounts[cmd->args[0]]) {
@@ -320,7 +316,7 @@ Jitable* jit(const Code* code) {
         }
 
         std::map<int, int> arguments;
-        std::string body = "#include <stdlib.h>\nvoid* call(int *_bbjitisreturning, void* _bbjitargsvoid) {\n";
+        std::string body;
         body += "  char* _bbjitargs = (char*)_bbjitargsvoid;\n";
         for (const auto& [symbol, counts] : assignmentCounts) {
             if(totalAssignmentCounts[symbol]==counts) continue;
@@ -334,7 +330,7 @@ Jitable* jit(const Code* code) {
             body += "  "+type+" "+variableManager.getSymbol(symbol)+";\n";
         }
 
-
+        int returnType = TOCOPY;
         for (int i = start_jit_from+1; i<end; ++ i) {
             Command* com = program->at(i);
             if(com->operation==ADD) body += "  "+variableManager.getSymbol(com->args[0])+"="+variableManager.getSymbol(com->args[1])+"+"+variableManager.getSymbol(com->args[2])+";\n";
@@ -343,21 +339,24 @@ Jitable* jit(const Code* code) {
             else if(com->operation==BUILTIN) body += "  "+variableManager.getSymbol(com->args[0])+"="+com->value->toString(nullptr)+";\n";
             else if(com->operation==RETURN){
                 std::string type = int2type(knownStates[com->args[1]]);
-                body += "  *_bbjitisreturning="+std::to_string(knownStates[com->args[1]])+";\n";
-                body += "  "+type+"* _bbjitret=("+type+"*)malloc(sizeof("+type+"));\n";
-                body += "  *_bbjitret = "+variableManager.getSymbol(com->args[1])+";\n";
-                body += "  return _bbjitret;\n";
+                //body += "  *_bbjitisreturning="+std::to_string(knownStates[com->args[1]])+";\n";
+                //body += "  "+type+"* _bbjitret=("+type+"*)malloc(sizeof("+type+"));\n";
+                //body += "  *_bbjitret = "+variableManager.getSymbol(com->args[1])+";\n";
+                //body += "  return _bbjitret;\n";
+                body += "  return "+variableManager.getSymbol(com->args[1])+";\n";
+                if(returnType!=TOCOPY && returnType!=knownStates[com->args[1]]) return nullptr;  // if different types are returned per case, we cannot JIT
+                returnType = knownStates[com->args[1]];
             }
             else {
-                //std::cout << "cannot jit command: " << com->toString() << "\n";
+                std::cout << "cannot jit command: " << com->toString() << "\n";
                 return nullptr;
             }    
             //body += "    "+com->toString()+"\n";
         }
-        body += "    return 0;\n}";
+        body = "#include <stdint.h>\n"+int2type(returnType)+" call(void* _bbjitargsvoid) {\n"+body+"}";
         //std::cout << body << "\n\n";
         //return nullptr;
-        return new JitCode(body, "call", program, start, start_jit_from, arguments);
+        return new JitCode(body, "call", program, start, start_jit_from, arguments, returnType);
     }
 
 

@@ -7,9 +7,9 @@
 
 class Boolean : public Data {
 private:
-    bool value;
     explicit Boolean(bool val);
 public:
+    bool value;
     static Boolean* valueTrue;
     static Boolean* valueFalse;
     

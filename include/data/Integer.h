@@ -7,10 +7,8 @@
 #include "data/Data.h"
 
 class Integer : public Data {
-private:
-    int64_t value;
-
 public:
+    int64_t value;
     explicit Integer(int64_t val);
 
     std::string toString(BMemory* memory)override;

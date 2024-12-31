@@ -1,57 +1,51 @@
-%{returnx+y+x+y+x+y*2;} //main.bb line 1
+%{returnx+y+y;} //main.bb line 1
 BEGIN _bb169
 next x args
 float x x
 next y args
 float y y
-%y*2 //main.bb line 1
-BUILTIN _bb172 I2
-mul _bb171 y _bb172
 %x+y //main.bb line 1
-add _bb176 x y
-add _bb175 _bb176 x
-add _bb174 _bb175 y
-add _bb173 _bb174 x
-add _bb170 _bb173 _bb171
-%returnx+y+x+y+x+y*2 //main.bb line 1
+add _bb171 x y
+add _bb170 _bb171 y
+%returnx+y+y //main.bb line 1
 return # _bb170
 END
 IS add _bb169
-%time() //main.bb line 3
+%print(add) //main.bb line 2
+print # add
+%time() //main.bb line 5
 time tic
-%ret=0 //main.bb line 4
+%ret=0 //main.bb line 6
 BUILTIN ret I0
-%range(1000000) //main.bb line 5
-BUILTIN _bb180 I1000000
-%range(1000000) //main.bb line 5
-range _bb179 _bb180
-%bbvm::iter(range(1000000)) //main.bb line 5
-iter _bbmacro5 _bb179
-%while(ias bbvm::next(_bbmacro5))ret+=add //main.bb line 5
+%range(1000000) //main.bb line 7
+BUILTIN _bb175 I1000000
+%range(1000000) //main.bb line 7
+range _bb174 _bb175
+%bbvm::iter(range(1000000)) //main.bb line 7
+iter _bbmacro5 _bb174
+%while(ias bbvm::next(_bbmacro5))ret+=add //main.bb line 7
+BEGIN _bb177
+%bbvm::next(_bbmacro5) //main.bb line 7
+next _bb178 _bbmacro5
+AS i _bb178
+exists _bb179 i
+END
+BEGIN _bb180
+%add(i,i) //main.bb line 8
 BEGIN _bb182
-%bbvm::next(_bbmacro5) //main.bb line 5
-next _bb183 _bbmacro5
-AS i _bb183
-exists _bb184 i
+%i,i //main.bb line 8
+list args i i
 END
-BEGIN _bb185
-%add(i,1) //main.bb line 6
-BEGIN _bb187
-%i,1 //main.bb line 6
-BUILTIN _bb188 I1
-%i,1 //main.bb line 6
-list args i _bb188
+%add(i,i) //main.bb line 8
+call _bb181 _bb182 add
+add ret ret _bb181
 END
-%add(i,1) //main.bb line 6
-call _bb186 _bb187 add
-add ret ret _bb186
-END
-%while(ias bbvm::next(_bbmacro5))ret+=add //main.bb line 5
-while # _bb182 _bb185
-%time() //main.bb line 9
-time _bb191
-sub _bb190 _bb191 tic
-%print(time()-tic) //main.bb line 9
-print # _bb190
-%print(ret) //main.bb line 10
+%while(ias bbvm::next(_bbmacro5))ret+=add //main.bb line 7
+while # _bb177 _bb180
+%time() //main.bb line 11
+time _bb185
+sub _bb184 _bb185 tic
+%print(time()-tic) //main.bb line 11
+print # _bb184
+%print(ret) //main.bb line 12
 print # ret
