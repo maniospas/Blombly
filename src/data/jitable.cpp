@@ -17,6 +17,8 @@
 #include <cassert>  // Required for assert
 
 extern BError* OUT_OF_RANGE;
+extern std::recursive_mutex compileMutex;
+bool allowJit = true;
 
 
 std::string int2type(int type) {
@@ -98,12 +100,13 @@ public:
     Compile(const std::string& code, const std::string& name) {
         std::string filename = "temp"+std::to_string(compilationCounter)+".jit.bb";
         std::ofstream(filename+".c") << code;
-        int ret = system(("gcc -shared -fPIC ./"+filename+".c -o ./"+filename+".so -O2 -march=native").c_str());
+        int ret = system(("gcc -O2 -march=native -shared -fPIC ./"+filename+".c -o ./"+filename+".so").c_str());
         bbassert(ret == 0, "Compilation failed");
+        allowJit = false;
         handle = dlopen(("./"+filename+".so").c_str(), RTLD_LAZY);
         bbassert(handle != nullptr, dlerror());
-        bbassert(std::remove(("./"+filename+".so").c_str())==0, "Failed to remove a temporary file");
-        bbassert(std::remove(("./"+filename+".c").c_str())==0, "Failed to remove a temporary file");
+        bbassert(std::remove(("./"+filename+".so").c_str())==0, "Compilation was unable to remove a temporary file");
+        bbassert(std::remove(("./"+filename+".c").c_str())==0, "Compilation was unable to remove a temporary file");
         func = dlsym(handle, name.c_str());
         bbassert(func != nullptr, dlerror());
     }
@@ -201,6 +204,7 @@ public:
 
 // Implementation of the jit function
 Jitable* jit(const Code* code) {
+    std::lock_guard<std::recursive_mutex> lock(compileMutex);
     std::vector<Command*>* program = code->getProgram();
     int start = code->getStart();
     int end = code->getEnd();
@@ -221,6 +225,9 @@ Jitable* jit(const Code* code) {
                 return new NextAsExistsJitable(c0->args[1], c0->args[0], c1->args[0], c2->args[0], !c0->knownLocal[0], !c2->knownLocal[0]);
         }
     }
+
+    if(!allowJit)
+        return nullptr;
 
 
     std::unordered_map<int, int> assignmentCounts;
@@ -363,7 +370,14 @@ Jitable* jit(const Code* code) {
         body = "#include <stdint.h>\n"+int2type(returnType)+" call(void* _bbjitargsvoid) {\n"+body+"}";
         //std::cout << body << "\n\n";
         //return nullptr;
-        return new JitCode(body, "call", program, start, start_jit_from, arguments, argumentOrder, returnType);
+        try {
+            return new JitCode(body, "call", program, start, start_jit_from, arguments, argumentOrder, returnType);
+        }
+        catch(BBError& e) {
+            std::cerr << e.what() << " - JIT is hereby disabled (you might experience slowdowns)\n";
+            allowJit = false;
+            return nullptr;
+        }
     }
 
 
