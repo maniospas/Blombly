@@ -1,54 +1,28 @@
-%{returnx+y*2;} //main.bb line 1
-BEGIN _bb169
-next x args
-int x x
-next y args
-int y y
-%y*2 //main.bb line 1
-BUILTIN _bb172 I2
-mul _bb171 y _bb172
-add _bb170 x _bb171
-%returnx+y*2 //main.bb line 1
-return # _bb170
+BUILTIN x I0
+BEGIN _bb177
+get _bb178 this x
+IS .x _bb178
+BUILTIN x I1
+BEGIN _bb180
+get _bb181 this x
+return # _bb181
 END
-IS add _bb169
-%print(add) //main.bb line 2
-print # add
-%time() //main.bb line 4
-time tic
-%ret=0 //main.bb line 5
-BUILTIN ret I0
-%range(1000000) //main.bb line 6
-BUILTIN _bb176 I1000000
-%range(1000000) //main.bb line 6
-range _bb175 _bb176
-%bbvm::iter(range(1000000)) //main.bb line 6
-iter _bbmacro5 _bb175
-%while(ias bbvm::next(_bbmacro5))ret+=add //main.bb line 6
-BEGIN _bb178
-%bbvm::next(_bbmacro5) //main.bb line 6
-next _bb179 _bbmacro5
-AS i _bb179
-exists _bb180 i
+IS xthis _bb180
+BEGIN _bb182
+get _bb183 this .x
+IS ..x _bb183
+return # ..x
 END
-BEGIN _bb181
-%add(i,1) //main.bb line 7
-BEGIN _bb183
-%i,1 //main.bb line 7
-BUILTIN _bb184 I1
-%i,1 //main.bb line 7
-list args i _bb184
+IS xclosure _bb182
+return # this
 END
-%add(i,1) //main.bb line 7
-call _bb182 _bb183 add
-add ret ret _bb182
-END
-%while(ias bbvm::next(_bbmacro5))ret+=add //main.bb line 6
-while # _bb178 _bb181
-%time() //main.bb line 9
-time _bb187
-sub _bb186 _bb187 tic
-%print(time()-tic) //main.bb line 9
+new struct _bb177
+BUILTIN x I2
+get _bb185 struct x
+print # _bb185
+get _bb187 struct xthis
+call _bb186 # _bb187
 print # _bb186
-%print(ret) //main.bb line 10
-print # ret
+get _bb189 struct xclosure
+call _bb188 # _bb189
+print # _bb188

@@ -223,12 +223,20 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         } return;
 
         case GET: {
-            result = memory->get(command->args[1]);
-            bbassert(result->getType() == STRUCT, "Can only get elements from structs");
-            auto obj = static_cast<Struct*>(result);
-            result = obj->getMemory()->get(command->args[2]);
+            BMemory* from;
+            result = memory->getOrNull(command->args[1], true);
+            if(result==nullptr) {
+                bbassert(command->args[1]==variableManager.thisId, "Missing value: " + variableManager.getSymbol(command->args[1]));
+                from = memory;
+            }
+            else {
+                bbassert(result->getType() == STRUCT, "Can only get elements from structs");
+                auto obj = static_cast<Struct*>(result);
+                from = obj->getMemory();
+            }
+            result = from->get(command->args[2]);
             if(result->getType() == CODE)
-                static_cast<Code*>(result)->setDeclarationMemory(obj->getMemory());
+                static_cast<Code*>(result)->setDeclarationMemory(from);
         } break;
 
         case IS: {

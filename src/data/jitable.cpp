@@ -18,7 +18,7 @@
 
 extern BError* OUT_OF_RANGE;
 extern std::recursive_mutex compileMutex;
-bool allowJit = true;
+bool allowJit = false;
 
 
 std::string int2type(int type) {
@@ -362,7 +362,7 @@ Jitable* jit(const Code* code) {
                 returnType = knownStates[com->args[1]];
             }
             else {
-                std::cout << "cannot jit command: " << com->toString() << "\n";
+                std::cerr << "Internal error: cannot jit command: " << com->toString() << "\nThis does not indicate critical failure (and will be fixed in the future)\n";
                 return nullptr;
             }    
             //body += "    "+com->toString()+"\n";

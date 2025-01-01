@@ -228,7 +228,7 @@ public:
                     expr += tokens[i].name;
                     if(i<end-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
                                 && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
-                                 && tokens[i].name!=".")
+                                 && tokens[i].name!="."&& tokens[i].name!="!")
                         expr += " ";
                 }
             expr += " \x1B[90m "+tokens[pos].toString();
@@ -239,7 +239,7 @@ public:
                         expr += "~";
                     if(i<end-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
                                 && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
-                                 && tokens[i].name!=".")
+                                 && tokens[i].name!="."&& tokens[i].name!="!")
                         expr += "~";
                 }
             expr += "^";
@@ -1585,7 +1585,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     "\n       obtained from its declration closure.\n"
                     + Parser::show_position(tokens, i));
         }
-
+        
         if (tokens[i].name == "this" && i<tokens.size()-2 && tokens[i+1].name=="." && tokens[i+2].name==".") {
                 ++i; // skip this
                 int originali = i;
@@ -1605,18 +1605,25 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 updatedTokens.emplace(updatedTokens.end(), closureName, tokens[i].file, tokens[i].line, true);
                 int prevInMethod = 0;
                 bool hasProgressed = false;
+                int depth = 0;
                 while(true) {
+                    if(updatedTokens[pos].name=="}") depth++;
+                    if(updatedTokens[pos].name=="{") {if(depth>0)depth--; else hasProgressed=false;}
                     bbassert(pos>=0, 
                             "Closure of `this` specified by a number of `.` that is higher than the actual code recursion."
                             "\n   \033[33m!!!\033[0m  Each `.` declaration can only correspond to structs being created with `new` statements or block declarations."
                             "\n        Here is an example `value=1; a = new{float=>this..value} print(a|float);`.\n"
                             +Parser::show_position(tokens, originali));
-                    if(pos>=3 && updatedTokens[pos].name==";" 
+                    if(depth!=0 || hasProgressed) {
+                        --pos;
+                        continue;
+                    }
+                    /*if(pos>=3 && updatedTokens[pos].name==";" 
                         && updatedTokens[pos-1].name==nextName
                         && updatedTokens[pos-2].name=="="
                         && updatedTokens[pos-3].name==closureName) {
                             alreadyDone = true;
-                        }
+                        }*/
                     if(pos>=5 && updatedTokens[pos].name==";" 
                         && updatedTokens[pos-1].name==nextName
                         && updatedTokens[pos-2].name=="."
@@ -1630,13 +1637,13 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                             || updatedTokens[pos-1].name=="=" 
                             || updatedTokens[pos-1].name=="return"
                             || updatedTokens[pos-1].name=="as")) {
-                        bool isClassDefinition = false;
+                        //bool isClassDefinition = false;
                         bbassert(hasProgressed || !prevInMethod || updatedTokens[pos-1].name=="new", "Attempted to obtain a closure from within a closure.\n"
                                                     +Parser::show_position(tokens, i)
                                                     +"\nHere is where there was an attempt to obtain the closure::\n"+Parser::show_position(updatedTokens, prevInMethod)
                                                     +"\nHere is the parent from which the closure would be obtained (it's not a struct declaration):\n"+Parser::show_position(updatedTokens, pos));
                         if(!alreadyDone) { 
-                            if(updatedTokens[pos-1].name!="new" && !prevInMethod) {
+                            /*if(updatedTokens[pos-1].name!="new" && !prevInMethod) {
                                 updatedTokens.emplace(updatedTokens.begin()+pos+1, closureName, tokens[i].file, tokens[i].line, true);
                                 updatedTokens.emplace(updatedTokens.begin()+pos+2, "=", tokens[i].file, tokens[i].line, true);
                                 updatedTokens.emplace(updatedTokens.begin()+pos+3, "this", tokens[i].file, tokens[i].line, true);
@@ -1644,18 +1651,24 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                                 updatedTokens.emplace(updatedTokens.begin()+pos+5, nextName, tokens[i].file, tokens[i].line, true);
                                 updatedTokens.emplace(updatedTokens.begin()+pos+6, ";", tokens[i].file, tokens[i].line, true);
                             }
-                            else {
-                                if(tokens[i].name=="this" && countWedges==1) {
-                                    nextName = "."+nextName;
-                                    ++countWedges;
-                                }
-                                updatedTokens.emplace(updatedTokens.begin()+pos+1, closureName, tokens[i].file, tokens[i].line, true);
+                            else*/ {
+                                //if(tokens[i].name=="this" && countWedges==1) {
+                                //    nextName = "."+nextName;
+                                //    ++countWedges;
+                                //}
+                                /*updatedTokens.emplace(updatedTokens.begin()+pos+1, closureName, tokens[i].file, tokens[i].line, true);
                                 updatedTokens.emplace(updatedTokens.begin()+pos+2, "=", tokens[i].file, tokens[i].line, true);
                                 updatedTokens.emplace(updatedTokens.begin()+pos+3, nextName, tokens[i].file, tokens[i].line, true);
-                                updatedTokens.emplace(updatedTokens.begin()+pos+4, ";", tokens[i].file, tokens[i].line, true);
+                                updatedTokens.emplace(updatedTokens.begin()+pos+4, ";", tokens[i].file, tokens[i].line, true);*/
+                                updatedTokens.emplace(updatedTokens.begin()+pos+1, closureName, tokens[i].file, tokens[i].line, true);
+                                updatedTokens.emplace(updatedTokens.begin()+pos+2, "=", tokens[i].file, tokens[i].line, true);
+                                updatedTokens.emplace(updatedTokens.begin()+pos+3, "this", tokens[i].file, tokens[i].line, true);
+                                updatedTokens.emplace(updatedTokens.begin()+pos+4, ".", tokens[i].file, tokens[i].line, true);
+                                updatedTokens.emplace(updatedTokens.begin()+pos+5, nextName, tokens[i].file, tokens[i].line, true);
+                                updatedTokens.emplace(updatedTokens.begin()+pos+6, ";", tokens[i].file, tokens[i].line, true);
                             }
                         }
-                        if(updatedTokens[pos-1].name!="new") prevInMethod = pos; else prevInMethod = 0;
+                        // if(updatedTokens[pos-1].name!="new") prevInMethod = pos; else prevInMethod = 0;
                         closureName = nextName;
                         nextName = closureName.substr(1);
                         hasProgressed = true;
