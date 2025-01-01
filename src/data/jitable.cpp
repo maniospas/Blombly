@@ -98,6 +98,19 @@ public:
 int compilationCounter = 0;
 
 
+#ifdef _WIN32
+#include <windows.h>
+#include <string>
+
+// Helper function to convert std::string to std::wstring
+std::wstring toWideString(const std::string& str) {
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), (int)str.size(), NULL, 0);
+    std::wstring wstrTo(size_needed, 0);
+    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), (int)str.size(), &wstrTo[0], size_needed);
+    return wstrTo;
+}
+#endif
+
 class Compile {
     void *handle;
     void *func;
@@ -110,7 +123,9 @@ public:
         #ifdef _WIN32
         int ret = system(("gcc -O2 -shared -o ./" + filename + ".dll ./" + filename + ".c").c_str());
         bbassert(ret == 0, "Compilation failed");
-        handle = LoadLibrary(("./" + filename + ".dll").c_str());
+
+        std::wstring wideFilename = toWideString("./" + filename + ".dll");
+        handle = LoadLibraryW(wideFilename.c_str());
         bbassert(handle != nullptr, "Failed to load DLL");
         #else
         int ret = system(("gcc -O2 -march=native -shared -fPIC ./" + filename + ".c -o ./" + filename + ".so").c_str());
@@ -147,7 +162,6 @@ public:
 
     void* get() { return func; }
 };
-
 
 class JitCode : public Jitable {
 private:
