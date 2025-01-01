@@ -1,0 +1,991 @@
+%{final black="\e[0;30m";final red="\e[0; //libs/ansi.bb line 1
+BEGIN _bb15
+%final red="\e[0;31m" //libs/ansi.bb line 3
+BUILTIN red "\e[0;31m"
+final # red
+%final green="\e[0;32m" //libs/ansi.bb line 4
+BUILTIN green "\e[0;32m"
+final # green
+%final reset="\e[0m" //libs/ansi.bb line 18
+BUILTIN reset "\e[0m"
+final # reset
+return # this
+END
+%new{final black="\e[0;30m";final red="\e //libs/ansi.bb line 1
+new ansi _bb15
+final # ansi
+%{final push_back(element)={return new{.e //libs/collections.bb line 1
+BEGIN _bb35
+%{return new{.element=this.element;call(A //libs/collections.bb line 2
+BEGIN _bb36
+next element args
+%{.element=this.element;call(A)={..elemen //libs/collections.bb line 2
+BEGIN _bb39
+%this.element //libs/collections.bb line 2
+get _bb40 this element
+IS .element _bb40
+%{..element=this..element;push(A,..elemen //libs/collections.bb line 2
+BEGIN _bb41
+next A args
+%this..element //libs/collections.bb line 2
+get _bb42 this .element
+IS ..element _bb42
+%push(A,..element) //libs/collections.bb line 2
+push # A ..element
+%returnA //libs/collections.bb line 2
+return # A
+END
+IS call _bb41
+return # this
+END
+%new{.element=this.element;call(A)={..ele //libs/collections.bb line 2
+new _bb37 _bb39
+%return new{.element=this.element;call(A) //libs/collections.bb line 2
+return # _bb37
+END
+IS push_back _bb36
+final # push_back
+%return new{.func=this.func;call(A)={..fu //libs/collections.bb line 8
+return # this
+END
+%new{final push_back(element)={return new //libs/collections.bb line 1
+new collection _bb35
+final # collection
+%{call(value)={return bbvm::str(value);}f //libs/collections.bb line 17
+BEGIN _bb60
+%{return bbvm::str(value);} //libs/collections.bb line 18
+BEGIN _bb61
+next value args
+%bbvm::str(value) //libs/collections.bb line 18
+str _bb62 value
+%return bbvm::str(value) //libs/collections.bb line 18
+return # _bb62
+END
+IS call _bb61
+%{return new{.query=this.query;call(str s //libs/collections.bb line 20
+BEGIN _bb63
+next query args
+str query query
+%{.query=this.query;call(str search)={..q //libs/collections.bb line 20
+BEGIN _bb66
+%this.query //libs/collections.bb line 20
+get _bb67 this query
+IS .query _bb67
+%{..query=this..query;query=..query;nsear //libs/collections.bb line 20
+BEGIN _bb68
+next search args
+str search search
+%this..query //libs/collections.bb line 20
+get _bb69 this .query
+IS ..query _bb69
+%query=..query //libs/collections.bb line 20
+IS query ..query
+%search|len //libs/collections.bb line 20
+len nsearch search
+%query|len //libs/collections.bb line 20
+len nquery query
+%if(nsearch<nquery)return false //libs/collections.bb line 20
+BEGIN _bb72
+BUILTIN _bb73 Bfalse
+%return false //libs/collections.bb line 20
+return # _bb73
+END
+%nsearch<nquery //libs/collections.bb line 20
+lt _bb74 nsearch nquery
+%if(nsearch<nquery)return false //libs/collections.bb line 20
+if # _bb74 _bb72
+%range(nquery) //libs/collections.bb line 20
+range _bb75 nquery
+%bbvm::iter(range(nquery)) //libs/collections.bb line 20
+iter _bbmacro1 _bb75
+%while(ias bbvm::next(_bbmacro1))if(query //libs/collections.bb line 20
+BEGIN _bb77
+%bbvm::next(_bbmacro1) //libs/collections.bb line 20
+next _bb78 _bbmacro1
+AS i _bb78
+exists _bb79 i
+END
+BEGIN _bb80
+%if(query[i]!= search[i])return false //libs/collections.bb line 20
+BEGIN _bb81
+BUILTIN _bb82 Bfalse
+%return false //libs/collections.bb line 20
+return # _bb82
+END
+%search[i] //libs/collections.bb line 20
+at _bb84 search i
+%query[i] //libs/collections.bb line 20
+at _bb85 query i
+neq _bb83 _bb85 _bb84
+%if(query[i]!= search[i])return false //libs/collections.bb line 20
+if # _bb83 _bb81
+END
+%while(ias bbvm::next(_bbmacro1))if(query //libs/collections.bb line 20
+while # _bb77 _bb80
+BUILTIN _bb86 Btrue
+%return true //libs/collections.bb line 20
+return # _bb86
+END
+IS call _bb68
+return # this
+END
+%new{.query=this.query;call(str search)={ //libs/collections.bb line 20
+new _bb64 _bb66
+%return new{.query=this.query;call(str se //libs/collections.bb line 20
+return # _bb64
+END
+IS starts_with _bb63
+final # starts_with
+%{return new{.query=this.query;call(str s //libs/collections.bb line 30
+BEGIN _bb87
+next query args
+str query query
+%{.query=this.query;call(str search)={..q //libs/collections.bb line 30
+BEGIN _bb90
+%this.query //libs/collections.bb line 30
+get _bb91 this query
+IS .query _bb91
+%{..query=this..query;query=..query;nsear //libs/collections.bb line 30
+BEGIN _bb92
+next search args
+str search search
+%this..query //libs/collections.bb line 30
+get _bb93 this .query
+IS ..query _bb93
+%query=..query //libs/collections.bb line 30
+IS query ..query
+%search|len //libs/collections.bb line 30
+len nsearch search
+%query|len //libs/collections.bb line 30
+len nquery query
+%if(nsearch<nquery)return false //libs/collections.bb line 30
+BEGIN _bb96
+BUILTIN _bb97 Bfalse
+%return false //libs/collections.bb line 30
+return # _bb97
+END
+%nsearch<nquery //libs/collections.bb line 30
+lt _bb98 nsearch nquery
+%if(nsearch<nquery)return false //libs/collections.bb line 30
+if # _bb98 _bb96
+%range(nquery) //libs/collections.bb line 30
+range _bb99 nquery
+%bbvm::iter(range(nquery)) //libs/collections.bb line 30
+iter _bbmacro2 _bb99
+%while(ias bbvm::next(_bbmacro2))if(query //libs/collections.bb line 30
+BEGIN _bb101
+%bbvm::next(_bbmacro2) //libs/collections.bb line 30
+next _bb102 _bbmacro2
+AS i _bb102
+exists _bb103 i
+END
+BEGIN _bb104
+%if(query[i]!= search[nsearch-nquery+i])r //libs/collections.bb line 30
+BEGIN _bb105
+BUILTIN _bb106 Bfalse
+%return false //libs/collections.bb line 30
+return # _bb106
+END
+%nsearch-nquery //libs/collections.bb line 30
+sub _bb110 nsearch nquery
+add _bb109 _bb110 i
+%search[nsearch-nquery+i] //libs/collections.bb line 30
+at _bb108 search _bb109
+%query[i] //libs/collections.bb line 30
+at _bb111 query i
+neq _bb107 _bb111 _bb108
+%if(query[i]!= search[nsearch-nquery+i])r //libs/collections.bb line 30
+if # _bb107 _bb105
+END
+%while(ias bbvm::next(_bbmacro2))if(query //libs/collections.bb line 30
+while # _bb101 _bb104
+BUILTIN _bb112 Btrue
+%return true //libs/collections.bb line 30
+return # _bb112
+END
+IS call _bb92
+return # this
+END
+%new{.query=this.query;call(str search)={ //libs/collections.bb line 30
+new _bb88 _bb90
+%return new{.query=this.query;call(str se //libs/collections.bb line 30
+return # _bb88
+END
+IS ends_with _bb87
+final # ends_with
+%return new{.query=this.query;default max //libs/collections.bb line 54
+return # this
+END
+%new{call(value)={return bbvm::str(value) //libs/collections.bb line 17
+new string _bb60
+final # string
+%{A=1,2,3,4;if((A[1]==2)== false)fail("As //tests/all.bb line 1
+BEGIN _bb184
+%1,2,3,4 //tests/list.bb line 1
+BUILTIN _bb185 I1
+BUILTIN _bb186 I2
+BUILTIN _bb187 I3
+BUILTIN _bb188 I4
+%1,2,3,4 //tests/list.bb line 1
+list A _bb185 _bb186 _bb187 _bb188
+%if((A[1]==2)== false)fail("Assertion fai //tests/list.bb line 2
+BEGIN _bb190
+%("Assertion failed: A[1]==2") //tests/list.bb line 2
+BUILTIN _bb191 "Assertion failed: A[1]==2"
+%fail("Assertion failed: A[1]==2") //tests/list.bb line 2
+fail # _bb191
+END
+%(A[1]==2)== false //tests/list.bb line 2
+BUILTIN _bb193 Bfalse
+%A[1]==2 //tests/list.bb line 2
+BUILTIN _bb195 I2
+%A[1] //tests/list.bb line 2
+BUILTIN _bb197 I1
+%A[1] //tests/list.bb line 2
+at _bb196 A _bb197
+eq _bb194 _bb196 _bb195
+eq _bb192 _bb194 _bb193
+%if((A[1]==2)== false)fail("Assertion fai //tests/list.bb line 2
+if # _bb192 _bb190
+%if((A|next ==1)== false)fail("Assertion  //tests/list.bb line 3
+BEGIN _bb198
+%("Assertion failed: A|next==1") //tests/list.bb line 3
+BUILTIN _bb199 "Assertion failed: A|next==1"
+%fail("Assertion failed: A|next==1") //tests/list.bb line 3
+fail # _bb199
+END
+%(A|next ==1)== false //tests/list.bb line 3
+BUILTIN _bb201 Bfalse
+%A|next ==1 //tests/list.bb line 3
+BUILTIN _bb203 I1
+%A|next //tests/list.bb line 3
+next _bb204 A
+eq _bb202 _bb204 _bb203
+eq _bb200 _bb202 _bb201
+%if((A|next ==1)== false)fail("Assertion  //tests/list.bb line 3
+if # _bb200 _bb198
+%if((A|next ==2)== false)fail("Assertion  //tests/list.bb line 4
+BEGIN _bb205
+%("Assertion failed: A|next==2") //tests/list.bb line 4
+BUILTIN _bb206 "Assertion failed: A|next==2"
+%fail("Assertion failed: A|next==2") //tests/list.bb line 4
+fail # _bb206
+END
+%(A|next ==2)== false //tests/list.bb line 4
+BUILTIN _bb208 Bfalse
+%A|next ==2 //tests/list.bb line 4
+BUILTIN _bb210 I2
+%A|next //tests/list.bb line 4
+next _bb211 A
+eq _bb209 _bb211 _bb210
+eq _bb207 _bb209 _bb208
+%if((A|next ==2)== false)fail("Assertion  //tests/list.bb line 4
+if # _bb207 _bb205
+%if((A|pop ==4)== false)fail("Assertion f //tests/list.bb line 5
+BEGIN _bb212
+%("Assertion failed: A|pop==4") //tests/list.bb line 5
+BUILTIN _bb213 "Assertion failed: A|pop==4"
+%fail("Assertion failed: A|pop==4") //tests/list.bb line 5
+fail # _bb213
+END
+%(A|pop ==4)== false //tests/list.bb line 5
+BUILTIN _bb215 Bfalse
+%A|pop ==4 //tests/list.bb line 5
+BUILTIN _bb217 I4
+%A|pop //tests/list.bb line 5
+pop _bb218 A
+eq _bb216 _bb218 _bb217
+eq _bb214 _bb216 _bb215
+%if((A|pop ==4)== false)fail("Assertion f //tests/list.bb line 5
+if # _bb214 _bb212
+%if((A|pop ==3)== false)fail("Assertion f //tests/list.bb line 6
+BEGIN _bb219
+%("Assertion failed: A|pop==3") //tests/list.bb line 6
+BUILTIN _bb220 "Assertion failed: A|pop==3"
+%fail("Assertion failed: A|pop==3") //tests/list.bb line 6
+fail # _bb220
+END
+%(A|pop ==3)== false //tests/list.bb line 6
+BUILTIN _bb222 Bfalse
+%A|pop ==3 //tests/list.bb line 6
+BUILTIN _bb224 I3
+%A|pop //tests/list.bb line 6
+pop _bb225 A
+eq _bb223 _bb225 _bb224
+eq _bb221 _bb223 _bb222
+%if((A|pop ==3)== false)fail("Assertion f //tests/list.bb line 6
+if # _bb221 _bb219
+%if((A|len ==0)== false)fail("Assertion f //tests/list.bb line 7
+BEGIN _bb226
+%("Assertion failed: A|len==0") //tests/list.bb line 7
+BUILTIN _bb227 "Assertion failed: A|len==0"
+%fail("Assertion failed: A|len==0") //tests/list.bb line 7
+fail # _bb227
+END
+%(A|len ==0)== false //tests/list.bb line 7
+BUILTIN _bb229 Bfalse
+%A|len ==0 //tests/list.bb line 7
+BUILTIN _bb231 I0
+%A|len //tests/list.bb line 7
+len _bb232 A
+eq _bb230 _bb232 _bb231
+eq _bb228 _bb230 _bb229
+%if((A|len ==0)== false)fail("Assertion f //tests/list.bb line 7
+if # _bb228 _bb226
+%push(A,5) //tests/list.bb line 8
+BUILTIN _bb233 I5
+%push(A,5) //tests/list.bb line 8
+push # A _bb233
+%if((A|pop ==5)== false)fail("Assertion f //tests/list.bb line 9
+BEGIN _bb234
+%("Assertion failed: A|pop==5") //tests/list.bb line 9
+BUILTIN _bb235 "Assertion failed: A|pop==5"
+%fail("Assertion failed: A|pop==5") //tests/list.bb line 9
+fail # _bb235
+END
+%(A|pop ==5)== false //tests/list.bb line 9
+BUILTIN _bb237 Bfalse
+%A|pop ==5 //tests/list.bb line 9
+BUILTIN _bb239 I5
+%A|pop //tests/list.bb line 9
+pop _bb240 A
+eq _bb238 _bb240 _bb239
+eq _bb236 _bb238 _bb237
+%if((A|pop ==5)== false)fail("Assertion f //tests/list.bb line 9
+if # _bb236 _bb234
+return # #
+END
+%try{A=1,2,3,4;if((A[1]==2)== false)fail( //tests/all.bb line 1
+try _bbmacro5 _bb184
+%catch(_bbmacro5)print("[ "+str(ansi.red) //tests/all.bb line 1
+BEGIN _bb241
+%str(_bbmacro5) //tests/all.bb line 1
+str _bb243 _bbmacro5
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 1
+BUILTIN _bb245 "\n"
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 1
+BUILTIN _bb247 "List"
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 1
+BUILTIN _bb249 " ] "
+%ansi.reset //tests/all.bb line 1
+get _bb251 ansi reset
+%str(ansi.reset) //tests/all.bb line 1
+str _bb252 _bb251
+%"[ "+str(ansi.red)+"fail" //tests/all.bb line 1
+BUILTIN _bb254 "fail"
+%ansi.red //tests/all.bb line 1
+get _bb256 ansi red
+%str(ansi.red) //tests/all.bb line 1
+str _bb257 _bb256
+BUILTIN _bb258 "[ "
+add _bb255 _bb258 _bb257
+add _bb253 _bb255 _bb254
+add _bb250 _bb253 _bb252
+add _bb248 _bb250 _bb249
+add _bb246 _bb248 _bb247
+add _bb244 _bb246 _bb245
+add _bb242 _bb244 _bb243
+%print("[ "+str(ansi.red)+"fail"+str(ansi //tests/all.bb line 1
+print # _bb242
+END
+BEGIN _bb259
+%"[  "+str(ansi.green)+"ok"+str(ansi.rese //tests/all.bb line 1
+BUILTIN _bb261 "List"
+%"[  "+str(ansi.green)+"ok"+str(ansi.rese //tests/all.bb line 1
+BUILTIN _bb263 "  ] "
+%ansi.reset //tests/all.bb line 1
+get _bb265 ansi reset
+%str(ansi.reset) //tests/all.bb line 1
+str _bb266 _bb265
+%"[  "+str(ansi.green)+"ok" //tests/all.bb line 1
+BUILTIN _bb268 "ok"
+%ansi.green //tests/all.bb line 1
+get _bb270 ansi green
+%str(ansi.green) //tests/all.bb line 1
+str _bb271 _bb270
+BUILTIN _bb272 "[  "
+add _bb269 _bb272 _bb271
+add _bb267 _bb269 _bb268
+add _bb264 _bb267 _bb266
+add _bb262 _bb264 _bb263
+add _bb260 _bb262 _bb261
+%print("[  "+str(ansi.green)+"ok"+str(ans //tests/all.bb line 1
+print # _bb260
+END
+%catch(_bbmacro5)print("[ "+str(ansi.red) //tests/all.bb line 1
+catch # _bbmacro5 _bb241 _bb259
+%{s=0;_bbmacro7=bbvm::iter(range(10));whi //tests/all.bb line 2
+BEGIN _bb275
+%s=0 //tests/range.bb line 1
+BUILTIN s I0
+%range(10) //tests/range.bb line 2
+BUILTIN _bb278 I10
+%range(10) //tests/range.bb line 2
+range _bb277 _bb278
+%bbvm::iter(range(10)) //tests/range.bb line 2
+iter _bbmacro7 _bb277
+%while(ias bbvm::next(_bbmacro7))s+=i //tests/range.bb line 2
+BEGIN _bb280
+%bbvm::next(_bbmacro7) //tests/range.bb line 2
+next _bb281 _bbmacro7
+AS i _bb281
+exists _bb282 i
+END
+BEGIN _bb283
+%s+=i //tests/range.bb line 2
+add s s i
+END
+%while(ias bbvm::next(_bbmacro7))s+=i //tests/range.bb line 2
+while # _bb280 _bb283
+%if((s== 45)== false)fail("Assertion fail //tests/range.bb line 3
+BEGIN _bb284
+%("Assertion failed: s==45") //tests/range.bb line 3
+BUILTIN _bb285 "Assertion failed: s==45"
+%fail("Assertion failed: s==45") //tests/range.bb line 3
+fail # _bb285
+END
+%(s== 45)== false //tests/range.bb line 3
+BUILTIN _bb287 Bfalse
+%s== 45 //tests/range.bb line 3
+BUILTIN _bb289 I45
+eq _bb288 s _bb289
+eq _bb286 _bb288 _bb287
+%if((s== 45)== false)fail("Assertion fail //tests/range.bb line 3
+if # _bb286 _bb284
+return # #
+END
+%try{s=0;_bbmacro7=bbvm::iter(range(10)); //tests/all.bb line 2
+try _bbmacro6 _bb275
+%catch(_bbmacro6)print("[ "+str(ansi.red) //tests/all.bb line 2
+BEGIN _bb290
+%str(_bbmacro6) //tests/all.bb line 2
+str _bb292 _bbmacro6
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 2
+BUILTIN _bb294 "\n"
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 2
+BUILTIN _bb296 "Range"
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 2
+BUILTIN _bb298 " ] "
+%ansi.reset //tests/all.bb line 2
+get _bb300 ansi reset
+%str(ansi.reset) //tests/all.bb line 2
+str _bb301 _bb300
+%"[ "+str(ansi.red)+"fail" //tests/all.bb line 2
+BUILTIN _bb303 "fail"
+%ansi.red //tests/all.bb line 2
+get _bb305 ansi red
+%str(ansi.red) //tests/all.bb line 2
+str _bb306 _bb305
+BUILTIN _bb307 "[ "
+add _bb304 _bb307 _bb306
+add _bb302 _bb304 _bb303
+add _bb299 _bb302 _bb301
+add _bb297 _bb299 _bb298
+add _bb295 _bb297 _bb296
+add _bb293 _bb295 _bb294
+add _bb291 _bb293 _bb292
+%print("[ "+str(ansi.red)+"fail"+str(ansi //tests/all.bb line 2
+print # _bb291
+END
+BEGIN _bb308
+%"[  "+str(ansi.green)+"ok"+str(ansi.rese //tests/all.bb line 2
+BUILTIN _bb310 "Range"
+%"[  "+str(ansi.green)+"ok"+str(ansi.rese //tests/all.bb line 2
+BUILTIN _bb312 "  ] "
+%ansi.reset //tests/all.bb line 2
+get _bb314 ansi reset
+%str(ansi.reset) //tests/all.bb line 2
+str _bb315 _bb314
+%"[  "+str(ansi.green)+"ok" //tests/all.bb line 2
+BUILTIN _bb317 "ok"
+%ansi.green //tests/all.bb line 2
+get _bb319 ansi green
+%str(ansi.green) //tests/all.bb line 2
+str _bb320 _bb319
+BUILTIN _bb321 "[  "
+add _bb318 _bb321 _bb320
+add _bb316 _bb318 _bb317
+add _bb313 _bb316 _bb315
+add _bb311 _bb313 _bb312
+add _bb309 _bb311 _bb310
+%print("[  "+str(ansi.green)+"ok"+str(ans //tests/all.bb line 2
+print # _bb309
+END
+%catch(_bbmacro6)print("[ "+str(ansi.red) //tests/all.bb line 2
+catch # _bbmacro6 _bb290 _bb308
+%{A=1,2,3;s=0;_bbmacro9=bbvm::iter(A);whi //tests/all.bb line 3
+BEGIN _bb324
+%1,2,3 //tests/iter.bb line 1
+BUILTIN _bb325 I1
+BUILTIN _bb326 I2
+BUILTIN _bb327 I3
+%1,2,3 //tests/iter.bb line 1
+list A _bb325 _bb326 _bb327
+%s=0 //tests/iter.bb line 2
+BUILTIN s I0
+%bbvm::iter(A) //tests/iter.bb line 3
+iter _bbmacro9 A
+%while(xas bbvm::next(_bbmacro9))s+=x //tests/iter.bb line 3
+BEGIN _bb331
+%bbvm::next(_bbmacro9) //tests/iter.bb line 3
+next _bb332 _bbmacro9
+AS x _bb332
+exists _bb333 x
+END
+BEGIN _bb334
+%s+=x //tests/iter.bb line 3
+add s s x
+END
+%while(xas bbvm::next(_bbmacro9))s+=x //tests/iter.bb line 3
+while # _bb331 _bb334
+%iter(A) //tests/iter.bb line 5
+iter it A
+%while(xas bbvm::next(it))s-=x //tests/iter.bb line 6
+BEGIN _bb336
+%bbvm::next(it) //tests/iter.bb line 6
+next _bb337 it
+AS x _bb337
+exists _bb338 x
+END
+BEGIN _bb339
+%s-=x //tests/iter.bb line 6
+sub s s x
+END
+%while(xas bbvm::next(it))s-=x //tests/iter.bb line 6
+while # _bb336 _bb339
+%if((s==0)== false)fail("Assertion failed //tests/iter.bb line 8
+BEGIN _bb340
+%("Assertion failed: s==0") //tests/iter.bb line 8
+BUILTIN _bb341 "Assertion failed: s==0"
+%fail("Assertion failed: s==0") //tests/iter.bb line 8
+fail # _bb341
+END
+%(s==0)== false //tests/iter.bb line 8
+BUILTIN _bb343 Bfalse
+%s==0 //tests/iter.bb line 8
+BUILTIN _bb345 I0
+eq _bb344 s _bb345
+eq _bb342 _bb344 _bb343
+%if((s==0)== false)fail("Assertion failed //tests/iter.bb line 8
+if # _bb342 _bb340
+return # #
+END
+%try{A=1,2,3;s=0;_bbmacro9=bbvm::iter(A); //tests/all.bb line 3
+try _bbmacro8 _bb324
+%catch(_bbmacro8)print("[ "+str(ansi.red) //tests/all.bb line 3
+BEGIN _bb346
+%str(_bbmacro8) //tests/all.bb line 3
+str _bb348 _bbmacro8
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 3
+BUILTIN _bb350 "\n"
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 3
+BUILTIN _bb352 "Iteration"
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 3
+BUILTIN _bb354 " ] "
+%ansi.reset //tests/all.bb line 3
+get _bb356 ansi reset
+%str(ansi.reset) //tests/all.bb line 3
+str _bb357 _bb356
+%"[ "+str(ansi.red)+"fail" //tests/all.bb line 3
+BUILTIN _bb359 "fail"
+%ansi.red //tests/all.bb line 3
+get _bb361 ansi red
+%str(ansi.red) //tests/all.bb line 3
+str _bb362 _bb361
+BUILTIN _bb363 "[ "
+add _bb360 _bb363 _bb362
+add _bb358 _bb360 _bb359
+add _bb355 _bb358 _bb357
+add _bb353 _bb355 _bb354
+add _bb351 _bb353 _bb352
+add _bb349 _bb351 _bb350
+add _bb347 _bb349 _bb348
+%print("[ "+str(ansi.red)+"fail"+str(ansi //tests/all.bb line 3
+print # _bb347
+END
+BEGIN _bb364
+%"[  "+str(ansi.green)+"ok"+str(ansi.rese //tests/all.bb line 3
+BUILTIN _bb366 "Iteration"
+%"[  "+str(ansi.green)+"ok"+str(ansi.rese //tests/all.bb line 3
+BUILTIN _bb368 "  ] "
+%ansi.reset //tests/all.bb line 3
+get _bb370 ansi reset
+%str(ansi.reset) //tests/all.bb line 3
+str _bb371 _bb370
+%"[  "+str(ansi.green)+"ok" //tests/all.bb line 3
+BUILTIN _bb373 "ok"
+%ansi.green //tests/all.bb line 3
+get _bb375 ansi green
+%str(ansi.green) //tests/all.bb line 3
+str _bb376 _bb375
+BUILTIN _bb377 "[  "
+add _bb374 _bb377 _bb376
+add _bb372 _bb374 _bb373
+add _bb369 _bb372 _bb371
+add _bb367 _bb369 _bb368
+add _bb365 _bb367 _bb366
+%print("[  "+str(ansi.green)+"ok"+str(ans //tests/all.bb line 3
+print # _bb365
+END
+%catch(_bbmacro8)print("[ "+str(ansi.red) //tests/all.bb line 3
+catch # _bbmacro8 _bb346 _bb364
+%{Struct={.x=this.x;x=0;xthis={return thi //tests/all.bb line 4
+BEGIN _bb380
+%{.x=this.x;x=0;xthis={return this.x;}xcl //tests/closure.bb line 1
+BEGIN _bb381
+%this.x //tests/closure.bb line 4
+get _bb382 this x
+IS .x _bb382
+%x=0 //tests/closure.bb line 2
+BUILTIN x I0
+%{return this.x;} //tests/closure.bb line 3
+BEGIN _bb384
+%this.x //tests/closure.bb line 3
+get _bb385 this x
+%return this.x //tests/closure.bb line 3
+return # _bb385
+END
+IS xthis _bb384
+%{..x=this..x;return ..x;} //tests/closure.bb line 4
+BEGIN _bb386
+%this..x //tests/closure.bb line 4
+get _bb387 this .x
+IS ..x _bb387
+%return ..x //tests/closure.bb line 4
+return # ..x
+END
+IS xclosure _bb386
+END
+IS Struct _bb381
+%x=1 //tests/closure.bb line 6
+BUILTIN x I1
+%{Struct:} //tests/closure.bb line 7
+BEGIN _bb391
+%Struct: //tests/closure.bb line 7
+inline _bb392 Struct
+return # this
+END
+%new{Struct:} //tests/closure.bb line 7
+new struct _bb391
+%x=2 //tests/closure.bb line 8
+BUILTIN x I2
+%if((struct.xthis()==0)== false)fail("Ass //tests/closure.bb line 10
+BEGIN _bb394
+%("Assertion failed: struct.xthis()==0") //tests/closure.bb line 10
+BUILTIN _bb395 "Assertion failed: struct.xthis()==0"
+%fail("Assertion failed: struct.xthis()== //tests/closure.bb line 10
+fail # _bb395
+END
+%(struct.xthis()==0)== false //tests/closure.bb line 10
+BUILTIN _bb397 Bfalse
+%struct.xthis()==0 //tests/closure.bb line 10
+BUILTIN _bb399 I0
+%struct.xthis //tests/closure.bb line 10
+get _bb401 struct xthis
+%struct.xthis() //tests/closure.bb line 10
+call _bb400 # _bb401
+eq _bb398 _bb400 _bb399
+eq _bb396 _bb398 _bb397
+%if((struct.xthis()==0)== false)fail("Ass //tests/closure.bb line 10
+if # _bb396 _bb394
+%if((struct.xclosure()==1)== false)fail(" //tests/closure.bb line 11
+BEGIN _bb402
+%("Assertion failed: struct.xclosure()==1 //tests/closure.bb line 11
+BUILTIN _bb403 "Assertion failed: struct.xclosure()==1"
+%fail("Assertion failed: struct.xclosure( //tests/closure.bb line 11
+fail # _bb403
+END
+%(struct.xclosure()==1)== false //tests/closure.bb line 11
+BUILTIN _bb405 Bfalse
+%struct.xclosure()==1 //tests/closure.bb line 11
+BUILTIN _bb407 I1
+%struct.xclosure //tests/closure.bb line 11
+get _bb409 struct xclosure
+%struct.xclosure() //tests/closure.bb line 11
+call _bb408 # _bb409
+eq _bb406 _bb408 _bb407
+eq _bb404 _bb406 _bb405
+%if((struct.xclosure()==1)== false)fail(" //tests/closure.bb line 11
+if # _bb404 _bb402
+return # #
+END
+%try{Struct={.x=this.x;x=0;xthis={return  //tests/all.bb line 4
+try _bbmacro10 _bb380
+%catch(_bbmacro10)print("[ "+str(ansi.red //tests/all.bb line 4
+BEGIN _bb410
+%str(_bbmacro10) //tests/all.bb line 4
+str _bb412 _bbmacro10
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 4
+BUILTIN _bb414 "\n"
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 4
+BUILTIN _bb416 "Closure"
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 4
+BUILTIN _bb418 " ] "
+%ansi.reset //tests/all.bb line 4
+get _bb420 ansi reset
+%str(ansi.reset) //tests/all.bb line 4
+str _bb421 _bb420
+%"[ "+str(ansi.red)+"fail" //tests/all.bb line 4
+BUILTIN _bb423 "fail"
+%ansi.red //tests/all.bb line 4
+get _bb425 ansi red
+%str(ansi.red) //tests/all.bb line 4
+str _bb426 _bb425
+BUILTIN _bb427 "[ "
+add _bb424 _bb427 _bb426
+add _bb422 _bb424 _bb423
+add _bb419 _bb422 _bb421
+add _bb417 _bb419 _bb418
+add _bb415 _bb417 _bb416
+add _bb413 _bb415 _bb414
+add _bb411 _bb413 _bb412
+%print("[ "+str(ansi.red)+"fail"+str(ansi //tests/all.bb line 4
+print # _bb411
+END
+BEGIN _bb428
+%"[  "+str(ansi.green)+"ok"+str(ansi.rese //tests/all.bb line 4
+BUILTIN _bb430 "Closure"
+%"[  "+str(ansi.green)+"ok"+str(ansi.rese //tests/all.bb line 4
+BUILTIN _bb432 "  ] "
+%ansi.reset //tests/all.bb line 4
+get _bb434 ansi reset
+%str(ansi.reset) //tests/all.bb line 4
+str _bb435 _bb434
+%"[  "+str(ansi.green)+"ok" //tests/all.bb line 4
+BUILTIN _bb437 "ok"
+%ansi.green //tests/all.bb line 4
+get _bb439 ansi green
+%str(ansi.green) //tests/all.bb line 4
+str _bb440 _bb439
+BUILTIN _bb441 "[  "
+add _bb438 _bb441 _bb440
+add _bb436 _bb438 _bb437
+add _bb433 _bb436 _bb435
+add _bb431 _bb433 _bb432
+add _bb429 _bb431 _bb430
+%print("[  "+str(ansi.green)+"ok"+str(ans //tests/all.bb line 4
+print # _bb429
+END
+%catch(_bbmacro10)print("[ "+str(ansi.red //tests/all.bb line 4
+catch # _bbmacro10 _bb410 _bb428
+%{A=1,2,3;A=A|collection.push_back(4);if( //tests/all.bb line 5
+BEGIN _bb444
+%1,2,3 //tests/collection.bb line 1
+BUILTIN _bb445 I1
+BUILTIN _bb446 I2
+BUILTIN _bb447 I3
+%1,2,3 //tests/collection.bb line 1
+list A _bb445 _bb446 _bb447
+%A|collection.push_back(4) //tests/collection.bb line 2
+BEGIN _bb450
+list args A
+END
+%collection.push_back(4) //tests/collection.bb line 2
+BEGIN _bb453
+BUILTIN _bb454 I4
+list args _bb454
+END
+%collection.push_back //tests/collection.bb line 2
+get _bb455 collection push_back
+%collection.push_back(4) //tests/collection.bb line 2
+call _bb452 _bb453 _bb455
+%A|collection.push_back(4) //tests/collection.bb line 2
+call _bb449 _bb450 _bb452
+IS A _bb449
+%if((A|pop ==4)== false)fail("Assertion f //tests/collection.bb line 3
+BEGIN _bb456
+%("Assertion failed: A|pop==4") //tests/collection.bb line 3
+BUILTIN _bb457 "Assertion failed: A|pop==4"
+%fail("Assertion failed: A|pop==4") //tests/collection.bb line 3
+fail # _bb457
+END
+%(A|pop ==4)== false //tests/collection.bb line 3
+BUILTIN _bb459 Bfalse
+%A|pop ==4 //tests/collection.bb line 3
+BUILTIN _bb461 I4
+%A|pop //tests/collection.bb line 3
+pop _bb462 A
+eq _bb460 _bb462 _bb461
+eq _bb458 _bb460 _bb459
+%if((A|pop ==4)== false)fail("Assertion f //tests/collection.bb line 3
+if # _bb458 _bb456
+return # #
+END
+%try{A=1,2,3;A=A|collection.push_back(4); //tests/all.bb line 5
+try _bbmacro11 _bb444
+%catch(_bbmacro11)print("[ "+str(ansi.red //tests/all.bb line 5
+BEGIN _bb463
+%str(_bbmacro11) //tests/all.bb line 5
+str _bb465 _bbmacro11
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 5
+BUILTIN _bb467 "\n"
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 5
+BUILTIN _bb469 "Collection"
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 5
+BUILTIN _bb471 " ] "
+%ansi.reset //tests/all.bb line 5
+get _bb473 ansi reset
+%str(ansi.reset) //tests/all.bb line 5
+str _bb474 _bb473
+%"[ "+str(ansi.red)+"fail" //tests/all.bb line 5
+BUILTIN _bb476 "fail"
+%ansi.red //tests/all.bb line 5
+get _bb478 ansi red
+%str(ansi.red) //tests/all.bb line 5
+str _bb479 _bb478
+BUILTIN _bb480 "[ "
+add _bb477 _bb480 _bb479
+add _bb475 _bb477 _bb476
+add _bb472 _bb475 _bb474
+add _bb470 _bb472 _bb471
+add _bb468 _bb470 _bb469
+add _bb466 _bb468 _bb467
+add _bb464 _bb466 _bb465
+%print("[ "+str(ansi.red)+"fail"+str(ansi //tests/all.bb line 5
+print # _bb464
+END
+BEGIN _bb481
+%"[  "+str(ansi.green)+"ok"+str(ansi.rese //tests/all.bb line 5
+BUILTIN _bb483 "Collection"
+%"[  "+str(ansi.green)+"ok"+str(ansi.rese //tests/all.bb line 5
+BUILTIN _bb485 "  ] "
+%ansi.reset //tests/all.bb line 5
+get _bb487 ansi reset
+%str(ansi.reset) //tests/all.bb line 5
+str _bb488 _bb487
+%"[  "+str(ansi.green)+"ok" //tests/all.bb line 5
+BUILTIN _bb490 "ok"
+%ansi.green //tests/all.bb line 5
+get _bb492 ansi green
+%str(ansi.green) //tests/all.bb line 5
+str _bb493 _bb492
+BUILTIN _bb494 "[  "
+add _bb491 _bb494 _bb493
+add _bb489 _bb491 _bb490
+add _bb486 _bb489 _bb488
+add _bb484 _bb486 _bb485
+add _bb482 _bb484 _bb483
+%print("[  "+str(ansi.green)+"ok"+str(ans //tests/all.bb line 5
+print # _bb482
+END
+%catch(_bbmacro11)print("[ "+str(ansi.red //tests/all.bb line 5
+catch # _bbmacro11 _bb463 _bb481
+%{A="I like banana!";if((A|string.starts_ //tests/all.bb line 6
+BEGIN _bb497
+%A="I like banana!" //tests/string.bb line 1
+BUILTIN A "I like banana!"
+%if((A|string.starts_with("I like"))== fa //tests/string.bb line 2
+BEGIN _bb499
+%("Assertion failed: A|string.starts_with //tests/string.bb line 2
+BUILTIN _bb500 "Assertion failed: A|string.starts_with(I like)"
+%fail("Assertion failed: A|string.starts_ //tests/string.bb line 2
+fail # _bb500
+END
+%(A|string.starts_with("I like"))== false //tests/string.bb line 2
+BUILTIN _bb502 Bfalse
+%A|string.starts_with("I like") //tests/string.bb line 2
+BEGIN _bb504
+list args A
+END
+%string.starts_with("I like") //tests/string.bb line 2
+BEGIN _bb507
+BUILTIN _bb508 "I like"
+list args _bb508
+END
+%string.starts_with //tests/string.bb line 2
+get _bb509 string starts_with
+%string.starts_with("I like") //tests/string.bb line 2
+call _bb506 _bb507 _bb509
+%A|string.starts_with("I like") //tests/string.bb line 2
+call _bb503 _bb504 _bb506
+eq _bb501 _bb503 _bb502
+%if((A|string.starts_with("I like"))== fa //tests/string.bb line 2
+if # _bb501 _bb499
+%if((A|string.ends_with("banana!"))== fal //tests/string.bb line 3
+BEGIN _bb510
+%("Assertion failed: A|string.ends_with(b //tests/string.bb line 3
+BUILTIN _bb511 "Assertion failed: A|string.ends_with(banana!)"
+%fail("Assertion failed: A|string.ends_wi //tests/string.bb line 3
+fail # _bb511
+END
+%(A|string.ends_with("banana!"))== false //tests/string.bb line 3
+BUILTIN _bb513 Bfalse
+%A|string.ends_with("banana!") //tests/string.bb line 3
+BEGIN _bb515
+list args A
+END
+%string.ends_with("banana!") //tests/string.bb line 3
+BEGIN _bb518
+BUILTIN _bb519 "banana!"
+list args _bb519
+END
+%string.ends_with //tests/string.bb line 3
+get _bb520 string ends_with
+%string.ends_with("banana!") //tests/string.bb line 3
+call _bb517 _bb518 _bb520
+%A|string.ends_with("banana!") //tests/string.bb line 3
+call _bb514 _bb515 _bb517
+eq _bb512 _bb514 _bb513
+%if((A|string.ends_with("banana!"))== fal //tests/string.bb line 3
+if # _bb512 _bb510
+return # #
+END
+%try{A="I like banana!";if((A|string.star //tests/all.bb line 6
+try _bbmacro12 _bb497
+%catch(_bbmacro12)print("[ "+str(ansi.red //tests/all.bb line 6
+BEGIN _bb521
+%str(_bbmacro12) //tests/all.bb line 6
+str _bb523 _bbmacro12
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 6
+BUILTIN _bb525 "\n"
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 6
+BUILTIN _bb527 "String"
+%"[ "+str(ansi.red)+"fail"+str(ansi.reset //tests/all.bb line 6
+BUILTIN _bb529 " ] "
+%ansi.reset //tests/all.bb line 6
+get _bb531 ansi reset
+%str(ansi.reset) //tests/all.bb line 6
+str _bb532 _bb531
+%"[ "+str(ansi.red)+"fail" //tests/all.bb line 6
+BUILTIN _bb534 "fail"
+%ansi.red //tests/all.bb line 6
+get _bb536 ansi red
+%str(ansi.red) //tests/all.bb line 6
+str _bb537 _bb536
+BUILTIN _bb538 "[ "
+add _bb535 _bb538 _bb537
+add _bb533 _bb535 _bb534
+add _bb530 _bb533 _bb532
+add _bb528 _bb530 _bb529
+add _bb526 _bb528 _bb527
+add _bb524 _bb526 _bb525
+add _bb522 _bb524 _bb523
+%print("[ "+str(ansi.red)+"fail"+str(ansi //tests/all.bb line 6
+print # _bb522
+END
+BEGIN _bb539
+%"[  "+str(ansi.green)+"ok"+str(ansi.rese //tests/all.bb line 6
+BUILTIN _bb541 "String"
+%"[  "+str(ansi.green)+"ok"+str(ansi.rese //tests/all.bb line 6
+BUILTIN _bb543 "  ] "
+%ansi.reset //tests/all.bb line 6
+get _bb545 ansi reset
+%str(ansi.reset) //tests/all.bb line 6
+str _bb546 _bb545
+%"[  "+str(ansi.green)+"ok" //tests/all.bb line 6
+BUILTIN _bb548 "ok"
+%ansi.green //tests/all.bb line 6
+get _bb550 ansi green
+%str(ansi.green) //tests/all.bb line 6
+str _bb551 _bb550
+BUILTIN _bb552 "[  "
+add _bb549 _bb552 _bb551
+add _bb547 _bb549 _bb548
+add _bb544 _bb547 _bb546
+add _bb542 _bb544 _bb543
+add _bb540 _bb542 _bb541
+%print("[  "+str(ansi.green)+"ok"+str(ans //tests/all.bb line 6
+print # _bb540
+END
+%catch(_bbmacro12)print("[ "+str(ansi.red //tests/all.bb line 6
+catch # _bbmacro12 _bb521 _bb539

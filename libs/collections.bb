@@ -17,7 +17,7 @@ final collection = new {
 final string = new {
     call(value) => bbvm::str(value);
     
-    final startswith(str query) => new {
+    final starts_with(str query) => new {
         call(str search) = {
             query = this..query;
             nsearch = search|len;
@@ -27,7 +27,7 @@ final string = new {
             return true;
         }
     }
-    final endswith(str query) => new {
+    final ends_with(str query) => new {
         call(str search) = {
             query = this..query;
             nsearch = search|len;

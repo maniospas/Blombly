@@ -21,7 +21,7 @@ print("Hello {name} !");
 ```
 
 Run `blombly.exe main.bb`, where the executable and main files can be any path, and check that everything is working properly. 
-Do not move the executable without all the `libs/` and dynamically linked libraries that are packaged with it.
+Do not move the executable without all the `libs/` and (in windows) dynamically linked libraries that are packaged with it.
 
 ## Build from source 
 
