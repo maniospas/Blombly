@@ -13,8 +13,13 @@
 #include <fstream>  // Required for std::ofstream
 #include <iostream> // Required for std::cerr and std::cout
 #include <cstdlib>  // Required for system()
-#include <dlfcn.h>  // Required for dlopen and dlsym
 #include <cassert>  // Required for assert
+
+#ifdef _WIN32
+#include <windows.h> // Required for LoadLibrary, GetProcAddress, and FreeLibrary
+#else
+#include <dlfcn.h>  // Required for dlopen and dlsym on Linux
+#endif
 
 extern BError* OUT_OF_RANGE;
 extern std::recursive_mutex compileMutex;
@@ -98,20 +103,49 @@ class Compile {
     void *func;
 public:
     Compile(const std::string& code, const std::string& name) {
-        std::string filename = "temp"+std::to_string(compilationCounter)+".jit.bb";
-        std::ofstream(filename+".c") << code;
-        int ret = system(("gcc -O2 -march=native -shared -fPIC ./"+filename+".c -o ./"+filename+".so").c_str());
+        std::string filename = "temp" + std::to_string(compilationCounter) + ".jit.bb";
+        std::ofstream(filename + ".c") << code;
+
+        // Adjust compiler and extensions based on platform
+        #ifdef _WIN32
+        int ret = system(("gcc -O2 -shared -o ./" + filename + ".dll ./" + filename + ".c").c_str());
         bbassert(ret == 0, "Compilation failed");
-        allowJit = false;
-        handle = dlopen(("./"+filename+".so").c_str(), RTLD_LAZY);
+        handle = LoadLibrary(("./" + filename + ".dll").c_str());
+        bbassert(handle != nullptr, "Failed to load DLL");
+        #else
+        int ret = system(("gcc -O2 -march=native -shared -fPIC ./" + filename + ".c -o ./" + filename + ".so").c_str());
+        bbassert(ret == 0, "Compilation failed");
+        handle = dlopen(("./" + filename + ".so").c_str(), RTLD_LAZY);
         bbassert(handle != nullptr, dlerror());
-        bbassert(std::remove(("./"+filename+".so").c_str())==0, "Compilation was unable to remove a temporary file");
-        bbassert(std::remove(("./"+filename+".c").c_str())==0, "Compilation was unable to remove a temporary file");
+        #endif
+
+        // Cleanup temporary files
+        #ifdef _WIN32
+        bbassert(std::remove(("./" + filename + ".dll").c_str()) == 0, "Compilation was unable to remove a temporary file");
+        #else
+        bbassert(std::remove(("./" + filename + ".so").c_str()) == 0, "Compilation was unable to remove a temporary file");
+        #endif
+        bbassert(std::remove(("./" + filename + ".c").c_str()) == 0, "Compilation was unable to remove a temporary file");
+
+        // Resolve symbol
+        #ifdef _WIN32
+        func = reinterpret_cast<void*>(GetProcAddress(static_cast<HMODULE>(handle), name.c_str()));
+        bbassert(func != nullptr, "Failed to resolve function in DLL");
+        #else
         func = dlsym(handle, name.c_str());
         bbassert(func != nullptr, dlerror());
+        #endif
     }
-    ~Compile() {dlclose(handle);}
-    void* get() {return func;}
+
+    ~Compile() {
+        #ifdef _WIN32
+        FreeLibrary(static_cast<HMODULE>(handle));
+        #else
+        dlclose(handle);
+        #endif
+    }
+
+    void* get() { return func; }
 };
 
 

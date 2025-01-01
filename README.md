@@ -10,7 +10,8 @@
 ## Install & run
 
 Find the latest release [here](https://github.com/maniospas/Blombly/releases/latest).
-<br>Current build targets: *Windows x64*
+<br>Current build targets: *Windows x64*, *Linux x64*
+<br>Current integration testing targets: *Linux x64*
 
 Unzip the folder in a directory and create a file `main.bb` (or any name but with the same extension). Add the following contents:
 

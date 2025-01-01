@@ -1,0 +1,48 @@
+%x=0 //playground/main.bb line 1
+BUILTIN x I0
+%{.x=this.x;x=1;xthis={return this.x}xclo //playground/main.bb line 2
+BEGIN _bb177
+%this.x //playground/main.bb line 5
+get _bb178 this x
+IS .x _bb178
+%x=1 //playground/main.bb line 3
+BUILTIN x I1
+%{return this.x} //playground/main.bb line 4
+BEGIN _bb180
+%this.x //playground/main.bb line 4
+get _bb181 this x
+%return this.x //playground/main.bb line 4
+return # _bb181
+END
+IS xthis _bb180
+%{..x=this..x;return ..x} //playground/main.bb line 5
+BEGIN _bb182
+%this..x //playground/main.bb line 5
+get _bb183 this .x
+IS ..x _bb183
+%return ..x //playground/main.bb line 5
+return # ..x
+END
+IS xclosure _bb182
+return # this
+END
+%new{.x=this.x;x=1;xthis={return this.x}x //playground/main.bb line 2
+new struct _bb177
+%x=2 //playground/main.bb line 7
+BUILTIN x I2
+%struct.x //playground/main.bb line 8
+get _bb185 struct x
+%print(struct.x) //playground/main.bb line 8
+print # _bb185
+%struct.xthis //playground/main.bb line 9
+get _bb187 struct xthis
+%struct.xthis() //playground/main.bb line 9
+call _bb186 # _bb187
+%print(struct.xthis()) //playground/main.bb line 9
+print # _bb186
+%struct.xclosure //playground/main.bb line 10
+get _bb189 struct xclosure
+%struct.xclosure() //playground/main.bb line 10
+call _bb188 # _bb189
+%print(struct.xclosure()) //playground/main.bb line 10
+print # _bb188
