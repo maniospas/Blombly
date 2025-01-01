@@ -16,10 +16,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexec-charset=UTF-8 -finput-charset=UTF-8 -O2 -s")
-#add_definitions(-D_WIN32_WINNT=0x0A00)
+add_definitions(-DUNICODE -D_UNICODE)
 
 # Include directories: add your project's include folder
 include_directories(${PROJECT_SOURCE_DIR}/include)
+
+# Treat all source files as UTF-8
+add_compile_options("$<$<C_COMPILER_ID:GNU>:-finput-charset=UTF-8>")
+add_compile_options("$<$<CXX_COMPILER_ID:GNU>:-finput-charset=UTF-8>")
 
 # Collect all .cpp source files from src/
 file(GLOB_RECURSE SOURCES
@@ -57,7 +61,6 @@ find_package(CURL REQUIRED)
 
 # Link your executable or library with libcurl
 target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl)
-
 
 # Specify where to place the final executable
 set_target_properties(${PROJECT_NAME} PROPERTIES
