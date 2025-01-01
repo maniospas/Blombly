@@ -1,48 +1,110 @@
-%x=0 //playground/main.bb line 1
-BUILTIN x I0
-%{.x=this.x;x=1;xthis={return this.x}xclo //playground/main.bb line 2
-BEGIN _bb177
-%this.x //playground/main.bb line 5
-get _bb178 this x
-IS .x _bb178
-%x=1 //playground/main.bb line 3
-BUILTIN x I1
-%{return this.x} //playground/main.bb line 4
-BEGIN _bb180
-%this.x //playground/main.bb line 4
-get _bb181 this x
-%return this.x //playground/main.bb line 4
-return # _bb181
+%{str()={x=this.x;y=this.y;return "("+str //playground/main.bb line 7
+BEGIN _bb174
+%{x=this.x;y=this.y;return "("+str(x)+",  //playground/main.bb line 8
+BEGIN _bb175
+%this.x //playground/main.bb line 9
+get _bb176 this x
+IS x _bb176
+%this.y //playground/main.bb line 10
+get _bb177 this y
+IS y _bb177
+%"("+str(x)+", "+str(y)+")" //playground/main.bb line 11
+BUILTIN _bb179 ")"
+%str(y) //playground/main.bb line 11
+str _bb181 y
+%"("+str(x)+", " //playground/main.bb line 11
+BUILTIN _bb183 ", "
+%str(x) //playground/main.bb line 11
+str _bb185 x
+BUILTIN _bb186 "("
+add _bb184 _bb186 _bb185
+add _bb182 _bb184 _bb183
+add _bb180 _bb182 _bb181
+add _bb178 _bb180 _bb179
+%return "("+str(x)+", "+str(y)+")" //playground/main.bb line 11
+return # _bb178
 END
-IS xthis _bb180
-%{..x=this..x;return ..x} //playground/main.bb line 5
-BEGIN _bb182
-%this..x //playground/main.bb line 5
-get _bb183 this .x
-IS ..x _bb183
-%return ..x //playground/main.bb line 5
-return # ..x
-END
-IS xclosure _bb182
+IS str _bb175
+%{.y=this.y;.x=this.x;return new{..y=this //playground/main.bb line 13
+BEGIN _bb187
+next other args
+%this.y //playground/main.bb line 13
+get _bb188 this y
+IS .y _bb188
+%this.x //playground/main.bb line 13
+get _bb189 this x
+IS .x _bb189
+%{..y=this..y;..x=this..x;Point:x=..x+oth //playground/main.bb line 13
+BEGIN _bb192
+%this..y //playground/main.bb line 13
+get _bb193 this .y
+IS ..y _bb193
+%this..x //playground/main.bb line 13
+get _bb194 this .x
+IS ..x _bb194
+%Point: //playground/main.bb line 13
+inline _bb195 Point
+%other.x //playground/main.bb line 13
+get _bb197 other x
+add x ..x _bb197
+%other.y //playground/main.bb line 13
+get _bb199 other y
+add y ..y _bb199
 return # this
 END
-%new{.x=this.x;x=1;xthis={return this.x}x //playground/main.bb line 2
-new struct _bb177
-%x=2 //playground/main.bb line 7
-BUILTIN x I2
-%struct.x //playground/main.bb line 8
-get _bb185 struct x
-%print(struct.x) //playground/main.bb line 8
-print # _bb185
-%struct.xthis //playground/main.bb line 9
-get _bb187 struct xthis
-%struct.xthis() //playground/main.bb line 9
-call _bb186 # _bb187
-%print(struct.xthis()) //playground/main.bb line 9
-print # _bb186
-%struct.xclosure //playground/main.bb line 10
-get _bb189 struct xclosure
-%struct.xclosure() //playground/main.bb line 10
-call _bb188 # _bb189
-%print(struct.xclosure()) //playground/main.bb line 10
-print # _bb188
+%new{..y=this..y;..x=this..x;Point:x=..x+ //playground/main.bb line 13
+new _bb190 _bb192
+%return new{..y=this..y;..x=this..x;Point //playground/main.bb line 13
+return # _bb190
+END
+IS add _bb187
+END
+IS Point _bb174
+final # Point
+%{Point:x=1;y=2} //playground/main.bb line 21
+BEGIN _bb202
+%Point: //playground/main.bb line 21
+inline _bb203 Point
+%x=1 //playground/main.bb line 21
+BUILTIN x I1
+%y=2 //playground/main.bb line 21
+BUILTIN y I2
+return # this
+END
+%new{Point:x=1;y=2} //playground/main.bb line 21
+new a _bb202
+%{Point:x=3;y=4} //playground/main.bb line 22
+BEGIN _bb208
+%Point: //playground/main.bb line 22
+inline _bb209 Point
+%x=3 //playground/main.bb line 22
+BUILTIN x I3
+%y=4 //playground/main.bb line 22
+BUILTIN y I4
+return # this
+END
+%new{Point:x=3;y=4} //playground/main.bb line 22
+new b _bb208
+%a+b //playground/main.bb line 25
+add c a b
+%""+str(a)+" + "+str(b)+" = "+str(c)+"" //playground/main.bb line 26
+BUILTIN _bb214 ""
+%str(c) //playground/main.bb line 26
+str _bb216 c
+%""+str(a)+" + "+str(b)+" = " //playground/main.bb line 26
+BUILTIN _bb218 " = "
+%str(b) //playground/main.bb line 26
+str _bb220 b
+%""+str(a)+" + " //playground/main.bb line 26
+BUILTIN _bb222 " + "
+%str(a) //playground/main.bb line 26
+str _bb224 a
+BUILTIN _bb225 ""
+add _bb223 _bb225 _bb224
+add _bb221 _bb223 _bb222
+add _bb219 _bb221 _bb220
+add _bb217 _bb219 _bb218
+add _bb215 _bb217 _bb216
+add _bb213 _bb215 _bb214
+%print(""+str(a)+" + "+str(b)+" = "+str(c //playground/main.bb line 26
+print # _bb213
