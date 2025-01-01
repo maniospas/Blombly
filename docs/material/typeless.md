@@ -70,7 +70,7 @@ bbvm::test("addition") {ab_points:return a+b}
 ```
 
 ```text
-> blombly test.bb
+> ./blombly test.bb
 [  ok  ] dot product 
 [  ok  ] addition
 ```

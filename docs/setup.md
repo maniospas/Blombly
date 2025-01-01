@@ -22,7 +22,7 @@ If a message starting with `( ERROR )` appears, everything runs properly but the
 For example, brackets may have closed with a semicolon, or there could be some other type of infraction. More on errors below.
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
 Hello world!
 ```
 
@@ -44,7 +44,7 @@ print # _bb162
 ```
 
 ```bash
-> blombly main.bbvm
+> ./blombly main.bbvm
 Hello world!
 ```
 
@@ -68,7 +68,7 @@ with stripped away debug info. In this case, any errors will contain virtual mac
 instead of a source code stack traces.
 
 ```java
-> blombly main.bb --strip
+> ./blombly main.bb --strip
 Hello world!
 > cat main.bbvm
 BUILTIN _bb162 "Hello world!"
@@ -93,7 +93,7 @@ print("Hello"+);  // CREATES AN ERROR
 ```
 
 ```java
-> blombly main.bb
+> ./blombly main.bb
 ( ERROR ) Empty expression
    → print("Hello"+);                                     main.bb line 1
      ~~~~~~~~~~~~~~^
@@ -111,7 +111,7 @@ print(x);  // CREATES AN ERROR
 ```
 
 ```java
-> blombly main.bb
+> ./blombly main.bb
 ( ERROR ) Missing value: x
    → print(x)                                            main.bb line 2
 ```

@@ -24,7 +24,7 @@ print(x);
 ```
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
 1.000000
 ```
 
@@ -73,7 +73,7 @@ print(safediv("1", 2));
 ```
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
 0.5
 ```
 

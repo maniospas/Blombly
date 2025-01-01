@@ -34,7 +34,7 @@ print(len(A));  // or print(A|len) is equivalent
 ```
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
 [4, 2, 3]
 3
 ```
@@ -62,7 +62,7 @@ A[3] = 0; // CREATES AN ERROR
 ```
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
 [5] 
 ( ERROR ) Out of range
    → A[3]=0                                              main.bb line 4
@@ -83,7 +83,7 @@ while(a as next(A))
 ```
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
 1
 2
 3
@@ -100,7 +100,7 @@ print(A);
 ```
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
 [1, 2, 3, 4]
 ```
 
@@ -112,7 +112,7 @@ print((1,2,3)+(4,5));
 ```
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
 [1, 2, 3, 4, 5]
 ```
 
@@ -128,7 +128,7 @@ print(A[range(1,4)]);  // more on ranges later
 ```
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
 [2, 4] 
 [2, 3, 4] 
 ```
@@ -172,7 +172,7 @@ while(i as next(it))
 ```
 
 ```text
-> blombly main.bb
+> ./blombly main.bb
 2.000000 
 1.500000
 1.000000
@@ -215,7 +215,7 @@ print(z);
 ```
 
 ```text
-> blombly main.bb
+> ./blombly main.bb
 [1.000000, 3.000000, 5.000000] 
 ```
 
@@ -249,7 +249,7 @@ while(pair in A) print(pair|next); // equivalent to next(pair)
 ```
 
 ```text
-> blombly main.bb
+> ./blombly main.bb
 ---- Pairs
 [B, 2] 
 [C, 3] 

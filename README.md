@@ -20,7 +20,7 @@ name = read("What's your name?");
 print("Hello {name} !");
 ```
 
-Run `blombly.exe main.bb`, where the executable and main files can be any path, and check that everything is working properly. 
+Run `./blombly main.bb`, where the executable and main files can be any path, and check that everything is working properly. 
 Do not move the executable without all the `libs/` and (in windows) dynamically linked libraries that are packaged with it.
 
 ## A small example
@@ -62,7 +62,7 @@ print("{a} + {b} = {c}");
 ```
 
 ```text
-> blombly main.bb
+> ./blombly main.bb
 (1, 2) + (3, 4) = (4, 6) 
 ```
 

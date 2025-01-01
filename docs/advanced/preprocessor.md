@@ -110,7 +110,7 @@ while(x as next(it))
 ```
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
 1
 2
 3
@@ -134,7 +134,7 @@ print(message);
 ```
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
 Hello world!
 ```
 
@@ -170,7 +170,7 @@ while(x as next(A))
 ```
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
 ( ERROR ) use std::next instead 
 →   while(x as # fail "use bbvm::next instead"(A))  main.bb line 3
     ~~~~~~~~~~~^

@@ -43,7 +43,7 @@ print(result);
 ```
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
 3
 ```
 
@@ -77,7 +77,7 @@ print(b);
 ```
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
 4
 -1
 ```

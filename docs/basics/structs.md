@@ -43,7 +43,7 @@ print(point.zbias); // CREATES AN ERROR
 ```
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
 4
 2
 3
@@ -143,7 +143,7 @@ print(point);
 ```
 
 ```text
-> blombly main.bb
+> ./blombly main.bb
 (1,2)
 ```
 
@@ -273,7 +273,7 @@ print(A|float);
 ```
 
 ```text
-> blombly main.bb
+> ./blombly main.bb
 1
 ```
 
@@ -298,6 +298,6 @@ print(p1+p2);
 ```
 
 ```text
-> blombly main.bb
+> ./blombly main.bb
 (3,5)
 ```

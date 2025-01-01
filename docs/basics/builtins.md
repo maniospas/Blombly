@@ -60,7 +60,7 @@ print("Sum is " + str(x+y)); // there is no implicit typecasting
 ```
 
 ```bash
-> Blombly main.bb
+> ./blombly main.bb
 Sum is 1.500000
 ```
 
@@ -91,7 +91,7 @@ print("Here is a number: " + x[".3f"]);
 ```
 
 ```bash
-> Blombly main.bb
+> ./blombly main.bb
 Here is a number: 1.346
 ```
 
@@ -119,7 +119,7 @@ x = x+1; // CREATES AN ERROR
 ```
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
  (ERROR) Cannot overwrite final value: x
     → add x x _bb2 main.bbvm line 4
 ```
@@ -175,7 +175,7 @@ print(A.x);
 ```
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
 0
 1
 ```
@@ -212,7 +212,7 @@ print(number);
 
 
 ```bash
-> blombly main.bb
+> ./blombly main.bb
 > Give a number: number
 > Give a number: 12
 12
