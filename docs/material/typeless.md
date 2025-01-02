@@ -65,8 +65,8 @@ ab_points = {
     b = new {Point2D:x=random();y=random()}
 }
 
-bbvm::test("dot product") {ab_points:return a.dot(b)}
-bbvm::test("addition") {ab_points:return a+b}
+test("dot product") {ab_points:return a.dot(b)}
+test("addition") {ab_points:return a+b}
 ```
 
 ```text

@@ -138,10 +138,8 @@ You may ommit brackets for single-command segments, but put semicolons only at t
 ```java
 // main.bb
 x = 1;
-if (x>0) 
-    print("positive")  // no semicolon (because the command would end)
-else if(x<0)
-    print("negative");
+if (x>0) print("positive")  // no semicolon (because the command would end)
+else if(x<0) print("negative");
 ```
 
 Similarly, loops take the form `while (condition) {@code}` and keep executing the code while the condition is `true`. 
@@ -245,7 +243,7 @@ which means that the above sign computation could also be written
 like below. Prefer this notation to write consise statements.
 
 ```python
-sgn = try if(x>=0) ->1 else ->-1;
+sgn = try if(x>=0) -> 1 else -> -1;
 ```
 
 

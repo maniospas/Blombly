@@ -97,16 +97,14 @@ iterator. That variable replaces the contents of the `!of` parenthesis.
 ```java
 // main.bb
 A = 1,2,3;
-while(x as next(!of iter(A)))
-    print(x);
+while(x as next(!of iter(A))) print(x);
 ```
 
 ```java
 // main.bb (equivalent code)
 A = 1,2,3;
 it = iter(A);
-while(x as next(it))
-    print(x);
+while(x as next(it)) print(x);
 ```
 
 ```bash
@@ -163,17 +161,16 @@ to prevent ambiguous symbols from being used. Here is an example:
 
 ```java
 // main.bb
-!macro {next} as {!fail "use bbvm::next instead"}  // prevent usage of next
+!macro {next} as {!fail "use bbvm::next instead"}  // prevent usage of `next` from now on
 A = 1,2,3;
-while(x as next(A))
-    print(x);
+while(x as next(A)) print(x);
 ```
 
 ```bash
 > ./blombly main.bb
 ( ERROR ) use std::next instead 
-→   while(x as # fail "use bbvm::next instead"(A))  main.bb line 3
+→   while(x as !fail "use bbvm::next instead"(A))  main.bb line 3
     ~~~~~~~~~~~^
-→   while(x as # fail "use bbvm::next instead"(A))  main.bb line 3
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+→   while(x as !fail "use bbvm::next instead"(A))  main.bb line 3
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
 ```

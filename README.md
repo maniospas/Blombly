@@ -1,9 +1,10 @@
-# Blombly 
+# <img src="docs/blombly.png" alt="Logo" width="32"> Blombly 
 
-:computer: Expressive
+
+:flag: Reusable
+:rocket: Expressive
 :duck: Dynamic
-:rocket: Parallel
-:goggles: Safe
+:bulb: Simple
 
 ## [Documentation](https://blombly.readthedocs.io/en/latest/)
 
