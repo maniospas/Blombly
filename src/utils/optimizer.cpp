@@ -65,16 +65,11 @@ void moveRangeToFront(std::vector<std::shared_ptr<OptimizerCommand>>& program, s
 }
 
 
-
-void optimize(const std::string& source, const std::string& destination) {
-    std::ifstream inputFile(source);
-    if (!inputFile.is_open())  
-        bberror("Unable to open file: " + source);
+std::string optimizeFromCode(const std::string& code) {
+    std::istringstream inputStream(code);
     std::vector<std::shared_ptr<OptimizerCommand>> program;
     std::string line;
-    while (std::getline(inputFile, line)) 
-        program.push_back(std::make_shared<OptimizerCommand>(line));
-    inputFile.close();
+    while (std::getline(inputStream, line)) program.push_back(std::make_shared<OptimizerCommand>(line));
     
     /*
     // hash all build statements
@@ -346,10 +341,55 @@ void optimize(const std::string& source, const std::string& destination) {
     }
 
 
+
+    std::string result;
+    int n = program.size();
+    std::string towrite;
+    for (int i = 0; i < n; i++) {
+        if (program[i]->enabled && !towrite.empty()) {
+            result += towrite + "\n";
+            towrite.clear();
+        }
+        if (!program[i]->info.empty()) {
+            towrite = program[i]->info;
+        } else {
+            result += program[i]->toString();
+        }
+    }
+    return std::move(result);
+}
+
+
+
+void optimize(const std::string& source, const std::string& destination) {
+    std::ifstream inputFile(source);
+    bbassert(inputFile.is_open(), "Unable to open file: " + source);
+    std::string code = "";
+    std::string line;
+    while (std::getline(inputFile, line)) code += line + "\n";
+    inputFile.close();
+
+    std::string optimized = optimizeFromCode(code);
+
+    std::ofstream outputFile(destination);
+    bbassert(outputFile.is_open(), "Unable to write to file: " + destination);
+    outputFile << optimized;
+    outputFile.close();
+
+
+    /*
+    std::ifstream inputFile(source);
+    if (!inputFile.is_open())  
+        bberror("Unable to open file: " + source);
+    std::vector<std::shared_ptr<OptimizerCommand>> program;
+    std::string line;
+    while (std::getline(inputFile, line)) 
+        program.push_back(std::make_shared<OptimizerCommand>(line));
+    inputFile.close();
+
     // save the compiled code to the de tination file
     std::ofstream outputFile(destination);
-    if (!outputFile.is_open())  
-        bberror("Unable to write to file: " + source);
+    bbassert (outputFile.is_open(), "Unable to write to file: " + source);
     int n = program.size();
     std::string towrite;
     for(int i=0;i<n;i++) {
@@ -362,7 +402,13 @@ void optimize(const std::string& source, const std::string& destination) {
         else
             outputFile << program[i]->toString();
     }
-    outputFile.close(); 
+    outputFile.close(); */
 }
+
+
+
+
+
+
 
 #endif

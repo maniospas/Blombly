@@ -12,6 +12,10 @@
 #include <fstream>
 #include "utils.h"
 #include "common.h"
+#include "BMemory.h"
+#include "data/Future.h"
+#include "utils.h"
+#include "interpreter/functional.h"
 
 #define MISSING -1
 
@@ -38,6 +42,47 @@ const std::string PARSER_COPY = "copy";
 const std::string ANON = "_bb";
 extern std::string blombly_executable_path;
 extern bool debug_info;
+
+std::string compileFromCode(const std::string& code, const std::string& source);
+std::string optimizeFromCode(const std::string& code);
+
+
+std::string singleThreadedVMForComptime(const std::string& code, const std::string& fileName) {
+    Future::setMaxThreads(1);
+    std::string result;
+    {
+        {
+            BMemory memory(nullptr, DEFAULT_LOCAL_EXPECTATION);
+
+            auto program = new std::vector<Command*>();
+            auto source = new SourceFile(fileName);
+            std::string line;
+            int i = 1;
+            
+            CommandContext* descriptor = nullptr;
+            std::istringstream inputStream(code);
+            while (std::getline(inputStream, line)) {
+                if (line[0] != '%') program->push_back(new Command(line, source, i, descriptor));
+                else descriptor = new CommandContext(line.substr(1));
+                ++i;
+            }
+
+            auto code = new Code(program, 0, program->size() - 1, &memory);
+            bool hasReturned(false);
+            auto res = executeBlock(code, &memory, hasReturned);
+            Data* ret = res.get();
+            bbassert(!hasReturned, "`!comptime` must evaluate to a value but not run a return statement.");
+            bbassert(ret, "!comptime` must evaluate to a non-missing value.");
+            if(ret->getType()==STRING) result = "\""+ret->toString(nullptr)+"\"";
+            else if(ret->getType()==BB_INT) result = ret->toString(nullptr);
+            else if(ret->getType()==BB_FLOAT) result = ret->toString(nullptr);
+            else if(ret->getType()==BB_BOOL) result = ret->toString(nullptr);
+            else bberror("`!comptime` must evaluate to a float,int,str, or bool.");
+        }
+        BMemory::verify_noleaks();
+    }
+    return std::move(result);
+}
 
 
 extern void replaceAll(std::string &str, const std::string &from, const std::string &to);
@@ -1466,12 +1511,13 @@ void sanitize(std::vector<Token>& tokens) {
              && tokens[i + 1].name != "symbol"
              && tokens[i + 1].name != "anon" && tokens[i + 1].name != "x"
              && tokens[i + 1].name != "spec" && tokens[i + 1].name != "fail" 
-             && tokens[i + 1].name != "of" && tokens[i + 1].name != "closure"
-             && tokens[i + 1].name != "defer" && tokens[i + 1].name != "gcc"))) {
+             && tokens[i + 1].name != "of"
+             && tokens[i + 1].name != "comptime"))) {
             bberror("Invalid preprocessor instruction after `"+tokens[i].name+"` symbol."
                     "\n   \033[33m!!!\033[0m This symbol signifies preprocessor directives."
                     "\n        Valid directives are the following patterns:"
                     "\n        - `!include @str` inlines a file."
+                    "\n        - `!comptime @expr` evaluates an expression during compilation (it is constant during runtime)."
                     "\n        - `!spec @property=@value;` declares a code block specification."
                     "\n        - `(!of @expression)` or (!anon @expression)` assigns the expression to a temporary variable just after the last command."
                     "\n        - `!x` is a shorthand for `next(args)`."
@@ -1479,8 +1525,7 @@ void sanitize(std::vector<Token>& tokens) {
                     "\n        - `!local {@expression} as {@implementation}` defines a macro that is invalidated when the current file ends."
                     "\n        - `!stringify (@tokens)` converts the tokens into a string at compile time."
                     "\n        - `!symbol (@tokens)` converts the tokens into a symbol name at compile time."
-                    "\n        - `!fail @message` creates a compile-time failure."
-                    "\n        - `#gcc @code;` is reserved for future use.\n"
+                    "\n        - `!fail @message` creates a compile-time failure.\n"
                     + Parser::show_position(tokens, i));
         }
         updatedTokens.push_back(tokens[i]);
@@ -1907,38 +1952,61 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             tokens.emplace(tokens.begin()+i, created_string, tokens[i].file, tokens[i].line, true);
             i = i-1;
         }
+        else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && tokens[i + 1].name == "comptime") {
+            int starti = i;
+            int depth = 1;
+            i += 3;
+            bbassert(tokens[starti+2].name=="(", "`!comptime` should always be followed by a parenthesis\n"+ Parser::show_position(tokens, starti))
+            std::string newCode;
+            while(i<tokens.size()) {
+                if(tokens[i].name=="{") depth++;
+                if(tokens[i].name=="}") depth--;
+                if(tokens[i].name=="(") depth++;
+                if(tokens[i].name==")") {depth--;if(depth==0) break;}
+                newCode += tokens[i].name+" ";
+                ++i;
+            }
+            bbassert(i<tokens.size(), "`!comptime` parenthesis never ended (it reached the end of file)\n" + Parser::show_position(tokens, starti));
+            bbassert(newCode.size()>1, "!`comptime` encloses an empty expression\n" + Parser::show_position(tokens, starti));
+            if(newCode[newCode.size()-2]!='}') newCode += ";";  // skip traiking space with -2 instead of -1
+            newCode = compileFromCode(newCode, "!comptime in "+first_source);
+            newCode = optimizeFromCode(newCode);
+            newCode = singleThreadedVMForComptime(newCode, first_source);
+            
+            updatedTokens.emplace_back(newCode, tokens[starti].file, tokens[starti].line, true);
+        }
         else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 2 && tokens[i + 1].name == "include") {
             std::string libpath = tokens[i + 2].name;
             int libpathend = i+2;
             // find what is actually being imported (account for #include !stringify(...) statement)
-            if(libpath=="#") {
+            if(libpath=="#" || libpath=="!") {
                 bbassert(i<tokens.size()-5 && tokens[i+3].name=="stringify", "Missing `stringify`."
-                    "\n   \033[33m!!!\033[0m  `!include` should be followed by either a string of `!stringify`. "
+                    "\n   \033[33m!!!\033[0m  `!include` should be followed by either a string, `!stringify`, or `!comptime`. "
                     "\n       but another preprocessor isntruction follows `#`.\n"
                     + Parser::show_position(tokens, i));
                 bbassert(tokens[i+4].name=="(", "Missing `(`."
-                    "\n   \033[33m!!!\033[0m  `!stringify` should be followed by a parenthesis. "
-                    "\n       The only valid syntax is `!stringify(@tokens)` so here it should be `#include !stringify(tokens)`.\n"
+                    "\n   \033[33m!!!\033[0m  `!"+tokens[i+3].name+"` should be followed by a parenthesis. "
+                    "\n       The only valid syntax is `!include !stringify(@tokens)` or !include !comptime(@expression)`.\n"
                 + Parser::show_position(tokens, i));
-                libpathend = i+5;
-                libpath = "\"";
-                int depth = 1;
-                while(libpathend<tokens.size()) {
-                    if (tokens[libpathend].name == "(" || tokens[libpathend].name == "[" || tokens[libpathend].name == "{")
-                        depth += 1;
-                    else if (tokens[libpathend].name == ")" || tokens[libpathend].name == "]" || tokens[libpathend].name == "}") 
-                        depth -= 1;
-                    if(depth==0 && tokens[libpathend].name==")")
-                        break;
-                    //if(created_string.size())
-                    //    created_string += " ";
-                    if(tokens[libpathend].builtintype==1) // if is string
-                        libpath += tokens[libpathend].name.substr(1, tokens[libpathend].name.length()-2);
-                    else
-                        libpath += tokens[libpathend].name;
-                    ++libpathend;
+                if(tokens[i+3].name=="stringify") {
+                    libpathend = i+5;
+                    libpath = "\"";
+                    int depth = 1;
+                    while(libpathend<tokens.size()) {
+                        if (tokens[libpathend].name == "(" || tokens[libpathend].name == "[" || tokens[libpathend].name == "{") depth += 1;
+                        else if (tokens[libpathend].name == ")" || tokens[libpathend].name == "]" || tokens[libpathend].name == "}") depth -= 1;
+                        if(depth==0 && tokens[libpathend].name==")") break;
+                        //if(created_string.size())
+                        //    created_string += " ";
+                        if(tokens[libpathend].builtintype==1) // if is string
+                            libpath += tokens[libpathend].name.substr(1, tokens[libpathend].name.length()-2);
+                        else libpath += tokens[libpathend].name;
+                        ++libpathend;
+                    }
+                    libpath += "\"";
+                } else {// if comptime
+                    
                 }
-                libpath += "\"";
             }
             else 
                 bbassert(libpath[0] == '"', 
@@ -2145,105 +2213,31 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
     tokens = (updatedTokens);
 }
 
-std::string gcc(std::vector<Token>& tokens) {
-    std::string cprogram;
-    for (size_t i = 0; i < tokens.size(); ++i) {
-        if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 2 && 
-            tokens[i + 1].name == "gcc") {
-            int depth = 0;
-            i += 2;
-            int end = i;
-            std::string tab;
-            if (tokens[i].name != "class" && tokens[i].name != "include" && 
-                tokens[i].name != "define")
-                cprogram += "extern \"C\" ";
-            bool isReturning = false;
-            while (end < tokens.size()) {
-                if (isReturning && tokens[end].name == ";") {
-                    cprogram += ")";
-                    isReturning = false;
-                }
-                if (depth == 0 && tokens[end].name == ";") {
-                    if (cprogram[cprogram.length() - 1] != '\n')
-                        cprogram += "\n";
-                    if (tokens[i].name == "class")
-                        cprogram = cprogram.substr(0, cprogram.size() - 1) 
-                                   + ";\n";
-                    break;
-                }
-                if (end == i + 2 && tokens[i].name == "class") {
-                    cprogram += ": public Data ";
-                }
-                if (tokens[end].name == "{") {
-                    depth += 1;
-                    cprogram += " " + tokens[end].name;
-                    tab += "  ";
-                    cprogram += "\n" + tab;
-                } else if (tokens[end].name == "}") {
-                    depth -= 1;
-                    tab = tab.substr(2);
-                    cprogram = cprogram.substr(0, cprogram.size() - 2);
-                    cprogram += tokens[end].name + "\n" + tab;
-                } else if (tokens[end].name == "include") {
-                    cprogram += "\n" + tab + "#include ";
-                } else if (tokens[end].name == "define") {
-                    cprogram += "\n" + tab + "#define ";
-                } else if (tokens[end].name == "return") {
-                    cprogram += "return new ";
-                } else if (tokens[end].name == ";") {
-                    if (tokens[end - 1].name != ":")
-                        cprogram += ";\n" + tab;
-                } else if (tokens[end].name == ":") {
-                    cprogram = cprogram.substr(0, cprogram.size() - 1);
-                    cprogram += ": ";
-                    if (tokens[end + 1].name != ":")
-                        cprogram += "\n" + tab;
-                } else if (tokens[end].name == "=" && tokens[end + 1].name == "{") {
-                } else {
-                    cprogram += tokens[end].name + " ";
-                }
 
-                if (end == i && tokens[i].name != "class" && 
-                    tokens[i].name != "include" && tokens[i].name != "define")
-                    cprogram += "* ";
-                ++end;
-            }
-            i -= 2;
-        }
-    }
-    std::string raplacement = " . ";
-    std::string replaceby = "->";
-    size_t pos = cprogram.find(raplacement);
-    while (pos != std::string::npos) {
-        cprogram.replace(pos, raplacement.size(), replaceby);
-        pos = cprogram.find(raplacement, pos + replaceby.size());
-    }
-
-    return (cprogram);
-}
-
-void compile(const std::string& source, const std::string& destination) {
-    std::ifstream inputFile(source);
-    if (!inputFile.is_open())
-        bberror("Unable to open file: " + source);
-    std::string code = "";
-    std::string line;
-    while (std::getline(inputFile, line))
-        code += line + "\n";
-    inputFile.close();
+std::string compileFromCode(const std::string& code, const std::string& source) {
 
     std::vector<Token> tokens = tokenize(code, source);
     sanitize(tokens);
-
     macros(tokens, source);
-    //std::cout << " \033[0m(\x1B[32m OK \033[0m) Preprocessing\n";
     Parser parser(tokens);
     parser.parse(0, tokens.size() - 1);
     std::string compiled = parser.get();
+    return std::move(compiled);
+}
+
+
+void compile(const std::string& source, const std::string& destination) {
+    std::ifstream inputFile(source);
+    bbassert(inputFile.is_open(), "Unable to open file: " + source);
+    std::string code = "";
+    std::string line;
+    while (std::getline(inputFile, line)) code += line + "\n";
+    inputFile.close();
+
+    std::string compiled = compileFromCode(code, source);
 
     std::ofstream outputFile(destination);
-    if (!outputFile.is_open())
-        bberror("Unable to write to file: " + destination);
+    bbassert(outputFile.is_open(), "Unable to write to file: " + destination);
     outputFile << compiled;
     outputFile.close();
 }

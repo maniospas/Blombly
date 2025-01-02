@@ -55,9 +55,7 @@ int vm(const std::string& fileName, int numThreads) {
         {
             BMemory memory(nullptr, DEFAULT_LOCAL_EXPECTATION);
             std::ifstream inputFile(fileName);
-            if (!inputFile.is_open()) {
-                bberror("Unable to open file: " + fileName);
-            }
+            bbassert(inputFile.is_open(), "Unable to open file: " + fileName);
 
             auto program = new std::vector<Command*>();
             auto source = new SourceFile(fileName);
@@ -66,12 +64,8 @@ int vm(const std::string& fileName, int numThreads) {
             
             CommandContext* descriptor = nullptr;
             while (std::getline(inputFile, line)) {
-                if (line[0] != '%') {
-                    program->push_back(new Command(line, source, i, descriptor));
-                }
-                else {
-                    descriptor = new CommandContext(line.substr(1));
-                }
+                if (line[0] != '%') program->push_back(new Command(line, source, i, descriptor));
+                else descriptor = new CommandContext(line.substr(1));
                 ++i;
             }
 

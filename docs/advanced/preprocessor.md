@@ -2,13 +2,15 @@
 
 Blombly's preprocessor can understand several directives that transform the source code before compilation into `.bbvm` files. 
 These directives are made distinct by prepending them with a `!` symbol.
-Three main types of preprocessing are available: dependencies that make a source code file include another's code, 
-macros that enrich the language's grammar with higher-level expressions, and other supporting code transformations.
+Four main types of preprocessing are available: dependencies that make a source code file include another's code, 
+expressions to be evaluated at compile time, and macros that enrich the language's grammar with higher-level expressions, 
+and other supporting code transformations.
 
-**In practical code writting, you will mostly use dependencies.** Macros and other transformations may alter
-the order in which written code is executed. They should be sparingly during development - if at all. 
+**In practical code writting, you will mostly use dependencies and perhaps compile time execution.** 
+Macros and other transformations may alter the order in which written code is executed 
+and should be sparingly used - if at all. 
 They are meant to support libraries that inject new coding patterns, like those found in the `libs/.bb` file
-that the compiler includes before anything else so as to create some useful idioms.
+that the compiler includes for support of additional idioms.
 
 ## !include
 
@@ -26,6 +28,32 @@ executable and to the main file beeing compiled.
 
 Dependencies enable code modularization without loading overheads, as the compilation outcome packs all necessary instructions to run 
 automously by the interpreter.
+
+## !comptime
+
+This directive evaluates expressions at compile time, and then packs their outcome in the produced intermediate
+representation. For example, consider the next code open that opens web page as a file, obtains its contents with conversion to
+str, obtains the latter's length, and finally prints the result. Make the whole process run at `!comptime` and 
+look at what the produced intermediate representation looks like: it contains only the precomputed value.
+
+```java
+// main.bb
+googlelen = !comptime("http://www.google.com/"|file|str|len);
+print(googlelen);
+```
+
+```text
+> ./blombly main.bb --strip
+55079 
+> cat main.bbvm
+BUILTIN googlelen I55079
+print # googlelen
+```
+
+`!comptime` accepts any blombly expression, including those that include itself. 
+To avoid removal of the return value due to optimizations run code blocks inside it with `try`.
+Note that each directive is executed independentently from the rest of the build process, 
+meaning that you cannot make it depend on other steps of the build process.
 
 
 ## !macro

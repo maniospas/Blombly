@@ -140,7 +140,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 called = (val);
             }
             auto code = static_cast<Code*>(called);
-            if (!code->scheduleForParallelExecution || !Future::acceptsThread() || true) {
+            if (!code->scheduleForParallelExecution || !Future::acceptsThread()) {
                 BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
                 bool newReturnSignal(false);
                 if (context) {
