@@ -9,3 +9,4 @@ vcpkg/
 asmjit/
 venv/
 .vscode
+blombly/blombly
