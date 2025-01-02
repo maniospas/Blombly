@@ -1,7 +1,7 @@
 # <img src="docs/blombly.png" alt="Logo" width="32"> Blombly 
 
 
-:flag: Reusable
+:triangular_flag_on_post: Reusable
 :rocket: Expressive
 :duck: Dynamic
 :bulb: Simple

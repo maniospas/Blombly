@@ -3,6 +3,8 @@
 
 [Get started](setup.md) | [Download](https://github.com/maniospas/Blombly/releases/latest) | [GitHub](https://github.com/maniospas/Blombly)
 
+<img src="docs/blombly.png" alt="Logo" width="256">
+
 
 ## 🚩 Reusable
 
