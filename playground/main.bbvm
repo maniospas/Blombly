@@ -1,2 +1,18 @@
-BUILTIN googlelen I1
-print # googlelen
+time tic
+BUILTIN ret I0
+BUILTIN _bb178 I10000000
+range _bb177 _bb178
+iter _bbmacro5 _bb177
+BEGIN _bb180
+next _bb181 _bbmacro5
+AS i _bb181
+exists _bb182 i
+END
+BEGIN _bb183
+add ret ret i
+END
+while # _bb180 _bb183
+time _bb185
+sub _bb184 _bb185 tic
+print # _bb184
+print # ret
