@@ -3,9 +3,9 @@
 
 A simple programming language for creating reusable dynamic interfaces.
 
-:triangular_flag_on_post: Reusable
-:rocket: Expressive
-:duck: Dynamic
+:triangular_flag_on_post: Reusable<br>
+:rocket: Expressive<br>
+:duck: Dynamic<br>
 :bulb: Simple
 
 ## [Documentation](https://blombly.readthedocs.io/en/latest/)
@@ -18,13 +18,13 @@ Find the latest release [here](https://github.com/maniospas/Blombly/releases/lat
 
 Unzip the release in a directory and create a file `main.bb` (or any name but with the same extension). Add the following contents:
 
-```cpp
+```java
 name = read("What's your name?");
-print("Hello {name} !");
+print("Hello !{name}.");
 ```
 
 Run `./blombly main.bb`, where the executable and main files can be any path, and check that everything is working properly. 
-Do not move the executable without the packaged`libs/` director and (in Windows) accompanying .dll libraries.
+Do not move the executable without the packaged `libs/` directory and (in Windows) accompanying .dll libraries.
 
 ## A small example
 

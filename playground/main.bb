@@ -23,4 +23,4 @@ b = new {Point:x=3;y=4}
 
 // we defined `add`and `str`, which overload namesake operations
 c = a+b; 
-print("{a} + {b} = {c}"); 
+print(!fmt "{a} + {b} = {c}"); 
