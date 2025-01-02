@@ -5,4 +5,4 @@ while(x in A) s += x;
 it = iter(A);
 while(x as bbvm::next(it)) s -= x;
 
-bbvm::assert s==0;
+assert s==0;

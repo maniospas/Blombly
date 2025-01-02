@@ -7,5 +7,5 @@ x = 1;
 struct = new{Struct:}
 x = 2;
 
-bbvm::assert struct.xthis() == 0;
-bbvm::assert struct.xclosure() == 1;
+assert struct.xthis() == 0;
+assert struct.xclosure() == 1;
