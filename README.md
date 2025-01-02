@@ -1,6 +1,8 @@
 # <img src="docs/blombly.png" alt="Logo" width="32"> Blombly 
 
 
+A simple programming language for creating reusable dynamic interfaces.
+
 :triangular_flag_on_post: Reusable
 :rocket: Expressive
 :duck: Dynamic
@@ -14,7 +16,7 @@ Find the latest release [here](https://github.com/maniospas/Blombly/releases/lat
 <br>Current build targets: *Windows x64*, *Linux x64*
 <br>Current integration testing targets: *Linux x64*
 
-Unzip the folder in a directory and create a file `main.bb` (or any name but with the same extension). Add the following contents:
+Unzip the release in a directory and create a file `main.bb` (or any name but with the same extension). Add the following contents:
 
 ```cpp
 name = read("What's your name?");
@@ -22,7 +24,7 @@ print("Hello {name} !");
 ```
 
 Run `./blombly main.bb`, where the executable and main files can be any path, and check that everything is working properly. 
-Do not move the executable without all the `libs/` and (in windows) dynamically linked libraries that are packaged with it.
+Do not move the executable without the packaged`libs/` director and (in Windows) accompanying .dll libraries.
 
 ## A small example
 
@@ -57,7 +59,7 @@ final Point = {
 a = new {Point:x=1;y=2}
 b = new {Point:x=3;y=4}
 
-// we defined `add`and `str`, which overload namesake operations
+// we defined `add`and `str`, which overload operations
 c = a+b; 
 print("{a} + {b} = {c}"); 
 ```
