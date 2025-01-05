@@ -1,4 +1,4 @@
-final ansi = new {
+bb.ansi = new {
     final black = "\e[0;30m";
     final red = "\e[0;31m";
     final green = "\e[0;32m";

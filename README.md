@@ -21,7 +21,7 @@ Unzip the release in a directory and create a file `main.bb`. Use any name but w
 ```java
 // main.bb
 name = read("What's your name?");
-print("Hello {name}.");
+print(!fmt "Hello {name}.");
 ```
 
 Run `./blombly main.bb`, where the executable and main files can be any path, and check that everything is working properly. 

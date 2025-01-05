@@ -1,2 +1,1 @@
-"playground/testfolder/test.txt"|file|clear;
-"playground/testfolder"|file|clear;
+print(bb.os.isfile("libs/ansi.bb"));

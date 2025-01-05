@@ -1,5 +1,5 @@
-final collection = new {
-    final push_back(element) => new {
+bb.collection = new {
+    final toback(element) => new {
         call(A) = {
             push(A, this..element);
             return A;
@@ -14,11 +14,26 @@ final collection = new {
     }
 }
 
-final string = new {
-    call(value) => bbvm::str(value);
+bb.os = new {
+    final call(str file path) => path;
+    final read(str file path) = {
+        ret = "";
+        while(line in path) {
+            if(ret|len|bool) ret += "\n";
+            ret += line;
+        }
+        return ret;
+    }
+    final isfile(str path) => bool(file(path)/".")==false;
+}
+
+bb.string = new {
+    call(str value) => value;
     
-    final starts_with(str query) => new {
+    final starts(str query) => new {
+        assert args|len == 0;
         call(str search) = {
+            assert args|len == 0;
             query = this..query;
             nsearch = search|len;
             nquery = query|len;
@@ -27,8 +42,10 @@ final string = new {
             return true;
         }
     }
-    final ends_with(str query) => new {
+    final ends(str query) => new {
+        assert args|len == 0;
         call(str search) = {
+            assert args|len == 0;
             query = this..query;
             nsearch = search|len;
             nquery = query|len;
@@ -38,8 +55,10 @@ final string = new {
         }
     }
     final index(str query) => new {
+        assert args|len == 0;
         catch(try {pos=pos; return}) pos = 0;
         call(str search) = {
+            assert args|len == 0;
             query = this..query;
             pos = this.pos;
             nsearch = search|len;
@@ -52,6 +71,7 @@ final string = new {
         }
     }
     final split(str query) => new {
+        assert args|len == 0;
         default maxsplits = 0;
         call(str search) = {
             query = this..query;
@@ -62,7 +82,7 @@ final string = new {
             pos = 0;
             while(pos<nsearch) {
                 prev_pos = pos;
-                pos = search|string.index(query :: pos=pos);
+                pos = search|bb.string.index(query :: pos=pos);
                 s = search[range(prev_pos, pos)];
                 push(ret, s);
                 pos += nquery;

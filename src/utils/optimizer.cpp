@@ -7,6 +7,8 @@
 #include "common.h"
 #include <unordered_map> 
 
+#define DISABLE {command->enabled = false;++changes;continue;}
+
 
 class OptimizerCommand {
 public:
@@ -251,32 +253,27 @@ std::string optimizeFromCode(const std::string& code) {
     while(changes!=0) {
         std::unordered_map<std::string, int> symbolUsageCount;
         for (const auto& command : program) {
-            if(!command->enabled || command->args.size()==0)
-                continue;
-            if(command->args[0]=="END" || command->args[0]=="BEGIN" || command->args[0]=="BEGINFINAL" || command->args[0]=="final")  // TODO: why was there an "exists" at some point here?
-                continue;
-            for (size_t j = 2; j < command->args.size(); ++j) {
+            if(!command->enabled || command->args.size()==0) continue;
+            if(command->args[0]=="END" || command->args[0]=="BEGIN" || command->args[0]=="BEGINFINAL" || command->args[0]=="final") continue;
+            size_t j = 2;
+            if(command->args[0]=="set") ++j;
+            for (; j < command->args.size(); ++j) {
                 const std::string& symbol = command->args[j];
-                if (symbol == "LAST")
-                    bberror("Internal error: the LAST keyword has been deprecated");
-                if (symbol != "#") 
-                    symbolUsageCount[symbol]++;
-
+                if (symbol == "LAST") bberror("Internal error: the LAST keyword has been deprecated");
+                if (symbol != "#")  symbolUsageCount[symbol]++;
             }
         }
         changes = 0;
         for (int i=0;i<program.size();++i) {
             auto& command = program[i];
-            if(!command->enabled)
-                continue;
-
-            if(i<program.size()-1 && program[i+1]->args[0]=="END")
-                continue;
+            if(!command->enabled) continue;
+            if(i<program.size()-1 && program[i+1]->args[0]=="END") continue;
 
             //if(command->args.size()>=2 && command->args[1].size() && command->args[1][0]=='\\')  // operators are still valid
             //    continue;
             if(command->args.size()>=2 && (command->args[1]=="put"
-                || command->args[1]=="at" || command->args[1]=="call" 
+                || command->args[1]=="at" 
+                || command->args[1]=="call" 
                 || command->args[1]=="str" 
                 || command->args[1]=="float" 
                 || command->args[1]=="int" 
@@ -292,35 +289,23 @@ std::string optimizeFromCode(const std::string& code) {
                 || command->args[1]=="and" 
                 || command->args[1]=="or"
                 || command->args[1]=="type"
+                || command->args[1]=="le"
+                || command->args[1]=="lt"
+                || command->args[1]=="ge"
+                || command->args[1]=="gt"
+                || command->args[1]=="eq"
+                || command->args[1]=="neq"
                 ))
                 continue;
             
-            if(command->args.size() && command->args[0]=="exists" && symbolUsageCount[command->args[1]]==0) {
-                command->enabled = false;
-                ++changes;
-                continue;
-            }
-            if(command->args.size()<=1)
-                continue;
-            if(command->args[0]=="final" && command->args.size()>=3 && symbolUsageCount[command->args[2]]==0) {
-                command->enabled = false;
-                ++changes;
-                continue;
-            }
-            if(command->args[0]=="BUILTIN" && command->args.size() && symbolUsageCount[command->args[1]]==0) {
-                command->enabled = false;
-                ++changes;
-                continue;
-            }
-            if((command->args[0]=="IS" || command->args[0]=="AS" || command->args[0]=="new") && command->args.size() && symbolUsageCount[command->args[1]]==0) {
-                command->enabled = false;
-                ++changes;
-                continue;
-            }
-            if(command->args[0]!="BEGIN" && command->args[0]!="BEGINFINAL")
-                continue;
-            if(symbolUsageCount[command->args[1]]!=0)
-                continue;
+            if(command->args.size() && command->args[0]=="exists" && symbolUsageCount[command->args[1]]==0) DISABLE;
+            if(command->args.size()<=1) continue;
+            if(command->args[0]=="final" && command->args.size()>=3 && symbolUsageCount[command->args[2]]==0) DISABLE;
+            if(command->args[0]=="set" && command->args.size()>=4 && (symbolUsageCount[command->args[2]]==0 || symbolUsageCount[command->args[3]]==0)) DISABLE;
+            if(command->args[0]=="BUILTIN" && command->args.size() && symbolUsageCount[command->args[1]]==0) DISABLE;
+            if((command->args[0]=="IS" || command->args[0]=="AS" || command->args[0]=="new") && command->args.size() && symbolUsageCount[command->args[1]]==0) DISABLE;
+            if(command->args[0]!="BEGIN" && command->args[0]!="BEGINFINAL") continue;
+            if(symbolUsageCount[command->args[1]]!=0) continue;
             // std::cout << "removing "<<command->args[0]<<" "<<command->args[1]<<" "<<command->enabled<<"\n";
             i = i+1;
             int depth = 1;

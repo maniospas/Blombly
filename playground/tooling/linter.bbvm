@@ -1,5 +1,12 @@
+%new{} //libs/.bb line 8
+BEGIN _bb8
+return # this
+END
+%new{} //libs/.bb line 8
+new bb _bb8
+final # bb
 %{final black="\e[0;30m";final red="\e[0; //libs/ansi.bb line 1
-BEGIN _bb7
+BEGIN _bb11
 %final green="\e[0;32m" //libs/ansi.bb line 4
 BUILTIN green "\e[0;32m"
 final # green
@@ -21,732 +28,873 @@ final # reset
 return # this
 END
 %new{final black="\e[0;30m";final red="\e //libs/ansi.bb line 1
-new ansi _bb7
-final # ansi
-%{end_word={try{if(word|len|bool == false //linter.bb line 1
-BEGIN _bb164
+new _bb9 _bb11
+set # bb ansi _bb9
+%{final toback(element)={return new{.elem //libs/collections.bb line 1
+BEGIN _bb31
+%return new{.func=this.func;call(A)={..fu //libs/collections.bb line 8
+return # this
+END
+%new{final toback(element)={return new{.e //libs/collections.bb line 1
+new _bb29 _bb31
+set # bb collection _bb29
+%{final read(str file path)={ret="";_bbma //libs/collections.bb line 17
+BEGIN _bb56
+%{ret="";_bbmacro1=iter(path);while(line  //libs/collections.bb line 18
+BEGIN _bb57
+next path args
+str path path
+file path path
+%ret="" //libs/collections.bb line 19
+BUILTIN ret ""
+%iter(path) //libs/collections.bb line 20
+iter _bbmacro1 path
+%while(line as next(_bbmacro1)){if(ret|le //libs/collections.bb line 20
+BEGIN _bb60
+%next(_bbmacro1) //libs/collections.bb line 20
+next _bb61 _bbmacro1
+AS line _bb61
+exists _bb62 line
+END
+BEGIN _bb63
+%if(ret|len|bool)ret+="\n" //libs/collections.bb line 21
+BEGIN _bb64
+%ret+="\n" //libs/collections.bb line 21
+BUILTIN _bb65 "\n"
+add ret ret _bb65
+END
+%ret|len //libs/collections.bb line 21
+len _bb67 ret
+%ret|len|bool //libs/collections.bb line 21
+bool _bb66 _bb67
+%if(ret|len|bool)ret+="\n" //libs/collections.bb line 21
+if # _bb66 _bb64
+%ret+=line //libs/collections.bb line 22
+add ret ret line
+END
+%while(line as next(_bbmacro1)){if(ret|le //libs/collections.bb line 20
+while # _bb60 _bb63
+%return ret //libs/collections.bb line 24
+return # ret
+END
+IS read _bb57
+final # read
+return # this
+END
+%new{final read(str file path)={ret="";_b //libs/collections.bb line 17
+new _bb54 _bb56
+set # bb files _bb54
+%{call(str value)={return value;}final st //libs/collections.bb line 28
+BEGIN _bb70
+%{return value;} //libs/collections.bb line 29
+BEGIN _bb71
+next value args
+str value value
+%return value //libs/collections.bb line 29
+return # value
+END
+IS call _bb71
+%return new{.query=this.query;if((args|le //libs/collections.bb line 71
+return # this
+END
+%new{call(str value)={return value;}final //libs/collections.bb line 28
+new _bb68 _bb70
+set # bb string _bb68
+%{end_word={try{if(word|len|bool == false //playground/tooling/linter.bb line 1
+BEGIN _bb241
 next code args
-%{try{if(word|len|bool == false)return;if //linter.bb line 2
-BEGIN _bb165
-%{if(word|len|bool == false)return;if(in_ //linter.bb line 3
-BEGIN _bb168
-%if(word|len|bool == false)return //linter.bb line 4
-BEGIN _bb169
+%{try{if(word|len|bool == false)return;if //playground/tooling/linter.bb line 2
+BEGIN _bb242
+%{if(word|len|bool == false)return;if(in_ //playground/tooling/linter.bb line 3
+BEGIN _bb245
+%if(word|len|bool == false)return //playground/tooling/linter.bb line 4
+BEGIN _bb246
 return # #
 END
-%word|len|bool == false //linter.bb line 4
-BUILTIN _bb171 Bfalse
-%word|len //linter.bb line 4
-len _bb173 word
-%word|len|bool //linter.bb line 4
-bool _bb172 _bb173
-eq _bb170 _bb172 _bb171
-%if(word|len|bool == false)return //linter.bb line 4
-if # _bb170 _bb169
-%if(in_comment){ret+=ansi.lightgreen+word //linter.bb line 6
-BEGIN _bb174
-%ansi.reset //linter.bb line 7
-get _bb176 ansi reset
-%ansi.lightgreen //linter.bb line 7
-get _bb178 ansi lightgreen
-add _bb177 _bb178 word
-add _bb175 _bb177 _bb176
-add ret ret _bb175
+%word|len|bool == false //playground/tooling/linter.bb line 4
+BUILTIN _bb248 Bfalse
+%word|len //playground/tooling/linter.bb line 4
+len _bb250 word
+%word|len|bool //playground/tooling/linter.bb line 4
+bool _bb249 _bb250
+eq _bb247 _bb249 _bb248
+%if(word|len|bool == false)return //playground/tooling/linter.bb line 4
+if # _bb247 _bb246
+%if(in_comment){ret+=bb.ansi.lightgreen+w //playground/tooling/linter.bb line 6
+BEGIN _bb251
+%bb.ansi //playground/tooling/linter.bb line 7
+get _bb254 bb ansi
+%bb.ansi.reset //playground/tooling/linter.bb line 7
+get _bb253 _bb254 reset
+%bb.ansi //playground/tooling/linter.bb line 7
+get _bb257 bb ansi
+%bb.ansi.lightgreen //playground/tooling/linter.bb line 7
+get _bb256 _bb257 lightgreen
+add _bb255 _bb256 word
+add _bb252 _bb255 _bb253
+add ret ret _bb252
 return # #
 END
-%if(in_comment){ret+=ansi.lightgreen+word //linter.bb line 6
-if # in_comment _bb174
-%if(in_string){ret+=ansi.green+word+ansi. //linter.bb line 10
-BEGIN _bb179
-%ansi.reset //linter.bb line 11
-get _bb181 ansi reset
-%ansi.green //linter.bb line 11
-get _bb183 ansi green
-add _bb182 _bb183 word
-add _bb180 _bb182 _bb181
-add ret ret _bb180
+%if(in_comment){ret+=bb.ansi.lightgreen+w //playground/tooling/linter.bb line 6
+if # in_comment _bb251
+%if(in_string){ret+=bb.ansi.green+word+bb //playground/tooling/linter.bb line 10
+BEGIN _bb258
+%bb.ansi //playground/tooling/linter.bb line 11
+get _bb261 bb ansi
+%bb.ansi.reset //playground/tooling/linter.bb line 11
+get _bb260 _bb261 reset
+%bb.ansi //playground/tooling/linter.bb line 11
+get _bb264 bb ansi
+%bb.ansi.green //playground/tooling/linter.bb line 11
+get _bb263 _bb264 green
+add _bb262 _bb263 word
+add _bb259 _bb262 _bb260
+add ret ret _bb259
 return # #
 END
-%if(in_string){ret+=ansi.green+word+ansi. //linter.bb line 10
-if # in_string _bb179
-%if(word == "as" or word == "in" or word  //linter.bb line 14
-BEGIN _bb184
-%ansi.reset //linter.bb line 15
-get _bb186 ansi reset
-%ansi.cyan //linter.bb line 15
-get _bb188 ansi cyan
-add _bb187 _bb188 word
-add _bb185 _bb187 _bb186
-add ret ret _bb185
+%if(in_string){ret+=bb.ansi.green+word+bb //playground/tooling/linter.bb line 10
+if # in_string _bb258
+%if(word == "as" or word == "in" or word  //playground/tooling/linter.bb line 14
+BEGIN _bb265
+%bb.ansi //playground/tooling/linter.bb line 15
+get _bb268 bb ansi
+%bb.ansi.reset //playground/tooling/linter.bb line 15
+get _bb267 _bb268 reset
+%bb.ansi //playground/tooling/linter.bb line 15
+get _bb271 bb ansi
+%bb.ansi.cyan //playground/tooling/linter.bb line 15
+get _bb270 _bb271 cyan
+add _bb269 _bb270 word
+add _bb266 _bb269 _bb267
+add ret ret _bb266
 return # #
 END
-%word == "next" //linter.bb line 14
-BUILTIN _bb191 "next"
-eq _bb190 word _bb191
-%word == "pop" //linter.bb line 14
-BUILTIN _bb194 "pop"
-eq _bb193 word _bb194
-%word == "push" //linter.bb line 14
-BUILTIN _bb197 "push"
-eq _bb196 word _bb197
-%word == "in" //linter.bb line 14
-BUILTIN _bb200 "in"
-eq _bb199 word _bb200
-%word == "as" //linter.bb line 14
-BUILTIN _bb202 "as"
-eq _bb201 word _bb202
-or _bb198 _bb201 _bb199
-or _bb195 _bb198 _bb196
-or _bb192 _bb195 _bb193
-or _bb189 _bb192 _bb190
-%if(word == "as" or word == "in" or word  //linter.bb line 14
-if # _bb189 _bb184
-%if(word[0]== "!"){ret+=ansi.yellow+word+ //linter.bb line 18
-BEGIN _bb203
-%ansi.reset //linter.bb line 19
-get _bb205 ansi reset
-%ansi.yellow //linter.bb line 19
-get _bb207 ansi yellow
-add _bb206 _bb207 word
-add _bb204 _bb206 _bb205
-add ret ret _bb204
-return # #
-END
-%word[0]== "!" //linter.bb line 18
-BUILTIN _bb209 "!"
-%word[0] //linter.bb line 18
-BUILTIN _bb211 I0
-%word[0] //linter.bb line 18
-at _bb210 word _bb211
-eq _bb208 _bb210 _bb209
-%if(word[0]== "!"){ret+=ansi.yellow+word+ //linter.bb line 18
-if # _bb208 _bb203
-%if(word[0]== "@"){ret+=ansi.yellow+word+ //linter.bb line 22
-BEGIN _bb212
-%ansi.reset //linter.bb line 23
-get _bb214 ansi reset
-%ansi.yellow //linter.bb line 23
-get _bb216 ansi yellow
-add _bb215 _bb216 word
-add _bb213 _bb215 _bb214
-add ret ret _bb213
-return # #
-END
-%word[0]== "@" //linter.bb line 22
-BUILTIN _bb218 "@"
-%word[0] //linter.bb line 22
-BUILTIN _bb220 I0
-%word[0] //linter.bb line 22
-at _bb219 word _bb220
-eq _bb217 _bb219 _bb218
-%if(word[0]== "@"){ret+=ansi.yellow+word+ //linter.bb line 22
-if # _bb217 _bb212
-%if(word == "new" or word == "if" or word //linter.bb line 26
-BEGIN _bb221
-%ansi.reset //linter.bb line 27
-get _bb223 ansi reset
-%ansi.lightpurple //linter.bb line 27
-get _bb225 ansi lightpurple
-add _bb224 _bb225 word
-add _bb222 _bb224 _bb223
-add ret ret _bb222
-return # #
-END
-%word == "fail" //linter.bb line 26
-BUILTIN _bb228 "fail"
-eq _bb227 word _bb228
-%word == "try" //linter.bb line 26
-BUILTIN _bb231 "try"
-eq _bb230 word _bb231
-%word == "default" //linter.bb line 26
-BUILTIN _bb234 "default"
-eq _bb233 word _bb234
-%word == "defer" //linter.bb line 26
-BUILTIN _bb237 "defer"
-eq _bb236 word _bb237
-%word == "assert" //linter.bb line 26
-BUILTIN _bb240 "assert"
-eq _bb239 word _bb240
-%word == "bbvm" //linter.bb line 26
-BUILTIN _bb243 "bbvm"
-eq _bb242 word _bb243
-%word == "else" //linter.bb line 26
-BUILTIN _bb246 "else"
-eq _bb245 word _bb246
-%word == "return" //linter.bb line 26
-BUILTIN _bb249 "return"
-eq _bb248 word _bb249
-%word == "catch" //linter.bb line 26
-BUILTIN _bb252 "catch"
-eq _bb251 word _bb252
-%word == "while" //linter.bb line 26
-BUILTIN _bb255 "while"
-eq _bb254 word _bb255
-%word == "if" //linter.bb line 26
-BUILTIN _bb258 "if"
-eq _bb257 word _bb258
-%word == "new" //linter.bb line 26
-BUILTIN _bb260 "new"
-eq _bb259 word _bb260
-or _bb256 _bb259 _bb257
-or _bb253 _bb256 _bb254
-or _bb250 _bb253 _bb251
-or _bb247 _bb250 _bb248
-or _bb244 _bb247 _bb245
-or _bb241 _bb244 _bb242
-or _bb238 _bb241 _bb239
-or _bb235 _bb238 _bb236
-or _bb232 _bb235 _bb233
-or _bb229 _bb232 _bb230
-or _bb226 _bb229 _bb227
-%if(word == "new" or word == "if" or word //linter.bb line 26
-if # _bb226 _bb221
-%if(word == "len" or word == "bool" or wo //linter.bb line 30
-BEGIN _bb261
-%ansi.reset //linter.bb line 57
-get _bb263 ansi reset
-%ansi.cyan //linter.bb line 57
-get _bb265 ansi cyan
-add _bb264 _bb265 word
-add _bb262 _bb264 _bb263
-add ret ret _bb262
-return # #
-END
-%word == "true" //linter.bb line 56
-BUILTIN _bb268 "true"
-eq _bb267 word _bb268
-%word == "bool" //linter.bb line 55
-BUILTIN _bb271 "bool"
-eq _bb270 word _bb271
-%word == "random" //linter.bb line 54
-BUILTIN _bb274 "random"
+%word == "clear" //playground/tooling/linter.bb line 14
+BUILTIN _bb274 "clear"
 eq _bb273 word _bb274
-%word == "time" //linter.bb line 53
-BUILTIN _bb277 "time"
+%word == "next" //playground/tooling/linter.bb line 14
+BUILTIN _bb277 "next"
 eq _bb276 word _bb277
-%word == "not" //linter.bb line 52
-BUILTIN _bb280 "not"
+%word == "pop" //playground/tooling/linter.bb line 14
+BUILTIN _bb280 "pop"
 eq _bb279 word _bb280
-%word == "and" //linter.bb line 51
-BUILTIN _bb283 "and"
+%word == "push" //playground/tooling/linter.bb line 14
+BUILTIN _bb283 "push"
 eq _bb282 word _bb283
-%word == "or" //linter.bb line 50
-BUILTIN _bb286 "or"
+%word == "in" //playground/tooling/linter.bb line 14
+BUILTIN _bb286 "in"
 eq _bb285 word _bb286
-%word == "pow" //linter.bb line 49
-BUILTIN _bb289 "pow"
-eq _bb288 word _bb289
-%word == "mod" //linter.bb line 48
-BUILTIN _bb292 "mod"
-eq _bb291 word _bb292
-%word == "div" //linter.bb line 47
-BUILTIN _bb295 "div"
-eq _bb294 word _bb295
-%word == "mul" //linter.bb line 46
-BUILTIN _bb298 "mul"
-eq _bb297 word _bb298
-%word == "sub" //linter.bb line 45
-BUILTIN _bb301 "sub"
-eq _bb300 word _bb301
-%word == "add" //linter.bb line 44
-BUILTIN _bb304 "add"
-eq _bb303 word _bb304
-%word == "false" //linter.bb line 43
-BUILTIN _bb307 "false"
-eq _bb306 word _bb307
-%word == "this" //linter.bb line 42
-BUILTIN _bb310 "this"
-eq _bb309 word _bb310
-%word == "iter" //linter.bb line 41
-BUILTIN _bb313 "iter"
-eq _bb312 word _bb313
-%word == "file" //linter.bb line 40
-BUILTIN _bb316 "file"
-eq _bb315 word _bb316
-%word == "print" //linter.bb line 39
-BUILTIN _bb319 "print"
-eq _bb318 word _bb319
-%word == "server" //linter.bb line 38
-BUILTIN _bb322 "server"
-eq _bb321 word _bb322
-%word == "str" //linter.bb line 37
-BUILTIN _bb325 "str"
-eq _bb324 word _bb325
-%word == "server" //linter.bb line 36
-BUILTIN _bb328 "server"
-eq _bb327 word _bb328
-%word == "call" //linter.bb line 35
-BUILTIN _bb331 "call"
-eq _bb330 word _bb331
-%word == "float" //linter.bb line 34
-BUILTIN _bb334 "float"
-eq _bb333 word _bb334
-%word == "final" //linter.bb line 33
-BUILTIN _bb337 "final"
-eq _bb336 word _bb337
-%word == "int" //linter.bb line 32
-BUILTIN _bb340 "int"
-eq _bb339 word _bb340
-%word == "bool" //linter.bb line 31
-BUILTIN _bb343 "bool"
-eq _bb342 word _bb343
-%word == "len" //linter.bb line 30
-BUILTIN _bb345 "len"
-eq _bb344 word _bb345
-or _bb341 _bb344 _bb342
-or _bb338 _bb341 _bb339
-or _bb335 _bb338 _bb336
-or _bb332 _bb335 _bb333
-or _bb329 _bb332 _bb330
-or _bb326 _bb329 _bb327
-or _bb323 _bb326 _bb324
-or _bb320 _bb323 _bb321
-or _bb317 _bb320 _bb318
-or _bb314 _bb317 _bb315
-or _bb311 _bb314 _bb312
-or _bb308 _bb311 _bb309
-or _bb305 _bb308 _bb306
-or _bb302 _bb305 _bb303
-or _bb299 _bb302 _bb300
-or _bb296 _bb299 _bb297
-or _bb293 _bb296 _bb294
-or _bb290 _bb293 _bb291
-or _bb287 _bb290 _bb288
+%word == "as" //playground/tooling/linter.bb line 14
+BUILTIN _bb288 "as"
+eq _bb287 word _bb288
 or _bb284 _bb287 _bb285
 or _bb281 _bb284 _bb282
 or _bb278 _bb281 _bb279
 or _bb275 _bb278 _bb276
 or _bb272 _bb275 _bb273
-or _bb269 _bb272 _bb270
-or _bb266 _bb269 _bb267
-%if(word == "len" or word == "bool" or wo //linter.bb line 30
-if # _bb266 _bb261
-%ret+=word //linter.bb line 60
+%if(word == "as" or word == "in" or word  //playground/tooling/linter.bb line 14
+if # _bb272 _bb265
+%if(word[0]== "!"){ret+=bb.ansi.yellow+wo //playground/tooling/linter.bb line 18
+BEGIN _bb289
+%bb.ansi //playground/tooling/linter.bb line 19
+get _bb292 bb ansi
+%bb.ansi.reset //playground/tooling/linter.bb line 19
+get _bb291 _bb292 reset
+%bb.ansi //playground/tooling/linter.bb line 19
+get _bb295 bb ansi
+%bb.ansi.yellow //playground/tooling/linter.bb line 19
+get _bb294 _bb295 yellow
+add _bb293 _bb294 word
+add _bb290 _bb293 _bb291
+add ret ret _bb290
+return # #
+END
+%word[0]== "!" //playground/tooling/linter.bb line 18
+BUILTIN _bb297 "!"
+%word[0] //playground/tooling/linter.bb line 18
+BUILTIN _bb299 I0
+%word[0] //playground/tooling/linter.bb line 18
+at _bb298 word _bb299
+eq _bb296 _bb298 _bb297
+%if(word[0]== "!"){ret+=bb.ansi.yellow+wo //playground/tooling/linter.bb line 18
+if # _bb296 _bb289
+%if(word[0]== "@"){ret+=bb.ansi.yellow+wo //playground/tooling/linter.bb line 22
+BEGIN _bb300
+%bb.ansi //playground/tooling/linter.bb line 23
+get _bb303 bb ansi
+%bb.ansi.reset //playground/tooling/linter.bb line 23
+get _bb302 _bb303 reset
+%bb.ansi //playground/tooling/linter.bb line 23
+get _bb306 bb ansi
+%bb.ansi.yellow //playground/tooling/linter.bb line 23
+get _bb305 _bb306 yellow
+add _bb304 _bb305 word
+add _bb301 _bb304 _bb302
+add ret ret _bb301
+return # #
+END
+%word[0]== "@" //playground/tooling/linter.bb line 22
+BUILTIN _bb308 "@"
+%word[0] //playground/tooling/linter.bb line 22
+BUILTIN _bb310 I0
+%word[0] //playground/tooling/linter.bb line 22
+at _bb309 word _bb310
+eq _bb307 _bb309 _bb308
+%if(word[0]== "@"){ret+=bb.ansi.yellow+wo //playground/tooling/linter.bb line 22
+if # _bb307 _bb300
+%if(word == "new" or word == "if" or word //playground/tooling/linter.bb line 26
+BEGIN _bb311
+%bb.ansi //playground/tooling/linter.bb line 27
+get _bb314 bb ansi
+%bb.ansi.reset //playground/tooling/linter.bb line 27
+get _bb313 _bb314 reset
+%bb.ansi //playground/tooling/linter.bb line 27
+get _bb317 bb ansi
+%bb.ansi.lightpurple //playground/tooling/linter.bb line 27
+get _bb316 _bb317 lightpurple
+add _bb315 _bb316 word
+add _bb312 _bb315 _bb313
+add ret ret _bb312
+return # #
+END
+%word == "fail" //playground/tooling/linter.bb line 26
+BUILTIN _bb320 "fail"
+eq _bb319 word _bb320
+%word == "try" //playground/tooling/linter.bb line 26
+BUILTIN _bb323 "try"
+eq _bb322 word _bb323
+%word == "default" //playground/tooling/linter.bb line 26
+BUILTIN _bb326 "default"
+eq _bb325 word _bb326
+%word == "defer" //playground/tooling/linter.bb line 26
+BUILTIN _bb329 "defer"
+eq _bb328 word _bb329
+%word == "assert" //playground/tooling/linter.bb line 26
+BUILTIN _bb332 "assert"
+eq _bb331 word _bb332
+%word == "bbvm" //playground/tooling/linter.bb line 26
+BUILTIN _bb335 "bbvm"
+eq _bb334 word _bb335
+%word == "else" //playground/tooling/linter.bb line 26
+BUILTIN _bb338 "else"
+eq _bb337 word _bb338
+%word == "return" //playground/tooling/linter.bb line 26
+BUILTIN _bb341 "return"
+eq _bb340 word _bb341
+%word == "catch" //playground/tooling/linter.bb line 26
+BUILTIN _bb344 "catch"
+eq _bb343 word _bb344
+%word == "while" //playground/tooling/linter.bb line 26
+BUILTIN _bb347 "while"
+eq _bb346 word _bb347
+%word == "if" //playground/tooling/linter.bb line 26
+BUILTIN _bb350 "if"
+eq _bb349 word _bb350
+%word == "new" //playground/tooling/linter.bb line 26
+BUILTIN _bb352 "new"
+eq _bb351 word _bb352
+or _bb348 _bb351 _bb349
+or _bb345 _bb348 _bb346
+or _bb342 _bb345 _bb343
+or _bb339 _bb342 _bb340
+or _bb336 _bb339 _bb337
+or _bb333 _bb336 _bb334
+or _bb330 _bb333 _bb331
+or _bb327 _bb330 _bb328
+or _bb324 _bb327 _bb325
+or _bb321 _bb324 _bb322
+or _bb318 _bb321 _bb319
+%if(word == "new" or word == "if" or word //playground/tooling/linter.bb line 26
+if # _bb318 _bb311
+%if(word == "len" or word == "bool" or wo //playground/tooling/linter.bb line 30
+BEGIN _bb353
+%bb.ansi //playground/tooling/linter.bb line 57
+get _bb356 bb ansi
+%bb.ansi.reset //playground/tooling/linter.bb line 57
+get _bb355 _bb356 reset
+%bb.ansi //playground/tooling/linter.bb line 57
+get _bb359 bb ansi
+%bb.ansi.cyan //playground/tooling/linter.bb line 57
+get _bb358 _bb359 cyan
+add _bb357 _bb358 word
+add _bb354 _bb357 _bb355
+add ret ret _bb354
+return # #
+END
+%word == "true" //playground/tooling/linter.bb line 56
+BUILTIN _bb362 "true"
+eq _bb361 word _bb362
+%word == "bool" //playground/tooling/linter.bb line 55
+BUILTIN _bb365 "bool"
+eq _bb364 word _bb365
+%word == "random" //playground/tooling/linter.bb line 54
+BUILTIN _bb368 "random"
+eq _bb367 word _bb368
+%word == "time" //playground/tooling/linter.bb line 53
+BUILTIN _bb371 "time"
+eq _bb370 word _bb371
+%word == "not" //playground/tooling/linter.bb line 52
+BUILTIN _bb374 "not"
+eq _bb373 word _bb374
+%word == "and" //playground/tooling/linter.bb line 51
+BUILTIN _bb377 "and"
+eq _bb376 word _bb377
+%word == "or" //playground/tooling/linter.bb line 50
+BUILTIN _bb380 "or"
+eq _bb379 word _bb380
+%word == "pow" //playground/tooling/linter.bb line 49
+BUILTIN _bb383 "pow"
+eq _bb382 word _bb383
+%word == "mod" //playground/tooling/linter.bb line 48
+BUILTIN _bb386 "mod"
+eq _bb385 word _bb386
+%word == "div" //playground/tooling/linter.bb line 47
+BUILTIN _bb389 "div"
+eq _bb388 word _bb389
+%word == "mul" //playground/tooling/linter.bb line 46
+BUILTIN _bb392 "mul"
+eq _bb391 word _bb392
+%word == "sub" //playground/tooling/linter.bb line 45
+BUILTIN _bb395 "sub"
+eq _bb394 word _bb395
+%word == "add" //playground/tooling/linter.bb line 44
+BUILTIN _bb398 "add"
+eq _bb397 word _bb398
+%word == "false" //playground/tooling/linter.bb line 43
+BUILTIN _bb401 "false"
+eq _bb400 word _bb401
+%word == "this" //playground/tooling/linter.bb line 42
+BUILTIN _bb404 "this"
+eq _bb403 word _bb404
+%word == "iter" //playground/tooling/linter.bb line 41
+BUILTIN _bb407 "iter"
+eq _bb406 word _bb407
+%word == "file" //playground/tooling/linter.bb line 40
+BUILTIN _bb410 "file"
+eq _bb409 word _bb410
+%word == "print" //playground/tooling/linter.bb line 39
+BUILTIN _bb413 "print"
+eq _bb412 word _bb413
+%word == "server" //playground/tooling/linter.bb line 38
+BUILTIN _bb416 "server"
+eq _bb415 word _bb416
+%word == "str" //playground/tooling/linter.bb line 37
+BUILTIN _bb419 "str"
+eq _bb418 word _bb419
+%word == "server" //playground/tooling/linter.bb line 36
+BUILTIN _bb422 "server"
+eq _bb421 word _bb422
+%word == "call" //playground/tooling/linter.bb line 35
+BUILTIN _bb425 "call"
+eq _bb424 word _bb425
+%word == "float" //playground/tooling/linter.bb line 34
+BUILTIN _bb428 "float"
+eq _bb427 word _bb428
+%word == "final" //playground/tooling/linter.bb line 33
+BUILTIN _bb431 "final"
+eq _bb430 word _bb431
+%word == "int" //playground/tooling/linter.bb line 32
+BUILTIN _bb434 "int"
+eq _bb433 word _bb434
+%word == "bool" //playground/tooling/linter.bb line 31
+BUILTIN _bb437 "bool"
+eq _bb436 word _bb437
+%word == "len" //playground/tooling/linter.bb line 30
+BUILTIN _bb439 "len"
+eq _bb438 word _bb439
+or _bb435 _bb438 _bb436
+or _bb432 _bb435 _bb433
+or _bb429 _bb432 _bb430
+or _bb426 _bb429 _bb427
+or _bb423 _bb426 _bb424
+or _bb420 _bb423 _bb421
+or _bb417 _bb420 _bb418
+or _bb414 _bb417 _bb415
+or _bb411 _bb414 _bb412
+or _bb408 _bb411 _bb409
+or _bb405 _bb408 _bb406
+or _bb402 _bb405 _bb403
+or _bb399 _bb402 _bb400
+or _bb396 _bb399 _bb397
+or _bb393 _bb396 _bb394
+or _bb390 _bb393 _bb391
+or _bb387 _bb390 _bb388
+or _bb384 _bb387 _bb385
+or _bb381 _bb384 _bb382
+or _bb378 _bb381 _bb379
+or _bb375 _bb378 _bb376
+or _bb372 _bb375 _bb373
+or _bb369 _bb372 _bb370
+or _bb366 _bb369 _bb367
+or _bb363 _bb366 _bb364
+or _bb360 _bb363 _bb361
+%if(word == "len" or word == "bool" or wo //playground/tooling/linter.bb line 30
+if # _bb360 _bb353
+%ret+=word //playground/tooling/linter.bb line 60
 add ret ret word
 END
-%try{if(word|len|bool == false)return;if( //linter.bb line 3
-try _bb166 _bb168
-%word="" //linter.bb line 62
+%try{if(word|len|bool == false)return;if( //playground/tooling/linter.bb line 3
+try _bb243 _bb245
+%word="" //playground/tooling/linter.bb line 62
 BUILTIN word ""
 END
-IS end_word _bb165
-%ansi.reset //linter.bb line 65
-get _bb347 ansi reset
-IS ret _bb347
-%word="" //linter.bb line 66
+IS end_word _bb242
+%bb.ansi //playground/tooling/linter.bb line 65
+get _bb442 bb ansi
+%bb.ansi.reset //playground/tooling/linter.bb line 65
+get _bb441 _bb442 reset
+IS ret _bb441
+%word="" //playground/tooling/linter.bb line 66
 BUILTIN word ""
-%pos=0 //linter.bb line 67
+%pos=0 //playground/tooling/linter.bb line 67
 BUILTIN pos I0
-%code|len //linter.bb line 68
+%code|len //playground/tooling/linter.bb line 68
 len n code
-%in_string=false //linter.bb line 69
+%in_string=false //playground/tooling/linter.bb line 69
 BUILTIN in_string Bfalse
-%in_fstring=false //linter.bb line 70
+%in_fstring=false //playground/tooling/linter.bb line 70
 BUILTIN in_fstring Bfalse
-%in_comment=false //linter.bb line 71
+%in_comment=false //playground/tooling/linter.bb line 71
 BUILTIN in_comment Bfalse
-%while(pos<n)try{c=code[pos];pos+=1;if(c= //linter.bb line 73
-BEGIN _bb354
-%pos<n //linter.bb line 73
-lt _bb355 pos n
+%while(pos<n)try{c=code[pos];pos+=1;if(c= //playground/tooling/linter.bb line 73
+BEGIN _bb449
+%pos<n //playground/tooling/linter.bb line 73
+lt _bb450 pos n
 END
-BEGIN _bb356
-%{c=code[pos];pos+=1;if(c== "\n" and in_c //linter.bb line 73
-BEGIN _bb359
-%code[pos] //linter.bb line 74
-at _bb360 code pos
-IS c _bb360
-%pos+=1 //linter.bb line 75
-BUILTIN _bb361 I1
-add pos pos _bb361
-%if(c== "\n" and in_comment){end_word:ret //linter.bb line 76
-BEGIN _bb362
-%end_word: //linter.bb line 77
-inline _bb363 end_word
-%ret+=c //linter.bb line 78
+BEGIN _bb451
+%{c=code[pos];pos+=1;if(c== "\n" and in_c //playground/tooling/linter.bb line 73
+BEGIN _bb454
+%code[pos] //playground/tooling/linter.bb line 74
+at _bb455 code pos
+IS c _bb455
+%pos+=1 //playground/tooling/linter.bb line 75
+BUILTIN _bb456 I1
+add pos pos _bb456
+%if(c== "\n" and in_comment){end_word:ret //playground/tooling/linter.bb line 76
+BEGIN _bb457
+%end_word: //playground/tooling/linter.bb line 77
+inline _bb458 end_word
+%ret+=c //playground/tooling/linter.bb line 78
 add ret ret c
-%in_comment=false //linter.bb line 79
+%in_comment=false //playground/tooling/linter.bb line 79
 BUILTIN in_comment Bfalse
 return # #
 END
-%c== "\n" //linter.bb line 76
-BUILTIN _bb367 "\n"
-eq _bb366 c _bb367
-and _bb365 _bb366 in_comment
-%if(c== "\n" and in_comment){end_word:ret //linter.bb line 76
-if # _bb365 _bb362
-%if(c== "/" and pos<n)if(code[pos]== "/") //linter.bb line 82
-BEGIN _bb368
-%if(code[pos]== "/")in_comment=true //linter.bb line 82
-BEGIN _bb369
-%in_comment=true //linter.bb line 82
+%c== "\n" //playground/tooling/linter.bb line 76
+BUILTIN _bb462 "\n"
+eq _bb461 c _bb462
+and _bb460 _bb461 in_comment
+%if(c== "\n" and in_comment){end_word:ret //playground/tooling/linter.bb line 76
+if # _bb460 _bb457
+%if(c== "/" and pos<n)if(code[pos]== "/") //playground/tooling/linter.bb line 82
+BEGIN _bb463
+%if(code[pos]== "/")in_comment=true //playground/tooling/linter.bb line 82
+BEGIN _bb464
+%in_comment=true //playground/tooling/linter.bb line 82
 BUILTIN in_comment Btrue
 END
-%code[pos]== "/" //linter.bb line 82
-BUILTIN _bb372 "/"
-%code[pos] //linter.bb line 82
-at _bb373 code pos
-eq _bb371 _bb373 _bb372
-%if(code[pos]== "/")in_comment=true //linter.bb line 82
-if # _bb371 _bb369
+%code[pos]== "/" //playground/tooling/linter.bb line 82
+BUILTIN _bb467 "/"
+%code[pos] //playground/tooling/linter.bb line 82
+at _bb468 code pos
+eq _bb466 _bb468 _bb467
+%if(code[pos]== "/")in_comment=true //playground/tooling/linter.bb line 82
+if # _bb466 _bb464
 END
-%pos<n //linter.bb line 82
-lt _bb375 pos n
-%c== "/" //linter.bb line 82
-BUILTIN _bb377 "/"
-eq _bb376 c _bb377
-and _bb374 _bb376 _bb375
-%if(c== "/" and pos<n)if(code[pos]== "/") //linter.bb line 82
-if # _bb374 _bb368
-%if(in_comment){word+=c;return;} //linter.bb line 83
-BEGIN _bb378
-%word+=c //linter.bb line 84
+%pos<n //playground/tooling/linter.bb line 82
+lt _bb470 pos n
+%c== "/" //playground/tooling/linter.bb line 82
+BUILTIN _bb472 "/"
+eq _bb471 c _bb472
+and _bb469 _bb471 _bb470
+%if(c== "/" and pos<n)if(code[pos]== "/") //playground/tooling/linter.bb line 82
+if # _bb469 _bb463
+%if(in_comment){word+=c;return;} //playground/tooling/linter.bb line 83
+BEGIN _bb473
+%word+=c //playground/tooling/linter.bb line 84
 add word word c
 return # #
 END
-%if(in_comment){word+=c;return;} //linter.bb line 83
-if # in_comment _bb378
-%if(c== """){if(in_string){word+=c;end_wo //linter.bb line 87
-BEGIN _bb379
-%if(in_string){word+=c;end_word:in_string //linter.bb line 88
-BEGIN _bb380
-%word+=c //linter.bb line 89
+%if(in_comment){word+=c;return;} //playground/tooling/linter.bb line 83
+if # in_comment _bb473
+%if(c== """){if(in_string){word+=c;end_wo //playground/tooling/linter.bb line 87
+BEGIN _bb474
+%if(in_string){word+=c;end_word:in_string //playground/tooling/linter.bb line 88
+BEGIN _bb475
+%word+=c //playground/tooling/linter.bb line 89
 add word word c
-%end_word: //linter.bb line 90
-inline _bb381 end_word
-%in_string=false //linter.bb line 91
+%end_word: //playground/tooling/linter.bb line 90
+inline _bb476 end_word
+%in_string=false //playground/tooling/linter.bb line 91
 BUILTIN in_string Bfalse
 return # #
 END
-%if(in_string){word+=c;end_word:in_string //linter.bb line 88
-if # in_string _bb380
-%end_word: //linter.bb line 94
-inline _bb383 end_word
-%in_string=true //linter.bb line 95
+%if(in_string){word+=c;end_word:in_string //playground/tooling/linter.bb line 88
+if # in_string _bb475
+%end_word: //playground/tooling/linter.bb line 94
+inline _bb478 end_word
+%in_string=true //playground/tooling/linter.bb line 95
 BUILTIN in_string Btrue
 END
-%c== """ //linter.bb line 87
-BUILTIN _bb386 """
-eq _bb385 c _bb386
-%if(c== """){if(in_string){word+=c;end_wo //linter.bb line 87
-if # _bb385 _bb379
-%if(in_string or in_fstring){if(in_fstrin //linter.bb line 97
-BEGIN _bb387
-%if(in_fstring andc== "}"){end_word:ret+= //linter.bb line 98
-BEGIN _bb388
-%end_word: //linter.bb line 99
-inline _bb389 end_word
-%ansi.reset //linter.bb line 100
-get _bb391 ansi reset
-%ansi.cyan //linter.bb line 100
-get _bb393 ansi cyan
-add _bb392 _bb393 c
-add _bb390 _bb392 _bb391
-add ret ret _bb390
-%in_string=true //linter.bb line 101
+%c== """ //playground/tooling/linter.bb line 87
+BUILTIN _bb481 """
+eq _bb480 c _bb481
+%if(c== """){if(in_string){word+=c;end_wo //playground/tooling/linter.bb line 87
+if # _bb480 _bb474
+%if(in_string or in_fstring){if(in_fstrin //playground/tooling/linter.bb line 97
+BEGIN _bb482
+%if(in_fstring andc== "}"){end_word:ret+= //playground/tooling/linter.bb line 98
+BEGIN _bb483
+%end_word: //playground/tooling/linter.bb line 99
+inline _bb484 end_word
+%bb.ansi //playground/tooling/linter.bb line 100
+get _bb487 bb ansi
+%bb.ansi.reset //playground/tooling/linter.bb line 100
+get _bb486 _bb487 reset
+%bb.ansi //playground/tooling/linter.bb line 100
+get _bb490 bb ansi
+%bb.ansi.cyan //playground/tooling/linter.bb line 100
+get _bb489 _bb490 cyan
+add _bb488 _bb489 c
+add _bb485 _bb488 _bb486
+add ret ret _bb485
+%in_string=true //playground/tooling/linter.bb line 101
 BUILTIN in_string Btrue
-%in_fstring=false //linter.bb line 102
+%in_fstring=false //playground/tooling/linter.bb line 102
 BUILTIN in_fstring Bfalse
 return # #
 END
-%c== "}" //linter.bb line 98
-BUILTIN _bb398 "}"
-eq _bb397 c _bb398
-and _bb396 in_fstring _bb397
-%if(in_fstring andc== "}"){end_word:ret+= //linter.bb line 98
-if # _bb396 _bb388
-%if(not in_fstring andc== "{"){end_word:r //linter.bb line 105
-BEGIN _bb399
-%end_word: //linter.bb line 106
-inline _bb400 end_word
-%ansi.reset //linter.bb line 107
-get _bb402 ansi reset
-%ansi.cyan //linter.bb line 107
-get _bb404 ansi cyan
-add _bb403 _bb404 c
-add _bb401 _bb403 _bb402
-add ret ret _bb401
-%in_fstring=true //linter.bb line 108
+%c== "}" //playground/tooling/linter.bb line 98
+BUILTIN _bb495 "}"
+eq _bb494 c _bb495
+and _bb493 in_fstring _bb494
+%if(in_fstring andc== "}"){end_word:ret+= //playground/tooling/linter.bb line 98
+if # _bb493 _bb483
+%if(not in_fstring andc== "{"){end_word:r //playground/tooling/linter.bb line 105
+BEGIN _bb496
+%end_word: //playground/tooling/linter.bb line 106
+inline _bb497 end_word
+%bb.ansi //playground/tooling/linter.bb line 107
+get _bb500 bb ansi
+%bb.ansi.reset //playground/tooling/linter.bb line 107
+get _bb499 _bb500 reset
+%bb.ansi //playground/tooling/linter.bb line 107
+get _bb503 bb ansi
+%bb.ansi.cyan //playground/tooling/linter.bb line 107
+get _bb502 _bb503 cyan
+add _bb501 _bb502 c
+add _bb498 _bb501 _bb499
+add ret ret _bb498
+%in_fstring=true //playground/tooling/linter.bb line 108
 BUILTIN in_fstring Btrue
-%in_string=false //linter.bb line 109
+%in_string=false //playground/tooling/linter.bb line 109
 BUILTIN in_string Bfalse
 return # #
 END
-%c== "{" //linter.bb line 105
-BUILTIN _bb409 "{"
-eq _bb408 c _bb409
-not _bb410 in_fstring
-and _bb407 _bb410 _bb408
-%if(not in_fstring andc== "{"){end_word:r //linter.bb line 105
-if # _bb407 _bb399
-%if(not in_fstring){word+=c;return;} //linter.bb line 112
-BEGIN _bb411
-%word+=c //linter.bb line 113
+%c== "{" //playground/tooling/linter.bb line 105
+BUILTIN _bb508 "{"
+eq _bb507 c _bb508
+not _bb509 in_fstring
+and _bb506 _bb509 _bb507
+%if(not in_fstring andc== "{"){end_word:r //playground/tooling/linter.bb line 105
+if # _bb506 _bb496
+%if(not in_fstring){word+=c;return;} //playground/tooling/linter.bb line 112
+BEGIN _bb510
+%word+=c //playground/tooling/linter.bb line 113
 add word word c
 return # #
 END
-%(not in_fstring) //linter.bb line 112
-not _bb412 in_fstring
-%if(not in_fstring){word+=c;return;} //linter.bb line 112
-if # _bb412 _bb411
+%(not in_fstring) //playground/tooling/linter.bb line 112
+not _bb511 in_fstring
+%if(not in_fstring){word+=c;return;} //playground/tooling/linter.bb line 112
+if # _bb511 _bb510
 END
-%in_string or in_fstring //linter.bb line 97
-or _bb413 in_string in_fstring
-%if(in_string or in_fstring){if(in_fstrin //linter.bb line 97
-if # _bb413 _bb387
-%if(c== "=" and pos<n)if(code[pos]== ">") //linter.bb line 117
-BEGIN _bb414
-%if(code[pos]== ">"){end_word:ret+=ansi.l //linter.bb line 117
-BEGIN _bb415
-%end_word: //linter.bb line 118
-inline _bb416 end_word
-%ansi.reset //linter.bb line 119
-get _bb418 ansi reset
-%ansi.lightpurple+"=>" //linter.bb line 119
-BUILTIN _bb420 "=>"
-%ansi.lightpurple //linter.bb line 119
-get _bb421 ansi lightpurple
-add _bb419 _bb421 _bb420
-add _bb417 _bb419 _bb418
-add ret ret _bb417
-%pos+=1 //linter.bb line 120
-BUILTIN _bb422 I1
-add pos pos _bb422
+%in_string or in_fstring //playground/tooling/linter.bb line 97
+or _bb512 in_string in_fstring
+%if(in_string or in_fstring){if(in_fstrin //playground/tooling/linter.bb line 97
+if # _bb512 _bb482
+%if(c== "=" and pos<n)if(code[pos]== ">") //playground/tooling/linter.bb line 117
+BEGIN _bb513
+%if(code[pos]== ">"){end_word:ret+=bb.ans //playground/tooling/linter.bb line 117
+BEGIN _bb514
+%end_word: //playground/tooling/linter.bb line 118
+inline _bb515 end_word
+%bb.ansi //playground/tooling/linter.bb line 119
+get _bb518 bb ansi
+%bb.ansi.reset //playground/tooling/linter.bb line 119
+get _bb517 _bb518 reset
+%bb.ansi.lightpurple+"=>" //playground/tooling/linter.bb line 119
+BUILTIN _bb520 "=>"
+%bb.ansi //playground/tooling/linter.bb line 119
+get _bb522 bb ansi
+%bb.ansi.lightpurple //playground/tooling/linter.bb line 119
+get _bb521 _bb522 lightpurple
+add _bb519 _bb521 _bb520
+add _bb516 _bb519 _bb517
+add ret ret _bb516
+%pos+=1 //playground/tooling/linter.bb line 120
+BUILTIN _bb523 I1
+add pos pos _bb523
 return # #
 END
-%code[pos]== ">" //linter.bb line 117
-BUILTIN _bb424 ">"
-%code[pos] //linter.bb line 117
-at _bb425 code pos
-eq _bb423 _bb425 _bb424
-%if(code[pos]== ">"){end_word:ret+=ansi.l //linter.bb line 117
-if # _bb423 _bb415
+%code[pos]== ">" //playground/tooling/linter.bb line 117
+BUILTIN _bb525 ">"
+%code[pos] //playground/tooling/linter.bb line 117
+at _bb526 code pos
+eq _bb524 _bb526 _bb525
+%if(code[pos]== ">"){end_word:ret+=bb.ans //playground/tooling/linter.bb line 117
+if # _bb524 _bb514
 END
-%pos<n //linter.bb line 117
-lt _bb427 pos n
-%c== "=" //linter.bb line 117
-BUILTIN _bb429 "="
-eq _bb428 c _bb429
-and _bb426 _bb428 _bb427
-%if(c== "=" and pos<n)if(code[pos]== ">") //linter.bb line 117
-if # _bb426 _bb414
-%if(c== "-" and pos<n)if(code[pos]== ">") //linter.bb line 123
-BEGIN _bb430
-%if(code[pos]== ">"){end_word:ret+=ansi.l //linter.bb line 123
-BEGIN _bb431
-%end_word: //linter.bb line 124
-inline _bb432 end_word
-%ansi.reset //linter.bb line 125
-get _bb434 ansi reset
-%ansi.lightpurple+"->" //linter.bb line 125
-BUILTIN _bb436 "->"
-%ansi.lightpurple //linter.bb line 125
-get _bb437 ansi lightpurple
-add _bb435 _bb437 _bb436
-add _bb433 _bb435 _bb434
-add ret ret _bb433
-%pos+=1 //linter.bb line 126
-BUILTIN _bb438 I1
-add pos pos _bb438
+%pos<n //playground/tooling/linter.bb line 117
+lt _bb528 pos n
+%c== "=" //playground/tooling/linter.bb line 117
+BUILTIN _bb530 "="
+eq _bb529 c _bb530
+and _bb527 _bb529 _bb528
+%if(c== "=" and pos<n)if(code[pos]== ">") //playground/tooling/linter.bb line 117
+if # _bb527 _bb513
+%if(c== "-" and pos<n)if(code[pos]== ">") //playground/tooling/linter.bb line 123
+BEGIN _bb531
+%if(code[pos]== ">"){end_word:ret+=bb.ans //playground/tooling/linter.bb line 123
+BEGIN _bb532
+%end_word: //playground/tooling/linter.bb line 124
+inline _bb533 end_word
+%bb.ansi //playground/tooling/linter.bb line 125
+get _bb536 bb ansi
+%bb.ansi.reset //playground/tooling/linter.bb line 125
+get _bb535 _bb536 reset
+%bb.ansi.lightpurple+"->" //playground/tooling/linter.bb line 125
+BUILTIN _bb538 "->"
+%bb.ansi //playground/tooling/linter.bb line 125
+get _bb540 bb ansi
+%bb.ansi.lightpurple //playground/tooling/linter.bb line 125
+get _bb539 _bb540 lightpurple
+add _bb537 _bb539 _bb538
+add _bb534 _bb537 _bb535
+add ret ret _bb534
+%pos+=1 //playground/tooling/linter.bb line 126
+BUILTIN _bb541 I1
+add pos pos _bb541
 return # #
 END
-%code[pos]== ">" //linter.bb line 123
-BUILTIN _bb440 ">"
-%code[pos] //linter.bb line 123
-at _bb441 code pos
-eq _bb439 _bb441 _bb440
-%if(code[pos]== ">"){end_word:ret+=ansi.l //linter.bb line 123
-if # _bb439 _bb431
+%code[pos]== ">" //playground/tooling/linter.bb line 123
+BUILTIN _bb543 ">"
+%code[pos] //playground/tooling/linter.bb line 123
+at _bb544 code pos
+eq _bb542 _bb544 _bb543
+%if(code[pos]== ">"){end_word:ret+=bb.ans //playground/tooling/linter.bb line 123
+if # _bb542 _bb532
 END
-%pos<n //linter.bb line 123
-lt _bb443 pos n
-%c== "-" //linter.bb line 123
-BUILTIN _bb445 "-"
-eq _bb444 c _bb445
-and _bb442 _bb444 _bb443
-%if(c== "-" and pos<n)if(code[pos]== ">") //linter.bb line 123
-if # _bb442 _bb430
-%if(c== ":"){end_word:ret+=ansi.cyan+c+an //linter.bb line 129
-BEGIN _bb446
-%end_word: //linter.bb line 130
-inline _bb447 end_word
-%ansi.reset //linter.bb line 131
-get _bb449 ansi reset
-%ansi.cyan //linter.bb line 131
-get _bb451 ansi cyan
-add _bb450 _bb451 c
-add _bb448 _bb450 _bb449
-add ret ret _bb448
+%pos<n //playground/tooling/linter.bb line 123
+lt _bb546 pos n
+%c== "-" //playground/tooling/linter.bb line 123
+BUILTIN _bb548 "-"
+eq _bb547 c _bb548
+and _bb545 _bb547 _bb546
+%if(c== "-" and pos<n)if(code[pos]== ">") //playground/tooling/linter.bb line 123
+if # _bb545 _bb531
+%if(c== ":"){end_word:ret+=bb.ansi.cyan+c //playground/tooling/linter.bb line 129
+BEGIN _bb549
+%end_word: //playground/tooling/linter.bb line 130
+inline _bb550 end_word
+%bb.ansi //playground/tooling/linter.bb line 131
+get _bb553 bb ansi
+%bb.ansi.reset //playground/tooling/linter.bb line 131
+get _bb552 _bb553 reset
+%bb.ansi //playground/tooling/linter.bb line 131
+get _bb556 bb ansi
+%bb.ansi.cyan //playground/tooling/linter.bb line 131
+get _bb555 _bb556 cyan
+add _bb554 _bb555 c
+add _bb551 _bb554 _bb552
+add ret ret _bb551
 return # #
 END
-%c== ":" //linter.bb line 129
-BUILTIN _bb453 ":"
-eq _bb452 c _bb453
-%if(c== ":"){end_word:ret+=ansi.cyan+c+an //linter.bb line 129
-if # _bb452 _bb446
-%if(c== "{" orc== "}"){end_word:ret+=ansi //linter.bb line 134
-BEGIN _bb454
-%end_word: //linter.bb line 135
-inline _bb455 end_word
-%ansi.reset //linter.bb line 136
-get _bb457 ansi reset
-%ansi.cyan //linter.bb line 136
-get _bb459 ansi cyan
-add _bb458 _bb459 c
-add _bb456 _bb458 _bb457
-add ret ret _bb456
+%c== ":" //playground/tooling/linter.bb line 129
+BUILTIN _bb558 ":"
+eq _bb557 c _bb558
+%if(c== ":"){end_word:ret+=bb.ansi.cyan+c //playground/tooling/linter.bb line 129
+if # _bb557 _bb549
+%if(c== "{" orc== "}"){end_word:ret+=bb.a //playground/tooling/linter.bb line 134
+BEGIN _bb559
+%end_word: //playground/tooling/linter.bb line 135
+inline _bb560 end_word
+%bb.ansi //playground/tooling/linter.bb line 136
+get _bb563 bb ansi
+%bb.ansi.reset //playground/tooling/linter.bb line 136
+get _bb562 _bb563 reset
+%bb.ansi //playground/tooling/linter.bb line 136
+get _bb566 bb ansi
+%bb.ansi.cyan //playground/tooling/linter.bb line 136
+get _bb565 _bb566 cyan
+add _bb564 _bb565 c
+add _bb561 _bb564 _bb562
+add ret ret _bb561
 return # #
 END
-%c== "}" //linter.bb line 134
-BUILTIN _bb462 "}"
-eq _bb461 c _bb462
-%c== "{" //linter.bb line 134
-BUILTIN _bb464 "{"
-eq _bb463 c _bb464
-or _bb460 _bb463 _bb461
-%if(c== "{" orc== "}"){end_word:ret+=ansi //linter.bb line 134
-if # _bb460 _bb454
-%if(c== ">" orc== "<" orc== "+" orc== "-" //linter.bb line 139
-BEGIN _bb465
-%end_word: //linter.bb line 140
-inline _bb466 end_word
-%ansi.reset //linter.bb line 141
-get _bb468 ansi reset
-%ansi.reset //linter.bb line 141
-get _bb470 ansi reset
-add _bb469 _bb470 c
-add _bb467 _bb469 _bb468
-add ret ret _bb467
+%c== "}" //playground/tooling/linter.bb line 134
+BUILTIN _bb569 "}"
+eq _bb568 c _bb569
+%c== "{" //playground/tooling/linter.bb line 134
+BUILTIN _bb571 "{"
+eq _bb570 c _bb571
+or _bb567 _bb570 _bb568
+%if(c== "{" orc== "}"){end_word:ret+=bb.a //playground/tooling/linter.bb line 134
+if # _bb567 _bb559
+%if(c== ">" orc== "<" orc== "+" orc== "-" //playground/tooling/linter.bb line 139
+BEGIN _bb572
+%end_word: //playground/tooling/linter.bb line 140
+inline _bb573 end_word
+%bb.ansi //playground/tooling/linter.bb line 141
+get _bb576 bb ansi
+%bb.ansi.reset //playground/tooling/linter.bb line 141
+get _bb575 _bb576 reset
+%bb.ansi //playground/tooling/linter.bb line 141
+get _bb579 bb ansi
+%bb.ansi.reset //playground/tooling/linter.bb line 141
+get _bb578 _bb579 reset
+add _bb577 _bb578 c
+add _bb574 _bb577 _bb575
+add ret ret _bb574
 return # #
 END
-%c== "," //linter.bb line 139
-BUILTIN _bb473 ","
-eq _bb472 c _bb473
-%c== ";" //linter.bb line 139
-BUILTIN _bb476 ";"
-eq _bb475 c _bb476
-%c== ")" //linter.bb line 139
-BUILTIN _bb479 ")"
-eq _bb478 c _bb479
-%c== "(" //linter.bb line 139
-BUILTIN _bb482 "("
-eq _bb481 c _bb482
-%c== "]" //linter.bb line 139
-BUILTIN _bb485 "]"
-eq _bb484 c _bb485
-%c== "[" //linter.bb line 139
-BUILTIN _bb488 "["
-eq _bb487 c _bb488
-%c== "/" //linter.bb line 139
-BUILTIN _bb491 "/"
-eq _bb490 c _bb491
-%c== "=" //linter.bb line 139
-BUILTIN _bb494 "="
-eq _bb493 c _bb494
-%c== "." //linter.bb line 139
-BUILTIN _bb497 "."
-eq _bb496 c _bb497
-%c== "|" //linter.bb line 139
-BUILTIN _bb500 "|"
-eq _bb499 c _bb500
-%c== "%" //linter.bb line 139
-BUILTIN _bb503 "%"
-eq _bb502 c _bb503
-%c== "^" //linter.bb line 139
-BUILTIN _bb506 "^"
-eq _bb505 c _bb506
-%c== "*" //linter.bb line 139
-BUILTIN _bb509 "*"
-eq _bb508 c _bb509
-%c== "-" //linter.bb line 139
-BUILTIN _bb512 "-"
-eq _bb511 c _bb512
-%c== "+" //linter.bb line 139
-BUILTIN _bb515 "+"
-eq _bb514 c _bb515
-%c== "<" //linter.bb line 139
-BUILTIN _bb518 "<"
-eq _bb517 c _bb518
-%c== ">" //linter.bb line 139
-BUILTIN _bb520 ">"
-eq _bb519 c _bb520
-or _bb516 _bb519 _bb517
-or _bb513 _bb516 _bb514
-or _bb510 _bb513 _bb511
-or _bb507 _bb510 _bb508
-or _bb504 _bb507 _bb505
-or _bb501 _bb504 _bb502
-or _bb498 _bb501 _bb499
-or _bb495 _bb498 _bb496
-or _bb492 _bb495 _bb493
-or _bb489 _bb492 _bb490
-or _bb486 _bb489 _bb487
-or _bb483 _bb486 _bb484
-or _bb480 _bb483 _bb481
-or _bb477 _bb480 _bb478
-or _bb474 _bb477 _bb475
-or _bb471 _bb474 _bb472
-%if(c== ">" orc== "<" orc== "+" orc== "-" //linter.bb line 139
-if # _bb471 _bb465
-%if(c== " " orc== "\n"){end_word:ret+=c;r //linter.bb line 144
-BEGIN _bb521
-%end_word: //linter.bb line 145
-inline _bb522 end_word
-%ret+=c //linter.bb line 146
+%c== "," //playground/tooling/linter.bb line 139
+BUILTIN _bb582 ","
+eq _bb581 c _bb582
+%c== ";" //playground/tooling/linter.bb line 139
+BUILTIN _bb585 ";"
+eq _bb584 c _bb585
+%c== ")" //playground/tooling/linter.bb line 139
+BUILTIN _bb588 ")"
+eq _bb587 c _bb588
+%c== "(" //playground/tooling/linter.bb line 139
+BUILTIN _bb591 "("
+eq _bb590 c _bb591
+%c== "]" //playground/tooling/linter.bb line 139
+BUILTIN _bb594 "]"
+eq _bb593 c _bb594
+%c== "[" //playground/tooling/linter.bb line 139
+BUILTIN _bb597 "["
+eq _bb596 c _bb597
+%c== "/" //playground/tooling/linter.bb line 139
+BUILTIN _bb600 "/"
+eq _bb599 c _bb600
+%c== "=" //playground/tooling/linter.bb line 139
+BUILTIN _bb603 "="
+eq _bb602 c _bb603
+%c== "." //playground/tooling/linter.bb line 139
+BUILTIN _bb606 "."
+eq _bb605 c _bb606
+%c== "|" //playground/tooling/linter.bb line 139
+BUILTIN _bb609 "|"
+eq _bb608 c _bb609
+%c== "%" //playground/tooling/linter.bb line 139
+BUILTIN _bb612 "%"
+eq _bb611 c _bb612
+%c== "^" //playground/tooling/linter.bb line 139
+BUILTIN _bb615 "^"
+eq _bb614 c _bb615
+%c== "*" //playground/tooling/linter.bb line 139
+BUILTIN _bb618 "*"
+eq _bb617 c _bb618
+%c== "-" //playground/tooling/linter.bb line 139
+BUILTIN _bb621 "-"
+eq _bb620 c _bb621
+%c== "+" //playground/tooling/linter.bb line 139
+BUILTIN _bb624 "+"
+eq _bb623 c _bb624
+%c== "<" //playground/tooling/linter.bb line 139
+BUILTIN _bb627 "<"
+eq _bb626 c _bb627
+%c== ">" //playground/tooling/linter.bb line 139
+BUILTIN _bb629 ">"
+eq _bb628 c _bb629
+or _bb625 _bb628 _bb626
+or _bb622 _bb625 _bb623
+or _bb619 _bb622 _bb620
+or _bb616 _bb619 _bb617
+or _bb613 _bb616 _bb614
+or _bb610 _bb613 _bb611
+or _bb607 _bb610 _bb608
+or _bb604 _bb607 _bb605
+or _bb601 _bb604 _bb602
+or _bb598 _bb601 _bb599
+or _bb595 _bb598 _bb596
+or _bb592 _bb595 _bb593
+or _bb589 _bb592 _bb590
+or _bb586 _bb589 _bb587
+or _bb583 _bb586 _bb584
+or _bb580 _bb583 _bb581
+%if(c== ">" orc== "<" orc== "+" orc== "-" //playground/tooling/linter.bb line 139
+if # _bb580 _bb572
+%if(c== " " orc== "\n"){end_word:ret+=c;r //playground/tooling/linter.bb line 144
+BEGIN _bb630
+%end_word: //playground/tooling/linter.bb line 145
+inline _bb631 end_word
+%ret+=c //playground/tooling/linter.bb line 146
 add ret ret c
 return # #
 END
-%c== "\n" //linter.bb line 144
-BUILTIN _bb525 "\n"
-eq _bb524 c _bb525
-%c== " " //linter.bb line 144
-BUILTIN _bb527 " "
-eq _bb526 c _bb527
-or _bb523 _bb526 _bb524
-%if(c== " " orc== "\n"){end_word:ret+=c;r //linter.bb line 144
-if # _bb523 _bb521
-%word+=c //linter.bb line 149
+%c== "\n" //playground/tooling/linter.bb line 144
+BUILTIN _bb634 "\n"
+eq _bb633 c _bb634
+%c== " " //playground/tooling/linter.bb line 144
+BUILTIN _bb636 " "
+eq _bb635 c _bb636
+or _bb632 _bb635 _bb633
+%if(c== " " orc== "\n"){end_word:ret+=c;r //playground/tooling/linter.bb line 144
+if # _bb632 _bb630
+%word+=c //playground/tooling/linter.bb line 149
 add word word c
 END
-%try{c=code[pos];pos+=1;if(c== "\n" and i //linter.bb line 73
-try _bb357 _bb359
+%try{c=code[pos];pos+=1;if(c== "\n" and i //playground/tooling/linter.bb line 73
+try _bb452 _bb454
 END
-%while(pos<n)try{c=code[pos];pos+=1;if(c= //linter.bb line 73
-while # _bb354 _bb356
-%end_word: //linter.bb line 151
-inline _bb528 end_word
-%ansi.reset //linter.bb line 152
-get _bb530 ansi reset
-add _bb529 ret _bb530
-%return ret+ansi.reset //linter.bb line 152
-return # _bb529
+%while(pos<n)try{c=code[pos];pos+=1;if(c= //playground/tooling/linter.bb line 73
+while # _bb449 _bb451
+%end_word: //playground/tooling/linter.bb line 151
+inline _bb637 end_word
+%bb.ansi //playground/tooling/linter.bb line 152
+get _bb640 bb ansi
+%bb.ansi.reset //playground/tooling/linter.bb line 152
+get _bb639 _bb640 reset
+add _bb638 ret _bb639
+%return ret+bb.ansi.reset //playground/tooling/linter.bb line 152
+return # _bb638
 END
-IS highlight _bb164
-%"File for code highlighting:"|read //linter.bb line 156
-BUILTIN _bb532 "File for code highlighting:"
-%"File for code highlighting:"|read //linter.bb line 156
-read path _bb532
-%("") //linter.bb line 157
-BUILTIN _bb533 ""
-%print("") //linter.bb line 157
-print # _bb533
-%("====================================== //linter.bb line 158
-BUILTIN _bb534 "===================================================="
-%print("================================= //linter.bb line 158
-print # _bb534
-%path|file //linter.bb line 159
-file _bb536 path
-%path|file|str //linter.bb line 159
-str code _bb536
-%code|highlight //linter.bb line 160
-BEGIN _bb538
+IS highlight _bb241
+%"File for code highlighting:"|read //playground/tooling/linter.bb line 156
+BUILTIN _bb642 "File for code highlighting:"
+%"File for code highlighting:"|read //playground/tooling/linter.bb line 156
+read path _bb642
+%("") //playground/tooling/linter.bb line 157
+BUILTIN _bb643 ""
+%print("") //playground/tooling/linter.bb line 157
+print # _bb643
+%("====================================== //playground/tooling/linter.bb line 158
+BUILTIN _bb644 "===================================================="
+%print("================================= //playground/tooling/linter.bb line 158
+print # _bb644
+%bb.files.read(path) //playground/tooling/linter.bb line 159
+BEGIN _bb646
+list args path
+END
+%bb.files //playground/tooling/linter.bb line 159
+get _bb648 bb files
+%bb.files.read //playground/tooling/linter.bb line 159
+get _bb647 _bb648 read
+%bb.files.read(path) //playground/tooling/linter.bb line 159
+call _bb645 _bb646 _bb647
+IS code _bb645
+%code|highlight //playground/tooling/linter.bb line 160
+BEGIN _bb650
 list args code
 END
-%code|highlight //linter.bb line 160
-call _bb537 _bb538 highlight
-%print(code|highlight) //linter.bb line 160
-print # _bb537
-%("====================================== //linter.bb line 161
-BUILTIN _bb540 "===================================================="
-%print("================================= //linter.bb line 161
-print # _bb540
+%code|highlight //playground/tooling/linter.bb line 160
+call _bb649 _bb650 highlight
+%print(code|highlight) //playground/tooling/linter.bb line 160
+print # _bb649
+%("====================================== //playground/tooling/linter.bb line 161
+BUILTIN _bb652 "===================================================="
+%print("================================= //playground/tooling/linter.bb line 161
+print # _bb652

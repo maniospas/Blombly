@@ -1,4 +1,6 @@
-html(title, body) = {
+bb.html = new{}
+
+bb.html.html(title, body) = {
     default script = "";
     default src = "";
     default stylesheet = "";
@@ -16,7 +18,7 @@ html(title, body) = {
     ";
 }
 
-dom(name) = {
+bb.html.dom(name) = {
     default style = "";
     return new {
         uses dom;
@@ -50,39 +52,33 @@ dom(name) = {
     }
 }
 
-class(cssclass) = {
-    return new {
-        cssclass |= str;
-        \call(dom) = {
-            if(dom.cssclass|len|bool) dom.cssclass += " ";
-            dom.cssclass += this.cssclass;
-            return dom;
-        }
-        \lt(dom) = {return this\call(dom)}
+bb.html.class(str cssclass) => new {
+    call(dom) = {
+        if(dom.cssclass|len|bool) dom.cssclass += " ";
+        dom.cssclass += this..cssclass;
+        return dom;
     }
+    lt(dom) = {return this.call(dom)}
 }
 
-css(style) = {
-    return new {
-        style |= str;
-        \call(dom) = {
-            if(dom.style|len|bool) dom.style += ";";
-            dom.style += this.style;
-            return dom;
-        }
-        \lt(dom) = {return this\call(dom)}
+bb.html.css(str style) => new{
+    call(dom) = {
+        if(dom.style|len|bool) dom.style += ";";
+        dom.style += this..style;
+        return dom;
     }
+    lt(dom) = {return this.call(dom)}
 }
 
 
-final tr = "tr";
-final td = "td";
-final div = "div";
-final p = "p";
-final h1 = "h1";
-final h2 = "h2";
-final h3 = "h3";
-final h4 = "h4";
-final h5 = "h5";
-final table = "table";
-final tbody = "tbody";
+bb.html.tr = "tr";
+bb.html.td = "td";
+bb.html.div = "div";
+bb.html.p = "p";
+bb.html.h1 = "h1";
+bb.html.h2 = "h2";
+bb.html.h3 = "h3";
+bb.html.h4 = "h4";
+bb.html.h5 = "h5";
+bb.html.table = "table";
+bb.html.tbody = "tbody";
