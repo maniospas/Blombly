@@ -1,27 +1,37 @@
 # File system
 
 The main way blombly interacts with the file system is through the `file` data type.
-This is an abstraction over files, directories, and web resources.
+This is an abstraction over resources like files, directories, and web data obtained
+with http. These are automatically recognized given the provided path.
+
+Operations applicable to data are:
+- `push` data to write to the resource, though do not expect persistence.
+- `iter` to traverse through resoucre contents (and the `in` macro that uses iterators under the hood).
+- `list` to obtain all conntents at once.
+- `clear` to clear resource data if possible.
+- `bool` to check whether the resource exists.
+- division by a string to obtain a sub-directory.
+
 
 ## Reading files
 
-Once created, files are read-only and provide iterators and conversion to string 
-representations of their contents. Here is an example for reading a file from the local file system:
+File contents are organized into lines.
+Here is an example for reading from the local file system,
+as well as checking whether a non-existing file name exists:
 
 ```java
 f = file("README.md");
-while(line in f)
-    print(line);
+while(line in f) print(line);
 print("nonexisting filename"|file|bool); // false
 ```
 
 ## Reading directories
 
-You can similarly list the file paths of a directory. Paths can be added to files,
+You can list the file paths of a directory. Paths can be added to resources,
 but the original file location cannot be retrieved.
 *This lets paths remain confidential once first declared.*
 For example, one cannot expose local directory structure when running servers
-or printing logs, unless this information is explicitly retained
+or printing logs, unless this information is explicitly retained in code,
 or leaked in file data.
 
 ```java
@@ -36,26 +46,29 @@ final files(file path) = {
     return ret;
 }
 
-while(path in files("src"))
-    print(path);
+while(path in files("src")) print(path);
 ```
+
+You cannot push to directories, and -for safety- can only clear empty directories.
+Use functions like the above to clear files and directories.
+
 
 ## Reading web resources
 
-Web resources are accessed in the same way. Results or read disk data are cached,
-so a new file needs to be created every time data need to be reread (from the web
-or from disk). Here is an example:
-
+Web resources are accessed in the same way. Here is an example:
 
 ```java
-get(url) => url|file|str;  // equivalent to str(file(url))
-
-start = bbvm::time();
+get(url) = {
+    ret = "";
+    while(line in url|file) ret += line;
+    return ret;
+}
+start = time();
 print("Waiting");
 
 response = get("https://www.google.com");
 print("Response length: {response|len}");
-print("Response time: {bbvm::time()-start} sec");
+print("Response time: {time()-start} sec");
 ```
 
 

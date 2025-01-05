@@ -147,7 +147,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
         }
         if (operation == TOFILE) return std::move(Result(this));
         if (operation == TOSTR) STRING_RESULT(toString(memory));
-        if (operation == POP) {
+        /*if (operation == POP) {
             loadContents();
             std::string result = "";
             for (std::size_t i = 0; i < contents.size(); ++i) {
@@ -155,7 +155,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
                 result += contents[i];
             }
             STRING_RESULT(std::move(result));
-        }
+        }*/
         if (operation == TOITER) return std::move(Result(new AccessIterator(args->arg0)));
         if (operation == TOLIST) {
             loadContents();
