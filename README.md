@@ -32,7 +32,7 @@ Do not move the executable without the packaged `libs/` directory and (in Window
 // main.bb (this is a line comment, strings used for multi-line comments)
 
 "Below we define a code block (it does not run yet).
-It is made immutabe with `final` for visibility from 
+It is made immutable with `final` for visibility from 
 function calls. Blocks can be called as functions or 
 inlined, that is, dynamically pasted.";
 
