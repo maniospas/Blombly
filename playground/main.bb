@@ -1,3 +1,2 @@
-A = file("playground/test.txt");
-clear(A);
-print(A|str);
+"playground/testfolder/test.txt"|file|clear;
+"playground/testfolder"|file|clear;

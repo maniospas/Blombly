@@ -1,10 +1,12 @@
-%("playground/test.txt") //playground/main.bb line 1
-BUILTIN _bb174 "playground/test.txt"
-%file("playground/test.txt") //playground/main.bb line 1
-file A _bb174
-%clear(A) //playground/main.bb line 2
-clear _bb176 A
-%A|str //playground/main.bb line 3
-str _bb177 A
-%print(A|str) //playground/main.bb line 3
-print # _bb177
+%"playground/testfolder/test.txt"|file //playground/main.bb line 1
+BUILTIN _bb176 "playground/testfolder/test.txt"
+%"playground/testfolder/test.txt"|file //playground/main.bb line 1
+file _bb175 _bb176
+%"playground/testfolder/test.txt"|file|cl //playground/main.bb line 1
+clear _bb174 _bb175
+%"playground/testfolder"|file //playground/main.bb line 2
+BUILTIN _bb179 "playground/testfolder"
+%"playground/testfolder"|file //playground/main.bb line 2
+file _bb178 _bb179
+%"playground/testfolder"|file|clear //playground/main.bb line 2
+clear _bb177 _bb178

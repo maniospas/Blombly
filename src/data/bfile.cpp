@@ -107,6 +107,8 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
     }
     if (operation == PUSH && args->size == 2 && args->arg1->getType() == STRING) {
         std::string newContents = args->arg1->toString(memory);
+        fs::path filePath(path);
+        if (!fs::exists(filePath.parent_path())) fs::create_directories(filePath.parent_path());
         std::ofstream file(path, std::ios::trunc); 
         bbassert(file.is_open(), "Failed to open file for writing: " + path);
         file << newContents;
@@ -123,11 +125,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
             bbassert(path.rfind("http", 0)!=0, "Cannot clear HTTP resource (it does not persist): " + path);
             bbassert(fs::exists(path), "Path does not exist: " + path);
             if (fs::is_regular_file(path)) {
-                // Overwrite the file with an empty string to clear its contents
-                std::ofstream file(path, std::ios::trunc);
-                bbassert(file.is_open(), "Failed to open file for clearing: " + path);
-                file.close();
-                contents.clear();
+                fs::remove(path);
                 size = 0;
                 contentsLoaded = false;
                 return std::move(Result(nullptr));
@@ -140,22 +138,15 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
                 contentsLoaded = false;
                 return std::move(Result(nullptr));
             } 
-            else {
-                bberror("Path is neither a regular file nor a directory: " + path);
-            }
+            else bberror("Path is neither a regular file nor a directory: " + path);
         }
-
         if (operation == LEN) {
             loadContents();
             int64_t ret = contents.size();
             BB_INT_RESULT(ret);
         }
-        if (operation == TOFILE) {
-            return std::move(Result(this));
-        }
-        if (operation == TOSTR) {
-            STRING_RESULT(toString(memory));
-        }
+        if (operation == TOFILE) return std::move(Result(this));
+        if (operation == TOSTR) STRING_RESULT(toString(memory));
         if (operation == POP) {
             loadContents();
             std::string result = "";
@@ -165,9 +156,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
             }
             STRING_RESULT(std::move(result));
         }
-        if (operation == TOITER) {
-            return std::move(Result(new AccessIterator(args->arg0)));
-        }
+        if (operation == TOITER) return std::move(Result(new AccessIterator(args->arg0)));
         if (operation == TOLIST) {
             loadContents();
             int64_t n = contents.size();
