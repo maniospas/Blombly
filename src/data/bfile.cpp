@@ -53,47 +53,29 @@ BFile::BFile(const std::string& path_) : path(path_), size(0), Data(FILETYPE), c
 
 void BFile::loadContents() {
     if (contentsLoaded) return;
-
     if (path.rfind("http", 0) == 0) { // Check if path starts with "http"
         std::string httpContent = fetchHttpContent(path);
-        if (!httpContent.empty()) {
-            std::istringstream stream(httpContent);
-            std::string line;
-            while (std::getline(stream, line)) {
-                contents.push_back(line);
-            }
-        } else {
-            bberror("Failed to fetch content from HTTP path: " + path);
-        }
-    } else if (fs::is_directory(path)) { // Check if path is a directory
-        for (const auto& entry : fs::directory_iterator(path)) {
-            contents.push_back(entry.path().string());
-        }
-    } else { // Assume path is a file
+        bbassert(!httpContent.empty(), "Failed to fetch content from HTTP path: " + path);
+        std::istringstream stream(httpContent);
+        std::string line;
+        while (std::getline(stream, line)) contents.push_back(line);
+    } 
+    else if (fs::is_directory(path)) { // Check if path is a directory
+        for (const auto& entry : fs::directory_iterator(path)) contents.push_back(entry.path().string());
+    } 
+    else { // Assume path is a file
         std::ifstream file(path);
-        if (file.is_open()) {
-            std::string line;
-            while (std::getline(file, line)) {
-                contents.push_back(line);
-            }
-            file.close();
-        } else {
-            bberror("Failed to open file: " + path);
-        }
+        bbassert(file.is_open(), "Failed to open file: "+path);
+        std::string line;
+        while (std::getline(file, line)) contents.push_back(line);
+        file.close();
     }
     size = contents.size();
     contentsLoaded = true;
 }
 
 std::string BFile::toString(BMemory* memory) {
-    loadContents();
-    std::string result = "";
-    for (std::size_t i = 0; i < contents.size(); ++i) {
-        if (i)
-            result += "\n";
-        result += contents[i];
-    }
-    return result;
+    return path;
 }
 
 std::string BFile::getPath() const {
@@ -106,13 +88,10 @@ bool BFile::exists() const {
 }
 
 Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
-
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
         loadContents();
         int64_t lineNum = static_cast<Integer*>(args->arg1)->getValue();
-        if (lineNum < 0 || lineNum >= contents.size()) {
-            return std::move(Result(OUT_OF_RANGE));
-        }
+        if (lineNum < 0 || lineNum >= contents.size()) return std::move(Result(OUT_OF_RANGE));
         std::string lineContent = contents[lineNum];
         STRING_RESULT(lineContent);
     }
@@ -126,7 +105,46 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
         bool fileExists = exists();
         BB_BOOLEAN_RESULT(fileExists);
     }
+    if (operation == PUSH && args->size == 2 && args->arg1->getType() == STRING) {
+        std::string newContents = args->arg1->toString(memory);
+        std::ofstream file(path, std::ios::trunc); 
+        bbassert(file.is_open(), "Failed to open file for writing: " + path);
+        file << newContents;
+        file.close();
+        contents.clear();
+        std::istringstream stream(newContents);
+        std::string line;
+        while (std::getline(stream, line)) contents.push_back(line);
+        size = contents.size();
+        return std::move(Result(nullptr));
+    }
     if (args->size == 1) {
+        if (operation == CLEAR) {
+            bbassert(path.rfind("http", 0)!=0, "Cannot clear HTTP resource (it does not persist): " + path);
+            bbassert(fs::exists(path), "Path does not exist: " + path);
+            if (fs::is_regular_file(path)) {
+                // Overwrite the file with an empty string to clear its contents
+                std::ofstream file(path, std::ios::trunc);
+                bbassert(file.is_open(), "Failed to open file for clearing: " + path);
+                file.close();
+                contents.clear();
+                size = 0;
+                contentsLoaded = false;
+                return std::move(Result(nullptr));
+            } 
+            else if (fs::is_directory(path)) {
+                bbassert(fs::is_empty(path), "For safety, only empty directories can be cleared but this has contents: " + path);
+                fs::remove(path);
+                contents.clear();
+                size = 0;
+                contentsLoaded = false;
+                return std::move(Result(nullptr));
+            } 
+            else {
+                bberror("Path is neither a regular file nor a directory: " + path);
+            }
+        }
+
         if (operation == LEN) {
             loadContents();
             int64_t ret = contents.size();
@@ -136,8 +154,16 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
             return std::move(Result(this));
         }
         if (operation == TOSTR) {
-            loadContents();
             STRING_RESULT(toString(memory));
+        }
+        if (operation == POP) {
+            loadContents();
+            std::string result = "";
+            for (std::size_t i = 0; i < contents.size(); ++i) {
+                if (i) result += "\n";
+                result += contents[i];
+            }
+            STRING_RESULT(std::move(result));
         }
         if (operation == TOITER) {
             return std::move(Result(new AccessIterator(args->arg0)));

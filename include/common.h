@@ -47,7 +47,7 @@ enum OperationType {
     BUILTIN, BEGIN, BEGINFINAL, BEGINCACHED, END, RETURN, FINAL, IS,
     CALL, WHILE, IF, NEW, BB_PRINT, INLINE, GET, SET, SETFINAL, DEFAULT,
     TIME, TOITER, TRY, CATCH, FAIL, EXISTS, READ, CREATESERVER, AS, TORANGE, 
-    DEFER
+    DEFER, CLEAR
 };
 
 // Array mapping OperationType to string representations
@@ -59,7 +59,7 @@ static const std::string OperationTypeNames[] = {
     "BUILTIN", "BEGIN", "BEGINFINAL", "BEGINCACHED", "END", "return", "final", "IS",
     "call", "while", "if", "new", "print", "inline", "get", "set", "setfinal", "default",
     "time", "iter", "try", "catch", "fail", "exists", "read", "server", "AS", "range",
-    "defer"
+    "defer", "clear"
 };
 
 // Map operations to symbols and conversely

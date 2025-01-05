@@ -28,7 +28,19 @@ Result Struct::implement(const OperationType operation_, BuiltinArgs* args_, BMe
 
     std::string operation = getOperationTypeName(operation_);
     auto mem = getMemory();
-    Data* implementation = mem->getOrNullShallow(variableManager.getId(operation));
+    Data* implementation;
+    {
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
+        implementation = mem->getOrNullShallow(variableManager.getId(operation));
+
+        if(!implementation) {
+            if(operation_==CLEAR) {
+                delete memory;
+                memory = new BMemory(nullptr, 0);
+                return std::move(Result(nullptr));
+            }
+        }
+    }
 
     bbassert(implementation, "Must define " + operation + " for the struct");
     bbassert(implementation->getType() == CODE, operation + " is not a method");

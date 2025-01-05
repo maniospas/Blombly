@@ -85,7 +85,7 @@ std::string BHashMap::toString(BMemory* memory) {
 
 void BHashMap::put(Data* from, Data* to) {
     bbassert(from, "Missing key");
-    bbassert(to, "Missing value");
+    bbassert(to, "Missing map value");
     bbassert(from->getType()!=ERRORTYPE, "Cannot have an error as a map key");
     bbassert(to->getType()!=ERRORTYPE, "Cannot have an error as a map value");
 

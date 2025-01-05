@@ -226,22 +226,23 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             BMemory* from;
             result = memory->getOrNull(command->args[1], true);
             if(result==nullptr) {
-                bbassert(command->args[1]==variableManager.thisId, "Missing value: " + variableManager.getSymbol(command->args[1]));
+                bbassert(command->args[1]==variableManager.thisId, "Missing value"+std::string(memory->size()?"":" in cleared memory ")+": " + variableManager.getSymbol(command->args[1]));
                 from = memory;
+                result = from->get(command->args[2]);
             }
             else {
                 bbassert(result->getType() == STRUCT, "Can only get elements from structs");
                 auto obj = static_cast<Struct*>(result);
+                std::lock_guard<std::recursive_mutex> lock(obj->memoryLock);
                 from = obj->getMemory();
+                result = from->get(command->args[2]);
             }
-            result = from->get(command->args[2]);
-            if(result->getType() == CODE)
-                static_cast<Code*>(result)->setDeclarationMemory(from);
+            if(result->getType() == CODE) static_cast<Code*>(result)->setDeclarationMemory(from);
         } break;
 
         case IS: {
             result = command->knownLocal[1]?memory->getShallow(command->args[1]):memory->get(command->args[1], true);
-            bbassert(result, "Missing value: " + variableManager.getSymbol(command->args[1]));
+            bbassert(result, "Missing value"+std::string(memory->size()?"":" in cleared memory ")+": " + variableManager.getSymbol(command->args[1]));
             if(result->getType()==ERRORTYPE) {
                 bberror(enrichErrorDescription(command, result->toString(memory)));
             }
@@ -249,7 +250,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
         case AS: {
             result = memory->getOrNull(command->args[1], true);
-            bbassert(result, "Missing value: " + variableManager.getSymbol(command->args[1]));
+            bbassert(result, "Missing value"+std::string(memory->size()?"":" in cleared memory ")+": " + variableManager.getSymbol(command->args[1]));
             if(result->getType()==ERRORTYPE) 
                 static_cast<BError*>(result)->consume();
         } break;
@@ -263,9 +264,9 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             Data* obj = memory->get(command->args[1]);
             bbassert(obj->getType() == STRUCT, "Can only set fields in a struct.");
             auto structObj = static_cast<Struct*>(obj);
+                std::lock_guard<std::recursive_mutex> lock(structObj->memoryLock);
             Data* setValue = memory->getOrNullShallow(command->args[3]);
-            if(setValue)
-                setValue->leak();
+            if(setValue) setValue->leak();
             auto structMemory = structObj->getMemory();
             structMemory->unsafeSet(memory, command->args[2], setValue, nullptr);//structMemory->getOrNullShallow(command->args[2]));
             result = nullptr;

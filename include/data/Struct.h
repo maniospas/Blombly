@@ -12,6 +12,7 @@ private:
     BMemory* memory;
 
 public:
+    mutable std::recursive_mutex memoryLock; 
     explicit Struct(BMemory* mem);
     ~Struct();
     std::string toString(BMemory* memory)override;

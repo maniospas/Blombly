@@ -64,6 +64,13 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
                 //ret.get()->removeFromOwner();
                 return std::move(ret);
             }
+            case CLEAR : {
+                int64_t n = contents.size();
+                for(int64_t i=front;i<n;++i) if(contents[i]) contents[i]->removeFromOwner();
+                contents.clear();
+                front = 0;
+                return std::move(Result(nullptr));
+            }
             case TOMAP: {
                 auto map = new BHashMap();
                 int64_t n = contents.size();

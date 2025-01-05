@@ -112,7 +112,7 @@ Data* BMemory::get(int item) { // allowMutable = true
     if (!ret && parent) 
         ret = parent->get(item, allowMutables);
     if (!ret) {
-        bberror("Missing value: " + variableManager.getSymbol(item));
+        bberror("Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
     }
     return ret;
 }
@@ -127,7 +127,7 @@ Data* BMemory::get(int item, bool allowMutable) {
         ret = resVal.get();
         unsafeSet(item, ret); 
         attached_threads.erase(prevRet);
-        bbassert(ret, "Missing value: " + variableManager.getSymbol(item));
+        bbassert(ret, "Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
         return ret;
     }
     if (ret) {
@@ -136,7 +136,7 @@ Data* BMemory::get(int item, bool allowMutable) {
     else if (parent) 
         ret = parent->get(item, allowMutables && allowMutable);
     
-    bbassert(ret, "Missing value: " + variableManager.getSymbol(item));
+    bbassert(ret, "Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
     return ret;
 }
 
@@ -173,8 +173,7 @@ Data* BMemory::getShallow(int item) {
     if(item==fastId)
         return fastData;
     auto it = data.find(item);
-    if (it == data.end()) 
-        bberror("Missing value: " + variableManager.getSymbol(item));
+    if (it == data.end()) bberror("Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
     auto ret = it->second;
     if (ret && ret->getType() == FUTURE) {
         //std::cout << "here4\n";
@@ -185,8 +184,7 @@ Data* BMemory::getShallow(int item) {
         attached_threads.erase(prevRet);
         //std::cout << "done\n";
     }
-    if(!ret)
-        bberror("Missing value: " + variableManager.getSymbol(item));
+    if(!ret) bberror("Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
     return ret;
 }
 

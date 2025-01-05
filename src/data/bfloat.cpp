@@ -125,5 +125,6 @@ Result BFloat::implement(const OperationType operation, BuiltinArgs* args, BMemo
         return std::move(Result(new FloatRange(v0, v1, v2)));
     }
 
+    if(operation == TORANGE) bberror("Ranges containing floats should have exactly three arguments `range(first, end, step)` where end is non-inclusive.");
     throw Unimplemented();
 }

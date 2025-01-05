@@ -584,7 +584,7 @@ public:
                                 name == "bbvm::str" || name == "bbvm::file" || 
                                 name == "bbvm::bool" ||
                                 name == "bbvm::list" || name == "bbvm::map" || 
-                                name == "bbvm::pop" || name == "bbvm::push" || 
+                                name == "bbvm::clear" || name == "bbvm::pop" || name == "bbvm::push" || 
                                 name == "bbvm::len" || name == "bbvm::next" || 
                                 name == "bbvm::vector" || name == "bbvm::iter" || 
                                 name == "bbvm::add" || name == "bbvm::sub" || 
@@ -599,7 +599,7 @@ public:
                                 name == "str" || name == "file" || 
                                 name == "bool" || 
                                 name == "list" || name == "map" || 
-                                name == "pop" || name == "push" || 
+                                name == "clear" || name == "pop" || name == "push" || 
                                 name == "put" || 
                                 name == "len" || name == "next" || 
                                 name == "vector" || name == "iter" || 
@@ -714,7 +714,7 @@ public:
                     first_name == "bbvm::str" || first_name == "bbvm::file" || 
                     first_name == "bbvm::bool" ||
                     first_name == "bbvm::list" || first_name == "bbvm::map" || 
-                    first_name == "bbvm::pop" || first_name == "bbvm::push" || 
+                    first_name == "bbvm::clear" || first_name == "bbvm::pop" || first_name == "bbvm::push" || 
                     first_name == "bbvm::put" ||
                     first_name == "bbvm::len" || first_name == "bbvm::next" || 
                     first_name == "bbvm::vector" || first_name == "bbvm::iter" || 
@@ -729,7 +729,7 @@ public:
                     first_name == "str" || first_name == "file" || 
                     first_name == "bool" || 
                     first_name == "list" || first_name == "map" || 
-                    first_name == "pop" || first_name == "push" || 
+                    first_name == "clear" || first_name == "pop" || first_name == "push" || 
                     first_name == "put" ||
                     first_name == "len" || first_name == "next" || 
                     first_name == "vector" || first_name == "iter" || 
@@ -807,7 +807,7 @@ public:
                                 name == "bbvm::str" || name == "bbvm::file" || 
                                 name == "bbvm::bool" ||
                                 name == "bbvm::list" || name == "bbvm::map" || 
-                                name == "bbvm::pop" || name == "bbvm::push" || 
+                                name == "bbvm::clear" || name == "bbvm::pop" || name == "bbvm::push" || 
                                 name == "bbvm::len" || name == "bbvm::next" || 
                                 name == "bbvm::vector" || name == "bbvm::iter" || 
                                 name == "bbvm::add" || name == "bbvm::sub" || 
@@ -821,7 +821,7 @@ public:
                                 name == "str" || name == "file" || 
                                 name == "bool" || 
                                 name == "list" || name == "map" || 
-                                name == "pop" || name == "push" || 
+                                name == "clear" ||name == "pop" || name == "push" || 
                                 name == "put" ||
                                 name == "len" || name == "next" || 
                                 name == "vector" || name == "iter" || 
@@ -1135,7 +1135,7 @@ public:
                 first_name == "bbvm::file" ||  
                 first_name == "bbvm::max" || first_name == "bbvm::min" || 
                 first_name == "bbvm::sum" || 
-                first_name == "bbvm::pop" || 
+                first_name == "bbvm::clear" || first_name == "bbvm::pop" || 
                 first_name == "bbvm::file" || first_name == "bbvm::next" || 
                 first_name == "bbvm::list" || first_name == "bbvm::map" || 
                 first_name == "bbvm::server" || first_name == "bbvm::vector" ||
@@ -1145,7 +1145,7 @@ public:
                 first_name == "file" ||
                 first_name == "max" || first_name == "min" || 
                 first_name == "sum" || 
-                first_name == "pop" || 
+                first_name == "clear" || first_name == "pop" || 
                 first_name == "file" || first_name == "next" || 
                 first_name == "list" || first_name == "map" || 
                 first_name == "server" || first_name == "vector") {
@@ -1231,7 +1231,7 @@ public:
                     callable == "str" || callable == "file" || 
                     callable == "bool" ||
                     callable == "list" || callable == "map" || 
-                    callable == "pop" || callable == "push" || 
+                    callable == "clear" || callable == "pop" || callable == "push" || 
                     callable == "len" || callable == "next" || 
                     callable == "vector" || callable == "iter" || 
                     callable == "add" || callable == "sub" || 
@@ -1243,7 +1243,7 @@ public:
                     callable == "bbvm::str" || callable == "bbvm::file" || 
                     callable == "bbvm::bool" ||
                     callable == "bbvm::list" || callable == "bbvm::map" || 
-                    callable == "bbvm::pop" || callable == "bbvm::push" || 
+                    callable == "bbvm::clear" || callable == "bbvm::pop" || callable == "bbvm::push" || 
                     callable == "bbvm::len" || callable == "bbvm::next" || 
                     callable == "bbvm::vector" || callable == "bbvm::iter" || 
                     callable == "bbvm::add" || callable == "bbvm::sub" || 
