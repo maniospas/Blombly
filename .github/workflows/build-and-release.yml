@@ -38,8 +38,9 @@ jobs:
               cmake --build ./build --config Release
             package-command: |
               mkdir release
-              cp ./blombly release/ || cp .build/blombly release/ || echo "No executables found"
-              cp ./*.so release/ || cp ./build/*.so release/ || echo "No shared libraries found"
+              find . -name "blombly"
+              cp ./blombly release/ || echo "No executables found"
+              cp ./*.so release/ || echo "No shared libraries found"
               cp -r libs/ release/ || echo "No libs directory found"
               tar -czvf linux_release.tar.gz -C release .
             artifact-name: linux-build
