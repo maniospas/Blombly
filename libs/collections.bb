@@ -16,6 +16,7 @@ final collection = new {
 
 final os = new {
     final call(str file path) => path;
+    final isfile(str path) => bool(file(path)/".")==false;
     final read(str file path) = {
         ret = "";
         while(line in path) {
@@ -24,12 +25,36 @@ final os = new {
         }
         return ret;
     }
-    final isfile(str path) => bool(file(path)/".")==false;
+    final transfer(str file dst, str file src) = {
+        default hash = "md5";
+        text = src|bb.os.read;
+        push(dst, text);
+        return text[hash];
+    }
 }
 
 final string = new {
+    // can use bb.string instead of str for typecasting
     call(str value) => value;
+
+    // hash functions exposed from openssl
+    final md5(arg) => arg["md5"];
+    final sha1(arg) => arg["sha1"];
+    final sha224(arg) => arg["sha224"];
+    final sha256(arg) => arg["sha256"];
+    final sha384(arg) => arg["sha384"];
+    final sha512(arg) => arg["sha512"];
+    final sha3_224(arg) => arg["sha3_224"];
+    final sha3_256(arg) => arg["sha3_256"];
+    final sha3_384(arg) => arg["sha3_384"];
+    final sha3_512(arg) => arg["sha3_512"];
+    final blake2b(arg) => arg["blake2b"];
+    final blake2s(arg) => arg["blake2s"];
+    final ripemd160(arg) => arg["ripemd160"];
+    final whirlpool(arg) => arg["whirlpool"];
+    final sm3(arg) => arg["sm3"];
     
+    // common string manipulation methods
     final starts(str query) => new {
         assert args|len == 0;
         call(str search) = {

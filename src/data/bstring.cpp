@@ -6,8 +6,41 @@
 #include "data/BError.h"
 #include "data/Iterator.h"
 #include "common.h"
+#include <openssl/evp.h>
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <string>
+#include <vector>
 
 extern BError* OUT_OF_RANGE;
+
+std::string calculateHash(const std::string& input, const EVP_MD* (*hash_function)()) {
+    EVP_MD_CTX* context = EVP_MD_CTX_new();
+    bbassert(context, "OpenSSL error: Failed to create EVP_MD_CTX");
+
+    unsigned char hash_result[EVP_MAX_MD_SIZE];
+    unsigned int hash_length = 0;
+
+    // Initialize, update, and finalize the hash computation
+    if (EVP_DigestInit_ex(context, hash_function(), nullptr) != 1 ||
+        EVP_DigestUpdate(context, input.c_str(), input.size()) != 1 ||
+        EVP_DigestFinal_ex(context, hash_result, &hash_length) != 1) {
+        EVP_MD_CTX_free(context);
+        bberror("OpenSSL error: Failed to compute hash");
+    }
+
+    EVP_MD_CTX_free(context);
+
+    std::ostringstream hex_stream;
+    for (unsigned int i = 0; i < hash_length; ++i) {
+        hex_stream << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(hash_result[i]);
+    }
+
+    return hex_stream.str();
+}
+
+
 
 void BString::consolidate() {
     if (buffer.size() != 1 || buffer.front()->value.size()!=buffer.front()->size) {
@@ -71,6 +104,32 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
         }
         std::string v1 = static_cast<BString*>(args->arg0)->toString(memory);
         std::string v2 = static_cast<BString*>(args->arg1)->toString(memory);
+
+        if (operation == AT) {
+            bbassert(v2 == "md5" || v2 == "sha1" || v2 == "sha256" || v2 == "sha512" ||
+                    v2 == "sha224" || v2 == "sha384" || v2 == "sha3_224" || v2 == "sha3_256" || 
+                    v2 == "sha3_384" || v2 == "sha3_512" || v2 == "blake2b" || v2 == "blake2s" || 
+                    v2 == "ripemd160" || v2 == "whirlpool" || v2 == "sm3", 
+                    "Only md5, sha1, sha224, sha256, sha384, sha512, sha3_224, sha3_256, sha3_384, sha3_512, blake2b, blake2s, ripemd160, whirlpool, or sm3 formatting is allowed for strings");
+            
+            if (v2 == "sha1") return std::move(Result(new BString(calculateHash(v1, EVP_sha1))));
+            if (v2 == "sha224") return std::move(Result(new BString(calculateHash(v1, EVP_sha224))));
+            if (v2 == "sha256") return std::move(Result(new BString(calculateHash(v1, EVP_sha256))));
+            if (v2 == "sha384") return std::move(Result(new BString(calculateHash(v1, EVP_sha384))));
+            if (v2 == "sha512") return std::move(Result(new BString(calculateHash(v1, EVP_sha512))));
+            if (v2 == "sha3_224") return std::move(Result(new BString(calculateHash(v1, EVP_sha3_224))));
+            if (v2 == "sha3_256") return std::move(Result(new BString(calculateHash(v1, EVP_sha3_256))));
+            if (v2 == "sha3_384") return std::move(Result(new BString(calculateHash(v1, EVP_sha3_384))));
+            if (v2 == "sha3_512") return std::move(Result(new BString(calculateHash(v1, EVP_sha3_512))));
+            if (v2 == "blake2b") return std::move(Result(new BString(calculateHash(v1, EVP_blake2b512))));
+            if (v2 == "blake2s") return std::move(Result(new BString(calculateHash(v1, EVP_blake2s256))));
+            if (v2 == "ripemd160") return std::move(Result(new BString(calculateHash(v1, EVP_ripemd160))));
+            if (v2 == "whirlpool") return std::move(Result(new BString(calculateHash(v1, EVP_whirlpool))));
+            if (v2 == "sm3") return std::move(Result(new BString(calculateHash(v1, EVP_sm3))));
+            
+            return std::move(Result(new BString(calculateHash(v1, EVP_md5))));
+        }
+
         switch (operation) {
             case EQ: BB_BOOLEAN_RESULT(v1 == v2);
             case NEQ: BB_BOOLEAN_RESULT(v1 != v2);
@@ -109,11 +168,8 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
 
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
         int64_t index = static_cast<Integer*>(args->arg1)->getValue();
-        if(index>=buffer.front()->value.size())
-            consolidate();
-        if (index < 0 || index >= toString(memory).size()) {
-            return std::move(Result(OUT_OF_RANGE));
-        }
+        if(index>=buffer.front()->value.size()) consolidate();
+        if (index < 0 || index >= toString(memory).size()) return std::move(Result(OUT_OF_RANGE));
         return std::move(Result(new BString(std::string(1, toString(memory)[index]))));
     }
 
