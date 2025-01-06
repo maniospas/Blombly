@@ -44,10 +44,10 @@ enum OperationType {
     NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, DIV, MOD, LEN, POW, LOG,
     PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOMAP, TOBB_INT, TOBB_FLOAT, TOSTR, TOBB_BOOL, TOCOPY, TOFILE,
     SUM, MAX, MIN,
-    BUILTIN, BEGIN, BEGINFINAL, BEGINCACHED, END, RETURN, FINAL, IS,
+    BUILTIN, BEGIN, BEGINFINAL, BEGINCACHE, END, RETURN, FINAL, IS,
     CALL, WHILE, IF, NEW, BB_PRINT, INLINE, GET, SET, SETFINAL, DEFAULT,
     TIME, TOITER, TRY, CATCH, FAIL, EXISTS, READ, CREATESERVER, AS, TORANGE, 
-    DEFER, CLEAR
+    DEFER, CLEAR, ISCACHED
 };
 
 // Array mapping OperationType to string representations
@@ -56,10 +56,10 @@ static const std::string OperationTypeNames[] = {
     "div", "mod", "len", "pow", "log", "push", "pop", "next", "put", "at", "shape",
     "vector", "list", "map", "int", "float", "str", "bool", "copy", "file",
     "sum", "max", "min",
-    "BUILTIN", "BEGIN", "BEGINFINAL", "BEGINCACHED", "END", "return", "final", "IS",
+    "BUILTIN", "BEGIN", "BEGINFINAL", "CACHE", "END", "return", "final", "IS",
     "call", "while", "if", "new", "print", "inline", "get", "set", "setfinal", "default",
     "time", "iter", "try", "catch", "fail", "exists", "read", "server", "AS", "range",
-    "defer", "clear"
+    "defer", "clear", "ISCACHED"
 };
 
 // Map operations to symbols and conversely

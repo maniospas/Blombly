@@ -1,3 +1,3 @@
 A = "I like banana!";
-assert A|string.starts_with("I like");
-assert A|string.ends_with("banana!");
+assert A|bb.string.starts("I like");
+assert A|bb.string.ends("banana!");

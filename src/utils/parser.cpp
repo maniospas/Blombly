@@ -46,6 +46,7 @@ extern bool debug_info;
 std::string compileFromCode(const std::string& code, const std::string& source);
 std::string optimizeFromCode(const std::string& code);
 
+extern std::unordered_map<int, Data*> cachedData;
 
 std::string singleThreadedVMForComptime(const std::string& code, const std::string& fileName) {
     Future::setMaxThreads(1);
@@ -81,6 +82,8 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
         }
         BMemory::verify_noleaks();
     }
+    for (const auto& [key, data] : cachedData) delete data;
+    cachedData.clear();
     return std::move(result);
 }
 

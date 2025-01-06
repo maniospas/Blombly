@@ -48,12 +48,12 @@ public:
 class BMemory {
 private:
     tsl::hopscotch_map<int, Data*> data;
-    tsl::hopscotch_set<int> finals;
     int fastId;
     Data* fastData;
     void unsafeSet(int item, Data* value);
     std::vector<Code*> finally;
 public:
+    tsl::hopscotch_set<int> finals;
     Data* thisObject;
     void release();
     BMemory* parent;

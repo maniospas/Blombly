@@ -61,6 +61,7 @@ std::string replaceEscapeSequences(const std::string& input) {
 std::chrono::steady_clock::time_point program_start;
 std::recursive_mutex printMutex;
 std::recursive_mutex compileMutex;
+std::unordered_map<int, Data*> cachedData;
 
 #define SET_RESULT if(command->args[0]!=variableManager.noneId) memory->unsafeSet(command->args[0], result, nullptr);return
 
@@ -73,11 +74,35 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
     //std::cout<<command->toString(memory)<<"\t "<<std::this_thread::get_id()<<"\n";
     
     switch (command->operation) {
-        case BUILTIN:
-            result = command->value;
-            break;
+        case BUILTIN: result = command->value;break;
+        case BEGINCACHE: {
+            int pos = i + 1;
+            int depth = 0;
+            OperationType command_type;
+            while (pos <= program->size()) {
+                command_type = (*program)[pos]->operation;
+                if (command_type == BEGIN || command_type == BEGINFINAL) depth++;
+                if (command_type == END) {
+                    if (depth == 0) break;
+                    depth--;
+                }
+                pos++;
+            }
+            bbassert(depth >= 0, "Cache declaration never ended.");
+            auto cache = new Code(program, i + 1, pos, nullptr);
+            bool cacheReturn(false);
+            BMemory cacheMemory(nullptr, 16, nullptr);
+            executeBlock(cache, &cacheMemory, cacheReturn);
+            cacheMemory.await();
+            bbassert(!cacheReturn, "Cache declaration cannot return a value");
+            for (int key : cacheMemory.finals) {
+                Data* obj = cacheMemory.get(key);
+                bbassert(obj && obj->getType()!=STRUCT, "Structs cannot be cached");
+                obj->addOwner();
+                cachedData[key] = obj;
+            }
+        }
         case BEGIN:
-        case BEGINCACHED:
         case BEGINFINAL: {
             // Start a block of code
             if (command->value) {
@@ -86,8 +111,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 val->scheduleForParallelExecution = code->scheduleForParallelExecution;
                 val->jitable = code->jitable;
                 result = val;
-                if (command->operation == BEGINFINAL) 
-                    memory->setFinal(command->args[0]);
+                if (command->operation == BEGINFINAL) memory->setFinal(command->args[0]);
                 i = code->getEnd();
                 break;
             }
@@ -95,19 +119,14 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             int pos = i + 1;
             int depth = 0;
             OperationType command_type;
-            bool scheduleForParallelExecution = true;
             while (pos <= program->size()) {
                 command_type = (*program)[pos]->operation;
-                if (command_type == BEGIN || command_type == BEGINFINAL)
-                    depth += 1;
-                //if (command_type == WHILE)
-                //    scheduleForParallelExecution = true;
+                if (command_type == BEGIN || command_type == BEGINFINAL) depth++;
                 if (command_type == END) {
-                    if (depth == 0)
-                        break;
-                    depth -= 1;
+                    if (depth == 0) break;
+                    depth--;
                 }
-                pos += 1;
+                pos++;
             }
             bbassert(depth >= 0, "Code block never ended.");
             auto cache = new Code(program, i + 1, pos, memory);
@@ -115,13 +134,11 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto val = new Code(program, i + 1, pos, memory, nullptr);//cache->getAllMetadata());
             val->jitable = jit(val);
             cache->jitable = val->jitable;
-            val->scheduleForParallelExecution = scheduleForParallelExecution;
-            cache->scheduleForParallelExecution = scheduleForParallelExecution;
+            val->scheduleForParallelExecution = true;
+            cache->scheduleForParallelExecution = true;
             command->value = cache;
             result = (val);
-            if (command->operation == BEGINFINAL) {
-                memory->setFinal(command->args[0]);
-            }
+            if (command->operation == BEGINFINAL) memory->setFinal(command->args[0]);
             i = pos;
         } break;
 
@@ -148,8 +165,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     Result returnedValue = executeBlock(static_cast<Code*>(context), &newMemory, newReturnSignal);
                     if(newReturnSignal) {
                         result = returnedValue.get();
-                        if(result && result->getType()==CODE)
-                            static_cast<Code*>(result)->setDeclarationMemory(nullptr);
+                        if(result && result->getType()==CODE) static_cast<Code*>(result)->setDeclarationMemory(nullptr);
                         SET_RESULT;
                         break;
                     }
@@ -157,10 +173,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 //newMemory.detach(code->getDeclarationMemory());
                 newMemory.detach(memory);
                 Data* thisObj = nullptr;
-                if(code->getDeclarationMemory())
-                    thisObj = code->getDeclarationMemory()->getOrNull(variableManager.thisId, true);
-                if(thisObj)
-                    newMemory.unsafeSet(variableManager.thisId, thisObj, nullptr);
+                if(code->getDeclarationMemory()) thisObj = code->getDeclarationMemory()->getOrNull(variableManager.thisId, true);
+                if(thisObj) newMemory.unsafeSet(variableManager.thisId, thisObj, nullptr);
                 //newMemory.detach(thisObj?nullptr:memory);
                 newMemory.allowMutables = false;
                 //newMemory.leak(); (this is for testing only - we are not leaking any memory to other threads if we continue in the same thread, so no need to enable atomic reference counting)
@@ -192,17 +206,14 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     }
                 }
                 if(newReturnSignal) {
-                    if(result && result->getType()==CODE)
-                        static_cast<Code*>(result)->setDeclarationMemory(nullptr);
+                    if(result && result->getType()==CODE) static_cast<Code*>(result)->setDeclarationMemory(nullptr);
                     break;
                 }
                 //newMemory->detach(code->getDeclarationMemory());
                 newMemory->detach(memory);
                 Data* thisObj = nullptr;
-                if(code->getDeclarationMemory())
-                    thisObj = code->getDeclarationMemory()->getOrNull(variableManager.thisId, true);
-                if(thisObj)
-                    newMemory->unsafeSet(variableManager.thisId, thisObj, nullptr);
+                if(code->getDeclarationMemory()) thisObj = code->getDeclarationMemory()->getOrNull(variableManager.thisId, true);
+                if(thisObj) newMemory->unsafeSet(variableManager.thisId, thisObj, nullptr);
                 newMemory->allowMutables = false;
                 newMemory->leak(); // for all transferred variables, make their reference counter thread safe
 
@@ -239,7 +250,11 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             }
             if(result->getType() == CODE) static_cast<Code*>(result)->setDeclarationMemory(from);
         } break;
-
+        case ISCACHED: {
+            result = cachedData[command->args[1]];
+            bbassert(result, "Missing cache value (typically cached due to optimization):" + variableManager.getSymbol(command->args[1]));
+            break;
+        }
         case IS: {
             result = command->knownLocal[1]?memory->getShallow(command->args[1]):memory->get(command->args[1], true);
             bbassert(result, "Missing value"+std::string(memory->size()?"":" in cleared memory ")+": " + variableManager.getSymbol(command->args[1]));

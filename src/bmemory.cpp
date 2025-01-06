@@ -305,35 +305,22 @@ void BMemory::replaceMissing(BMemory* other) {
         auto existing = getOrNullShallow(item);
         if (!existing) {
             auto dat = it.second;
-            if (dat) 
-                unsafeSet(item, dat, nullptr);
+            if (dat) unsafeSet(item, dat, nullptr);
         }
     }
 }
 
 void BMemory::await() {
-    if(attached_threads.size()==0)  // we don't need to lock because on zero threads we are ok, on >=1 threads we don't care about the number
-        return;
+    if(attached_threads.size()==0) return; // we don't need to lock because on zero threads we are ok, on >=1 threads we don't care about the number
     std::string destroyerr = "";
-
     for (const auto& thread : attached_threads) {
-        try {
-            thread->getResult();
-           // if(ret)
-           //     ret->removeFromOwner();
-        }
-        catch (const BBError& e) {
-            destroyerr += std::string(e.what())+"\n";
-        }
+        try {thread->getResult();}
+        catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
     }
     attached_threads.clear();
 
-    try {
-        runFinally();
-    }
-    catch (const BBError& e) {
-        destroyerr += std::string(e.what())+"\n";
-    }
+    try {runFinally();}
+    catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
 
     for (const auto& element : data) {
         auto dat = element.second;
@@ -342,9 +329,8 @@ void BMemory::await() {
             destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was intercepted with `try` but never handled:\n"+dat->toString(this)+"\n";
         }
     }
-    
-    if(destroyerr.size())
-        throw BBError(destroyerr.substr(0, destroyerr.size()-1));
+
+    if(destroyerr.size()) throw BBError(destroyerr.substr(0, destroyerr.size()-1));
 }
 
 void BMemory::detach(BMemory* par) {

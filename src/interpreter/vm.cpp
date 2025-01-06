@@ -47,10 +47,10 @@ Result compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
     return Result(new Code(program, 0, program->size() - 1, currentMemory));
 }
 
+extern std::unordered_map<int, Data*> cachedData;
 
 int vm(const std::string& fileName, int numThreads) {
     Future::setMaxThreads(numThreads);
-
     try {
         {
             BMemory memory(nullptr, DEFAULT_LOCAL_EXPECTATION);
@@ -77,6 +77,8 @@ int vm(const std::string& fileName, int numThreads) {
             bbassert(!hasReturned, "The virtual machine cannot return a value.");
         }
         BMemory::verify_noleaks();
+        for (const auto& [key, data] : cachedData) delete data;
+        cachedData.clear();
         //std::cout<<"Program completed successfully\n";
     } catch (const BBError& e) {
         std::cerr << e.what() << "\033[0m\n";
