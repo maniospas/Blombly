@@ -1,11 +1,13 @@
-BEGIN _bb8
+CACHE
+BEGIN cache0
 return # this
 END
+final # cache0
+END
+ISCACHED _bb8 cache0
 new bb _bb8
 final # bb
-BEGIN _bb11
-return # this
-END
+ISCACHED _bb11 cache0
 new _bb9 _bb11
 set # bb ansi _bb9
 BEGIN _bb31

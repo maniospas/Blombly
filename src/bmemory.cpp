@@ -232,26 +232,19 @@ void BMemory::removeWithoutDelete(int item) {
 }
 
 void BMemory::unsafeSet(BMemory* handler, int item, Data* value, Data* prev) {
-    if (isFinal(item))
-        bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
-    if(value && value->getType()==FUTURE) 
-        fastId = -1;
+    if(value && value->getType()==FUTURE) fastId = -1;
     else {
         fastId = item;
         fastData = value;
     }
-    if(prev && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev)->isConsumed()) 
-        bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
-    if(value)
-        value->addOwner();
-    if(prev)
-        prev->removeFromOwner();
+    if (prev && isFinal(item)) bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
+    if(prev && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev)->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
+    if(value) value->addOwner();
+    if(prev) prev->removeFromOwner();
     data[item] = value;
 }
 
 void BMemory::unsafeSet(int item, Data* value, Data* prev) {
-    if (isFinal(item))
-        bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
     if(value && value->getType()!=FUTURE) {
         fastId = item;
         fastData = value;
@@ -259,12 +252,10 @@ void BMemory::unsafeSet(int item, Data* value, Data* prev) {
     else
         fastId = -1;
     prev = data[item];
-    if(prev && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev)->isConsumed()) 
-        bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
-    if(value)
-        value->addOwner();
-    if(prev)
-        prev->removeFromOwner();
+    if (prev && isFinal(item)) bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
+    if(prev && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev)->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
+    if(value) value->addOwner();
+    if(prev) prev->removeFromOwner();
     data[item] = value;
     //std::cout << "set "<<variableManager.getSymbol(item)<<" to "<<value<<"\n";
 }

@@ -5,8 +5,9 @@
 !macro {->} as {return}
 
 // include after core language definitions
-final bb = new {}
-!include "libs/ansi"
-!include "libs/monad"
-!include "libs/tests"
-!include "libs/collections"
+final bb = new {
+    !include "libs/ansi"
+    !include "libs/monad"
+    !include "libs/tests"
+    !include "libs/collections"
+}

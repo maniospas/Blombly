@@ -1,4 +1,4 @@
-bb.collection = new {
+final collection = new {
     final toback(element) => new {
         call(A) = {
             push(A, this..element);
@@ -14,7 +14,7 @@ bb.collection = new {
     }
 }
 
-bb.os = new {
+final os = new {
     final call(str file path) => path;
     final read(str file path) = {
         ret = "";
@@ -27,7 +27,7 @@ bb.os = new {
     final isfile(str path) => bool(file(path)/".")==false;
 }
 
-bb.string = new {
+final string = new {
     call(str value) => value;
     
     final starts(str query) => new {

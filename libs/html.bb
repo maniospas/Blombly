@@ -1,6 +1,6 @@
-bb.html = new{}
+final html = new{}
 
-bb.html.html(title, body) = {
+html.html(title, body) = {
     default script = "";
     default src = "";
     default stylesheet = "";
@@ -18,7 +18,7 @@ bb.html.html(title, body) = {
     ";
 }
 
-bb.html.dom(name) = {
+html.dom(name) = {
     default style = "";
     return new {
         uses dom;
@@ -52,7 +52,7 @@ bb.html.dom(name) = {
     }
 }
 
-bb.html.class(str cssclass) => new {
+html.class(str cssclass) => new {
     call(dom) = {
         if(dom.cssclass|len|bool) dom.cssclass += " ";
         dom.cssclass += this..cssclass;
@@ -61,7 +61,7 @@ bb.html.class(str cssclass) => new {
     lt(dom) = {return this.call(dom)}
 }
 
-bb.html.css(str style) => new{
+html.css(str style) => new{
     call(dom) = {
         if(dom.style|len|bool) dom.style += ";";
         dom.style += this..style;
@@ -71,14 +71,14 @@ bb.html.css(str style) => new{
 }
 
 
-bb.html.tr = "tr";
-bb.html.td = "td";
-bb.html.div = "div";
-bb.html.p = "p";
-bb.html.h1 = "h1";
-bb.html.h2 = "h2";
-bb.html.h3 = "h3";
-bb.html.h4 = "h4";
-bb.html.h5 = "h5";
-bb.html.table = "table";
-bb.html.tbody = "tbody";
+html.tr = "tr";
+html.td = "td";
+html.div = "div";
+html.p = "p";
+html.h1 = "h1";
+html.h2 = "h2";
+html.h3 = "h3";
+html.h4 = "h4";
+html.h5 = "h5";
+html.table = "table";
+html.tbody = "tbody";

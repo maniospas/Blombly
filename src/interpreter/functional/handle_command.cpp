@@ -101,6 +101,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 obj->addOwner();
                 cachedData[key] = obj;
             }
+            result = nullptr;
+            return;
         }
         case BEGIN:
         case BEGINFINAL: {
