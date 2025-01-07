@@ -147,7 +147,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
 
         std::string newContents = args->arg1->toString(memory);
         fs::path filePath(path);
-        if (std::string(filePath.parent_path().c_str()).size() && !fs::exists(filePath.parent_path())) fs::create_directories(filePath.parent_path());
+        if (filePath.parent_path().string().size() && !fs::exists(filePath.parent_path())) fs::create_directories(filePath.parent_path());
         std::ofstream file(path, std::ios::trunc); 
         bbassert(file.is_open(), "Failed to open file for writing: " + path);
         file << newContents;
