@@ -1,5 +1,9 @@
-!comptime(try{
-    received_hash = bb.os.transfer("libs/html.bb", "https://raw.githubusercontent.com/maniospas/Blombly/refs/heads/main/libs/html.bb");
-    assert "d369d06ae1e60992b12f1417e60817d5" == received_hash;
-    return true;
-});
+// build automation - enable some access and modification rights needed to grab dependencies from the web
+!access "https://raw.githubusercontent.com/"
+!modify "libs/download/"
+
+// let comptime prepare everything - inclu
+!comptime(bb.os.transfer("libs/download/html.bb", "https://raw.githubusercontent.com/maniospas/Blombly/refs/heads/main/libs/html.bb"));
+
+// do some stuff with your library - it may have comptime internally too, but !access and !modify are not allowed there (yours are fixed)
+!include "libs/download/html"

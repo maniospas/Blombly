@@ -45,6 +45,10 @@ extern bool debug_info;
 
 std::string compileFromCode(const std::string& code, const std::string& source);
 std::string optimizeFromCode(const std::string& code);
+extern void addAllowedLocation(const std::string& location);
+extern void addAllowedWriteLocation(const std::string& location);
+extern void clearAllowedLocations();
+std::string top_level_file;
 
 extern std::unordered_map<int, Data*> cachedData;
 
@@ -1400,6 +1404,7 @@ public:
 
 int Parser::tmp_var = 0;
 
+
 void sanitize(std::vector<Token>& tokens) {
     std::vector<Token> updatedTokens;
     for (size_t i = 0; i < tokens.size(); ++i) {
@@ -1515,6 +1520,7 @@ void sanitize(std::vector<Token>& tokens) {
             ++i;
             continue;
         }
+
         if ((tokens[i].name == "#" || tokens[i].name == "!") && ((i >= tokens.size() - 1) || 
             (tokens[i + 1].name != "include" && tokens[i + 1].name != "local"
              && tokens[i + 1].name != "macro" && tokens[i + 1].name != "stringify" 
@@ -1522,19 +1528,22 @@ void sanitize(std::vector<Token>& tokens) {
              && tokens[i + 1].name != "anon" && tokens[i + 1].name != "x"
              && tokens[i + 1].name != "spec" && tokens[i + 1].name != "fail" 
              && tokens[i + 1].name != "of"
+             && tokens[i + 1].name != "access"
+             && tokens[i + 1].name != "modify"
              && tokens[i + 1].name != "comptime"))) {
             bberror("Invalid preprocessor instruction after `"+tokens[i].name+"` symbol."
                     "\n   \033[33m!!!\033[0m This symbol signifies preprocessor directives."
                     "\n        Valid directives are the following patterns:"
                     "\n        - `!include @str` inlines a file."
                     "\n        - `!comptime @expr` evaluates an expression during compilation (it is constant during runtime)."
-                    "\n        - `!spec @property=@value;` declares a code block specification."
                     "\n        - `(!of @expression)` or (!anon @expression)` assigns the expression to a temporary variable just after the last command."
                     "\n        - `!x` is a shorthand for `next(args)`."
                     "\n        - `!macro {@expression} as {@implementation}` defines a macro."
                     "\n        - `!local {@expression} as {@implementation}` defines a macro that is invalidated when the current file ends."
                     "\n        - `!stringify (@tokens)` converts the tokens into a string at compile time."
                     "\n        - `!symbol (@tokens)` converts the tokens into a symbol name at compile time."
+                    "\n        - `!access @str` grants read access to locations starting with the provided string (`!comptime` also gets these rights but cannot add to it)."
+                    "\n        - `!modify @str` grants read and write access to locations starting with the provided string (`!comptime` also gets these rights but cannot add to it)."
                     "\n        - `!fail @message` creates a compile-time failure.\n"
                     + Parser::show_position(tokens, i));
         }
@@ -1798,6 +1807,31 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             replaceAll(message, "\\n", "\n");
             bberror(message+"\n"+involved);
         }
+        else if ((tokens[i].name == "#" || tokens[i].name == "!") && (i < tokens.size()-3) && tokens[i+1].name=="access") {
+            bbassert(top_level_file==tokens[i].file.back(), "Unexpected `!access`"
+                                        "\n   \033[33m!!!\033[0m This preprocessor directive is only available from the top-level file being parsed"
+                                        "\n        and before all `!include` and `!comptime` directives."
+                                        "\n        Note that these also share permission rights with your main application.\n"+Parser::show_position(tokens, i));
+            bbassert(tokens[i+2].builtintype==1, "`!access` should always be followed by a string\n"+Parser::show_position(tokens, i+2));
+            std::string libpath = tokens[i+2].name;    
+            std::string source = libpath.substr(1, libpath.size() - 2);
+            addAllowedLocation(source);
+            i += 2;
+            continue;
+        }
+        if ((tokens[i].name == "#" || tokens[i].name == "!") && (i < tokens.size()-3) && tokens[i+1].name=="modify") {
+            bbassert(top_level_file==tokens[i].file.back(), "Unexpected `!modify`"
+                                        "\n   \033[33m!!!\033[0m This preprocessor directive is only available from the top-level file being parsed"
+                                        "\n        and before all `!include` and `!comptime` directives."
+                                        "\n        Note that these also share permission rights with your main application.\n"+Parser::show_position(tokens, i));
+            bbassert(tokens[i+2].builtintype==1, "`!modify` should always be followed by a string\n"+Parser::show_position(tokens, i+2));
+            std::string libpath = tokens[i+2].name;    
+            std::string source = libpath.substr(1, libpath.size() - 2);
+            addAllowedWriteLocation(source);
+            i += 2;
+            continue;
+        }
+
         else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && tokens[i + 1].name == "spec") {
             int specNameEnd = MISSING;
             int specNameStart = MISSING;
@@ -2039,7 +2073,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 source += ".bb";
 
             if (previousImports.find(source) != previousImports.end()) {
-                tokens.erase(tokens.begin() + i, tokens.begin() + libpathend+1);
+                tokens.erase(tokens.begin() + i, tokens.begin() + libpathend + 1);
                 i -= 1;
                 continue;
             }
@@ -2225,7 +2259,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
 
 
 std::string compileFromCode(const std::string& code, const std::string& source) {
-
+    if(top_level_file.empty()) top_level_file = source;
     std::vector<Token> tokens = tokenize(code, source);
     sanitize(tokens);
     macros(tokens, source);

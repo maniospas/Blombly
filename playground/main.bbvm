@@ -1,0 +1,119 @@
+BEGIN _bb8
+BEGIN _bb88
+BEGIN _bb89
+next value args
+str value value
+return # value
+END
+IS call _bb89
+BEGIN _bb135
+next query args
+str query query
+BEGIN _bb138
+get _bb139 this query
+IS .query _bb139
+BEGIN _bb140
+BUILTIN _bb141 "Assertion failed: args|len==0"
+fail # _bb141
+END
+BUILTIN _bb143 Bfalse
+BUILTIN _bb145 I0
+len _bb146 args
+eq _bb144 _bb146 _bb145
+eq _bb142 _bb144 _bb143
+if # _bb142 _bb140
+BEGIN _bb147
+next search args
+str search search
+get _bb148 this .query
+IS ..query _bb148
+BEGIN _bb149
+BUILTIN _bb150 "Assertion failed: args|len==0"
+fail # _bb150
+END
+BUILTIN _bb152 Bfalse
+BUILTIN _bb154 I0
+len _bb155 args
+eq _bb153 _bb155 _bb154
+eq _bb151 _bb153 _bb152
+if # _bb151 _bb149
+IS query ..query
+len nsearch search
+len nquery query
+BEGIN _bb158
+BUILTIN _bb159 Bfalse
+return # _bb159
+END
+lt _bb160 nsearch nquery
+if # _bb160 _bb158
+range _bb161 nquery
+iter _bbmacro2 _bb161
+BEGIN _bb163
+next _bb164 _bbmacro2
+AS i _bb164
+exists _bb165 i
+END
+BEGIN _bb166
+BEGIN _bb167
+BUILTIN _bb168 Bfalse
+return # _bb168
+END
+at _bb170 search i
+at _bb171 query i
+neq _bb169 _bb171 _bb170
+if # _bb169 _bb167
+END
+while # _bb163 _bb166
+BUILTIN _bb172 Btrue
+return # _bb172
+END
+IS call _bb147
+return # this
+END
+new _bb136 _bb138
+return # _bb136
+END
+IS starts _bb135
+final # starts
+return # this
+END
+new string _bb88
+final # string
+return # this
+END
+new bb _bb8
+final # bb
+BEGIN _bb304
+next path args
+BEGIN _bb307
+list args path
+END
+BEGIN _bb310
+BUILTIN _bb311 "html"
+list args _bb311
+END
+get _bb313 bb string
+get _bb312 _bb313 starts
+call _bb309 _bb310 _bb312
+call _bb306 _bb307 _bb309
+BEGIN _bb315
+list args path
+END
+BEGIN _bb318
+BUILTIN _bb319 "libs/"
+list args _bb319
+END
+get _bb321 bb string
+get _bb320 _bb321 starts
+call _bb317 _bb318 _bb320
+call _bb314 _bb315 _bb317
+or _bb305 _bb314 _bb306
+return # _bb305
+END
+IS permit _bb304
+BEGIN _bb323
+BUILTIN _bb325 "libs/test.py"
+list args _bb325
+END
+call _bb322 _bb323 permit
+print # _bb322

@@ -11,10 +11,37 @@
 #include <sstream>
 #include <curl/curl.h> // Include libcurl
 #include <filesystem> // Include filesystem library
+#include <algorithm>  // For std::remove
 
 namespace fs = std::filesystem;
 
 extern BError* OUT_OF_RANGE;
+
+static std::vector<std::string> allowedLocations = {};
+static std::vector<std::string> allowedWriteLocations = {};
+
+bool isAllowedLocation(const std::string& path) {
+    for (const auto& location : allowedLocations) if(path.size() >= location.size() && path.compare(0, location.size(), location) == 0) return true;
+    return false;
+}
+
+bool isAllowedWriteLocation(const std::string& path) {
+    for (const auto& location : allowedWriteLocations) if(path.size() >= location.size() && path.compare(0, location.size(), location) == 0) return true;
+    return false;
+}
+void addAllowedLocation(const std::string& location) {
+    if (!isAllowedLocation(location)) allowedLocations.push_back(location);
+}
+
+void addAllowedWriteLocation(const std::string& location) {
+    if (!isAllowedWriteLocation(location)) allowedWriteLocations.push_back(location);
+    addAllowedLocation(location);
+}
+
+void clearAllowedLocations() {
+    allowedLocations.clear();
+    allowedWriteLocations.clear();
+}
 
 // Helper function to handle HTTP GET responses
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* response) {
@@ -30,42 +57,42 @@ std::string fetchHttpContent(const std::string& url) {
     std::string response;
 
     curl = curl_easy_init();
-    if (curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-
-        // Perform the request
-        res = curl_easy_perform(curl);
-        if (res != CURLE_OK) {
-            bberror("Failed to fetch URL: " + url + ", error: " + curl_easy_strerror(res));
-        }
-
-        // Cleanup
-        curl_easy_cleanup(curl);
-    } else {
-        bberror("Failed to initialize CURL");
-    }
+    bbassert (curl, "Failed to initialize CURL");
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+    res = curl_easy_perform(curl);
+    bbassert (res == CURLE_OK, "Failed to fetch URL: " + url + ", error: " + curl_easy_strerror(res));
+    curl_easy_cleanup(curl);
     return response;
 }
 
-BFile::BFile(const std::string& path_) : path(path_), size(0), Data(FILETYPE), contentsLoaded(false) {}
+BFile::BFile(const std::string& path_) : path(path_), size(0), Data(FILETYPE), contentsLoaded(false) {
+    bbassert(isAllowedLocation(path), "Access denied for path: " + path +
+                                      "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
+                                      "\n       You need to add read permissions to a location containting the prefix with `!access \"location\"`."
+                                      "\n       Permisions can only be granted this way from the virtual machine's entry point."
+                                      "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
+}
 
 void BFile::loadContents() {
+    bbassert(isAllowedLocation(path), "Access denied for path: " + path +
+                                      "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
+                                      "\n       You need to add read permissions to a location containting the prefix with `!access \"location\"`."
+                                      "\n       Permisions can only be granted this way from the virtual machine's entry point."
+                                      "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
     if (contentsLoaded) return;
-    if (path.rfind("http", 0) == 0) { // Check if path starts with "http"
+    if (path.rfind("http", 0) == 0) {
         std::string httpContent = fetchHttpContent(path);
         bbassert(!httpContent.empty(), "Failed to fetch content from HTTP path: " + path);
         std::istringstream stream(httpContent);
         std::string line;
         while (std::getline(stream, line)) contents.push_back(line);
-    } 
-    else if (fs::is_directory(path)) { // Check if path is a directory
+    } else if (fs::is_directory(path)) {
         for (const auto& entry : fs::directory_iterator(path)) contents.push_back(entry.path().string());
-    } 
-    else { // Assume path is a file
+    } else {
         std::ifstream file(path);
-        bbassert(file.is_open(), "Failed to open file: "+path);
+        bbassert(file.is_open(), "Failed to open file: " + path);
         std::string line;
         while (std::getline(file, line)) contents.push_back(line);
         file.close();
@@ -83,7 +110,12 @@ std::string BFile::getPath() const {
 }
 
 bool BFile::exists() const {
-    if (path.rfind("http", 0) == 0) return true; 
+    bbassert(isAllowedLocation(path), "Access denied for path: " + path +
+                                      "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
+                                      "\n       You need to add read permissions to a location containting the prefix with `!access \"location\"`."
+                                      "\n       Permisions can only be granted this way from the virtual machine's entry point."
+                                      "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
+    if (path.rfind("http", 0) == 0) return true;
     return fs::exists(path);
 }
 
@@ -95,7 +127,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
         std::string lineContent = contents[lineNum];
         STRING_RESULT(lineContent);
     }
-    if(operation == DIV && args->size == 2 && args->arg1->getType() == STRING) {
+    if (operation == DIV && args->size == 2 && args->arg1->getType() == STRING) {
         std::string subpath = args->arg1->toString(memory);
         fs::path basePath(path);
         fs::path combinedPath = basePath / subpath;
@@ -106,6 +138,13 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
         BB_BOOLEAN_RESULT(fileExists);
     }
     if (operation == PUSH && args->size == 2 && args->arg1->getType() == STRING) {
+
+        bbassert(isAllowedWriteLocation(path), "Write access denied for path: " + path +
+                                        "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
+                                        "\n       You need to add write permissions to a location containting the prefix with `!modify \"location\"`."
+                                        "\n       Permisions can only be granted this way from the virtual machine's entry point."
+                                        "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
+
         std::string newContents = args->arg1->toString(memory);
         fs::path filePath(path);
         if (std::string(filePath.parent_path().c_str()).size() && !fs::exists(filePath.parent_path())) fs::create_directories(filePath.parent_path());
@@ -122,6 +161,13 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
     }
     if (args->size == 1) {
         if (operation == CLEAR) {
+            
+            bbassert(isAllowedWriteLocation(path), "Write access denied for path: " + path +
+                                            "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
+                                            "\n       You need to add write permissions to a location containting the prefix with `!modify \"location\"`."
+                                            "\n       Permisions can only be granted this way from the virtual machine's entry point."
+                                            "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
+
             bbassert(path.rfind("http", 0)!=0, "Cannot clear HTTP resource (it does not persist): " + path);
             bbassert(fs::exists(path), "Path does not exist: " + path);
             if (fs::is_regular_file(path)) {
@@ -147,15 +193,6 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
         }
         if (operation == TOFILE) return std::move(Result(this));
         if (operation == TOSTR) STRING_RESULT(toString(memory));
-        /*if (operation == POP) {
-            loadContents();
-            std::string result = "";
-            for (std::size_t i = 0; i < contents.size(); ++i) {
-                if (i) result += "\n";
-                result += contents[i];
-            }
-            STRING_RESULT(std::move(result));
-        }*/
         if (operation == TOITER) return std::move(Result(new AccessIterator(args->arg0)));
         if (operation == TOLIST) {
             loadContents();
