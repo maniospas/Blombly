@@ -48,6 +48,8 @@ std::string optimizeFromCode(const std::string& code);
 extern void addAllowedLocation(const std::string& location);
 extern void addAllowedWriteLocation(const std::string& location);
 extern void clearAllowedLocations();
+extern bool isAllowedLocation(const std::string& path);
+extern bool isAllowedWriteLocation(const std::string& path);
 std::string top_level_file;
 
 extern std::unordered_map<int, Data*> cachedData;
@@ -1808,26 +1810,42 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             bberror(message+"\n"+involved);
         }
         else if ((tokens[i].name == "#" || tokens[i].name == "!") && (i < tokens.size()-3) && tokens[i+1].name=="access") {
-            bbassert(top_level_file==tokens[i].file.back(), "Unexpected `!access`"
-                                        "\n   \033[33m!!!\033[0m This preprocessor directive is only available from the top-level file being parsed"
-                                        "\n        and before all `!include` and `!comptime` directives."
-                                        "\n        Note that these also share permission rights with your main application.\n"+Parser::show_position(tokens, i));
             bbassert(tokens[i+2].builtintype==1, "`!access` should always be followed by a string\n"+Parser::show_position(tokens, i+2));
             std::string libpath = tokens[i+2].name;    
             std::string source = libpath.substr(1, libpath.size() - 2);
-            addAllowedLocation(source);
+            if(top_level_file!=tokens[i].file.back()) {
+                bbassert(isAllowedLocation(source), "Unexpected `!access` for new permissions"
+                                            "\n  \033[33m!!!\033[0m This preprocessor directive creates permissions only if generate at the top-level (aka main)"
+                                            "\n      file being parsed. It is then passed on to all `!include` and `!comptime` directives, like the one that has"
+                                            "\n      just been interrupted. Here, you cannot add new permissions that are not already present."
+                                            "\n  \033[33m!!!\033[0m The permissions being requested can be added your main file at an earlier stage after"
+                                            "\n      reviewing them. Add either a generalization or the following: `!access "+tokens[i+2].name+"`"
+                                            "\n      Beware that permissions are transferred to your main application if not further modified.\n"+Parser::show_position(tokens, i));
+
+            }
+            else {
+                addAllowedLocation(source);
+            }
             i += 2;
             continue;
         }
         if ((tokens[i].name == "#" || tokens[i].name == "!") && (i < tokens.size()-3) && tokens[i+1].name=="modify") {
-            bbassert(top_level_file==tokens[i].file.back(), "Unexpected `!modify`"
-                                        "\n   \033[33m!!!\033[0m This preprocessor directive is only available from the top-level file being parsed"
-                                        "\n        and before all `!include` and `!comptime` directives."
-                                        "\n        Note that these also share permission rights with your main application.\n"+Parser::show_position(tokens, i));
             bbassert(tokens[i+2].builtintype==1, "`!modify` should always be followed by a string\n"+Parser::show_position(tokens, i+2));
             std::string libpath = tokens[i+2].name;    
             std::string source = libpath.substr(1, libpath.size() - 2);
-            addAllowedWriteLocation(source);
+            if(top_level_file!=tokens[i].file.back()) {
+                bbassert(isAllowedWriteLocation(source), "Unexpected `!modify` for new permissions"
+                                            "\n  \033[33m!!!\033[0m This preprocessor directive creates permissions only if generate at the top-level (aka main)"
+                                            "\n      file being parsed. It is then passed on to all `!include` and `!comptime` directives, like the one that has"
+                                            "\n      just been interrupted. Here, you cannot add new permissions that are not already present."
+                                            "\n  \033[33m!!!\033[0m The permissions being requested can be added your main file at an earlier stage after"
+                                            "\n      reviewing them. Add either a generalization or the following: `!modify "+tokens[i+2].name+"`"
+                                            "\n      Beware that permissions are transferred to your main application if not further modified.\n"+Parser::show_position(tokens, i));
+
+            }
+            else {
+                addAllowedWriteLocation(source);
+            }
             i += 2;
             continue;
         }
