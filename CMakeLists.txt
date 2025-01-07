@@ -57,10 +57,14 @@ else()
     message(FATAL_ERROR "Zlib library not found.")
 endif()
 
+# Find and link CURL
 find_package(CURL REQUIRED)
-
-# Link your executable or library with libcurl
 target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl)
+
+# Find and link OpenSSL
+find_package(OpenSSL REQUIRED)
+target_include_directories(${PROJECT_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 
 # Specify where to place the final executable
 set_target_properties(${PROJECT_NAME} PROPERTIES
