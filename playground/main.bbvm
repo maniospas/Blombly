@@ -1,6 +1,0 @@
-%("README.md") //playground/main.bb line 1
-BUILTIN _bb304 "README.md"
-%file("README.md") //playground/main.bb line 1
-file f _bb304
-%print(f) //playground/main.bb line 2
-print # f

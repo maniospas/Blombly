@@ -14,6 +14,10 @@ final collection = new {
     }
 }
 
+final logger = new {
+    final info(str text) = {print(text)}
+}
+
 final os = new {
     final call(str file path) => path;
     final isfile(str path) => bool(file(path)/".")==false;
@@ -26,10 +30,17 @@ final os = new {
         return ret;
     }
     final transfer(str file dst, str file src) = {
-        default hash = "md5";
+        default cheksum = "";
+        checksum |= str;
+        if(checksum|len|bool) {
+            dsttext = try return dst|bb.os.read;
+            catch(dsttext) dsttext = "";
+            if(checksum==dsttext["md5"]) return true;
+        }
         text = src|bb.os.read;
+        if(checksum|len|bool) if(checksum!=text["md5"]) fail("Mismatching checksum: {src|str}");
         push(dst, text);
-        return text[hash];
+        return true;
     }
 }
 

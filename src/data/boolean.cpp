@@ -5,6 +5,7 @@ Boolean* Boolean::valueTrue = new Boolean(true);
 Boolean* Boolean::valueFalse = new Boolean(false);
 
 Boolean::Boolean(bool val) : value(val), Data(BB_BOOL) {}
+Boolean::~Boolean() {}//bberror("Internal error: trying to delete boolean value");}
 
 std::string Boolean::toString(BMemory* memory){
     return value ? "true" : "false";
