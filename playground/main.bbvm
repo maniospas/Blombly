@@ -1,0 +1,14 @@
+BEGIN _bb434
+return # this
+END
+new A _bb434
+BEGIN _bb436
+clear # A
+END
+defer # _bb436
+BEGIN _bb440
+IS A A
+return # this
+END
+new B _bb440
+set # A B B

@@ -12,8 +12,8 @@ std::atomic<unsigned long long> countUnrealeasedMemories(0);
 extern VariableManager variableManager;
 
 void BMemory::verify_noleaks() {
-    bbassert(memories.size() == 0, "There are " + std::to_string(memories.size()) + " leftover memory contexts");
-    bbassert(countUnrealeasedMemories.load() == 0, "There are " + std::to_string(countUnrealeasedMemories.load()) + " leftover memory contexts");  // the main memory is a global object (needed to sync threads on errors)
+    bbassert(memories.size() == 0, "There are " + std::to_string(memories.size()) + " leftover memory contexts leaked");
+    bbassert(countUnrealeasedMemories.load() == 0, "There are " + std::to_string(countUnrealeasedMemories.load()) + " leftover memory contexts leaked");  // the main memory is a global object (needed to sync threads on errors)
 }
 
 BMemory::BMemory(BMemory* par, int expectedAssignments, Data* thisObject) : parent(par), allowMutables(true), fastId(-1), thisObject(thisObject) {

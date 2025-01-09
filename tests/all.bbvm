@@ -35,897 +35,842 @@ return # this
 END
 new collection _bb39
 final # collection
-BEGIN _bb96
-BEGIN _bb97
+BEGIN _bb64
+BEGIN _bb65
+next text args
+str text text
+BUILTIN _bb67 ""
+str _bb69 text
+BUILTIN _bb71 "  ] "
+get _bb74 bb ansi
+get _bb73 _bb74 reset
+str _bb75 _bb73
+BUILTIN _bb77 "ok"
+get _bb80 bb ansi
+get _bb79 _bb80 green
+str _bb81 _bb79
+BUILTIN _bb82 "[  "
+add _bb78 _bb82 _bb81
+add _bb76 _bb78 _bb77
+add _bb72 _bb76 _bb75
+add _bb70 _bb72 _bb71
+add _bb68 _bb70 _bb69
+add _bb66 _bb68 _bb67
+print # _bb66
+END
+IS ok _bb65
+final # ok
+BEGIN _bb83
+next text args
+str text text
+BUILTIN _bb85 ""
+str _bb87 text
+BUILTIN _bb89 " ] "
+get _bb92 bb ansi
+get _bb91 _bb92 reset
+str _bb93 _bb91
+BUILTIN _bb95 "fail"
+get _bb98 bb ansi
+get _bb97 _bb98 red
+str _bb99 _bb97
+BUILTIN _bb100 "[ "
+add _bb96 _bb100 _bb99
+add _bb94 _bb96 _bb95
+add _bb90 _bb94 _bb93
+add _bb88 _bb90 _bb89
+add _bb86 _bb88 _bb87
+add _bb84 _bb86 _bb85
+print # _bb84
+END
+IS fail _bb83
+final # fail
+return # this
+END
+new logger _bb64
+final # logger
+BEGIN _bb171
+BEGIN _bb172
 next value args
 str value value
 return # value
 END
-IS call _bb97
-BEGIN _bb143
+IS call _bb172
+BEGIN _bb218
 next query args
 str query query
-BEGIN _bb146
-get _bb147 this query
-IS .query _bb147
-BEGIN _bb148
-BUILTIN _bb149 "Assertion failed: args|len==0"
-fail # _bb149
-END
-BUILTIN _bb151 Bfalse
-BUILTIN _bb153 I0
-len _bb154 args
-eq _bb152 _bb154 _bb153
-eq _bb150 _bb152 _bb151
-if # _bb150 _bb148
-BEGIN _bb155
-next search args
-str search search
-get _bb156 this .query
-IS ..query _bb156
-BEGIN _bb157
-BUILTIN _bb158 "Assertion failed: args|len==0"
-fail # _bb158
-END
-BUILTIN _bb160 Bfalse
-BUILTIN _bb162 I0
-len _bb163 args
-eq _bb161 _bb163 _bb162
-eq _bb159 _bb161 _bb160
-if # _bb159 _bb157
-IS query ..query
-len nsearch search
-len nquery query
-BEGIN _bb166
-BUILTIN _bb167 Bfalse
-return # _bb167
-END
-lt _bb168 nsearch nquery
-if # _bb168 _bb166
-range _bb169 nquery
-iter _bbmacro2 _bb169
-BEGIN _bb171
-next _bb172 _bbmacro2
-AS i _bb172
-exists _bb173 i
-END
-BEGIN _bb174
-BEGIN _bb175
-BUILTIN _bb176 Bfalse
-return # _bb176
-END
-at _bb178 search i
-at _bb179 query i
-neq _bb177 _bb179 _bb178
-if # _bb177 _bb175
-END
-while # _bb171 _bb174
-BUILTIN _bb180 Btrue
-return # _bb180
-END
-IS call _bb155
-return # this
-END
-new _bb144 _bb146
-return # _bb144
-END
-IS starts _bb143
-final # starts
-BEGIN _bb181
-next query args
-str query query
-BEGIN _bb184
-get _bb185 this query
-IS .query _bb185
-BEGIN _bb186
-BUILTIN _bb187 "Assertion failed: args|len==0"
-fail # _bb187
-END
-BUILTIN _bb189 Bfalse
-BUILTIN _bb191 I0
-len _bb192 args
-eq _bb190 _bb192 _bb191
-eq _bb188 _bb190 _bb189
-if # _bb188 _bb186
-BEGIN _bb193
-next search args
-str search search
-get _bb194 this .query
-IS ..query _bb194
-BEGIN _bb195
-BUILTIN _bb196 "Assertion failed: args|len==0"
-fail # _bb196
-END
-BUILTIN _bb198 Bfalse
-BUILTIN _bb200 I0
-len _bb201 args
-eq _bb199 _bb201 _bb200
-eq _bb197 _bb199 _bb198
-if # _bb197 _bb195
-IS query ..query
-len nsearch search
-len nquery query
-BEGIN _bb204
-BUILTIN _bb205 Bfalse
-return # _bb205
-END
-lt _bb206 nsearch nquery
-if # _bb206 _bb204
-range _bb207 nquery
-iter _bbmacro3 _bb207
-BEGIN _bb209
-next _bb210 _bbmacro3
-AS i _bb210
-exists _bb211 i
-END
-BEGIN _bb212
-BEGIN _bb213
-BUILTIN _bb214 Bfalse
-return # _bb214
-END
-sub _bb218 nsearch nquery
-add _bb217 _bb218 i
-at _bb216 search _bb217
-at _bb219 query i
-neq _bb215 _bb219 _bb216
-if # _bb215 _bb213
-END
-while # _bb209 _bb212
-BUILTIN _bb220 Btrue
-return # _bb220
-END
-IS call _bb193
-return # this
-END
-new _bb182 _bb184
-return # _bb182
-END
-IS ends _bb181
-final # ends
 BEGIN _bb221
+get _bb222 this query
+IS .query _bb222
+BEGIN _bb223
+BUILTIN _bb224 "Assertion failed"
+fail # _bb224
+END
+BUILTIN _bb226 Bfalse
+BUILTIN _bb228 I0
+len _bb229 args
+eq _bb227 _bb229 _bb228
+eq _bb225 _bb227 _bb226
+if # _bb225 _bb223
+BEGIN _bb230
+next search args
+str search search
+get _bb231 this .query
+IS ..query _bb231
+BEGIN _bb232
+BUILTIN _bb233 "Assertion failed"
+fail # _bb233
+END
+BUILTIN _bb235 Bfalse
+BUILTIN _bb237 I0
+len _bb238 args
+eq _bb236 _bb238 _bb237
+eq _bb234 _bb236 _bb235
+if # _bb234 _bb232
+IS query ..query
+len nsearch search
+len nquery query
+BEGIN _bb241
+BUILTIN _bb242 Bfalse
+return # _bb242
+END
+lt _bb243 nsearch nquery
+if # _bb243 _bb241
+range _bb244 nquery
+iter _bbmacro2 _bb244
+BEGIN _bb246
+next _bb247 _bbmacro2
+AS i _bb247
+exists _bb248 i
+END
+BEGIN _bb249
+BEGIN _bb250
+BUILTIN _bb251 Bfalse
+return # _bb251
+END
+at _bb253 search i
+at _bb254 query i
+neq _bb252 _bb254 _bb253
+if # _bb252 _bb250
+END
+while # _bb246 _bb249
+BUILTIN _bb255 Btrue
+return # _bb255
+END
+IS call _bb230
+return # this
+END
+new _bb219 _bb221
+return # _bb219
+END
+IS starts _bb218
+final # starts
+BEGIN _bb256
 next query args
 str query query
-BEGIN _bb224
-get _bb225 this query
-IS .query _bb225
-BEGIN _bb226
-BUILTIN _bb227 "Assertion failed: args|len==0"
-fail # _bb227
+BEGIN _bb259
+get _bb260 this query
+IS .query _bb260
+BEGIN _bb261
+BUILTIN _bb262 "Assertion failed"
+fail # _bb262
 END
-BUILTIN _bb229 Bfalse
-BUILTIN _bb231 I0
-len _bb232 args
-eq _bb230 _bb232 _bb231
-eq _bb228 _bb230 _bb229
-if # _bb228 _bb226
-BEGIN _bb233
+BUILTIN _bb264 Bfalse
+BUILTIN _bb266 I0
+len _bb267 args
+eq _bb265 _bb267 _bb266
+eq _bb263 _bb265 _bb264
+if # _bb263 _bb261
+BEGIN _bb268
+next search args
+str search search
+get _bb269 this .query
+IS ..query _bb269
+BEGIN _bb270
+BUILTIN _bb271 "Assertion failed"
+fail # _bb271
+END
+BUILTIN _bb273 Bfalse
+BUILTIN _bb275 I0
+len _bb276 args
+eq _bb274 _bb276 _bb275
+eq _bb272 _bb274 _bb273
+if # _bb272 _bb270
+IS query ..query
+len nsearch search
+len nquery query
+BEGIN _bb279
+BUILTIN _bb280 Bfalse
+return # _bb280
+END
+lt _bb281 nsearch nquery
+if # _bb281 _bb279
+range _bb282 nquery
+iter _bbmacro3 _bb282
+BEGIN _bb284
+next _bb285 _bbmacro3
+AS i _bb285
+exists _bb286 i
+END
+BEGIN _bb287
+BEGIN _bb288
+BUILTIN _bb289 Bfalse
+return # _bb289
+END
+sub _bb293 nsearch nquery
+add _bb292 _bb293 i
+at _bb291 search _bb292
+at _bb294 query i
+neq _bb290 _bb294 _bb291
+if # _bb290 _bb288
+END
+while # _bb284 _bb287
+BUILTIN _bb295 Btrue
+return # _bb295
+END
+IS call _bb268
+return # this
+END
+new _bb257 _bb259
+return # _bb257
+END
+IS ends _bb256
+final # ends
+BEGIN _bb296
+next query args
+str query query
+BEGIN _bb299
+get _bb300 this query
+IS .query _bb300
+BEGIN _bb301
+BUILTIN _bb302 "Assertion failed"
+fail # _bb302
+END
+BUILTIN _bb304 Bfalse
+BUILTIN _bb306 I0
+len _bb307 args
+eq _bb305 _bb307 _bb306
+eq _bb303 _bb305 _bb304
+if # _bb303 _bb301
+BEGIN _bb308
 BUILTIN pos I0
 END
-BEGIN _bb237
+BEGIN _bb312
 IS pos pos
 return # #
 END
-try _bb235 _bb237
-catch # _bb235 _bb233
-BEGIN _bb238
+try _bb310 _bb312
+catch # _bb310 _bb308
+BEGIN _bb313
 next search args
 str search search
-get _bb239 this .query
-IS ..query _bb239
-BEGIN _bb240
-BUILTIN _bb241 "Assertion failed: args|len==0"
-fail # _bb241
+get _bb314 this .query
+IS ..query _bb314
+BEGIN _bb315
+BUILTIN _bb316 "Assertion failed"
+fail # _bb316
 END
-BUILTIN _bb243 Bfalse
-BUILTIN _bb245 I0
-len _bb246 args
-eq _bb244 _bb246 _bb245
-eq _bb242 _bb244 _bb243
-if # _bb242 _bb240
+BUILTIN _bb318 Bfalse
+BUILTIN _bb320 I0
+len _bb321 args
+eq _bb319 _bb321 _bb320
+eq _bb317 _bb319 _bb318
+if # _bb317 _bb315
 IS query ..query
-get _bb247 this pos
-IS pos _bb247
+get _bb322 this pos
+IS pos _bb322
 len nsearch search
 len nquery query
-BUILTIN _bb252 I1
-sub _bb253 nsearch nquery
-add _bb251 _bb253 _bb252
-range _bb250 pos _bb251
-iter _bbmacro4 _bb250
-BEGIN _bb255
-next _bb256 _bbmacro4
-AS i _bb256
-exists _bb257 i
+BUILTIN _bb327 I1
+sub _bb328 nsearch nquery
+add _bb326 _bb328 _bb327
+range _bb325 pos _bb326
+iter _bbmacro4 _bb325
+BEGIN _bb330
+next _bb331 _bbmacro4
+AS i _bb331
+exists _bb332 i
 END
-BEGIN _bb258
-range _bb259 nquery
-iter _bbmacro5 _bb259
-BEGIN _bb263
-BEGIN _bb264
-next _bb265 _bbmacro5
-AS j _bb265
-exists _bb266 j
+BEGIN _bb333
+range _bb334 nquery
+iter _bbmacro5 _bb334
+BEGIN _bb338
+BEGIN _bb339
+next _bb340 _bbmacro5
+AS j _bb340
+exists _bb341 j
 END
-BEGIN _bb267
-BEGIN _bb268
-BUILTIN _bb269 Btrue
-return # _bb269
+BEGIN _bb342
+BEGIN _bb343
+BUILTIN _bb344 Btrue
+return # _bb344
 END
-add _bb272 i j
-at _bb271 search _bb272
-at _bb273 query j
-neq _bb270 _bb273 _bb271
-if # _bb270 _bb268
+add _bb347 i j
+at _bb346 search _bb347
+at _bb348 query j
+neq _bb345 _bb348 _bb346
+if # _bb345 _bb343
 END
-while # _bb264 _bb267
+while # _bb339 _bb342
 END
-try different _bb263
-BEGIN _bb274
+try different _bb338
+BEGIN _bb349
 return # i
 END
-catch # different _bb274
+catch # different _bb349
 END
-while # _bb255 _bb258
+while # _bb330 _bb333
 return # nsearch
 END
-IS call _bb238
+IS call _bb313
 return # this
 END
-new _bb222 _bb224
-return # _bb222
+new _bb297 _bb299
+return # _bb297
 END
-IS index _bb221
+IS index _bb296
 final # index
-BEGIN _bb275
+BEGIN _bb350
 next query args
 str query query
-BEGIN _bb278
-get _bb279 this query
-IS .query _bb279
-BEGIN _bb280
-BUILTIN _bb281 "Assertion failed: args|len==0"
-fail # _bb281
+BEGIN _bb353
+get _bb354 this query
+IS .query _bb354
+BEGIN _bb355
+BUILTIN _bb356 "Assertion failed"
+fail # _bb356
 END
-BUILTIN _bb283 Bfalse
-BUILTIN _bb285 I0
-len _bb286 args
-eq _bb284 _bb286 _bb285
-eq _bb282 _bb284 _bb283
-if # _bb282 _bb280
-BEGIN _bb288
+BUILTIN _bb358 Bfalse
+BUILTIN _bb360 I0
+len _bb361 args
+eq _bb359 _bb361 _bb360
+eq _bb357 _bb359 _bb358
+if # _bb357 _bb355
+BEGIN _bb363
 END
-default # _bb288
-BEGIN _bb290
+default # _bb363
+BEGIN _bb365
 next search args
 str search search
-get _bb291 this .query
-IS ..query _bb291
+get _bb366 this .query
+IS ..query _bb366
 IS query ..query
 len nsearch search
 len nquery query
-BEGIN _bb294
-BUILTIN _bb295 "Cannot split on a zero-length string"
-fail # _bb295
+BEGIN _bb369
+BUILTIN _bb370 "Cannot split on a zero-length string"
+fail # _bb370
 END
-BUILTIN _bb297 I0
-eq _bb296 nquery _bb297
-if # _bb296 _bb294
+BUILTIN _bb372 I0
+eq _bb371 nquery _bb372
+if # _bb371 _bb369
 list ret
 BUILTIN pos I0
-BEGIN _bb300
-lt _bb301 pos nsearch
+BEGIN _bb375
+lt _bb376 pos nsearch
 END
-BEGIN _bb302
+BEGIN _bb377
 IS prev_pos pos
-BEGIN _bb304
+BEGIN _bb379
 list args search
 END
-BEGIN _bb307
+BEGIN _bb382
 list args query
 IS pos pos
 END
-get _bb309 bb string
-get _bb308 _bb309 index
-call _bb306 _bb307 _bb308
-call _bb303 _bb304 _bb306
-IS pos _bb303
-range _bb311 prev_pos pos
-at _bb310 search _bb311
-IS s _bb310
+get _bb384 bb string
+get _bb383 _bb384 index
+call _bb381 _bb382 _bb383
+call _bb378 _bb379 _bb381
+IS pos _bb378
+range _bb386 prev_pos pos
+at _bb385 search _bb386
+IS s _bb385
 push # ret s
 add pos pos nquery
 END
-while # _bb300 _bb302
+while # _bb375 _bb377
 return # ret
 END
-IS call _bb290
+IS call _bb365
 return # this
 END
-new _bb276 _bb278
-return # _bb276
+new _bb351 _bb353
+return # _bb351
 END
-IS split _bb275
+IS split _bb350
 final # split
 return # this
 END
-new string _bb96
+new string _bb171
 final # string
 return # this
 END
 new bb _bb16
 final # bb
-BEGIN _bb314
-BUILTIN _bb315 I1
-BUILTIN _bb316 I2
-BUILTIN _bb317 I3
-BUILTIN _bb318 I4
-list A _bb315 _bb316 _bb317 _bb318
-BEGIN _bb320
-BUILTIN _bb321 "Assertion failed: A[1]==2"
-fail # _bb321
+BEGIN _bb389
+BUILTIN _bb390 I1
+BUILTIN _bb391 I2
+BUILTIN _bb392 I3
+BUILTIN _bb393 I4
+list A _bb390 _bb391 _bb392 _bb393
+BEGIN _bb395
+BUILTIN _bb396 "Assertion failed"
+fail # _bb396
 END
-BUILTIN _bb323 Bfalse
-BUILTIN _bb325 I2
-BUILTIN _bb327 I1
-at _bb326 A _bb327
-eq _bb324 _bb326 _bb325
-eq _bb322 _bb324 _bb323
-if # _bb322 _bb320
-BEGIN _bb328
-BUILTIN _bb329 "Assertion failed: A|next==1"
-fail # _bb329
+BUILTIN _bb398 Bfalse
+BUILTIN _bb400 I2
+BUILTIN _bb402 I1
+at _bb401 A _bb402
+eq _bb399 _bb401 _bb400
+eq _bb397 _bb399 _bb398
+if # _bb397 _bb395
+BEGIN _bb403
+BUILTIN _bb404 "Assertion failed"
+fail # _bb404
 END
-BUILTIN _bb331 Bfalse
-BUILTIN _bb333 I1
-next _bb334 A
-eq _bb332 _bb334 _bb333
-eq _bb330 _bb332 _bb331
-if # _bb330 _bb328
-BEGIN _bb335
-BUILTIN _bb336 "Assertion failed: A|next==2"
-fail # _bb336
+BUILTIN _bb406 Bfalse
+BUILTIN _bb408 I1
+next _bb409 A
+eq _bb407 _bb409 _bb408
+eq _bb405 _bb407 _bb406
+if # _bb405 _bb403
+BEGIN _bb410
+BUILTIN _bb411 "Assertion failed"
+fail # _bb411
 END
-BUILTIN _bb338 Bfalse
-BUILTIN _bb340 I2
-next _bb341 A
-eq _bb339 _bb341 _bb340
-eq _bb337 _bb339 _bb338
-if # _bb337 _bb335
-BEGIN _bb342
-BUILTIN _bb343 "Assertion failed: A|pop==4"
-fail # _bb343
-END
-BUILTIN _bb345 Bfalse
-BUILTIN _bb347 I4
-pop _bb348 A
-eq _bb346 _bb348 _bb347
-eq _bb344 _bb346 _bb345
-if # _bb344 _bb342
-BEGIN _bb349
-BUILTIN _bb350 "Assertion failed: A|pop==3"
-fail # _bb350
-END
-BUILTIN _bb352 Bfalse
-BUILTIN _bb354 I3
-pop _bb355 A
-eq _bb353 _bb355 _bb354
-eq _bb351 _bb353 _bb352
-if # _bb351 _bb349
-BEGIN _bb356
-BUILTIN _bb357 "Assertion failed: A|len==0"
-fail # _bb357
-END
-BUILTIN _bb359 Bfalse
-BUILTIN _bb361 I0
-len _bb362 A
-eq _bb360 _bb362 _bb361
-eq _bb358 _bb360 _bb359
-if # _bb358 _bb356
-BUILTIN _bb363 I5
-push # A _bb363
-BEGIN _bb364
-BUILTIN _bb365 "Assertion failed: A|pop==5"
-fail # _bb365
-END
-BUILTIN _bb367 Bfalse
-BUILTIN _bb369 I5
-pop _bb370 A
-eq _bb368 _bb370 _bb369
-eq _bb366 _bb368 _bb367
-if # _bb366 _bb364
-return # #
-END
-try _bbmacro6 _bb314
-BEGIN _bb371
-str _bb373 _bbmacro6
-BUILTIN _bb375 "\n"
-BUILTIN _bb377 "List"
-BUILTIN _bb379 " ] "
-get _bb382 bb ansi
-get _bb381 _bb382 reset
-str _bb383 _bb381
-BUILTIN _bb385 "fail"
-get _bb388 bb ansi
-get _bb387 _bb388 red
-str _bb389 _bb387
-BUILTIN _bb390 "[ "
-add _bb386 _bb390 _bb389
-add _bb384 _bb386 _bb385
-add _bb380 _bb384 _bb383
-add _bb378 _bb380 _bb379
-add _bb376 _bb378 _bb377
-add _bb374 _bb376 _bb375
-add _bb372 _bb374 _bb373
-print # _bb372
-END
-BEGIN _bb391
-BUILTIN _bb393 "List"
-BUILTIN _bb395 "  ] "
-get _bb398 bb ansi
-get _bb397 _bb398 reset
-str _bb399 _bb397
-BUILTIN _bb401 "ok"
-get _bb404 bb ansi
-get _bb403 _bb404 green
-str _bb405 _bb403
-BUILTIN _bb406 "[  "
-add _bb402 _bb406 _bb405
-add _bb400 _bb402 _bb401
-add _bb396 _bb400 _bb399
-add _bb394 _bb396 _bb395
-add _bb392 _bb394 _bb393
-print # _bb392
-END
-catch # _bbmacro6 _bb371 _bb391
-BEGIN _bb409
-BUILTIN s I0
-BUILTIN _bb412 I10
-range _bb411 _bb412
-iter _bbmacro8 _bb411
-BEGIN _bb414
-next _bb415 _bbmacro8
-AS i _bb415
-exists _bb416 i
-END
+BUILTIN _bb413 Bfalse
+BUILTIN _bb415 I2
+next _bb416 A
+eq _bb414 _bb416 _bb415
+eq _bb412 _bb414 _bb413
+if # _bb412 _bb410
 BEGIN _bb417
-add s s i
+BUILTIN _bb418 "Assertion failed"
+fail # _bb418
 END
-while # _bb414 _bb417
-BEGIN _bb418
-BUILTIN _bb419 "Assertion failed: s==45"
-fail # _bb419
+BUILTIN _bb420 Bfalse
+BUILTIN _bb422 I4
+pop _bb423 A
+eq _bb421 _bb423 _bb422
+eq _bb419 _bb421 _bb420
+if # _bb419 _bb417
+BEGIN _bb424
+BUILTIN _bb425 "Assertion failed"
+fail # _bb425
 END
-BUILTIN _bb421 Bfalse
-BUILTIN _bb423 I45
-eq _bb422 s _bb423
-eq _bb420 _bb422 _bb421
-if # _bb420 _bb418
+BUILTIN _bb427 Bfalse
+BUILTIN _bb429 I3
+pop _bb430 A
+eq _bb428 _bb430 _bb429
+eq _bb426 _bb428 _bb427
+if # _bb426 _bb424
+BEGIN _bb431
+BUILTIN _bb432 "Assertion failed"
+fail # _bb432
+END
+BUILTIN _bb434 Bfalse
+BUILTIN _bb436 I0
+len _bb437 A
+eq _bb435 _bb437 _bb436
+eq _bb433 _bb435 _bb434
+if # _bb433 _bb431
+BUILTIN _bb438 I5
+push # A _bb438
+BEGIN _bb439
+BUILTIN _bb440 "Assertion failed"
+fail # _bb440
+END
+BUILTIN _bb442 Bfalse
+BUILTIN _bb444 I5
+pop _bb445 A
+eq _bb443 _bb445 _bb444
+eq _bb441 _bb443 _bb442
+if # _bb441 _bb439
 return # #
 END
-try _bbmacro7 _bb409
-BEGIN _bb424
-str _bb426 _bbmacro7
-BUILTIN _bb428 "\n"
-BUILTIN _bb430 "Range"
-BUILTIN _bb432 " ] "
-get _bb435 bb ansi
-get _bb434 _bb435 reset
-str _bb436 _bb434
-BUILTIN _bb438 "fail"
-get _bb441 bb ansi
-get _bb440 _bb441 red
-str _bb442 _bb440
-BUILTIN _bb443 "[ "
-add _bb439 _bb443 _bb442
-add _bb437 _bb439 _bb438
-add _bb433 _bb437 _bb436
-add _bb431 _bb433 _bb432
-add _bb429 _bb431 _bb430
-add _bb427 _bb429 _bb428
-add _bb425 _bb427 _bb426
-print # _bb425
+try _bbmacro6 _bb389
+BEGIN _bb446
+BEGIN _bb448
+str _bb450 _bbmacro6
+BUILTIN _bb452 "\n"
+BUILTIN _bb453 "List"
+add _bb451 _bb453 _bb452
+add _bb449 _bb451 _bb450
+list args _bb449
 END
-BEGIN _bb444
-BUILTIN _bb446 "Range"
-BUILTIN _bb448 "  ] "
-get _bb451 bb ansi
-get _bb450 _bb451 reset
-str _bb452 _bb450
-BUILTIN _bb454 "ok"
-get _bb457 bb ansi
-get _bb456 _bb457 green
-str _bb458 _bb456
-BUILTIN _bb459 "[  "
-add _bb455 _bb459 _bb458
-add _bb453 _bb455 _bb454
-add _bb449 _bb453 _bb452
-add _bb447 _bb449 _bb448
-add _bb445 _bb447 _bb446
-print # _bb445
+get _bb455 bb logger
+get _bb454 _bb455 fail
+call _bb447 _bb448 _bb454
 END
-catch # _bbmacro7 _bb424 _bb444
-BEGIN _bb462
-BUILTIN _bb463 I1
-BUILTIN _bb464 I2
-BUILTIN _bb465 I3
-list A _bb463 _bb464 _bb465
+BEGIN _bb456
+BEGIN _bb458
+BUILTIN _bb459 "List"
+list args _bb459
+END
+get _bb461 bb logger
+get _bb460 _bb461 ok
+call _bb457 _bb458 _bb460
+END
+catch # _bbmacro6 _bb446 _bb456
+BEGIN _bb464
 BUILTIN s I0
-iter _bbmacro10 A
+BUILTIN _bb467 I10
+range _bb466 _bb467
+iter _bbmacro8 _bb466
 BEGIN _bb469
-next _bb470 _bbmacro10
-AS x _bb470
-exists _bb471 x
+next _bb470 _bbmacro8
+AS i _bb470
+exists _bb471 i
 END
 BEGIN _bb472
-add s s x
+add s s i
 END
 while # _bb469 _bb472
-iter it A
-BEGIN _bb474
-next _bb475 it
-AS x _bb475
-exists _bb476 x
+BEGIN _bb473
+BUILTIN _bb474 "Assertion failed"
+fail # _bb474
 END
-BEGIN _bb477
+BUILTIN _bb476 Bfalse
+BUILTIN _bb478 I45
+eq _bb477 s _bb478
+eq _bb475 _bb477 _bb476
+if # _bb475 _bb473
+return # #
+END
+try _bbmacro7 _bb464
+BEGIN _bb479
+BEGIN _bb481
+str _bb483 _bbmacro7
+BUILTIN _bb485 "\n"
+BUILTIN _bb486 "Range"
+add _bb484 _bb486 _bb485
+add _bb482 _bb484 _bb483
+list args _bb482
+END
+get _bb488 bb logger
+get _bb487 _bb488 fail
+call _bb480 _bb481 _bb487
+END
+BEGIN _bb489
+BEGIN _bb491
+BUILTIN _bb492 "Range"
+list args _bb492
+END
+get _bb494 bb logger
+get _bb493 _bb494 ok
+call _bb490 _bb491 _bb493
+END
+catch # _bbmacro7 _bb479 _bb489
+BEGIN _bb497
+BUILTIN _bb498 I1
+BUILTIN _bb499 I2
+BUILTIN _bb500 I3
+list A _bb498 _bb499 _bb500
+BUILTIN s I0
+iter _bbmacro10 A
+BEGIN _bb504
+next _bb505 _bbmacro10
+AS x _bb505
+exists _bb506 x
+END
+BEGIN _bb507
+add s s x
+END
+while # _bb504 _bb507
+iter it A
+BEGIN _bb509
+next _bb510 it
+AS x _bb510
+exists _bb511 x
+END
+BEGIN _bb512
 sub s s x
 END
-while # _bb474 _bb477
-BEGIN _bb478
-BUILTIN _bb479 "Assertion failed: s==0"
-fail # _bb479
+while # _bb509 _bb512
+BEGIN _bb513
+BUILTIN _bb514 "Assertion failed"
+fail # _bb514
 END
-BUILTIN _bb481 Bfalse
-BUILTIN _bb483 I0
-eq _bb482 s _bb483
-eq _bb480 _bb482 _bb481
-if # _bb480 _bb478
+BUILTIN _bb516 Bfalse
+BUILTIN _bb518 I0
+eq _bb517 s _bb518
+eq _bb515 _bb517 _bb516
+if # _bb515 _bb513
 return # #
 END
-try _bbmacro9 _bb462
-BEGIN _bb484
-str _bb486 _bbmacro9
-BUILTIN _bb488 "\n"
-BUILTIN _bb490 "Iteration"
-BUILTIN _bb492 " ] "
-get _bb495 bb ansi
-get _bb494 _bb495 reset
-str _bb496 _bb494
-BUILTIN _bb498 "fail"
-get _bb501 bb ansi
-get _bb500 _bb501 red
-str _bb502 _bb500
-BUILTIN _bb503 "[ "
-add _bb499 _bb503 _bb502
-add _bb497 _bb499 _bb498
-add _bb493 _bb497 _bb496
-add _bb491 _bb493 _bb492
-add _bb489 _bb491 _bb490
-add _bb487 _bb489 _bb488
-add _bb485 _bb487 _bb486
-print # _bb485
+try _bbmacro9 _bb497
+BEGIN _bb519
+BEGIN _bb521
+str _bb523 _bbmacro9
+BUILTIN _bb525 "\n"
+BUILTIN _bb526 "Iteration"
+add _bb524 _bb526 _bb525
+add _bb522 _bb524 _bb523
+list args _bb522
 END
-BEGIN _bb504
-BUILTIN _bb506 "Iteration"
-BUILTIN _bb508 "  ] "
-get _bb511 bb ansi
-get _bb510 _bb511 reset
-str _bb512 _bb510
-BUILTIN _bb514 "ok"
-get _bb517 bb ansi
-get _bb516 _bb517 green
-str _bb518 _bb516
-BUILTIN _bb519 "[  "
-add _bb515 _bb519 _bb518
-add _bb513 _bb515 _bb514
-add _bb509 _bb513 _bb512
-add _bb507 _bb509 _bb508
-add _bb505 _bb507 _bb506
-print # _bb505
+get _bb528 bb logger
+get _bb527 _bb528 fail
+call _bb520 _bb521 _bb527
 END
-catch # _bbmacro9 _bb484 _bb504
-BEGIN _bb522
-BEGIN _bb523
-get _bb524 this x
-IS .x _bb524
+BEGIN _bb529
+BEGIN _bb531
+BUILTIN _bb532 "Iteration"
+list args _bb532
+END
+get _bb534 bb logger
+get _bb533 _bb534 ok
+call _bb530 _bb531 _bb533
+END
+catch # _bbmacro9 _bb519 _bb529
+BEGIN _bb537
+BEGIN _bb538
+get _bb539 this x
+IS .x _bb539
 BUILTIN x I0
-BEGIN _bb526
-get _bb527 this x
-return # _bb527
+BEGIN _bb541
+get _bb542 this x
+return # _bb542
 END
-IS xthis _bb526
-BEGIN _bb528
-get _bb529 this .x
-IS ..x _bb529
+IS xthis _bb541
+BEGIN _bb543
+get _bb544 this .x
+IS ..x _bb544
 return # ..x
 END
-IS xclosure _bb528
+IS xclosure _bb543
 END
-IS Struct _bb523
+IS Struct _bb538
 BUILTIN x I1
-BEGIN _bb533
-inline _bb534 Struct
+BEGIN _bb548
+inline _bb549 Struct
 return # this
 END
-new struct _bb533
+new struct _bb548
 BUILTIN x I2
-BEGIN _bb536
-BUILTIN _bb537 "Assertion failed: struct.xthis()==0"
-fail # _bb537
+BEGIN _bb551
+BUILTIN _bb552 "Assertion failed"
+fail # _bb552
 END
-BUILTIN _bb539 Bfalse
-BUILTIN _bb541 I0
-get _bb543 struct xthis
-call _bb542 # _bb543
-eq _bb540 _bb542 _bb541
-eq _bb538 _bb540 _bb539
-if # _bb538 _bb536
-BEGIN _bb544
-BUILTIN _bb545 "Assertion failed: struct.xclosure()==1"
-fail # _bb545
+BUILTIN _bb554 Bfalse
+BUILTIN _bb556 I0
+get _bb558 struct xthis
+call _bb557 # _bb558
+eq _bb555 _bb557 _bb556
+eq _bb553 _bb555 _bb554
+if # _bb553 _bb551
+BEGIN _bb559
+BUILTIN _bb560 "Assertion failed"
+fail # _bb560
 END
-BUILTIN _bb547 Bfalse
-BUILTIN _bb549 I1
-get _bb551 struct xclosure
-call _bb550 # _bb551
-eq _bb548 _bb550 _bb549
-eq _bb546 _bb548 _bb547
-if # _bb546 _bb544
+BUILTIN _bb562 Bfalse
+BUILTIN _bb564 I1
+get _bb566 struct xclosure
+call _bb565 # _bb566
+eq _bb563 _bb565 _bb564
+eq _bb561 _bb563 _bb562
+if # _bb561 _bb559
 return # #
 END
-try _bbmacro11 _bb522
-BEGIN _bb552
-str _bb554 _bbmacro11
-BUILTIN _bb556 "\n"
-BUILTIN _bb558 "Closure"
-BUILTIN _bb560 " ] "
-get _bb563 bb ansi
-get _bb562 _bb563 reset
-str _bb564 _bb562
-BUILTIN _bb566 "fail"
-get _bb569 bb ansi
-get _bb568 _bb569 red
-str _bb570 _bb568
-BUILTIN _bb571 "[ "
-add _bb567 _bb571 _bb570
-add _bb565 _bb567 _bb566
-add _bb561 _bb565 _bb564
-add _bb559 _bb561 _bb560
-add _bb557 _bb559 _bb558
-add _bb555 _bb557 _bb556
-add _bb553 _bb555 _bb554
-print # _bb553
-END
-BEGIN _bb572
+try _bbmacro11 _bb537
+BEGIN _bb567
+BEGIN _bb569
+str _bb571 _bbmacro11
+BUILTIN _bb573 "\n"
 BUILTIN _bb574 "Closure"
-BUILTIN _bb576 "  ] "
-get _bb579 bb ansi
-get _bb578 _bb579 reset
-str _bb580 _bb578
-BUILTIN _bb582 "ok"
-get _bb585 bb ansi
-get _bb584 _bb585 green
-str _bb586 _bb584
-BUILTIN _bb587 "[  "
-add _bb583 _bb587 _bb586
-add _bb581 _bb583 _bb582
-add _bb577 _bb581 _bb580
-add _bb575 _bb577 _bb576
-add _bb573 _bb575 _bb574
-print # _bb573
+add _bb572 _bb574 _bb573
+add _bb570 _bb572 _bb571
+list args _bb570
 END
-catch # _bbmacro11 _bb552 _bb572
-BEGIN _bb590
-BUILTIN _bb591 I1
-BUILTIN _bb592 I2
-BUILTIN _bb593 I3
-list A _bb591 _bb592 _bb593
-BEGIN _bb596
+get _bb576 bb logger
+get _bb575 _bb576 fail
+call _bb568 _bb569 _bb575
+END
+BEGIN _bb577
+BEGIN _bb579
+BUILTIN _bb580 "Closure"
+list args _bb580
+END
+get _bb582 bb logger
+get _bb581 _bb582 ok
+call _bb578 _bb579 _bb581
+END
+catch # _bbmacro11 _bb567 _bb577
+BEGIN _bb585
+BUILTIN _bb586 I1
+BUILTIN _bb587 I2
+BUILTIN _bb588 I3
+list A _bb586 _bb587 _bb588
+BEGIN _bb591
 list args A
 END
-BEGIN _bb599
-BUILTIN _bb600 I4
-list args _bb600
+BEGIN _bb594
+BUILTIN _bb595 I4
+list args _bb595
 END
-get _bb602 bb collection
-get _bb601 _bb602 toback
-call _bb598 _bb599 _bb601
-call _bb595 _bb596 _bb598
-IS A _bb595
-BEGIN _bb603
-BUILTIN _bb604 "Assertion failed: A|pop==4"
-fail # _bb604
+get _bb597 bb collection
+get _bb596 _bb597 toback
+call _bb593 _bb594 _bb596
+call _bb590 _bb591 _bb593
+IS A _bb590
+BEGIN _bb598
+BUILTIN _bb599 "Assertion failed"
+fail # _bb599
 END
-BUILTIN _bb606 Bfalse
-BUILTIN _bb608 I4
-pop _bb609 A
-eq _bb607 _bb609 _bb608
-eq _bb605 _bb607 _bb606
-if # _bb605 _bb603
+BUILTIN _bb601 Bfalse
+BUILTIN _bb603 I4
+pop _bb604 A
+eq _bb602 _bb604 _bb603
+eq _bb600 _bb602 _bb601
+if # _bb600 _bb598
 return # #
 END
-try _bbmacro12 _bb590
-BEGIN _bb610
-str _bb612 _bbmacro12
-BUILTIN _bb614 "\n"
-BUILTIN _bb616 "Collection"
-BUILTIN _bb618 " ] "
-get _bb621 bb ansi
-get _bb620 _bb621 reset
-str _bb622 _bb620
-BUILTIN _bb624 "fail"
-get _bb627 bb ansi
-get _bb626 _bb627 red
-str _bb628 _bb626
-BUILTIN _bb629 "[ "
-add _bb625 _bb629 _bb628
-add _bb623 _bb625 _bb624
-add _bb619 _bb623 _bb622
-add _bb617 _bb619 _bb618
-add _bb615 _bb617 _bb616
-add _bb613 _bb615 _bb614
-add _bb611 _bb613 _bb612
-print # _bb611
+try _bbmacro12 _bb585
+BEGIN _bb605
+BEGIN _bb607
+str _bb609 _bbmacro12
+BUILTIN _bb611 "\n"
+BUILTIN _bb612 "Collection"
+add _bb610 _bb612 _bb611
+add _bb608 _bb610 _bb609
+list args _bb608
 END
-BEGIN _bb630
-BUILTIN _bb632 "Collection"
-BUILTIN _bb634 "  ] "
-get _bb637 bb ansi
-get _bb636 _bb637 reset
-str _bb638 _bb636
-BUILTIN _bb640 "ok"
-get _bb643 bb ansi
-get _bb642 _bb643 green
-str _bb644 _bb642
-BUILTIN _bb645 "[  "
-add _bb641 _bb645 _bb644
-add _bb639 _bb641 _bb640
-add _bb635 _bb639 _bb638
-add _bb633 _bb635 _bb634
-add _bb631 _bb633 _bb632
-print # _bb631
+get _bb614 bb logger
+get _bb613 _bb614 fail
+call _bb606 _bb607 _bb613
 END
-catch # _bbmacro12 _bb610 _bb630
-BEGIN _bb648
+BEGIN _bb615
+BEGIN _bb617
+BUILTIN _bb618 "Collection"
+list args _bb618
+END
+get _bb620 bb logger
+get _bb619 _bb620 ok
+call _bb616 _bb617 _bb619
+END
+catch # _bbmacro12 _bb605 _bb615
+BEGIN _bb623
 BUILTIN A "I like banana!"
-BEGIN _bb650
-BUILTIN _bb651 "Assertion failed: A|bb.string.starts(I like)"
-fail # _bb651
+BEGIN _bb625
+BUILTIN _bb626 "Assertion failed"
+fail # _bb626
 END
-BUILTIN _bb653 Bfalse
-BEGIN _bb655
+BUILTIN _bb628 Bfalse
+BEGIN _bb630
 list args A
 END
-BEGIN _bb658
-BUILTIN _bb659 "I like"
-list args _bb659
+BEGIN _bb633
+BUILTIN _bb634 "I like"
+list args _bb634
 END
-get _bb661 bb string
-get _bb660 _bb661 starts
-call _bb657 _bb658 _bb660
-call _bb654 _bb655 _bb657
-eq _bb652 _bb654 _bb653
-if # _bb652 _bb650
-BEGIN _bb662
-BUILTIN _bb663 "Assertion failed: A|bb.string.ends(banana!)"
-fail # _bb663
+get _bb636 bb string
+get _bb635 _bb636 starts
+call _bb632 _bb633 _bb635
+call _bb629 _bb630 _bb632
+eq _bb627 _bb629 _bb628
+if # _bb627 _bb625
+BEGIN _bb637
+BUILTIN _bb638 "Assertion failed"
+fail # _bb638
 END
-BUILTIN _bb665 Bfalse
-BEGIN _bb667
+BUILTIN _bb640 Bfalse
+BEGIN _bb642
 list args A
 END
-BEGIN _bb670
-BUILTIN _bb671 "banana!"
-list args _bb671
+BEGIN _bb645
+BUILTIN _bb646 "banana!"
+list args _bb646
 END
-get _bb673 bb string
-get _bb672 _bb673 ends
-call _bb669 _bb670 _bb672
-call _bb666 _bb667 _bb669
-eq _bb664 _bb666 _bb665
-if # _bb664 _bb662
+get _bb648 bb string
+get _bb647 _bb648 ends
+call _bb644 _bb645 _bb647
+call _bb641 _bb642 _bb644
+eq _bb639 _bb641 _bb640
+if # _bb639 _bb637
+BEGIN _bb649
+BUILTIN _bb650 "Assertion failed"
+fail # _bb650
+END
+BUILTIN _bb652 Bfalse
+BUILTIN _bb654 I3
+BEGIN _bb657
+list args A
+END
+BEGIN _bb660
+BUILTIN _bb661 " "
+list args _bb661
+END
+get _bb663 bb string
+get _bb662 _bb663 split
+call _bb659 _bb660 _bb662
+call _bb656 _bb657 _bb659
+len _bb655 _bb656
+eq _bb653 _bb655 _bb654
+eq _bb651 _bb653 _bb652
+if # _bb651 _bb649
+BEGIN _bb664
+BUILTIN _bb665 "Assertion failed"
+fail # _bb665
+END
+BUILTIN _bb667 Bfalse
+BUILTIN _bb669 I2
+BEGIN _bb671
+list args A
+END
 BEGIN _bb674
-BUILTIN _bb675 "Assertion failed: A|bb.string.split( )|len==3"
-fail # _bb675
+BUILTIN _bb675 "like"
+list args _bb675
 END
-BUILTIN _bb677 Bfalse
-BUILTIN _bb679 I3
-BEGIN _bb682
-list args A
+get _bb677 bb string
+get _bb676 _bb677 index
+call _bb673 _bb674 _bb676
+call _bb670 _bb671 _bb673
+eq _bb668 _bb670 _bb669
+eq _bb666 _bb668 _bb667
+if # _bb666 _bb664
+BEGIN _bb678
+BUILTIN _bb679 "Assertion failed"
+fail # _bb679
 END
+BUILTIN _bb681 Bfalse
+BUILTIN _bb683 I10
 BEGIN _bb685
-BUILTIN _bb686 " "
-list args _bb686
-END
-get _bb688 bb string
-get _bb687 _bb688 split
-call _bb684 _bb685 _bb687
-call _bb681 _bb682 _bb684
-len _bb680 _bb681
-eq _bb678 _bb680 _bb679
-eq _bb676 _bb678 _bb677
-if # _bb676 _bb674
-BEGIN _bb689
-BUILTIN _bb690 "Assertion failed: A|bb.string.index(like)==2"
-fail # _bb690
-END
-BUILTIN _bb692 Bfalse
-BUILTIN _bb694 I2
-BEGIN _bb696
 list args A
 END
-BEGIN _bb699
-BUILTIN _bb700 "like"
-list args _bb700
-END
-get _bb702 bb string
-get _bb701 _bb702 index
-call _bb698 _bb699 _bb701
-call _bb695 _bb696 _bb698
-eq _bb693 _bb695 _bb694
-eq _bb691 _bb693 _bb692
-if # _bb691 _bb689
-BEGIN _bb703
-BUILTIN _bb704 "Assertion failed: A|bb.string.index(an::pos=9)==10"
-fail # _bb704
-END
-BUILTIN _bb706 Bfalse
-BUILTIN _bb708 I10
-BEGIN _bb710
-list args A
-END
-BEGIN _bb713
-BUILTIN _bb714 "an"
-list args _bb714
+BEGIN _bb688
+BUILTIN _bb689 "an"
+list args _bb689
 BUILTIN pos I9
 END
-get _bb717 bb string
-get _bb716 _bb717 index
-call _bb712 _bb713 _bb716
-call _bb709 _bb710 _bb712
-eq _bb707 _bb709 _bb708
-eq _bb705 _bb707 _bb706
-if # _bb705 _bb703
+get _bb692 bb string
+get _bb691 _bb692 index
+call _bb687 _bb688 _bb691
+call _bb684 _bb685 _bb687
+eq _bb682 _bb684 _bb683
+eq _bb680 _bb682 _bb681
+if # _bb680 _bb678
 return # #
 END
-try _bbmacro13 _bb648
-BEGIN _bb718
-str _bb720 _bbmacro13
-BUILTIN _bb722 "\n"
-BUILTIN _bb724 "String"
-BUILTIN _bb726 " ] "
-get _bb729 bb ansi
-get _bb728 _bb729 reset
-str _bb730 _bb728
-BUILTIN _bb732 "fail"
-get _bb735 bb ansi
-get _bb734 _bb735 red
-str _bb736 _bb734
-BUILTIN _bb737 "[ "
-add _bb733 _bb737 _bb736
-add _bb731 _bb733 _bb732
-add _bb727 _bb731 _bb730
-add _bb725 _bb727 _bb726
-add _bb723 _bb725 _bb724
-add _bb721 _bb723 _bb722
-add _bb719 _bb721 _bb720
-print # _bb719
+try _bbmacro13 _bb623
+BEGIN _bb693
+BEGIN _bb695
+str _bb697 _bbmacro13
+BUILTIN _bb699 "\n"
+BUILTIN _bb700 "String"
+add _bb698 _bb700 _bb699
+add _bb696 _bb698 _bb697
+list args _bb696
 END
-BEGIN _bb738
-BUILTIN _bb740 "String"
-BUILTIN _bb742 "  ] "
-get _bb745 bb ansi
-get _bb744 _bb745 reset
-str _bb746 _bb744
-BUILTIN _bb748 "ok"
-get _bb751 bb ansi
-get _bb750 _bb751 green
-str _bb752 _bb750
-BUILTIN _bb753 "[  "
-add _bb749 _bb753 _bb752
-add _bb747 _bb749 _bb748
-add _bb743 _bb747 _bb746
-add _bb741 _bb743 _bb742
-add _bb739 _bb741 _bb740
-print # _bb739
+get _bb702 bb logger
+get _bb701 _bb702 fail
+call _bb694 _bb695 _bb701
 END
-catch # _bbmacro13 _bb718 _bb738
+BEGIN _bb703
+BEGIN _bb705
+BUILTIN _bb706 "String"
+list args _bb706
+END
+get _bb708 bb logger
+get _bb707 _bb708 ok
+call _bb704 _bb705 _bb707
+END
+catch # _bbmacro13 _bb693 _bb703

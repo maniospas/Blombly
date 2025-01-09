@@ -90,7 +90,7 @@ std::string optimizeFromCode(const std::string& code) {
     for(int i=0;i<program.size();i++) {
         std::shared_ptr<OptimizerCommand> command = program[i];
         if(command->args.size()<2) continue;
-        if(command->args[0]=="put" || command->args[0]=="push" || command->args[0]=="setfinal" || command->args[0]=="set" || command->args[0]=="final") 
+        if(command->args[0]=="put" || command->args[0]=="push" || command->args[0]=="clear" || command->args[0]=="setfinal" || command->args[0]=="set" || command->args[0]=="final") 
             command->args[1] = "#";
     }
     
@@ -141,6 +141,7 @@ std::string optimizeFromCode(const std::string& code) {
                 || command->args[1]=="gt"
                 || command->args[1]=="eq"
                 || command->args[1]=="neq"
+                || command->args[1]=="clear"
                 ))
                 continue;
             

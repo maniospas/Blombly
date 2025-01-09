@@ -69,7 +69,7 @@ Result Struct::implement(const OperationType operation_, BuiltinArgs* args_, BMe
     bool hasReturned(false);
     Result value = executeBlock(code, &newMemory, hasReturned);
     newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
-    bbassert(hasReturned || operation_==PUT || operation_==PUSH, "Implementation for `" + operation + "` did not return anything");
+    bbassert(hasReturned || operation_==PUT || operation_==PUSH || operation_==CLEAR, "Implementation for `" + operation + "` did not return anything");
     return Result(value);
 }
 

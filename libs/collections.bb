@@ -15,7 +15,23 @@ final collection = new {
 }
 
 final logger = new {
-    final info(str text) = {print(text)}
+    final ok(str text) = {print("[  {bb.ansi.lightgreen}ok{bb.ansi.reset}  ] {text}")}
+    final fail(str text) = {print("[ {bb.ansi.lightred}fail{bb.ansi.reset} ] {text}")}
+    final warn(str text) = {print("[ {bb.ansi.yellow}warn{bb.ansi.reset} ] {text}")}
+    final info(str text) = {print("[ {bb.ansi.lightcyan}info{bb.ansi.reset} ] {text}")}
+}
+
+final memory = new {
+    final raii() => new {
+        final entries = list();
+        final add(obj) = {
+            push(this.entries, obj);
+            return obj;
+        }
+        final clear() = {
+            while(obj as this.entries|next) clear(obj);
+        }
+    }
 }
 
 final os = new {
@@ -29,7 +45,9 @@ final os = new {
         }
         return ret;
     }
-    final transfer(str file dst, str file src) = {
+    final transfer() = {
+        src = from|str|file;
+        dst = to|str|file;
         default cheksum = "";
         checksum |= str;
         if(checksum|len|bool) {

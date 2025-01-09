@@ -13,6 +13,7 @@ nav:
       - Signals: advanced/signals.md
       - Servers: advanced/servers.md
       - Semi-types: advanced/semitypes.md
+      - Libs: advanced/libs.md
   - Material:
       - Style guide: material/style.md
       - Typeless OOP: material/typeless.md

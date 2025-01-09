@@ -32,8 +32,7 @@ std::string get_executable_directory(const std::string& argv0) {
     #else
         size_t pos = argv0.find_last_of("/");
     #endif
-    if (pos != std::string::npos) 
-        return argv0.substr(0, pos);
+    if (pos != std::string::npos) return argv0.substr(0, pos);
     return ".";
 }
 
@@ -58,39 +57,32 @@ int main(int argc, char* argv[]) {
     int default_threads = threads;
     bool cexecute = false;
 
-    if (threads == 0) 
-        threads = 4;
+    if(threads == 0) threads = 4;
 
-    for (int i = 1; i < argc; ++i) {
+    for(int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
-        if ((arg == "--threads" || arg == "-threads") && i + 1 < argc) {
-            threads = std::stoi(argv[++i]);
-        } 
-        else if (arg == "--version" || arg == "-v") {
-            std::cout << "Version: blombly 1.3.0\n";
+        if((arg == "--threads" || arg == "-threads") && i + 1 < argc) threads = std::stoi(argv[++i]);
+        else if(arg == "--version" || arg == "-v") {
+            std::cout << "Version: blombly 1.9.0\n";
             return 0;
         } 
-        else if (arg == "--help" || arg == "-h") {
+        else if(arg == "--help" || arg == "-h") {
             std::cout << "Usage: blombly [options] [file]\n";
             std::cout << "--threads <num>   Set max threads. Default for this machine: " << default_threads << "\n";
             return 0;
         } 
-        else if (arg == "--strip" || arg == "-s") {
-            debug_info = false;
-        } 
-        else {
-            fileName = arg;
-        }
+        else if(arg == "--strip" || arg == "-s") debug_info = false;
+        else fileName = arg;
     }
 
     try {
-        if (fileName.substr(fileName.size() - 3, 3) == ".bb") {
+        if(fileName.substr(fileName.size() - 3, 3) == ".bb") {
             compile(fileName, fileName + "vm");
             optimize(fileName + "vm", fileName + "vm");
             fileName = fileName + "vm";
         }
     }
-    catch (const BBError& e) {
+    catch(const BBError& e) {
         std::cerr << e.what() << "\n";
         return 1;
     }

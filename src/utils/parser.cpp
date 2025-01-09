@@ -1597,19 +1597,19 @@ void sanitize(std::vector<Token>& tokens) {
             else if (tokens[i + 1].name == ";")
                 bberror("The syntax `};` is invalid."
                         "\n   \033[33m!!!\033[0m Both symbols terminate expressions."
-                        "\n        Use only } instead.\n" 
+                        "\n       Use only } instead.\n" 
                         + Parser::show_position(tokens, i));
             else if (tokens[i + 1].name == ":")
                 bberror("The syntax `}:` is invalid."
                         "\n   \033[33m!!!\033[0m  Inlining a just-declared code block"
-                        "\n        is equivalent to running its code immediately."
-                        "\n        Maybe you did not mean to add brackets?\n" 
+                        "\n       is equivalent to running its code immediately."
+                        "\n       Maybe you did not mean to add brackets?\n" 
                         + Parser::show_position(tokens, i));
             else if (tokens[i + 1].name != "." && tokens[i + 1].name != ")" && 
                      tokens[i + 1].name != "," && tokens[i + 1].name != "+" && 
                      tokens[i + 1].name != "-" && tokens[i + 1].name != "*" && 
                      tokens[i + 1].name != "/" && tokens[i + 1].name != "^" && 
-                     tokens[i + 1].name != "%" && tokens[i + 1].name != "else")
+                     tokens[i + 1].name != "%" && tokens[i + 1].name != "else")// && tokens[i + 1].name != "|")
                 updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
         } else if (tokens[i].name == ":") {
             if (i >= tokens.size() - 1)

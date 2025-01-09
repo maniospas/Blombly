@@ -79,10 +79,10 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             int pos = i + 1;
             int depth = 0;
             OperationType command_type;
-            while (pos <= program->size()) {
+            while(pos <= program->size()) {
                 command_type = (*program)[pos]->operation;
-                if (command_type == BEGIN || command_type == BEGINFINAL) depth++;
-                if (command_type == END) {
+                if(command_type == BEGIN || command_type == BEGINFINAL) depth++;
+                if(command_type == END) {
                     if (depth == 0) break;
                     depth--;
                 }
@@ -107,7 +107,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         case BEGIN:
         case BEGINFINAL: {
             // Start a block of code
-            if (command->value) {
+            if(command->value) {
                 auto code = static_cast<Code*>(command->value);
                 auto val = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory, nullptr);//, code->getAllMetadata());
                 val->scheduleForParallelExecution = code->scheduleForParallelExecution;
@@ -121,11 +121,11 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             int pos = i + 1;
             int depth = 0;
             OperationType command_type;
-            while (pos <= program->size()) {
+            while(pos <= program->size()) {
                 command_type = (*program)[pos]->operation;
-                if (command_type == BEGIN || command_type == BEGINFINAL) depth++;
-                if (command_type == END) {
-                    if (depth == 0) break;
+                if(command_type == BEGIN || command_type == BEGINFINAL) depth++;
+                if(command_type == END) {
+                    if(depth == 0) break;
                     depth--;
                 }
                 pos++;
@@ -140,7 +140,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             cache->scheduleForParallelExecution = true;
             command->value = cache;
             result = (val);
-            if (command->operation == BEGINFINAL) memory->setFinal(command->args[0]);
+            if(command->operation == BEGINFINAL) memory->setFinal(command->args[0]);
             i = pos;
         } break;
 
@@ -159,10 +159,10 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 called = (val);
             }
             auto code = static_cast<Code*>(called);
-            if (!code->scheduleForParallelExecution || !Future::acceptsThread()) {
+            if(!code->scheduleForParallelExecution || !Future::acceptsThread()) {
                 BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
                 bool newReturnSignal(false);
-                if (context) {
+                if(context) {
                     bbassert(context->getType() == CODE, "Call context must be a code block.");
                     Result returnedValue = executeBlock(static_cast<Code*>(context), &newMemory, newReturnSignal);
                     if(newReturnSignal) {
@@ -180,9 +180,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 //newMemory.detach(thisObj?nullptr:memory);
                 newMemory.allowMutables = false;
                 //newMemory.leak(); (this is for testing only - we are not leaking any memory to other threads if we continue in the same thread, so no need to enable atomic reference counting)
-                if(code->jitable && code->jitable->run(&newMemory, result, newReturnSignal)) {
-                    SET_RESULT;
-                }
+                if(code->jitable && code->jitable->run(&newMemory, result, newReturnSignal)) {SET_RESULT;}
                 else {
                     Result returnedValue = executeBlock(code, &newMemory, newReturnSignal);
                     result = returnedValue.get();
@@ -260,16 +258,13 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         case IS: {
             result = command->knownLocal[1]?memory->getShallow(command->args[1]):memory->get(command->args[1], true);
             bbassert(result, "Missing value"+std::string(memory->size()?"":" in cleared memory ")+": " + variableManager.getSymbol(command->args[1]));
-            if(result->getType()==ERRORTYPE) {
-                bberror(enrichErrorDescription(command, result->toString(memory)));
-            }
+            if(result->getType()==ERRORTYPE) bberror(enrichErrorDescription(command, result->toString(memory)));
         } break;
 
         case AS: {
             result = memory->getOrNull(command->args[1], true);
             bbassert(result, "Missing value"+std::string(memory->size()?"":" in cleared memory ")+": " + variableManager.getSymbol(command->args[1]));
-            if(result->getType()==ERRORTYPE) 
-                static_cast<BError*>(result)->consume();
+            if(result->getType()==ERRORTYPE) static_cast<BError*>(result)->consume();
         } break;
 
         case EXISTS: {
@@ -304,7 +299,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         } break;
 
         case WHILE: {
-            // WE HAVE TWO OPTIONS: either the block-based mechanism or the inlined mechanism. Do not forget to fix the parser too.
+            // WE HAVE TWO OPTIONS: either the block-based mechanism or the inlined mechanism. Do not forget to change the parser too.
             #ifdef WHILE_WITH_CODE_BLOCKS
             Data* condition = memory->get(command->args[1]);
             Data* body = memory->get(command->args[2]);
@@ -389,13 +384,10 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             Data* accept = memory->get(command->args[2]);
             Data* reject = command->nargs > 3 ? memory->get(command->args[3]) : nullptr;
 
-            if (condition==Boolean::valueTrue) {
-                if (accept->getType() == CODE) {
-
+            if(condition==Boolean::valueTrue) {
+                if(accept->getType() == CODE) {
                     Code* code = static_cast<Code*>(accept);
-                    if(code->jitable && code->jitable->run(memory, result, returnSignal)) 
-                        return;
-
+                    if(code->jitable && code->jitable->run(memory, result, returnSignal)) return;
                     Result returnedValue = executeBlock(code, memory, returnSignal);
                     result = returnedValue.get();
                     SET_RESULT;
@@ -406,10 +398,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 }
             } 
             else if (reject && reject->getType() == CODE) {
-
                 Code* code = static_cast<Code*>(reject);
-                if(code->jitable && code->jitable->run(memory, result, returnSignal)) 
-                    return;
+                if(code->jitable && code->jitable->run(memory, result, returnSignal))  return;
                 Result returnedValue = executeBlock(code, memory, returnSignal);
                 result = returnedValue.get();
                 SET_RESULT;
