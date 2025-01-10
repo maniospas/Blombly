@@ -3,9 +3,9 @@ nav:
   - Home: index.md
   - Setup: setup.md
   - User guide:
-      - 1. Introduction: basics/builtins.md
+      - 1. The basics: basics/builtins.md
       - 2. Iterables: basics/iterables.md
-      - 3. Code Blocks: basics/blocks.md
+      - 3. Code blocks: basics/blocks.md
       - 4. Structs: basics/structs.md
       - 5. IO: basics/io.md
       - 6. Preprocessing: advanced/preprocessor.md

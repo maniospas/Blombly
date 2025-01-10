@@ -91,7 +91,7 @@ The compiler shows the exact position of the missing expression within the sourc
 print("Hello"+);  // CREATES AN ERROR
 ```
 
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
 <span style="color: cyan;">> ./blombly</span> main.bb
 (<span style="color: red;"> ERROR </span>) Empty expression
    <span style="color: lightblue;">→</span>  print("Hello"+);                                     main.bb line 1
@@ -110,7 +110,7 @@ Intercepting and handling errors like this is left for [later](advanced/signals.
 print(x);  // CREATES AN ERROR
 ```
 
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
 <span style="color: cyan;">> ./blombly</span> main.bb
 (<span style="color: red;"> ERROR </span>) Missing value: x
    <span style="color: lightblue;">→</span>  print(x)                                            main.bb line 2

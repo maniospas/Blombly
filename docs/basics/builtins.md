@@ -1,4 +1,4 @@
-# Introduction
+# The basics
 
 This section covers Blombly commands that are used in writing sequential code. It includes concepts 
 that may already be familiar, such as comments, variable handling, builtin datatypes, and flow control. 
@@ -154,7 +154,7 @@ final x = 0;
 x = x+1; // CREATES AN ERROR
 ```
 
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
 <span style="color: cyan;">> ./blombly</span> main.bb --strip
  (<span style="color: red;">ERROR</span>) Cannot overwrite final value: x
     <span style="color: lightblue;">→</span>  add x x _bb2                                      main.bbvm line 4
@@ -318,7 +318,7 @@ catch (result) fail("Found nothing: {result|str}"); // creates a custom error on
 print("The least multiple of 3 in range [{start}, {end}] is: {result}");
 ```
 
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<pre style="font-size: 80%; background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto; overflow-x: auto;">
 > <span style="color: cyan;">./blombly</span> main.bb
 start: 4
 end:   100
@@ -330,7 +330,7 @@ start: 4
 end:   1
 Finished searching. 
 (<span style="color: red;"> ERROR </span>) Found nothing: No error or return statement intercepted with `try`.
-   <span style="color: lightblue;">→</span>  fail("Found nothing: "+str(result|str)+"            playground/main.bb line 9
-   <span style="color: lightblue;">→</span>  fail("Found nothing: "+str(result|str)+"            playground/main.bb line 9
-   <span style="color: lightblue;">→</span>  catch(result)fail("Found nothing: "+str(            playground/main.bb line 9
+   <span style="color: lightblue;">→</span>  fail("Found nothing: "+str(result|str)+"            main.bb line 9
+   <span style="color: lightblue;">→</span>  fail("Found nothing: "+str(result|str)+"            main.bb line 9
+   <span style="color: lightblue;">→</span>  catch(result)fail("Found nothing: "+str(            main.bb line 9
 </pre>

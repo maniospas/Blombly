@@ -54,7 +54,7 @@ print(A);
 A[3] = 0; // CREATES AN ERROR
 ```
 
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
 <span style="color: cyan;">> ./blombly</span> main.bb
 [5] 
 (<span style="color: red;"> ERROR </span>) Out of range

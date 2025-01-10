@@ -36,7 +36,7 @@ f = file("README.md");
 print(f);
 ```
 
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
 <span style="color: cyan;">> ./blombly</span> playground/main.bb
 (<span style="color: red;"> ERROR </span>) Access denied for path: README.md
    <span style="color: yellow;">!!!</span> This is a safety measure imposed by Blombly.

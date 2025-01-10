@@ -47,7 +47,7 @@ A.B = B;
 print(A.message);
 ```
 
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
 > <span style="color: cyan;">./blombly</span> main.bb
 Hello world!
 (<span style="color: red;"> ERROR </span>) There are 2 leftover memory contexts leaked
