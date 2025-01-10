@@ -239,10 +239,9 @@ print(A.x);
 ## Signals
 
 Computations like converting invalid strings to numbers, or using the `next` operator of iterators,
-return errors as values. These make execution fail only if used in computations.
-
+return errors as values. These make execution fail if used in computations.
 One way of handling errors -aside from the catch statement that will be covered below- is
-via the `as` keyword. This performs an assignment without breaking normal code writting 
+the `as` keyword. This performs an assignment without breaking normal code writting 
 on encountering an error value, but by returning a true/false value depending on whether
 an error was found. For example, below is a simple one-liner that retries
 reading from the console until a number if provided. It also

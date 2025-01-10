@@ -8,7 +8,7 @@ and other supporting code transformations.
 
 <br>
 
-**In practical code writting, you will mostly use dependencies and perhaps compile time execution.** 
+**In practical code writting, you will mostly use permissions, dependencies, and perhaps compile time execution.** 
 Macros and other transformations may alter the order in which written code is executed 
 and should be sparingly used - if at all. 
 They are meant to support libraries that inject new coding patterns, like those found in the `libs/.bb` file
