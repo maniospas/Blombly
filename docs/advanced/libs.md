@@ -103,7 +103,7 @@ Hello world!
 Automates several file handling tasks. In addition to those operations,
 filesystem access safety is imposed with the `!access` and `!modify` preprocessor
 directives described
-[here](../basics/files.md). You cannot access any system resources without explicitly
+[here](../basics/io.md). You cannot access any system resources without explicitly
 providing the respective permissions to your program *from your main/running file*.
 For safety, required permissions found in any included files that are not a subset of those
 declared in the main program create an error and ask to be added.

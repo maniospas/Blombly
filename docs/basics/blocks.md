@@ -3,14 +3,13 @@
 The main logic compartmentalization mechanism in Blombly are code blocks; these are flexible coding segments that can be treated as methods, 
 used to define various control flows, or called inline. 
 Code blocks are declared by enclosing some code in brackets and assigning them to a variable. 
-
 There is no trailing semicolon, and the compiler will create an error if you do try to add one so that only one syntax is promoted. 
 Block declaration only sets a variable and does not execute code.
 
 
 ## Inlining
 
-One can "paste" a block's internal code to the current position by using the block's name followed by double dots (`:`). 
+"Paste" a block's internal code to the current position by using the block's name followed by double dots (`:`). 
 This is called inlining and demonstrated below. The inlined block has full access to variables for usage and modification. 
 This way, it enriches the current code with a snippet that is defined elsewhere, and which may also change dynamically.
 

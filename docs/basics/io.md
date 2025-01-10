@@ -1,11 +1,16 @@
-# File system
+# IO
+
+Blombly offers several input and output operations.
+*The ones below are currently implemented, and more will become available in the future.*
+In addition to operations described here, find supporting ones in the [libs](../advanced/libs.md) packaged
+with the language.
+
+
+## File system
 
 The main way blombly interacts with the file system is through the `file` data type.
 This is an abstraction over resources like files, directories, and web data obtained
-with http. These are automatically recognized given the provided path.
-
-## Overview
-
+with http. These are automatically recognized given the provided path. 
 Operations applicable to file data are summarized here.
 
 | **Operation**         | **Description**                                                                          |
@@ -17,11 +22,8 @@ Operations applicable to file data are summarized here.
 | `bool`                | Check whether the resource exists.                                                        |
 | Division by a string  | Obtain a sub-directory from the resource.                                                 |
 
-Blombly executes as a compartmenized environment. Therefore, for any of the above operations to run, you need to declare ...
 
-## Permissions
-
-If you try to run file system operations out-of-the-box you will encounter an error
+If you run file system operations out-of-the-box you will encounter an error
 like below. This happens because Blombly prioritizes **execution safety** and does 
 not allow you to access system resources unless you intent to do so. Intent is obvious
 here, but may not be if [preprocessor](../advanced/preprocessor.md) directives are involved,
@@ -61,8 +63,6 @@ including to files being included and `!comptime`.
 
 bb.os.transfer("libs/download/html.bb", "https://raw.githubusercontent.com/maniospas/Blombly/refs/heads/main/libs/html.bb");
 ```
-
-## Usage
 
 File contents are organized into lines.
 Here is an example for reading from the local file system,
@@ -117,6 +117,81 @@ print("Response time: {time()-start} sec");
 ```
 
 
-## Standard library support
 
-*This section is under construction.*
+## Servers
+
+Blombly offers the ability to set up REST services.
+Instantiating a server is as simple as calling `routes=std::server(port)`,
+where the port is provided. The server starts running immediately,
+and you can dynamically add or remove routes from it. Execute client
+request through the file system, as desribed above.
+
+
+Treat the generated server as a map from resource location strings to code blocks
+to be called when the respective resource is requested. Blocks that run this
+ways should returned either a string plain text or a request result struct (see below). 
+Parts of resource names that reside in angular brackets `<...>` indicate that the respective 
+part of therequest should be treated as a string argument to the callable.
+
+For example, the following snippet redirects `echo/<input>` to echo the provided input;
+run code and open the browser and visit `localhost:8000/echo/MyTest` to see this in action.
+
+```java
+// main.bb
+routes = server(8000);
+routes["/echo/<input>"] => input; // equivalent to `... = {return input}`
+while(true) {}  // wait indefinitely
+```
+
+In addition to the keyword argument values obtained by parsing the request, calls
+to route code blocks may be enriched with several positional arguments, if available.
+These are listed below:
+
+| Argument | Type | Details |
+| -------- | ---- | ----------- |
+| method   | str  | "GET" or "POST". |
+| content  | str  | Any received message content. This requires further parsing. |
+| ip       | str  | The user's ip address. |
+| http     | str  | The http protocol's version. |
+| query    | str  | Any query parameters; those following after the questionmark (`?`). |
+| ssl      | bool | Whether HTTPS or WS is used (SSL/TLS used). |
+| uri      | str  | The request's full uri. |
+
+
+```java
+// main.bb
+new {
+    value = 0;
+    routes = server(8000);
+    routes["/hi/<number>"] = {
+        if(not number as int(number)) return "The number of hi must be an integer.";
+        if(number<=0) return "Need a positive number of hi. Why must you take them away? :-(";
+        this.value += 1;
+        return "{this.value+number} hello your to {number} hi";
+    }
+}
+
+print("Give me some greetings at localhost:8000/hi/<number>");
+while(true) {}  // wait indefinitely
+```
+
+Non-text results for server methods are declared by returning
+a struct with text and type fields, like below.
+
+```java
+content = "
+    <!DOCTYPE html>
+    <html>
+        <head><title>Hi world!</title></head>
+        <body><h1>Hi world!</h1>This is your website. Add content in a <a href='https://perfectmotherfuckingwebsite.com/'>nice format</a>.</body>
+    </html>";
+    
+routes = server(8000);
+routes[""] => new {
+    str => this..content; // definition time closure
+    type = "text/html";
+}
+
+print("Server running at http://localhost:8000/");
+while(true){}
+```

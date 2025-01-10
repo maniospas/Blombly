@@ -11,10 +11,6 @@ but more on this elsewhere. For now, keep in mind that converting to
 iterators is done automatically when you use the `in` syntactic sugar presented
 later in this page.
 
-Throught this page's examples we will also use the typecasting syntax `@value|@func`
-as a shorthand for `@func(@value)`. This is not necessary, but is how Blombly
-code can be made easily readable.
-
 
 ## Lists
 Declare lists by separating values with a comma. Access and set

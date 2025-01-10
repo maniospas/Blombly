@@ -2,18 +2,14 @@ site_name: Blombly
 nav:
   - Home: index.md
   - Setup: setup.md
-  - Basics:
-      - Introduction: basics/builtins.md
-      - Iterables: basics/iterables.md
-      - Code Blocks: basics/blocks.md
-      - Structs: basics/structs.md
-      - File System: basics/files.md
-  - Advanced:
-      - Preprocessing: advanced/preprocessor.md
-      - Signals: advanced/signals.md
-      - Servers: advanced/servers.md
-      - Semi-types: advanced/semitypes.md
-      - Libs: advanced/libs.md
+  - User guide:
+      - 1. Introduction: basics/builtins.md
+      - 2. Iterables: basics/iterables.md
+      - 3. Code Blocks: basics/blocks.md
+      - 4. Structs: basics/structs.md
+      - 5. IO: basics/io.md
+      - 6. Preprocessing: advanced/preprocessor.md
+      - 7. Libs: advanced/libs.md
   - Material:
       - Style Guide: material/style.md
       - Typeless OOP: material/typeless.md
@@ -64,3 +60,4 @@ extra:
 
 footer:
   - text: © 2025 Emmanouil (Manios) Krasanakis. All rights reserved.
+

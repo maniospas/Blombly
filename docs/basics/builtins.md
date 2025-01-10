@@ -2,7 +2,7 @@
 
 This section covers Blombly commands that are used in writing sequential code. It includes concepts 
 that may already be familiar, such as comments, variable handling, builtin datatypes, and flow control. 
-But more features are added to the mix, like immutable variables and trying until return.
+But rarer features are added to the mix, like immutable variables, pipes, and trying until return.
 
 ## Comments
 
@@ -57,13 +57,17 @@ languages. Only difference to usual practices is that the `not` operation has hi
 
 
 
-Here is an example that contains some of these operations:
+In addition to these operations, 
+Blombly supports string literals as syntactic sugar; expressions enclosed in brackets
+within strings are replaced with their evaluation and converted to `str`. For safety,
+expression terminating symbols (like further brackets, colons, or semicolons) 
+are not allowed within literals. Here is an example that contains several operations.
 
 ```java
 // main.bb
 x = int("1");
 y = float("0.5");
-print("Sum is " + str(x+y)); // there is no implicit typecasting
+print("Sum is {x+y}");
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
@@ -72,17 +76,8 @@ Sum is 1.500000
 </pre>
 
 
-## String formatting
-
-Blombly supports string literals; expressions enclosed in brackets
-are replaced with their evaluation and converted to `str`. For safety,
-expression terminating symbols (like brackets, inlining colons, or semicolons) 
-are not allowed within literals during parsing. However, you may still have 
-simple control flow as long as you avoid such symbols.
-With string literals, the previous paragraph's example may be rewritten as `"Sum is {x+y}"`.
-
-Format numbers using providing a string specification in the element access notation. It
-returns a string and
+As a second example, format numbers using providing a string specification in the element access notation. This
+returns a string containing the provided specification
 
 ```java
 //main.bb
@@ -95,20 +90,56 @@ print("Here is a number: " + x[".3f"]);
 Here is a number: 1.346
 </pre>
 
-Formatting numbers within literals is discussed alongside advanced typecasting [here](../advanced/semitypes.md).
-For now, we provide a first taste that the recommended syntax looks like below. Briefly, a callable formatter is defined
-and then applied within the literal with typecast notation `x | fmt`, which is equivalent to `fmt(x)`.
+
+## Semi-types
+
+A core aspect of the blombly language is dynamic typecasting that reinterprets
+data as different formats. This ensures that variables contain
+or are transformed to appropriate data, therefore introducing correctness guarantees
+for subsequent code. At its core, this is equivalent to calling methods of one argument. 
+However, code writting is simplified thanks to fewer symbols and less nesting.
+
+Type conversions can be read as variable type semantics, 
+which we dub semi-types.
+The main notation is a vertical slash per `@value|@func`,
+which in a vacuum is equivalent to calling `@func(@value)`. 
+This has lower priority than all other symbols because the goal is
+to convert speficic values. Below is an example that declares your
+own string formatting [function](blocks.md) and applies it
+after converting a string to a float number.
 
 ```java
-fmt(x) = {return x[".3f"]}
-x = 1;
-print("This is a number {x | fmt}");  
+fmt(x) => x[".3f"];
+print("1.2345"|float|fmt);
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
 > <span style="color: cyan;">./blombly</span> main.bb
-Here is a number: 1.346
+1.234
 </pre>
+
+
+Similarly to numeric operations, the expression `variable |= convertion;` reassigns to a variable. 
+In this case, however, the leftwise convertions is performed first, enabling the pattern
+`variable |= convertion1|convertion2|...;` 
+This notation is intentionally similar to 
+[double turnstile](https://en.wikipedia.org/wiki/Double_turnstile) and may be thought as 
+variable modeling some property.
+Below is an example.
+
+```java
+x = "1";
+x |= int;
+print(x);
+```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+1
+</pre>
+
+
+
 
 
 ## Final variables
@@ -135,7 +166,7 @@ x = x+1; // CREATES AN ERROR
 Control flow alters which code segments are executed next. Blombly offers similar options to most programming languages in terms of conditional branching, loops, deffering
 execution for later, method calling,
 and error handling. The first three of those are described here, whereas method calling is described [seperately](blocks.md) because it offers more options than other languages. 
-Error handling also has its own dedicated page [here](../advanced/signals.md), though below give a first taste of the `try` keyword's dynamic usage in other cases.
+Error handling and early returns with `try` are described below.
 
 Conditionals take the form `if(@condition){@accept}else{@reject}` where `@` denotes code segments (by the way, this is the macro declaration notation). 
 The condition must yield a boolean and makes the respective branch execute, where the `else` branch is optional.
@@ -199,15 +230,12 @@ print(A.x);
 1
 </pre>
 
-## Errors as values
+## Signals
 
-Computations like converting invalid strings to numbers may 
-generate errors, or using the `next` operator of iterators,
-return errors as values. These do not immediately stop execution
-but only halt control flow if they are overwritten,
-used in subsequent computations, or not handled.
+Computations like converting invalid strings to numbers, or using the `next` operator of iterators,
+return errors as values. These make execution fail only if used in computations.
 
-One way of handling errors -aside from the catch statement that will not be covered here- is
+One way of handling errors -aside from the catch statement that will be covered below- is
 via the `as` keyword. This performs an assignment without breaking normal code writting 
 on encountering an error value, but by returning a true/false value depending on whether
 an error was found. For example, below is a simple one-liner that retries
@@ -229,19 +257,11 @@ Give a number: 12
 </pre>
 
 
-## Try until return
-
-Here we make a soft introduction to return signals; if errors indicate
-unsuccessful algorithms, return statements indicate successful conclusion of
-computations. This introduction focuses on the returning part (not on error handling), as
-this supports what other languages dub as continue and break statements 
-without needing such keywords.
-
-To intercept return or error signals, use the `value = try{@code}` pattern. 
-This is the same mechanism as the one we [next](blocks.md) use to
-return values from called methods and unwind error stack traces.
-By ommiting brackets when only one command is tried, we can conveniently
-combine the interception mechanism with other control flows like so:
+The `@result = try{@code}` pattercommand intercepts errors that indicate
+unsuccessful algorithms, as well as return statements that indicate successful conclusion of
+computations. Returning is the same mechanism as the one we [next](blocks.md) use to
+return values from functions. Omit brackets when only one command is tried, 
+to combine the interception mechanism with other control flows:
 
 ```java
 // main.bb
@@ -257,9 +277,9 @@ Sign is 1
 </pre>
 
 
-A similar syntax breaks away from loops below, though we will not dabble on 
-handling returned values for now. Contrary to error handling overheads, 
-it is lightweight to intercept returns.
+A similar syntax breaks away from loops below. Contrary to errors, 
+it is lightweight to intercept returns. 
+In other cases, prepend `try` to loop bodies to let internal returns skip the rest of the body. 
 
 ```java
 // main.bb
@@ -280,43 +300,37 @@ Counter is 4
 Counter is 5
 </pre>
 
-Similarly, prepend `try` to loop bodies to let internal returns skip the rest of the body. 
-All covered syntax allows at most one irregular exit point from control flows,
-which makes code simpler.
+We typically want to differentiate between try results that hold errors and those that do not. 
+This is achieved through the `catch` statement, which is equivalent to a conditional statement that checks whether the condition is an error. 
+Usage is demonstrated below, where the the return signal is intercepted to stop the loop immediately. If no value is returned, 
+the result obtains an error value.
 
 ```java
-// main.bb
-counter = 0;
-while (counter<5) try {
-    counter = counter + 1;
-    if (counter % 2==0) return;
-    print("Odd value: " + str(counter));
+start = "start:"|read|int;
+end = "end:  "|read|int;
+i = 0;
+result = try while (i <= end) {
+    i = i + 3;
+    if (i >= start) return i;
 }
+print("Finished searching.");
+catch (result) fail("Found nothing: {result|str}"); // creates a custom error on-demand
+print("The least multiple of 3 in range [{start}, {end}] is: {result}");
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
 > <span style="color: cyan;">./blombly</span> main.bb
-Odd value: 1
-Odd value: 3
-Odd value: 5
-</pre>
+start: 4
+end:   100
+Finished searching. 
+The least multiple of 3 in range [4, 100] is: 6 
 
-As a simpler example, use `try` to create switch statements, like below:
-
-```java
-// main.bb
-value = "Give a number: "|read|float;
-test = try {
-    if(value>1) return "large";
-    if(value<-1) return "small";
-    return "in unit interval";
-}
-print("Number is {test}");
-```
-
-
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
 > <span style="color: cyan;">./blombly</span> main.bb
-Give a number: -100
-Number is small
+start: 4
+end:   1
+Finished searching. 
+(<span style="color: red;"> ERROR </span>) Found nothing: No error or return statement intercepted with `try`.
+   <span style="color: lightblue;">→</span>  fail("Found nothing: "+str(result|str)+"            playground/main.bb line 9
+   <span style="color: lightblue;">→</span>  fail("Found nothing: "+str(result|str)+"            playground/main.bb line 9
+   <span style="color: lightblue;">→</span>  catch(result)fail("Found nothing: "+str(            playground/main.bb line 9
 </pre>

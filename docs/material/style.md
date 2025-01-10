@@ -99,19 +99,3 @@ only one file.** In general, macros should be avoided
 for anything that is not injecting metaprogramming patterns.
 
 
-## ->
-
-The `->` symbol is equivalent to return. Prefer using it
-only when you are meaning to return from try statements.
-Here is an example:
-
-```java
-// main.bb
-value = "Please give a number"|read|float;
-sgn = try {
-    if(value<0) -> -1;
-    if(value>0) -> 1;
-    -> 0;
-}
-print("Sign is {sgn}");
-```
