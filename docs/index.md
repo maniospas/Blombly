@@ -9,7 +9,7 @@ A simple programming language for creating reusable dynamic interfaces.
 <img src="blombly.png" alt="Logo" width="256"> 
 
 
-### 🚩 Reusable
+### ♻️ Reusable
 
 Blombly is _behaviorizeable_, which means that modular interfaces written in it have [learnable usage rules](https://www.sciencedirect.com/science/article/pii/S2352220821000778). This way, code exhibits actual usage patterns instead of promoting recipe copy-ing.
 

@@ -3,7 +3,7 @@
 
 A simple programming language for creating reusable dynamic interfaces.
 
-:triangular_flag_on_post: Reusable<br>
+:recycle: Reusable<br>
 :rocket: Expressive<br>
 :duck: Dynamic<br>
 :bulb: Simple
