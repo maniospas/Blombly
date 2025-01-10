@@ -6,14 +6,16 @@ with http. These are automatically recognized given the provided path.
 
 ## Overview
 
-Operations applicable to file data are:
+Operations applicable to file data are summarized here.
 
-- `push` data to write to the resource, though do not expect persistence.
-- `iter` to traverse through resoucre contents (and the `in` macro that uses iterators under the hood).
-- `list` to obtain all conntents at once.
-- `clear` to clear resource data if possible.
-- `bool` to check whether the resource exists.
-- division by a string to obtain a sub-directory.
+| **Operation**         | **Description**                                                                          |
+|------------------------|------------------------------------------------------------------------------------------|
+| `push`                | Write data to the resource without expecting persistence.                                 |
+| `iter`                | Traverse through resource contents (used by the `in` macro internally).                   |
+| `list`                | Obtain all contents of the resource at once.                                              |
+| `clear`               | Clear the resource data if possible.                                                      |
+| `bool`                | Check whether the resource exists.                                                        |
+| Division by a string  | Obtain a sub-directory from the resource.                                                 |
 
 Blombly executes as a compartmenized environment. Therefore, for any of the above operations to run, you need to declare ...
 
@@ -32,16 +34,15 @@ f = file("README.md");
 print(f);
 ```
 
-```text
-> ./blombly playground/main.bb
-( ERROR ) Access denied for path: README.md
-   !!! This is a safety measure imposed by Blombly.
-       You need to add read permissions to a location containting the prefix with `!access "location"`.
-       Permisions can only be granted this way from the virtual machine's entry point.
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> playground/main.bb
+(<span style="color: red;"> ERROR </span>) Access denied for path: README.md
+   <span style="color: yellow;">!!!</span> This is a safety measure imposed by Blombly.
+       You need to add read permissions to a location containing the prefix with `!access "location"`.
+       Permissions can only be granted this way from the virtual machine's entry point.
        They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.
-   → file("README.md")                                   playground/main.bb line 1
-Docs and bug reports: https://maniospas.github.io/Blombly
-```
+   <span style="color: lightblue;">→</span>  file("README.md")                                   playground/main.bb line 1
+</pre>
 
 Blombly permissions can only be declared on the file that is directly
 executed; they will create errors if declared elsewhere but don't have access.

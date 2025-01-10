@@ -42,13 +42,15 @@ googlelen = !comptime("http://www.google.com/"|file|str|len);
 print(googlelen);
 ```
 
-```text
-> ./blombly main.bb --strip
-55079 
-> cat main.bbvm
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+55079
+> <span style="color: cyan;">cat</span> main.bbvm
 BUILTIN googlelen I55079
 print # googlelen
-```
+</pre>
+
 
 `!comptime` accepts any blombly expression, including those that include itself. 
 To avoid removal of the return value due to optimizations run code blocks inside it with `try`.
@@ -108,6 +110,13 @@ print(next(finder));
 print(next(finder));
 ```
 
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+11
+13
+</pre>
+
+
 ## !of
 
 The first code transformation we will look at is the `!of` statement.
@@ -116,34 +125,25 @@ everything inside to a variable just before the last semicolon `;`
 at the same nested level or -if that is not found- at the beginning
 of the current code block. 
 
-An example and its equivalent 
-implementation without the preprocessor are presented below. The
-difference is that, in the first case, an anonymous variable (starting with
+An example is presented below. There, an anonymous variable (starting with
 the `_bb` prefix) is internally created instead of `it` to hold the
 iterator. That variable replaces the contents of the `!of` parenthesis.
+Blombly's `in` macro that is shipped with the language
+wraps this behabior under the hood.
 
 ```java
 // main.bb
 A = 1,2,3;
-while(x as next(!of iter(A))) print(x);
+while(x as next(!of A|iter)) print(x);
 ```
 
-```java
-// main.bb (equivalent code)
-A = 1,2,3;
-it = iter(A);
-while(x as next(it)) print(x);
-```
-
-```bash
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
 1
 2
 3
-```
+</pre>
 
-Blombly's `in` macro that is shipped with the language
-wrappes this exact behavior.
 
 
 ## !stringify
@@ -159,10 +159,10 @@ message = !stringify(Hello " world!");
 print(message);
 ```
 
-```bash
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
 Hello world!
-```
+</pre>
 
 ## !symbol
 
@@ -178,6 +178,11 @@ on other variable names. Here is an example:
 !symbol(var name) = "Hello world!";
 print(varname);
 ```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+Hello world!
+</pre>
 
 ## !fail
 

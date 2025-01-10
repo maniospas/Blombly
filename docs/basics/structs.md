@@ -8,13 +8,8 @@ Prefer using structs only to transer state between code block executions. Do not
 </div>
 
 <br>
-There are four notations for working with structs: 
-
-- `new` creates a scope for declaring structs. 
-- `this` accesses struct members when calling its code blocks. 
-- `.` accesses struct members, multiple of them retain values from its creating scope.
-- Private variables start with `\` and are not exposed externally. 
-
+When working with structs, `new` creates a scope for declaring them, `this` accesses struct members when calling its code blocks,
+ `.` accesses struct members or values from the creating scope if repeated, and private variables starting with `\` are not exposed externally. 
 All assignments during initialization are transferred to the produced struct. The latter is afterwards detached from its creating scope.
 In addition to these above, we demonstrate usage of code blocks as constructors to be inlined within struct creation. 
 
@@ -42,17 +37,17 @@ print(point.z);
 print(point.zbias); // CREATES AN ERROR
 ```
 
-```bash
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
 4
 2
 3
-(<ERROR>) Missing value: zbias 
-        → get _bb12 point zbias main.bbvm line 20
-```
+(<span style="color: red;">ERROR</span>) Missing value: zbias 
+        <span style="color: lightblue;">→</span>  get _bb12 point zbias                              main.bbvm line 20
+</pre>
+
 
 Blocks declared within new have access to a variable called `this` that holds a representation of the struct. 
-
 Here is an example:
 
 ```java
@@ -67,18 +62,10 @@ point = new {
 print(point.sum3d());
 ```
 
-```java
-// main.bb
-point = new {
-    sum2d => this.x+this.y;
-    sum3d => this.sum2d()+this.z;
-    x = 1; 
-    y = 2; 
-    z = 3; 
-} 
-print(point.sum3d());
-```
-
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
+6
+</pre>
 
 Interrupting struct creation with a return statement can change the created value to something else, effectively doing so in an isolated scope.
 For example, the following snippet is a valid (though not efficient in terms of asymptotic complexity) method for recursively computing 
@@ -142,10 +129,10 @@ point = point.copy();
 print(point);
 ```
 
-```text
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
 (1,2)
-```
+</pre>
 
 ## Private variables
 
@@ -208,10 +195,11 @@ p3 = p1 + p2;  // Calls the overloaded add method
 print(p3.x, p3.y);
 ```
 
-```text
-> main.bb
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
 [4, 6]
-```
+</pre>
 
 Structs can be made callable by overloading the corresponding operator (`call`).
 Below is an example where we define a Multiplier struct that can be called like a function. 
@@ -230,10 +218,10 @@ result = mul(10);  // Calls the overloaded call method
 print(result);
 ```
 
-```text
-> main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
 50
-```
+</pre>
 
 ## Definition closure
 
@@ -245,22 +233,7 @@ We previously did this with the pattern `@value = @value;`. Howver, this may be 
 and could be shadowed by other struct fields. For this reason, Blombly offers an
 automatic way to bring external values to the struct; access them
 as members while using more than one dots. When doing so, each additional dot
-injects a pattern from obtaining a value from an enclosing scope.
-
-For example, below are two equivalent snippets, 
-where the second one uses the new notation to bring 
-values inside structs without unecessary effort.
-
-```java
-// main.bb (complex - DISCOURAGED UNLESS NECESSARY)
-value = 1;
-A = new {
-    value = value; // bring the value to the created struct - the struct is detached from the surrounding scope afterwards
-    float => this.value; // basically `float = {return this.value}` to overload float conversion
-}
-value = 2; // ignored as `value=value` is called upon `new`
-print(A|float);
-```
+injects a pattern from obtaining a value from an enclosing scope. Below is an example.
 
 ```java
 // main.bb (simplified equivalent)
@@ -272,10 +245,11 @@ value = 2;
 print(A|float);
 ```
 
-```text
-> ./blombly main.bb
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
 1
-```
+</pre>
 
 The same pattern may be used in more levels of nesting. Here is an example similar to the previous 2D point.
 But, even in the more complicate scenario, we retain the same small level of nesting.
@@ -297,7 +271,8 @@ Point2D = {fail("Point2D has been invalidated")}
 print(p1+p2);
 ```
 
-```text
-> ./blombly main.bb
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
 (3,5)
-```
+</pre>

@@ -43,6 +43,12 @@ final fmt_generator(specs) => new{
 print(1.2345 | fmt_generator(".3f"));
 ```
 
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+1.234
+</pre>
+
+
 
 ## Implicit types
 
@@ -51,11 +57,9 @@ In this case, however, the leftwise convertions is performed first, enabling the
 `variable |= convertion1|convertion2|...;` 
 This notation is intentionally similar to 
 [double turnstile](https://en.wikipedia.org/wiki/Double_turnstile) and may be thought as 
-variable modeling some property.
-
-Given the automatic conversion of casted variables, 
+variable modeling some property. Given the automatic conversion of casted variables, 
 create methods that transform their arguments to a format they can parse.
-Here is an example:
+Below is an example.
 
 ```java
 final nonzero(x) = {
@@ -72,10 +76,10 @@ final safediv(x, y) = {
 print(safediv("1", 2));
 ```
 
-```text
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
 0.5
-```
+</pre>
 
 ## Type overloading
 

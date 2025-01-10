@@ -5,39 +5,36 @@ These are `list`, `vector`, `map`, `range`, and the complementary `iter`
 that helps loops iterate through elements. All the aforementioned
 data types are called iterables because they can successfully be
 typecasted into `iter` instances. 
-
 Some [structs](structs.md) are
 also treated as iterables if they overload the appropriate opreations, 
 but more on this elsewhere. For now, keep in mind that converting to
 iterators is done automatically when you use the `in` syntactic sugar presented
 later in this page.
 
+Throught this page's examples we will also use the typecasting syntax `@value|@func`
+as a shorthand for `@func(@value)`. This is not necessary, but is how Blombly
+code can be made easily readable.
+
 
 ## Lists
-
-
-<div style="background-color: rgb(159, 236, 199); color: black; text-align: center; padding: 20px 0; font-size: 24px; border: 1px solid black;">
-    All list modifications are efficient; even front popping with next.
-</div>
-
 Declare lists by separating values with a comma. Access and set
 its elements with square brackets (`[...]`) where element indexes
 start from zero. Here is an example that also demonstrates usage of
-the `len` builtin to obtain the number of elements:
+the `len` builtin to obtain the number of elements. 
 
 ```java
 // main.bb
 A = 1,2,3;
 A[0] = 4;
 print(A);
-print(len(A));  // or print(A|len) is equivalent
+print(A|len);
 ```
 
-```bash
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
 [4, 2, 3]
 3
-```
+</pre>
 
 You may initialize lists based on one element like below.
 This notation in general converts data to lists (and 
@@ -61,33 +58,34 @@ print(A);
 A[3] = 0; // CREATES AN ERROR
 ```
 
-```bash
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
 [5] 
-( ERROR ) Out of range
-   → A[3]=0                                              main.bb line 4
-```
+(<span style="color: red;"> ERROR </span>) Out of range
+   <span style="color: lightblue;">→</span>  A[3]=0                                              main.bb line 4
+</pre>
+
 
 The above examples do not modify lists during execution.
 To extract while removing data from lists `next` and `pop` operators 
 that extract and remove the first or last list elements respectively. 
 
 These yield error values if the list is empty, so use the `as` assignment in a loop to
-extract all list elements.
+extract all list elements. All list modifications are efficient; even front popping with next.
 
 ```java
 // main.bb
 A = 1,2,3;
-while(a as next(A)) 
-    print(a);
+while(a as A|next) print(a);
 ```
 
-```bash
-> ./blombly main.bb
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
 1
 2
 3
-```
+</pre>
 
 
 Append elements at the end using the `push` operator, like below.
@@ -99,10 +97,11 @@ push(A, 4);
 print(A);
 ```
 
-```bash
-> ./blombly main.bb
-[1, 2, 3, 4]
-```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
+[1,2,3,4]
+</pre>
 
 Concatenate lists by adding them like below.
 
@@ -111,10 +110,11 @@ Concatenate lists by adding them like below.
 print((1,2,3)+(4,5));
 ```
 
-```bash
-> ./blombly main.bb
-[1, 2, 3, 4, 5]
-```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
+[1,2,3,4,5]
+</pre>
 
 Finally, lists can yield multiple elements at once by providing any iterable yielding integer identifiers.
 Internally, lists obtain an iterator from that iterable and traverse its values like below.
@@ -127,11 +127,12 @@ print(A[1,3]);
 print(A[range(1,4)]);  // more on ranges later
 ```
 
-```bash
-> ./blombly main.bb
-[2, 4] 
-[2, 3, 4] 
-```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
+[2,4]
+[2,3,4]
+</pre>
 
 ## Iterators
 
@@ -148,9 +149,15 @@ One cannot modify data, perform random access, or restart traversal of the itera
 // main.bb
 A = 1,2,3;
 it = iter(A);
-while(i as next(it)) 
-    print(i);
+while(i as it|next) print(i);
 ```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
+1
+2
+3
+</pre>
 
 
 An addition to other iterators, Blombly provide ranges that represent values in a specified range. 
@@ -167,17 +174,17 @@ Negative steps are also allowed. Below is a demonstration.
 ```java
 // main.bb
 it = range(2, 0, -0.5);
-while(i as next(it))
-    print(i);
+while(i as next(it)) print(i);
 ```
 
-```text
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
 2.000000 
 1.500000
 1.000000
 0.500000
-```
+</pre>
+
 
 
 ## `in` 
@@ -189,9 +196,15 @@ and running `as next` on it, and is implemented as a so-called *macro* that subs
 the code. More on macros later.
 
 ```java
-while(i in 1,2,3)
-    print(i);
+while(i in 1,2,3) print(i);
 ```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
+1
+2
+3
+</pre>
 
 
 ## Vectors
@@ -214,10 +227,11 @@ z = z[range(3)];
 print(z);
 ```
 
-```text
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
 [1.000000, 3.000000, 5.000000] 
-```
+</pre>
+
 
 **Current implementations run purely in the CPU, but future BlomblyVM implementation will consider scheduling GPU operations via any supported CUDA.**
 
@@ -245,11 +259,11 @@ A["C"] = 3;
 print("---- Pairs");
 while(pair in A) print(pair);
 print("---- Keys");
-while(pair in A) print(pair|next); // equivalent to next(pair)
+while(pair in A) print(pair|next);
 ```
 
-```text
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
 ---- Pairs
 [B, 2] 
 [C, 3] 
@@ -258,6 +272,7 @@ while(pair in A) print(pair|next); // equivalent to next(pair)
 B
 C
 A
-```
+</pre>
+
 
 *Blombly does not implement sets. Instead, treat those as maps from objects to `true`.*

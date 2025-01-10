@@ -23,10 +23,10 @@ A |= bb.collection.toback(4);
 print(A);
 ```
 
-```text
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
 1,2,3,4
-```
+</pre>
 
 ## bb.logger
 
@@ -41,15 +41,18 @@ complains that there are two leaked memory contexts - tied to the respective str
 
 ```java
 // main.bb
-A = new{}
+A = new{message="Hello world!"}
 B = new{A=A}
 A.B = B;
+print(A.message);
 ```
 
-```text
-> ./blombly main.bb
-( ERROR ) There are 2 leftover memory contexts leaked
-```
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+Hello world!
+(<span style="color: red;"> ERROR </span>) There are 2 leftover memory contexts leaked
+</pre>
+
 
 To break cycles like this, it suffices to remove one reference, for example by setting it
 to something else, like `A.B=false`. Or, to be safe, you can completely clear the context's
@@ -67,10 +70,11 @@ A.B = B;
 print(A.message);
 ```
 
-```text
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
 Hello world!
-```
+</pre>
+
 
 To properly handle cyclic references in complex applications, create a
 `bb.memory.raii()` struct to pass around as a shared heap space on which to add various structs. 
@@ -89,10 +93,10 @@ A.B = B;
 print(A.message);
 ```
 
-```text
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
 Hello world!
-```
+</pre>
 
 ## bb.os
 

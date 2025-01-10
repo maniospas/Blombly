@@ -22,6 +22,11 @@ test = {
 test:
 ```
 
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
+Hello world!
+</pre>
+
 
 ## Method calling
 
@@ -103,6 +108,12 @@ value_printer = scope();
 value_printer();
 ```
 
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
+Declaration scope
+Running scope
+</pre>
+
 The property of obtaining values from a surrounding context is broadly called *closure*.
 Contrary to most interpreted languages, Blombly aims for efficient memory management
 and parallelization. It therefore adopts the low-level language paradigm of method 
@@ -129,6 +140,11 @@ adder = {
 result = adder(1, 2); 
 print(result);
 ```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
+3
+</pre>
 
 A shorthand for the above notation is to add positional variable names inside a parenthesis next to the block, 
 separated by commas. You can still assign the block to other variables, as demonstrated below, or inline them

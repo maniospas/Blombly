@@ -17,6 +17,12 @@ that describes the current file.";
 print("Hello world!"); // This is a line comment.
 ```
 
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+Hello world!
+</pre>
+
+
 ## Builtins
 
 Assign values to variables with the equality operator (`=`), like below. If a variable with the same name already exists in the current scope, its value is overwritten. 
@@ -38,16 +44,17 @@ s = "this is a string";
 Some well-known operations on the above types are listed below. These are computed as one might have come to learn from other programming
 languages. Only difference to usual practices is that the `not` operation has higher priority than assignment.
 
-| **Category**             | **Operations**                         | **Description**                                          |
+| Category                 | Operations                              | Description                                              |
 |--------------------------|----------------------------------------|----------------------------------------------------------|
-| **Assignment**           | `(expression)`                         | Compute the expression first. Also used in method calls later. |
-| **Assignment**           | `y=x`, `y as x`                        | The return values of assignments are covered below. |
-| **Conversion**           | `typename(x)`                          | Everything can be converted to `str`, numbers can be converted from `str`. You will see the equivalent `x|typename` a lot too. |
-| **Elements**             | `a[i]`, `a[i]=x`                       | Element get and set for strings. |
-| **Arithmetics**          | `+`, `-`, `*`, `/` <br> `^` <br> `%`   | Basic arithmetics (division is floating-point). <br> Exponentiation. <br> Modulo for integers. |
-| **String operations**    | `+`                                    | Concatenation.                                                                      |
-| **Comparisons**          | `<`, `>`, `<=`, `>=` <br>  `==`, `!=`  | Inequality comparisons. <br> Equality comparisons.                   |
-| **Boolean operations**   | `and`, `or` <br> `not`                 | Logical operations for booleans.  <br> Negation of any boolean value it prepends.   |
+| Assignment               | `(expression)`                         | Compute the expression first. Also used in method calls later. |
+| Assignment               | `y=x`, `y as x`                        | The return values of assignments are covered below. |
+| Conversion               | `typename(x)`                          | Everything can be converted to `str`, numbers can be converted from `str`. |
+| Elements                 | `a[i]`, `a[i]=x`                       | Element get and set for strings. |
+| Arithmetics              | `+`, `-`, `*`, `/` <br> `^` <br> `%`   | Basic arithmetics (division is floating-point). <br> Exponentiation. <br> Modulo for integers. |
+| String operations        | `+`                                    | Concatenation.                                                                      |
+| Comparisons              | `<`, `>`, `<=`, `>=` <br>  `==`, `!=`  | Inequality comparisons. <br> Equality comparisons.                   |
+| Boolean operations       | `and`, `or` <br> `not`                 | Logical operations for booleans.  <br> Negation of any boolean value it prepends.   |
+
 
 
 Here is an example that contains some of these operations:
@@ -59,10 +66,11 @@ y = float("0.5");
 print("Sum is " + str(x+y)); // there is no implicit typecasting
 ```
 
-```text
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
 Sum is 1.500000
-```
+</pre>
+
 
 ## String formatting
 
@@ -70,19 +78,11 @@ Blombly supports string literals; expressions enclosed in brackets
 are replaced with their evaluation and converted to `str`. For safety,
 expression terminating symbols (like brackets, inlining colons, or semicolons) 
 are not allowed within literals during parsing. However, you may still have 
-simple control flow as long as you avoid such symbols, like 
-for example `try if(x<0) return -1 else return 1` that is discussed later in this section.
-With string literals, the previous paragraph's example may be rewritten as:
+simple control flow as long as you avoid such symbols.
+With string literals, the previous paragraph's example may be rewritten as `"Sum is {x+y}"`.
 
-```java
-// main.bb
-x = int("1");
-y = float("0.5");
-print("Sum is {x+y}");
-```
-
-Format numbers using providing a string specification in the element access notation.
-Formatting returns a string and looks like this:
+Format numbers using providing a string specification in the element access notation. It
+returns a string and
 
 ```java
 //main.bb
@@ -90,10 +90,10 @@ x = 1.3456;
 print("Here is a number: " + x[".3f"]);
 ```
 
-```text
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
 Here is a number: 1.346
-```
+</pre>
 
 Formatting numbers within literals is discussed alongside advanced typecasting [here](../advanced/semitypes.md).
 For now, we provide a first taste that the recommended syntax looks like below. Briefly, a callable formatter is defined
@@ -104,6 +104,11 @@ fmt(x) = {return x[".3f"]}
 x = 1;
 print("This is a number {x | fmt}");  
 ```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+Here is a number: 1.346
+</pre>
 
 
 ## Final variables
@@ -118,11 +123,12 @@ final x = 0;
 x = x+1; // CREATES AN ERROR
 ```
 
-```text
-> ./blombly main.bb
- (ERROR) Cannot overwrite final value: x
-    → add x x _bb2 main.bbvm line 4
-```
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb --strip
+ (<span style="color: red;">ERROR</span>) Cannot overwrite final value: x
+    <span style="color: lightblue;">→</span>  add x x _bb2                                      main.bbvm line 4
+</pre>
+
 
 ## Control flow
 
@@ -142,6 +148,11 @@ if (x>0) print("positive")  // no semicolon (because the command would end)
 else if(x<0) print("negative");
 ```
 
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+positive
+</pre>
+
 Similarly, loops take the form `while (condition) {@code}` and keep executing the code while the condition is `true`. 
 To avoid ambiguity, there are no other ways in the language's core to declare a loop, albeit the `in` keywords allows
 you to iterate through lists and the like. Again, you may ommit brackets if only one command runs.
@@ -150,11 +161,20 @@ Here is an example:
 ```java
 // main.bb
 counter = 0;
-while (counter<10) {
+while (counter<5) {
     print("Counter is: " + str(counter));
     counter = counter + 1;
 }
 ```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+Counter is 0
+Counter is 1
+Counter is 2
+Counter is 3
+Counter is 4
+</pre>
 
 Finally, deferring is a command that declares code but makes it run later. *The deferred code always runs*, even
 if errors occur in the interim. Normally, it is executed just before return statements, including returning from
@@ -172,11 +192,12 @@ A = new { // this is how structs are created
 print(A.x);
 ```
 
-```text
-> ./blombly main.bb
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
 0
 1
-```
+</pre>
 
 ## Errors as values
 
@@ -190,18 +211,9 @@ One way of handling errors -aside from the catch statement that will not be cove
 via the `as` keyword. This performs an assignment without breaking normal code writting 
 on encountering an error value, but by returning a true/false value depending on whether
 an error was found. For example, below is a simple one-liner that retries
-reading from the console until a number if provided:
-
-```java
-// main.bb
-// the compiler understands `not` before `as` assignments to work on their output
-while(not number as float(read("Give a number:"))) {}
-print(number);
-```
-
-Equivalently, use function-based typecasting, like below. This chains
-function calls of one argument with the `|` symbol; the function name
-comes after the symbol and the the function calls all stuff on the symbol's left.
+reading from the console until a number if provided. It also
+use function-based typecasting (where `@str|@func` is equivalent to `@func(@str)`) to chain
+function calls.
 
 ```java
 while(not number as "Give a number:"|read|float) {}
@@ -209,12 +221,13 @@ print(number);
 ```
 
 
-```text
-> ./blombly main.bb
-> Give a number: number
-> Give a number: 12
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+Give a number: number
+Give a number: 12
 12
-```
+</pre>
+
 
 ## Try until return
 
@@ -232,11 +245,16 @@ combine the interception mechanism with other control flows like so:
 
 ```java
 // main.bb
-x = read("Give a number:");
-x = float(x);
+x = "Give a number: "|read|float;
 sgn = try if(x>=0) return 1 else return -1;
-print("Sign is "+str(sgn));
+print("Sign is {sgn}");
 ```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+Give a number: 42
+Sign is 1
+</pre>
 
 
 A similar syntax breaks away from loops below, though we will not dabble on 
@@ -249,9 +267,18 @@ counter = 0;
 try while (true) {
     counter = counter + 1;
     print("Counter is: " + str(counter));
-    if(counter==10) return;  // keeps exiting the code until intercepted by try
+    if(counter==5) return;  // keeps exiting the code until intercepted by try
 }
 ```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+Counter is 1
+Counter is 2
+Counter is 3
+Counter is 4
+Counter is 5
+</pre>
 
 Similarly, prepend `try` to loop bodies to let internal returns skip the rest of the body. 
 All covered syntax allows at most one irregular exit point from control flows,
@@ -260,22 +287,36 @@ which makes code simpler.
 ```java
 // main.bb
 counter = 0;
-while (counter<10) try {
+while (counter<5) try {
     counter = counter + 1;
     if (counter % 2==0) return;
     print("Odd value: " + str(counter));
 }
 ```
 
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+Odd value: 1
+Odd value: 3
+Odd value: 5
+</pre>
+
 As a simpler example, use `try` to create switch statements, like below:
 
 ```java
 // main.bb
-value = "Give a number:"|read|float;
+value = "Give a number: "|read|float;
 test = try {
     if(value>1) return "large";
     if(value<-1) return "small";
     return "in unit interval";
 }
-print(test);
+print("Number is {test}");
 ```
+
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+Give a number: -100
+Number is small
+</pre>

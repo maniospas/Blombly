@@ -21,10 +21,10 @@ Once you set things up, run the following console command.
 If a message starting with `( ERROR )` appears, everything runs properly but there was some syntax or logic issue.
 For example, brackets may have closed with a semicolon, or there could be some other type of infraction. More on errors below.
 
-```text
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
 Hello world!
-```
+</pre>
 
 
 
@@ -43,10 +43,10 @@ BUILTIN _bb162 "Hello world!"
 print # _bb162
 ```
 
-```text
-> ./blombly main.bbvm
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bbvm
 Hello world!
-```
+</pre>
 
 To get a sense for internal commands, lines starting with `%` contain
 debugging info and can be ignored. The rest of the commands are space-separated 
@@ -67,21 +67,20 @@ half the size. For example, below is the same compilation outcome
 with stripped away debug info. In this case, any errors will contain virtual machine instructions
 instead of a source code stack traces.
 
-```text
-> ./blombly main.bb --strip
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb  --strip
 Hello world!
-> cat main.bbvm
+> <span style="color: cyan;">cat</span> main.bbvm
 BUILTIN _bb162 "Hello world!"
 print # _bb162
-```
+</pre>
 
 
 ## Errors
 
-Before jumping into actual coding, let us peek at errors that Blombly may create. There are two types:
-
-- Syntax errors are identified by the compiler and make it halt.
-- Logical errors occur at runtime. They are intercepted with `try` and identified with `catch`.
+Before jumping into actual coding, let us peek at errors that Blombly may create. There are two types. 
+First, syntax errors make the compiler halt.
+Second, logical errors occur at runtime, are intercepted with `try`, and handled with `catch`.
 
 To see what a syntax error looks like, execute the following invalid code.
 We get an error telling us that the + operation for string concatenation has no right-hand side. 
@@ -92,12 +91,13 @@ The compiler shows the exact position of the missing expression within the sourc
 print("Hello"+);  // CREATES AN ERROR
 ```
 
-```text
-> ./blombly main.bb
-( ERROR ) Empty expression
-   → print("Hello"+);                                     main.bb line 1
-     ~~~~~~~~~~~~~~^
-```
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
+(<span style="color: red;"> ERROR </span>) Empty expression
+   <span style="color: lightblue;">→</span>  print("Hello"+);                                     main.bb line 1
+      <span style="color: red;">~~~~~~~~~~~~~~^</span>
+</pre>
+
 
 Look at a logical error by printing a variable that does not exist.
 This is missing during interpretation and comprises a stack trace of compiled code. 
@@ -110,11 +110,12 @@ Intercepting and handling errors like this is left for [later](advanced/signals.
 print(x);  // CREATES AN ERROR
 ```
 
-```text
-> ./blombly main.bb
-( ERROR ) Missing value: x
-   → print(x)                                            main.bb line 2
-```
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color: cyan;">> ./blombly</span> main.bb
+(<span style="color: red;"> ERROR </span>) Missing value: x
+   <span style="color: lightblue;">→</span>  print(x)                                            main.bb line 2
+</pre>
+
 
 *Logical errors do not point to the exact position in the code but only at the
 expression being parsed. Follow the stack trace to the corresponding files for 
