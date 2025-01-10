@@ -102,7 +102,7 @@ print("Hello"+);  // CREATES AN ERROR
 Look at a logical error by printing a variable that does not exist.
 This is missing during interpretation and comprises a stack trace of compiled code. 
 You will see full traces, regardless of which computations are internally delegated to threads.
-Intercepting and handling errors like this is left for [later](advanced/signals.md).
+Errors like this can be intercepted and handled.
 
 
 ```java

@@ -63,11 +63,10 @@ A[3] = 0; // CREATES AN ERROR
 
 
 The above examples do not modify lists during execution.
-To extract while removing data from lists `next` and `pop` operators 
-that extract and remove the first or last list elements respectively. 
-
-These yield error values if the list is empty, so use the `as` assignment in a loop to
-extract all list elements. All list modifications are efficient; even front popping with next.
+To extract data while removing them from lists use the `next` and `pop` operators
+to obtain the first or last list elements respectively. 
+These yield error values if the list is empty, so use the `as` assignment to detect
+whther the list was empty in loops. All list modifications are efficient; even front popping with next.
 
 ```java
 // main.bb
@@ -134,8 +133,7 @@ print(A[range(1,4)]);  // more on ranges later
 
 Given any data structure that accepts an element getter and length methods,
 you can create an iterator to traverses through its elements witjout modifying it. 
-Such data include lists and are called iterables.
-
+Such data include lists and are called iterables. 
 Obtain an iterator from an iterable with the `iter` typecasting as in the example below. 
 Iterators admit only the `next` operator, and always accept a convertion to `iter` that
 returns themselves. This is mostly done for ease of code writting. 
@@ -185,21 +183,25 @@ while(i as next(it)) print(i);
 
 ## `in` 
 
-The blombly compiler preloads a couple of common macros. Edit the file `libs/,bb` to change
-what is preloaded in your local build. The important part for iterables is that an `in` operator
-is provided. This is equivalent to preconstructing an iterator from any given data type
-and running `as next` on it, and is implemented as a so-called *macro* that substitutes parts of
-the code. More on macros later.
+The blombly compiler preloads a couple of common [macros](../advanced/preprocessor.md) in `libs/,bb`.
+The important part for iterables is that an `in` operator
+is provided. This preconstructs an iterator from any given data type
+and runns `as next` on it. Here is an example.
 
 ```java
-while(i in 1,2,3) print(i);
+A = 1,2,3;
+print("Original length {A|len}");
+while(i in A) print(i);
+print("Length after iteration {A|len}");
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
 <span style="color: cyan;">> ./blombly</span> main.bb
+Original length 3
 1
 2
 3
+Length after iteration 3
 </pre>
 
 
@@ -209,7 +211,6 @@ Vectors correspond collections to concecutive float values of fixed size. You ca
 element-by-element arithmetic operations on them for fast scientific computations. Treat them
 as lists of values whose elements can not be inserted or modified - only set. Element default
 values are zeros.
-
 Vectors can be created either from their number of zero elements or from a list of numbers.
 They also support sub-indexing from iterables yielding integer identifiers. This is especially fast
 when ranges are provided, as in the following example.
@@ -229,16 +230,12 @@ print(z);
 </pre>
 
 
-**Current implementations run purely in the CPU, but future BlomblyVM implementation will consider scheduling GPU operations via any supported CUDA.**
-
-
 ## Maps
 
 Maps contain transformations between iterable objects
 that match keys to values. Use any objects or non-error primitives
 as keys and values. For keys, numbers and strings keys are considered
 the same based on their value, whereas other data match only themselves.
-
 Maps implement member access and set operators. But they are also iterables
 that yield `key, value` pairs as lists of two entries. Pop from the frnt or back of the pair 
 with the `|` notation to extract keys and values with concise syntax that retains

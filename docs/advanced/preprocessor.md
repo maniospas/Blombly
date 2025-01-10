@@ -6,6 +6,8 @@ Four main types of preprocessing are available: dependencies that make a source 
 expressions to be evaluated at compile time, and macros that enrich the language's grammar with higher-level expressions, 
 and other supporting code transformations.
 
+<br>
+
 **In practical code writting, you will mostly use dependencies and perhaps compile time execution.** 
 Macros and other transformations may alter the order in which written code is executed 
 and should be sparingly used - if at all. 
@@ -25,7 +27,6 @@ This happens only if the path has not already been included, which allows for ci
 In the above example, this means that either `libs/html.bb` is included or, 
 if `libs/html` is a folder, `libs/html/.bb` is included. Inclusion paths are checked both relatively to blombly's
 executable and to the main file beeing compiled.
-
 Dependencies enable code modularization without loading overheads, as the compilation outcome packs all necessary instructions to run 
 automously by the interpreter.
 
@@ -67,10 +68,11 @@ another macro use two att symbols as the wildcard's
 prefix (e.g., `@@metavariable`). In this case, only the beginning `@` is removed.
 To define a macro within the nested macro use three att symbols, and so on.
 
+<br>
+
 To support faster compilation, improve comprehension, and avoid the inherent ambiguity that mixfit operators may create,
 the first token of the expression needs to be a keyword (e.g., `fn @name (@args)` is a valid definition, but `@name = fn (@args)` is not)
 Macros are always applied based on order of occurence, with the last applicable one taking precedence.
-
 Next is an example of how macros can be used to alter code writting. This is very intrusive to the language and is not really recommended,
 but you can use things like this to customize the language to your tastes, effectively creating a variant.
 
@@ -128,7 +130,6 @@ This is prepended at the beginning of a parenthesis to assign
 everything inside to a variable just before the last semicolon `;`
 at the same nested level or -if that is not found- at the beginning
 of the current code block. 
-
 An example is presented below. There, an anonymous variable (starting with
 the `_bb` prefix) is internally created instead of `it` to hold the
 iterator. That variable replaces the contents of the `!of` parenthesis.

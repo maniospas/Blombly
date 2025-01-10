@@ -56,13 +56,8 @@ dynamic patterns than regular keyword arguments, namely the reuse
 of arbitrary preparations before calling methods. For example, one
 can declare configuration blocks that generate the arguments 
 and inline them within the calling parenthesis.
-
-
 Blombly comes alongside several [macros](../advanced/preprocessor.md). 
-One of this is `@signature => @expression`, which is a shorthand for code blocks that only consist of returning a value.
-This should not be confused with the `->` notation, which represents a consise return statement. 
-As a mnemonic, think of the shorthand notation we present here
-as the amalgamation of various symbols from the equivalent `@signature = {->@expression}`.
+One of them is `@signature => @expression`, which is a shorthand for code blocks that only consist of returning a value.
 Below is an example that combines all terminology up to now.
 
 

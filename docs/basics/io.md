@@ -2,8 +2,7 @@
 
 Blombly offers several input and output operations.
 *The ones below are currently implemented, and more will become available in the future.*
-In addition to operations described here, find supporting ones in the [libs](../advanced/libs.md) packaged
-with the language.
+In addition to the operations described here, find supporting ones in [libs](../advanced/libs.md).
 
 
 ## File system
@@ -50,7 +49,6 @@ Blombly permissions can only be declared on the file that is directly
 executed; they will create errors if declared elsewhere but don't have access.
 There are two kinds of permissions; read access with the `!access @str` 
 directive and read&write access with the `!modify @str` directive.
-
 Both directives parse a string that indicates the *beginning* of an accepted file path.
 You may grant multiple persissions too. Below is an example of granting permissions to accessing
 an *https* and writting on a local directory. Permissions extend everywhere, 
@@ -126,13 +124,13 @@ where the port is provided. The server starts running immediately,
 and you can dynamically add or remove routes from it. Execute client
 request through the file system, as desribed above.
 
+<br>
 
 Treat the generated server as a map from resource location strings to code blocks
 to be called when the respective resource is requested. Blocks that run this
 ways should returned either a string plain text or a request result struct (see below). 
 Parts of resource names that reside in angular brackets `<...>` indicate that the respective 
 part of therequest should be treated as a string argument to the callable.
-
 For example, the following snippet redirects `echo/<input>` to echo the provided input;
 run code and open the browser and visit `localhost:8000/echo/MyTest` to see this in action.
 

@@ -1,7 +1,10 @@
 # Structs
 
-This section describes the process with which to make structs, that is, objects that hold certain variables that can be accessed and set with the dot notation. Similarly to scopes, structs can have final variables. 
-Prefer using structs only to transer state between code block executions. Do not store intermediate computational values in struct fields if you plan to use them from multiple methods.
+This section describes the process with which to create structs. These are objects that hold a scope whose variables are treated as object fields.
+Fields are accessed and set with the dot notation and can be final like normal.
+Use structs only to transer state between executed code blocks. Do not store intermediate values in fields if you plan to use them from multiple methods.
+
+<br>
 
 <div style="background-color: rgb(159, 236, 199); color: black; text-align: center; padding: 20px 0; font-size: 24px; border: 1px solid black;">
     Code blocks only contain code. Use structs to transfer state.
@@ -9,7 +12,7 @@ Prefer using structs only to transer state between code block executions. Do not
 
 <br>
 When working with structs, `new` creates a scope for declaring them, `this` accesses struct members when calling its code blocks,
- `.` accesses struct members or values from the creating scope if repeated, and private variables starting with `\` are not exposed externally. 
+a fullstop (`.`) accesses fields or values from the creation closure, and private variables starting with `\` are not exposed externally. 
 All assignments during initialization are transferred to the produced struct. The latter is afterwards detached from its creating scope.
 In addition to these above, we demonstrate usage of code blocks as constructors to be inlined within struct creation. 
 
@@ -105,6 +108,8 @@ To prevent code smells, the compiler does not accept the notation `new @block` w
 final struct fields cannot be set (e.g., with `final a.value = ...`). That is, any field that is not made final during a struct definition cannot be made final in the future. 
 This imposes a clear distinction between conceptually mutable and immutable properties. 
 
+<br>
+
 Similarly to code blocks structs are completely detached from their declaring scope after creation and reattached to the running scope upon execution.
 You may sometimes want to bring values -mainly code blocks- from that context locally with the pattern `@name = @name;`. Below is an example where a
 code block is overwritten in the top-level scope but a reference to it still resides within the constructed object for future use.
@@ -140,7 +145,6 @@ It is often important to declare local variables that may not be directly expose
 This promotes code safety in the form of hidden states that cannot be altered externally. 
 Private variables are denoted with the slash (`\`) prefix at the beginning of their name. For example, `\test` is private. 
 Once struct creation is completed, accessing private variables is possible only if ther name (including the slash) follows `this`. 
-
 These restrictions are enforced by the compiler but not during interpretation (so .bbvm files can be altered to circumvent code safety).
 For example, the following snippet declares an object with private variables that cannot be directly accessed externally.
 
@@ -166,6 +170,8 @@ print(point.dimadd());
 ## Operator overloading
 
 Blombly supports operation overloading to loet structs emulate other data structures. Do so by defining methods with specific names inside structs that are used when the corresponding operation is performed. The most commonly overloaded operations are arithmetic operators (`+`, `-`, `*`, `/`) and the call operator `()` for making objects callable.
+
+<br>
 
 Let's start with a basic example where we overload the addition operator for a struct that represents a 2D point.
 In this example, define an appropriately named method that performs the addition of two points and returns a new one. 
@@ -223,13 +229,12 @@ print(result);
 50
 </pre>
 
-## Definition closure
+## Creation closure
 
 Running code blocks -or callable structs- can access the final variables of their
 calling blocks. However, we already saw that it may useful to retain values 
 from the struct's creation scope.
-
-We previously did this with the pattern `@value = @value;`. Howver, this may be clunky
+We previously did this with the pattern `@value = @value;`. However, this may be clunky
 and could be shadowed by other struct fields. For this reason, Blombly offers an
 automatic way to bring external values to the struct; access them
 as members while using more than one dots. When doing so, each additional dot

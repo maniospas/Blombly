@@ -23,11 +23,33 @@ Hello world!
 </pre>
 
 
-## Builtins
+## Scopes
 
 Assign values to variables with the equality operator (`=`), like below. If a variable with the same name already exists in the current scope, its value is overwritten. 
-Otherwise, a new variable is created. Subsequent code in the same scope will retrieve that assigned value when using the variable. Scopes refer to isolated execution contexts 
-in which subsequent code can overwrite variable values. Each program starts from one initial scope, but new ones are created when creating new objects or calling methods.
+Otherwise, a new variable is created. Subsequent code in the same scope will retrieve that assigned value when using the variable. Scopes refer to isolated execution contexts.
+In them, subsequent code can overwrite variable values. Each program starts from one initial scope, but new ones are created with 
+[new](structs.md) -this is the same notation with which structs are created- or when calling methods.
+<br>
+<br>
+Variable values are made immutable by prepending the `final` keyword to their assignment. This prevents subsequent code from overwriting values
+and exposes them to code running outside the current scope. For the time being, however, consider final as a code safety feature.
+Here is an example of the error shown when attempting to overwrite a final value.
+
+```java
+// main.bb
+final x = 0; 
+x = x+1; // CREATES AN ERROR
+```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
+<span style="color: cyan;">> ./blombly</span> main.bb --strip
+ (<span style="color: red;">ERROR</span>) Cannot overwrite final value: x
+    <span style="color: lightblue;">→</span>  add x x _bb2                                      main.bbvm line 4
+</pre>
+
+
+
+## Builtins
 
 There are several builtin data types that are directly incorporated in the language.
 Exhaustively, these are `int`, `float`, `bool`, `str`, `list`, `vector`, `map`, `iter`, `code`, `struct`, `file`, `server`.
@@ -51,6 +73,7 @@ languages. Only difference to usual practices is that the `not` operation has hi
 | Conversion               | `typename(x)`                          | Everything can be converted to `str`, numbers can be converted from `str`. |
 | Elements                 | `a[i]`, `a[i]=x`                       | Element get and set for strings. |
 | Arithmetics              | `+`, `-`, `*`, `/` <br> `^` <br> `%`   | Basic arithmetics (division is floating-point). <br> Exponentiation. <br> Modulo for integers. |
+| Self-assignment          | `op=`                                  | Replace `op` with any arithmetic, string, or boolean operation.|
 | String operations        | `+`                                    | Concatenation.                                                                      |
 | Comparisons              | `<`, `>`, `<=`, `>=` <br>  `==`, `!=`  | Inequality comparisons. <br> Equality comparisons.                   |
 | Boolean operations       | `and`, `or` <br> `not`                 | Logical operations for booleans.  <br> Negation of any boolean value it prepends.   |
@@ -60,24 +83,26 @@ languages. Only difference to usual practices is that the `not` operation has hi
 In addition to these operations, 
 Blombly supports string literals as syntactic sugar; expressions enclosed in brackets
 within strings are replaced with their evaluation and converted to `str`. For safety,
-expression terminating symbols (like further brackets, colons, or semicolons) 
-are not allowed within literals. Here is an example that contains several operations.
+symbols that terminate expressions (brackets, colons, or semicolons) 
+are not allowed within literals. Here is an example that contains a literal and some operations.
 
 ```java
 // main.bb
 x = int("1");
 y = float("0.5");
+x += 1;
 print("Sum is {x+y}");
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
 > <span style="color: cyan;">./blombly</span> main.bb
-Sum is 1.500000
+Sum is 2.500000
 </pre>
 
 
-As a second example, format numbers using providing a string specification in the element access notation. This
-returns a string containing the provided specification
+Format numbers by providing a string specification in the element access notation. This
+returns a string containing the provided specification. Format within literals with
+semi-types described in the next section.
 
 ```java
 //main.bb
@@ -128,36 +153,14 @@ variable modeling some property.
 Below is an example.
 
 ```java
-x = "1";
-x |= int;
+x = "1.5";
+x |= float|int;
 print(x);
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
 > <span style="color: cyan;">./blombly</span> main.bb
 1
-</pre>
-
-
-
-
-
-## Final variables
-
-Variable values are made immutable by prepending the `final` keyword to their assignment. This prevents subsequent code from overwriting values
-and exposes them to code running outside the current scope. For the time being, however, consider final as a code safety feature.
-Here is an example of the error shown when attempting to overwrite a final value.
-
-```java
-// main.bb
-final x = 0; 
-x = x+1; // CREATES AN ERROR
-```
-
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
-<span style="color: cyan;">> ./blombly</span> main.bb --strip
- (<span style="color: red;">ERROR</span>) Cannot overwrite final value: x
-    <span style="color: lightblue;">→</span>  add x x _bb2                                      main.bbvm line 4
 </pre>
 
 
@@ -168,7 +171,10 @@ execution for later, method calling,
 and error handling. The first three of those are described here, whereas method calling is described [seperately](blocks.md) because it offers more options than other languages. 
 Error handling and early returns with `try` are described below.
 
-Conditionals take the form `if(@condition){@accept}else{@reject}` where `@` denotes code segments (by the way, this is the macro declaration notation). 
+<br>
+
+Conditionals take the form `if(@condition){@accept}else{@reject}` where `@` denotes code segments or expressions. We use this
+representation because it is also used by [macros](../advanced/preprocessor.md), though normal code should avoid macros. 
 The condition must yield a boolean and makes the respective branch execute, where the `else` branch is optional.
 You may ommit brackets for single-command segments, but put semicolons only at the end of commands.
 
@@ -300,10 +306,11 @@ Counter is 4
 Counter is 5
 </pre>
 
-We typically want to differentiate between try results that hold errors and those that do not. 
-This is achieved through the `catch` statement, which is equivalent to a conditional statement that checks whether the condition is an error. 
-Usage is demonstrated below, where the the return signal is intercepted to stop the loop immediately. If no value is returned, 
-the result obtains an error value.
+You will typically want to differentiate between try results that hold errors and those that do not. 
+In those cases, use `catch`, which is effectively a special conditional statement that checks whether the condition is an error.
+Missing values are not considered errors for the purposes of this statement. 
+Usage is demonstrated below, where the the return signal is intercepted to stop the loop immediately. If no value or error is intercepted, 
+the result becomes a missing value error than can be caught.
 
 ```java
 start = "start:"|read|int;
