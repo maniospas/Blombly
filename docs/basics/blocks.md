@@ -42,10 +42,10 @@ result = adder(x=1;y=2);
 print(result);
 ```
 
-```bash
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
 3
-```
+</pre>
 
 Being able to execute code as part of the arguments allows more
 dynamic patterns than regular keyword arguments, namely the reuse
@@ -76,11 +76,11 @@ print(a);
 print(b);
 ```
 
-```bash
-> ./blombly main.bb
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
 4
 -1
-```
+</pre>
 
 ## Execution closure
 
@@ -136,22 +136,16 @@ within other definitions given that they have the correct remainder `args`.
 
 ```java
 // main.bb
-adder(x, y) = { // shorthand for front-popping these values with next 
-    return x + y; 
-} 
-test = adder; // can still transfer the definition this way
+adder(x, y) = {return x+y} // parenthesis front-pops the values, could also write `adder(x,y)=>x+y;`
+test = adder;
 result = test(1, 2);
 print(result);
 ```
 
-
-```java
-// main.bb (simpler code writting -preferred)
-adder(x, y) => x+y;
-test = adder; // can still transfer the definition this way
-result = test(1, 2);
-print(result);
-```
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+3
+</pre>
 
 
 Blombly mixes positional arguments and code execution by separating the two with double doubledots 
@@ -167,6 +161,11 @@ adder(x, y) = {
 result = adder(1,2 :: wx=1;wy=2); 
 print(result);
 ```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+5
+</pre>
 
 Positional arguments are created first from the calling scope, so further argument generation can modify them.
 

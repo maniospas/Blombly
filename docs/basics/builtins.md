@@ -59,7 +59,7 @@ y = float("0.5");
 print("Sum is " + str(x+y)); // there is no implicit typecasting
 ```
 
-```bash
+```text
 > ./blombly main.bb
 Sum is 1.500000
 ```
@@ -90,7 +90,7 @@ x = 1.3456;
 print("Here is a number: " + x[".3f"]);
 ```
 
-```bash
+```text
 > ./blombly main.bb
 Here is a number: 1.346
 ```
@@ -118,7 +118,7 @@ final x = 0;
 x = x+1; // CREATES AN ERROR
 ```
 
-```bash
+```text
 > ./blombly main.bb
  (ERROR) Cannot overwrite final value: x
     → add x x _bb2 main.bbvm line 4
@@ -172,7 +172,7 @@ A = new { // this is how structs are created
 print(A.x);
 ```
 
-```bash
+```text
 > ./blombly main.bb
 0
 1
@@ -209,7 +209,7 @@ print(number);
 ```
 
 
-```bash
+```text
 > ./blombly main.bb
 > Give a number: number
 > Give a number: 12
@@ -237,15 +237,6 @@ x = float(x);
 sgn = try if(x>=0) return 1 else return -1;
 print("Sign is "+str(sgn));
 ```
-
-The language comes with the macro `->` as shorthand for `return`, 
-which means that the above sign computation could also be written 
-like below. Prefer this notation to write consise statements.
-
-```python
-sgn = try if(x>=0) -> 1 else -> -1;
-```
-
 
 
 A similar syntax breaks away from loops below, though we will not dabble on 
@@ -282,9 +273,9 @@ As a simpler example, use `try` to create switch statements, like below:
 // main.bb
 value = "Give a number:"|read|float;
 test = try {
-    if(value>1) -> "large";
-    if(value<-1) -> "small";
-    -> "in unit interval";
+    if(value>1) return "large";
+    if(value<-1) return "small";
+    return "in unit interval";
 }
 print(test);
 ```

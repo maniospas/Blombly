@@ -21,7 +21,7 @@ Once you set things up, run the following console command.
 If a message starting with `( ERROR )` appears, everything runs properly but there was some syntax or logic issue.
 For example, brackets may have closed with a semicolon, or there could be some other type of infraction. More on errors below.
 
-```bash
+```text
 > ./blombly main.bb
 Hello world!
 ```
@@ -43,7 +43,7 @@ BUILTIN _bb162 "Hello world!"
 print # _bb162
 ```
 
-```bash
+```text
 > ./blombly main.bbvm
 Hello world!
 ```
@@ -67,7 +67,7 @@ half the size. For example, below is the same compilation outcome
 with stripped away debug info. In this case, any errors will contain virtual machine instructions
 instead of a source code stack traces.
 
-```java
+```text
 > ./blombly main.bb --strip
 Hello world!
 > cat main.bbvm
@@ -92,7 +92,7 @@ The compiler shows the exact position of the missing expression within the sourc
 print("Hello"+);  // CREATES AN ERROR
 ```
 
-```java
+```text
 > ./blombly main.bb
 ( ERROR ) Empty expression
    → print("Hello"+);                                     main.bb line 1
@@ -110,7 +110,7 @@ Intercepting and handling errors like this is left for [later](advanced/signals.
 print(x);  // CREATES AN ERROR
 ```
 
-```java
+```text
 > ./blombly main.bb
 ( ERROR ) Missing value: x
    → print(x)                                            main.bb line 2
@@ -119,7 +119,3 @@ print(x);  // CREATES AN ERROR
 *Logical errors do not point to the exact position in the code but only at the
 expression being parsed. Follow the stack trace to the corresponding files for 
 the full source code.*
-
-## What's next?
-
-Continue going through the language's documentation by clicking the navigation bar's "Next" button at the top.

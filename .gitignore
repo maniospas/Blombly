@@ -10,3 +10,4 @@ asmjit/
 venv/
 .vscode
 /blombly
+.cache

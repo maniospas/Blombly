@@ -23,7 +23,7 @@ x = 1|float;
 print(x);
 ```
 
-```bash
+```text
 > ./blombly main.bb
 1.000000
 ```
@@ -72,7 +72,7 @@ final safediv(x, y) = {
 print(safediv("1", 2));
 ```
 
-```bash
+```text
 > ./blombly main.bb
 0.5
 ```

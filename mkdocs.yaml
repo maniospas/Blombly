@@ -2,24 +2,65 @@ site_name: Blombly
 nav:
   - Home: index.md
   - Setup: setup.md
-  - The basics:
+  - Basics:
       - Introduction: basics/builtins.md
       - Iterables: basics/iterables.md
-      - Code blocks: basics/blocks.md
+      - Code Blocks: basics/blocks.md
       - Structs: basics/structs.md
-      - File system: basics/files.md
+      - File System: basics/files.md
   - Advanced:
-      - The preprocessor: advanced/preprocessor.md
+      - Preprocessing: advanced/preprocessor.md
       - Signals: advanced/signals.md
       - Servers: advanced/servers.md
       - Semi-types: advanced/semitypes.md
       - Libs: advanced/libs.md
   - Material:
-      - Style guide: material/style.md
+      - Style Guide: material/style.md
       - Typeless OOP: material/typeless.md
+
 theme:
-  name: united
+  name: material
+  palette:
+    - scheme: default
+      primary: orange
+      accent: orange
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: brown
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  logo: blombly.png
+  features:
+    - navigation.tabs
+    - navigation.top
+    - toc.integrate
+    - navigation.instant
+    - navigation.dropdown
+    - search.suggest
+    - navigation.footer  # Add this line for "Next" and "Previous" buttons
+  code:
+    highlight: true
 
 extra_css:
   - css/extra.css
 
+markdown_extensions:
+  - codehilite
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+
+plugins:
+  - social
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/maniospas/Blombly
+
+footer:
+  - text: © 2025 Emmanouil (Manios) Krasanakis. All rights reserved.

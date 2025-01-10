@@ -1,0 +1,18 @@
+ul, ol {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 1.2em;
+}
+
+ul li, ol li {
+    margin: 0em;
+}
+
+code {
+    font-size: 80% !important;
+}
+
+/* Adjust font size for code blocks */
+pre code {
+    font-size: 80% !important;
+}

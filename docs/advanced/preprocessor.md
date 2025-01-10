@@ -1,4 +1,4 @@
-# The preprocessor
+# Preprocessing
 
 Blombly's preprocessor can understand several directives that transform the source code before compilation into `.bbvm` files. 
 These directives are made distinct by prepending them with a `!` symbol.

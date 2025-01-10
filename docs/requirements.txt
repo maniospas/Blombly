@@ -1,2 +1,4 @@
 mkdocs
 mkdocs-bootswatch
+mkdocs-material
+mkdocs-material[imaging]
