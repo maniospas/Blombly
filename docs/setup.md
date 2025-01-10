@@ -30,7 +30,8 @@ Hello world!
 
 ## VM code
 
-Compilation converts code to the intermediate representation of BlomlyVM. 
+Compilation converts code to the intermediate representation of 
+the **BLO**ck ase**MBLY** **V**irtual **M**achine (blomblyVM). 
 This representation is stored in files with the `.bbvm` extension.
 These are self-contained by packing all dependencies inside, 
 and therefore can be shared with others to run directly. 
