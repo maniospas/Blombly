@@ -57,16 +57,17 @@ second a variable to assign to, where `#` indicates
 assignment to nothing. Temporary variables have the `_bb` prefix,
 and code blocks start by `BEGIN` or `BEGINFINAL` and end at `END`.
 
+<br>
+
 Compilation optimizes the code for faster execution,
 for example by removing unused variables or code segments.
 For example, notice that above there are no needless instructions
 from the standard library `libs/.bb`, despite this being
 imported in every program.
-
-Do not generate debugging symbols during compilation with the `--strip` or `-s` option.
-This lets compilation and optimization finish faster while producing a much smaller bbvm file - arround 
-half the size. For example, below is the same compilation outcome
-with stripped away debug info. In this case, any errors will contain virtual machine instructions
+Avoid generating debugging symbols during compilation with the `--strip` or `-s` option.
+This speeds up compilation and optimization finish and produces a much smaller bbvm file - arround 
+half the size. For example, below is a compilation outcome
+with stripped away debug info. In this case, any errors contain virtual machine instructions
 instead of a source code stack traces.
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
@@ -83,7 +84,6 @@ print # _bb162
 Before jumping into actual coding, let us peek at errors that Blombly may create. There are two types. 
 First, syntax errors make the compiler halt.
 Second, logical errors occur at runtime, are intercepted with `try`, and handled with `catch`.
-
 To see what a syntax error looks like, execute the following invalid code.
 We get an error telling us that the + operation for string concatenation has no right-hand side. 
 The compiler shows the exact position of the missing expression within the source code.
