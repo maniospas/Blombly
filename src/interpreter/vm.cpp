@@ -75,6 +75,7 @@ int vm(const std::string& fileName, int numThreads) {
             bool hasReturned(false);
             executeBlock(code, &memory, hasReturned, false);
             bbassert(!hasReturned, "The virtual machine cannot return a value.");
+            memory.detach(nullptr);
         }
         BMemory::verify_noleaks();
         for (const auto& [key, data] : cachedData) delete data;

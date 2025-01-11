@@ -36,7 +36,7 @@ void BMemory::leak() { // only do this after detach so that there are no leftove
             auto resVal = prevRet->getResult();
             ret = resVal.get();
             unsafeSet(element.first, ret); 
-            attached_threads.erase(prevRet);
+            attached_threads.erase(prevRet);prevRet->removeFromOwner();
             if(ret)
                 ret->leak();
         }
@@ -104,11 +104,10 @@ Data* BMemory::get(int item) { // allowMutable = true
         auto resVal = prevRet->getResult();
         ret = resVal.get();
         unsafeSet(item, ret); 
-        attached_threads.erase(prevRet);
+        attached_threads.erase(prevRet);prevRet->removeFromOwner();
         return ret;
     }
-    if (!ret && parent) 
-        ret = parent->get(item, allowMutables);
+    if (!ret && parent) ret = parent->get(item, allowMutables);
     if (!ret) {
         bberror("Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
     }
@@ -116,24 +115,21 @@ Data* BMemory::get(int item) { // allowMutable = true
 }
 
 Data* BMemory::get(int item, bool allowMutable) {
-    if(item==fastId)
-        return fastData;
+    if(item==fastId) return fastData;
     auto ret = data[item];
     if (ret && ret->getType() == FUTURE) {
         auto prevRet = static_cast<Future*>(ret);
         auto resVal = prevRet->getResult();
         ret = resVal.get();
         unsafeSet(item, ret); 
-        attached_threads.erase(prevRet);
+        attached_threads.erase(prevRet);prevRet->removeFromOwner();
         bbassert(ret, "Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
         return ret;
     }
     if (ret) {
         bbassert(allowMutable || isFinal(item), "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));
     } 
-    else if (parent) 
-        ret = parent->get(item, allowMutables && allowMutable);
-    
+    else if (parent) ret = parent->get(item, allowMutables && allowMutable);
     bbassert(ret, "Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
     return ret;
 }
@@ -162,7 +158,7 @@ bool BMemory::contains(int item) {
         auto resVal = prevRet->getResult();
         ret = resVal.get();
         unsafeSet(item, ret); 
-        attached_threads.erase(prevRet);
+        attached_threads.erase(prevRet);prevRet->removeFromOwner();
     }
     return ret!=nullptr;
 }
@@ -179,7 +175,7 @@ Data* BMemory::getShallow(int item) {
         auto resVal = prevRet->getResult();
         ret = resVal.get();
         unsafeSet(item, ret);
-        attached_threads.erase(prevRet);
+        attached_threads.erase(prevRet);prevRet->removeFromOwner();
         //std::cout << "done\n";
     }
     if(!ret) bberror("Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
@@ -198,7 +194,7 @@ Data* BMemory::getOrNullShallow(int item) {
         auto resVal = prevRet->getResult();
         ret = resVal.get();
         unsafeSet(item, ret);
-        attached_threads.erase(prevRet);
+        attached_threads.erase(prevRet);prevRet->removeFromOwner();
     }
     return ret;
 }
@@ -212,7 +208,7 @@ Data* BMemory::getOrNull(int item, bool allowMutable) {
         auto resVal = prevRet->getResult();
         ret = resVal.get();
         unsafeSet(item, ret);
-        attached_threads.erase(prevRet);
+        attached_threads.erase(prevRet);prevRet->removeFromOwner();
     }
     if (ret) {
         bbassert(allowMutable || isFinal(item), "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));
@@ -253,7 +249,7 @@ void BMemory::unsafeSet(int item, Data* value, Data* prev) {
     if (prev && isFinal(item)) bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
     if(prev && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev)->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
     if(value) value->addOwner();
-    if(prev && prev->getType()!=FUTURE) prev->removeFromOwner();
+    if(prev) prev->removeFromOwner();
     data[item] = value;
     //std::cout << "set "<<variableManager.getSymbol(item)<<" to "<<value<<"\n";
 }
@@ -262,7 +258,7 @@ void BMemory::unsafeSet(int item, Data* value) {
     Data* prev = data[item];
     if(prev && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev)->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
     if(value) value->addOwner();
-    if(prev && prev->getType()!=FUTURE) prev->removeFromOwner();
+    if(prev) prev->removeFromOwner();
     data[item] = value;
     //std::cout << "set "<<variableManager.getSymbol(item)<<" to "<<value<<"\n";
 }
@@ -302,7 +298,7 @@ void BMemory::await() {
     for (const auto& thread : attached_threads) {
         try {Result res = thread->getResult();}
         catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
-        delete thread;
+        thread->removeFromOwner();
     }
     attached_threads.clear();
 
@@ -312,7 +308,7 @@ void BMemory::await() {
     for (const auto& thread : attached_threads) {
         try {thread->getResult();}
         catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
-        delete thread;
+        thread->removeFromOwner();
     }
     attached_threads.clear();
 

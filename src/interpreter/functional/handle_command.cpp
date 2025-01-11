@@ -179,10 +179,12 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 //newMemory.leak(); (this is for testing only - we are not leaking any memory to other threads if we continue in the same thread, so no need to enable atomic reference counting)
                 if(code->jitable && code->jitable->run(&newMemory, result, newReturnSignal, forceStayInThread)) {
                     if(thisObj) newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
+                    newMemory.detach(nullptr);
                     SET_RESULT;
                 }
                 else {
                     Result returnedValue = executeBlock(code, &newMemory, newReturnSignal, forceStayInThread);
+                    newMemory.detach(nullptr);
                     result = returnedValue.get();
                     if(thisObj) newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
                     SET_RESULT;
@@ -209,6 +211,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 newMemory->leak(); // for all transferred variables, make their reference counter thread safe
                 auto futureResult = new ThreadResult();
                 auto future = new Future(futureResult);
+                future->addOwner();//the attached_threads are also an owner
                 memory->attached_threads.insert(future);
                 //newMemory->attached_threads.insert(future);
                 futureResult->start(code, newMemory, futureResult, command, thisObj);

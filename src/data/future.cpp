@@ -16,10 +16,12 @@ Future::Future(ThreadResult* result_) : result((result_)), Data(FUTURE) {
 
 // Future destructor
 Future::~Future() {
-    std::lock_guard<std::recursive_mutex> lock(syncMutex);
-    if (result->thread.joinable()) {
-        result->thread.join();
-        --thread_count;
+    {
+        std::lock_guard<std::recursive_mutex> lock(syncMutex);
+        if (result->thread.joinable()) {
+            result->thread.join();
+            --thread_count;
+        }
     }
     delete result;
 }
@@ -61,7 +63,7 @@ Result Future::getResult() const {
         throw BBError(error_message);
     }
     Data* ret = result->value.get();
-    if(ret && ret->getType()==FUTURE) return std::move(static_cast<Future*>(ret)->getResult());
+    //if(ret && ret->getType()==FUTURE) return std::move(static_cast<Future*>(ret)->getResult());
     //std::cout << result->value.get() << "\n";
     return std::move(Result(ret));
 }

@@ -1,92 +1,45 @@
-%{norm={return(this.x^2+this.y^2)^0.5;}st //playground/main.bb line 1
-BEGIN _bb432
-%{return(this.x^2+this.y^2)^0.5;} //playground/main.bb line 2
-BEGIN _bb433
-%(this.x^2+this.y^2)^0.5 //playground/main.bb line 2
-BUILTIN _bb435 F0.5
-%this.y^2 //playground/main.bb line 2
-BUILTIN _bb438 I2
-%this.y //playground/main.bb line 2
-get _bb439 this y
-pow _bb437 _bb439 _bb438
-%this.x^2 //playground/main.bb line 2
-BUILTIN _bb441 I2
-%this.x //playground/main.bb line 2
-get _bb442 this x
-pow _bb440 _bb442 _bb441
-add _bb436 _bb440 _bb437
-pow _bb434 _bb436 _bb435
-%return(this.x^2+this.y^2)^0.5 //playground/main.bb line 2
-return # _bb434
-END
-IS norm _bb433
-%{return "("+str(this.x)+", "+str(this.y) //playground/main.bb line 3
-BEGIN _bb443
-%"("+str(this.x)+", "+str(this.y)+")" //playground/main.bb line 3
-BUILTIN _bb445 ")"
-%this.y //playground/main.bb line 3
-get _bb447 this y
-%str(this.y) //playground/main.bb line 3
-str _bb448 _bb447
-%"("+str(this.x)+", " //playground/main.bb line 3
-BUILTIN _bb450 ", "
-%this.x //playground/main.bb line 3
-get _bb452 this x
-%str(this.x) //playground/main.bb line 3
-str _bb453 _bb452
-BUILTIN _bb454 "("
-add _bb451 _bb454 _bb453
-add _bb449 _bb451 _bb450
-add _bb446 _bb449 _bb448
+BEGIN _bb435
+BUILTIN value I0
+BEGIN _bb437
+next x args
+get _bb438 this value
+add _bb438 _bb438 x
+set # this value _bb438
+BUILTIN _bb440 ""
+get _bb442 this value
+str _bb443 _bb442
+BUILTIN _bb445 "  sum "
+str _bb447 x
+BUILTIN _bb448 "added "
+add _bb446 _bb448 _bb447
 add _bb444 _bb446 _bb445
-%return "("+str(this.x)+", "+str(this.y)+ //playground/main.bb line 3
-return # _bb444
+add _bb441 _bb444 _bb443
+add _bb439 _bb441 _bb440
+print # _bb439
+return # this
 END
-IS str _bb443
+IS add _bb437
+return # this
 END
-IS Point _bb432
-%{setx(value)={this.x=value;return this}s //playground/main.bb line 5
+new accum _bb435
+BUILTIN _bb450 I100
+range _bb449 _bb450
+iter _bbmacro6 _bb449
+BEGIN _bb454
 BEGIN _bb455
-%{this.y=value;return this} //playground/main.bb line 7
-BEGIN _bb457
-next value args
-%this.y=value //playground/main.bb line 7
-set # this y value
-%return this //playground/main.bb line 7
-return # this
+next _bb456 _bbmacro6
+AS i _bb456
+exists _bb457 i
 END
-IS sety _bb457
-END
-IS XYSetter _bb455
-%{Point:XYSetter:x=0;y=0} //playground/main.bb line 9
+BEGIN _bb458
 BEGIN _bb460
-%Point: //playground/main.bb line 9
-inline _bb461 Point
-%XYSetter: //playground/main.bb line 9
-inline _bb462 XYSetter
-%x=0 //playground/main.bb line 9
-BUILTIN x I0
-%y=0 //playground/main.bb line 9
-BUILTIN y I0
-return # this
+list args i
 END
-%new{Point:XYSetter:x=0;y=0} //playground/main.bb line 9
-new point _bb460
-%point.sety(4) //playground/main.bb line 10
-BEGIN _bb466
-BUILTIN _bb467 I4
-list args _bb467
+get _bb461 accum add
+call # _bb460 _bb461
 END
-%point.sety //playground/main.bb line 10
-get _bb468 point sety
-%point.sety(4) //playground/main.bb line 10
-call _bb465 _bb466 _bb468
-IS point _bb465
-%print(point) //playground/main.bb line 11
-print # point
-%point.norm //playground/main.bb line 12
-get _bb470 point norm
-%point.norm() //playground/main.bb line 12
-call _bb469 # _bb470
-%print(point.norm()) //playground/main.bb line 12
-print # _bb469
+while # _bb455 _bb458
+END
+try _bb452 _bb454
+get _bb462 accum value
+print # _bb462
