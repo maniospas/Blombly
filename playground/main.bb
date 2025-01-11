@@ -1,7 +1,12 @@
-accum = new {
-    value = 0;
-    add(x) = {this.value += x; print("added {x}  sum {this.value}"); return this}
-}
-
-while(i in range(10)) accum.add(i);
-print(accum.value);
+Point = { 
+    norm => (this.x^2+this.y^2)^0.5;
+    str => "({this.x}, {this.y})";
+} 
+XYSetter = { 
+    setx(value) = {this.x = value;return this} 
+    sety(value) = {this.y = value;return this}
+} 
+point = new {Point:XYSetter:x=0;y=0} 
+point = point.sety(4);
+print(point);
+print(point.norm());

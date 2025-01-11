@@ -17,9 +17,11 @@ In addition to these above, we demonstrate usage of code blocks as constructors 
 
 Create a data structure (aka object) with the `new {@code}` syntax. This creates a new scope that sees its parent's variables but keeps track of all new assignments. A struct holding those assignments as fields is returned.
 
+<br>
+
 Struct fields can be accessed with the dot (`.`) operator afterwards. The example below demonstrates field access.
-It also creates an error because `new` only retains the assignments inside it. The created struct is detached from its creating scope and cannot "see" any of 
-its variables or blocks (e.g., used as functions), such as the variable `zbias` in the example.
+It also creates an error to demonstrate that `new` only retains the assignments inside it. In particular,
+the created struct is at the end detached from the scope and does not grant access to its variables.
 
 ```java
 main.bb
@@ -46,26 +48,64 @@ print(point.zbias); // CREATES AN ERROR
         <span style="color: lightblue;">→</span>  get _bb12 point zbias                              main.bbvm line 20
 </pre>
 
-Interrupting struct creation with a return statement can change the created value to something else, effectively doing so in an isolated scope.
+Interrupting struct creation with a return statement changes the yielded value to something else. It is thus equivalent to isolating the scope.
 For example, the following snippet is a valid (though not efficient in terms of asymptotic complexity) method for recursively computing 
-a term of the Fibonacci sequence. Blombly always schedules `new` for direct execution, that is, without spawning a separate thread.
+a term of the Fibonacci sequence *without function calls*. Blombly always executes `new` without parallelization.
 
 ```java
 final fib = {  
-    if (n < 2) return 1;  
-    return new {n = n - 1; fib:} + new {n = n - 2; fib:};
+    if(n < 2) return 1;  
+    return new{n=n-1; fib:} + new{n=n-2; fib:}
 }
 
 tic = time();
-print("Result", fib(n = 21));
-print("Time", time() - tic);
+result = fib(n=21);
+toc = time();
+print("Result {result}");
+print("Elapsed {toc-tic} sec");
 ```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+Result 17711 
+Elapsed 0.051626 sec 
+</pre>
+
+
+
+In Blombly, inlining can be used to treat code blocks as part of constructors. This is a generalization of multi-inheritance that allows any number of blocks to work together during struct definitions. Inline the declaration of member functions as in the following example.
+To prevent code smells, the compiler does not accept the notation `new {@block}` where `@block` is a code block. Inline code per `new {@block:}`. Similarly, 
+final struct fields cannot be set. That is, any field that is not made final during a struct definition cannot be made final in the future. 
+This imposes a clear distinction between mutable and immutable fields.  
+
+```java
+Point = { 
+    final norm => (this.x^2+this.y^2)^0.5;
+} 
+XYSetter = { 
+    // setters return `this` for synchronization
+    final setx(value) = {this.x = value;return this} 
+    final sety(value) = {this.y = value;return this}
+} 
+point = new {Point:XYSetter:x=0;y=0} 
+point = point.sety(4);
+print(point.norm());
+```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+(0, 4) 
+4.000000 
+</pre>
+
 
 
 ## Methods
 
-Code blocks declared within struct creation have access to a variable called `this` that holds a representation of the struct.
-They thus play the role of callable methods. Here is an example:
+Code blocks declared within struct creation have access to a variable called `this` that represents the struct itself.
+Such blocks play the role of callable methods similarly to how other blocks can be called as functions. Use the same
+calling convention as functions too for positional arguments and for bringing part of the scope into method
+execution. Below is an example.
 
 ```java
 // main.bb
@@ -84,9 +124,9 @@ print(point.sum3d());
 6
 </pre>
 
-The relation between the struct and the method retrieved with the dot notation from
-it is maintained only within the current scope. But the block may be attached to another struct to serve as its method, or even
-be completely detached from any struct if it is returned from a function call. 
+The relation between the struct and the method retrieved with the dot notation
+is maintained only within the current scope. But the block may be attached to another struct to serve as its method, or even
+be completely detached from any struct when returned from a function call. 
 
 <br>
 
@@ -107,8 +147,8 @@ accum = new {
     add(x) = {this.value += x; print("added {x}  sum {this.value}")}
 }
 
-while(i in range(10)) accum.add(i);
-defer print(accum.value);
+try while(i in range(10)) accum.add(i); // try synchronizes everything at its end
+print(accum.value);
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
@@ -135,59 +175,6 @@ added 9  sum 45
     in execution closure final values, arguments, or fields *can* be modified externally.
     Lists and maps that are struct fields can be modified too.
 
-
-## Inlined constructors
-
-In Blombly, inlining can be used to treat code blocks as part of constructors. This is a generalization of multi-inheritance that allows any number of blocks to work together during struct definitions. Inline the declaration of member functions as in the following example.
-
-```java
-// main.bb
-Point = { 
-    norm = {return (this.x^2+this.y^2)^0.5;} 
-} 
-XYSetter = { 
-    setx(value) = {this.x = value} 
-    sety(value) = {this.y = value}
-} 
-point = new {Point: XYSetter: x = 0; y = 0} 
-point.sety(4);
-print(point.norm());
-```
-
-To prevent code smells, the compiler does not accept the notation `new @block` where `@block` is a code block. If you must, inline that block per `new {@block:}`. Similarly, 
-final struct fields cannot be set (e.g., with `final a.value = ...`). That is, any field that is not made final during a struct definition cannot be made final in the future. 
-This imposes a clear distinction between conceptually mutable and immutable properties. 
-
-<br>
-
-Similarly to code blocks structs are completely detached from their declaring scope after creation and reattached to the running scope upon execution.
-You may sometimes want to bring values -mainly code blocks- from that context locally with the pattern `@name = @name;`. Below is an example where a
-code block is overwritten in the top-level scope but a reference to it still resides within the constructed object for future use.
-
-```java
-Point = {
-    Point = Point;
-    str => "({this.x},{this.y})";
-    copy = {
-        super = this;
-        Point = super.Point; // Point: will need to know what Point is
-        return new {
-            Point:
-            x=super.x;
-            y=super.y;
-        }
-    }
-}
-point = new{Point:x=1;y=2}
-Point = {fail("Should never be called");}
-point = point.copy();
-print(point);
-```
-
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-<span style="color: cyan;">> ./blombly</span> main.bb
-(1,2)
-</pre>
 
 ## Private variables
 
@@ -253,7 +240,7 @@ print(p3.x, p3.y);
 
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-<span style="color: cyan;">> ./blombly</span> main.bb
+> <span style="color: cyan;">./blombly</span> main.bb
 [4, 6]
 </pre>
 
@@ -305,7 +292,7 @@ print(A|float);
 
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-<span style="color: cyan;">> ./blombly</span> main.bb
+> <span style="color: cyan;">./blombly</span> main.bb
 1
 </pre>
 
@@ -331,6 +318,6 @@ print(p1+p2);
 
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-<span style="color: cyan;">> ./blombly</span> main.bb
+> <span style="color: cyan;">./blombly</span> main.bb
 (3,5)
 </pre>

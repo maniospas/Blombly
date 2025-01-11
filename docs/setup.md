@@ -2,8 +2,8 @@
 
 ## Hello world!
 
-Let's make a first program to demonstrate the compilation and interpretation process. Create the following example file, where the `.bb` extension is associated with Blombly source code. 
-Use a Java syntax highlighter (but not a syntax checker), as the two languages share many keywords.
+Let's make a first program to demonstrate compilation and interpretation. Create the following example file, where the `.bb` extension is associated with Blombly source code. 
+Prefer a Java keyword highlighter (but not syntax checker).
 
 
 ```java

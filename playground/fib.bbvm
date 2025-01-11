@@ -1,0 +1,70 @@
+%{if(n<2)return1;return fib(n-1)+fib(n-2) //playground/fib.bb line 1
+BEGIN _bb432
+next n args
+%if(n<2)return1 //playground/fib.bb line 2
+BEGIN _bb433
+BUILTIN _bb434 I1
+%return1 //playground/fib.bb line 2
+return # _bb434
+END
+%n<2 //playground/fib.bb line 2
+BUILTIN _bb436 I2
+lt _bb435 n _bb436
+%if(n<2)return1 //playground/fib.bb line 2
+if # _bb435 _bb433
+%fib(n-2) //playground/fib.bb line 3
+BEGIN _bb439
+%n-2 //playground/fib.bb line 3
+BUILTIN _bb441 I2
+sub _bb440 n _bb441
+list args _bb440
+END
+%fib(n-2) //playground/fib.bb line 3
+call _bb438 _bb439 fib
+%fib(n-1) //playground/fib.bb line 3
+BEGIN _bb443
+%n-1 //playground/fib.bb line 3
+BUILTIN _bb445 I1
+sub _bb444 n _bb445
+list args _bb444
+END
+%fib(n-1) //playground/fib.bb line 3
+call _bb442 _bb443 fib
+add _bb437 _bb442 _bb438
+%return fib(n-1)+fib(n-2) //playground/fib.bb line 3
+return # _bb437
+END
+IS fib _bb432
+final # fib
+%time() //playground/fib.bb line 6
+time tic
+%fib(21) //playground/fib.bb line 7
+BEGIN _bb448
+BUILTIN _bb449 I21
+list args _bb449
+END
+%fib(21) //playground/fib.bb line 7
+call _bb447 _bb448 fib
+IS result _bb447
+%time() //playground/fib.bb line 8
+time toc
+%"Result "+str(result)+"" //playground/fib.bb line 9
+BUILTIN _bb452 ""
+%str(result) //playground/fib.bb line 9
+str _bb454 result
+BUILTIN _bb455 "Result "
+add _bb453 _bb455 _bb454
+add _bb451 _bb453 _bb452
+%print("Result "+str(result)+"") //playground/fib.bb line 9
+print # _bb451
+%"Elapsed "+str(toc-tic)+" sec" //playground/fib.bb line 10
+BUILTIN _bb457 " sec"
+%toc-tic //playground/fib.bb line 10
+sub _bb459 toc tic
+%str(toc-tic) //playground/fib.bb line 10
+str _bb460 _bb459
+BUILTIN _bb461 "Elapsed "
+add _bb458 _bb461 _bb460
+add _bb456 _bb458 _bb457
+%print("Elapsed "+str(toc-tic)+" sec") //playground/fib.bb line 10
+print # _bb456
