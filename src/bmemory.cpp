@@ -23,10 +23,8 @@ BMemory::BMemory(BMemory* par, int expectedAssignments, Data* thisObject) : pare
 }
 
 bool BMemory::isOrDerivedFrom(BMemory* memory) const {
-    if (memory == this)
-        return true;  // stop on cycle
-    if (parent)
-        return parent->isOrDerivedFrom(memory);
+    if (memory == this) return true;  // stop on cycle
+    if (parent) return parent->isOrDerivedFrom(memory);
     return false;
 }
 
@@ -262,8 +260,7 @@ void BMemory::unsafeSet(int item, Data* value, Data* prev) {
 
 void BMemory::unsafeSet(int item, Data* value) {
     Data* prev = data[item];
-    if(prev && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev)->isConsumed()) 
-        bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
+    if(prev && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev)->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
     if(value) value->addOwner();
     if(prev && prev->getType()!=FUTURE) prev->removeFromOwner();
     data[item] = value;
@@ -303,14 +300,21 @@ void BMemory::await() {
     if(attached_threads.size()==0) return; // we don't need to lock because on zero threads we are ok, on >=1 threads we don't care about the number
     std::string destroyerr = "";
     for (const auto& thread : attached_threads) {
-        delete thread;
-        try {thread->getResult();}
+        try {Result res = thread->getResult();}
         catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
+        delete thread;
     }
     attached_threads.clear();
 
     try {runFinally();}
     catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
+
+    for (const auto& thread : attached_threads) {
+        try {thread->getResult();}
+        catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
+        delete thread;
+    }
+    attached_threads.clear();
 
     for (const auto& element : data) {
         auto dat = element.second;

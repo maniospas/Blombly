@@ -201,8 +201,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                         break;
                     }
                 }
-                //newMemory->detach(code->getDeclarationMemory());
-                newMemory->detach(memory);
+                //newMemory->detach(memory);
                 auto it = memory->codeOwners.find(code);
                 Data* thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
                 if(thisObj) newMemory->unsafeSet(variableManager.thisId, thisObj, nullptr);
