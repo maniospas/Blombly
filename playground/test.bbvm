@@ -8,7 +8,7 @@ BUILTIN _bb436 I1000000
 range _bb435 _bb436
 %iter(range(1000000)) //playground/test.bb line 3
 iter _bbmacro6 _bb435
-%while(ias next(_bbmacro6))ret+=1 //playground/test.bb line 3
+%while(ias next(_bbmacro6))ret+=i //playground/test.bb line 3
 BEGIN _bb438
 %next(_bbmacro6) //playground/test.bb line 3
 next _bb439 _bbmacro6
@@ -16,16 +16,15 @@ AS i _bb439
 exists _bb440 i
 END
 BEGIN _bb441
-%ret+=1 //playground/test.bb line 3
-BUILTIN _bb442 I1
-add ret ret _bb442
+%ret+=i //playground/test.bb line 3
+add ret ret i
 END
-%while(ias next(_bbmacro6))ret+=1 //playground/test.bb line 3
+%while(ias next(_bbmacro6))ret+=i //playground/test.bb line 3
 while # _bb438 _bb441
 %time() //playground/test.bb line 4
-time _bb444
-sub _bb443 _bb444 tic
+time _bb443
+sub _bb442 _bb443 tic
 %print(time()-tic) //playground/test.bb line 4
-print # _bb443
+print # _bb442
 %print(ret) //playground/test.bb line 5
 print # ret
