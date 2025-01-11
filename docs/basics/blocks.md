@@ -1,6 +1,6 @@
 # Code blocks
 
-The main logic compartmentalization mechanism in Blombly are code blocks; these are flexible coding segments that can be treated as methods, 
+The main logic compartmentalization mechanism in Blombly are code blocks; these are flexible coding segments that can be treated as functions, 
 used to define various control flows, or called inline. 
 Code blocks are declared by enclosing some code in brackets and assigning them to a variable. 
 There is no trailing semicolon, and the compiler will create an error if you do try to add one so that only one syntax is promoted. 
@@ -27,14 +27,15 @@ Hello world!
 </pre>
 
 
-## Method calling
+## Functions
 
-Blombly can call code blocks by executing some code inside a paranthesis. Variables
-declared inside the parenthesis are transferred to the called block. 
-The last semicolon may be ommited from code blocks,
+Blombly can treat code blocks as functions by executing some code inside a paranthesis
+and start a new scope from the values to run the block's code. 
+The last semicolon may be ommited from blocks,
 so this mostly looks like keyword arguments seperated by semicolons (`;`). 
 We later show a modification that accepts positional arguments too.
-Use a `return` statement to yield back a call value. An example of running 
+Use a `return` statement to yield back a value. This stops block
+execution immediately. An example of running 
 a code block follows.
 
 ```java 
@@ -53,12 +54,11 @@ print(result);
 
 Being able to execute code as part of the arguments allows more
 dynamic patterns than regular keyword arguments, namely the reuse
-of arbitrary preparations before calling methods. For example, one
-can declare configuration blocks that generate the arguments 
+of arbitrary preparations before calling methods. For example,
+declare configuration blocks that generate the arguments 
 and inline them within the calling parenthesis.
-Blombly comes alongside several [macros](../advanced/preprocessor.md). 
-One of them is `@signature => @expression`, which is a shorthand for code blocks that only consist of returning a value.
-Below is an example that combines all terminology up to now.
+Blombly comes alongside several [macros](../advanced/preprocessor.md), one of which is `@signature => @expression`. This is a shorthand for code blocks that only return an expression's outcome.
+Below is an example that combines several concepts.
 
 
 ```java
@@ -80,6 +80,10 @@ print(b);
 4
 -1
 </pre>
+
+!!! info
+    Blombly is free to run functions in parallel. Synchronize them by passing the output of one into another,
+    or by enclosing a multiple calls in a `try` block.
 
 ## Execution closure
 
@@ -125,28 +129,14 @@ Blocks can be called using comma-separated positional arguments.
 This is a common programming pattern, 
 though we stress that it is better to execute code to determine configurations. 
 Positional arguments are stored in a list called `args`. For safery, 
-this is considered a language keyword and the compiler does not allow its usage.
-You can then access list elements or use `next` to obtain their values like below.
+this is considered a language keyword and the compiler does not allow assigning to it.
+You can then access list elements or use `args|next` to sequentially pop arguments.
 
-```java
-// main.bb
-adder = { 
-    x = next(args); 
-    y = next(args); 
-    return x + y; 
-}
-result = adder(1, 2); 
-print(result);
-```
+<br>
 
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-<span style="color: cyan;">> ./blombly</span> main.bb
-3
-</pre>
-
-A shorthand for the above notation is to add positional variable names inside a parenthesis next to the block, 
-separated by commas. You can still assign the block to other variables, as demonstrated below, or inline them
-within other definitions given that they have the correct remainder `args`.
+A shorthand of the last practice is to add positional comma-separated variable names inside a parenthesis next to the block. 
+You can still assign the block to other variables or inline it
+within other blocks given that they have enough remainder elements in `args`.
 
 ```java
 // main.bb
@@ -163,7 +153,8 @@ print(result);
 
 
 Blombly mixes positional arguments and code execution by separating the two with double doubledots 
-(`::`) inside the call parenthesis. These also require whitespaces before and after them.
+(`::`) inside the call parenthesis. These also require whitespaces before and after.
+Positional arguments are created first from the calling scope, so further argument generation can modify them.
 
 ```java
 // main.bb
@@ -181,5 +172,4 @@ print(result);
 5
 </pre>
 
-Positional arguments are created first from the calling scope, so further argument generation can modify them.
 
