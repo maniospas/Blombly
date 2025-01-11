@@ -3,6 +3,5 @@ final accum = new {
     add(x) = {this.value += x}
 }
 
-add_accum(i) = {accum.add(i)} // run on a separate thread each if possible
-while(i in range(10)) add_accum(i);
-defer assert accum.value == 45;
+try while(i in range(10)) accum.add(i);
+assert accum.value == 45;

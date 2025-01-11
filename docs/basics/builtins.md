@@ -148,9 +148,8 @@ Similarly to numeric operations, the expression `variable |= convertion;` reassi
 In this case, however, the leftwise convertions is performed first, enabling the pattern
 `variable |= convertion1|convertion2|...;` 
 This notation is intentionally similar to 
-[double turnstile](https://en.wikipedia.org/wiki/Double_turnstile) and may be thought as 
-variable modeling some property.
-Below is an example.
+[double turnstile](https://en.wikipedia.org/wiki/Double_turnstile) and may be thought of as 
+variable modeling some property. Below is an example.
 
 ```java
 x = "1.5";
@@ -243,7 +242,7 @@ return errors as values. These make execution fail if used in computations.
 One way of handling errors -aside from the catch statement that will be covered below- is
 the `as` keyword. This performs an assignment without breaking normal code writting 
 on encountering an error value, but by returning a true/false value depending on whether
-an error was found. For example, below is a simple one-liner that retries
+an error was found. Below is a simple one-liner that retries
 reading from the console until a number if provided. It also
 use function-based typecasting (where `@str|@func` is equivalent to `@func(@str)`) to chain
 function calls.
@@ -262,11 +261,12 @@ Give a number: 12
 </pre>
 
 
-The `@result = try{@code}` pattercommand intercepts errors that indicate
+The `@result = try{@code}` pattern intercepts errors that indicate
 unsuccessful algorithms, as well as return statements that indicate successful conclusion of
-computations. Returning is the same mechanism as the one we [next](blocks.md) use to
-return values from functions. Omit brackets when only one command is tried, 
-to combine the interception mechanism with other control flows:
+computations. It also waits for parallel function calls evoked in the code to conclude first 
+and applies all defer statements. Returning is the same mechanism that yields values from functions - though
+we have not covered this last concept yet. Omit brackets when only one command is tried 
+to let the interception mechanism interupt control flow:
 
 ```java
 // main.bb
@@ -309,8 +309,7 @@ You will typically want to differentiate between try results that hold errors an
 In those cases, use `catch`, which is effectively a special conditional statement that checks whether the condition is an error.
 Missing values are not considered errors for the purposes of this statement. 
 Usage is demonstrated below, where the the return signal is intercepted to stop the loop immediately. 
-If no value or error is intercepted, 
-the result becomes a missing value error than can be caught.
+If no value or error is intercepted, the result becomes a missing value error than can be caught.
 
 ```java
 // main.bb

@@ -11,8 +11,9 @@
         - 6. Preprocessing: advanced/preprocessor.md
         - 7. Libs: advanced/libs.md
     - Principles:
-        - Style Guide: material/style.md
+        - Concurrency: material/concurrency.md
         - Typeless OOP: material/typeless.md
+        - Style Guide: material/style.md
 
   theme:
     name: material

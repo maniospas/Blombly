@@ -1,45 +1,70 @@
+%{value=0;add(x)={this.value+=x;print("ad //playground/main.bb line 1
 BEGIN _bb435
+%value=0 //playground/main.bb line 2
 BUILTIN value I0
+%{this.value+=x;print("added "+str(x)+"   //playground/main.bb line 3
 BEGIN _bb437
 next x args
+%this.value+=x //playground/main.bb line 3
 get _bb438 this value
 add _bb438 _bb438 x
 set # this value _bb438
+%"added "+str(x)+"  sum "+str(this.value) //playground/main.bb line 3
 BUILTIN _bb440 ""
+%this.value //playground/main.bb line 3
 get _bb442 this value
+%str(this.value) //playground/main.bb line 3
 str _bb443 _bb442
+%"added "+str(x)+"  sum " //playground/main.bb line 3
 BUILTIN _bb445 "  sum "
+%str(x) //playground/main.bb line 3
 str _bb447 x
 BUILTIN _bb448 "added "
 add _bb446 _bb448 _bb447
 add _bb444 _bb446 _bb445
 add _bb441 _bb444 _bb443
 add _bb439 _bb441 _bb440
+%print("added "+str(x)+"  sum "+str(this. //playground/main.bb line 3
 print # _bb439
+%return this //playground/main.bb line 3
 return # this
 END
 IS add _bb437
 return # this
 END
+%new{value=0;add(x)={this.value+=x;print( //playground/main.bb line 1
 new accum _bb435
-BUILTIN _bb450 I100
+%range(10) //playground/main.bb line 6
+BUILTIN _bb450 I10
+%range(10) //playground/main.bb line 6
 range _bb449 _bb450
+%iter(range(10)) //playground/main.bb line 6
 iter _bbmacro6 _bb449
+%while(ias next(_bbmacro6))accum.add(i) //playground/main.bb line 6
 BEGIN _bb454
+%while(ias next(_bbmacro6))accum.add(i) //playground/main.bb line 6
 BEGIN _bb455
+%next(_bbmacro6) //playground/main.bb line 6
 next _bb456 _bbmacro6
 AS i _bb456
 exists _bb457 i
 END
 BEGIN _bb458
+%accum.add(i) //playground/main.bb line 6
 BEGIN _bb460
 list args i
 END
+%accum.add //playground/main.bb line 6
 get _bb461 accum add
-call # _bb460 _bb461
+%accum.add(i) //playground/main.bb line 6
+call _bb459 _bb460 _bb461
 END
+%while(ias next(_bbmacro6))accum.add(i) //playground/main.bb line 6
 while # _bb455 _bb458
 END
+%try while(ias next(_bbmacro6))accum.add( //playground/main.bb line 6
 try _bb452 _bb454
+%accum.value //playground/main.bb line 7
 get _bb462 accum value
+%print(accum.value) //playground/main.bb line 7
 print # _bb462
