@@ -27,10 +27,11 @@ Result Struct::implement(const OperationType operation_, BuiltinArgs* args_, BMe
     //}
 
     std::string operation = getOperationTypeName(operation_);
-    auto mem = getMemory();
+    BMemory* mem;
     Data* implementation;
     {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
+        mem = getMemory();
         implementation = mem->getOrNullShallow(variableManager.getId(operation));
 
         if(!implementation) {

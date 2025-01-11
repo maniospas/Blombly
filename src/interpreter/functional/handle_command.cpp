@@ -239,7 +239,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 from = obj->getMemory();
                 result = from->get(command->args[2]);
                 if(result->getType() == CODE && from) {
-                    static_cast<Code*>(result)->scheduleForParallelExecution = false;  // never execute struct calls in parallel
+                    //static_cast<Code*>(result)->scheduleForParallelExecution = false;  // never execute struct calls in parallel
                     memory->codeOwners[static_cast<Code*>(result)] = obj;
                 }
             }

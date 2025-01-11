@@ -1,63 +1,64 @@
-site_name: Blombly
-nav:
-  - Home: index.md
-  - Setup: setup.md
-  - User guide:
-      - 1. The basics: basics/builtins.md
-      - 2. Iterables: basics/iterables.md
-      - 3. Code blocks: basics/blocks.md
-      - 4. Structs: basics/structs.md
-      - 5. IO: basics/io.md
-      - 6. Preprocessing: advanced/preprocessor.md
-      - 7. Libs: advanced/libs.md
-  - Principles:
-      - Style Guide: material/style.md
-      - Typeless OOP: material/typeless.md
+  site_name: Blombly
+  nav:
+    - Home: index.md
+    - Setup: setup.md
+    - User guide:
+        - 1. The basics: basics/builtins.md
+        - 2. Iterables: basics/iterables.md
+        - 3. Code blocks: basics/blocks.md
+        - 4. Structs: basics/structs.md
+        - 5. IO: basics/io.md
+        - 6. Preprocessing: advanced/preprocessor.md
+        - 7. Libs: advanced/libs.md
+    - Principles:
+        - Style Guide: material/style.md
+        - Typeless OOP: material/typeless.md
 
-theme:
-  name: material
-  palette:
-    - scheme: default
-      primary: orange
-      accent: orange
-      toggle:
-        icon: material/weather-night
-        name: Switch to dark mode
-    - scheme: slate
-      primary: brown
-      accent: amber
-      toggle:
-        icon: material/weather-sunny
-        name: Switch to light mode
-  logo: blombly.png
-  features:
-    - navigation.tabs
-    - navigation.top
-    - toc.integrate
-    - navigation.instant
-    - navigation.dropdown
-    - search.suggest
-    - navigation.footer  # Add this line for "Next" and "Previous" buttons
-  code:
-    highlight: true
+  theme:
+    name: material
+    palette:
+      - scheme: default
+        primary: orange
+        accent: orange
+        toggle:
+          icon: material/weather-night
+          name: Switch to dark mode
+      - scheme: slate
+        primary: brown
+        accent: amber
+        toggle:
+          icon: material/weather-sunny
+          name: Switch to light mode
+    logo: blombly.png
+    features:
+      - navigation.tabs
+      - navigation.top
+      - toc.integrate
+      - navigation.instant
+      - navigation.dropdown
+      - search.suggest
+      - navigation.footer  # Add this line for "Next" and "Previous" buttons
+    code:
+      highlight: true
 
-extra_css:
-  - css/extra.css
+  extra_css:
+    - css/extra.css
 
-markdown_extensions:
-  - codehilite
-  - pymdownx.highlight
-  - pymdownx.inlinehilite
-  - pymdownx.superfences
+  markdown_extensions:
+    - codehilite
+    - pymdownx.highlight
+    - pymdownx.inlinehilite
+    - pymdownx.superfences
+    - admonition  # Add this line
 
-plugins:
-  - social
+  plugins:
+    - social
 
-extra:
-  social:
-    - icon: fontawesome/brands/github
-      link: https://github.com/maniospas/Blombly
+  extra:
+    social:
+      - icon: fontawesome/brands/github
+        link: https://github.com/maniospas/Blombly
 
-footer:
-  - text: © 2025 Emmanouil (Manios) Krasanakis. All rights reserved.
+  footer:
+    - text: © 2025 Emmanouil (Manios) Krasanakis. All rights reserved.
 

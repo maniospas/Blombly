@@ -1,50 +1,75 @@
-BEGIN _bb434
-BUILTIN _bb435 I0
-set # this \value _bb435
-BEGIN _bb436
+%{value=0;add(x)={this.value+=x;print("ad //playground/main.bb line 1
+BEGIN _bb435
+%value=0 //playground/main.bb line 2
+BUILTIN value I0
+%{this.value+=x;print("added "+str(x)+"   //playground/main.bb line 3
+BEGIN _bb437
 next x args
-get _bb437 this \value
-add _bb437 _bb437 x
-set # this \value _bb437
-get _bb438 this \value
-list _bb439 _bb438 x
+%this.value+=x //playground/main.bb line 3
+get _bb438 this value
+add _bb438 _bb438 x
+set # this value _bb438
+%"added "+str(x)+"  sum "+str(this.value) //playground/main.bb line 3
+BUILTIN _bb440 ""
+%this.value //playground/main.bb line 3
+get _bb442 this value
+%str(this.value) //playground/main.bb line 3
+str _bb443 _bb442
+%"added "+str(x)+"  sum " //playground/main.bb line 3
+BUILTIN _bb445 "  sum "
+%str(x) //playground/main.bb line 3
+str _bb447 x
+BUILTIN _bb448 "added "
+add _bb446 _bb448 _bb447
+add _bb444 _bb446 _bb445
+add _bb441 _bb444 _bb443
+add _bb439 _bb441 _bb440
+%print("added "+str(x)+"  sum "+str(this. //playground/main.bb line 3
 print # _bb439
-END
-IS add _bb436
-BEGIN _bb440
-get _bb441 this \value
-return # _bb441
-END
-IS float _bb440
+%return this //playground/main.bb line 3
 return # this
 END
-new accum _bb434
-final # accum
-BEGIN _bb442
-next i args
-BEGIN _bb444
+IS add _bb437
+return # this
+END
+%new{value=0;add(x)={this.value+=x;print( //playground/main.bb line 1
+new accum _bb435
+%accum.add //playground/main.bb line 6
+get _bb449 accum add
+%print(accum.add) //playground/main.bb line 6
+print # _bb449
+%range(10) //playground/main.bb line 8
+BUILTIN _bb451 I10
+%range(10) //playground/main.bb line 8
+range _bb450 _bb451
+%iter(range(10)) //playground/main.bb line 8
+iter _bbmacro6 _bb450
+%while(ias next(_bbmacro6))accum=accum.ad //playground/main.bb line 8
+BEGIN _bb453
+%next(_bbmacro6) //playground/main.bb line 8
+next _bb454 _bbmacro6
+AS i _bb454
+exists _bb455 i
+END
+BEGIN _bb456
+%accum.add(i) //playground/main.bb line 8
+BEGIN _bb458
 list args i
 END
-get _bb445 accum add
-call _bb443 _bb444 _bb445
+%accum.add //playground/main.bb line 8
+get _bb459 accum add
+%accum.add(i) //playground/main.bb line 8
+call _bb457 _bb458 _bb459
+IS accum _bb457
 END
-IS add_accum _bb442
-BUILTIN i I0
-BEGIN _bb447
-BUILTIN _bb449 I10
-lt _bb448 i _bb449
+%while(ias next(_bbmacro6))accum=accum.ad //playground/main.bb line 8
+while # _bb453 _bb456
+%print(accum.value) //playground/main.bb line 9
+BEGIN _bb461
+%accum.value //playground/main.bb line 9
+get _bb462 accum value
+%print(accum.value) //playground/main.bb line 9
+print # _bb462
 END
-BEGIN _bb450
-BEGIN _bb452
-list args i
-END
-call _bb451 _bb452 add_accum
-BUILTIN _bb453 I1
-add i i _bb453
-END
-while # _bb447 _bb450
-BEGIN _bb455
-float _bb456 accum
-print # _bb456
-END
-defer # _bb455
+%defer print(accum.value) //playground/main.bb line 9
+defer # _bb461

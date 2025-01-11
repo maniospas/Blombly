@@ -2,19 +2,16 @@
 
 This section describes the process with which to create structs. These are objects that hold a scope whose variables are treated as object fields.
 Fields are accessed and set with the dot notation and can be final like normal.
-Use structs only to transer state between executed code blocks. Do not store intermediate values in fields if you plan to use them from multiple methods.
 
 <br>
 
-<div style="background-color: rgb(159, 236, 199); color: black; text-align: center; padding: 20px 0; font-size: 24px; border: 1px solid black;">
-    Code blocks only contain code. Use structs to transfer state.
-</div>
-
-<br>
 When working with structs, `new` creates a scope for declaring them, `this` accesses struct members when calling its code blocks,
 a fullstop (`.`) accesses fields or values from the creation closure, and private variables starting with `\` are not exposed externally. 
 All assignments during initialization are transferred to the produced struct. The latter is afterwards detached from its creating scope.
 In addition to these above, we demonstrate usage of code blocks as constructors to be inlined within struct creation. 
+
+!!! info 
+    Code blocks only contain code. Use structs to transfer state.
 
 ## New
 
@@ -49,27 +46,6 @@ print(point.zbias); // CREATES AN ERROR
         <span style="color: lightblue;">→</span>  get _bb12 point zbias                              main.bbvm line 20
 </pre>
 
-
-Blocks declared within new have access to a variable called `this` that holds a representation of the struct. 
-Here is an example:
-
-```java
-// main.bb
-point = new { 
-    sum2d => this.x+this.y;
-    sum3d => this.sum2d()+this.z;
-    x = 1; 
-    y = 2; 
-    z = 3; 
-} 
-print(point.sum3d());
-```
-
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-<span style="color: cyan;">> ./blombly</span> main.bb
-6
-</pre>
-
 Interrupting struct creation with a return statement can change the created value to something else, effectively doing so in an isolated scope.
 For example, the following snippet is a valid (though not efficient in terms of asymptotic complexity) method for recursively computing 
 a term of the Fibonacci sequence. Blombly always schedules `new` for direct execution, that is, without spawning a separate thread.
@@ -84,6 +60,80 @@ tic = time();
 print("Result", fib(n = 21));
 print("Time", time() - tic);
 ```
+
+
+## Methods
+
+Code blocks declared within struct creation have access to a variable called `this` that holds a representation of the struct.
+They thus play the role of callable methods. Here is an example:
+
+```java
+// main.bb
+point = new { 
+    sum2d => this.x+this.y;
+    sum3d => this.sum2d()+this.z;
+    x = 1; 
+    y = 2; 
+    z = 3; 
+} 
+print(point.sum3d());
+```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+6
+</pre>
+
+The relation between the struct and the method retrieved with the dot notation from
+it is maintained only within the current scope. But the block may be attached to another struct to serve as its method, or even
+be completely detached from any struct if it is returned from a function call. 
+
+<br>
+
+Blombly retains struct atomicity while calling methods.
+That is, structs are guaranteed to never be modified while any of their methods run, without
+exhibiting race conditions.
+Furthermore, the language is guaranteed to never experience synchronization deadlocks.
+This is achieved thanks to its freedom to choose which method and function calls run in
+parallel and which in different threads. Below is an example where multiple numbers are
+summed by methods that run in different threads - suggested by the non-sequential print order.
+Note that, if calling order was important, you could enforce it 
+by returning `this` from the method and calling it with the pattern `accum = accum.add(i);`.
+
+
+```java
+accum = new {
+    value = 0;
+    add(x) = {this.value += x; print("added {x}  sum {this.value}")}
+}
+
+while(i in range(10)) accum.add(i);
+defer print(accum.value);
+```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+added 1  sum 1 
+added 0  sum 1 
+added 3  sum 4 
+added 2  sum 6 
+added 4  sum 10 
+added 5  sum 15 
+added 7  sum 22 
+added 6  sum 28 
+added 8  sum 36 
+added 9  sum 45 
+45 
+</pre>
+
+!!! info
+    Deadlocks are avoided by making sure that, once struct methods are called, all dependent
+    calls run in the same thread.
+
+!!! warning 
+    A struct is guaranteed to never be modified while its methods run, but structs found
+    in execution closure final values, arguments, or fields *can* be modified externally.
+    Lists and maps that are struct fields can be modified too.
 
 
 ## Inlined constructors
@@ -231,13 +281,16 @@ print(result);
 
 ## Creation closure
 
-Running code blocks -or callable structs- can access the final variables of their
-calling blocks. However, we already saw that it may useful to retain values 
-from the struct's creation scope.
-We previously did this with the pattern `@value = @value;`. However, this may be clunky
+Functions -be they called code blocks or callable structs- can access the final variables of their
+calling scope. However, it is sometimes useful to retain values from the struct's creation scope.
+
+<br>
+
+One option is to use the pattern `@value = @value;` during struct creation.
+However, this requires a lot of additional code to maintain information
 and could be shadowed by other struct fields. For this reason, Blombly offers an
-automatic way to bring external values to the struct; access them
-as members while using more than one dots. When doing so, each additional dot
+automatic way to bring external values to the struct; accessing them
+like fields while using more than one dots after `this`. When doing so, each additional dot
 injects a pattern from obtaining a value from an enclosing scope. Below is an example.
 
 ```java

@@ -108,11 +108,15 @@ Declaration scope
 Running scope
 </pre>
 
-The property of obtaining values from a surrounding context is broadly called *closure*.
-Contrary to most interpreted languages, Blombly aims for efficient memory management
-and parallelization. It therefore adopts the low-level language paradigm of method 
-calling by using the scope in which methods are called (instead of where they are defined)
-as their closure.
+
+!!! info 
+    The property of obtaining values from a surrounding context is broadly called *closure*.
+    Contrary to most interpreted languages, Blombly aims for efficient memory management
+    and parallelization. It therefore uses the scope at which functions run (not where they are
+    defined) as their closure.
+    It further has access only to final variables to retain the ability of automatically
+    running functions in parallel.
+
 
 
 ## Positional arguments
