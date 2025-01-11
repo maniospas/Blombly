@@ -81,7 +81,7 @@ class Result;
 
 extern VariableManager variableManager;
 
-Result executeBlock(Code* code, BMemory* memory, bool  &returnSignal);
+Result executeBlock(Code* code, BMemory* memory, bool  &returnSignal, bool forceStayInThread);
 
 #define UNSAFEMEMGET(memory, arg) (command->knownLocal[arg]?memory->getOrNullShallow(command->args[arg]):memory->get(command->args[arg]))
 #define MEMGET(memory, arg) (command->knownLocal[arg]?memory->getShallow(command->args[arg]):memory->get(command->args[arg]))

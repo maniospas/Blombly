@@ -66,12 +66,12 @@ std::unordered_map<int, Data*> cachedData;
 #define SET_RESULT if(command->args[0]!=variableManager.noneId) memory->unsafeSet(command->args[0], result, nullptr);return
 
 
-void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool &returnSignal, BuiltinArgs &args, Data*& result) {
+void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool &returnSignal, BuiltinArgs &args, Data*& result, bool forceStayInThread) {
     Command* command = (*program)[i];
     //Data* toReplace = command->nargs?memory->getOrNullShallow(command->args[0]):nullptr;
     //BMemory* memory = memory_.get();
 
-    //std::cout<<command->toString(memory)<<"\t "<<std::this_thread::get_id()<<"\n";
+    //std::cout<<command->toString()<<"\t "<<std::this_thread::get_id()<<"\n";
     
     switch (command->operation) {
         case BUILTIN: result = command->value;break;
@@ -89,10 +89,10 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 pos++;
             }
             bbassert(depth >= 0, "Cache declaration never ended.");
-            auto cache = new Code(program, i + 1, pos, nullptr);
+            auto cache = new Code(program, i + 1, pos);
             bool cacheReturn(false);
             BMemory cacheMemory(nullptr, 16, nullptr);
-            executeBlock(cache, &cacheMemory, cacheReturn);
+            executeBlock(cache, &cacheMemory, cacheReturn, forceStayInThread);
             cacheMemory.await();
             bbassert(!cacheReturn, "Cache declaration cannot return a value");
             for (int key : cacheMemory.finals) {
@@ -109,10 +109,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             // Start a block of code
             if(command->value) {
                 auto code = static_cast<Code*>(command->value);
-                auto val = new Code(code->getProgram(), code->getStart(), code->getEnd(), memory, nullptr);//, code->getAllMetadata());
-                val->scheduleForParallelExecution = code->scheduleForParallelExecution;
-                val->jitable = code->jitable;
-                result = val;
+                result = code;
                 if (command->operation == BEGINFINAL) memory->setFinal(command->args[0]);
                 i = code->getEnd();
                 break;
@@ -131,15 +128,11 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 pos++;
             }
             bbassert(depth >= 0, "Code block never ended.");
-            auto cache = new Code(program, i + 1, pos, memory);
+            auto cache = new Code(program, i + 1, pos);
             cache->addOwner();
-            auto val = new Code(program, i + 1, pos, memory, nullptr);//cache->getAllMetadata());
-            val->jitable = jit(val);
-            cache->jitable = val->jitable;
-            val->scheduleForParallelExecution = true;
-            cache->scheduleForParallelExecution = true;
+            cache->jitable = jit(cache);
             command->value = cache;
-            result = (val);
+            result = cache;
             if(command->operation == BEGINFINAL) memory->setFinal(command->args[0]);
             i = pos;
         } break;
@@ -154,40 +147,44 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 auto strct = static_cast<Struct*>(called);
                 auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
                 bbassert(val && val->getType()==CODE, "Struct was called like a method but has no implemented code for `call`.");
-                static_cast<Code*>(val)->setDeclarationMemory(static_cast<Struct*>(called)->getMemory());
-                static_cast<Code*>(val)->scheduleForParallelExecution = false; // struct calls are never executed in parallel
+                //static_cast<Code*>(val)->scheduleForParallelExecution = false; // struct calls are never executed in parallel
+                memory->codeOwners[static_cast<Code*>(val)] = static_cast<Struct*>(called);
                 called = (val);
             }
             auto code = static_cast<Code*>(called);
-            if(!code->scheduleForParallelExecution || !Future::acceptsThread()) {
+            if(forceStayInThread || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
                 BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
                 bool newReturnSignal(false);
                 if(context) {
                     bbassert(context->getType() == CODE, "Call context must be a code block.");
-                    Result returnedValue = executeBlock(static_cast<Code*>(context), &newMemory, newReturnSignal);
+                    Result returnedValue = executeBlock(static_cast<Code*>(context), &newMemory, newReturnSignal, forceStayInThread);
                     if(newReturnSignal) {
                         result = returnedValue.get();
-                        if(result && result->getType()==CODE) static_cast<Code*>(result)->setDeclarationMemory(nullptr);
                         SET_RESULT;
                         break;
                     }
                 }
                 //newMemory.detach(code->getDeclarationMemory());
                 newMemory.detach(memory);
-                Data* thisObj = nullptr;
-                if(code->getDeclarationMemory()) thisObj = code->getDeclarationMemory()->getOrNull(variableManager.thisId, true);
+                auto it = memory->codeOwners.find(code);
+                Data* thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
                 if(thisObj) newMemory.unsafeSet(variableManager.thisId, thisObj, nullptr);
-                //newMemory.detach(thisObj?nullptr:memory);
+                std::unique_lock<std::recursive_mutex> executorLock;
+                if(thisObj) {
+                    bbassert(thisObj->getType()==STRUCT, "Internal error: `this` was neither a struct nor missing (in the last case it would have been replaced by the scope)");
+                    executorLock = std::unique_lock<std::recursive_mutex>(static_cast<Struct*>(thisObj)->memoryLock);
+                }
                 newMemory.allowMutables = false;
+                bool forceStayInThread = thisObj; // overwrite the option
                 //newMemory.leak(); (this is for testing only - we are not leaking any memory to other threads if we continue in the same thread, so no need to enable atomic reference counting)
-                if(code->jitable && code->jitable->run(&newMemory, result, newReturnSignal)) {SET_RESULT;}
+                if(code->jitable && code->jitable->run(&newMemory, result, newReturnSignal, forceStayInThread)) {
+                    if(thisObj) newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
+                    SET_RESULT;
+                }
                 else {
-                    Result returnedValue = executeBlock(code, &newMemory, newReturnSignal);
+                    Result returnedValue = executeBlock(code, &newMemory, newReturnSignal, forceStayInThread);
                     result = returnedValue.get();
-                    if(result && result->getType()==CODE)
-                        static_cast<Code*>(result)->setDeclarationMemory(nullptr);
-                    if(thisObj)
-                        newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
+                    if(thisObj) newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
                     SET_RESULT;
                 }
                 break;
@@ -195,33 +192,27 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             else {
                 auto newMemory = new BMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
                 bool newReturnSignal(false);
-                if (context) {
+                if(context) {
                     bbassert(context->getType() == CODE, "Call context must be a code block.");
-                    Result returnedValue = executeBlock(static_cast<Code*>(context), newMemory, newReturnSignal);
+                    Result returnedValue = executeBlock(static_cast<Code*>(context), newMemory, newReturnSignal, forceStayInThread);
                     if(newReturnSignal) {
                         result = returnedValue.get();
-                        if(result && result->getType()==CODE)
-                            static_cast<Code*>(result)->setDeclarationMemory(nullptr);
                         SET_RESULT;
+                        break;
                     }
-                }
-                if(newReturnSignal) {
-                    if(result && result->getType()==CODE) static_cast<Code*>(result)->setDeclarationMemory(nullptr);
-                    break;
                 }
                 //newMemory->detach(code->getDeclarationMemory());
                 newMemory->detach(memory);
-                Data* thisObj = nullptr;
-                if(code->getDeclarationMemory()) thisObj = code->getDeclarationMemory()->getOrNull(variableManager.thisId, true);
+                auto it = memory->codeOwners.find(code);
+                Data* thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
                 if(thisObj) newMemory->unsafeSet(variableManager.thisId, thisObj, nullptr);
                 newMemory->allowMutables = false;
                 newMemory->leak(); // for all transferred variables, make their reference counter thread safe
-
                 auto futureResult = new ThreadResult();
                 auto future = new Future(futureResult);
                 memory->attached_threads.insert(future);
                 //newMemory->attached_threads.insert(future);
-                futureResult->start(code, newMemory, futureResult, command);
+                futureResult->start(code, newMemory, futureResult, command, thisObj);
                 result = future;
             }
         } break;
@@ -234,7 +225,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         } return;
 
         case GET: {
-            BMemory* from;
+            BMemory* from(nullptr);
             result = memory->getOrNull(command->args[1], true);
             if(result==nullptr) {
                 bbassert(command->args[1]==variableManager.thisId, "Missing value"+std::string(memory->size()?"":" in cleared memory ")+": " + variableManager.getSymbol(command->args[1]));
@@ -247,8 +238,11 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 std::lock_guard<std::recursive_mutex> lock(obj->memoryLock);
                 from = obj->getMemory();
                 result = from->get(command->args[2]);
+                if(result->getType() == CODE && from) {
+                    static_cast<Code*>(result)->scheduleForParallelExecution = false;  // never execute struct calls in parallel
+                    memory->codeOwners[static_cast<Code*>(result)] = obj;
+                }
             }
-            if(result->getType() == CODE) static_cast<Code*>(result)->setDeclarationMemory(from);
         } break;
         case ISCACHED: {
             result = cachedData[command->args[1]];
@@ -278,6 +272,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto structObj = static_cast<Struct*>(obj);
                 std::lock_guard<std::recursive_mutex> lock(structObj->memoryLock);
             Data* setValue = memory->getOrNullShallow(command->args[3]);
+            if(setValue && setValue->getType()==CODE) setValue = static_cast<Code*>(setValue)->copy();
             if(setValue) setValue->leak();
             auto structMemory = structObj->getMemory();
             structMemory->unsafeSet(memory, command->args[2], setValue, nullptr);//structMemory->getOrNullShallow(command->args[2]));
@@ -287,7 +282,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         case SETFINAL: {
             Data* obj = memory->get(command->args[1]);
             bbassert(obj->getType() == STRUCT, "Can only set fields in a struct.");
-            bberror("Cannot set final fields in a struct outside of a `new` statement.");
+            bberror("Cannot set final fields in a struct using field access operators (. or \\). This also ensures that finals can only be set during `new` statements.");
             /*Data* obj = memory->get(command->args[1]);
             bbassert(obj->getType() == CODE, "Can only set metadata for code blocks.");
             auto code = static_cast<Code*>(obj);
@@ -309,10 +304,10 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto codeCondition = static_cast<Code*>(condition);
             
             bool checkValue;
-            if(codeCondition->jitable && codeCondition->jitable->runWithBooleanIntent(memory, checkValue)){
+            if(codeCondition->jitable && codeCondition->jitable->runWithBooleanIntent(memory, checkValue, forceStayInThread)){
 
             }
-            else if(codeCondition->jitable && codeCondition->jitable->run(memory, result, returnSignal)){
+            else if(codeCondition->jitable && codeCondition->jitable->run(memory, result, returnSignal, forceStayInThread)){
                 Data* check = result;
                 if (returnSignal) {result = check;SET_RESULT;break;}
                 bbassert(check, "Nothing was evaluated in while condition");
@@ -321,7 +316,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             }
             else
             {
-                Result returnedValue = executeBlock(codeCondition, memory, returnSignal);
+                Result returnedValue = executeBlock(codeCondition, memory, returnSignal, forceStayInThread);
                 Data* check = returnedValue.get();
                 if (returnSignal) {result = check;SET_RESULT;break;}
                 bbassert(check, "Nothing was evaluated in while condition");
@@ -329,17 +324,17 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 checkValue = check==Boolean::valueTrue;
             }
             while(checkValue) {
-                if(codeBody->jitable && codeBody->jitable->run(memory, result, returnSignal)) {
+                if(codeBody->jitable && codeBody->jitable->run(memory, result, returnSignal, forceStayInThread)) {
                     if(returnSignal) {SET_RESULT;break;}
                 }
                 else {
-                    Result returnedValue = executeBlock(codeBody, memory, returnSignal);
+                    Result returnedValue = executeBlock(codeBody, memory, returnSignal, forceStayInThread);
                     if (returnSignal) {result = returnedValue.get();SET_RESULT;break;}
                 }
-                if(codeCondition->jitable && codeCondition->jitable->runWithBooleanIntent(memory, checkValue)){
+                if(codeCondition->jitable && codeCondition->jitable->runWithBooleanIntent(memory, checkValue, forceStayInThread)){
                 }
                 else 
-                if(codeCondition->jitable && codeCondition->jitable->run(memory, result, returnSignal)) {
+                if(codeCondition->jitable && codeCondition->jitable->run(memory, result, returnSignal, forceStayInThread)) {
                     Data* check = result;
                     if (returnSignal) {result = check;SET_RESULT;break;}
                     bbassert(check, "Nothing was evaluated in while condition");
@@ -347,7 +342,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     checkValue = check==Boolean::valueTrue;
                 }
                 else {
-                    Result returnedValue = executeBlock(codeCondition, memory, returnSignal);
+                    Result returnedValue = executeBlock(codeCondition, memory, returnSignal, forceStayInThread);
                     Data* check = returnedValue.get();
                     if (returnSignal) {result = check;SET_RESULT;break;}
                     bbassert(check, "Nothing was evaluated in while condition");
@@ -387,8 +382,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             if(condition==Boolean::valueTrue) {
                 if(accept->getType() == CODE) {
                     Code* code = static_cast<Code*>(accept);
-                    if(code->jitable && code->jitable->run(memory, result, returnSignal)) return;
-                    Result returnedValue = executeBlock(code, memory, returnSignal);
+                    if(code->jitable && code->jitable->run(memory, result, returnSignal, forceStayInThread)) return;
+                    Result returnedValue = executeBlock(code, memory, returnSignal, forceStayInThread);
                     result = returnedValue.get();
                     SET_RESULT;
                 }
@@ -399,8 +394,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             } 
             else if (reject && reject->getType() == CODE) {
                 Code* code = static_cast<Code*>(reject);
-                if(code->jitable && code->jitable->run(memory, result, returnSignal))  return;
-                Result returnedValue = executeBlock(code, memory, returnSignal);
+                if(code->jitable && code->jitable->run(memory, result, returnSignal, forceStayInThread))  return;
+                Result returnedValue = executeBlock(code, memory, returnSignal, forceStayInThread);
                 result = returnedValue.get();
                 SET_RESULT;
             }
@@ -472,7 +467,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 bbassert(condition->getType()==CODE, "Can only inline a non-called code block for try condition");
                 auto codeCondition = static_cast<Code*>(condition);
                 bool tryReturnSignal(false);
-                Result returnedValue = executeBlock(codeCondition, memory, tryReturnSignal);
+                Result returnedValue = executeBlock(codeCondition, memory, tryReturnSignal, forceStayInThread);
                 memory->detach(memory->parent);
                 result = returnedValue.get();
                 if(!tryReturnSignal) {
@@ -497,13 +492,13 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             if(condition && condition->getType()==ERRORTYPE) { //&& !((BError*)condition)->isConsumed()) {
                 static_cast<BError*>(condition)->consume();
                 if(codeAccept) {
-                    Result returnValue = executeBlock(codeAccept, memory, returnSignal);
+                    Result returnValue = executeBlock(codeAccept, memory, returnSignal, forceStayInThread);
                     result = returnValue.get();
                     SET_RESULT;
                 }
             }
             else if(codeReject) {
-                Result returnValue = executeBlock(codeReject, memory, returnSignal);
+                Result returnValue = executeBlock(codeReject, memory, returnSignal, forceStayInThread);
                 result = returnValue.get();
                 SET_RESULT;
             }
@@ -540,7 +535,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 bberror("Can only inline a code block or struct");
             else {
                 auto code = static_cast<Code*>(source);
-                Result returnedValue = executeBlock(code, memory, returnSignal);
+                Result returnedValue = executeBlock(code, memory, returnSignal, forceStayInThread);
                 result = returnedValue.get();
                 SET_RESULT;
             }
@@ -560,7 +555,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto code = static_cast<Code*>(source);
             BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
             bool defaultReturnSignal(false);
-            executeBlock(code, &newMemory, defaultReturnSignal);
+            executeBlock(code, &newMemory, defaultReturnSignal, forceStayInThread);
             if(defaultReturnSignal)
                 bberror("Cannot return from within a `default` statement");
             memory->replaceMissing(&newMemory);
@@ -576,15 +571,12 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             newMemory->unsafeSet(variableManager.thisId, thisObj, nullptr);
             newMemory->setFinal(variableManager.thisId);
             bool newReturnSignal(false);
-            Result returnedValue = executeBlock(code, newMemory, newReturnSignal);
+            Result returnedValue = executeBlock(code, newMemory, newReturnSignal, forceStayInThread);
             result = returnedValue.get();
             newMemory->detach(nullptr);
             newMemory->leak(); // TODO: investigate if this should be here or manually on getting and setting (here may be better to remove checks given that setting and getting are already slower)
             if(result!=thisObj) {
-                if(result && result->getType()==CODE) 
-                    static_cast<Code*>(result)->setDeclarationMemory(nullptr);
-                if(command->args[0]!=variableManager.noneId) 
-                    memory->unsafeSet(command->args[0], result, nullptr);
+                if(command->args[0]!=variableManager.noneId) memory->unsafeSet(command->args[0], result, nullptr);
                 thisObj->removeFromOwner(); // do this after setting
                 return;
             }

@@ -16,6 +16,7 @@ and add the latter to your filepath to let your operating system know where `blo
 use the full path to the executable everywhere. Instructions to build the library from source are in the
 [GitHub](https://github.com/maniospas/Blombly) page.
 
+<br>
 
 Once you set things up, run the following console command. 
 If a message starting with `( ERROR )` appears, everything runs properly but there was some syntax or logic issue.

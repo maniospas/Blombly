@@ -9,6 +9,6 @@
 class ThreadResult;
 
 
-void threadExecute(Code* code, BMemory* memory, ThreadResult* result, Command* command);
+void threadExecute(Code* code, BMemory* memory, ThreadResult* result, Command* command, Data* thisObj);
 
 #endif // THREAD_EXECUTE_H

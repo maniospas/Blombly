@@ -10,7 +10,7 @@ nav:
       - 5. IO: basics/io.md
       - 6. Preprocessing: advanced/preprocessor.md
       - 7. Libs: advanced/libs.md
-  - Material:
+  - Principles:
       - Style Guide: material/style.md
       - Typeless OOP: material/typeless.md
 

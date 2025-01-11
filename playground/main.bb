@@ -1,10 +1,15 @@
-start = "start:"|read|int;
-end = "end:  "|read|int;
-i = 0;
-result = try while (i <= end) {
-    i = i + 3;
-    if (i >= start) return i;
+final accum = new {
+    this\value = 0;
+    add(x) = {this\value += x;print(this\value, x)}
+    float() => this\value;
 }
-print("Finished searching.");
-catch (result) fail("Found nothing: {result|str}");
-print("The least multiple of 3 in range [{start}, {end}] is: {result}");
+
+add_accum(i) = {accum.add(i)} // run on a separate thread each if possible
+
+i = 0;
+while(i<10) {
+    add_accum(i);
+    i += 1;
+}
+
+defer print(accum|float); // all methods are asynchronous, so

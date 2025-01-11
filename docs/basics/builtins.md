@@ -25,15 +25,15 @@ Hello world!
 
 ## Scopes
 
-Assign values to variables with the equality operator (`=`), like below. If a variable with the same name already exists in the current scope, its value is overwritten. 
-Otherwise, a new variable is created. Subsequent code in the same scope will retrieve that assigned value when using the variable. Scopes refer to isolated execution contexts.
-In them, subsequent code can overwrite variable values. Each program starts from one initial scope, but new ones are created with 
-[new](structs.md) -this is the same notation with which structs are created- or when calling methods.
+Assign values to variables per `@var = @value;` If a variable with the same name already exists in the current scope, its value is overwritten. 
+Otherwise, a new variable is created. Variables persist throughout scopes, which refer to isolated execution contexts. 
+In them, subsequent code can overwrite variable values. Each program starts from one initial scope. New ones are entered with `new{@code}` 
+ -this also creates [structs](structs.md)- or when calling code [blocks](blocks.md) as functions.
 <br>
 <br>
-Variable values are made immutable by prepending the `final` keyword to their assignment. This prevents subsequent code from overwriting values
-and exposes them to code running outside the current scope. For the time being, however, consider final as a code safety feature.
-Here is an example of the error shown when attempting to overwrite a final value.
+Variables are made immutable by prepending the `final` keyword to their assignment. This prevents overwrites by subsequent code
+and exposes the variables to functions running in the scope. For now, consider immutability as a code safety feature.
+Here is an example of the error shown when attempting an invalid overwrite.
 
 ```java
 // main.bb
@@ -308,10 +308,12 @@ Counter is 5
 You will typically want to differentiate between try results that hold errors and those that do not. 
 In those cases, use `catch`, which is effectively a special conditional statement that checks whether the condition is an error.
 Missing values are not considered errors for the purposes of this statement. 
-Usage is demonstrated below, where the the return signal is intercepted to stop the loop immediately. If no value or error is intercepted, 
+Usage is demonstrated below, where the the return signal is intercepted to stop the loop immediately. 
+If no value or error is intercepted, 
 the result becomes a missing value error than can be caught.
 
 ```java
+// main.bb
 start = "start:"|read|int;
 end = "end:  "|read|int;
 i = 0;

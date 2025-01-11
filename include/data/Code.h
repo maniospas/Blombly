@@ -12,42 +12,22 @@ class BMemory;
 class Command;
 class Jitable;
 
-
-class Metadata {
-public:
-    tsl::hopscotch_map<int, Data*> metadata;
-    Metadata();
-    ~Metadata();
-};
-
-// Code class representing a segment of code in a program
 class Code : public Data {
 private:
     int start, end;
-    BMemory* declarationMemory;
-    Metadata* metadata;
     std::vector<Command*>* program;
 
 public:
     bool scheduleForParallelExecution;
     Jitable* jitable;
     
-    explicit Code(std::vector<Command*>* programAt, int startAt, int endAt, BMemory* declMemory);
-    explicit Code(std::vector<Command*>* programAt, int startAt, int endAt, BMemory* declMemory, Metadata* metadata);
+    explicit Code(std::vector<Command*>* programAt, int startAt, int endAt);
     
+    Code* copy() const {Code* ret = new Code(program, start, end);ret->jitable=jitable; return ret;}
     std::string toString(BMemory* memory)override;
     int getStart() const;
     int getEnd() const;
     std::vector<Command*>* getProgram() const;
-    
-    void setMetadata(int pos, Data* data);
-    bool getMetadataBool(int id, bool def) const;
-    void setDeclarationMemory(BMemory* newMemory);
-
-    Data* getMetadata(int id) const;
-    BMemory* getDeclarationMemory() const;
-    Metadata* getAllMetadata() const;
-
     virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
 };
 

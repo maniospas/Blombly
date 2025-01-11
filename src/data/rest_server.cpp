@@ -71,12 +71,12 @@ Data* RestServer::executeCodeWithMemory(Data* called, BMemory* memory) const {
     }
     bbassert(called->getType()==CODE, "Internally corrupted server callable is neither code nor struct (this message should never appear due to earlier error checking)");
     auto code = static_cast<Code*>(called);
-    memory->detach(code->getDeclarationMemory());
+    memory->detach(nullptr);
     auto listArgs = new BList();
     memory->unsafeSet(variableManager.argsId, listArgs, nullptr);
 
     bool hasReturned = false;
-    Result returnValue = executeBlock(code, memory, hasReturned);
+    Result returnValue = executeBlock(code, memory, hasReturned, false);
     Data* result = returnValue.get();
 
     bbassert(hasReturned, "Server route handler did not reach a return statement.");

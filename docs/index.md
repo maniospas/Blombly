@@ -15,3 +15,16 @@ Focus on writing algorithms with automated parallelism. Blombly ships with opera
 <b>🦆 Dynamic.</b> Leverage features like duck typing and dynamic inlining. Syntax is opinionated in favor of [typeless oop](material/typeless.md).
 <br>
 <b> 💡 Simple.</b> There are only a few core commands.
+
+
+<style>
+.md-sidebar {
+    display: none;
+}
+
+@media screen and (max-width: 76.2344em) {
+    .md-sidebar {
+        display: block;
+    }
+}
+</style>

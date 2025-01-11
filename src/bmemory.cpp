@@ -255,7 +255,7 @@ void BMemory::unsafeSet(int item, Data* value, Data* prev) {
     if (prev && isFinal(item)) bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
     if(prev && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev)->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
     if(value) value->addOwner();
-    if(prev) prev->removeFromOwner();
+    if(prev && prev->getType()!=FUTURE) prev->removeFromOwner();
     data[item] = value;
     //std::cout << "set "<<variableManager.getSymbol(item)<<" to "<<value<<"\n";
 }
@@ -264,16 +264,14 @@ void BMemory::unsafeSet(int item, Data* value) {
     Data* prev = data[item];
     if(prev && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev)->isConsumed()) 
         bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
-    if(value) 
-        value->addOwner();
-    if(prev) 
-        prev->removeFromOwner();
+    if(value) value->addOwner();
+    if(prev && prev->getType()!=FUTURE) prev->removeFromOwner();
     data[item] = value;
     //std::cout << "set "<<variableManager.getSymbol(item)<<" to "<<value<<"\n";
 }
 
 void BMemory::setFinal(int item) {
-    await();
+    //await();
     finals.insert(item);
 }
 
@@ -305,6 +303,7 @@ void BMemory::await() {
     if(attached_threads.size()==0) return; // we don't need to lock because on zero threads we are ok, on >=1 threads we don't care about the number
     std::string destroyerr = "";
     for (const auto& thread : attached_threads) {
+        delete thread;
         try {thread->getResult();}
         catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
     }
@@ -339,7 +338,7 @@ void BMemory::runFinally() {
     for(Code* code : tempFinally) {
         try {
             bool returnSignal;
-            Result returnedValue = executeBlock(code, this, returnSignal);
+            Result returnedValue = executeBlock(code, this, returnSignal, true); // everything deferred runs after all threads have been synchronized, so stay in thread (last true argument)
             bbassert(!returnSignal, "Cannot return a value from within `defer`");
         }
         catch (const BBError& e) {
@@ -349,9 +348,7 @@ void BMemory::runFinally() {
     }
 
     bbassert(finally.size()==0, "Leftover `defer` handling.");
-
-    if(destroyerr.size())
-        throw BBError(destroyerr.substr(0, destroyerr.size() - 1));
+    if(destroyerr.size()) throw BBError(destroyerr.substr(0, destroyerr.size() - 1));
 }
 
 

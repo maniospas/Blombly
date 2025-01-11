@@ -42,7 +42,7 @@ private:
     Data* primitive;
 public:
     explicit ReturnPrimitiveJitable(Data* primitive): primitive(primitive) {}
-    virtual bool run(BMemory* memory, Data*& returnValue, bool &returnSignal) override {
+    virtual bool run(BMemory* memory, Data*& returnValue, bool &returnSignal, bool forceStayInThread) override {
         returnValue = primitive;
         returnSignal = true;
         return true;
@@ -62,11 +62,11 @@ private:
     bool setExists;
 public:
     explicit NextAsExistsJitable(int from, int next, int as, int exists, bool setNext, bool setExists): from(from), next(next), as(as), exists(exists), setNext(setNext), setExists(setExists) {}
-    virtual bool run(BMemory* memory, Data*& returnValue, bool &returnSignal) override {
+    virtual bool run(BMemory* memory, Data*& returnValue, bool &returnSignal, bool forceStayInThread) override {
         bberror("Internal error: runWithBooleanIntent should always be returning true for NextAsExistsJitable.");
     }
 
-    virtual bool runWithBooleanIntent(BMemory* memory, bool &returnValue) {
+    virtual bool runWithBooleanIntent(BMemory* memory, bool &returnValue, bool forceStayInThread) override{
         auto iterator = memory->get(from);
         if(iterator->getType()!=ITERATOR) // optimize only for iterators
             return false;
@@ -188,14 +188,14 @@ public:
                 else bberror("Internal error: some jit functionality has not been implemented yet");
             }
         }
-    virtual bool run(BMemory* memory, Data*& returnValue, bool &returnSignal) override {
+    virtual bool run(BMemory* memory, Data*& returnValue, bool &returnSignal, bool forceStayInThread) override {
         // preample
         BuiltinArgs args;
         Data* value = nullptr;
         int i = start;
         try {
             for (; i <= preparationEnd; ++i) {
-                handleCommand(program, i, memory, returnSignal, args, returnValue);
+                handleCommand(program, i, memory, returnSignal, args, returnValue, forceStayInThread);
                 if (returnSignal) return true;
             }
         } 

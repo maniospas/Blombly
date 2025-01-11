@@ -16,8 +16,11 @@ Future::Future(ThreadResult* result_) : result((result_)), Data(FUTURE) {
 
 // Future destructor
 Future::~Future() {
-    if (result->thread.joinable()) 
+    std::lock_guard<std::recursive_mutex> lock(syncMutex);
+    if (result->thread.joinable()) {
         result->thread.join();
+        --thread_count;
+    }
     delete result;
 }
 
@@ -27,8 +30,8 @@ bool Future::acceptsThread() {
 }
 
 // Set maximum threads
-void Future::setMaxThreads(int maxThreads) {
-    max_threads = maxThreads;
+void Future::setMaxThreads(int maxThreads_) {
+    max_threads = maxThreads_;
 }
 
 // Convert to string representation
@@ -47,6 +50,7 @@ Result Future::getResult() const {
     } catch (...) {
         result->error = nullptr;
         result->value = Result(nullptr);
+        --thread_count;
         bberror("Failed to join thread");
     }
 
@@ -57,8 +61,7 @@ Result Future::getResult() const {
         throw BBError(error_message);
     }
     Data* ret = result->value.get();
-    if(ret && ret->getType()==FUTURE) 
-        return std::move(static_cast<Future*>(ret)->getResult());
+    if(ret && ret->getType()==FUTURE) return std::move(static_cast<Future*>(ret)->getResult());
     //std::cout << result->value.get() << "\n";
     return std::move(Result(ret));
 }

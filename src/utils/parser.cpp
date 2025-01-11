@@ -74,9 +74,9 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
                 ++i;
             }
 
-            auto code = new Code(program, 0, program->size() - 1, &memory);
+            auto code = new Code(program, 0, program->size() - 1);
             bool hasReturned(false);
-            auto res = executeBlock(code, &memory, hasReturned);
+            auto res = executeBlock(code, &memory, hasReturned, true);
             Data* ret = res.get();
             if(ret && ret->getType()==FUTURE) {
                 auto res2 = static_cast<Future*>(ret)->getResult();

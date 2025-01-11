@@ -1,81 +1,50 @@
-%"start:"|read //playground/main.bb line 1
-BUILTIN _bb434 "start:"
-%"start:"|read //playground/main.bb line 1
-read _bb433 _bb434
-%"start:"|read|int //playground/main.bb line 1
-int start _bb433
-%"end:  "|read //playground/main.bb line 2
-BUILTIN _bb437 "end:  "
-%"end:  "|read //playground/main.bb line 2
-read _bb436 _bb437
-%"end:  "|read|int //playground/main.bb line 2
-int end _bb436
-%i=0 //playground/main.bb line 3
-BUILTIN i I0
-%while(i<= end){i=i+3;if(i>= start)return //playground/main.bb line 4
-BEGIN _bb441
-%while(i<= end){i=i+3;if(i>= start)return //playground/main.bb line 4
+BEGIN _bb434
+BUILTIN _bb435 I0
+set # this \value _bb435
+BEGIN _bb436
+next x args
+get _bb437 this \value
+add _bb437 _bb437 x
+set # this \value _bb437
+get _bb438 this \value
+list _bb439 _bb438 x
+print # _bb439
+END
+IS add _bb436
+BEGIN _bb440
+get _bb441 this \value
+return # _bb441
+END
+IS float _bb440
+return # this
+END
+new accum _bb434
+final # accum
 BEGIN _bb442
-%i<= end //playground/main.bb line 4
-le _bb443 i end
-END
+next i args
 BEGIN _bb444
-%i+3 //playground/main.bb line 5
-BUILTIN _bb446 I3
-add i i _bb446
-%if(i>= start)returni //playground/main.bb line 6
+list args i
+END
+get _bb445 accum add
+call _bb443 _bb444 _bb445
+END
+IS add_accum _bb442
+BUILTIN i I0
 BEGIN _bb447
-%returni //playground/main.bb line 6
-return # i
+BUILTIN _bb449 I10
+lt _bb448 i _bb449
 END
-%i>= start //playground/main.bb line 6
-ge _bb448 i start
-%if(i>= start)returni //playground/main.bb line 6
-if # _bb448 _bb447
-END
-%while(i<= end){i=i+3;if(i>= start)return //playground/main.bb line 4
-while # _bb442 _bb444
-END
-%try while(i<= end){i=i+3;if(i>= start)re //playground/main.bb line 4
-try result _bb441
-%("Finished searching.") //playground/main.bb line 8
-BUILTIN _bb449 "Finished searching."
-%print("Finished searching.") //playground/main.bb line 8
-print # _bb449
-%catch(result)fail("Found nothing: "+str( //playground/main.bb line 9
 BEGIN _bb450
-%"Found nothing: "+str(result|str)+"" //playground/main.bb line 9
-BUILTIN _bb452 ""
-%result|str //playground/main.bb line 9
-str _bb454 result
-%str(result|str) //playground/main.bb line 9
-str _bb455 _bb454
-BUILTIN _bb456 "Found nothing: "
-add _bb453 _bb456 _bb455
-add _bb451 _bb453 _bb452
-%fail("Found nothing: "+str(result|str)+" //playground/main.bb line 9
-fail # _bb451
+BEGIN _bb452
+list args i
 END
-%catch(result)fail("Found nothing: "+str( //playground/main.bb line 9
-catch # result _bb450
-%"The least multiple of 3 in range ["+str //playground/main.bb line 10
-BUILTIN _bb458 ""
-%str(result) //playground/main.bb line 10
-str _bb460 result
-%"The least multiple of 3 in range ["+str //playground/main.bb line 10
-BUILTIN _bb462 "] is: "
-%str(end) //playground/main.bb line 10
-str _bb464 end
-%"The least multiple of 3 in range ["+str //playground/main.bb line 10
-BUILTIN _bb466 ", "
-%str(start) //playground/main.bb line 10
-str _bb468 start
-BUILTIN _bb469 "The least multiple of 3 in range ["
-add _bb467 _bb469 _bb468
-add _bb465 _bb467 _bb466
-add _bb463 _bb465 _bb464
-add _bb461 _bb463 _bb462
-add _bb459 _bb461 _bb460
-add _bb457 _bb459 _bb458
-%print("The least multiple of 3 in range  //playground/main.bb line 10
-print # _bb457
+call _bb451 _bb452 add_accum
+BUILTIN _bb453 I1
+add i i _bb453
+END
+while # _bb447 _bb450
+BEGIN _bb455
+float _bb456 accum
+print # _bb456
+END
+defer # _bb455

@@ -44,7 +44,7 @@ Result compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
     }
     inputFile.close();
 
-    return Result(new Code(program, 0, program->size() - 1, currentMemory));
+    return Result(new Code(program, 0, program->size() - 1));
 }
 
 extern std::unordered_map<int, Data*> cachedData;
@@ -71,9 +71,9 @@ int vm(const std::string& fileName, int numThreads) {
 
             inputFile.close();
 
-            auto code = new Code(program, 0, program->size() - 1, &memory);
+            auto code = new Code(program, 0, program->size() - 1);
             bool hasReturned(false);
-            executeBlock(code, &memory, hasReturned);
+            executeBlock(code, &memory, hasReturned, false);
             bbassert(!hasReturned, "The virtual machine cannot return a value.");
         }
         BMemory::verify_noleaks();

@@ -6,7 +6,7 @@
 #include "data/Future.h"
 #include "data/Jitable.h"
 
-Result executeBlock(Code* code, BMemory* memory, bool &returnSignal) {
+Result executeBlock(Code* code, BMemory* memory, bool &returnSignal, bool forceStayInThread) {
     BuiltinArgs args;
     Data* value = nullptr;
 
@@ -16,7 +16,7 @@ Result executeBlock(Code* code, BMemory* memory, bool &returnSignal) {
 
     try {
         for (; i <= end; ++i) {
-            handleCommand(program, i, memory, returnSignal, args, value);
+            handleCommand(program, i, memory, returnSignal, args, value, forceStayInThread);
             if (returnSignal) {
                 memory->runFinally();
                 //if(value && value->getType()==FUTURE) return std::move(static_cast<Future*>(value)->getResult());

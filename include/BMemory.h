@@ -53,11 +53,13 @@ private:
     void unsafeSet(int item, Data* value);
     std::vector<Code*> finally;
 public:
+    tsl::hopscotch_map<Code*, Struct*> codeOwners;
     tsl::hopscotch_set<int> finals;
     Data* thisObject;
-    void release();
     BMemory* parent;
     tsl::hopscotch_set<Future*> attached_threads;
+
+    void release();
     bool allowMutables;
 
     bool isOrDerivedFrom(BMemory* memory) const;

@@ -67,7 +67,7 @@ Result Struct::implement(const OperationType operation_, BuiltinArgs* args_, BMe
     newMemory.unsafeSet(variableManager.argsId, args, nullptr);
 
     bool hasReturned(false);
-    Result value = executeBlock(code, &newMemory, hasReturned);
+    Result value = executeBlock(code, &newMemory, hasReturned, true); // avoid deadlocks by forcing execution to stay in thread (last true argument)
     newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
     bbassert(hasReturned || operation_==PUT || operation_==PUSH || operation_==CLEAR, "Implementation for `" + operation + "` did not return anything");
     return Result(value);
