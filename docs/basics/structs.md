@@ -168,12 +168,14 @@ added 9  sum 45
 
 !!! info
     Deadlocks are avoided by making sure that, once struct methods are called, all dependent
-    calls run in the same thread.
+    calls run in the same thread. However, other structs found
+    in the execution closure, in function or method arguments, or in the struct's own
+    fields *can* be modified externally. List and map fields can be modified externally too.
 
-!!! warning 
-    A struct is guaranteed to never be modified while its methods run, but structs found
-    in execution closure final values, arguments, or fields *can* be modified externally.
-    Lists and maps that are struct fields can be modified too.
+!!! tip 
+    **Reason only about the struct's behavior while its methods run**. 
+    Bring any information from other structs
+    to local variables once if you want persistency.
 
 
 ## Private variables
