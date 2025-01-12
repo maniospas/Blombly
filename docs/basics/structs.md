@@ -1,7 +1,7 @@
 # Structs
 
 This section describes the process with which to create structs. These are objects that hold a scope whose variables are treated as object fields.
-Fields are accessed and set with the dot notation and can be final like normal.
+Fields are accessed and set with the dot notation and can be made final, like normal variables.
 
 <br>
 
@@ -181,7 +181,7 @@ added 9  sum 45
 It is often important to declare local variables that may not be directly exposed outside their enclosing structs. 
 This promotes code safety in the form of hidden states that cannot be altered externally. 
 Private variables are denoted with the slash (`\`) prefix at the beginning of their name. For example, `\test` is private. 
-Once struct creation is completed, accessing private variables is possible only if ther name (including the slash) follows `this`. 
+Once struct creation is completed, accessing private variables is possible only if their name (including the slash) follows `this`. 
 These restrictions are enforced by the compiler but not during interpretation (so .bbvm files can be altered to circumvent code safety).
 For example, the following snippet declares an object with private variables that cannot be directly accessed externally.
 
@@ -206,28 +206,21 @@ print(point.dimadd());
 
 ## Operator overloading
 
-Blombly supports operation overloading to loet structs emulate other data structures. Do so by defining methods with specific names inside structs that are used when the corresponding operation is performed. The most commonly overloaded operations are arithmetic operators (`+`, `-`, `*`, `/`) and the call operator `()` for making objects callable.
+Blombly supports operation overloading to let structs emulate other data structures. Do so by defining methods with specific names inside structs that are used when the corresponding operation is performed. The most commonly overloaded operations are arithmetic operators (`+`, `-`, `*`, `/`) and the call operator `()` for making objects callable.
 
 <br>
 
-Let's start with a basic example where we overload the addition operator for a struct that represents a 2D point.
-In this example, define an appropriately named method that performs the addition of two points and returns a new one. 
-When the addition operator is used, the addition's method is invoked automatically. Since structs
-hold data autonomously, we need to bring knowledge of the code block generating points into the ones being
-created with `Point=Point`. More on this and simplifications later.
+Let us start with a basic example where we overload the addition operator for a struct that represents a 2D point;
+define an appropriately named method that performs the addition of two points and returns a new one. 
+When the addition operator is used, the namesake method is invoked automatically.
 
 ```java
 // main.bb
-Point = {
-    Point = Point;
-    add(p) = {
-        super = this;
-        Point = this.Point; // needed for Point=Point to run in `new`
-        return new {
-            Point:
-            x = super.x + p.x;
-            y = super.y + p.y;
-        }
+final Point = { // made final to be accessible everywhere in the scope
+    add(other) => {
+        x = this.x + other.x;
+        y = this.y + other.y;
+        return new {Point:x=x;y=y}
     }
 }
 
@@ -244,10 +237,11 @@ print(p3.x, p3.y);
 [4, 6]
 </pre>
 
-Structs can be made callable by overloading the corresponding operator (`call`).
-Below is an example where we define a Multiplier struct that can be called like a function. 
+Structs can also be made callable by overloading the corresponding operator (`call`).
+Below is an example where we define a *Multiplier* code block that can create structs
+to be used like functions. 
 Notice the usage of `defer` as a means of inserting a default factor
-at the end of *new* only if no factor is defined by that time.
+at the end of struct creation only if a factor has not been defined by that time.
 
 ```java
 // main.bb
@@ -296,15 +290,15 @@ print(A|float);
 1
 </pre>
 
-The same pattern may be used in more levels of nesting. Here is an example similar to the previous 2D point.
-But, even in the more complicate scenario, we retain the same small level of nesting.
+The same pattern may be used in more levels of closure. Here is an example similar to the previous 2D point.
+But, even in the more complicated scenario, we retain the same small level of visual nesting.
 
 ```java
 Point2D = {
     add(other) => new {
         Point2D = this...Point2D; // needed to assign to Point2D so that inlining can see it again
         Point2D:
-        x = this..x + other.x;  // no need for super
+        x = this..x + other.x;
         y = this..y + other.y;
     }
     str() => "({this.x}, {this.y})"; 
@@ -312,7 +306,7 @@ Point2D = {
 
 p1 = new {Point2D:x=1;y=2} 
 p2 = new {Point2D:x=2;y=3}
-Point2D = {fail("Point2D has been invalidated")}
+Point2D = {fail("Point2D has been invalidated")} // prevents future usage
 print(p1+p2);
 ```
 
@@ -321,3 +315,8 @@ print(p1+p2);
 > <span style="color: cyan;">./blombly</span> main.bb
 (3,5)
 </pre>
+
+!!! tip
+    To compute the number of fullstops count the total number of brackets (`{`) and the immediate shorthand (`=>`)
+    you need to escape from. The first two escape blocks. For example, in the last snippet `this...Point2D`
+    has three dots to escape from the closures of `new {`, `add(other) =>`, `Point2D = {`.

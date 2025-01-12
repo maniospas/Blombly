@@ -29,10 +29,10 @@ Hello world!
 
 ## Functions
 
-Blombly can treat code blocks as functions by executing some code inside a paranthesis
+Blombly can treat code blocks as functions by executing some code inside a parenthesis
 and start a new scope from the values to run the block's code. 
-The last semicolon may be ommited from blocks,
-so this mostly looks like keyword arguments seperated by semicolons (`;`). 
+The last semicolon may be omitted from blocks,
+so this mostly looks like keyword arguments separated by semicolons (`;`). 
 We later show a modification that accepts positional arguments too.
 Use a `return` statement to yield back a value. This stops block
 execution immediately. An example of running 
@@ -115,8 +115,9 @@ Running scope
 
 !!! info 
     The property of obtaining values from a surrounding context is broadly called *closure*.
-    Contrary to most interpreted languages, Blombly aims for efficient memory management
-    and parallelization. It therefore uses the scope at which functions run (not where they are
+    Contrary to most interpreted languages, like Python and Javascrip, 
+    Blombly aims for efficient memory management
+    and parallelization. It therefore uses the scope at which functions run (*not* where they are
     defined) as their closure.
     It further has access only to final variables to retain the ability of automatically
     running functions in parallel.
@@ -128,7 +129,7 @@ Running scope
 Blocks can be called using comma-separated positional arguments. 
 This is a common programming pattern, 
 though we stress that it is better to execute code to determine configurations. 
-Positional arguments are stored in a list called `args`. For safery, 
+Positional arguments are stored in a list called `args`. For safety, 
 this is considered a language keyword and the compiler does not allow assigning to it.
 You can then access list elements or use `args|next` to sequentially pop arguments.
 
@@ -152,7 +153,7 @@ print(result);
 </pre>
 
 
-Blombly mixes positional arguments and code execution by separating the two with double doubledots 
+Blombly mixes positional arguments and code execution by separating the two with double colons 
 (`::`) inside the call parenthesis. These also require whitespaces before and after.
 Positional arguments are created first from the calling scope, so further argument generation can modify them.
 

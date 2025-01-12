@@ -11,7 +11,8 @@ The main way blombly interacts with the file system is through the `file` data t
 This is an abstraction over resources like files, directories, and web data obtained
 with http. These are automatically recognized given the provided path. 
 Operations applicable to file data include pushing data to resources and iterating
-through retrieved resource data are summarized here.
+through retrieved resource data are summarized here. Of those operations, pushing
+is applicable only to files and overwrites their text contents with the pushed string.
 
 <details>
   <summary>Operations</summary>
@@ -92,7 +93,7 @@ Here is an example for reading from the local file system,
 as well as checking whether a non-existing file name exists:
 
 ```java
-!access "" // read access to every file in your system and the nextwork (NOT RECOMMENDED)
+!access "" // read access to every file in your system and the network (NOT RECOMMENDED)
 
 f = file("README.md");
 thisdir = ".";
@@ -102,7 +103,9 @@ print("nonexisting filename"|file|bool); // false
 ```
 
 Web resources are accessed in the same way. 
-Under the hood, they perform get requests. Here is an example:
+Under the hood, they perform get requests, where errors
+can be intercepted and handled normally with Blombly's `try-catch`
+pattern. Below is an example.
 
 ```java
 !access "http://"  // allow http requests
@@ -129,7 +132,7 @@ Blombly offers the ability to set up REST services.
 Instantiating a server is as simple as calling `routes=std::server(port)`,
 where the port is provided. The server starts running immediately,
 and you can dynamically add or remove routes from it. Execute client
-request through the file system, as desribed above.
+request through the file system, as described above.
 
 <br>
 

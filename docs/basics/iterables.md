@@ -6,7 +6,7 @@ that helps loops iterate through elements. All the aforementioned
 data types are called iterables because they can successfully be
 typecasted into `iter` instances. 
 Some [structs](structs.md) are
-also treated as iterables if they overload the appropriate opreations, 
+also treated as iterables if they overload the appropriate operations, 
 but more on this elsewhere. For now, keep in mind that converting to
 iterators is done automatically when you use the `in` syntactic sugar presented
 later in this page.
@@ -66,7 +66,7 @@ The above examples do not modify lists during execution.
 To extract data while removing them from lists use the `next` and `pop` operators
 to obtain the first or last list elements respectively. 
 These yield error values if the list is empty, so use the `as` assignment to detect
-whther the list was empty in loops. All list modifications are efficient; even front popping with next.
+whether the list was empty in loops. All list modifications are efficient; even front popping with next.
 
 ```java
 // main.bb
@@ -132,12 +132,13 @@ print(A[range(1,4)]);  // more on ranges later
 ## Iterators
 
 Given any data structure that accepts an element getter and length methods,
-you can create an iterator to traverses through its elements witjout modifying it. 
+you can create an iterator to traverses through its elements without modifying it. 
 Such data include lists and are called iterables. 
 Obtain an iterator from an iterable with the `iter` typecasting as in the example below. 
 Iterators admit only the `next` operator, and always accept a convertion to `iter` that
-returns themselves. This is mostly done for ease of code writting. 
+returns themselves.
 One cannot modify data, perform random access, or restart traversal of the iterable's elements. 
+Create a new one to go through data that are already consumed.
 
 ```java
 // main.bb
@@ -153,13 +154,18 @@ while(i as it|next) print(i);
 3
 </pre>
 
+!!! info
+    Iterators are safe in that they do not crash while the data structure they are iterating
+    through is modified, for example by adding, changing, or removing elements. The iterator
+    may miss parts of the modifications it has already traversed through.
 
-An addition to other iterators, Blombly provide ranges that represent values in a specified range. 
-These are iterators that can only consumed once and there are four construction
-patterns for them:
+
+An addition to other iterators, Blombly provide ranges that go through a specified range
+of numbers. Like all iterators, ranges are only consumed once and need to be created anew to be
+repeated. There are four construction patterns for them.
 
 - `range(int end)` creates a range from `0` up to `end-1` and step `1`.
-- `range(int start, int end)` starts from the newlly specified number.
+- `range(int start, int end)` starts from the newly specified number.
 - `range(int start, int end, int step)` is similar, where the step with which values increase is also specified.
 - `range(float start, float end, float step)` also handles real numbers or a mixture of real numbers and integers instead of only integers (there will be an error otherwise)
 
@@ -186,7 +192,7 @@ while(i as next(it)) print(i);
 The blombly compiler preloads a couple of common [macros](../advanced/preprocessor.md) in `libs/,bb`.
 The important part for iterables is that an `in` operator
 is provided. This preconstructs an iterator from any given data type
-and runns `as next` on it. Here is an example.
+and runs `as next` on it. Here is an example.
 
 ```java
 A = 1,2,3;
@@ -207,8 +213,13 @@ Length after iteration 3
 
 ## Vectors
 
-Vectors correspond collections to concecutive float values of fixed size. You can perform
-element-by-element arithmetic operations on them for fast scientific computations. Treat them
+Vectors correspond collections to consecutive float values. They differ from lists
+in that they hold floats and have a fixed size. This known information is leveraged
+to provide performant implementations of scientific computations.
+
+<br>
+
+Perform element-by-element arithmetic operations on them for fast scientific computations. Treat them
 as lists of values whose elements can not be inserted or modified - only set. Element default
 values are zeros.
 Vectors can be created either from their number of zero elements or from a list of numbers.
@@ -219,6 +230,7 @@ when ranges are provided, as in the following example.
 // main.bb
 x = vector(1,2,3,4,5);
 y = vector(1,2,3,4,5);
+x[1] = 1; // modify element
 z = x+y-1;
 z = z[range(3)];
 print(z);
@@ -226,7 +238,7 @@ print(z);
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
 > <span style="color: cyan;">./blombly</span> main.bb
-[1.000000, 3.000000, 5.000000] 
+[1.000000, 2.000000, 5.000000] 
 </pre>
 
 
@@ -237,7 +249,7 @@ that match keys to values. Use any objects or non-error primitives
 as keys and values. For keys, numbers and strings keys are considered
 the same based on their value, whereas other data match only themselves.
 Maps implement member access and set operators. But they are also iterables
-that yield `key, value` pairs as lists of two entries. Pop from the frnt or back of the pair 
+that yield `key, value` pairs as lists of two entries. Pop from the front or back of the pair 
 with the `|` notation to extract keys and values with concise syntax that retains
 clear semantics.
 

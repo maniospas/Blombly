@@ -163,7 +163,7 @@ print("1.2345"|float|fmt);
 </pre>
 
 
-Similarly to numeric operations, the expression `variable |= convertion;` reassigns to a variable. 
+Similarly to numeric operations, the expression `variable |= func;` reassigns to a variable. 
 In this case, however, the leftwise function is applied first, enabling the pattern
 `variable |= func1|func2|...;` 
 This notation is intentionally similar to 
@@ -258,7 +258,7 @@ One way of handling errors is
 the `as` keyword. This performs an assignment without breaking normal code writing 
 upon encountering an error value, but returns a true/false value depending on whether
 an error was found. Below is a simple one-liner that retries
-reading from the console until a number if provided.
+reading from the console until a number is provided.
 
 ```java
 while(not number as "Give a number:"|read|float) {}
@@ -296,7 +296,7 @@ In those cases, use `catch` to check the outcome of trying,
 which is effectively a special conditional statement that checks whether the condition is an error.
 Missing values are not considered errors for the purposes of this statement. 
 Usage is demonstrated below, where the return signal is intercepted to stop the loop immediately. 
-If no value or error is intercepted, the result becomes a missing value error than can be caught.
+If no value or error is intercepted, the result becomes a missing value error that can be caught.
 Catching errors does not need to occur immediately either.
 
 ```java
@@ -329,3 +329,11 @@ Finished searching.
    <span style="color: lightblue;">→</span>  fail("Found nothing: "+str(result|str)+"            main.bb line 9
    <span style="color: lightblue;">→</span>  catch(result)fail("Found nothing: "+str(            main.bb line 9
 </pre>
+
+!!! info
+    The `as` statement should be preferred for error handling.
+    Use `try` only to intercept returns or to keep the program running upon unforeseen errors.
+
+!!! warning
+    The `try` statement synchronizes all concurrency in scope both when entered and when exited.
+    This may reduce parallelization speedups, so do not overuse it.
