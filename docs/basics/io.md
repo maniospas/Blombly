@@ -2,7 +2,7 @@
 
 Blombly offers several input and output operations.
 *The ones below are currently implemented, and more will become available in the future.*
-In addition to the operations described here, find supporting ones in [libs](../advanced/libs.md).
+In addition to the basic operations described here, find supporting ones in [libs](../advanced/libs.md).
 
 
 ## File system
@@ -62,7 +62,8 @@ including to files being included and `!comptime`.
 bb.os.transfer("libs/download/html.bb", "https://raw.githubusercontent.com/maniospas/Blombly/refs/heads/main/libs/html.bb");
 ```
 
-File contents are organized into lines.
+Iterating through file contents yields the read lines. Whereas iterating
+through directories yields their contents. You cannot push to directories, and -for safety- can only clear empty directories.
 Here is an example for reading from the local file system,
 as well as checking whether a non-existing file name exists:
 
@@ -70,32 +71,14 @@ as well as checking whether a non-existing file name exists:
 !access "" // read access to every file in your system and the nextwork (NOT RECOMMENDED)
 
 f = file("README.md");
+thisdir = ".";
+print("Is directory: {path/thisdir|bool}");
 while(line in f) print(line);
 print("nonexisting filename"|file|bool); // false
 ```
 
-As an example, list the paths of a directory with the code below. 
-You cannot push to directories, and -for safety- can only clear empty directories.
-Use functions like the above to clear files and directories.
-
-```java
-!access ""  // read access to every file in your system and the nextwork (NOT RECOMMENDED)
-
-final isfolder(file path) => bool(path/".");
-final files(file path) = {
-    default tab = "";
-    ret = list();
-    while(subpath in path|file) try {
-        if(subpath=="." or subpath=="..") return;
-        if(subpath|isfolder) ret += files(subpath :: tab="{tab}  ") else push(ret, subpath);
-    }
-    return ret;
-}
-
-while(path in files("src")) print(path);
-```
-
-Web resources are accessed in the same way. Here is an example:
+Web resources are accessed in the same way. 
+Under the hood, they perform get requests. Here is an example:
 
 ```java
 !access "http://"  // allow http requests
@@ -193,3 +176,40 @@ routes[""] => new {
 print("Server running at http://localhost:8000/");
 while(true){}
 ```
+
+## Databases
+
+Blombly includes the [sqlite](https://www.sqlite.org/) database implementation. This stores data in the file system.
+Working with this database consists of initializing it on a file string, where an empty string creates a temporary
+file to be deleted when closed and `":memory:"`to create and an in-memory database without persistence. Like with files,
+databases require necessary permissions. Perform database operations with the access notation. Operations return list
+data containing maps from column names to string values. Below is an example that iterates through a list of users.
+
+
+```java
+db = sqlite(":memory:");
+db["PRAGMA journal_mode = 'wal';"]; // often speeds things up (https://www.sqlite.org/wal.html)
+db["CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER);"];
+
+while(i in range(5)) {
+    db["BEGIN TRANSACTION;"]; // instead of this, prefer batching operations into larger transactions
+        db["INSERT INTO users (name, age) VALUES ('User{i}', {20 + (i % 10)});"];
+        db["SELECT * FROM users WHERE id = {i};"];
+        db["UPDATE users SET age = age + 1 WHERE id = {i};"];
+        //db["DELETE FROM users WHERE id = {i};"]; // deletes are generally very slow
+    db["COMMIT;"];
+}
+
+while(user in db["SELECT * FROM users;"]) print(user);
+db["DELETE FROM users;"];
+```
+
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+{name: User0, age: 21, id: 1} 
+{name: User1, age: 22, id: 2} 
+{name: User2, age: 23, id: 3} 
+{name: User3, age: 24, id: 4} 
+{name: User4, age: 24, id: 5} 
+</pre>

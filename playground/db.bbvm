@@ -1,0 +1,85 @@
+%(":memory:") //playground/db.bb line 1
+BUILTIN _bb433 ":memory:"
+%sqlite(":memory:") //playground/db.bb line 1
+sqlite db _bb433
+%db["PRAGMA journal_mode = 'wal';"] //playground/db.bb line 2
+BUILTIN _bb436 "PRAGMA journal_mode = 'wal';"
+%db["PRAGMA journal_mode = 'wal';"] //playground/db.bb line 2
+at _bb435 db _bb436
+%db["CREATE TABLE IF NOT EXISTS users (id //playground/db.bb line 3
+BUILTIN _bb438 "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER);"
+%db["CREATE TABLE IF NOT EXISTS users (id //playground/db.bb line 3
+at _bb437 db _bb438
+%range(5) //playground/db.bb line 5
+BUILTIN _bb440 I5
+%range(5) //playground/db.bb line 5
+range _bb439 _bb440
+%iter(range(5)) //playground/db.bb line 5
+iter _bbmacro6 _bb439
+%while(ias next(_bbmacro6)){db["BEGIN TRA //playground/db.bb line 5
+BEGIN _bb442
+%next(_bbmacro6) //playground/db.bb line 5
+next _bb443 _bbmacro6
+AS i _bb443
+exists _bb444 i
+END
+BEGIN _bb445
+%db["BEGIN TRANSACTION;"] //playground/db.bb line 6
+BUILTIN _bb447 "BEGIN TRANSACTION;"
+%db["BEGIN TRANSACTION;"] //playground/db.bb line 6
+at _bb446 db _bb447
+%"INSERT INTO users (name, age) VALUES (' //playground/db.bb line 7
+BUILTIN _bb450 ");"
+%i%10 //playground/db.bb line 7
+BUILTIN _bb454 I10
+mod _bb453 i _bb454
+BUILTIN _bb455 I20
+add _bb452 _bb455 _bb453
+%str(20+(i%10)) //playground/db.bb line 7
+str _bb456 _bb452
+%"INSERT INTO users (name, age) VALUES (' //playground/db.bb line 7
+BUILTIN _bb458 "', "
+%str(i) //playground/db.bb line 7
+str _bb460 i
+BUILTIN _bb461 "INSERT INTO users (name, age) VALUES ('User"
+add _bb459 _bb461 _bb460
+add _bb457 _bb459 _bb458
+add _bb451 _bb457 _bb456
+add _bb449 _bb451 _bb450
+%db["INSERT INTO users (name, age) VALUES //playground/db.bb line 7
+at _bb448 db _bb449
+%"SELECT * FROM users WHERE id = "+str(i) //playground/db.bb line 8
+BUILTIN _bb464 ";"
+%str(i) //playground/db.bb line 8
+str _bb466 i
+BUILTIN _bb467 "SELECT * FROM users WHERE id = "
+add _bb465 _bb467 _bb466
+add _bb463 _bb465 _bb464
+%db["SELECT * FROM users WHERE id = "+str //playground/db.bb line 8
+at _bb462 db _bb463
+%"UPDATE users SET age = age + 1 WHERE id //playground/db.bb line 9
+BUILTIN _bb470 ";"
+%str(i) //playground/db.bb line 9
+str _bb472 i
+BUILTIN _bb473 "UPDATE users SET age = age + 1 WHERE id = "
+add _bb471 _bb473 _bb472
+add _bb469 _bb471 _bb470
+%db["UPDATE users SET age = age + 1 WHERE //playground/db.bb line 9
+at _bb468 db _bb469
+%db["COMMIT;"] //playground/db.bb line 11
+BUILTIN _bb475 "COMMIT;"
+%db["COMMIT;"] //playground/db.bb line 11
+at _bb474 db _bb475
+END
+%while(ias next(_bbmacro6)){db["BEGIN TRA //playground/db.bb line 5
+while # _bb442 _bb445
+%db["SELECT * FROM users;"] //playground/db.bb line 14
+BUILTIN _bb477 "SELECT * FROM users;"
+%db["SELECT * FROM users;"] //playground/db.bb line 14
+at _bb476 db _bb477
+%print(db["SELECT * FROM users;"]) //playground/db.bb line 14
+print # _bb476
+%db["DELETE FROM users;"] //playground/db.bb line 15
+BUILTIN _bb479 "DELETE FROM users;"
+%db["DELETE FROM users;"] //playground/db.bb line 15
+at _bb478 db _bb479
