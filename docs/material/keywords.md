@@ -11,7 +11,7 @@
 | `default`        | Specifies fallback values.                                                                      |
 | `:`              | Performs inline execution of its preceding code block/function.                                 |
 | `new`            | Creates a new instance of a struct. Can return from it to just treat it as a new scope.         |
-| `.`              | Accesses members (properties or methods) of an object. Consecutive occurences grab values from definition closure,|
+| `.`              | Accesses members (properties or methods) of an object. Consecutive occurences grab values from creation closure,|
 | `this`           | Refers to the current instance of a class or scope.                                             |
 | `if`             | Introduces a conditional branch, executing code based on a condition.                           |
 | `while`          | Executes a block of code repeatedly while a condition is true.                                  |

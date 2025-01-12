@@ -21,12 +21,13 @@ Focus on writing algorithms with automated parallelism. Blombly ships with opera
 ## About
 
 Blombly is opinionated on several characteristics that set it appart from other languages. These change slightly
-how code is written compared to most other languages. The next tip summarizes the effect of various Blombly
+how code is written compared to most other languages. The next tip summarizes the cummulative effect of various
 features on reasoning about your code:
 
 !!! tip
     You can reason about struct state only while its methods run;
-    consider all non-final data and called methods to be correct but volatile.
+    consider all non-final data and called methods of other structs 
+    to be volatile.
 
 
 In detail, closure (visible symbols) comprises the final values of the scope

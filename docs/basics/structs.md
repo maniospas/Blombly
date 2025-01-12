@@ -75,7 +75,7 @@ Elapsed 0.051626 sec
 
 In Blombly, inlining can be used to treat code blocks as part of constructors. This is a generalization of multi-inheritance that allows any number of blocks to work together during struct definitions. Inline the declaration of member functions as in the following example.
 To prevent code smells, the compiler does not accept the notation `new {@block}` where `@block` is a code block. Inline code per `new {@block:}`. Similarly, 
-final struct fields cannot be set. That is, any field that is not made final during a struct definition cannot be made final in the future. 
+final struct fields cannot be set. That is, any field that is not made final during a struct creation cannot be made final in the future. 
 This imposes a clear distinction between mutable and immutable fields.  
 
 ```java
