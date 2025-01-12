@@ -25,15 +25,13 @@ Hello world!
 
 ## Scopes
 
-Assign values to variables per `@var = @value;` If a variable with the same name already exists in the current scope, its value is overwritten. 
-Otherwise, a new variable is created. Variables persist throughout scopes, which refer to isolated execution contexts. 
-In them, subsequent code can overwrite variable values. Each program starts from one initial scope. New ones are entered with `new{@code}` 
- -this also creates [structs](structs.md)- or when calling code [blocks](blocks.md) as functions.
-<br>
-<br>
-Variables are made immutable by prepending the `final` keyword to their assignment. This prevents overwrites by subsequent code
-and exposes the variables to functions running in the scope. For now, consider immutability as a code safety feature.
-Here is an example of the error shown when attempting an invalid overwrite.
+Scopes, which refer to isolated execution contexts. Each program starts from one initial scope, and 
+new ones are entered with `new{@code}` -this also creates [structs](structs.md)- or when calling functions.
+Assign values to variables per `@var = @value;`, which also creates the variables if they do not exist already. 
+Subsequent code can normally overwrite variable values. Make them 
+immutable by prepending the `final` keyword to their last assignment. This prevents overwrites by subsequent code
+and exposes the variables to functions spawned in the scope. For now, consider immutability as a code safety feature.
+Here is what invalid overwrites look like.
 
 ```java
 // main.bb

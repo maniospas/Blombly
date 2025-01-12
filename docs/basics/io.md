@@ -230,10 +230,11 @@ while(true){}
 
 ## Databases
 
-Blombly supports [sqlite](https://www.sqlite.org/) database, which store data in the file system.
-Initialize the database on a file string, where an empty string creates a temporary
-file to be deleted when closed, and `":memory:"` creates an in-memory instance without persistence. Like with files,
-databases require permissions. Perform operations with the element access notation. Operations return list
+Blombly wraps the [sqlite](https://www.sqlite.org/) database connector, which stores data in the file system.
+Initialize a database with a string denoting a file location. An empty string creates a temporary
+file to be deleted when closed, and `":memory:"` creates an in-memory instance without persistence.
+Like before, databases require appropriate permissions to access the file system.
+After initializing them, perform operations with the element access notation. Each operation returns list
 data containing maps from column names to string values. Below is an example that iterates through a list of users.
 
 
@@ -264,3 +265,11 @@ db["DELETE FROM users;"];
 {name: User3, age: 24, id: 4} 
 {name: User4, age: 24, id: 5} 
 </pre>
+
+!!! info
+    Using brackets rather than parentheses to execute database queries
+    lets us avoid side effects due to the potential concurrency of function
+    or method calls that is intrinsic to Blombly. 
+    To the contrary, built-in operations like element access run like normal
+    sequential code, even if overloaded. This lets us write database queries
+    one after the other and expect them to run in the same order.

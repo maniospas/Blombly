@@ -1,7 +1,7 @@
 # Concurrency
 
-A key characteristic of Blombly is that all functions and struct methods are
-executed concurrently if they do not take each other's outputs as inputs. 
+A key characteristic of Blombly is that all functions and struct methods have a chance 
+of being executed concurrently if they do not take each other's outputs as inputs. 
 For example, consider the following code snippet
 where print statements are called from within a function; they end up occuring
 non-sequentially. This lets the language parallelize running tasks, 
@@ -29,8 +29,13 @@ C
 
 
 !!! info
-    Blombly's execution model is similar to lazy evaluation with the difference that side
+    Blombly's execution model is similar to lazy evaluation, with the difference that side
     effects are allowed.
+
+!!! warning
+    Concurrency is *not* guaranteed. It may happen under the hood by an internal scheduler
+    to speed up execution, but you should never write code as if it were concurrent.
+    You should only anticipate issues due to side effects.
 
 ## Synchronization
 
@@ -82,7 +87,7 @@ D
 
 ## Side effects
 
-Concurrency has an issue when function calls exhibit the so-called side effects.
+Concurrency is an issue when function calls exhibit so-called side effects.
 These are data or input/output changes that occur as a by-product of the business logic
 and therefore no controlled with synchronization mechanism. Aside from internal 
 implementation of details of the virtual machine that maintain safety, side effects
@@ -100,6 +105,10 @@ There are three main kinds of side effects:
 
 IO may be modified externally too. But if concurrency is properly aknowledged throughout
 code writting, you would not write code for such operations any differently.
+
+!!! info
+    Built-in methods (like `push` and `pop`) are both safe to execute and run
+    sequentially. This holds true even when overloaded.
 
 
 ## Method atomicity

@@ -82,8 +82,9 @@ print(b);
 </pre>
 
 !!! info
-    Blombly is free to run functions in parallel. Synchronize them by passing the output of one into another,
-    or by enclosing a multiple calls in a `try` block.
+    Blombly is free to run functions in parallel. 
+    Synchronize them by passing the output of one into another, or by enclosing multiple calls in a `try` block.
+    For full instructions on handling concurrency side effects see [here](../material/concurrency.md).
 
 ## Execution closure
 

@@ -260,6 +260,11 @@ print(result);
 50
 </pre>
 
+!!! info
+    All overloaded operations are executed synchronously to minimize side effects.
+    Only functions and overloaded struct calls execute concurrently to the rest 
+    of the program.
+
 ## Creation closure
 
 Functions -be they called code blocks or callable structs- can access the final variables of their
@@ -317,6 +322,6 @@ print(p1+p2);
 </pre>
 
 !!! tip
-    To compute the number of fullstops count the total number of brackets (`{`) and the immediate shorthand (`=>`)
-    you need to escape from. The first two escape blocks. For example, in the last snippet `this...Point2D`
-    has three dots to escape from the closures of `new {`, `add(other) =>`, `Point2D = {`.
+    To compute the number of fullstops, count the total number of brackets (`{`) and immediate return shorthands (`=>`)
+    that you intent to escape from. For example, in the last snippet, the expression`this...Point2D`
+    has three dots to escape from the three levels of closure in which `new {`, `add(other) =>`, `Point2D = {` run.
