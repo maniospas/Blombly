@@ -1154,7 +1154,8 @@ public:
                 first_name == "bbvm::clear" || first_name == "bbvm::pop" || 
                 first_name == "bbvm::file" || first_name == "bbvm::next" || 
                 first_name == "bbvm::list" || first_name == "bbvm::map" || 
-                first_name == "bbvm::server" || first_name == "bbvm::vector" ||
+                first_name == "bbvm::server" || first_name == "bbvm::sqlite" || 
+                first_name == "bbvm::vector" ||
                 first_name == "len" || first_name == "iter" || 
                 first_name == "int" || first_name == "float" || 
                 first_name == "str" || first_name == "bool" || 
@@ -1164,7 +1165,8 @@ public:
                 first_name == "clear" || first_name == "pop" || 
                 first_name == "file" || first_name == "next" || 
                 first_name == "list" || first_name == "map" || 
-                first_name == "server" || first_name == "vector") {
+                first_name == "server" || first_name == "sqlite" || 
+                first_name == "vector") {
                 bbassert(tokens[start + 1].name == "(", "Missing '(' just after '" + first_name+"'.\n"+show_position(start+1));
                 if (start + 1 >= end - 1 && (first_name == "map" || 
                                              first_name == "list")) {
@@ -1187,10 +1189,9 @@ public:
                 return var;
             }
 
-            if (first_name == "bbvm::time" || first_name == "bbvm::random" || first_name == "bbvm::server" || first_name == "bbvm::list") {
+            if (first_name == "bbvm::time" || first_name == "bbvm::random" || first_name == "bbvm::server" || first_name == "bbvm::sqlite" || first_name == "bbvm::list") {
                 first_name = first_name.substr(6);
-                bbassert(tokens[start + 1].name == "(", "Missing ( after " 
-                          + first_name);
+                bbassert(tokens[start + 1].name == "(", "Missing ( after " + first_name);
                 if (first_name == "list") {
                     bbassert(tokens[start + 2].name == ")", "`"+first_name + "` accepts no arguments"
                               "\n   \033[33m!!!\033[0m Create lists of more arguments by pushing elements to"
@@ -1205,9 +1206,8 @@ public:
             }
 
 
-            if (first_name == "time" || first_name == "random" || first_name == "server" || first_name == "list") {
-                bbassert(tokens[start + 1].name == "(", "Missing ( after " 
-                          + first_name);
+            if (first_name == "time" || first_name == "random" || first_name == "server"  || first_name == "sqlite" || first_name == "list") {
+                bbassert(tokens[start + 1].name == "(", "Missing ( after " + first_name);
                 if (first_name == "list") {
                     bbassert(tokens[start + 2].name == ")", "`"+first_name + "` accepts no arguments"
                               "\n   \033[33m!!!\033[0m Create lists of more arguments by pushing elements to"
@@ -1815,8 +1815,8 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             std::string source = libpath.substr(1, libpath.size() - 2);
             if(top_level_file!=tokens[i].file.back()) {
                 bbassert(isAllowedLocation(source), "Unexpected `!access` for new permissions"
-                                            "\n  \033[33m!!!\033[0m This preprocessor directive creates permissions only if generate at the top-level (aka main)"
-                                            "\n      file being parsed. It is then passed on to all `!include` and `!comptime` directives, like the one that has"
+                                            "\n  \033[33m!!!\033[0m This preprocessor directive creates permissions only if encountered at the top-level (aka main)"
+                                            "\n      file being parsed. Permissions then passed on to all `!include` and `!comptime` directives, like the one that has"
                                             "\n      just been interrupted. Here, you cannot add new permissions that are not already present."
                                             "\n  \033[33m!!!\033[0m The permissions being requested can be added your main file at an earlier stage after"
                                             "\n      reviewing them. Add either a generalization or the following: `!access "+tokens[i+2].name+"`"

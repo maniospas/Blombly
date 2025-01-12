@@ -31,12 +31,12 @@ public:
 
 // Enumeration of data types
 enum Datatype {
-    FUTURE, BB_BOOL, BB_INT, BB_FLOAT, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE, ERRORTYPE, MAP, SERVER
+    FUTURE, BB_BOOL, BB_INT, BB_FLOAT, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE, ERRORTYPE, MAP, SERVER, SQLLITE
 };
 
 // Array to map datatype enums to string representations
 static const char* datatypeName[] = {
-    "future", "bool", "int", "float", "vector", "list", "string", "code", "struct", "iterator", "file", "error", "map", "server"
+    "future", "bool", "int", "float", "vector", "list", "string", "code", "struct", "iterator", "file", "error", "map", "server", "sqlite"
 };
 
 // Global strings for different operations
@@ -47,7 +47,7 @@ enum OperationType {
     BUILTIN, BEGIN, BEGINFINAL, BEGINCACHE, END, RETURN, FINAL, IS,
     CALL, WHILE, IF, NEW, BB_PRINT, INLINE, GET, SET, SETFINAL, DEFAULT,
     TIME, TOITER, TRY, CATCH, FAIL, EXISTS, READ, CREATESERVER, AS, TORANGE, 
-    DEFER, CLEAR, ISCACHED
+    DEFER, CLEAR, ISCACHED, TOSQLITE
 };
 
 // Array mapping OperationType to string representations
@@ -59,7 +59,7 @@ static const std::string OperationTypeNames[] = {
     "BUILTIN", "BEGIN", "BEGINFINAL", "CACHE", "END", "return", "final", "IS",
     "call", "while", "if", "new", "print", "inline", "get", "set", "setfinal", "default",
     "time", "iter", "try", "catch", "fail", "exists", "read", "server", "AS", "range",
-    "defer", "clear", "ISCACHED"
+    "defer", "clear", "ISCACHED", "sqlite"
 };
 
 // Map operations to symbols and conversely

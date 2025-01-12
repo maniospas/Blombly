@@ -56,7 +56,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          ./vcpkg/vcpkg install crow civetweb openssl zlib curl[core,ssl] --recurse --triplet=${{ matrix.triplet }}
+          ./vcpkg/vcpkg install sqlite3 crow civetweb openssl zlib curl[core,ssl] --recurse --triplet=${{ matrix.triplet }}
 
       - name: Configure and build
         run: |

@@ -37,11 +37,10 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 # Find and link zlib for compression support
 find_package(ZLIB REQUIRED)
 
-# Manually include Civetweb headers and link library (installed via vcpkg)
+# Include Civetweb headers and link library (installed via vcpkg)
 find_path(CIVETWEB_INCLUDE_DIR civetweb.h)
 find_library(CIVETWEB_LIBRARY civetweb)
 
-# Include the Civetweb directory and link the library
 if(CIVETWEB_INCLUDE_DIR AND CIVETWEB_LIBRARY)
     target_include_directories(${PROJECT_NAME} PRIVATE ${CIVETWEB_INCLUDE_DIR})
     target_link_libraries(${PROJECT_NAME} PRIVATE ${CIVETWEB_LIBRARY})
@@ -65,6 +64,15 @@ target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl)
 find_package(OpenSSL REQUIRED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+
+# Find and link SQLite
+find_package(SQLite3 REQUIRED)
+if(SQLite3_FOUND)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${SQLite3_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE SQLite::SQLite3)
+else()
+    message(FATAL_ERROR "SQLite3 library not found. Make sure it is installed via vcpkg.")
+endif()
 
 # Specify where to place the final executable
 set_target_properties(${PROJECT_NAME} PROPERTIES

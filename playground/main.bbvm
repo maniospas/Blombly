@@ -1,70 +1,102 @@
-%{value=0;add(x)={this.value+=x;print("ad //playground/main.bb line 1
-BEGIN _bb435
-%value=0 //playground/main.bb line 2
-BUILTIN value I0
-%{this.value+=x;print("added "+str(x)+"   //playground/main.bb line 3
-BEGIN _bb437
-next x args
-%this.value+=x //playground/main.bb line 3
-get _bb438 this value
-add _bb438 _bb438 x
-set # this value _bb438
-%"added "+str(x)+"  sum "+str(this.value) //playground/main.bb line 3
-BUILTIN _bb440 ""
-%this.value //playground/main.bb line 3
-get _bb442 this value
-%str(this.value) //playground/main.bb line 3
-str _bb443 _bb442
-%"added "+str(x)+"  sum " //playground/main.bb line 3
-BUILTIN _bb445 "  sum "
-%str(x) //playground/main.bb line 3
-str _bb447 x
-BUILTIN _bb448 "added "
-add _bb446 _bb448 _bb447
-add _bb444 _bb446 _bb445
-add _bb441 _bb444 _bb443
-add _bb439 _bb441 _bb440
-%print("added "+str(x)+"  sum "+str(this. //playground/main.bb line 3
-print # _bb439
-%return this //playground/main.bb line 3
-return # this
+%("test_database.db") //playground/main.bb line 3
+BUILTIN _bb434 "test_database.db"
+%sqlite("test_database.db") //playground/main.bb line 3
+sqlite db _bb434
+%db["CREATE TABLE IF NOT EXISTS users (id //playground/main.bb line 5
+BUILTIN _bb437 "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER);"
+%db["CREATE TABLE IF NOT EXISTS users (id //playground/main.bb line 5
+at _bb436 db _bb437
+%n=100000 //playground/main.bb line 7
+BUILTIN n I100000
+%time() //playground/main.bb line 8
+time tic
+%db["BEGIN TRANSACTION;"] //playground/main.bb line 9
+BUILTIN _bb441 "BEGIN TRANSACTION;"
+%db["BEGIN TRANSACTION;"] //playground/main.bb line 9
+at _bb440 db _bb441
+%range(n) //playground/main.bb line 10
+range _bb442 n
+%iter(range(n)) //playground/main.bb line 10
+iter _bbmacro6 _bb442
+%while(ias next(_bbmacro6)){db["INSERT IN //playground/main.bb line 10
+BEGIN _bb444
+%next(_bbmacro6) //playground/main.bb line 10
+next _bb445 _bbmacro6
+AS i _bb445
+exists _bb446 i
 END
-IS add _bb437
-return # this
+BEGIN _bb447
+%"INSERT INTO users (name, age) VALUES (' //playground/main.bb line 11
+BUILTIN _bb450 ");"
+%i%10 //playground/main.bb line 11
+BUILTIN _bb454 I10
+mod _bb453 i _bb454
+BUILTIN _bb455 I20
+add _bb452 _bb455 _bb453
+%str(20+(i%10)) //playground/main.bb line 11
+str _bb456 _bb452
+%"INSERT INTO users (name, age) VALUES (' //playground/main.bb line 11
+BUILTIN _bb458 "', "
+%str(i) //playground/main.bb line 11
+str _bb460 i
+BUILTIN _bb461 "INSERT INTO users (name, age) VALUES ('User"
+add _bb459 _bb461 _bb460
+add _bb457 _bb459 _bb458
+add _bb451 _bb457 _bb456
+add _bb449 _bb451 _bb450
+%db["INSERT INTO users (name, age) VALUES //playground/main.bb line 11
+at _bb448 db _bb449
+%"SELECT * FROM users WHERE id = "+str(i) //playground/main.bb line 12
+BUILTIN _bb464 ";"
+%str(i) //playground/main.bb line 12
+str _bb466 i
+BUILTIN _bb467 "SELECT * FROM users WHERE id = "
+add _bb465 _bb467 _bb466
+add _bb463 _bb465 _bb464
+%db["SELECT * FROM users WHERE id = "+str //playground/main.bb line 12
+at _bb462 db _bb463
+%"UPDATE users SET age = age + 1 WHERE id //playground/main.bb line 13
+BUILTIN _bb470 ";"
+%str(i) //playground/main.bb line 13
+str _bb472 i
+BUILTIN _bb473 "UPDATE users SET age = age + 1 WHERE id = "
+add _bb471 _bb473 _bb472
+add _bb469 _bb471 _bb470
+%db["UPDATE users SET age = age + 1 WHERE //playground/main.bb line 13
+at _bb468 db _bb469
 END
-%new{value=0;add(x)={this.value+=x;print( //playground/main.bb line 1
-new accum _bb435
-%range(10) //playground/main.bb line 6
-BUILTIN _bb450 I10
-%range(10) //playground/main.bb line 6
-range _bb449 _bb450
-%iter(range(10)) //playground/main.bb line 6
-iter _bbmacro6 _bb449
-%while(ias next(_bbmacro6))accum.add(i) //playground/main.bb line 6
-BEGIN _bb454
-%while(ias next(_bbmacro6))accum.add(i) //playground/main.bb line 6
-BEGIN _bb455
-%next(_bbmacro6) //playground/main.bb line 6
-next _bb456 _bbmacro6
-AS i _bb456
-exists _bb457 i
+%while(ias next(_bbmacro6)){db["INSERT IN //playground/main.bb line 10
+while # _bb444 _bb447
+%db["COMMIT;"] //playground/main.bb line 16
+BUILTIN _bb475 "COMMIT;"
+%db["COMMIT;"] //playground/main.bb line 16
+at _bb474 db _bb475
+%time() //playground/main.bb line 18
+time toc
+%toc-tic //playground/main.bb line 20
+sub _bb477 toc tic
+%print(toc-tic) //playground/main.bb line 20
+print # _bb477
+%db["SELECT * FROM users;"] //playground/main.bb line 21
+BUILTIN _bb479 "SELECT * FROM users;"
+%db["SELECT * FROM users;"] //playground/main.bb line 21
+at _bb478 db _bb479
+%iter(db["SELECT * FROM users;"]) //playground/main.bb line 21
+iter _bbmacro7 _bb478
+%while(user as next(_bbmacro7))print(user //playground/main.bb line 21
+BEGIN _bb481
+%next(_bbmacro7) //playground/main.bb line 21
+next _bb482 _bbmacro7
+AS user _bb482
+exists _bb483 user
 END
-BEGIN _bb458
-%accum.add(i) //playground/main.bb line 6
-BEGIN _bb460
-list args i
+BEGIN _bb484
+%print(user) //playground/main.bb line 21
+print # user
 END
-%accum.add //playground/main.bb line 6
-get _bb461 accum add
-%accum.add(i) //playground/main.bb line 6
-call _bb459 _bb460 _bb461
-END
-%while(ias next(_bbmacro6))accum.add(i) //playground/main.bb line 6
-while # _bb455 _bb458
-END
-%try while(ias next(_bbmacro6))accum.add( //playground/main.bb line 6
-try _bb452 _bb454
-%accum.value //playground/main.bb line 7
-get _bb462 accum value
-%print(accum.value) //playground/main.bb line 7
-print # _bb462
+%while(user as next(_bbmacro7))print(user //playground/main.bb line 21
+while # _bb481 _bb484
+%db["DELETE FROM users;"] //playground/main.bb line 22
+BUILTIN _bb486 "DELETE FROM users;"
+%db["DELETE FROM users;"] //playground/main.bb line 22
+at _bb485 db _bb486

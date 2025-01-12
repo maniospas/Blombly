@@ -5,6 +5,7 @@
 #include "data/BFile.h"
 #include "data/BError.h"
 #include "data/Iterator.h"
+#include "data/Database.h"
 #include "common.h"
 #include <openssl/evp.h>
 #include <iostream>
@@ -162,6 +163,7 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
             case TOBB_BOOL: BB_BOOLEAN_RESULT(toString(memory) == "true");
             case TOITER: return std::move(Result(new AccessIterator(args->arg0)));
             case TOFILE: return std::move(Result(new BFile(toString(memory))));
+            case TOSQLITE: return std::move(Result(new Database(toString(memory))));
         }
         throw Unimplemented();
     }

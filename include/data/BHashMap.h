@@ -6,12 +6,11 @@
 #include <mutex>
 #include "tsl/hopscotch_map.h"
 
-// BHashMap class representing a hashmap data type
 class BHashMap : public Data {
 public:
     BHashMap();
     virtual ~BHashMap();
-    std::string toString(BMemory* memory)override;
+    std::string toString(BMemory* memory) override;
     void put(Data* from, Data* to);
     Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
 

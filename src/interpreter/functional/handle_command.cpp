@@ -172,6 +172,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 std::unique_lock<std::recursive_mutex> executorLock;
                 if(thisObj) {
                     bbassert(thisObj->getType()==STRUCT, "Internal error: `this` was neither a struct nor missing (in the last case it would have been replaced by the scope)");
+                    //if(!forceStayInThread) 
                     executorLock = std::unique_lock<std::recursive_mutex>(static_cast<Struct*>(thisObj)->memoryLock);
                 }
                 newMemory.allowMutables = false;

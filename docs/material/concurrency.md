@@ -104,8 +104,8 @@ code writting, you would not write code for such operations any differently.
 
 ## Method atomicity
 
-Struct methods run without concurrency. That is, they guarantee that the struct's fields cannot be accessed or 
-modified concurrently while they run. That said, they can call functions or methods that have side-effects
+Struct methods run atomically. That is, they guarantee that the fields of `this` cannot be accessed or 
+modified concurrently. That said, they can call functions or methods that have side-effects
 in the struct. Such calls -including dependent calls of the same struct's methods- are fully synchronized. 
 Guarantees on not modifying the
 struct through concurrency not apply to side effect types #2 and #3 mentioned above.
