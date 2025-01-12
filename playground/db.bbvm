@@ -257,42 +257,45 @@ exists _bb580 i
 END
 BEGIN _bb581
 BEGIN _bb584
-get _bb586 db transaction
-call _bb585 # _bb586
-IS end _bb585
+BEGIN _bb587
+get _bb589 db transaction
+call _bb588 # _bb589
+IS end _bb588
 END
-try _bb582 _bb584
-BEGIN _bb588
-call _bb589 # end
+try _bb585 _bb587
+BEGIN _bb591
+call _bb592 # end
 END
-defer # _bb588
+defer # _bb591
 map user
-BUILTIN _bb592 "'"
-str _bb594 i
-BUILTIN _bb595 "'User"
-add _bb593 _bb595 _bb594
-add _bb591 _bb593 _bb592
-BUILTIN _bb596 "name"
-put # user _bb596 _bb591
-BUILTIN _bb598 I20
-add _bb597 i _bb598
-BUILTIN _bb599 "age"
-put # user _bb599 _bb597
-BEGIN _bb601
+BUILTIN _bb595 "'"
+str _bb597 i
+BUILTIN _bb598 "'User"
+add _bb596 _bb598 _bb597
+add _bb594 _bb596 _bb595
+BUILTIN _bb599 "name"
+put # user _bb599 _bb594
+BUILTIN _bb601 I20
+add _bb600 i _bb601
+BUILTIN _bb602 "age"
+put # user _bb602 _bb600
+BEGIN _bb604
 list args user
 END
-get _bb602 users insert
-call _bb600 _bb601 _bb602
+get _bb605 users insert
+call _bb603 _bb604 _bb605
+END
+try _bb582 _bb584
 END
 while # _bb578 _bb581
-time _bb604
-sub _bb603 _bb604 tic
-print # _bb603
-BEGIN _bb607
-BUILTIN _bb608 "*"
-list args _bb608
+time _bb607
+sub _bb606 _bb607 tic
+print # _bb606
+BEGIN _bb610
+BUILTIN _bb611 "*"
+list args _bb611
 END
-get _bb609 users select
-call _bb606 _bb607 _bb609
-len _bb605 _bb606
-print # _bb605
+get _bb612 users select
+call _bb609 _bb610 _bb612
+len _bb608 _bb609
+print # _bb608

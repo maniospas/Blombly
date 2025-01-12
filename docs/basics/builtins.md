@@ -7,7 +7,7 @@ But rarer features are added to the mix, like immutable variables, pipes, and tr
 ## Comments
 
 Blombly only has line comments that start with `//`. However, it supports multi-line strings and these can be used for 
-documention as in the snippet below. Do not worry about bloating the size of intermediate representation files, as the
+documentation as in the snippet below. Do not worry about bloating the size of intermediate representation files, as the
 compiler optimizes away unused code segments that cannot produce side-effects.
 
 ```java
@@ -54,16 +54,7 @@ x = x+1; // CREATES AN ERROR
 There are several builtin data types that are directly incorporated in the language.
 Exhaustively, these are `int`, `float`, `bool`, `str`, `list`, `vector`, `map`, `iter`, `code`, `struct`, `file`, `server`, `sqlite`.
 Here we start with the first four, and split the rest to dedicated pages, like the one describing [iterables](iterables.md).
-
-```java
-// main.bb
-i = 1;     // int 
-f = 1.2;   // float 
-b = false; // bool (or true)
-s = "this is a string";
-```
-
-Some well-known operations on the above types are implemented. These are computed as one might have come to learn from other programming
+Some well-known operations are implemented, computed as one might have come to learn from other programming
 languages. Only difference to usual practices the existence of `as` assignments (more details later), and that element access
 is overloaded by some data types. For example, format a float to a string of three decimal digits per `x[".3f"]`.
 
@@ -140,32 +131,25 @@ x = int("1");
 y = float("0.5");
 x += 1;
 print("Sum is {x+y}");
+print("Is it positive? {x+y>0}")
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
 > <span style="color: cyan;">./blombly</span> main.bb
 Sum is 2.500000
+Is it positive? true
 </pre>
 
 
 
 ## Semi-types
 
-A core aspect of the blombly language is dynamic typecasting that reinterprets
-data as different formats. This ensures that variables are transformed to appropriate data, 
-therefore introducing correctness guarantees
-for subsequent code. At its core, this is equivalent to calling methods of one argument. 
-However, code writting is simplified thanks to fewer symbols and less nesting.
-
-<br>
-
-Type conversions can be read as variable type semantics, 
-which we dub semi-types.
-The main notation is a vertical slash per `@value|@func`,
-which in a vacuum is equivalent to calling `@func(@value)`. 
+Blombly offers the notation `@value|@func` as the simpler equivalent of
+calling a function of one argument `@func(@value)`
+while avoiding excessive parentheses. 
 This has lower priority than all other symbols because the goal is
-to convert speficic values. Below is an example that declares your
-own string formatting [function](blocks.md) and applies it
+to convert specific values. Below is an example that declares your
+own string formatting function and applies it
 after converting a string to a float number.
 
 ```java
@@ -180,16 +164,29 @@ print("1.2345"|float|fmt);
 
 
 Similarly to numeric operations, the expression `variable |= convertion;` reassigns to a variable. 
-In this case, however, the leftwise convertions is performed first, enabling the pattern
-`variable |= convertion1|convertion2|...;` 
+In this case, however, the leftwise function is applied first, enabling the pattern
+`variable |= func1|func2|...;` 
 This notation is intentionally similar to 
 [double turnstile](https://en.wikipedia.org/wiki/Double_turnstile) and may be thought of as 
-variable modeling some property.
+a way to indicate that a variable being able to model
+some property through a series of transformations. For example a statement `x|=float;` indicates
+that `x` can be converted to a float and will be treated thusly from thereon.
+We call the modelled property that is common across function outputs
+a *semi-type* given that it is semantically guaranteed for subsequent code.
+
+<br>
+
+Semi-types are a weak typing system in that they allow
+automatic conversion between built-ins.
+But they also bring strong typing conventions by applying specific 
+transformations to ensure that a desired state
+is maintained for subsequent code. Do not let this thinking
+restrict you of using the dash (`|`) notation wherever possible.
 
 
 ## Control flow
 
-Control flow alters which code segments are executed next. Blombly offers similar options to most programming languages in terms of conditional branching, loops, deffering
+Control flow alters which code segments are executed next. Blombly offers similar options to most programming languages in terms of conditional branching, loops, deferring
 execution for later, function calling,
 and error handling. Functions are described [elsewhere](blocks.md) because they offer more options than what is common.
 
@@ -198,13 +195,13 @@ and error handling. Functions are described [elsewhere](blocks.md) because they 
 Conditionals take the form `if(@condition){@accept}else{@reject}` where `@` denotes code segments or expressions. By the way,
 this notation is also used by [macros](../advanced/preprocessor.md). 
 The condition must yield a boolean and makes the respective branch execute, where the `else` branch is optional.
-You may ommit brackets for single-command segments, but put semicolons only at the end of commands.
+You may omit brackets for single-command segments, but put semicolons only at the end of commands.
 
 <br>
 
 Similarly, loops take the form `while (condition) {@code}` and keep executing the code while the condition is `true`. 
 To avoid ambiguity, there are no other ways in the language's core to declare a loop, albeit the `in` keywords allows
-you to iterate through lists and the like. Again, you may ommit brackets if only one command runs.
+you to iterate through lists and the like. Again, you may omit brackets if only one command runs.
 Here is an example with both control flow options.
 
 ```java
@@ -228,9 +225,10 @@ while (counter<5) {
 
 Finally, deferring declares code to run later. *The deferred code is always executed*, even
 if errors occur in the interim. Normally, defer occurs just before return statements, including returning from
-`new` scopes that create structs. In advanced settings, you can remove cyclic struct references. 
-Here is a usage example where we ignore the brackers
-of the deferred code block.
+`new` scopes that create structs. It is also applied upon entering and exiting `try` blocks.
+In advanced settings, you can clear resources, remove cyclic struct references,
+or completely clear struct contents. Here is a usage example, where we ignore the brackets
+of the deferred code block for simplicity.
 
 ```java
 // main.bb
@@ -249,17 +247,18 @@ print(A.x);
 1
 </pre>
 
-## Signals
+!!! warning
+    Defer cannot contain return statements, as it may already be executed in response to return statements.
+
+## Errors & returns
 
 Computations like converting invalid strings to numbers, or using the `next` operator of iterators,
 return errors as values. These make execution fail if used in computations.
-One way of handling errors -aside from the catch statement that will be covered below- is
-the `as` keyword. This performs an assignment without breaking normal code writting 
-on encountering an error value, but by returning a true/false value depending on whether
+One way of handling errors is
+the `as` keyword. This performs an assignment without breaking normal code writing 
+upon encountering an error value, but returns a true/false value depending on whether
 an error was found. Below is a simple one-liner that retries
-reading from the console until a number if provided. It also
-use function-based typecasting (where `@str|@func` is equivalent to `@func(@str)`) to chain
-function calls.
+reading from the console until a number if provided.
 
 ```java
 while(not number as "Give a number:"|read|float) {}
@@ -277,53 +276,28 @@ Give a number: 12
 
 The `@result = try{@code}` pattern intercepts errors that indicate
 unsuccessful algorithms, as well as return statements that indicate successful conclusion of
-computations. It also waits for parallel function calls evoked in the code to conclude first 
+computations. When entered and exited, it also waits for parallel function calls evoked in the code to conclude first 
 and applies all defer statements. Returning is the same mechanism that yields values from functions - though
-we have not covered this last concept yet. Omit brackets when only one command is tried 
-to let the interception mechanism interupt control flow:
+we have not covered this yet. Omit brackets when only one command is tried.
 
-```java
-// main.bb
-x = "Give a number: "|read|float;
-sgn = try if(x>=0) return 1 else return -1;
-print("Sign is {sgn}");
-```
+<br>
 
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-> <span style="color: cyan;">./blombly</span> main.bb
-Give a number: 42
-Sign is 1
-</pre>
-
-
+For example, let the interception mechanism interrupt control flow like this `sgn = try if(x>=0) return 1 else return -1;`.
 A similar syntax breaks away from loops below. Contrary to errors, 
 it is lightweight to intercept returns. 
-In other cases, prepend `try` to loop bodies to let internal returns skip the rest of the body. 
+You could also prepend `try` to loop bodies to let internal returns skip the rest of the body - 
+this would emulate other languages' *continue* just as the syntax below emulates *break*. 
+Blombly does not have extra keywords to enforce only one way of interrupting execution.
 
-```java
-// main.bb
-counter = 0;
-try while (true) {
-    counter = counter + 1;
-    print("Counter is: " + str(counter));
-    if(counter==5) return;  // keeps exiting the code until intercepted by try
-}
-```
+<br>
 
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-> <span style="color: cyan;">./blombly</span> main.bb
-Counter is 1
-Counter is 2
-Counter is 3
-Counter is 4
-Counter is 5
-</pre>
-
-You will typically want to differentiate between try results that hold errors and those that do not. 
-In those cases, use `catch`, which is effectively a special conditional statement that checks whether the condition is an error.
+You may further want to differentiate between try results that hold errors and those that do not. 
+In those cases, use `catch` to check the outcome of trying, 
+which is effectively a special conditional statement that checks whether the condition is an error.
 Missing values are not considered errors for the purposes of this statement. 
-Usage is demonstrated below, where the the return signal is intercepted to stop the loop immediately. 
+Usage is demonstrated below, where the return signal is intercepted to stop the loop immediately. 
 If no value or error is intercepted, the result becomes a missing value error than can be caught.
+Catching errors does not need to occur immediately either.
 
 ```java
 // main.bb
