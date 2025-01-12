@@ -142,7 +142,14 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             Data* context = command->args[1] == variableManager.noneId ? nullptr : memory->get(command->args[1]);
             Data* called = memory->get(command->args[2]);
             bbassert(called, "Cannot call a missing value.");
-            bbassert(called->getType()==CODE || called->getType()==STRUCT, "Only structs or code blocks can be called.");
+            if(called->getType()!=CODE && called->getType()!=STRUCT) {
+                args.size = 2;
+                args.arg0 = called;
+                args.arg1 = context;
+                Result returnValue = Data::run(command->operation, &args, memory);
+                result = returnValue.get();
+                SET_RESULT;
+            }
             if(called->getType()==STRUCT) {
                 auto strct = static_cast<Struct*>(called);
                 auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
@@ -165,7 +172,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     }
                 }
                 //newMemory.detach(code->getDeclarationMemory());
-                newMemory.detach(memory);
+                //newMemory.detach(memory);
                 auto it = memory->codeOwners.find(code);
                 Data* thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
                 if(thisObj) newMemory.unsafeSet(variableManager.thisId, thisObj, nullptr);

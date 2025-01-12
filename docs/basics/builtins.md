@@ -42,7 +42,7 @@ x = x+1; // CREATES AN ERROR
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
-<span style="color: cyan;">> ./blombly</span> main.bb --strip
+> <span style="color: cyan;">./blombly</span> main.bb --strip
  (<span style="color: red;">ERROR</span>) Cannot overwrite final value: x
     <span style="color: lightblue;">→</span>  add x x _bb2                                      main.bbvm line 4
 </pre>
@@ -63,25 +63,73 @@ b = false; // bool (or true)
 s = "this is a string";
 ```
 
-Some well-known operations on the above types are listed below. These are computed as one might have come to learn from other programming
-languages. Only difference to usual practices is that the `not` operation has higher priority than assignment.
+Some well-known operations on the above types are implemented. These are computed as one might have come to learn from other programming
+languages. Only difference to usual practices the existence of `as` assignments (more details later), and that element access
+is overloaded by some data types. For example, format a float to a string of three decimal digits per `x[".3f"]`.
 
-| Category                 | Operations                              | Description                                              |
-|--------------------------|----------------------------------------|----------------------------------------------------------|
-| Assignment               | `(expression)`                         | Compute the expression first. Also used in method calls later. |
-| Assignment               | `y=x`, `y as x`                        | The return values of assignments are covered below. |
-| Conversion               | `typename(x)`                          | Everything can be converted to `str`, numbers can be converted from `str`. |
-| Elements                 | `a[i]`, `a[i]=x`                       | Element get and set for strings. |
-| Arithmetics              | `+`, `-`, `*`, `/` <br> `^` <br> `%`   | Basic arithmetics (division is floating-point). <br> Exponentiation. <br> Modulo for integers. |
-| Self-assignment          | `op=`                                  | Replace `op` with any arithmetic, string, or boolean operation.|
-| String operations        | `+`                                    | Concatenation.                                                                      |
-| Comparisons              | `<`, `>`, `<=`, `>=` <br>  `==`, `!=`  | Inequality comparisons. <br> Equality comparisons.                   |
-| Boolean operations       | `and`, `or` <br> `not`                 | Logical operations for booleans.  <br> Negation of any boolean value it prepends.   |
+<details>
+  <summary>Operations</summary>
+  <table>
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th>Operation</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Assignment</td>
+        <td><code>(expression)</code></td>
+        <td>Compute the expression first. Also used in method calls later.</td>
+      </tr>
+      <tr>
+        <td>Assignment</td>
+        <td><code>y=x</code>, <code>y as x</code></td>
+        <td>The return values of assignments are covered below.</td>
+      </tr>
+      <tr>
+        <td>Conversion</td>
+        <td><code>typename(x)</code></td>
+        <td>Everything can be converted to <code>str</code>, numbers can be converted from <code>str</code>.</td>
+      </tr>
+      <tr>
+        <td>Elements</td>
+        <td><code>a[i]</code>, <code>a[i]=x</code></td>
+        <td>Element get and set, for example for lists and maps.</td>
+      </tr>
+      <tr>
+        <td>Arithmetics</td>
+        <td><code>+</code>, <code>-</code>, <code>*</code>, <code>/</code><br><code>^</code><br><code>%</code></td>
+        <td>Basic arithmetics (division is floating-point).<br>Exponentiation.<br>Modulo for integers.</td>
+      </tr>
+      <tr>
+        <td>Self-assignment</td>
+        <td><code>op=</code></td>
+        <td>Replace <code>op</code> with any arithmetic, string, or boolean operation.</td>
+      </tr>
+      <tr>
+        <td>String operations</td>
+        <td><code>+</code></td>
+        <td>Concatenation.</td>
+      </tr>
+      <tr>
+        <td>Comparisons</td>
+        <td><code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code><br><code>==</code>, <code>!=</code></td>
+        <td>Inequality comparisons.<br>Equality comparisons.</td>
+      </tr>
+      <tr>
+        <td>Boolean operations</td>
+        <td><code>and</code>, <code>or</code><br><code>not</code></td>
+        <td>Logical operations for booleans.<br>Negation of any boolean value it prepends.</td>
+      </tr>
+    </tbody>
+  </table>
+</details>
 
 
 
-In addition to these operations, 
-Blombly supports string literals as syntactic sugar; expressions enclosed in brackets
+Blombly also supports string literals as syntactic sugar; expressions enclosed in brackets
 within strings are replaced with their evaluation and converted to `str`. For safety,
 symbols that terminate expressions (brackets, colons, or semicolons) 
 are not allowed within literals. Here is an example that contains a literal and some operations.
@@ -100,29 +148,16 @@ Sum is 2.500000
 </pre>
 
 
-Format numbers by providing a string specification in the element access notation. This
-returns a string containing the provided specification. Format within literals with
-semi-types described in the next section.
-
-```java
-//main.bb
-x = 1.3456;
-print("Here is a number: " + x[".3f"]);
-```
-
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-> <span style="color: cyan;">./blombly</span> main.bb
-Here is a number: 1.346
-</pre>
-
 
 ## Semi-types
 
 A core aspect of the blombly language is dynamic typecasting that reinterprets
-data as different formats. This ensures that variables contain
-or are transformed to appropriate data, therefore introducing correctness guarantees
+data as different formats. This ensures that variables are transformed to appropriate data, 
+therefore introducing correctness guarantees
 for subsequent code. At its core, this is equivalent to calling methods of one argument. 
 However, code writting is simplified thanks to fewer symbols and less nesting.
+
+<br>
 
 Type conversions can be read as variable type semantics, 
 which we dub semi-types.
@@ -149,73 +184,52 @@ In this case, however, the leftwise convertions is performed first, enabling the
 `variable |= convertion1|convertion2|...;` 
 This notation is intentionally similar to 
 [double turnstile](https://en.wikipedia.org/wiki/Double_turnstile) and may be thought of as 
-variable modeling some property. Below is an example.
-
-```java
-x = "1.5";
-x |= float|int;
-print(x);
-```
-
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-> <span style="color: cyan;">./blombly</span> main.bb
-1
-</pre>
+variable modeling some property.
 
 
 ## Control flow
 
 Control flow alters which code segments are executed next. Blombly offers similar options to most programming languages in terms of conditional branching, loops, deffering
-execution for later, method calling,
-and error handling. The first three of those are described here, whereas method calling is described [seperately](blocks.md) because it offers more options than other languages. 
-Error handling and early returns with `try` are described below.
+execution for later, function calling,
+and error handling. Functions are described [elsewhere](blocks.md) because they offer more options than what is common.
 
 <br>
 
-Conditionals take the form `if(@condition){@accept}else{@reject}` where `@` denotes code segments or expressions. We use this
-representation because it is also used by [macros](../advanced/preprocessor.md), though normal code should avoid macros. 
+Conditionals take the form `if(@condition){@accept}else{@reject}` where `@` denotes code segments or expressions. By the way,
+this notation is also used by [macros](../advanced/preprocessor.md). 
 The condition must yield a boolean and makes the respective branch execute, where the `else` branch is optional.
 You may ommit brackets for single-command segments, but put semicolons only at the end of commands.
 
-```java
-// main.bb
-x = 1;
-if (x>0) print("positive")  // no semicolon (because the command would end)
-else if(x<0) print("negative");
-```
-
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-> <span style="color: cyan;">./blombly</span> main.bb
-positive
-</pre>
+<br>
 
 Similarly, loops take the form `while (condition) {@code}` and keep executing the code while the condition is `true`. 
 To avoid ambiguity, there are no other ways in the language's core to declare a loop, albeit the `in` keywords allows
 you to iterate through lists and the like. Again, you may ommit brackets if only one command runs.
-Here is an example:
+Here is an example with both control flow options.
 
 ```java
 // main.bb
 counter = 0;
 while (counter<5) {
-    print("Counter is: " + str(counter));
+    if(counter%2==0) print("{counter} is even")  // no semicolon (signifies that the command continues to `else`)
+    else print("{counter} is odd");
     counter = counter + 1;
 }
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
 > <span style="color: cyan;">./blombly</span> main.bb
-Counter is 0
-Counter is 1
-Counter is 2
-Counter is 3
-Counter is 4
+0 is even 
+1 is odd 
+2 is even 
+3 is odd 
+4 is even 
 </pre>
 
-Finally, deferring is a command that declares code but makes it run later. *The deferred code always runs*, even
-if errors occur in the interim. Normally, it is executed just before return statements, including returning from
-`new` statements creating structs.
-In advanced settings, you can remove cyclic struct references. Here is a usage of defer where we ignore the brackers
+Finally, deferring declares code to run later. *The deferred code is always executed*, even
+if errors occur in the interim. Normally, defer occurs just before return statements, including returning from
+`new` scopes that create structs. In advanced settings, you can remove cyclic struct references. 
+Here is a usage example where we ignore the brackers
 of the deferred code block.
 
 ```java

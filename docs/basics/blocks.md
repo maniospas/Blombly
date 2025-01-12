@@ -22,7 +22,7 @@ test:
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-<span style="color: cyan;">> ./blombly</span> main.bb
+> <span style="color: cyan;">./blombly</span> main.bb
 Hello world!
 </pre>
 
@@ -107,7 +107,7 @@ value_printer();
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-<span style="color: cyan;">> ./blombly</span> main.bb
+> <span style="color: cyan;">./blombly</span> main.bb
 Declaration scope
 Running scope
 </pre>

@@ -10,16 +10,47 @@ In addition to the basic operations described here, find supporting ones in [lib
 The main way blombly interacts with the file system is through the `file` data type.
 This is an abstraction over resources like files, directories, and web data obtained
 with http. These are automatically recognized given the provided path. 
-Operations applicable to file data are summarized here.
+Operations applicable to file data include pushing data to resources and iterating
+through retrieved resource data are summarized here.
 
-| **Operation**         | **Description**                                                                          |
-|------------------------|------------------------------------------------------------------------------------------|
-| `push`                | Write data to the resource without expecting persistence.                                 |
-| `iter`                | Traverse through resource contents (used by the `in` macro internally).                   |
-| `list`                | Obtain all contents of the resource at once.                                              |
-| `clear`               | Clear the resource data if possible.                                                      |
-| `bool`                | Check whether the resource exists.                                                        |
-| Division by a string  | Obtain a sub-directory from the resource.                                                 |
+<details>
+  <summary>Operations</summary>
+  <table>
+    <thead>
+      <tr>
+        <th>Operation</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>push</td>
+        <td>Write data to the resource without expecting persistence.</td>
+      </tr>
+      <tr>
+        <td>iter</td>
+        <td>Traverse through resource contents (used by the in macro internally).</td>
+      </tr>
+      <tr>
+        <td>list</td>
+        <td>Obtain all contents of the resource at once.</td>
+      </tr>
+      <tr>
+        <td>clear</td>
+        <td>Clear the resource data if possible.</td>
+      </tr>
+      <tr>
+        <td>bool</td>
+        <td>Check whether the resource exists.</td>
+      </tr>
+      <tr>
+        <td>Division by a string</td>
+        <td>Obtain a sub-directory from the resource.</td>
+      </tr>
+    </tbody>
+  </table>
+</details>
+
 
 
 If you run file system operations out-of-the-box you will encounter an error
@@ -36,7 +67,7 @@ print(f);
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
-<span style="color: cyan;">> ./blombly</span> playground/main.bb
+> <span style="color: cyan;">./blombly</span> playground/main.bb
 (<span style="color: red;"> ERROR </span>) Access denied for path: README.md
    <span style="color: yellow;">!!!</span> This is a safety measure imposed by Blombly.
        You need to add read permissions to a location containing the prefix with `!access "location"`.
@@ -50,17 +81,10 @@ executed; they will create errors if declared elsewhere but don't have access.
 There are two kinds of permissions; read access with the `!access @str` 
 directive and read&write access with the `!modify @str` directive.
 Both directives parse a string that indicates the *beginning* of an accepted file path.
-You may grant multiple persissions too. Below is an example of granting permissions to accessing
-an *https* and writting on a local directory. Permissions extend everywhere, 
-including to files being included and `!comptime`. 
+Permissions extend everywhere, including to files being included, the `!comptime` preprocessor directive that 
+executes some code during compilation, as well as the generated *.bbvm* file. 
 
-
-```java
-!access "https://raw.githubusercontent.com/"
-!modify "libs/download/"
-
-bb.os.transfer("libs/download/html.bb", "https://raw.githubusercontent.com/maniospas/Blombly/refs/heads/main/libs/html.bb");
-```
+<br>
 
 Iterating through file contents yields the read lines. Whereas iterating
 through directories yields their contents. You cannot push to directories, and -for safety- can only clear empty directories.
@@ -124,47 +148,71 @@ routes["/echo/<input>"] => input; // equivalent to `... = {return input}`
 while(true) {}  // wait indefinitely
 ```
 
-In addition to the keyword argument values obtained by parsing the request, calls
-to route code blocks may be enriched with several positional arguments, if available.
-These are listed below:
+In addition to parameters obtained by parsing the request, calls
+to route code blocks may be enriched with status information, if available.
+Related values that may be present are listed below.
 
-| Argument | Type | Details |
-| -------- | ---- | ----------- |
-| method   | str  | "GET" or "POST". |
-| content  | str  | Any received message content. This requires further parsing. |
-| ip       | str  | The user's ip address. |
-| http     | str  | The http protocol's version. |
-| query    | str  | Any query parameters; those following after the questionmark (`?`). |
-| ssl      | bool | Whether HTTPS or WS is used (SSL/TLS used). |
-| uri      | str  | The request's full uri. |
+<details>
+  <summary>Status information</summary>
+  <table style="border-collapse: collapse; width: 100%; margin-top: 10px;">
+    <thead>
+      <tr>
+        <th>Value</th>
+        <th>Type</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>method</td>
+        <td>str</td>
+        <td>"GET" or "POST".</td>
+      </tr>
+      <tr>
+        <td>content</td>
+        <td>str</td>
+        <td>Any received message content. This requires further parsing.</td>
+      </tr>
+      <tr>
+        <td>ip</td>
+        <td>str</td>
+        <td>The user's IP address.</td>
+      </tr>
+      <tr>
+        <td>http</td>
+        <td>str</td>
+        <td>The HTTP protocol's version.</td>
+      </tr>
+      <tr>
+        <td>query</td>
+        <td>str</td>
+        <td>Any query parameters; those following after the question mark (?).</td>
+      </tr>
+      <tr>
+        <td>ssl</td>
+        <td>bool</td>
+        <td>Whether HTTPS or WS is used (SSL/TLS used).</td>
+      </tr>
+      <tr>
+        <td>uri</td>
+        <td>str</td>
+        <td>The request's full URI.</td>
+      </tr>
+    </tbody>
+  </table>
+</details>
 
-
-```java
-// main.bb
-new {
-    value = 0;
-    routes = server(8000);
-    routes["/hi/<number>"] = {
-        if(not number as int(number)) return "The number of hi must be an integer.";
-        if(number<=0) return "Need a positive number of hi. Why must you take them away? :-(";
-        this.value += 1;
-        return "{this.value+number} hello your to {number} hi";
-    }
-}
-
-print("Give me some greetings at localhost:8000/hi/<number>");
-while(true) {}  // wait indefinitely
-```
 
 Non-text results for server methods are declared by returning
-a struct with text and type fields, like below.
+a struct with text and type fields, like in the following example.
 
 ```java
 content = "
     <!DOCTYPE html>
     <html>
         <head><title>Hi world!</title></head>
-        <body><h1>Hi world!</h1>This is your website. Add content in a <a href='https://perfectmotherfuckingwebsite.com/'>nice format</a>.</body>
+        <body><h1>Hi world!</h1>This is your website. 
+        Add content in a <a href='https://perfectmotherfuckingwebsite.com/'>nice format</a>.</body>
     </html>";
     
 routes = server(8000);
@@ -179,10 +227,10 @@ while(true){}
 
 ## Databases
 
-Blombly includes the [sqlite](https://www.sqlite.org/) database implementation. This stores data in the file system.
-Working with this database consists of initializing it on a file string, where an empty string creates a temporary
-file to be deleted when closed and `":memory:"`to create and an in-memory database without persistence. Like with files,
-databases require necessary permissions. Perform database operations with the access notation. Operations return list
+Blombly supports [sqlite](https://www.sqlite.org/) database, which store data in the file system.
+Initialize the database on a file string, where an empty string creates a temporary
+file to be deleted when closed, and `":memory:"` creates an in-memory instance without persistence. Like with files,
+databases require permissions. Perform operations with the element access notation. Operations return list
 data containing maps from column names to string values. Below is an example that iterates through a list of users.
 
 

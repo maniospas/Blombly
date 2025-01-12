@@ -107,3 +107,11 @@ directives described
 providing the respective permissions to your program *from your main/running file*.
 For safety, required permissions found in any included files that are not a subset of those
 declared in the main program create an error and ask to be added.
+
+
+```java
+!access "https://raw.githubusercontent.com/"
+!modify "libs/download/"
+
+bb.os.transfer("libs/download/html.bb", "https://raw.githubusercontent.com/maniospas/Blombly/refs/heads/main/libs/html.bb");
+```

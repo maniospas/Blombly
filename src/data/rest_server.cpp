@@ -4,6 +4,7 @@
 #include "data/Struct.h"
 #include "data/BString.h"
 #include "data/Integer.h"
+#include "data/Jitable.h"
 #include "data/Boolean.h"
 #include "BMemory.h"
 #include "common.h"
@@ -62,26 +63,55 @@ Result RestServer::implement(const OperationType operation, BuiltinArgs* args, B
 }
 
 
-Data* RestServer::executeCodeWithMemory(Data* called, BMemory* memory) const {
+Result RestServer::executeCodeWithMemory(Data* called, BMemory* memory) const {
     if(called->getType()==STRUCT) {
         auto strct = static_cast<Struct*>(called);
         auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
         bbassert(val && val->getType()==CODE, "Struct was called like a method but has no implemented code for `call`.");
+        //static_cast<Code*>(val)->scheduleForParallelExecution = false; // struct calls are never executed in parallel
+        memory->codeOwners[static_cast<Code*>(val)] = static_cast<Struct*>(called);
         called = (val);
     }
     bbassert(called->getType()==CODE, "Internally corrupted server callable is neither code nor struct (this message should never appear due to earlier error checking)");
-    auto code = static_cast<Code*>(called);
-    memory->detach(nullptr);
-    auto listArgs = new BList();
-    memory->unsafeSet(variableManager.argsId, listArgs, nullptr);
+    Code* code = static_cast<Code*>(called);
 
-    bool hasReturned = false;
-    Result returnValue = executeBlock(code, memory, hasReturned, false);
-    Data* result = returnValue.get();
 
-    bbassert(hasReturned, "Server route handler did not reach a return statement.");
-    bbassert(result, "Server route handler returned no value.");
-    return result;   
+    BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
+    bool newReturnSignal(false);
+    Data* result;
+    //newMemory.detach(code->getDeclarationMemory());
+    //newMemory.detach(memory);
+    auto it = memory->codeOwners.find(code);
+    Data* thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
+    if(thisObj) newMemory.unsafeSet(variableManager.thisId, thisObj, nullptr);
+    std::unique_lock<std::recursive_mutex> executorLock;
+    if(thisObj) {
+        bbassert(thisObj->getType()==STRUCT, "Internal error: `this` was neither a struct nor missing (in the last case it would have been replaced by the scope)");
+        //if(!forceStayInThread) 
+        executorLock = std::unique_lock<std::recursive_mutex>(static_cast<Struct*>(thisObj)->memoryLock);
+    }
+    newMemory.allowMutables = false;
+    bool forceStayInThread = thisObj; // overwrite the option
+    //newMemory.leak(); (this is for testing only - we are not leaking any memory to other threads if we continue in the same thread, so no need to enable atomic reference counting)
+    if(code->jitable && code->jitable->run(&newMemory, result, newReturnSignal, forceStayInThread)) {
+        if(thisObj) newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
+        newMemory.detach(nullptr);
+
+        bbassert(newReturnSignal, "Server route handler did not reach a return statement.");
+        bbassert(result, "Server route handler returned no value.");
+        return std::move(Result(result));   
+    }
+    else {
+        Result returnedValue = executeBlock(code, &newMemory, newReturnSignal, forceStayInThread);
+        newMemory.detach(nullptr);
+        result = returnedValue.get();
+        if(thisObj) newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
+
+        bbassert(newReturnSignal, "Server route handler did not reach a return statement.");
+        bbassert(result, "Server route handler returned no value.");
+        return std::move(returnedValue);   
+    }
+
 }
 
 int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
@@ -144,15 +174,16 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                     }
                 }
 
-                Data* result = server->executeCodeWithMemory(entry.second, mem);
+                Result result_ = server->executeCodeWithMemory(entry.second, mem);
+                Data* result = result_.get();
                 if(result->getType()==STRUCT) {
                     Struct* resultStruct = static_cast<Struct*>(result);
                     //Data* resultContentData = resultStruct->getMemory()->get(resultContent);
                     //bbassert(resultContentData, "Route returned a struct without a `content` field.");
                     std::string response = result->toString(mem);
                     Data* resultTypeData = resultStruct->getMemory()->getOrNull(resultType, true);
-                    bbassert(resultTypeData, "Server route returned a struct without a `type` field.");
-                    bbassert(resultTypeData->getType()==Datatype::STRING, "Server route `type` field was not a string.");
+                    bbassert(resultTypeData, "Server route returned a struct without a `type` field (it return nothing).");
+                    bbassert(resultTypeData->getType()==Datatype::STRING, "Server route `type` field was not a string (type is not a string).");
 
                     mg_printf(conn,
                             "HTTP/1.1 200 OK\r\n"
@@ -163,7 +194,7 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                             response.length(), response.c_str());
                 }
                 else {
-                    bbassert(result->getType()==Datatype::STRING, "Server route handler did not return a string or struct with `str` and `type`.");
+                    bbassert(result->getType()==Datatype::STRING, "Server route handler did not return a string or struct with `str` and `type` (it returned neither a struct nor a string).");
                     std::string response = result->toString(mem);
                     /*std::string html_prefix = "<!DOCTYPE html>";
                     if(html_prefix.size()>=html_prefix.length() && response.substr(0, html_prefix.length())==html_prefix) {

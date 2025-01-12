@@ -39,6 +39,7 @@ look at what the produced intermediate representation looks like: it contains on
 
 ```java
 // main.bb
+!access "http://" // grant access permissions to http requests
 googlelen = !comptime("http://www.google.com/"|file|str|len);
 print(googlelen);
 ```

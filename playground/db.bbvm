@@ -1,85 +1,298 @@
-%(":memory:") //playground/db.bb line 1
-BUILTIN _bb433 ":memory:"
-%sqlite(":memory:") //playground/db.bb line 1
-sqlite db _bb433
-%db["PRAGMA journal_mode = 'wal';"] //playground/db.bb line 2
-BUILTIN _bb436 "PRAGMA journal_mode = 'wal';"
-%db["PRAGMA journal_mode = 'wal';"] //playground/db.bb line 2
-at _bb435 db _bb436
-%db["CREATE TABLE IF NOT EXISTS users (id //playground/db.bb line 3
-BUILTIN _bb438 "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER);"
-%db["CREATE TABLE IF NOT EXISTS users (id //playground/db.bb line 3
-at _bb437 db _bb438
-%range(5) //playground/db.bb line 5
-BUILTIN _bb440 I5
-%range(5) //playground/db.bb line 5
-range _bb439 _bb440
-%iter(range(5)) //playground/db.bb line 5
-iter _bbmacro6 _bb439
-%while(ias next(_bbmacro6)){db["BEGIN TRA //playground/db.bb line 5
-BEGIN _bb442
-%next(_bbmacro6) //playground/db.bb line 5
-next _bb443 _bbmacro6
-AS i _bb443
-exists _bb444 i
+BEGIN _bb11
+BEGIN _bb57
+next path args
+str path path
+BEGIN _bb60
+sqlite connector path
+final # connector
+BEGIN _bb62
+next table_name args
+str table_name table_name
+next signature args
+str signature signature
+get _bb63 this connector
+IS .connector _bb63
+get _bb64 this connector
+IS .connector _bb64
+get _bb65 this connector
+IS .connector _bb65
+BUILTIN _bb68 ");"
+str _bb70 signature
+BUILTIN _bb72 " ("
+str _bb74 table_name
+BUILTIN _bb75 "CREATE TABLE IF NOT EXISTS "
+add _bb73 _bb75 _bb74
+add _bb71 _bb73 _bb72
+add _bb69 _bb71 _bb70
+add _bb67 _bb69 _bb68
+get _bb76 this connector
+at _bb66 _bb76 _bb67
+BEGIN _bb79
+get _bb80 this table_name
+IS .table_name _bb80
+get _bb81 this .connector
+IS ..connector _bb81
+get _bb82 this table_name
+IS .table_name _bb82
+get _bb83 this .connector
+IS ..connector _bb83
+get _bb84 this table_name
+IS .table_name _bb84
+get _bb85 this .connector
+IS ..connector _bb85
+BEGIN _bb86
+next entry args
+get _bb87 this .table_name
+IS ..table_name _bb87
+get _bb88 this ..connector
+IS ...connector _bb88
+list keys
+list values
+iter _bbmacro1 entry
+BEGIN _bb92
+next _bb93 _bbmacro1
+AS pair _bb93
+exists _bb94 pair
 END
-BEGIN _bb445
-%db["BEGIN TRANSACTION;"] //playground/db.bb line 6
-BUILTIN _bb447 "BEGIN TRANSACTION;"
-%db["BEGIN TRANSACTION;"] //playground/db.bb line 6
-at _bb446 db _bb447
-%"INSERT INTO users (name, age) VALUES (' //playground/db.bb line 7
-BUILTIN _bb450 ");"
-%i%10 //playground/db.bb line 7
-BUILTIN _bb454 I10
-mod _bb453 i _bb454
-BUILTIN _bb455 I20
-add _bb452 _bb455 _bb453
-%str(20+(i%10)) //playground/db.bb line 7
-str _bb456 _bb452
-%"INSERT INTO users (name, age) VALUES (' //playground/db.bb line 7
-BUILTIN _bb458 "', "
-%str(i) //playground/db.bb line 7
-str _bb460 i
-BUILTIN _bb461 "INSERT INTO users (name, age) VALUES ('User"
-add _bb459 _bb461 _bb460
-add _bb457 _bb459 _bb458
-add _bb451 _bb457 _bb456
-add _bb449 _bb451 _bb450
-%db["INSERT INTO users (name, age) VALUES //playground/db.bb line 7
-at _bb448 db _bb449
-%"SELECT * FROM users WHERE id = "+str(i) //playground/db.bb line 8
-BUILTIN _bb464 ";"
-%str(i) //playground/db.bb line 8
-str _bb466 i
-BUILTIN _bb467 "SELECT * FROM users WHERE id = "
-add _bb465 _bb467 _bb466
-add _bb463 _bb465 _bb464
-%db["SELECT * FROM users WHERE id = "+str //playground/db.bb line 8
-at _bb462 db _bb463
-%"UPDATE users SET age = age + 1 WHERE id //playground/db.bb line 9
-BUILTIN _bb470 ";"
-%str(i) //playground/db.bb line 9
-str _bb472 i
-BUILTIN _bb473 "UPDATE users SET age = age + 1 WHERE id = "
-add _bb471 _bb473 _bb472
-add _bb469 _bb471 _bb470
-%db["UPDATE users SET age = age + 1 WHERE //playground/db.bb line 9
-at _bb468 db _bb469
-%db["COMMIT;"] //playground/db.bb line 11
-BUILTIN _bb475 "COMMIT;"
-%db["COMMIT;"] //playground/db.bb line 11
-at _bb474 db _bb475
+BEGIN _bb95
+next _bb97 pair
+str _bb96 _bb97
+push # keys _bb96
+next _bb99 pair
+str _bb98 _bb99
+push # values _bb98
 END
-%while(ias next(_bbmacro6)){db["BEGIN TRA //playground/db.bb line 5
-while # _bb442 _bb445
-%db["SELECT * FROM users;"] //playground/db.bb line 14
-BUILTIN _bb477 "SELECT * FROM users;"
-%db["SELECT * FROM users;"] //playground/db.bb line 14
-at _bb476 db _bb477
-%print(db["SELECT * FROM users;"]) //playground/db.bb line 14
-print # _bb476
-%db["DELETE FROM users;"] //playground/db.bb line 15
-BUILTIN _bb479 "DELETE FROM users;"
-%db["DELETE FROM users;"] //playground/db.bb line 15
-at _bb478 db _bb479
+while # _bb92 _bb95
+BEGIN _bb101
+BUILTIN _bb102 ","
+list args _bb102
+END
+get _bb104 bb string
+get _bb103 _bb104 join
+call _bb100 _bb101 _bb103
+IS join _bb100
+BUILTIN _bb107 ")"
+BEGIN _bb110
+list args values
+END
+call _bb109 _bb110 join
+str _bb112 _bb109
+BUILTIN _bb114 ") VALUES ("
+BEGIN _bb117
+list args keys
+END
+call _bb116 _bb117 join
+str _bb119 _bb116
+BUILTIN _bb121 " ("
+str _bb123 ..table_name
+BUILTIN _bb124 "INSERT INTO "
+add _bb122 _bb124 _bb123
+add _bb120 _bb122 _bb121
+add _bb115 _bb120 _bb119
+add _bb113 _bb115 _bb114
+add _bb108 _bb113 _bb112
+add _bb106 _bb108 _bb107
+at _bb105 ...connector _bb106
+END
+IS insert _bb86
+BEGIN _bb125
+next where args
+str where where
+get _bb126 this .table_name
+IS ..table_name _bb126
+get _bb127 this ..connector
+IS ...connector _bb127
+BEGIN _bb128
+BUILTIN _bb131 ""
+str _bb133 ..table_name
+BUILTIN _bb134 "SELECT * FROM "
+add _bb132 _bb134 _bb133
+add _bb130 _bb132 _bb131
+at _bb129 ...connector _bb130
+return # _bb129
+END
+BUILTIN _bb136 "*"
+eq _bb135 where _bb136
+if # _bb135 _bb128
+BUILTIN _bb139 ";"
+str _bb141 where
+BUILTIN _bb143 " WHERE "
+str _bb145 ..table_name
+BUILTIN _bb146 "SELECT * FROM "
+add _bb144 _bb146 _bb145
+add _bb142 _bb144 _bb143
+add _bb140 _bb142 _bb141
+add _bb138 _bb140 _bb139
+at _bb137 ...connector _bb138
+return # _bb137
+END
+IS select _bb125
+return # this
+END
+new _bb77 _bb79
+return # _bb77
+END
+IS table _bb62
+final # table
+BEGIN _bb147
+get _bb148 this commit
+IS .commit _bb148
+get _bb149 this connector
+IS .connector _bb149
+BUILTIN _bb151 "BEGIN TRANSACTION;"
+get _bb152 this connector
+at _bb150 _bb152 _bb151
+BEGIN _bb155
+get _bb156 this .commit
+IS ..commit _bb156
+get _bb157 this .connector
+IS ..connector _bb157
+IS connector ..connector
+final # connector
+BEGIN _bb158
+get _bb159 this ..commit
+IS ...commit _bb159
+call _bb160 # ...commit
+return # _bb160
+END
+IS call _bb158
+return # this
+END
+new _bb153 _bb155
+return # _bb153
+END
+IS transaction _bb147
+final # transaction
+BEGIN _bb161
+BUILTIN _bb163 "COMMIT;"
+get _bb164 this connector
+at _bb162 _bb164 _bb163
+return # _bb162
+END
+IS commit _bb161
+final # commit
+return # this
+END
+new _bb58 _bb60
+return # _bb58
+END
+IS db _bb57
+final # db
+BEGIN _bb331
+BEGIN _bb332
+next value args
+str value value
+return # value
+END
+IS call _bb332
+BEGIN _bb378
+next delimiter args
+str delimiter delimiter
+BEGIN _bb381
+get _bb382 this delimiter
+IS .delimiter _bb382
+BEGIN _bb383
+next strlist args
+get _bb384 this .delimiter
+IS ..delimiter _bb384
+BUILTIN ret ""
+iter _bbmacro3 strlist
+BEGIN _bb387
+next _bb388 _bbmacro3
+AS entry _bb388
+exists _bb389 entry
+END
+BEGIN _bb390
+BEGIN _bb391
+add ret ret ..delimiter
+END
+BUILTIN _bb393 I0
+len _bb394 ret
+neq _bb392 _bb394 _bb393
+if # _bb392 _bb391
+add ret ret entry
+END
+while # _bb387 _bb390
+return # ret
+END
+IS call _bb383
+return # this
+END
+new _bb379 _bb381
+return # _bb379
+END
+IS join _bb378
+final # join
+return # this
+END
+new string _bb331
+final # string
+return # this
+END
+new bb _bb11
+final # bb
+BEGIN _bb565
+BUILTIN _bb566 ":memory:"
+list args _bb566
+END
+get _bb567 bb db
+call _bb564 _bb565 _bb567
+IS db _bb564
+BEGIN _bb569
+BUILTIN _bb570 "users"
+BUILTIN _bb571 "id INTEGER PRIMARY KEY, name TEXT, age INTEGER"
+list args _bb570 _bb571
+END
+get _bb573 db table
+call _bb568 _bb569 _bb573
+IS users _bb568
+time tic
+BUILTIN _bb576 I10000
+range _bb575 _bb576
+iter _bbmacro8 _bb575
+BEGIN _bb578
+next _bb579 _bbmacro8
+AS i _bb579
+exists _bb580 i
+END
+BEGIN _bb581
+BEGIN _bb584
+get _bb586 db transaction
+call _bb585 # _bb586
+IS end _bb585
+END
+try _bb582 _bb584
+BEGIN _bb588
+call _bb589 # end
+END
+defer # _bb588
+map user
+BUILTIN _bb592 "'"
+str _bb594 i
+BUILTIN _bb595 "'User"
+add _bb593 _bb595 _bb594
+add _bb591 _bb593 _bb592
+BUILTIN _bb596 "name"
+put # user _bb596 _bb591
+BUILTIN _bb598 I20
+add _bb597 i _bb598
+BUILTIN _bb599 "age"
+put # user _bb599 _bb597
+BEGIN _bb601
+list args user
+END
+get _bb602 users insert
+call _bb600 _bb601 _bb602
+END
+while # _bb578 _bb581
+time _bb604
+sub _bb603 _bb604 tic
+print # _bb603
+BEGIN _bb607
+BUILTIN _bb608 "*"
+list args _bb608
+END
+get _bb609 users select
+call _bb606 _bb607 _bb609
+len _bb605 _bb606
+print # _bb605

@@ -25,7 +25,7 @@ private:
     static int resultType;
     struct mg_context* context_;
     std::unordered_map<std::string, Data*> routeHandlers_;
-    Data* executeCodeWithMemory(Data* called, BMemory* memory) const;
+    Result executeCodeWithMemory(Data* called, BMemory* memory) const;
     static int requestHandler(struct mg_connection* conn, void* cbdata);
     std::recursive_mutex serverModification;
 };

@@ -14,6 +14,39 @@ final collection = new {
     }
 }
 
+final db(str path) => new {
+    final connector = sqlite(path);
+    final table(str table_name, str signature) = {
+        this.connector["CREATE TABLE IF NOT EXISTS {table_name} ({signature});"];
+        return new {
+            insert(entry) = {
+                keys = list();
+                values = list();
+                while(pair in entry) {
+                    push(keys, pair|next|str);
+                    push(values, pair|next|str);
+                }
+                join = bb.string.join(",");
+                this...connector["INSERT INTO {this..table_name} ({keys|join}) VALUES ({values|join})"];
+            }
+            select(str where) = {
+                if(where=="*") return this...connector["SELECT * FROM {this..table_name}"];
+                return this...connector["SELECT * FROM {this..table_name} WHERE {where};"];
+            }
+        }
+    }
+    final transaction() = {
+        this.connector["BEGIN TRANSACTION;"];
+        return new {
+            // this is how to end the transaction
+            final connector = this..connector;
+            call() => this...commit();
+        }
+    }
+    final commit() => this.connector["COMMIT;"];
+    final run(query) => this.connector[query|str];
+}
+
 final logger = new {
     final ok(str text) = {print("[  {bb.ansi.lightgreen}ok{bb.ansi.reset}  ] {text}")}
     final fail(str text) = {print("[ {bb.ansi.lightred}fail{bb.ansi.reset} ] {text}")}
@@ -82,6 +115,17 @@ final string = new {
     final ripemd160(arg) => arg["ripemd160"];
     final whirlpool(arg) => arg["whirlpool"];
     final sm3(arg) => arg["sm3"];
+
+    final join(str delimiter) => new {
+        call(strlist) = {
+            ret = "";
+            while(entry in strlist) {
+                if(ret|len!=0) ret += this..delimiter;
+                ret += entry;
+            }
+            return ret;
+        }
+    }
     
     // common string manipulation methods
     final starts(str query) => new {
