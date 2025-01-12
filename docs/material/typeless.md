@@ -5,7 +5,7 @@ where structs created with `new` are essentially objects with attached fields
 and values. At the same time, OOP is simplified to the level
 of not having classes/types.
 
-## Consistency checks
+## Semi-typing
 
 The main supposition is that struct "types"
 are checked implicitly during execution by not creating errors.
@@ -29,13 +29,10 @@ conducted.
 // point.bb
 final Point2D = {
     str => "({this.x}, {this.y})";
-    add(other) = {
-        super = this;
-        return new {
-            Point2D:
-            x = super.x|float + other.x|float;
-            y = super.y|float + other.y|float;
-        }
+    add(other) => new {
+        Point2D:
+        x = this..x|float + other.x|float;
+        y = this..y|float + other.y|float;
     }
     dot(other) => this.x*other.x + this.y*other.y;
 }
@@ -55,6 +52,8 @@ a = new {Point2D:name="a";Coords:}
 b = new {Point2D:name="b";Coords:}
 print("a.b = {a.dot(b)}");
 ```
+
+## Testing
 
 ```java
 // test.bb

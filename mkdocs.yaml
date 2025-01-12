@@ -14,6 +14,7 @@
         - Concurrency: material/concurrency.md
         - Typeless OOP: material/typeless.md
         - Style Guide: material/style.md
+        - Keywords: material/keywords.md
 
   theme:
     name: material
@@ -60,6 +61,6 @@
       - icon: fontawesome/brands/github
         link: https://github.com/maniospas/Blombly
 
-  footer:
-    - text: © 2025 Emmanouil (Manios) Krasanakis. All rights reserved.
+  #footer:
+  #  - text: © 2025 Emmanouil (Manios) Krasanakis. All rights reserved.
 
