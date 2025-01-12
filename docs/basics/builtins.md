@@ -282,7 +282,7 @@ we have not covered this yet. Omit brackets when only one command is tried.
 
 For example, let the interception mechanism interrupt control flow like this `sgn = try if(x>=0) return 1 else return -1;`.
 A similar syntax breaks away from loops below. Contrary to errors, 
-it is lightweight to intercept returns. 
+returning is lightweight to intercept. 
 You could also prepend `try` to loop bodies to let internal returns skip the rest of the body - 
 this would emulate other languages' *continue* just as the syntax below emulates *break*. 
 Blombly does not have extra keywords to enforce only one way of interrupting execution.

@@ -40,6 +40,13 @@ Result Struct::implement(const OperationType operation_, BuiltinArgs* args_, BMe
                 memory = new BMemory(nullptr, 0);
                 return std::move(Result(nullptr));
             }
+            if(operation_==MOVE) {
+                memory = new BMemory(nullptr, 1);
+                memory->unsafeSet(variableManager.thisId, this);
+                Data* ret = new Struct(mem);
+                mem->unsafeSet(variableManager.thisId, ret);
+                return std::move(Result(ret));
+            }
         }
     }
 

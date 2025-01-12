@@ -89,8 +89,8 @@ void BHashMap::put(Data* from, Data* to) {
     bbassert(from->getType()!=ERRORTYPE, "Cannot have an error as a map key");
     bbassert(to->getType()!=ERRORTYPE, "Cannot have an error as a map value");
 
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
     size_t keyHash = from->toHash();
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
     auto& entryList = contents[keyHash];
 
     for (auto& kvPair : entryList) {
@@ -202,6 +202,14 @@ Result BHashMap::implement(const OperationType operation, BuiltinArgs* args, BMe
         Data* valueData = args->arg2;
         put(keyData, valueData);
         return Result(nullptr);
+    }
+    
+    if(operation==MOVE && args->size==1) {
+        BHashMap* ret = new BHashMap();
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
+        ret->contents = std::move(contents);
+        contents.clear();
+        return std::move(Result(ret));
     }
 
     throw Unimplemented();

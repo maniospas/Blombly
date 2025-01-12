@@ -105,6 +105,14 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
                 }
                 return std::move(Result(vec));
             }
+            case MOVE: {
+                BList* ret = new BList();
+                ret->front = front;
+                ret->contents = std::move(contents);
+                contents.clear();
+                front = 0;
+                return std::move(Result(ret));
+            }
         }
         throw Unimplemented();
     }
@@ -169,7 +177,6 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
             }
         }
     }
-
 
     if (operation == PUSH && args->size == 2 && args->arg0 == this) {
         auto value = args->arg1;

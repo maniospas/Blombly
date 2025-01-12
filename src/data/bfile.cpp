@@ -161,7 +161,6 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
     }
     if (args->size == 1) {
         if (operation == CLEAR) {
-            
             bbassert(isAllowedWriteLocation(path), "Write access denied for path: " + path +
                                             "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
                                             "\n       You need to add write permissions to a location containting the prefix with `!modify \"location\"`."

@@ -577,7 +577,6 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto code = static_cast<Code*>(source);
             auto newMemory = new BMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
             auto thisObj = new Struct(newMemory); 
-            newMemory->thisObject = thisObj;
             newMemory->unsafeSet(variableManager.thisId, thisObj, nullptr);
             newMemory->setFinal(variableManager.thisId);
             bool newReturnSignal(false);

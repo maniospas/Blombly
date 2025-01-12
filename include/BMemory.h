@@ -55,7 +55,6 @@ private:
 public:
     tsl::hopscotch_map<Code*, Struct*> codeOwners;
     tsl::hopscotch_set<int> finals;
-    Data* thisObject;
     BMemory* parent;
     tsl::hopscotch_set<Future*> attached_threads;
 
@@ -90,6 +89,7 @@ public:
     void addFinally(Code* code);
 
     static void verify_noleaks();
+    friend class Struct;
 };
 
 #endif // MEMORY_H
