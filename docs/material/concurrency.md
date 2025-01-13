@@ -3,7 +3,7 @@
 A key characteristic of Blombly is that all functions and struct methods have a chance 
 of being executed concurrently if they do not take each other's outputs as inputs. 
 For example, consider the following code snippet
-where print statements are called from within a function; they end up occuring
+where print statements are called from within a function; they end up occurring
 non-sequentially. This lets the language parallelize running tasks, 
 and in this page we will show how to tame similar side effect that are not part of
 the business logic. Discussed concepts can be found throughout the user guide, but here
@@ -60,7 +60,7 @@ print(add(x,y));
 
 As an extension of dependency-based synchronization mechanisms, `try` statements also
 force all internally executed code to conclude before returning because they need to
-be aware of any errors that have occured. Below is an adjustment of the first concurrency
+be aware of any errors that have occurred. Below is an adjustment of the first concurrency
 example, where the `try` keyword is prepended to function calls to make them conclude
 before moving on. 
 This does not effect error handling, because unhandled errors are reraised at the end
@@ -104,7 +104,7 @@ There are three main kinds of side effects:
 3. IO operations, such as conole read/writes, the file system, and web resources. 
 
 IO may be modified externally too. But if concurrency is properly aknowledged throughout
-code writting, you would not write code for such operations any differently.
+code writing, you would not write code for such operations any differently.
 
 !!! info
     Built-in methods (like `push` and `pop`) are both safe to execute and run

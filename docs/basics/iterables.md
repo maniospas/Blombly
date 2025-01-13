@@ -135,7 +135,7 @@ Given any data structure that accepts an element getter and length methods,
 you can create an iterator to traverses through its elements without modifying it. 
 Such data include lists and are called iterables. 
 Obtain an iterator from an iterable with the `iter` typecasting as in the example below. 
-Iterators admit only the `next` operator, and always accept a convertion to `iter` that
+Iterators admit only the `next` operator, and always accept a conversion to `iter` that
 returns themselves.
 One cannot modify data, perform random access, or restart traversal of the iterable's elements. 
 Create a new one to go through data that are already consumed.

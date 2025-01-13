@@ -8,7 +8,7 @@ of simplicity and easy comprehension.
 ## Spacing
 
 Prefer placing spaces before and after lone `as`, `new`, and `=` symbols, to
-cleanly separate what is beeing defined. It is better to avoid 
+cleanly separate what is being defined. It is better to avoid 
 addiditional spaces around parentheses, curly, and square brackets.
 Similarly, avoid spaces around the `|` symbol to make semi-type
 chains feel like one value. Prefer adding a space after commas
@@ -61,7 +61,7 @@ number = "Give a number:"|read|float;
 print("This is a number {number:fmt}");
 ```
 
-Similarly, preffer using control flow without brackets. If so,
+Similarly, prefer using control flow without brackets. If so,
 prefer bracketless statements in the same line as their
 controlling condition. The language's syntax is curated so
 that only the trailing semicolon will appear in each line.

@@ -66,7 +66,7 @@ For example, notice that above there are no needless instructions
 from the standard library `libs/.bb`, despite this being
 imported in every program.
 Avoid generating debugging symbols during compilation with the `--strip` or `-s` option.
-This speeds up compilation and optimization finish and produces a much smaller bbvm file - arround 
+This speeds up compilation and optimization finish and produces a much smaller bbvm file - around 
 half the size. For example, below is a compilation outcome
 with stripped away debug info. In this case, any errors contain virtual machine instructions
 instead of a source code stack traces.

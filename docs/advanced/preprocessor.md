@@ -8,7 +8,7 @@ and other supporting code transformations.
 
 <br>
 
-**In practical code writting, you will mostly use permissions, dependencies, and perhaps compile time execution.** 
+**In practical code writing, you will mostly use permissions, dependencies, and perhaps compile time execution.** 
 Macros and other transformations may alter the order in which written code is executed 
 and should be sparingly used - if at all. 
 They are meant to support libraries that inject new coding patterns, like those found in the `libs/.bb` file
@@ -26,7 +26,7 @@ When an include directive is encountered, it inlines the contents of the next pa
 This happens only if the path has not already been included, which allows for circular inclusions.
 In the above example, this means that either `libs/html.bb` is included or, 
 if `libs/html` is a folder, `libs/html/.bb` is included. Inclusion paths are checked both relatively to blombly's
-executable and to the main file beeing compiled.
+executable and to the main file being compiled.
 Dependencies enable code modularization without loading overheads, as the compilation outcome packs all necessary instructions to run 
 automously by the interpreter.
 
@@ -73,8 +73,8 @@ To define a macro within the nested macro use three att symbols, and so on.
 
 To support faster compilation, improve comprehension, and avoid the inherent ambiguity that mixfit operators may create,
 the first token of the expression needs to be a keyword (e.g., `fn @name (@args)` is a valid definition, but `@name = fn (@args)` is not)
-Macros are always applied based on order of occurence, with the last applicable one taking precedence.
-Next is an example of how macros can be used to alter code writting. This is very intrusive to the language and is not really recommended,
+Macros are always applied based on order of occurrence, with the last applicable one taking precedence.
+Next is an example of how macros can be used to alter code writing. This is very intrusive to the language and is not really recommended,
 but you can use things like this to customize the language to your tastes, effectively creating a variant.
 
 ```java
@@ -176,7 +176,7 @@ This is similar to `!stringify` with the difference that at the end
 it converts the sequence of tokens into a source code symbol. 
 Due to being performed at compile time, this does not (and cannot) take into 
 account any values associated with the symbol parts. Again, this is 
-conventient for macro definitions that construct variable names based
+convenient for macro definitions that construct variable names based
 on other variable names. Here is an example:
 
 ```java

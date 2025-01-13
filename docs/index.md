@@ -20,8 +20,8 @@ Focus on writing algorithms with automated parallelism. Blombly ships with opera
 
 ## About
 
-Blombly is opinionated on several characteristics that set it appart from other languages. These change slightly
-how code is written compared to most other languages. The next tip summarizes the cummulative effect of various
+Blombly is opinionated on several characteristics that set it apart from other languages. These change slightly
+how code is written compared to most other languages. The next tip summarizes the cumulative effect of various
 features on reasoning about your code:
 
 !!! tip

@@ -78,7 +78,7 @@ To properly handle cyclic references in complex applications, create a
 `bb.memory.raii()` struct to pass around as a shared heap space on which to add various structs. 
 Added structs are cleared together with the shared heap. Below is an example where we
 again defer clearing to the end. Adding to the memory is as simple as involving it as the
-left operand of an addition. The addition yields the object being addded to the memory.
+left operand of an addition. The addition yields the object being added to the memory.
 
 ```java
 // main.bb
