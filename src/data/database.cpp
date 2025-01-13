@@ -10,11 +10,12 @@
 
 namespace fs = std::filesystem;
 extern BError* OUT_OF_RANGE;
-extern bool isAllowedLocation(const std::string& path);
-extern bool isAllowedWriteLocation(const std::string& path);
+extern bool isAllowedLocationNoNorm(const std::string& path);
+extern bool isAllowedWriteLocationNoNorm(const std::string& path);
+extern std::string normalizeFilePath(const std::string& path);
 
 
-Database::Database(const std::string& dbPath_) : Data(SQLLITE), dbPath(dbPath_), db(nullptr) {
+Database::Database(const std::string& dbPath_) : Data(SQLLITE), dbPath(normalizeFilePath(dbPath_)), db(nullptr) {
     if(!dbPath.size() || dbPath[0]==':') {
         int rc = sqlite3_open_v2(dbPath.c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
         if (rc != SQLITE_OK) bberror("Failed to open SQLite database: " + std::string(sqlite3_errmsg(db)));
@@ -22,10 +23,10 @@ Database::Database(const std::string& dbPath_) : Data(SQLLITE), dbPath(dbPath_),
         return;
     }
 
-    bbassert(isAllowedLocation(dbPath), "Access denied for database path: " + dbPath +
+    bbassert(isAllowedLocationNoNorm(dbPath), "Access denied for database path: " + dbPath +
                                         "\n   \033[33m!!!\033[0m Add read permissions using `!access \"location\"`.");
 
-    int flags = isAllowedWriteLocation(dbPath) ? (SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE) : SQLITE_OPEN_READONLY;
+    int flags = isAllowedWriteLocationNoNorm(dbPath) ? (SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE) : SQLITE_OPEN_READONLY;
     if(flags!=SQLITE_OPEN_READONLY) {
         fs::path filePath(dbPath_);
         if (filePath.parent_path().string().size() && !fs::exists(filePath.parent_path())) fs::create_directories(filePath.parent_path());
@@ -53,7 +54,7 @@ void Database::openDatabase() {
 }
 
 void Database::checkModifyPermission() {
-    bbassert(isAllowedWriteLocation(dbPath), "Write access denied for database path: " + dbPath +
+    bbassert(isAllowedWriteLocationNoNorm(dbPath), "Write access denied for database path: " + dbPath +
                                              "\n   \033[33m!!!\033[0m Add modify permissions using `!modify \"location\"`.");
 }
 
@@ -96,7 +97,7 @@ Result Database::implement(const OperationType operation, BuiltinArgs* args, BMe
         int rc = sqlite3_exec(db, query.c_str(), callback, resultList, &errMsg);
         if (rc == SQLITE_READONLY) {
             std::string error;
-            if (!isAllowedWriteLocation(dbPath)) {
+            if (!isAllowedWriteLocationNoNorm(dbPath)) {
                 error = "Write access denied for database path: " + dbPath +
                         "\n   \033[33m!!!\033[0m This is likely due to missing permissions. Add modify permissions using `!modify \"location\"`.";
             }

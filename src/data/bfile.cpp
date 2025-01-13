@@ -19,23 +19,57 @@ extern BError* OUT_OF_RANGE;
 
 static std::vector<std::string> allowedLocations = {};
 static std::vector<std::string> allowedWriteLocations = {};
+extern std::string blombly_executable_path;
 
-bool isAllowedLocation(const std::string& path) {
+std::string normalizeFilePath(const std::string& path) {
+    if(path.rfind("http://", 0) == 0) return path;
+    if(path.rfind("https://", 0) == 0) return path;
+    if(path.rfind("file://terminal@dir/", 0) == 0) {
+        std::filesystem::path execFilePath = std::filesystem::path(std::filesystem::current_path().string()) / path.substr(std::string("file://terminal@dir/").size());
+        return fs::weakly_canonical(execFilePath);
+    }
+    if(path.rfind("file://blombly@dir/", 0) == 0) {
+        std::filesystem::path execFilePath = std::filesystem::path(blombly_executable_path) / path.substr(std::string("file://blombly@dir/").size());
+        return fs::weakly_canonical(execFilePath);
+    }
+    if(path.rfind("file://any@dir/", 0) == 0) {
+        std::filesystem::path execFilePath = std::filesystem::path(path.substr(std::string("file://any@dir/").size()));
+        return fs::weakly_canonical(execFilePath);
+    }
+    bberror("Provided file path `"+path+"` needs to start from one among `http://`, `https://`, `file://terminal@dir/`, `file://blombly@dir/`, `file://any@dir/`");
+}
+
+bool isAllowedLocation(const std::string& path_) {
+    std::string path = fs::weakly_canonical(normalizeFilePath(path_));
     for (const auto& location : allowedLocations) if(path.size() >= location.size() && path.compare(0, location.size(), location) == 0) return true;
     return false;
 }
 
-bool isAllowedWriteLocation(const std::string& path) {
+bool isAllowedLocationNoNorm(const std::string& path_) {
+    std::string path = path_;
+    for (const auto& location : allowedLocations) if(path.size() >= location.size() && path.compare(0, location.size(), location) == 0) return true;
+    return false;
+}
+
+bool isAllowedWriteLocation(const std::string& path_) {
+    std::string path = fs::weakly_canonical(normalizeFilePath(path_));
     for (const auto& location : allowedWriteLocations) if(path.size() >= location.size() && path.compare(0, location.size(), location) == 0) return true;
     return false;
 }
-void addAllowedLocation(const std::string& location) {
-    if (!isAllowedLocation(location)) allowedLocations.push_back(location);
+bool isAllowedWriteLocationNoNorm(const std::string& path_) {
+    std::string path = path_;
+    for (const auto& location : allowedWriteLocations) if(path.size() >= location.size() && path.compare(0, location.size(), location) == 0) return true;
+    return false;
+}
+void addAllowedLocation(const std::string& location_) {
+    std::string location = normalizeFilePath(location_);
+    if (!isAllowedLocationNoNorm(location)) allowedLocations.push_back(location);
 }
 
-void addAllowedWriteLocation(const std::string& location) {
-    if (!isAllowedWriteLocation(location)) allowedWriteLocations.push_back(location);
-    addAllowedLocation(location);
+void addAllowedWriteLocation(const std::string& location_) {
+    std::string location = normalizeFilePath(location_);
+    if (!isAllowedWriteLocationNoNorm(location)) allowedWriteLocations.push_back(location);
+    addAllowedLocation(location_);
 }
 
 void clearAllowedLocations() {
@@ -67,8 +101,8 @@ std::string fetchHttpContent(const std::string& url) {
     return response;
 }
 
-BFile::BFile(const std::string& path_) : path(path_), size(0), Data(FILETYPE), contentsLoaded(false) {
-    bbassert(isAllowedLocation(path), "Access denied for path: " + path +
+BFile::BFile(const std::string& path_) : path(normalizeFilePath(path_)), size(0), Data(FILETYPE), contentsLoaded(false) {
+    bbassert(isAllowedLocationNoNorm(path), "Access denied for path: " + path +
                                       "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
                                       "\n       You need to add read permissions to a location containting the prefix with `!access \"location\"`."
                                       "\n       Permisions can only be granted this way from the virtual machine's entry point."
@@ -76,7 +110,7 @@ BFile::BFile(const std::string& path_) : path(path_), size(0), Data(FILETYPE), c
 }
 
 void BFile::loadContents() {
-    bbassert(isAllowedLocation(path), "Access denied for path: " + path +
+    bbassert(isAllowedLocationNoNorm(path), "Access denied for path: " + path +
                                       "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
                                       "\n       You need to add read permissions to a location containting the prefix with `!access \"location\"`."
                                       "\n       Permisions can only be granted this way from the virtual machine's entry point."
@@ -110,7 +144,7 @@ std::string BFile::getPath() const {
 }
 
 bool BFile::exists() const {
-    bbassert(isAllowedLocation(path), "Access denied for path: " + path +
+    bbassert(isAllowedLocationNoNorm(path), "Access denied for path: " + path +
                                       "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
                                       "\n       You need to add read permissions to a location containting the prefix with `!access \"location\"`."
                                       "\n       Permisions can only be granted this way from the virtual machine's entry point."
@@ -139,7 +173,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
     }
     if (operation == PUSH && args->size == 2 && args->arg1->getType() == STRING) {
 
-        bbassert(isAllowedWriteLocation(path), "Write access denied for path: " + path +
+        bbassert(isAllowedWriteLocationNoNorm(path), "Write access denied for path: " + path +
                                         "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
                                         "\n       You need to add write permissions to a location containting the prefix with `!modify \"location\"`."
                                         "\n       Permisions can only be granted this way from the virtual machine's entry point."
@@ -161,7 +195,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
     }
     if (args->size == 1) {
         if (operation == CLEAR) {
-            bbassert(isAllowedWriteLocation(path), "Write access denied for path: " + path +
+            bbassert(isAllowedWriteLocationNoNorm(path), "Write access denied for path: " + path +
                                             "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
                                             "\n       You need to add write permissions to a location containting the prefix with `!modify \"location\"`."
                                             "\n       Permisions can only be granted this way from the virtual machine's entry point."

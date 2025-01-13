@@ -1,4 +1,4 @@
-!modify ".cache/"
+!modify "file://blombly@dir/.cache/"
 
 test("String add") {!include "tests/concat"}
 test("List")       {!include "tests/list"}

@@ -1,99 +1,150 @@
+%{final ansi=new{final black="\e[0;30m";f //libs/.bb line 8
 BEGIN _bb29
+%{final black="\e[0;30m";final red="\e[0; //libs/ansi.bb line 1
 BEGIN _bb32
+%final lightred="\e[0;91m" //libs/ansi.bb line 11
 BUILTIN lightred "\e[0;91m"
 final # lightred
+%final lightgreen="\e[0;92m" //libs/ansi.bb line 12
 BUILTIN lightgreen "\e[0;92m"
 final # lightgreen
+%final reset="\e[0m" //libs/ansi.bb line 18
 BUILTIN reset "\e[0m"
 final # reset
 return # this
 END
+%new{final black="\e[0;30m";final red="\e //libs/ansi.bb line 1
 new ansi _bb32
 final # ansi
+%{final toback(element)={return new{.elem //libs/collections.bb line 1
 BEGIN _bb52
+%{return new{.element=this.element;call(A //libs/collections.bb line 2
 BEGIN _bb53
 next element args
+%{.element=this.element;call(A)={..elemen //libs/collections.bb line 2
 BEGIN _bb56
+%this.element //libs/collections.bb line 2
 get _bb57 this element
 IS .element _bb57
+%{..element=this..element;push(A,..elemen //libs/collections.bb line 2
 BEGIN _bb58
 next A args
+%this..element //libs/collections.bb line 2
 get _bb59 this .element
 IS ..element _bb59
+%push(A,..element) //libs/collections.bb line 2
 push # A ..element
+%returnA //libs/collections.bb line 2
 return # A
 END
 IS call _bb58
 return # this
 END
+%new{.element=this.element;call(A)={..ele //libs/collections.bb line 2
 new _bb54 _bb56
+%return new{.element=this.element;call(A) //libs/collections.bb line 2
 return # _bb54
 END
 IS toback _bb53
 final # toback
+%{return new{.func=this.func;call(A)={..f //libs/collections.bb line 8
 BEGIN _bb60
 next func args
+%{.func=this.func;call(A)={..func=this..f //libs/collections.bb line 8
 BEGIN _bb63
+%this.func //libs/collections.bb line 8
 get _bb64 this func
 IS .func _bb64
+%{..func=this..func;ret=list();_bbmacro0= //libs/collections.bb line 8
 BEGIN _bb65
 next A args
+%this..func //libs/collections.bb line 8
 get _bb66 this .func
 IS ..func _bb66
+%list() //libs/collections.bb line 8
 list ret
+%iter(A) //libs/collections.bb line 8
 iter _bbmacro0 A
+%while(xas next(_bbmacro0))push(ret,..fun //libs/collections.bb line 8
 BEGIN _bb69
+%next(_bbmacro0) //libs/collections.bb line 8
 next _bb70 _bbmacro0
 AS x _bb70
 exists _bb71 x
 END
 BEGIN _bb72
+%..func(x) //libs/collections.bb line 8
 BEGIN _bb74
 list args x
 END
+%..func(x) //libs/collections.bb line 8
 call _bb73 _bb74 ..func
+%push(ret,..func(x)) //libs/collections.bb line 8
 push # ret _bb73
 END
+%while(xas next(_bbmacro0))push(ret,..fun //libs/collections.bb line 8
 while # _bb69 _bb72
+%return ret //libs/collections.bb line 8
 return # ret
 END
 IS call _bb65
 return # this
 END
+%new{.func=this.func;call(A)={..func=this //libs/collections.bb line 8
 new _bb61 _bb63
+%return new{.func=this.func;call(A)={..fu //libs/collections.bb line 8
 return # _bb61
 END
 IS transform _bb60
 final # transform
 return # this
 END
+%new{final toback(element)={return new{.e //libs/collections.bb line 1
 new collection _bb52
 final # collection
+%{return new{final connector=sqlite(path) //libs/collections.bb line 17
 BEGIN _bb75
 next path args
 str path path
+%{final connector=sqlite(path);final tabl //libs/collections.bb line 17
 BEGIN _bb78
+%sqlite(path) //libs/collections.bb line 17
 sqlite connector path
+%return this.connector[query|str] //libs/collections.bb line 17
 return # this
 END
+%new{final connector=sqlite(path);final t //libs/collections.bb line 17
 new _bb76 _bb78
+%return new{final connector=sqlite(path); //libs/collections.bb line 17
 return # _bb76
 END
 IS db _bb75
 final # db
+%{final ok(str text)={print("[  "+str(bb. //libs/collections.bb line 50
 BEGIN _bb189
+%{print("[  "+str(bb.ansi.lightgreen)+"ok //libs/collections.bb line 51
 BEGIN _bb190
 next text args
 str text text
+%"[  "+str(bb.ansi.lightgreen)+"ok"+str(b //libs/collections.bb line 51
 BUILTIN _bb192 ""
+%str(text) //libs/collections.bb line 51
 str _bb194 text
+%"[  "+str(bb.ansi.lightgreen)+"ok"+str(b //libs/collections.bb line 51
 BUILTIN _bb196 "  ] "
+%bb.ansi //libs/collections.bb line 51
 get _bb199 bb ansi
+%bb.ansi.reset //libs/collections.bb line 51
 get _bb198 _bb199 reset
+%str(bb.ansi.reset) //libs/collections.bb line 51
 str _bb200 _bb198
+%"[  "+str(bb.ansi.lightgreen)+"ok" //libs/collections.bb line 51
 BUILTIN _bb202 "ok"
+%bb.ansi //libs/collections.bb line 51
 get _bb205 bb ansi
+%bb.ansi.lightgreen //libs/collections.bb line 51
 get _bb204 _bb205 lightgreen
+%str(bb.ansi.lightgreen) //libs/collections.bb line 51
 str _bb206 _bb204
 BUILTIN _bb207 "[  "
 add _bb203 _bb207 _bb206
@@ -102,22 +153,34 @@ add _bb197 _bb201 _bb200
 add _bb195 _bb197 _bb196
 add _bb193 _bb195 _bb194
 add _bb191 _bb193 _bb192
+%print("[  "+str(bb.ansi.lightgreen)+"ok" //libs/collections.bb line 51
 print # _bb191
 END
 IS ok _bb190
 final # ok
+%{print("[ "+str(bb.ansi.lightred)+"fail" //libs/collections.bb line 52
 BEGIN _bb208
 next text args
 str text text
+%"[ "+str(bb.ansi.lightred)+"fail"+str(bb //libs/collections.bb line 52
 BUILTIN _bb210 ""
+%str(text) //libs/collections.bb line 52
 str _bb212 text
+%"[ "+str(bb.ansi.lightred)+"fail"+str(bb //libs/collections.bb line 52
 BUILTIN _bb214 " ] "
+%bb.ansi //libs/collections.bb line 52
 get _bb217 bb ansi
+%bb.ansi.reset //libs/collections.bb line 52
 get _bb216 _bb217 reset
+%str(bb.ansi.reset) //libs/collections.bb line 52
 str _bb218 _bb216
+%"[ "+str(bb.ansi.lightred)+"fail" //libs/collections.bb line 52
 BUILTIN _bb220 "fail"
+%bb.ansi //libs/collections.bb line 52
 get _bb223 bb ansi
+%bb.ansi.lightred //libs/collections.bb line 52
 get _bb222 _bb223 lightred
+%str(bb.ansi.lightred) //libs/collections.bb line 52
 str _bb224 _bb222
 BUILTIN _bb225 "[ "
 add _bb221 _bb225 _bb224
@@ -126,1176 +189,1858 @@ add _bb215 _bb219 _bb218
 add _bb213 _bb215 _bb214
 add _bb211 _bb213 _bb212
 add _bb209 _bb211 _bb210
+%print("[ "+str(bb.ansi.lightred)+"fail"+ //libs/collections.bb line 52
 print # _bb209
 END
 IS fail _bb208
 final # fail
+%print("[ "+str(bb.ansi.lightcyan)+"info" //libs/collections.bb line 54
 return # this
 END
+%new{final ok(str text)={print("[  "+str( //libs/collections.bb line 50
 new logger _bb189
 final # logger
+%{call(str value)={return value;}final md //libs/collections.bb line 98
 BEGIN _bb349
+%{return value;} //libs/collections.bb line 100
 BEGIN _bb350
 next value args
 str value value
+%return value //libs/collections.bb line 100
 return # value
 END
 IS call _bb350
+%{return new{.query=this.query;if((args|l //libs/collections.bb line 131
 BEGIN _bb413
 next query args
 str query query
+%{.query=this.query;if((args|len ==0)== f //libs/collections.bb line 131
 BEGIN _bb416
+%this.query //libs/collections.bb line 131
 get _bb417 this query
 IS .query _bb417
+%if((args|len ==0)== false)fail("Assertio //libs/collections.bb line 131
 BEGIN _bb418
+%("Assertion failed") //libs/collections.bb line 131
 BUILTIN _bb419 "Assertion failed"
+%fail("Assertion failed") //libs/collections.bb line 131
 fail # _bb419
 END
+%(args|len ==0)== false //libs/collections.bb line 131
 BUILTIN _bb421 Bfalse
+%args|len ==0 //libs/collections.bb line 131
 BUILTIN _bb423 I0
+%args|len //libs/collections.bb line 131
 len _bb424 args
 eq _bb422 _bb424 _bb423
 eq _bb420 _bb422 _bb421
+%if((args|len ==0)== false)fail("Assertio //libs/collections.bb line 131
 if # _bb420 _bb418
+%{..query=this..query;if((args|len ==0)== //libs/collections.bb line 131
 BEGIN _bb425
 next search args
 str search search
+%this..query //libs/collections.bb line 131
 get _bb426 this .query
 IS ..query _bb426
+%if((args|len ==0)== false)fail("Assertio //libs/collections.bb line 131
 BEGIN _bb427
+%("Assertion failed") //libs/collections.bb line 131
 BUILTIN _bb428 "Assertion failed"
+%fail("Assertion failed") //libs/collections.bb line 131
 fail # _bb428
 END
+%(args|len ==0)== false //libs/collections.bb line 131
 BUILTIN _bb430 Bfalse
+%args|len ==0 //libs/collections.bb line 131
 BUILTIN _bb432 I0
+%args|len //libs/collections.bb line 131
 len _bb433 args
 eq _bb431 _bb433 _bb432
 eq _bb429 _bb431 _bb430
+%if((args|len ==0)== false)fail("Assertio //libs/collections.bb line 131
 if # _bb429 _bb427
+%query=..query //libs/collections.bb line 131
 IS query ..query
+%search|len //libs/collections.bb line 131
 len nsearch search
+%query|len //libs/collections.bb line 131
 len nquery query
+%if(nsearch<nquery)return false //libs/collections.bb line 131
 BEGIN _bb436
 BUILTIN _bb437 Bfalse
+%return false //libs/collections.bb line 131
 return # _bb437
 END
+%nsearch<nquery //libs/collections.bb line 131
 lt _bb438 nsearch nquery
+%if(nsearch<nquery)return false //libs/collections.bb line 131
 if # _bb438 _bb436
+%range(nquery) //libs/collections.bb line 131
 range _bb439 nquery
+%iter(range(nquery)) //libs/collections.bb line 131
 iter _bbmacro4 _bb439
+%while(ias next(_bbmacro4))if(query[i]!=  //libs/collections.bb line 131
 BEGIN _bb441
+%next(_bbmacro4) //libs/collections.bb line 131
 next _bb442 _bbmacro4
 AS i _bb442
 exists _bb443 i
 END
 BEGIN _bb444
+%if(query[i]!= search[i])return false //libs/collections.bb line 131
 BEGIN _bb445
 BUILTIN _bb446 Bfalse
+%return false //libs/collections.bb line 131
 return # _bb446
 END
+%search[i] //libs/collections.bb line 131
 at _bb448 search i
+%query[i] //libs/collections.bb line 131
 at _bb449 query i
 neq _bb447 _bb449 _bb448
+%if(query[i]!= search[i])return false //libs/collections.bb line 131
 if # _bb447 _bb445
 END
+%while(ias next(_bbmacro4))if(query[i]!=  //libs/collections.bb line 131
 while # _bb441 _bb444
 BUILTIN _bb450 Btrue
+%return true //libs/collections.bb line 131
 return # _bb450
 END
 IS call _bb425
 return # this
 END
+%new{.query=this.query;if((args|len ==0)= //libs/collections.bb line 131
 new _bb414 _bb416
+%return new{.query=this.query;if((args|le //libs/collections.bb line 131
 return # _bb414
 END
 IS starts _bb413
 final # starts
+%{return new{.query=this.query;if((args|l //libs/collections.bb line 143
 BEGIN _bb451
 next query args
 str query query
+%{.query=this.query;if((args|len ==0)== f //libs/collections.bb line 143
 BEGIN _bb454
+%this.query //libs/collections.bb line 143
 get _bb455 this query
 IS .query _bb455
+%if((args|len ==0)== false)fail("Assertio //libs/collections.bb line 143
 BEGIN _bb456
+%("Assertion failed") //libs/collections.bb line 143
 BUILTIN _bb457 "Assertion failed"
+%fail("Assertion failed") //libs/collections.bb line 143
 fail # _bb457
 END
+%(args|len ==0)== false //libs/collections.bb line 143
 BUILTIN _bb459 Bfalse
+%args|len ==0 //libs/collections.bb line 143
 BUILTIN _bb461 I0
+%args|len //libs/collections.bb line 143
 len _bb462 args
 eq _bb460 _bb462 _bb461
 eq _bb458 _bb460 _bb459
+%if((args|len ==0)== false)fail("Assertio //libs/collections.bb line 143
 if # _bb458 _bb456
+%{..query=this..query;if((args|len ==0)== //libs/collections.bb line 143
 BEGIN _bb463
 next search args
 str search search
+%this..query //libs/collections.bb line 143
 get _bb464 this .query
 IS ..query _bb464
+%if((args|len ==0)== false)fail("Assertio //libs/collections.bb line 143
 BEGIN _bb465
+%("Assertion failed") //libs/collections.bb line 143
 BUILTIN _bb466 "Assertion failed"
+%fail("Assertion failed") //libs/collections.bb line 143
 fail # _bb466
 END
+%(args|len ==0)== false //libs/collections.bb line 143
 BUILTIN _bb468 Bfalse
+%args|len ==0 //libs/collections.bb line 143
 BUILTIN _bb470 I0
+%args|len //libs/collections.bb line 143
 len _bb471 args
 eq _bb469 _bb471 _bb470
 eq _bb467 _bb469 _bb468
+%if((args|len ==0)== false)fail("Assertio //libs/collections.bb line 143
 if # _bb467 _bb465
+%query=..query //libs/collections.bb line 143
 IS query ..query
+%search|len //libs/collections.bb line 143
 len nsearch search
+%query|len //libs/collections.bb line 143
 len nquery query
+%if(nsearch<nquery)return false //libs/collections.bb line 143
 BEGIN _bb474
 BUILTIN _bb475 Bfalse
+%return false //libs/collections.bb line 143
 return # _bb475
 END
+%nsearch<nquery //libs/collections.bb line 143
 lt _bb476 nsearch nquery
+%if(nsearch<nquery)return false //libs/collections.bb line 143
 if # _bb476 _bb474
+%range(nquery) //libs/collections.bb line 143
 range _bb477 nquery
+%iter(range(nquery)) //libs/collections.bb line 143
 iter _bbmacro5 _bb477
+%while(ias next(_bbmacro5))if(query[i]!=  //libs/collections.bb line 143
 BEGIN _bb479
+%next(_bbmacro5) //libs/collections.bb line 143
 next _bb480 _bbmacro5
 AS i _bb480
 exists _bb481 i
 END
 BEGIN _bb482
+%if(query[i]!= search[nsearch-nquery+i])r //libs/collections.bb line 143
 BEGIN _bb483
 BUILTIN _bb484 Bfalse
+%return false //libs/collections.bb line 143
 return # _bb484
 END
+%nsearch-nquery //libs/collections.bb line 143
 sub _bb488 nsearch nquery
 add _bb487 _bb488 i
+%search[nsearch-nquery+i] //libs/collections.bb line 143
 at _bb486 search _bb487
+%query[i] //libs/collections.bb line 143
 at _bb489 query i
 neq _bb485 _bb489 _bb486
+%if(query[i]!= search[nsearch-nquery+i])r //libs/collections.bb line 143
 if # _bb485 _bb483
 END
+%while(ias next(_bbmacro5))if(query[i]!=  //libs/collections.bb line 143
 while # _bb479 _bb482
 BUILTIN _bb490 Btrue
+%return true //libs/collections.bb line 143
 return # _bb490
 END
 IS call _bb463
 return # this
 END
+%new{.query=this.query;if((args|len ==0)= //libs/collections.bb line 143
 new _bb452 _bb454
+%return new{.query=this.query;if((args|le //libs/collections.bb line 143
 return # _bb452
 END
 IS ends _bb451
 final # ends
+%{return new{.query=this.query;if((args|l //libs/collections.bb line 155
 BEGIN _bb491
 next query args
 str query query
+%{.query=this.query;if((args|len ==0)== f //libs/collections.bb line 155
 BEGIN _bb494
+%this.query //libs/collections.bb line 155
 get _bb495 this query
 IS .query _bb495
+%if((args|len ==0)== false)fail("Assertio //libs/collections.bb line 155
 BEGIN _bb496
+%("Assertion failed") //libs/collections.bb line 155
 BUILTIN _bb497 "Assertion failed"
+%fail("Assertion failed") //libs/collections.bb line 155
 fail # _bb497
 END
+%(args|len ==0)== false //libs/collections.bb line 155
 BUILTIN _bb499 Bfalse
+%args|len ==0 //libs/collections.bb line 155
 BUILTIN _bb501 I0
+%args|len //libs/collections.bb line 155
 len _bb502 args
 eq _bb500 _bb502 _bb501
 eq _bb498 _bb500 _bb499
+%if((args|len ==0)== false)fail("Assertio //libs/collections.bb line 155
 if # _bb498 _bb496
+%catch(try{pos=pos;return})pos=0 //libs/collections.bb line 155
 BEGIN _bb503
+%pos=0 //libs/collections.bb line 155
 BUILTIN pos I0
 END
+%{pos=pos;return} //libs/collections.bb line 155
 BEGIN _bb507
+%pos=pos //libs/collections.bb line 155
 IS pos pos
 return # #
 END
+%try{pos=pos;return} //libs/collections.bb line 155
 try _bb505 _bb507
+%catch(try{pos=pos;return})pos=0 //libs/collections.bb line 155
 catch # _bb505 _bb503
+%{..query=this..query;if((args|len ==0)== //libs/collections.bb line 155
 BEGIN _bb508
 next search args
 str search search
+%this..query //libs/collections.bb line 155
 get _bb509 this .query
 IS ..query _bb509
+%if((args|len ==0)== false)fail("Assertio //libs/collections.bb line 155
 BEGIN _bb510
+%("Assertion failed") //libs/collections.bb line 155
 BUILTIN _bb511 "Assertion failed"
+%fail("Assertion failed") //libs/collections.bb line 155
 fail # _bb511
 END
+%(args|len ==0)== false //libs/collections.bb line 155
 BUILTIN _bb513 Bfalse
+%args|len ==0 //libs/collections.bb line 155
 BUILTIN _bb515 I0
+%args|len //libs/collections.bb line 155
 len _bb516 args
 eq _bb514 _bb516 _bb515
 eq _bb512 _bb514 _bb513
+%if((args|len ==0)== false)fail("Assertio //libs/collections.bb line 155
 if # _bb512 _bb510
+%query=..query //libs/collections.bb line 155
 IS query ..query
+%this.pos //libs/collections.bb line 155
 get _bb517 this pos
 IS pos _bb517
+%search|len //libs/collections.bb line 155
 len nsearch search
+%query|len //libs/collections.bb line 155
 len nquery query
+%nsearch-nquery+1 //libs/collections.bb line 155
 BUILTIN _bb522 I1
+%nsearch-nquery //libs/collections.bb line 155
 sub _bb523 nsearch nquery
 add _bb521 _bb523 _bb522
+%range(pos,nsearch-nquery+1) //libs/collections.bb line 155
 range _bb520 pos _bb521
+%iter(range(pos,nsearch-nquery+1)) //libs/collections.bb line 155
 iter _bbmacro6 _bb520
+%while(ias next(_bbmacro6)){_bbmacro7=ite //libs/collections.bb line 155
 BEGIN _bb525
+%next(_bbmacro6) //libs/collections.bb line 155
 next _bb526 _bbmacro6
 AS i _bb526
 exists _bb527 i
 END
 BEGIN _bb528
+%range(nquery) //libs/collections.bb line 155
 range _bb529 nquery
+%iter(range(nquery)) //libs/collections.bb line 155
 iter _bbmacro7 _bb529
+%while(jas next(_bbmacro7))if(query[j]!=  //libs/collections.bb line 155
 BEGIN _bb533
+%while(jas next(_bbmacro7))if(query[j]!=  //libs/collections.bb line 155
 BEGIN _bb534
+%next(_bbmacro7) //libs/collections.bb line 155
 next _bb535 _bbmacro7
 AS j _bb535
 exists _bb536 j
 END
 BEGIN _bb537
+%if(query[j]!= search[i+j])return true //libs/collections.bb line 155
 BEGIN _bb538
 BUILTIN _bb539 Btrue
+%return true //libs/collections.bb line 155
 return # _bb539
 END
+%i+j //libs/collections.bb line 155
 add _bb542 i j
+%search[i+j] //libs/collections.bb line 155
 at _bb541 search _bb542
+%query[j] //libs/collections.bb line 155
 at _bb543 query j
 neq _bb540 _bb543 _bb541
+%if(query[j]!= search[i+j])return true //libs/collections.bb line 155
 if # _bb540 _bb538
 END
+%while(jas next(_bbmacro7))if(query[j]!=  //libs/collections.bb line 155
 while # _bb534 _bb537
 END
+%try while(jas next(_bbmacro7))if(query[j //libs/collections.bb line 155
 try different _bb533
+%catch(different)returni //libs/collections.bb line 155
 BEGIN _bb544
+%returni //libs/collections.bb line 155
 return # i
 END
+%catch(different)returni //libs/collections.bb line 155
 catch # different _bb544
 END
+%while(ias next(_bbmacro6)){_bbmacro7=ite //libs/collections.bb line 155
 while # _bb525 _bb528
+%return nsearch //libs/collections.bb line 155
 return # nsearch
 END
 IS call _bb508
 return # this
 END
+%new{.query=this.query;if((args|len ==0)= //libs/collections.bb line 155
 new _bb492 _bb494
+%return new{.query=this.query;if((args|le //libs/collections.bb line 155
 return # _bb492
 END
 IS index _bb491
 final # index
+%{return new{.query=this.query;if((args|l //libs/collections.bb line 171
 BEGIN _bb545
 next query args
 str query query
+%{.query=this.query;if((args|len ==0)== f //libs/collections.bb line 171
 BEGIN _bb548
+%this.query //libs/collections.bb line 171
 get _bb549 this query
 IS .query _bb549
+%if((args|len ==0)== false)fail("Assertio //libs/collections.bb line 171
 BEGIN _bb550
+%("Assertion failed") //libs/collections.bb line 171
 BUILTIN _bb551 "Assertion failed"
+%fail("Assertion failed") //libs/collections.bb line 171
 fail # _bb551
 END
+%(args|len ==0)== false //libs/collections.bb line 171
 BUILTIN _bb553 Bfalse
+%args|len ==0 //libs/collections.bb line 171
 BUILTIN _bb555 I0
+%args|len //libs/collections.bb line 171
 len _bb556 args
 eq _bb554 _bb556 _bb555
 eq _bb552 _bb554 _bb553
+%if((args|len ==0)== false)fail("Assertio //libs/collections.bb line 171
 if # _bb552 _bb550
+%maxsplits=0 //libs/collections.bb line 171
 BEGIN _bb558
+%maxsplits=0 //libs/collections.bb line 171
 END
+%default maxsplits=0 //libs/collections.bb line 171
 default # _bb558
+%{..query=this..query;query=..query;nsear //libs/collections.bb line 171
 BEGIN _bb560
 next search args
 str search search
+%this..query //libs/collections.bb line 171
 get _bb561 this .query
 IS ..query _bb561
+%query=..query //libs/collections.bb line 171
 IS query ..query
+%search|len //libs/collections.bb line 171
 len nsearch search
+%query|len //libs/collections.bb line 171
 len nquery query
+%if(nquery ==0)fail("Cannot split on a ze //libs/collections.bb line 171
 BEGIN _bb564
+%("Cannot split on a zero-length string") //libs/collections.bb line 171
 BUILTIN _bb565 "Cannot split on a zero-length string"
+%fail("Cannot split on a zero-length stri //libs/collections.bb line 171
 fail # _bb565
 END
+%nquery ==0 //libs/collections.bb line 171
 BUILTIN _bb567 I0
 eq _bb566 nquery _bb567
+%if(nquery ==0)fail("Cannot split on a ze //libs/collections.bb line 171
 if # _bb566 _bb564
+%list() //libs/collections.bb line 171
 list ret
+%pos=0 //libs/collections.bb line 171
 BUILTIN pos I0
+%while(pos<nsearch){prev_pos=pos;pos=sear //libs/collections.bb line 171
 BEGIN _bb570
+%pos<nsearch //libs/collections.bb line 171
 lt _bb571 pos nsearch
 END
 BEGIN _bb572
+%prev_pos=pos //libs/collections.bb line 171
 IS prev_pos pos
+%search|bb.string.index(query :: pos=pos) //libs/collections.bb line 171
 BEGIN _bb574
 list args search
 END
+%bb.string.index(query :: pos=pos) //libs/collections.bb line 171
 BEGIN _bb577
 list args query
+%pos=pos //libs/collections.bb line 171
 IS pos pos
 END
+%bb.string //libs/collections.bb line 171
 get _bb579 bb string
+%bb.string.index //libs/collections.bb line 171
 get _bb578 _bb579 index
+%bb.string.index(query :: pos=pos) //libs/collections.bb line 171
 call _bb576 _bb577 _bb578
+%search|bb.string.index(query :: pos=pos) //libs/collections.bb line 171
 call _bb573 _bb574 _bb576
 IS pos _bb573
+%range(prev_pos,pos) //libs/collections.bb line 171
 range _bb581 prev_pos pos
+%search[range(prev_pos,pos)] //libs/collections.bb line 171
 at _bb580 search _bb581
 IS s _bb580
+%push(ret,s) //libs/collections.bb line 171
 push # ret s
+%pos+=nquery //libs/collections.bb line 171
 add pos pos nquery
 END
+%while(pos<nsearch){prev_pos=pos;pos=sear //libs/collections.bb line 171
 while # _bb570 _bb572
+%return ret //libs/collections.bb line 171
 return # ret
 END
 IS call _bb560
 return # this
 END
+%new{.query=this.query;if((args|len ==0)= //libs/collections.bb line 171
 new _bb546 _bb548
+%return new{.query=this.query;if((args|le //libs/collections.bb line 171
 return # _bb546
 END
 IS split _bb545
 final # split
 return # this
 END
+%new{call(str value)={return value;}final //libs/collections.bb line 98
 new string _bb349
 final # string
 return # this
 END
+%new{final ansi=new{final black="\e[0;30m //libs/.bb line 8
 new bb _bb29
 final # bb
+%{A="0";A+="1";A+="2";A+="3";A+="4";A+="5 //tests/all.bb line 3
 BEGIN _bb584
+%A="0" //tests/concat.bb line 1
 BUILTIN A "0"
+%A+="1" //tests/concat.bb line 2
 BUILTIN _bb586 "1"
 add A A _bb586
+%A+="2" //tests/concat.bb line 3
 BUILTIN _bb587 "2"
 add A A _bb587
+%A+="3" //tests/concat.bb line 4
 BUILTIN _bb588 "3"
 add A A _bb588
+%A+="4" //tests/concat.bb line 5
 BUILTIN _bb589 "4"
 add A A _bb589
+%A+="5" //tests/concat.bb line 6
 BUILTIN _bb590 "5"
 add A A _bb590
+%A+="6" //tests/concat.bb line 7
 BUILTIN _bb591 "6"
 add A A _bb591
+%A+="7" //tests/concat.bb line 8
 BUILTIN _bb592 "7"
 add A A _bb592
+%A+="8" //tests/concat.bb line 9
 BUILTIN _bb593 "8"
 add A A _bb593
+%A+="9" //tests/concat.bb line 10
 BUILTIN _bb594 "9"
 add A A _bb594
+%if((A== "0123456789")== false)fail("Asse //tests/concat.bb line 12
 BEGIN _bb595
+%("Assertion failed") //tests/concat.bb line 12
 BUILTIN _bb596 "Assertion failed"
+%fail("Assertion failed") //tests/concat.bb line 12
 fail # _bb596
 END
+%(A== "0123456789")== false //tests/concat.bb line 12
 BUILTIN _bb598 Bfalse
+%A== "0123456789" //tests/concat.bb line 12
 BUILTIN _bb600 "0123456789"
 eq _bb599 A _bb600
 eq _bb597 _bb599 _bb598
+%if((A== "0123456789")== false)fail("Asse //tests/concat.bb line 12
 if # _bb597 _bb595
+%if((A|len == 10)== false)fail("Assertion //tests/concat.bb line 13
 BEGIN _bb601
+%("Assertion failed") //tests/concat.bb line 13
 BUILTIN _bb602 "Assertion failed"
+%fail("Assertion failed") //tests/concat.bb line 13
 fail # _bb602
 END
+%(A|len == 10)== false //tests/concat.bb line 13
 BUILTIN _bb604 Bfalse
+%A|len == 10 //tests/concat.bb line 13
 BUILTIN _bb606 I10
+%A|len //tests/concat.bb line 13
 len _bb607 A
 eq _bb605 _bb607 _bb606
 eq _bb603 _bb605 _bb604
+%if((A|len == 10)== false)fail("Assertion //tests/concat.bb line 13
 if # _bb603 _bb601
 return # #
 END
+%try{A="0";A+="1";A+="2";A+="3";A+="4";A+ //tests/all.bb line 3
 try _bbmacro8 _bb584
+%catch(_bbmacro8)bb.logger.fail("String a //tests/all.bb line 3
 BEGIN _bb608
+%bb.logger.fail("String add"+"\n"+str(_bb //tests/all.bb line 3
 BEGIN _bb610
+%str(_bbmacro8) //tests/all.bb line 3
 str _bb612 _bbmacro8
+%"String add"+"\n" //tests/all.bb line 3
 BUILTIN _bb614 "\n"
 BUILTIN _bb615 "String add"
 add _bb613 _bb615 _bb614
 add _bb611 _bb613 _bb612
 list args _bb611
 END
+%bb.logger //tests/all.bb line 3
 get _bb617 bb logger
+%bb.logger.fail //tests/all.bb line 3
 get _bb616 _bb617 fail
+%bb.logger.fail("String add"+"\n"+str(_bb //tests/all.bb line 3
 call _bb609 _bb610 _bb616
 END
 BEGIN _bb618
+%bb.logger.ok("String add") //tests/all.bb line 3
 BEGIN _bb620
 BUILTIN _bb621 "String add"
 list args _bb621
 END
+%bb.logger //tests/all.bb line 3
 get _bb623 bb logger
+%bb.logger.ok //tests/all.bb line 3
 get _bb622 _bb623 ok
+%bb.logger.ok("String add") //tests/all.bb line 3
 call _bb619 _bb620 _bb622
 END
+%catch(_bbmacro8)bb.logger.fail("String a //tests/all.bb line 3
 catch # _bbmacro8 _bb608 _bb618
+%{A=1,2,3,4;if((A[1]==2)== false)fail("As //tests/all.bb line 4
 BEGIN _bb626
+%1,2,3,4 //tests/list.bb line 1
 BUILTIN _bb627 I1
 BUILTIN _bb628 I2
 BUILTIN _bb629 I3
 BUILTIN _bb630 I4
+%1,2,3,4 //tests/list.bb line 1
 list A _bb627 _bb628 _bb629 _bb630
+%if((A[1]==2)== false)fail("Assertion fai //tests/list.bb line 2
 BEGIN _bb632
+%("Assertion failed") //tests/list.bb line 2
 BUILTIN _bb633 "Assertion failed"
+%fail("Assertion failed") //tests/list.bb line 2
 fail # _bb633
 END
+%(A[1]==2)== false //tests/list.bb line 2
 BUILTIN _bb635 Bfalse
+%A[1]==2 //tests/list.bb line 2
 BUILTIN _bb637 I2
+%A[1] //tests/list.bb line 2
 BUILTIN _bb639 I1
+%A[1] //tests/list.bb line 2
 at _bb638 A _bb639
 eq _bb636 _bb638 _bb637
 eq _bb634 _bb636 _bb635
+%if((A[1]==2)== false)fail("Assertion fai //tests/list.bb line 2
 if # _bb634 _bb632
+%if((A|next ==1)== false)fail("Assertion  //tests/list.bb line 3
 BEGIN _bb640
+%("Assertion failed") //tests/list.bb line 3
 BUILTIN _bb641 "Assertion failed"
+%fail("Assertion failed") //tests/list.bb line 3
 fail # _bb641
 END
+%(A|next ==1)== false //tests/list.bb line 3
 BUILTIN _bb643 Bfalse
+%A|next ==1 //tests/list.bb line 3
 BUILTIN _bb645 I1
+%A|next //tests/list.bb line 3
 next _bb646 A
 eq _bb644 _bb646 _bb645
 eq _bb642 _bb644 _bb643
+%if((A|next ==1)== false)fail("Assertion  //tests/list.bb line 3
 if # _bb642 _bb640
+%if((A|next ==2)== false)fail("Assertion  //tests/list.bb line 4
 BEGIN _bb647
+%("Assertion failed") //tests/list.bb line 4
 BUILTIN _bb648 "Assertion failed"
+%fail("Assertion failed") //tests/list.bb line 4
 fail # _bb648
 END
+%(A|next ==2)== false //tests/list.bb line 4
 BUILTIN _bb650 Bfalse
+%A|next ==2 //tests/list.bb line 4
 BUILTIN _bb652 I2
+%A|next //tests/list.bb line 4
 next _bb653 A
 eq _bb651 _bb653 _bb652
 eq _bb649 _bb651 _bb650
+%if((A|next ==2)== false)fail("Assertion  //tests/list.bb line 4
 if # _bb649 _bb647
+%if((A|pop ==4)== false)fail("Assertion f //tests/list.bb line 5
 BEGIN _bb654
+%("Assertion failed") //tests/list.bb line 5
 BUILTIN _bb655 "Assertion failed"
+%fail("Assertion failed") //tests/list.bb line 5
 fail # _bb655
 END
+%(A|pop ==4)== false //tests/list.bb line 5
 BUILTIN _bb657 Bfalse
+%A|pop ==4 //tests/list.bb line 5
 BUILTIN _bb659 I4
+%A|pop //tests/list.bb line 5
 pop _bb660 A
 eq _bb658 _bb660 _bb659
 eq _bb656 _bb658 _bb657
+%if((A|pop ==4)== false)fail("Assertion f //tests/list.bb line 5
 if # _bb656 _bb654
+%if((A|pop ==3)== false)fail("Assertion f //tests/list.bb line 6
 BEGIN _bb661
+%("Assertion failed") //tests/list.bb line 6
 BUILTIN _bb662 "Assertion failed"
+%fail("Assertion failed") //tests/list.bb line 6
 fail # _bb662
 END
+%(A|pop ==3)== false //tests/list.bb line 6
 BUILTIN _bb664 Bfalse
+%A|pop ==3 //tests/list.bb line 6
 BUILTIN _bb666 I3
+%A|pop //tests/list.bb line 6
 pop _bb667 A
 eq _bb665 _bb667 _bb666
 eq _bb663 _bb665 _bb664
+%if((A|pop ==3)== false)fail("Assertion f //tests/list.bb line 6
 if # _bb663 _bb661
+%if((A|len ==0)== false)fail("Assertion f //tests/list.bb line 7
 BEGIN _bb668
+%("Assertion failed") //tests/list.bb line 7
 BUILTIN _bb669 "Assertion failed"
+%fail("Assertion failed") //tests/list.bb line 7
 fail # _bb669
 END
+%(A|len ==0)== false //tests/list.bb line 7
 BUILTIN _bb671 Bfalse
+%A|len ==0 //tests/list.bb line 7
 BUILTIN _bb673 I0
+%A|len //tests/list.bb line 7
 len _bb674 A
 eq _bb672 _bb674 _bb673
 eq _bb670 _bb672 _bb671
+%if((A|len ==0)== false)fail("Assertion f //tests/list.bb line 7
 if # _bb670 _bb668
+%push(A,5) //tests/list.bb line 8
 BUILTIN _bb675 I5
+%push(A,5) //tests/list.bb line 8
 push # A _bb675
+%if((A|pop ==5)== false)fail("Assertion f //tests/list.bb line 9
 BEGIN _bb676
+%("Assertion failed") //tests/list.bb line 9
 BUILTIN _bb677 "Assertion failed"
+%fail("Assertion failed") //tests/list.bb line 9
 fail # _bb677
 END
+%(A|pop ==5)== false //tests/list.bb line 9
 BUILTIN _bb679 Bfalse
+%A|pop ==5 //tests/list.bb line 9
 BUILTIN _bb681 I5
+%A|pop //tests/list.bb line 9
 pop _bb682 A
 eq _bb680 _bb682 _bb681
 eq _bb678 _bb680 _bb679
+%if((A|pop ==5)== false)fail("Assertion f //tests/list.bb line 9
 if # _bb678 _bb676
 return # #
 END
+%try{A=1,2,3,4;if((A[1]==2)== false)fail( //tests/all.bb line 4
 try _bbmacro9 _bb626
+%catch(_bbmacro9)bb.logger.fail("List"+"\ //tests/all.bb line 4
 BEGIN _bb683
+%bb.logger.fail("List"+"\n"+str(_bbmacro9 //tests/all.bb line 4
 BEGIN _bb685
+%str(_bbmacro9) //tests/all.bb line 4
 str _bb687 _bbmacro9
+%"List"+"\n" //tests/all.bb line 4
 BUILTIN _bb689 "\n"
 BUILTIN _bb690 "List"
 add _bb688 _bb690 _bb689
 add _bb686 _bb688 _bb687
 list args _bb686
 END
+%bb.logger //tests/all.bb line 4
 get _bb692 bb logger
+%bb.logger.fail //tests/all.bb line 4
 get _bb691 _bb692 fail
+%bb.logger.fail("List"+"\n"+str(_bbmacro9 //tests/all.bb line 4
 call _bb684 _bb685 _bb691
 END
 BEGIN _bb693
+%bb.logger.ok("List") //tests/all.bb line 4
 BEGIN _bb695
 BUILTIN _bb696 "List"
 list args _bb696
 END
+%bb.logger //tests/all.bb line 4
 get _bb698 bb logger
+%bb.logger.ok //tests/all.bb line 4
 get _bb697 _bb698 ok
+%bb.logger.ok("List") //tests/all.bb line 4
 call _bb694 _bb695 _bb697
 END
+%catch(_bbmacro9)bb.logger.fail("List"+"\ //tests/all.bb line 4
 catch # _bbmacro9 _bb683 _bb693
+%{s=0;_bbmacro11=iter(range(10));while(ia //tests/all.bb line 5
 BEGIN _bb701
+%s=0 //tests/range.bb line 1
 BUILTIN s I0
+%range(10) //tests/range.bb line 2
 BUILTIN _bb704 I10
+%range(10) //tests/range.bb line 2
 range _bb703 _bb704
+%iter(range(10)) //tests/range.bb line 2
 iter _bbmacro11 _bb703
+%while(ias next(_bbmacro11))s+=i //tests/range.bb line 2
 BEGIN _bb706
+%next(_bbmacro11) //tests/range.bb line 2
 next _bb707 _bbmacro11
 AS i _bb707
 exists _bb708 i
 END
 BEGIN _bb709
+%s+=i //tests/range.bb line 2
 add s s i
 END
+%while(ias next(_bbmacro11))s+=i //tests/range.bb line 2
 while # _bb706 _bb709
+%if((s== 45)== false)fail("Assertion fail //tests/range.bb line 3
 BEGIN _bb710
+%("Assertion failed") //tests/range.bb line 3
 BUILTIN _bb711 "Assertion failed"
+%fail("Assertion failed") //tests/range.bb line 3
 fail # _bb711
 END
+%(s== 45)== false //tests/range.bb line 3
 BUILTIN _bb713 Bfalse
+%s== 45 //tests/range.bb line 3
 BUILTIN _bb715 I45
 eq _bb714 s _bb715
 eq _bb712 _bb714 _bb713
+%if((s== 45)== false)fail("Assertion fail //tests/range.bb line 3
 if # _bb712 _bb710
 return # #
 END
+%try{s=0;_bbmacro11=iter(range(10));while //tests/all.bb line 5
 try _bbmacro10 _bb701
+%catch(_bbmacro10)bb.logger.fail("Range"+ //tests/all.bb line 5
 BEGIN _bb716
+%bb.logger.fail("Range"+"\n"+str(_bbmacro //tests/all.bb line 5
 BEGIN _bb718
+%str(_bbmacro10) //tests/all.bb line 5
 str _bb720 _bbmacro10
+%"Range"+"\n" //tests/all.bb line 5
 BUILTIN _bb722 "\n"
 BUILTIN _bb723 "Range"
 add _bb721 _bb723 _bb722
 add _bb719 _bb721 _bb720
 list args _bb719
 END
+%bb.logger //tests/all.bb line 5
 get _bb725 bb logger
+%bb.logger.fail //tests/all.bb line 5
 get _bb724 _bb725 fail
+%bb.logger.fail("Range"+"\n"+str(_bbmacro //tests/all.bb line 5
 call _bb717 _bb718 _bb724
 END
 BEGIN _bb726
+%bb.logger.ok("Range") //tests/all.bb line 5
 BEGIN _bb728
 BUILTIN _bb729 "Range"
 list args _bb729
 END
+%bb.logger //tests/all.bb line 5
 get _bb731 bb logger
+%bb.logger.ok //tests/all.bb line 5
 get _bb730 _bb731 ok
+%bb.logger.ok("Range") //tests/all.bb line 5
 call _bb727 _bb728 _bb730
 END
+%catch(_bbmacro10)bb.logger.fail("Range"+ //tests/all.bb line 5
 catch # _bbmacro10 _bb716 _bb726
+%{A=1,2,3;s=0;_bbmacro13=iter(A);while(xa //tests/all.bb line 6
 BEGIN _bb734
+%1,2,3 //tests/iter.bb line 1
 BUILTIN _bb735 I1
 BUILTIN _bb736 I2
 BUILTIN _bb737 I3
+%1,2,3 //tests/iter.bb line 1
 list A _bb735 _bb736 _bb737
+%s=0 //tests/iter.bb line 2
 BUILTIN s I0
+%iter(A) //tests/iter.bb line 3
 iter _bbmacro13 A
+%while(xas next(_bbmacro13))s+=x //tests/iter.bb line 3
 BEGIN _bb741
+%next(_bbmacro13) //tests/iter.bb line 3
 next _bb742 _bbmacro13
 AS x _bb742
 exists _bb743 x
 END
 BEGIN _bb744
+%s+=x //tests/iter.bb line 3
 add s s x
 END
+%while(xas next(_bbmacro13))s+=x //tests/iter.bb line 3
 while # _bb741 _bb744
+%iter(A) //tests/iter.bb line 5
 iter it A
+%while(xas bbvm::next(it))s-=x //tests/iter.bb line 6
 BEGIN _bb746
+%bbvm::next(it) //tests/iter.bb line 6
 next _bb747 it
 AS x _bb747
 exists _bb748 x
 END
 BEGIN _bb749
+%s-=x //tests/iter.bb line 6
 sub s s x
 END
+%while(xas bbvm::next(it))s-=x //tests/iter.bb line 6
 while # _bb746 _bb749
+%if((s==0)== false)fail("Assertion failed //tests/iter.bb line 8
 BEGIN _bb750
+%("Assertion failed") //tests/iter.bb line 8
 BUILTIN _bb751 "Assertion failed"
+%fail("Assertion failed") //tests/iter.bb line 8
 fail # _bb751
 END
+%(s==0)== false //tests/iter.bb line 8
 BUILTIN _bb753 Bfalse
+%s==0 //tests/iter.bb line 8
 BUILTIN _bb755 I0
 eq _bb754 s _bb755
 eq _bb752 _bb754 _bb753
+%if((s==0)== false)fail("Assertion failed //tests/iter.bb line 8
 if # _bb752 _bb750
 return # #
 END
+%try{A=1,2,3;s=0;_bbmacro13=iter(A);while //tests/all.bb line 6
 try _bbmacro12 _bb734
+%catch(_bbmacro12)bb.logger.fail("Iterati //tests/all.bb line 6
 BEGIN _bb756
+%bb.logger.fail("Iteration"+"\n"+str(_bbm //tests/all.bb line 6
 BEGIN _bb758
+%str(_bbmacro12) //tests/all.bb line 6
 str _bb760 _bbmacro12
+%"Iteration"+"\n" //tests/all.bb line 6
 BUILTIN _bb762 "\n"
 BUILTIN _bb763 "Iteration"
 add _bb761 _bb763 _bb762
 add _bb759 _bb761 _bb760
 list args _bb759
 END
+%bb.logger //tests/all.bb line 6
 get _bb765 bb logger
+%bb.logger.fail //tests/all.bb line 6
 get _bb764 _bb765 fail
+%bb.logger.fail("Iteration"+"\n"+str(_bbm //tests/all.bb line 6
 call _bb757 _bb758 _bb764
 END
 BEGIN _bb766
+%bb.logger.ok("Iteration") //tests/all.bb line 6
 BEGIN _bb768
 BUILTIN _bb769 "Iteration"
 list args _bb769
 END
+%bb.logger //tests/all.bb line 6
 get _bb771 bb logger
+%bb.logger.ok //tests/all.bb line 6
 get _bb770 _bb771 ok
+%bb.logger.ok("Iteration") //tests/all.bb line 6
 call _bb767 _bb768 _bb770
 END
+%catch(_bbmacro12)bb.logger.fail("Iterati //tests/all.bb line 6
 catch # _bbmacro12 _bb756 _bb766
+%{final Num={int={return this.value;}lt(o //tests/all.bb line 7
 BEGIN _bb774
+%{int={return this.value;}lt(other)={retu //tests/overload.bb line 1
 BEGIN _bb775
+%{return this.value;} //tests/overload.bb line 2
 BEGIN _bb776
+%this.value //tests/overload.bb line 2
 get _bb777 this value
+%return this.value //tests/overload.bb line 2
 return # _bb777
 END
 IS int _bb776
+%{return this.value<other.value;} //tests/overload.bb line 3
 BEGIN _bb778
 next other args
+%other.value //tests/overload.bb line 3
 get _bb780 other value
+%this.value //tests/overload.bb line 3
 get _bb781 this value
 lt _bb779 _bb781 _bb780
+%return this.value<other.value //tests/overload.bb line 3
 return # _bb779
 END
 IS lt _bb778
+%{return "num "+str(this.value)+"";} //tests/overload.bb line 4
 BEGIN _bb782
+%"num "+str(this.value)+"" //tests/overload.bb line 4
 BUILTIN _bb784 ""
+%this.value //tests/overload.bb line 4
 get _bb786 this value
+%str(this.value) //tests/overload.bb line 4
 str _bb787 _bb786
 BUILTIN _bb788 "num "
 add _bb785 _bb788 _bb787
 add _bb783 _bb785 _bb784
+%return "num "+str(this.value)+"" //tests/overload.bb line 4
 return # _bb783
 END
 IS str _bb782
 END
 IS Num _bb775
 final # Num
+%{return new{Num:value=x};} //tests/overload.bb line 6
 BEGIN _bb789
 next x args
+%{Num:value=x} //tests/overload.bb line 6
 BEGIN _bb792
+%Num: //tests/overload.bb line 6
 inline _bb793 Num
+%value=x //tests/overload.bb line 6
 IS value x
 return # this
 END
+%new{Num:value=x} //tests/overload.bb line 6
 new _bb790 _bb792
+%return new{Num:value=x} //tests/overload.bb line 6
 return # _bb790
 END
 IS num _bb789
+%5,2,3,4,1 //tests/overload.bb line 8
 BUILTIN _bb794 I5
 BUILTIN _bb795 I2
 BUILTIN _bb796 I3
 BUILTIN _bb797 I4
 BUILTIN _bb798 I1
+%5,2,3,4,1 //tests/overload.bb line 8
 list A _bb794 _bb795 _bb796 _bb797 _bb798
+%A|bb.collection.transform(num) //tests/overload.bb line 9
 BEGIN _bb801
 list args A
 END
+%bb.collection.transform(num) //tests/overload.bb line 9
 BEGIN _bb804
 list args num
 END
+%bb.collection //tests/overload.bb line 9
 get _bb806 bb collection
+%bb.collection.transform //tests/overload.bb line 9
 get _bb805 _bb806 transform
+%bb.collection.transform(num) //tests/overload.bb line 9
 call _bb803 _bb804 _bb805
+%A|bb.collection.transform(num) //tests/overload.bb line 9
 call _bb800 _bb801 _bb803
 IS A _bb800
+%A|len //tests/overload.bb line 12
 len n A
+%range(n) //tests/overload.bb line 13
 range _bb808 n
+%iter(range(n)) //tests/overload.bb line 13
 iter _bbmacro15 _bb808
+%while(ias next(_bbmacro15)){_bbmacro16=i //tests/overload.bb line 13
 BEGIN _bb810
+%next(_bbmacro15) //tests/overload.bb line 13
 next _bb811 _bbmacro15
 AS i _bb811
 exists _bb812 i
 END
 BEGIN _bb813
+%i+1 //tests/overload.bb line 14
 BUILTIN _bb816 I1
 add _bb815 i _bb816
+%range(i+1,n) //tests/overload.bb line 14
 range _bb814 _bb815 n
+%iter(range(i+1,n)) //tests/overload.bb line 14
 iter _bbmacro16 _bb814
+%while(jas next(_bbmacro16))if(A[j]<A[i]) //tests/overload.bb line 14
 BEGIN _bb818
+%next(_bbmacro16) //tests/overload.bb line 14
 next _bb819 _bbmacro16
 AS j _bb819
 exists _bb820 j
 END
 BEGIN _bb821
+%if(A[j]<A[i]){tmp=A[i];A[i]=A[j];A[j]=tm //tests/overload.bb line 14
 BEGIN _bb822
+%A[i] //tests/overload.bb line 15
 at _bb823 A i
 IS tmp _bb823
+%A[j] //tests/overload.bb line 16
 at _bb824 A j
 put # A i _bb824
+%A[j]=tmp //tests/overload.bb line 17
 put # A j tmp
 END
+%A[i] //tests/overload.bb line 14
 at _bb826 A i
+%A[j] //tests/overload.bb line 14
 at _bb827 A j
 lt _bb825 _bb827 _bb826
+%if(A[j]<A[i]){tmp=A[i];A[i]=A[j];A[j]=tm //tests/overload.bb line 14
 if # _bb825 _bb822
 END
+%while(jas next(_bbmacro16))if(A[j]<A[i]) //tests/overload.bb line 14
 while # _bb818 _bb821
 END
+%while(ias next(_bbmacro15)){_bbmacro16=i //tests/overload.bb line 13
 while # _bb810 _bb813
+%if((A[0]|int ==1)== false)fail("Assertio //tests/overload.bb line 20
 BEGIN _bb828
+%("Assertion failed") //tests/overload.bb line 20
 BUILTIN _bb829 "Assertion failed"
+%fail("Assertion failed") //tests/overload.bb line 20
 fail # _bb829
 END
+%(A[0]|int ==1)== false //tests/overload.bb line 20
 BUILTIN _bb831 Bfalse
+%A[0]|int ==1 //tests/overload.bb line 20
 BUILTIN _bb833 I1
+%A[0] //tests/overload.bb line 20
 BUILTIN _bb836 I0
+%A[0] //tests/overload.bb line 20
 at _bb835 A _bb836
+%A[0]|int //tests/overload.bb line 20
 int _bb834 _bb835
 eq _bb832 _bb834 _bb833
 eq _bb830 _bb832 _bb831
+%if((A[0]|int ==1)== false)fail("Assertio //tests/overload.bb line 20
 if # _bb830 _bb828
 return # #
 END
+%try{final Num={int={return this.value;}l //tests/all.bb line 7
 try _bbmacro14 _bb774
+%catch(_bbmacro14)bb.logger.fail("Overloa //tests/all.bb line 7
 BEGIN _bb837
+%bb.logger.fail("Overload"+"\n"+str(_bbma //tests/all.bb line 7
 BEGIN _bb839
+%str(_bbmacro14) //tests/all.bb line 7
 str _bb841 _bbmacro14
+%"Overload"+"\n" //tests/all.bb line 7
 BUILTIN _bb843 "\n"
 BUILTIN _bb844 "Overload"
 add _bb842 _bb844 _bb843
 add _bb840 _bb842 _bb841
 list args _bb840
 END
+%bb.logger //tests/all.bb line 7
 get _bb846 bb logger
+%bb.logger.fail //tests/all.bb line 7
 get _bb845 _bb846 fail
+%bb.logger.fail("Overload"+"\n"+str(_bbma //tests/all.bb line 7
 call _bb838 _bb839 _bb845
 END
 BEGIN _bb847
+%bb.logger.ok("Overload") //tests/all.bb line 7
 BEGIN _bb849
 BUILTIN _bb850 "Overload"
 list args _bb850
 END
+%bb.logger //tests/all.bb line 7
 get _bb852 bb logger
+%bb.logger.ok //tests/all.bb line 7
 get _bb851 _bb852 ok
+%bb.logger.ok("Overload") //tests/all.bb line 7
 call _bb848 _bb849 _bb851
 END
+%catch(_bbmacro14)bb.logger.fail("Overloa //tests/all.bb line 7
 catch # _bbmacro14 _bb837 _bb847
+%{Struct={.x=this.x;x=0;xthis={return thi //tests/all.bb line 8
 BEGIN _bb855
+%{.x=this.x;x=0;xthis={return this.x;}xcl //tests/closure.bb line 1
 BEGIN _bb856
+%this.x //tests/closure.bb line 4
 get _bb857 this x
 IS .x _bb857
+%x=0 //tests/closure.bb line 2
 BUILTIN x I0
+%{return this.x;} //tests/closure.bb line 3
 BEGIN _bb859
+%this.x //tests/closure.bb line 3
 get _bb860 this x
+%return this.x //tests/closure.bb line 3
 return # _bb860
 END
 IS xthis _bb859
+%{..x=this..x;return ..x;} //tests/closure.bb line 4
 BEGIN _bb861
+%this..x //tests/closure.bb line 4
 get _bb862 this .x
 IS ..x _bb862
+%return ..x //tests/closure.bb line 4
 return # ..x
 END
 IS xclosure _bb861
 END
 IS Struct _bb856
+%x=1 //tests/closure.bb line 6
 BUILTIN x I1
+%{Struct:} //tests/closure.bb line 7
 BEGIN _bb866
+%Struct: //tests/closure.bb line 7
 inline _bb867 Struct
 return # this
 END
+%new{Struct:} //tests/closure.bb line 7
 new struct _bb866
+%x=2 //tests/closure.bb line 8
 BUILTIN x I2
+%if((struct.xthis()==0)== false)fail("Ass //tests/closure.bb line 10
 BEGIN _bb869
+%("Assertion failed") //tests/closure.bb line 10
 BUILTIN _bb870 "Assertion failed"
+%fail("Assertion failed") //tests/closure.bb line 10
 fail # _bb870
 END
+%(struct.xthis()==0)== false //tests/closure.bb line 10
 BUILTIN _bb872 Bfalse
+%struct.xthis()==0 //tests/closure.bb line 10
 BUILTIN _bb874 I0
+%struct.xthis //tests/closure.bb line 10
 get _bb876 struct xthis
+%struct.xthis() //tests/closure.bb line 10
 call _bb875 # _bb876
 eq _bb873 _bb875 _bb874
 eq _bb871 _bb873 _bb872
+%if((struct.xthis()==0)== false)fail("Ass //tests/closure.bb line 10
 if # _bb871 _bb869
+%if((struct.xclosure()==1)== false)fail(" //tests/closure.bb line 11
 BEGIN _bb877
+%("Assertion failed") //tests/closure.bb line 11
 BUILTIN _bb878 "Assertion failed"
+%fail("Assertion failed") //tests/closure.bb line 11
 fail # _bb878
 END
+%(struct.xclosure()==1)== false //tests/closure.bb line 11
 BUILTIN _bb880 Bfalse
+%struct.xclosure()==1 //tests/closure.bb line 11
 BUILTIN _bb882 I1
+%struct.xclosure //tests/closure.bb line 11
 get _bb884 struct xclosure
+%struct.xclosure() //tests/closure.bb line 11
 call _bb883 # _bb884
 eq _bb881 _bb883 _bb882
 eq _bb879 _bb881 _bb880
+%if((struct.xclosure()==1)== false)fail(" //tests/closure.bb line 11
 if # _bb879 _bb877
 return # #
 END
+%try{Struct={.x=this.x;x=0;xthis={return  //tests/all.bb line 8
 try _bbmacro17 _bb855
+%catch(_bbmacro17)bb.logger.fail("Closure //tests/all.bb line 8
 BEGIN _bb885
+%bb.logger.fail("Closure"+"\n"+str(_bbmac //tests/all.bb line 8
 BEGIN _bb887
+%str(_bbmacro17) //tests/all.bb line 8
 str _bb889 _bbmacro17
+%"Closure"+"\n" //tests/all.bb line 8
 BUILTIN _bb891 "\n"
 BUILTIN _bb892 "Closure"
 add _bb890 _bb892 _bb891
 add _bb888 _bb890 _bb889
 list args _bb888
 END
+%bb.logger //tests/all.bb line 8
 get _bb894 bb logger
+%bb.logger.fail //tests/all.bb line 8
 get _bb893 _bb894 fail
+%bb.logger.fail("Closure"+"\n"+str(_bbmac //tests/all.bb line 8
 call _bb886 _bb887 _bb893
 END
 BEGIN _bb895
+%bb.logger.ok("Closure") //tests/all.bb line 8
 BEGIN _bb897
 BUILTIN _bb898 "Closure"
 list args _bb898
 END
+%bb.logger //tests/all.bb line 8
 get _bb900 bb logger
+%bb.logger.ok //tests/all.bb line 8
 get _bb899 _bb900 ok
+%bb.logger.ok("Closure") //tests/all.bb line 8
 call _bb896 _bb897 _bb899
 END
+%catch(_bbmacro17)bb.logger.fail("Closure //tests/all.bb line 8
 catch # _bbmacro17 _bb885 _bb895
+%{A=new{x=1;y=2;}if((A.x==1)== false)fail //tests/all.bb line 9
 BEGIN _bb903
+%{x=1;y=2;} //tests/clear.bb line 2
 BEGIN _bb906
+%x=1 //tests/clear.bb line 3
 BUILTIN x I1
+%y=2 //tests/clear.bb line 4
 return # this
 END
+%new{x=1;y=2;} //tests/clear.bb line 2
 new A _bb906
+%if((A.x==1)== false)fail("Assertion fail //tests/clear.bb line 7
 BEGIN _bb909
+%("Assertion failed") //tests/clear.bb line 7
 BUILTIN _bb910 "Assertion failed"
+%fail("Assertion failed") //tests/clear.bb line 7
 fail # _bb910
 END
+%(A.x==1)== false //tests/clear.bb line 7
 BUILTIN _bb912 Bfalse
+%A.x==1 //tests/clear.bb line 7
 BUILTIN _bb914 I1
+%A.x //tests/clear.bb line 7
 get _bb915 A x
 eq _bb913 _bb915 _bb914
 eq _bb911 _bb913 _bb912
+%if((A.x==1)== false)fail("Assertion fail //tests/clear.bb line 7
 if # _bb911 _bb909
+%clear(A) //tests/clear.bb line 8
 clear # A
+%print(A.x) //tests/clear.bb line 9
 BEGIN _bb919
+%A.x //tests/clear.bb line 9
 get _bb920 A x
+%print(A.x) //tests/clear.bb line 9
 print # _bb920
 END
+%try print(A.x) //tests/clear.bb line 9
 try err _bb919
+%if((try catch(err)return true else retur //tests/clear.bb line 10
 BEGIN _bb921
+%("Assertion failed") //tests/clear.bb line 10
 BUILTIN _bb922 "Assertion failed"
+%fail("Assertion failed") //tests/clear.bb line 10
 fail # _bb922
 END
+%(try catch(err)return true else return f //tests/clear.bb line 10
 BUILTIN _bb924 Bfalse
+%catch(err)return true else return false //tests/clear.bb line 10
 BEGIN _bb927
+%catch(err)return true else return false //tests/clear.bb line 10
 BEGIN _bb928
 BUILTIN _bb929 Btrue
+%return true //tests/clear.bb line 10
 return # _bb929
 END
 BEGIN _bb930
 BUILTIN _bb931 Bfalse
+%return false //tests/clear.bb line 10
 return # _bb931
 END
+%catch(err)return true else return false //tests/clear.bb line 10
 catch # err _bb928 _bb930
 END
+%try catch(err)return true else return fa //tests/clear.bb line 10
 try _bb925 _bb927
 eq _bb923 _bb925 _bb924
+%if((try catch(err)return true else retur //tests/clear.bb line 10
 if # _bb923 _bb921
+%{x=1;y=2;} //tests/clear.bb line 14
 BEGIN _bb934
+%x=1 //tests/clear.bb line 15
 BUILTIN x I1
+%y=2 //tests/clear.bb line 16
 return # this
 END
+%new{x=1;y=2;} //tests/clear.bb line 14
 new B _bb934
+%B|move //tests/clear.bb line 18
 move C B
+%print(B.x) //tests/clear.bb line 19
 BEGIN _bb940
+%B.x //tests/clear.bb line 19
 get _bb941 B x
+%print(B.x) //tests/clear.bb line 19
 print # _bb941
 END
+%try print(B.x) //tests/clear.bb line 19
 try err _bb940
+%if((try catch(err)return true else retur //tests/clear.bb line 20
 BEGIN _bb942
+%("Assertion failed") //tests/clear.bb line 20
 BUILTIN _bb943 "Assertion failed"
+%fail("Assertion failed") //tests/clear.bb line 20
 fail # _bb943
 END
+%(try catch(err)return true else return f //tests/clear.bb line 20
 BUILTIN _bb945 Bfalse
+%catch(err)return true else return false //tests/clear.bb line 20
 BEGIN _bb948
+%catch(err)return true else return false //tests/clear.bb line 20
 BEGIN _bb949
 BUILTIN _bb950 Btrue
+%return true //tests/clear.bb line 20
 return # _bb950
 END
 BEGIN _bb951
 BUILTIN _bb952 Bfalse
+%return false //tests/clear.bb line 20
 return # _bb952
 END
+%catch(err)return true else return false //tests/clear.bb line 20
 catch # err _bb949 _bb951
 END
+%try catch(err)return true else return fa //tests/clear.bb line 20
 try _bb946 _bb948
 eq _bb944 _bb946 _bb945
+%if((try catch(err)return true else retur //tests/clear.bb line 20
 if # _bb944 _bb942
+%if((C.x==1)== false)fail("Assertion fail //tests/clear.bb line 21
 BEGIN _bb953
+%("Assertion failed") //tests/clear.bb line 21
 BUILTIN _bb954 "Assertion failed"
+%fail("Assertion failed") //tests/clear.bb line 21
 fail # _bb954
 END
+%(C.x==1)== false //tests/clear.bb line 21
 BUILTIN _bb956 Bfalse
+%C.x==1 //tests/clear.bb line 21
 BUILTIN _bb958 I1
+%C.x //tests/clear.bb line 21
 get _bb959 C x
 eq _bb957 _bb959 _bb958
 eq _bb955 _bb957 _bb956
+%if((C.x==1)== false)fail("Assertion fail //tests/clear.bb line 21
 if # _bb955 _bb953
 return # #
 END
+%try{A=new{x=1;y=2;}if((A.x==1)== false)f //tests/all.bb line 9
 try _bbmacro18 _bb903
+%catch(_bbmacro18)bb.logger.fail("Clear"+ //tests/all.bb line 9
 BEGIN _bb960
+%bb.logger.fail("Clear"+"\n"+str(_bbmacro //tests/all.bb line 9
 BEGIN _bb962
+%str(_bbmacro18) //tests/all.bb line 9
 str _bb964 _bbmacro18
+%"Clear"+"\n" //tests/all.bb line 9
 BUILTIN _bb966 "\n"
 BUILTIN _bb967 "Clear"
 add _bb965 _bb967 _bb966
 add _bb963 _bb965 _bb964
 list args _bb963
 END
+%bb.logger //tests/all.bb line 9
 get _bb969 bb logger
+%bb.logger.fail //tests/all.bb line 9
 get _bb968 _bb969 fail
+%bb.logger.fail("Clear"+"\n"+str(_bbmacro //tests/all.bb line 9
 call _bb961 _bb962 _bb968
 END
 BEGIN _bb970
+%bb.logger.ok("Clear") //tests/all.bb line 9
 BEGIN _bb972
 BUILTIN _bb973 "Clear"
 list args _bb973
 END
+%bb.logger //tests/all.bb line 9
 get _bb975 bb logger
+%bb.logger.ok //tests/all.bb line 9
 get _bb974 _bb975 ok
+%bb.logger.ok("Clear") //tests/all.bb line 9
 call _bb971 _bb972 _bb974
 END
+%catch(_bbmacro18)bb.logger.fail("Clear"+ //tests/all.bb line 9
 catch # _bbmacro18 _bb960 _bb970
+%{waslength(moveA)={returnA|len;}A=1,2,3; //tests/all.bb line 10
 BEGIN _bb978
+%{returnA|len;} //tests/move.bb line 1
 BEGIN _bb979
 next A args
 move A A
+%A|len //tests/move.bb line 1
 len _bb980 A
+%returnA|len //tests/move.bb line 1
 return # _bb980
 END
 IS waslength _bb979
+%1,2,3 //tests/move.bb line 3
 BUILTIN _bb981 I1
 BUILTIN _bb982 I2
 BUILTIN _bb983 I3
+%1,2,3 //tests/move.bb line 3
 list A _bb981 _bb982 _bb983
+%if((A|len ==3)== false)fail("Assertion f //tests/move.bb line 4
 BEGIN _bb985
+%("Assertion failed") //tests/move.bb line 4
 BUILTIN _bb986 "Assertion failed"
+%fail("Assertion failed") //tests/move.bb line 4
 fail # _bb986
 END
+%(A|len ==3)== false //tests/move.bb line 4
 BUILTIN _bb988 Bfalse
+%A|len ==3 //tests/move.bb line 4
 BUILTIN _bb990 I3
+%A|len //tests/move.bb line 4
 len _bb991 A
 eq _bb989 _bb991 _bb990
 eq _bb987 _bb989 _bb988
+%if((A|len ==3)== false)fail("Assertion f //tests/move.bb line 4
 if # _bb987 _bb985
+%if((waslength(A)==3)== false)fail("Asser //tests/move.bb line 5
 BEGIN _bb992
+%("Assertion failed") //tests/move.bb line 5
 BUILTIN _bb993 "Assertion failed"
+%fail("Assertion failed") //tests/move.bb line 5
 fail # _bb993
 END
+%(waslength(A)==3)== false //tests/move.bb line 5
 BUILTIN _bb995 Bfalse
+%waslength(A)==3 //tests/move.bb line 5
 BUILTIN _bb997 I3
+%waslength(A) //tests/move.bb line 5
 BEGIN _bb999
 list args A
 END
+%waslength(A) //tests/move.bb line 5
 call _bb998 _bb999 waslength
 eq _bb996 _bb998 _bb997
 eq _bb994 _bb996 _bb995
+%if((waslength(A)==3)== false)fail("Asser //tests/move.bb line 5
 if # _bb994 _bb992
+%if((A|len ==0)== false)fail("Assertion f //tests/move.bb line 6
 BEGIN _bb1000
+%("Assertion failed") //tests/move.bb line 6
 BUILTIN _bb1001 "Assertion failed"
+%fail("Assertion failed") //tests/move.bb line 6
 fail # _bb1001
 END
+%(A|len ==0)== false //tests/move.bb line 6
 BUILTIN _bb1003 Bfalse
+%A|len ==0 //tests/move.bb line 6
 BUILTIN _bb1005 I0
+%A|len //tests/move.bb line 6
 len _bb1006 A
 eq _bb1004 _bb1006 _bb1005
 eq _bb1002 _bb1004 _bb1003
+%if((A|len ==0)== false)fail("Assertion f //tests/move.bb line 6
 if # _bb1002 _bb1000
 return # #
 END
+%try{waslength(moveA)={returnA|len;}A=1,2 //tests/all.bb line 10
 try _bbmacro19 _bb978
+%catch(_bbmacro19)bb.logger.fail("Move "+ //tests/all.bb line 10
 BEGIN _bb1007
+%bb.logger.fail("Move "+"\n"+str(_bbmacro //tests/all.bb line 10
 BEGIN _bb1009
+%str(_bbmacro19) //tests/all.bb line 10
 str _bb1011 _bbmacro19
+%"Move "+"\n" //tests/all.bb line 10
 BUILTIN _bb1013 "\n"
 BUILTIN _bb1014 "Move "
 add _bb1012 _bb1014 _bb1013
 add _bb1010 _bb1012 _bb1011
 list args _bb1010
 END
+%bb.logger //tests/all.bb line 10
 get _bb1016 bb logger
+%bb.logger.fail //tests/all.bb line 10
 get _bb1015 _bb1016 fail
+%bb.logger.fail("Move "+"\n"+str(_bbmacro //tests/all.bb line 10
 call _bb1008 _bb1009 _bb1015
 END
 BEGIN _bb1017
+%bb.logger.ok("Move ") //tests/all.bb line 10
 BEGIN _bb1019
 BUILTIN _bb1020 "Move "
 list args _bb1020
 END
+%bb.logger //tests/all.bb line 10
 get _bb1022 bb logger
+%bb.logger.ok //tests/all.bb line 10
 get _bb1021 _bb1022 ok
+%bb.logger.ok("Move ") //tests/all.bb line 10
 call _bb1018 _bb1019 _bb1021
 END
+%catch(_bbmacro19)bb.logger.fail("Move "+ //tests/all.bb line 10
 catch # _bbmacro19 _bb1007 _bb1017
+%{A=1,2,3;A=A|bb.collection.toback(4);if( //tests/all.bb line 11
 BEGIN _bb1025
+%1,2,3 //tests/collection.bb line 1
 BUILTIN _bb1026 I1
 BUILTIN _bb1027 I2
 BUILTIN _bb1028 I3
+%1,2,3 //tests/collection.bb line 1
 list A _bb1026 _bb1027 _bb1028
+%A|bb.collection.toback(4) //tests/collection.bb line 2
 BEGIN _bb1031
 list args A
 END
+%bb.collection.toback(4) //tests/collection.bb line 2
 BEGIN _bb1034
 BUILTIN _bb1035 I4
 list args _bb1035
 END
+%bb.collection //tests/collection.bb line 2
 get _bb1037 bb collection
+%bb.collection.toback //tests/collection.bb line 2
 get _bb1036 _bb1037 toback
+%bb.collection.toback(4) //tests/collection.bb line 2
 call _bb1033 _bb1034 _bb1036
+%A|bb.collection.toback(4) //tests/collection.bb line 2
 call _bb1030 _bb1031 _bb1033
 IS A _bb1030
+%if((A|pop ==4)== false)fail("Assertion f //tests/collection.bb line 3
 BEGIN _bb1038
+%("Assertion failed") //tests/collection.bb line 3
 BUILTIN _bb1039 "Assertion failed"
+%fail("Assertion failed") //tests/collection.bb line 3
 fail # _bb1039
 END
+%(A|pop ==4)== false //tests/collection.bb line 3
 BUILTIN _bb1041 Bfalse
+%A|pop ==4 //tests/collection.bb line 3
 BUILTIN _bb1043 I4
+%A|pop //tests/collection.bb line 3
 pop _bb1044 A
 eq _bb1042 _bb1044 _bb1043
 eq _bb1040 _bb1042 _bb1041
+%if((A|pop ==4)== false)fail("Assertion f //tests/collection.bb line 3
 if # _bb1040 _bb1038
 return # #
 END
+%try{A=1,2,3;A=A|bb.collection.toback(4); //tests/all.bb line 11
 try _bbmacro20 _bb1025
+%catch(_bbmacro20)bb.logger.fail("Collect //tests/all.bb line 11
 BEGIN _bb1045
+%bb.logger.fail("Collection"+"\n"+str(_bb //tests/all.bb line 11
 BEGIN _bb1047
+%str(_bbmacro20) //tests/all.bb line 11
 str _bb1049 _bbmacro20
+%"Collection"+"\n" //tests/all.bb line 11
 BUILTIN _bb1051 "\n"
 BUILTIN _bb1052 "Collection"
 add _bb1050 _bb1052 _bb1051
 add _bb1048 _bb1050 _bb1049
 list args _bb1048
 END
+%bb.logger //tests/all.bb line 11
 get _bb1054 bb logger
+%bb.logger.fail //tests/all.bb line 11
 get _bb1053 _bb1054 fail
+%bb.logger.fail("Collection"+"\n"+str(_bb //tests/all.bb line 11
 call _bb1046 _bb1047 _bb1053
 END
 BEGIN _bb1055
+%bb.logger.ok("Collection") //tests/all.bb line 11
 BEGIN _bb1057
 BUILTIN _bb1058 "Collection"
 list args _bb1058
 END
+%bb.logger //tests/all.bb line 11
 get _bb1060 bb logger
+%bb.logger.ok //tests/all.bb line 11
 get _bb1059 _bb1060 ok
+%bb.logger.ok("Collection") //tests/all.bb line 11
 call _bb1056 _bb1057 _bb1059
 END
+%catch(_bbmacro20)bb.logger.fail("Collect //tests/all.bb line 11
 catch # _bbmacro20 _bb1045 _bb1055
+%{A="I like banana!";if((A|bb.string.star //tests/all.bb line 12
 BEGIN _bb1063
+%A="I like banana!" //tests/string.bb line 1
 BUILTIN A "I like banana!"
+%if((A|bb.string.starts("I like"))== fals //tests/string.bb line 2
 BEGIN _bb1065
+%("Assertion failed") //tests/string.bb line 2
 BUILTIN _bb1066 "Assertion failed"
+%fail("Assertion failed") //tests/string.bb line 2
 fail # _bb1066
 END
+%(A|bb.string.starts("I like"))== false //tests/string.bb line 2
 BUILTIN _bb1068 Bfalse
+%A|bb.string.starts("I like") //tests/string.bb line 2
 BEGIN _bb1070
 list args A
 END
+%bb.string.starts("I like") //tests/string.bb line 2
 BEGIN _bb1073
 BUILTIN _bb1074 "I like"
 list args _bb1074
 END
+%bb.string //tests/string.bb line 2
 get _bb1076 bb string
+%bb.string.starts //tests/string.bb line 2
 get _bb1075 _bb1076 starts
+%bb.string.starts("I like") //tests/string.bb line 2
 call _bb1072 _bb1073 _bb1075
+%A|bb.string.starts("I like") //tests/string.bb line 2
 call _bb1069 _bb1070 _bb1072
 eq _bb1067 _bb1069 _bb1068
+%if((A|bb.string.starts("I like"))== fals //tests/string.bb line 2
 if # _bb1067 _bb1065
+%if((A|bb.string.ends("banana!"))== false //tests/string.bb line 3
 BEGIN _bb1077
+%("Assertion failed") //tests/string.bb line 3
 BUILTIN _bb1078 "Assertion failed"
+%fail("Assertion failed") //tests/string.bb line 3
 fail # _bb1078
 END
+%(A|bb.string.ends("banana!"))== false //tests/string.bb line 3
 BUILTIN _bb1080 Bfalse
+%A|bb.string.ends("banana!") //tests/string.bb line 3
 BEGIN _bb1082
 list args A
 END
+%bb.string.ends("banana!") //tests/string.bb line 3
 BEGIN _bb1085
 BUILTIN _bb1086 "banana!"
 list args _bb1086
 END
+%bb.string //tests/string.bb line 3
 get _bb1088 bb string
+%bb.string.ends //tests/string.bb line 3
 get _bb1087 _bb1088 ends
+%bb.string.ends("banana!") //tests/string.bb line 3
 call _bb1084 _bb1085 _bb1087
+%A|bb.string.ends("banana!") //tests/string.bb line 3
 call _bb1081 _bb1082 _bb1084
 eq _bb1079 _bb1081 _bb1080
+%if((A|bb.string.ends("banana!"))== false //tests/string.bb line 3
 if # _bb1079 _bb1077
+%if((A|bb.string.split(" ")|len ==3)== fa //tests/string.bb line 4
 BEGIN _bb1089
+%("Assertion failed") //tests/string.bb line 4
 BUILTIN _bb1090 "Assertion failed"
+%fail("Assertion failed") //tests/string.bb line 4
 fail # _bb1090
 END
+%(A|bb.string.split(" ")|len ==3)== false //tests/string.bb line 4
 BUILTIN _bb1092 Bfalse
+%A|bb.string.split(" ")|len ==3 //tests/string.bb line 4
 BUILTIN _bb1094 I3
+%A|bb.string.split(" ") //tests/string.bb line 4
 BEGIN _bb1097
 list args A
 END
+%bb.string.split(" ") //tests/string.bb line 4
 BEGIN _bb1100
 BUILTIN _bb1101 " "
 list args _bb1101
 END
+%bb.string //tests/string.bb line 4
 get _bb1103 bb string
+%bb.string.split //tests/string.bb line 4
 get _bb1102 _bb1103 split
+%bb.string.split(" ") //tests/string.bb line 4
 call _bb1099 _bb1100 _bb1102
+%A|bb.string.split(" ") //tests/string.bb line 4
 call _bb1096 _bb1097 _bb1099
+%A|bb.string.split(" ")|len //tests/string.bb line 4
 len _bb1095 _bb1096
 eq _bb1093 _bb1095 _bb1094
 eq _bb1091 _bb1093 _bb1092
+%if((A|bb.string.split(" ")|len ==3)== fa //tests/string.bb line 4
 if # _bb1091 _bb1089
+%if((A|bb.string.index("like")==2)== fals //tests/string.bb line 5
 BEGIN _bb1104
+%("Assertion failed") //tests/string.bb line 5
 BUILTIN _bb1105 "Assertion failed"
+%fail("Assertion failed") //tests/string.bb line 5
 fail # _bb1105
 END
+%(A|bb.string.index("like")==2)== false //tests/string.bb line 5
 BUILTIN _bb1107 Bfalse
+%A|bb.string.index("like")==2 //tests/string.bb line 5
 BUILTIN _bb1109 I2
+%A|bb.string.index("like") //tests/string.bb line 5
 BEGIN _bb1111
 list args A
 END
+%bb.string.index("like") //tests/string.bb line 5
 BEGIN _bb1114
 BUILTIN _bb1115 "like"
 list args _bb1115
 END
+%bb.string //tests/string.bb line 5
 get _bb1117 bb string
+%bb.string.index //tests/string.bb line 5
 get _bb1116 _bb1117 index
+%bb.string.index("like") //tests/string.bb line 5
 call _bb1113 _bb1114 _bb1116
+%A|bb.string.index("like") //tests/string.bb line 5
 call _bb1110 _bb1111 _bb1113
 eq _bb1108 _bb1110 _bb1109
 eq _bb1106 _bb1108 _bb1107
+%if((A|bb.string.index("like")==2)== fals //tests/string.bb line 5
 if # _bb1106 _bb1104
+%if((A|bb.string.index("an" :: pos=9)== 1 //tests/string.bb line 6
 BEGIN _bb1118
+%("Assertion failed") //tests/string.bb line 6
 BUILTIN _bb1119 "Assertion failed"
+%fail("Assertion failed") //tests/string.bb line 6
 fail # _bb1119
 END
+%(A|bb.string.index("an" :: pos=9)== 10)= //tests/string.bb line 6
 BUILTIN _bb1121 Bfalse
+%A|bb.string.index("an" :: pos=9)== 10 //tests/string.bb line 6
 BUILTIN _bb1123 I10
+%A|bb.string.index("an" :: pos=9) //tests/string.bb line 6
 BEGIN _bb1125
 list args A
 END
+%bb.string.index("an" :: pos=9) //tests/string.bb line 6
 BEGIN _bb1128
 BUILTIN _bb1129 "an"
 list args _bb1129
+%pos=9 //tests/string.bb line 6
 BUILTIN pos I9
 END
+%bb.string //tests/string.bb line 6
 get _bb1132 bb string
+%bb.string.index //tests/string.bb line 6
 get _bb1131 _bb1132 index
+%bb.string.index("an" :: pos=9) //tests/string.bb line 6
 call _bb1127 _bb1128 _bb1131
+%A|bb.string.index("an" :: pos=9) //tests/string.bb line 6
 call _bb1124 _bb1125 _bb1127
 eq _bb1122 _bb1124 _bb1123
 eq _bb1120 _bb1122 _bb1121
+%if((A|bb.string.index("an" :: pos=9)== 1 //tests/string.bb line 6
 if # _bb1120 _bb1118
 return # #
 END
+%try{A="I like banana!";if((A|bb.string.s //tests/all.bb line 12
 try _bbmacro21 _bb1063
+%catch(_bbmacro21)bb.logger.fail("String" //tests/all.bb line 12
 BEGIN _bb1133
+%bb.logger.fail("String"+"\n"+str(_bbmacr //tests/all.bb line 12
 BEGIN _bb1135
+%str(_bbmacro21) //tests/all.bb line 12
 str _bb1137 _bbmacro21
+%"String"+"\n" //tests/all.bb line 12
 BUILTIN _bb1139 "\n"
 BUILTIN _bb1140 "String"
 add _bb1138 _bb1140 _bb1139
 add _bb1136 _bb1138 _bb1137
 list args _bb1136
 END
+%bb.logger //tests/all.bb line 12
 get _bb1142 bb logger
+%bb.logger.fail //tests/all.bb line 12
 get _bb1141 _bb1142 fail
+%bb.logger.fail("String"+"\n"+str(_bbmacr //tests/all.bb line 12
 call _bb1134 _bb1135 _bb1141
 END
 BEGIN _bb1143
+%bb.logger.ok("String") //tests/all.bb line 12
 BEGIN _bb1145
 BUILTIN _bb1146 "String"
 list args _bb1146
 END
+%bb.logger //tests/all.bb line 12
 get _bb1148 bb logger
+%bb.logger.ok //tests/all.bb line 12
 get _bb1147 _bb1148 ok
+%bb.logger.ok("String") //tests/all.bb line 12
 call _bb1144 _bb1145 _bb1147
 END
+%catch(_bbmacro21)bb.logger.fail("String" //tests/all.bb line 12
 catch # _bbmacro21 _bb1133 _bb1143
+%{final accum=new{value=0;add(x)={this.va //tests/all.bb line 13
 BEGIN _bb1151
+%{value=0;add(x)={this.value+=x}} //tests/atomicity.bb line 1
 BEGIN _bb1154
+%value=0 //tests/atomicity.bb line 2
 BUILTIN value I0
+%{this.value+=x} //tests/atomicity.bb line 3
 BEGIN _bb1156
 next x args
+%this.value+=x //tests/atomicity.bb line 3
 get _bb1157 this value
 add _bb1157 _bb1157 x
 set # this value _bb1157
@@ -1303,274 +2048,424 @@ END
 IS add _bb1156
 return # this
 END
+%new{value=0;add(x)={this.value+=x}} //tests/atomicity.bb line 1
 new accum _bb1154
 final # accum
+%range(10) //tests/atomicity.bb line 6
 BUILTIN _bb1159 I10
+%range(10) //tests/atomicity.bb line 6
 range _bb1158 _bb1159
+%iter(range(10)) //tests/atomicity.bb line 6
 iter _bbmacro23 _bb1158
+%while(ias next(_bbmacro23))accum.add(i) //tests/atomicity.bb line 6
 BEGIN _bb1163
+%while(ias next(_bbmacro23))accum.add(i) //tests/atomicity.bb line 6
 BEGIN _bb1164
+%next(_bbmacro23) //tests/atomicity.bb line 6
 next _bb1165 _bbmacro23
 AS i _bb1165
 exists _bb1166 i
 END
 BEGIN _bb1167
+%accum.add(i) //tests/atomicity.bb line 6
 BEGIN _bb1169
 list args i
 END
+%accum.add //tests/atomicity.bb line 6
 get _bb1170 accum add
+%accum.add(i) //tests/atomicity.bb line 6
 call _bb1168 _bb1169 _bb1170
 END
+%while(ias next(_bbmacro23))accum.add(i) //tests/atomicity.bb line 6
 while # _bb1164 _bb1167
 END
+%try while(ias next(_bbmacro23))accum.add //tests/atomicity.bb line 6
 try _bb1161 _bb1163
+%if((accum.value == 45)== false)fail("Ass //tests/atomicity.bb line 7
 BEGIN _bb1171
+%("Assertion failed") //tests/atomicity.bb line 7
 BUILTIN _bb1172 "Assertion failed"
+%fail("Assertion failed") //tests/atomicity.bb line 7
 fail # _bb1172
 END
+%(accum.value == 45)== false //tests/atomicity.bb line 7
 BUILTIN _bb1174 Bfalse
+%accum.value == 45 //tests/atomicity.bb line 7
 BUILTIN _bb1176 I45
+%accum.value //tests/atomicity.bb line 7
 get _bb1177 accum value
 eq _bb1175 _bb1177 _bb1176
 eq _bb1173 _bb1175 _bb1174
+%if((accum.value == 45)== false)fail("Ass //tests/atomicity.bb line 7
 if # _bb1173 _bb1171
 return # #
 END
+%try{final accum=new{value=0;add(x)={this //tests/all.bb line 13
 try _bbmacro22 _bb1151
+%catch(_bbmacro22)bb.logger.fail("Atomici //tests/all.bb line 13
 BEGIN _bb1178
+%bb.logger.fail("Atomicity"+"\n"+str(_bbm //tests/all.bb line 13
 BEGIN _bb1180
+%str(_bbmacro22) //tests/all.bb line 13
 str _bb1182 _bbmacro22
+%"Atomicity"+"\n" //tests/all.bb line 13
 BUILTIN _bb1184 "\n"
 BUILTIN _bb1185 "Atomicity"
 add _bb1183 _bb1185 _bb1184
 add _bb1181 _bb1183 _bb1182
 list args _bb1181
 END
+%bb.logger //tests/all.bb line 13
 get _bb1187 bb logger
+%bb.logger.fail //tests/all.bb line 13
 get _bb1186 _bb1187 fail
+%bb.logger.fail("Atomicity"+"\n"+str(_bbm //tests/all.bb line 13
 call _bb1179 _bb1180 _bb1186
 END
 BEGIN _bb1188
+%bb.logger.ok("Atomicity") //tests/all.bb line 13
 BEGIN _bb1190
 BUILTIN _bb1191 "Atomicity"
 list args _bb1191
 END
+%bb.logger //tests/all.bb line 13
 get _bb1193 bb logger
+%bb.logger.ok //tests/all.bb line 13
 get _bb1192 _bb1193 ok
+%bb.logger.ok("Atomicity") //tests/all.bb line 13
 call _bb1189 _bb1190 _bb1192
 END
+%catch(_bbmacro22)bb.logger.fail("Atomici //tests/all.bb line 13
 catch # _bbmacro22 _bb1178 _bb1188
+%{finalA=new{foo1()={return extern2(B);}f //tests/all.bb line 14
 BEGIN _bb1196
+%{foo1()={return extern2(B);}foo2()={retu //tests/nodeadlock.bb line 3
 BEGIN _bb1199
+%{return extern2(B);} //tests/nodeadlock.bb line 4
 BEGIN _bb1200
+%extern2(B) //tests/nodeadlock.bb line 4
 BEGIN _bb1202
 list args B
 END
+%extern2(B) //tests/nodeadlock.bb line 4
 call _bb1201 _bb1202 extern2
+%return extern2(B) //tests/nodeadlock.bb line 4
 return # _bb1201
 END
 IS foo1 _bb1200
+%{return extern3(this);} //tests/nodeadlock.bb line 5
 BEGIN _bb1203
+%extern3(this) //tests/nodeadlock.bb line 5
 BEGIN _bb1205
 list args this
 END
+%extern3(this) //tests/nodeadlock.bb line 5
 call _bb1204 _bb1205 extern3
+%return extern3(this) //tests/nodeadlock.bb line 5
 return # _bb1204
 END
 IS foo2 _bb1203
+%{returnB.foo1();} //tests/nodeadlock.bb line 6
 BEGIN _bb1206
+%B.foo1 //tests/nodeadlock.bb line 6
 get _bb1208 B foo1
+%B.foo1() //tests/nodeadlock.bb line 6
 call _bb1207 # _bb1208
+%returnB.foo1() //tests/nodeadlock.bb line 6
 return # _bb1207
 END
 IS foo3 _bb1206
 return # this
 END
+%new{foo1()={return extern2(B);}foo2()={r //tests/nodeadlock.bb line 3
 new A _bb1199
 final # A
+%{foo1()={return extern2(A);}foo2()={retu //tests/nodeadlock.bb line 9
 BEGIN _bb1211
+%{return extern2(A);} //tests/nodeadlock.bb line 10
 BEGIN _bb1212
+%extern2(A) //tests/nodeadlock.bb line 10
 BEGIN _bb1214
 list args A
 END
+%extern2(A) //tests/nodeadlock.bb line 10
 call _bb1213 _bb1214 extern2
+%return extern2(A) //tests/nodeadlock.bb line 10
 return # _bb1213
 END
 IS foo1 _bb1212
+%{return extern3(this);} //tests/nodeadlock.bb line 11
 BEGIN _bb1215
+%extern3(this) //tests/nodeadlock.bb line 11
 BEGIN _bb1217
 list args this
 END
+%extern3(this) //tests/nodeadlock.bb line 11
 call _bb1216 _bb1217 extern3
+%return extern3(this) //tests/nodeadlock.bb line 11
 return # _bb1216
 END
 IS foo2 _bb1215
+%{return1;} //tests/nodeadlock.bb line 12
 BEGIN _bb1218
 BUILTIN _bb1219 I1
+%return1 //tests/nodeadlock.bb line 12
 return # _bb1219
 END
 IS foo3 _bb1218
 return # this
 END
+%new{foo1()={return extern2(A);}foo2()={r //tests/nodeadlock.bb line 9
 new B _bb1211
 final # B
+%{return obj.foo1();} //tests/nodeadlock.bb line 15
 BEGIN _bb1220
 next obj args
+%obj.foo1 //tests/nodeadlock.bb line 15
 get _bb1222 obj foo1
+%obj.foo1() //tests/nodeadlock.bb line 15
 call _bb1221 # _bb1222
+%return obj.foo1() //tests/nodeadlock.bb line 15
 return # _bb1221
 END
 IS extern1 _bb1220
 final # extern1
+%{return obj.foo2();} //tests/nodeadlock.bb line 16
 BEGIN _bb1223
 next obj args
+%obj.foo2 //tests/nodeadlock.bb line 16
 get _bb1225 obj foo2
+%obj.foo2() //tests/nodeadlock.bb line 16
 call _bb1224 # _bb1225
+%return obj.foo2() //tests/nodeadlock.bb line 16
 return # _bb1224
 END
 IS extern2 _bb1223
 final # extern2
+%{return obj.foo3();} //tests/nodeadlock.bb line 17
 BEGIN _bb1226
 next obj args
+%obj.foo3 //tests/nodeadlock.bb line 17
 get _bb1228 obj foo3
+%obj.foo3() //tests/nodeadlock.bb line 17
 call _bb1227 # _bb1228
+%return obj.foo3() //tests/nodeadlock.bb line 17
 return # _bb1227
 END
 IS extern3 _bb1226
 final # extern3
+%if((extern1(A)==1)== false)fail("Asserti //tests/nodeadlock.bb line 19
 BEGIN _bb1229
+%("Assertion failed") //tests/nodeadlock.bb line 19
 BUILTIN _bb1230 "Assertion failed"
+%fail("Assertion failed") //tests/nodeadlock.bb line 19
 fail # _bb1230
 END
+%(extern1(A)==1)== false //tests/nodeadlock.bb line 19
 BUILTIN _bb1232 Bfalse
+%extern1(A)==1 //tests/nodeadlock.bb line 19
 BUILTIN _bb1234 I1
+%extern1(A) //tests/nodeadlock.bb line 19
 BEGIN _bb1236
 list args A
 END
+%extern1(A) //tests/nodeadlock.bb line 19
 call _bb1235 _bb1236 extern1
 eq _bb1233 _bb1235 _bb1234
 eq _bb1231 _bb1233 _bb1232
+%if((extern1(A)==1)== false)fail("Asserti //tests/nodeadlock.bb line 19
 if # _bb1231 _bb1229
 return # #
 END
+%try{finalA=new{foo1()={return extern2(B) //tests/all.bb line 14
 try _bbmacro24 _bb1196
+%catch(_bbmacro24)bb.logger.fail("No dead //tests/all.bb line 14
 BEGIN _bb1237
+%bb.logger.fail("No deadlock"+"\n"+str(_b //tests/all.bb line 14
 BEGIN _bb1239
+%str(_bbmacro24) //tests/all.bb line 14
 str _bb1241 _bbmacro24
+%"No deadlock"+"\n" //tests/all.bb line 14
 BUILTIN _bb1243 "\n"
 BUILTIN _bb1244 "No deadlock"
 add _bb1242 _bb1244 _bb1243
 add _bb1240 _bb1242 _bb1241
 list args _bb1240
 END
+%bb.logger //tests/all.bb line 14
 get _bb1246 bb logger
+%bb.logger.fail //tests/all.bb line 14
 get _bb1245 _bb1246 fail
+%bb.logger.fail("No deadlock"+"\n"+str(_b //tests/all.bb line 14
 call _bb1238 _bb1239 _bb1245
 END
 BEGIN _bb1247
+%bb.logger.ok("No deadlock") //tests/all.bb line 14
 BEGIN _bb1249
 BUILTIN _bb1250 "No deadlock"
 list args _bb1250
 END
+%bb.logger //tests/all.bb line 14
 get _bb1252 bb logger
+%bb.logger.ok //tests/all.bb line 14
 get _bb1251 _bb1252 ok
+%bb.logger.ok("No deadlock") //tests/all.bb line 14
 call _bb1248 _bb1249 _bb1251
 END
+%catch(_bbmacro24)bb.logger.fail("No dead //tests/all.bb line 14
 catch # _bbmacro24 _bb1237 _bb1247
+%{db=sqlite("file://blombly@dir/.cache/da //tests/all.bb line 15
 BEGIN _bb1255
-BUILTIN _bb1256 ".cache/database.db"
+%("file://blombly@dir/.cache/database.db" //tests/database.bb line 3
+BUILTIN _bb1256 "file://blombly@dir/.cache/database.db"
+%sqlite("file://blombly@dir/.cache/databa //tests/database.bb line 3
 sqlite db _bb1256
+%db["CREATE TABLE IF NOT EXISTS users (id //tests/database.bb line 5
 BUILTIN _bb1259 "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER);"
+%db["CREATE TABLE IF NOT EXISTS users (id //tests/database.bb line 5
 at _bb1258 db _bb1259
+%n=100000 //tests/database.bb line 7
 BUILTIN n I100000
+%time() //tests/database.bb line 8
 time start
+%db["BEGIN TRANSACTION;"] //tests/database.bb line 9
 BUILTIN _bb1263 "BEGIN TRANSACTION;"
+%db["BEGIN TRANSACTION;"] //tests/database.bb line 9
 at _bb1262 db _bb1263
+%range(n) //tests/database.bb line 10
 range _bb1264 n
+%iter(range(n)) //tests/database.bb line 10
 iter _bbmacro26 _bb1264
+%while(ias next(_bbmacro26)){db["INSERT I //tests/database.bb line 10
 BEGIN _bb1266
+%next(_bbmacro26) //tests/database.bb line 10
 next _bb1267 _bbmacro26
 AS i _bb1267
 exists _bb1268 i
 END
 BEGIN _bb1269
+%"INSERT INTO users (name, age) VALUES (' //tests/database.bb line 11
 BUILTIN _bb1272 ");"
+%i%10 //tests/database.bb line 11
 BUILTIN _bb1276 I10
 mod _bb1275 i _bb1276
 BUILTIN _bb1277 I20
 add _bb1274 _bb1277 _bb1275
+%str(20+(i%10)) //tests/database.bb line 11
 str _bb1278 _bb1274
+%"INSERT INTO users (name, age) VALUES (' //tests/database.bb line 11
 BUILTIN _bb1280 "', "
+%str(i) //tests/database.bb line 11
 str _bb1282 i
 BUILTIN _bb1283 "INSERT INTO users (name, age) VALUES ('User"
 add _bb1281 _bb1283 _bb1282
 add _bb1279 _bb1281 _bb1280
 add _bb1273 _bb1279 _bb1278
 add _bb1271 _bb1273 _bb1272
+%db["INSERT INTO users (name, age) VALUES //tests/database.bb line 11
 at _bb1270 db _bb1271
+%"SELECT * FROM users WHERE id = "+str(i) //tests/database.bb line 12
 BUILTIN _bb1286 ";"
+%str(i) //tests/database.bb line 12
 str _bb1288 i
 BUILTIN _bb1289 "SELECT * FROM users WHERE id = "
 add _bb1287 _bb1289 _bb1288
 add _bb1285 _bb1287 _bb1286
+%db["SELECT * FROM users WHERE id = "+str //tests/database.bb line 12
 at _bb1284 db _bb1285
+%"UPDATE users SET age = age + 1 WHERE id //tests/database.bb line 13
 BUILTIN _bb1292 ";"
+%str(i) //tests/database.bb line 13
 str _bb1294 i
 BUILTIN _bb1295 "UPDATE users SET age = age + 1 WHERE id = "
 add _bb1293 _bb1295 _bb1294
 add _bb1291 _bb1293 _bb1292
+%db["UPDATE users SET age = age + 1 WHERE //tests/database.bb line 13
 at _bb1290 db _bb1291
 END
+%while(ias next(_bbmacro26)){db["INSERT I //tests/database.bb line 10
 while # _bb1266 _bb1269
+%db["COMMIT;"] //tests/database.bb line 16
 BUILTIN _bb1297 "COMMIT;"
+%db["COMMIT;"] //tests/database.bb line 16
 at _bb1296 db _bb1297
+%time() //tests/database.bb line 18
 time _bb1299
 sub eta _bb1299 start
+%if((eta<1)== false)fail("Assertion faile //tests/database.bb line 19
 BEGIN _bb1300
+%("Assertion failed") //tests/database.bb line 19
 BUILTIN _bb1301 "Assertion failed"
+%fail("Assertion failed") //tests/database.bb line 19
 fail # _bb1301
 END
+%(eta<1)== false //tests/database.bb line 19
 BUILTIN _bb1303 Bfalse
+%eta<1 //tests/database.bb line 19
 BUILTIN _bb1305 I1
 lt _bb1304 eta _bb1305
 eq _bb1302 _bb1304 _bb1303
+%if((eta<1)== false)fail("Assertion faile //tests/database.bb line 19
 if # _bb1302 _bb1300
+%if((n== db["SELECT * FROM users;"]|len)= //tests/database.bb line 20
 BEGIN _bb1306
+%("Assertion failed") //tests/database.bb line 20
 BUILTIN _bb1307 "Assertion failed"
+%fail("Assertion failed") //tests/database.bb line 20
 fail # _bb1307
 END
+%(n== db["SELECT * FROM users;"]|len)== f //tests/database.bb line 20
 BUILTIN _bb1309 Bfalse
+%db["SELECT * FROM users;"] //tests/database.bb line 20
 BUILTIN _bb1313 "SELECT * FROM users;"
+%db["SELECT * FROM users;"] //tests/database.bb line 20
 at _bb1312 db _bb1313
+%db["SELECT * FROM users;"]|len //tests/database.bb line 20
 len _bb1311 _bb1312
 eq _bb1310 n _bb1311
 eq _bb1308 _bb1310 _bb1309
+%if((n== db["SELECT * FROM users;"]|len)= //tests/database.bb line 20
 if # _bb1308 _bb1306
+%db["DELETE FROM users;"] //tests/database.bb line 21
 BUILTIN _bb1315 "DELETE FROM users;"
+%db["DELETE FROM users;"] //tests/database.bb line 21
 at _bb1314 db _bb1315
 return # #
 END
+%try{db=sqlite("file://blombly@dir/.cache //tests/all.bb line 15
 try _bbmacro25 _bb1255
+%catch(_bbmacro25)bb.logger.fail("Databas //tests/all.bb line 15
 BEGIN _bb1316
+%bb.logger.fail("Database"+"\n"+str(_bbma //tests/all.bb line 15
 BEGIN _bb1318
+%str(_bbmacro25) //tests/all.bb line 15
 str _bb1320 _bbmacro25
+%"Database"+"\n" //tests/all.bb line 15
 BUILTIN _bb1322 "\n"
 BUILTIN _bb1323 "Database"
 add _bb1321 _bb1323 _bb1322
 add _bb1319 _bb1321 _bb1320
 list args _bb1319
 END
+%bb.logger //tests/all.bb line 15
 get _bb1325 bb logger
+%bb.logger.fail //tests/all.bb line 15
 get _bb1324 _bb1325 fail
+%bb.logger.fail("Database"+"\n"+str(_bbma //tests/all.bb line 15
 call _bb1317 _bb1318 _bb1324
 END
 BEGIN _bb1326
+%bb.logger.ok("Database") //tests/all.bb line 15
 BEGIN _bb1328
 BUILTIN _bb1329 "Database"
 list args _bb1329
 END
+%bb.logger //tests/all.bb line 15
 get _bb1331 bb logger
+%bb.logger.ok //tests/all.bb line 15
 get _bb1330 _bb1331 ok
+%bb.logger.ok("Database") //tests/all.bb line 15
 call _bb1327 _bb1328 _bb1330
 END
+%catch(_bbmacro25)bb.logger.fail("Databas //tests/all.bb line 15
 catch # _bbmacro25 _bb1316 _bb1326
