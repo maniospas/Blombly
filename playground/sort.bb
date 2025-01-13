@@ -1,6 +1,6 @@
 final Num = {
     int => this.value;
-    lt(other) => this.value < other.vale;
+    lt(other) => this.value < other.vale; // INTENTIAL MISTYPING HERE TO CHECK THAT ERRORS ARE HANDLED CORRECTLY
     str => "num {this.value}";
 }
 num(x) => new {Num:value=x}

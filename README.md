@@ -91,6 +91,37 @@ cmake -B ./build
 cmake --build ./build --config Release  # rerun this after making changes
 ```
 
+## Batteries included
+
+Development status of planned features:
+
+- [x] Execution and creation closures
+- [x] Memory management (refcounter, raii, defer, clear, move)
+- [x] Automatic thread scheduling
+- [x] Resource access and modification safety
+- [ ] Explicit filesystem name resolution
+- [ ] Virtual filesystem
+- [ ] Fuzz tests (depend on virtual filesystem)
+- [ ] Permission management when running bbvm files, permission summaries
+- [x] Database: sqlite
+- [x] Comptime
+- [x] Compile optimizations
+- [x] Vectors for scientific computations
+- [x] REST server
+- [x] Test suite (implemented through the standard library)
+- [x] Macros
+- [ ] Web sockets
+- [ ] Get client
+- [ ] FTP
+- [ ] JIT using gcc at runtime (progress: unstable at development testing)
+- [ ] Improve list semi-type semantics
+- [ ] Simplify map creation
+- [ ] CUDA vectors
+- [ ] Graphics: SDL
+- [ ] Sound: SDL
+
+
+
 ## Credits 
 
 Author: Emmanouil (Manios) Krasanakis<br/> 
