@@ -135,7 +135,7 @@ An example is presented below. There, an anonymous variable (starting with
 the `_bb` prefix) is internally created instead of `it` to hold the
 iterator. That variable replaces the contents of the `!of` parenthesis.
 Blombly's `in` macro that is shipped with the language
-wraps this behabior under the hood.
+wraps this behavior under the hood.
 
 ```java
 // main.bb
@@ -192,7 +192,7 @@ Hello world!
 
 ### !fail
 
-This immediately fails the compilation process upon occurence. It
+This immediately fails the compilation process upon occurrence. It
 stringifies the next symbol (or leaves it intact if it is a string)
 to create an error message and may be used
 by libraries defining macros with overlap with the standard functionality

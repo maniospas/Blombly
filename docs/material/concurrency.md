@@ -103,7 +103,7 @@ There are three main kinds of side effects:
 2. Pushing, popping, or setting elements to lists or maps.
 3. IO operations, such as conole read/writes, the file system, and web resources. 
 
-IO may be modified externally too. But if concurrency is properly aknowledged throughout
+IO may be modified externally too. But if concurrency is properly acknowledged throughout
 code writing, you would not write code for such operations any differently.
 
 !!! info
