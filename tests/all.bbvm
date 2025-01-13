@@ -701,7 +701,7 @@ END
 %new{final ansi=new{final black="\e[0;30m //libs/.bb line 8
 new bb _bb29
 final # bb
-%{A="0";A+="1";A+="2";A+="3";A+="4";A+="5 //tests/all.bb line 3
+%{A="0";A+="1";A+="2";A+="3";A+="4";A+="5 //tests/all.bb line 4
 BEGIN _bb584
 %A="0" //tests/concat.bb line 1
 BUILTIN A "0"
@@ -766,44 +766,44 @@ eq _bb603 _bb605 _bb604
 if # _bb603 _bb601
 return # #
 END
-%try{A="0";A+="1";A+="2";A+="3";A+="4";A+ //tests/all.bb line 3
+%try{A="0";A+="1";A+="2";A+="3";A+="4";A+ //tests/all.bb line 4
 try _bbmacro8 _bb584
-%catch(_bbmacro8)bb.logger.fail("String a //tests/all.bb line 3
+%catch(_bbmacro8)bb.logger.fail("String a //tests/all.bb line 4
 BEGIN _bb608
-%bb.logger.fail("String add"+"\n"+str(_bb //tests/all.bb line 3
+%bb.logger.fail("String add"+"\n"+str(_bb //tests/all.bb line 4
 BEGIN _bb610
-%str(_bbmacro8) //tests/all.bb line 3
+%str(_bbmacro8) //tests/all.bb line 4
 str _bb612 _bbmacro8
-%"String add"+"\n" //tests/all.bb line 3
+%"String add"+"\n" //tests/all.bb line 4
 BUILTIN _bb614 "\n"
 BUILTIN _bb615 "String add"
 add _bb613 _bb615 _bb614
 add _bb611 _bb613 _bb612
 list args _bb611
 END
-%bb.logger //tests/all.bb line 3
+%bb.logger //tests/all.bb line 4
 get _bb617 bb logger
-%bb.logger.fail //tests/all.bb line 3
+%bb.logger.fail //tests/all.bb line 4
 get _bb616 _bb617 fail
-%bb.logger.fail("String add"+"\n"+str(_bb //tests/all.bb line 3
+%bb.logger.fail("String add"+"\n"+str(_bb //tests/all.bb line 4
 call _bb609 _bb610 _bb616
 END
 BEGIN _bb618
-%bb.logger.ok("String add") //tests/all.bb line 3
+%bb.logger.ok("String add") //tests/all.bb line 4
 BEGIN _bb620
 BUILTIN _bb621 "String add"
 list args _bb621
 END
-%bb.logger //tests/all.bb line 3
+%bb.logger //tests/all.bb line 4
 get _bb623 bb logger
-%bb.logger.ok //tests/all.bb line 3
+%bb.logger.ok //tests/all.bb line 4
 get _bb622 _bb623 ok
-%bb.logger.ok("String add") //tests/all.bb line 3
+%bb.logger.ok("String add") //tests/all.bb line 4
 call _bb619 _bb620 _bb622
 END
-%catch(_bbmacro8)bb.logger.fail("String a //tests/all.bb line 3
+%catch(_bbmacro8)bb.logger.fail("String a //tests/all.bb line 4
 catch # _bbmacro8 _bb608 _bb618
-%{A=1,2,3,4;if((A[1]==2)== false)fail("As //tests/all.bb line 4
+%{A=1,2,3,4;if((A[1]==2)== false)fail("As //tests/all.bb line 5
 BEGIN _bb626
 %1,2,3,4 //tests/list.bb line 1
 BUILTIN _bb627 I1
@@ -939,44 +939,44 @@ eq _bb678 _bb680 _bb679
 if # _bb678 _bb676
 return # #
 END
-%try{A=1,2,3,4;if((A[1]==2)== false)fail( //tests/all.bb line 4
+%try{A=1,2,3,4;if((A[1]==2)== false)fail( //tests/all.bb line 5
 try _bbmacro9 _bb626
-%catch(_bbmacro9)bb.logger.fail("List"+"\ //tests/all.bb line 4
+%catch(_bbmacro9)bb.logger.fail("List"+"\ //tests/all.bb line 5
 BEGIN _bb683
-%bb.logger.fail("List"+"\n"+str(_bbmacro9 //tests/all.bb line 4
+%bb.logger.fail("List"+"\n"+str(_bbmacro9 //tests/all.bb line 5
 BEGIN _bb685
-%str(_bbmacro9) //tests/all.bb line 4
+%str(_bbmacro9) //tests/all.bb line 5
 str _bb687 _bbmacro9
-%"List"+"\n" //tests/all.bb line 4
+%"List"+"\n" //tests/all.bb line 5
 BUILTIN _bb689 "\n"
 BUILTIN _bb690 "List"
 add _bb688 _bb690 _bb689
 add _bb686 _bb688 _bb687
 list args _bb686
 END
-%bb.logger //tests/all.bb line 4
+%bb.logger //tests/all.bb line 5
 get _bb692 bb logger
-%bb.logger.fail //tests/all.bb line 4
+%bb.logger.fail //tests/all.bb line 5
 get _bb691 _bb692 fail
-%bb.logger.fail("List"+"\n"+str(_bbmacro9 //tests/all.bb line 4
+%bb.logger.fail("List"+"\n"+str(_bbmacro9 //tests/all.bb line 5
 call _bb684 _bb685 _bb691
 END
 BEGIN _bb693
-%bb.logger.ok("List") //tests/all.bb line 4
+%bb.logger.ok("List") //tests/all.bb line 5
 BEGIN _bb695
 BUILTIN _bb696 "List"
 list args _bb696
 END
-%bb.logger //tests/all.bb line 4
+%bb.logger //tests/all.bb line 5
 get _bb698 bb logger
-%bb.logger.ok //tests/all.bb line 4
+%bb.logger.ok //tests/all.bb line 5
 get _bb697 _bb698 ok
-%bb.logger.ok("List") //tests/all.bb line 4
+%bb.logger.ok("List") //tests/all.bb line 5
 call _bb694 _bb695 _bb697
 END
-%catch(_bbmacro9)bb.logger.fail("List"+"\ //tests/all.bb line 4
+%catch(_bbmacro9)bb.logger.fail("List"+"\ //tests/all.bb line 5
 catch # _bbmacro9 _bb683 _bb693
-%{s=0;_bbmacro11=iter(range(10));while(ia //tests/all.bb line 5
+%{s=0;_bbmacro11=iter(range(10));while(ia //tests/all.bb line 6
 BEGIN _bb701
 %s=0 //tests/range.bb line 1
 BUILTIN s I0
@@ -1016,44 +1016,44 @@ eq _bb712 _bb714 _bb713
 if # _bb712 _bb710
 return # #
 END
-%try{s=0;_bbmacro11=iter(range(10));while //tests/all.bb line 5
+%try{s=0;_bbmacro11=iter(range(10));while //tests/all.bb line 6
 try _bbmacro10 _bb701
-%catch(_bbmacro10)bb.logger.fail("Range"+ //tests/all.bb line 5
+%catch(_bbmacro10)bb.logger.fail("Range"+ //tests/all.bb line 6
 BEGIN _bb716
-%bb.logger.fail("Range"+"\n"+str(_bbmacro //tests/all.bb line 5
+%bb.logger.fail("Range"+"\n"+str(_bbmacro //tests/all.bb line 6
 BEGIN _bb718
-%str(_bbmacro10) //tests/all.bb line 5
+%str(_bbmacro10) //tests/all.bb line 6
 str _bb720 _bbmacro10
-%"Range"+"\n" //tests/all.bb line 5
+%"Range"+"\n" //tests/all.bb line 6
 BUILTIN _bb722 "\n"
 BUILTIN _bb723 "Range"
 add _bb721 _bb723 _bb722
 add _bb719 _bb721 _bb720
 list args _bb719
 END
-%bb.logger //tests/all.bb line 5
+%bb.logger //tests/all.bb line 6
 get _bb725 bb logger
-%bb.logger.fail //tests/all.bb line 5
+%bb.logger.fail //tests/all.bb line 6
 get _bb724 _bb725 fail
-%bb.logger.fail("Range"+"\n"+str(_bbmacro //tests/all.bb line 5
+%bb.logger.fail("Range"+"\n"+str(_bbmacro //tests/all.bb line 6
 call _bb717 _bb718 _bb724
 END
 BEGIN _bb726
-%bb.logger.ok("Range") //tests/all.bb line 5
+%bb.logger.ok("Range") //tests/all.bb line 6
 BEGIN _bb728
 BUILTIN _bb729 "Range"
 list args _bb729
 END
-%bb.logger //tests/all.bb line 5
+%bb.logger //tests/all.bb line 6
 get _bb731 bb logger
-%bb.logger.ok //tests/all.bb line 5
+%bb.logger.ok //tests/all.bb line 6
 get _bb730 _bb731 ok
-%bb.logger.ok("Range") //tests/all.bb line 5
+%bb.logger.ok("Range") //tests/all.bb line 6
 call _bb727 _bb728 _bb730
 END
-%catch(_bbmacro10)bb.logger.fail("Range"+ //tests/all.bb line 5
+%catch(_bbmacro10)bb.logger.fail("Range"+ //tests/all.bb line 6
 catch # _bbmacro10 _bb716 _bb726
-%{A=1,2,3;s=0;_bbmacro13=iter(A);while(xa //tests/all.bb line 6
+%{A=1,2,3;s=0;_bbmacro13=iter(A);while(xa //tests/all.bb line 7
 BEGIN _bb734
 %1,2,3 //tests/iter.bb line 1
 BUILTIN _bb735 I1
@@ -1110,44 +1110,44 @@ eq _bb752 _bb754 _bb753
 if # _bb752 _bb750
 return # #
 END
-%try{A=1,2,3;s=0;_bbmacro13=iter(A);while //tests/all.bb line 6
+%try{A=1,2,3;s=0;_bbmacro13=iter(A);while //tests/all.bb line 7
 try _bbmacro12 _bb734
-%catch(_bbmacro12)bb.logger.fail("Iterati //tests/all.bb line 6
+%catch(_bbmacro12)bb.logger.fail("Iterati //tests/all.bb line 7
 BEGIN _bb756
-%bb.logger.fail("Iteration"+"\n"+str(_bbm //tests/all.bb line 6
+%bb.logger.fail("Iteration"+"\n"+str(_bbm //tests/all.bb line 7
 BEGIN _bb758
-%str(_bbmacro12) //tests/all.bb line 6
+%str(_bbmacro12) //tests/all.bb line 7
 str _bb760 _bbmacro12
-%"Iteration"+"\n" //tests/all.bb line 6
+%"Iteration"+"\n" //tests/all.bb line 7
 BUILTIN _bb762 "\n"
 BUILTIN _bb763 "Iteration"
 add _bb761 _bb763 _bb762
 add _bb759 _bb761 _bb760
 list args _bb759
 END
-%bb.logger //tests/all.bb line 6
+%bb.logger //tests/all.bb line 7
 get _bb765 bb logger
-%bb.logger.fail //tests/all.bb line 6
+%bb.logger.fail //tests/all.bb line 7
 get _bb764 _bb765 fail
-%bb.logger.fail("Iteration"+"\n"+str(_bbm //tests/all.bb line 6
+%bb.logger.fail("Iteration"+"\n"+str(_bbm //tests/all.bb line 7
 call _bb757 _bb758 _bb764
 END
 BEGIN _bb766
-%bb.logger.ok("Iteration") //tests/all.bb line 6
+%bb.logger.ok("Iteration") //tests/all.bb line 7
 BEGIN _bb768
 BUILTIN _bb769 "Iteration"
 list args _bb769
 END
-%bb.logger //tests/all.bb line 6
+%bb.logger //tests/all.bb line 7
 get _bb771 bb logger
-%bb.logger.ok //tests/all.bb line 6
+%bb.logger.ok //tests/all.bb line 7
 get _bb770 _bb771 ok
-%bb.logger.ok("Iteration") //tests/all.bb line 6
+%bb.logger.ok("Iteration") //tests/all.bb line 7
 call _bb767 _bb768 _bb770
 END
-%catch(_bbmacro12)bb.logger.fail("Iterati //tests/all.bb line 6
+%catch(_bbmacro12)bb.logger.fail("Iterati //tests/all.bb line 7
 catch # _bbmacro12 _bb756 _bb766
-%{final Num={int={return this.value;}lt(o //tests/all.bb line 7
+%{final Num={int={return this.value;}lt(o //tests/all.bb line 8
 BEGIN _bb774
 %{int={return this.value;}lt(other)={retu //tests/overload.bb line 1
 BEGIN _bb775
@@ -1307,44 +1307,44 @@ eq _bb830 _bb832 _bb831
 if # _bb830 _bb828
 return # #
 END
-%try{final Num={int={return this.value;}l //tests/all.bb line 7
+%try{final Num={int={return this.value;}l //tests/all.bb line 8
 try _bbmacro14 _bb774
-%catch(_bbmacro14)bb.logger.fail("Overloa //tests/all.bb line 7
+%catch(_bbmacro14)bb.logger.fail("Overloa //tests/all.bb line 8
 BEGIN _bb837
-%bb.logger.fail("Overload"+"\n"+str(_bbma //tests/all.bb line 7
+%bb.logger.fail("Overload"+"\n"+str(_bbma //tests/all.bb line 8
 BEGIN _bb839
-%str(_bbmacro14) //tests/all.bb line 7
+%str(_bbmacro14) //tests/all.bb line 8
 str _bb841 _bbmacro14
-%"Overload"+"\n" //tests/all.bb line 7
+%"Overload"+"\n" //tests/all.bb line 8
 BUILTIN _bb843 "\n"
 BUILTIN _bb844 "Overload"
 add _bb842 _bb844 _bb843
 add _bb840 _bb842 _bb841
 list args _bb840
 END
-%bb.logger //tests/all.bb line 7
+%bb.logger //tests/all.bb line 8
 get _bb846 bb logger
-%bb.logger.fail //tests/all.bb line 7
+%bb.logger.fail //tests/all.bb line 8
 get _bb845 _bb846 fail
-%bb.logger.fail("Overload"+"\n"+str(_bbma //tests/all.bb line 7
+%bb.logger.fail("Overload"+"\n"+str(_bbma //tests/all.bb line 8
 call _bb838 _bb839 _bb845
 END
 BEGIN _bb847
-%bb.logger.ok("Overload") //tests/all.bb line 7
+%bb.logger.ok("Overload") //tests/all.bb line 8
 BEGIN _bb849
 BUILTIN _bb850 "Overload"
 list args _bb850
 END
-%bb.logger //tests/all.bb line 7
+%bb.logger //tests/all.bb line 8
 get _bb852 bb logger
-%bb.logger.ok //tests/all.bb line 7
+%bb.logger.ok //tests/all.bb line 8
 get _bb851 _bb852 ok
-%bb.logger.ok("Overload") //tests/all.bb line 7
+%bb.logger.ok("Overload") //tests/all.bb line 8
 call _bb848 _bb849 _bb851
 END
-%catch(_bbmacro14)bb.logger.fail("Overloa //tests/all.bb line 7
+%catch(_bbmacro14)bb.logger.fail("Overloa //tests/all.bb line 8
 catch # _bbmacro14 _bb837 _bb847
-%{Struct={.x=this.x;x=0;xthis={return thi //tests/all.bb line 8
+%{Struct={.x=this.x;x=0;xthis={return thi //tests/all.bb line 9
 BEGIN _bb855
 %{.x=this.x;x=0;xthis={return this.x;}xcl //tests/closure.bb line 1
 BEGIN _bb856
@@ -1424,44 +1424,44 @@ eq _bb879 _bb881 _bb880
 if # _bb879 _bb877
 return # #
 END
-%try{Struct={.x=this.x;x=0;xthis={return  //tests/all.bb line 8
+%try{Struct={.x=this.x;x=0;xthis={return  //tests/all.bb line 9
 try _bbmacro17 _bb855
-%catch(_bbmacro17)bb.logger.fail("Closure //tests/all.bb line 8
+%catch(_bbmacro17)bb.logger.fail("Closure //tests/all.bb line 9
 BEGIN _bb885
-%bb.logger.fail("Closure"+"\n"+str(_bbmac //tests/all.bb line 8
+%bb.logger.fail("Closure"+"\n"+str(_bbmac //tests/all.bb line 9
 BEGIN _bb887
-%str(_bbmacro17) //tests/all.bb line 8
+%str(_bbmacro17) //tests/all.bb line 9
 str _bb889 _bbmacro17
-%"Closure"+"\n" //tests/all.bb line 8
+%"Closure"+"\n" //tests/all.bb line 9
 BUILTIN _bb891 "\n"
 BUILTIN _bb892 "Closure"
 add _bb890 _bb892 _bb891
 add _bb888 _bb890 _bb889
 list args _bb888
 END
-%bb.logger //tests/all.bb line 8
+%bb.logger //tests/all.bb line 9
 get _bb894 bb logger
-%bb.logger.fail //tests/all.bb line 8
+%bb.logger.fail //tests/all.bb line 9
 get _bb893 _bb894 fail
-%bb.logger.fail("Closure"+"\n"+str(_bbmac //tests/all.bb line 8
+%bb.logger.fail("Closure"+"\n"+str(_bbmac //tests/all.bb line 9
 call _bb886 _bb887 _bb893
 END
 BEGIN _bb895
-%bb.logger.ok("Closure") //tests/all.bb line 8
+%bb.logger.ok("Closure") //tests/all.bb line 9
 BEGIN _bb897
 BUILTIN _bb898 "Closure"
 list args _bb898
 END
-%bb.logger //tests/all.bb line 8
+%bb.logger //tests/all.bb line 9
 get _bb900 bb logger
-%bb.logger.ok //tests/all.bb line 8
+%bb.logger.ok //tests/all.bb line 9
 get _bb899 _bb900 ok
-%bb.logger.ok("Closure") //tests/all.bb line 8
+%bb.logger.ok("Closure") //tests/all.bb line 9
 call _bb896 _bb897 _bb899
 END
-%catch(_bbmacro17)bb.logger.fail("Closure //tests/all.bb line 8
+%catch(_bbmacro17)bb.logger.fail("Closure //tests/all.bb line 9
 catch # _bbmacro17 _bb885 _bb895
-%{A=new{x=1;y=2;}if((A.x==1)== false)fail //tests/all.bb line 9
+%{A=new{x=1;y=2;}if((A.x==1)== false)fail //tests/all.bb line 10
 BEGIN _bb903
 %{x=1;y=2;} //tests/clear.bb line 2
 BEGIN _bb906
@@ -1599,44 +1599,44 @@ eq _bb955 _bb957 _bb956
 if # _bb955 _bb953
 return # #
 END
-%try{A=new{x=1;y=2;}if((A.x==1)== false)f //tests/all.bb line 9
+%try{A=new{x=1;y=2;}if((A.x==1)== false)f //tests/all.bb line 10
 try _bbmacro18 _bb903
-%catch(_bbmacro18)bb.logger.fail("Clear"+ //tests/all.bb line 9
+%catch(_bbmacro18)bb.logger.fail("Clear"+ //tests/all.bb line 10
 BEGIN _bb960
-%bb.logger.fail("Clear"+"\n"+str(_bbmacro //tests/all.bb line 9
+%bb.logger.fail("Clear"+"\n"+str(_bbmacro //tests/all.bb line 10
 BEGIN _bb962
-%str(_bbmacro18) //tests/all.bb line 9
+%str(_bbmacro18) //tests/all.bb line 10
 str _bb964 _bbmacro18
-%"Clear"+"\n" //tests/all.bb line 9
+%"Clear"+"\n" //tests/all.bb line 10
 BUILTIN _bb966 "\n"
 BUILTIN _bb967 "Clear"
 add _bb965 _bb967 _bb966
 add _bb963 _bb965 _bb964
 list args _bb963
 END
-%bb.logger //tests/all.bb line 9
+%bb.logger //tests/all.bb line 10
 get _bb969 bb logger
-%bb.logger.fail //tests/all.bb line 9
+%bb.logger.fail //tests/all.bb line 10
 get _bb968 _bb969 fail
-%bb.logger.fail("Clear"+"\n"+str(_bbmacro //tests/all.bb line 9
+%bb.logger.fail("Clear"+"\n"+str(_bbmacro //tests/all.bb line 10
 call _bb961 _bb962 _bb968
 END
 BEGIN _bb970
-%bb.logger.ok("Clear") //tests/all.bb line 9
+%bb.logger.ok("Clear") //tests/all.bb line 10
 BEGIN _bb972
 BUILTIN _bb973 "Clear"
 list args _bb973
 END
-%bb.logger //tests/all.bb line 9
+%bb.logger //tests/all.bb line 10
 get _bb975 bb logger
-%bb.logger.ok //tests/all.bb line 9
+%bb.logger.ok //tests/all.bb line 10
 get _bb974 _bb975 ok
-%bb.logger.ok("Clear") //tests/all.bb line 9
+%bb.logger.ok("Clear") //tests/all.bb line 10
 call _bb971 _bb972 _bb974
 END
-%catch(_bbmacro18)bb.logger.fail("Clear"+ //tests/all.bb line 9
+%catch(_bbmacro18)bb.logger.fail("Clear"+ //tests/all.bb line 10
 catch # _bbmacro18 _bb960 _bb970
-%{waslength(moveA)={returnA|len;}A=1,2,3; //tests/all.bb line 10
+%{waslength(moveA)={returnA|len;}A=1,2,3; //tests/all.bb line 11
 BEGIN _bb978
 %{returnA|len;} //tests/move.bb line 1
 BEGIN _bb979
@@ -1711,44 +1711,44 @@ eq _bb1002 _bb1004 _bb1003
 if # _bb1002 _bb1000
 return # #
 END
-%try{waslength(moveA)={returnA|len;}A=1,2 //tests/all.bb line 10
+%try{waslength(moveA)={returnA|len;}A=1,2 //tests/all.bb line 11
 try _bbmacro19 _bb978
-%catch(_bbmacro19)bb.logger.fail("Move "+ //tests/all.bb line 10
+%catch(_bbmacro19)bb.logger.fail("Move "+ //tests/all.bb line 11
 BEGIN _bb1007
-%bb.logger.fail("Move "+"\n"+str(_bbmacro //tests/all.bb line 10
+%bb.logger.fail("Move "+"\n"+str(_bbmacro //tests/all.bb line 11
 BEGIN _bb1009
-%str(_bbmacro19) //tests/all.bb line 10
+%str(_bbmacro19) //tests/all.bb line 11
 str _bb1011 _bbmacro19
-%"Move "+"\n" //tests/all.bb line 10
+%"Move "+"\n" //tests/all.bb line 11
 BUILTIN _bb1013 "\n"
 BUILTIN _bb1014 "Move "
 add _bb1012 _bb1014 _bb1013
 add _bb1010 _bb1012 _bb1011
 list args _bb1010
 END
-%bb.logger //tests/all.bb line 10
+%bb.logger //tests/all.bb line 11
 get _bb1016 bb logger
-%bb.logger.fail //tests/all.bb line 10
+%bb.logger.fail //tests/all.bb line 11
 get _bb1015 _bb1016 fail
-%bb.logger.fail("Move "+"\n"+str(_bbmacro //tests/all.bb line 10
+%bb.logger.fail("Move "+"\n"+str(_bbmacro //tests/all.bb line 11
 call _bb1008 _bb1009 _bb1015
 END
 BEGIN _bb1017
-%bb.logger.ok("Move ") //tests/all.bb line 10
+%bb.logger.ok("Move ") //tests/all.bb line 11
 BEGIN _bb1019
 BUILTIN _bb1020 "Move "
 list args _bb1020
 END
-%bb.logger //tests/all.bb line 10
+%bb.logger //tests/all.bb line 11
 get _bb1022 bb logger
-%bb.logger.ok //tests/all.bb line 10
+%bb.logger.ok //tests/all.bb line 11
 get _bb1021 _bb1022 ok
-%bb.logger.ok("Move ") //tests/all.bb line 10
+%bb.logger.ok("Move ") //tests/all.bb line 11
 call _bb1018 _bb1019 _bb1021
 END
-%catch(_bbmacro19)bb.logger.fail("Move "+ //tests/all.bb line 10
+%catch(_bbmacro19)bb.logger.fail("Move "+ //tests/all.bb line 11
 catch # _bbmacro19 _bb1007 _bb1017
-%{A=1,2,3;A=A|bb.collection.toback(4);if( //tests/all.bb line 11
+%{A=1,2,3;A=A|bb.collection.toback(4);if( //tests/all.bb line 12
 BEGIN _bb1025
 %1,2,3 //tests/collection.bb line 1
 BUILTIN _bb1026 I1
@@ -1793,44 +1793,44 @@ eq _bb1040 _bb1042 _bb1041
 if # _bb1040 _bb1038
 return # #
 END
-%try{A=1,2,3;A=A|bb.collection.toback(4); //tests/all.bb line 11
+%try{A=1,2,3;A=A|bb.collection.toback(4); //tests/all.bb line 12
 try _bbmacro20 _bb1025
-%catch(_bbmacro20)bb.logger.fail("Collect //tests/all.bb line 11
+%catch(_bbmacro20)bb.logger.fail("Collect //tests/all.bb line 12
 BEGIN _bb1045
-%bb.logger.fail("Collection"+"\n"+str(_bb //tests/all.bb line 11
+%bb.logger.fail("Collection"+"\n"+str(_bb //tests/all.bb line 12
 BEGIN _bb1047
-%str(_bbmacro20) //tests/all.bb line 11
+%str(_bbmacro20) //tests/all.bb line 12
 str _bb1049 _bbmacro20
-%"Collection"+"\n" //tests/all.bb line 11
+%"Collection"+"\n" //tests/all.bb line 12
 BUILTIN _bb1051 "\n"
 BUILTIN _bb1052 "Collection"
 add _bb1050 _bb1052 _bb1051
 add _bb1048 _bb1050 _bb1049
 list args _bb1048
 END
-%bb.logger //tests/all.bb line 11
+%bb.logger //tests/all.bb line 12
 get _bb1054 bb logger
-%bb.logger.fail //tests/all.bb line 11
+%bb.logger.fail //tests/all.bb line 12
 get _bb1053 _bb1054 fail
-%bb.logger.fail("Collection"+"\n"+str(_bb //tests/all.bb line 11
+%bb.logger.fail("Collection"+"\n"+str(_bb //tests/all.bb line 12
 call _bb1046 _bb1047 _bb1053
 END
 BEGIN _bb1055
-%bb.logger.ok("Collection") //tests/all.bb line 11
+%bb.logger.ok("Collection") //tests/all.bb line 12
 BEGIN _bb1057
 BUILTIN _bb1058 "Collection"
 list args _bb1058
 END
-%bb.logger //tests/all.bb line 11
+%bb.logger //tests/all.bb line 12
 get _bb1060 bb logger
-%bb.logger.ok //tests/all.bb line 11
+%bb.logger.ok //tests/all.bb line 12
 get _bb1059 _bb1060 ok
-%bb.logger.ok("Collection") //tests/all.bb line 11
+%bb.logger.ok("Collection") //tests/all.bb line 12
 call _bb1056 _bb1057 _bb1059
 END
-%catch(_bbmacro20)bb.logger.fail("Collect //tests/all.bb line 11
+%catch(_bbmacro20)bb.logger.fail("Collect //tests/all.bb line 12
 catch # _bbmacro20 _bb1045 _bb1055
-%{A="I like banana!";if((A|bb.string.star //tests/all.bb line 12
+%{A="I like banana!";if((A|bb.string.star //tests/all.bb line 13
 BEGIN _bb1063
 %A="I like banana!" //tests/string.bb line 1
 BUILTIN A "I like banana!"
@@ -1994,44 +1994,44 @@ eq _bb1120 _bb1122 _bb1121
 if # _bb1120 _bb1118
 return # #
 END
-%try{A="I like banana!";if((A|bb.string.s //tests/all.bb line 12
+%try{A="I like banana!";if((A|bb.string.s //tests/all.bb line 13
 try _bbmacro21 _bb1063
-%catch(_bbmacro21)bb.logger.fail("String" //tests/all.bb line 12
+%catch(_bbmacro21)bb.logger.fail("String" //tests/all.bb line 13
 BEGIN _bb1133
-%bb.logger.fail("String"+"\n"+str(_bbmacr //tests/all.bb line 12
+%bb.logger.fail("String"+"\n"+str(_bbmacr //tests/all.bb line 13
 BEGIN _bb1135
-%str(_bbmacro21) //tests/all.bb line 12
+%str(_bbmacro21) //tests/all.bb line 13
 str _bb1137 _bbmacro21
-%"String"+"\n" //tests/all.bb line 12
+%"String"+"\n" //tests/all.bb line 13
 BUILTIN _bb1139 "\n"
 BUILTIN _bb1140 "String"
 add _bb1138 _bb1140 _bb1139
 add _bb1136 _bb1138 _bb1137
 list args _bb1136
 END
-%bb.logger //tests/all.bb line 12
+%bb.logger //tests/all.bb line 13
 get _bb1142 bb logger
-%bb.logger.fail //tests/all.bb line 12
+%bb.logger.fail //tests/all.bb line 13
 get _bb1141 _bb1142 fail
-%bb.logger.fail("String"+"\n"+str(_bbmacr //tests/all.bb line 12
+%bb.logger.fail("String"+"\n"+str(_bbmacr //tests/all.bb line 13
 call _bb1134 _bb1135 _bb1141
 END
 BEGIN _bb1143
-%bb.logger.ok("String") //tests/all.bb line 12
+%bb.logger.ok("String") //tests/all.bb line 13
 BEGIN _bb1145
 BUILTIN _bb1146 "String"
 list args _bb1146
 END
-%bb.logger //tests/all.bb line 12
+%bb.logger //tests/all.bb line 13
 get _bb1148 bb logger
-%bb.logger.ok //tests/all.bb line 12
+%bb.logger.ok //tests/all.bb line 13
 get _bb1147 _bb1148 ok
-%bb.logger.ok("String") //tests/all.bb line 12
+%bb.logger.ok("String") //tests/all.bb line 13
 call _bb1144 _bb1145 _bb1147
 END
-%catch(_bbmacro21)bb.logger.fail("String" //tests/all.bb line 12
+%catch(_bbmacro21)bb.logger.fail("String" //tests/all.bb line 13
 catch # _bbmacro21 _bb1133 _bb1143
-%{final accum=new{value=0;add(x)={this.va //tests/all.bb line 13
+%{final accum=new{value=0;add(x)={this.va //tests/all.bb line 14
 BEGIN _bb1151
 %{value=0;add(x)={this.value+=x}} //tests/atomicity.bb line 1
 BEGIN _bb1154
@@ -2100,44 +2100,44 @@ eq _bb1173 _bb1175 _bb1174
 if # _bb1173 _bb1171
 return # #
 END
-%try{final accum=new{value=0;add(x)={this //tests/all.bb line 13
+%try{final accum=new{value=0;add(x)={this //tests/all.bb line 14
 try _bbmacro22 _bb1151
-%catch(_bbmacro22)bb.logger.fail("Atomici //tests/all.bb line 13
+%catch(_bbmacro22)bb.logger.fail("Atomici //tests/all.bb line 14
 BEGIN _bb1178
-%bb.logger.fail("Atomicity"+"\n"+str(_bbm //tests/all.bb line 13
+%bb.logger.fail("Atomicity"+"\n"+str(_bbm //tests/all.bb line 14
 BEGIN _bb1180
-%str(_bbmacro22) //tests/all.bb line 13
+%str(_bbmacro22) //tests/all.bb line 14
 str _bb1182 _bbmacro22
-%"Atomicity"+"\n" //tests/all.bb line 13
+%"Atomicity"+"\n" //tests/all.bb line 14
 BUILTIN _bb1184 "\n"
 BUILTIN _bb1185 "Atomicity"
 add _bb1183 _bb1185 _bb1184
 add _bb1181 _bb1183 _bb1182
 list args _bb1181
 END
-%bb.logger //tests/all.bb line 13
+%bb.logger //tests/all.bb line 14
 get _bb1187 bb logger
-%bb.logger.fail //tests/all.bb line 13
+%bb.logger.fail //tests/all.bb line 14
 get _bb1186 _bb1187 fail
-%bb.logger.fail("Atomicity"+"\n"+str(_bbm //tests/all.bb line 13
+%bb.logger.fail("Atomicity"+"\n"+str(_bbm //tests/all.bb line 14
 call _bb1179 _bb1180 _bb1186
 END
 BEGIN _bb1188
-%bb.logger.ok("Atomicity") //tests/all.bb line 13
+%bb.logger.ok("Atomicity") //tests/all.bb line 14
 BEGIN _bb1190
 BUILTIN _bb1191 "Atomicity"
 list args _bb1191
 END
-%bb.logger //tests/all.bb line 13
+%bb.logger //tests/all.bb line 14
 get _bb1193 bb logger
-%bb.logger.ok //tests/all.bb line 13
+%bb.logger.ok //tests/all.bb line 14
 get _bb1192 _bb1193 ok
-%bb.logger.ok("Atomicity") //tests/all.bb line 13
+%bb.logger.ok("Atomicity") //tests/all.bb line 14
 call _bb1189 _bb1190 _bb1192
 END
-%catch(_bbmacro22)bb.logger.fail("Atomici //tests/all.bb line 13
+%catch(_bbmacro22)bb.logger.fail("Atomici //tests/all.bb line 14
 catch # _bbmacro22 _bb1178 _bb1188
-%{finalA=new{foo1()={return extern2(B);}f //tests/all.bb line 14
+%{finalA=new{foo1()={return extern2(B);}f //tests/all.bb line 15
 BEGIN _bb1196
 %{foo1()={return extern2(B);}foo2()={retu //tests/nodeadlock.bb line 3
 BEGIN _bb1199
@@ -2277,48 +2277,48 @@ eq _bb1231 _bb1233 _bb1232
 if # _bb1231 _bb1229
 return # #
 END
-%try{finalA=new{foo1()={return extern2(B) //tests/all.bb line 14
+%try{finalA=new{foo1()={return extern2(B) //tests/all.bb line 15
 try _bbmacro24 _bb1196
-%catch(_bbmacro24)bb.logger.fail("No dead //tests/all.bb line 14
+%catch(_bbmacro24)bb.logger.fail("No dead //tests/all.bb line 15
 BEGIN _bb1237
-%bb.logger.fail("No deadlock"+"\n"+str(_b //tests/all.bb line 14
+%bb.logger.fail("No deadlock"+"\n"+str(_b //tests/all.bb line 15
 BEGIN _bb1239
-%str(_bbmacro24) //tests/all.bb line 14
+%str(_bbmacro24) //tests/all.bb line 15
 str _bb1241 _bbmacro24
-%"No deadlock"+"\n" //tests/all.bb line 14
+%"No deadlock"+"\n" //tests/all.bb line 15
 BUILTIN _bb1243 "\n"
 BUILTIN _bb1244 "No deadlock"
 add _bb1242 _bb1244 _bb1243
 add _bb1240 _bb1242 _bb1241
 list args _bb1240
 END
-%bb.logger //tests/all.bb line 14
+%bb.logger //tests/all.bb line 15
 get _bb1246 bb logger
-%bb.logger.fail //tests/all.bb line 14
+%bb.logger.fail //tests/all.bb line 15
 get _bb1245 _bb1246 fail
-%bb.logger.fail("No deadlock"+"\n"+str(_b //tests/all.bb line 14
+%bb.logger.fail("No deadlock"+"\n"+str(_b //tests/all.bb line 15
 call _bb1238 _bb1239 _bb1245
 END
 BEGIN _bb1247
-%bb.logger.ok("No deadlock") //tests/all.bb line 14
+%bb.logger.ok("No deadlock") //tests/all.bb line 15
 BEGIN _bb1249
 BUILTIN _bb1250 "No deadlock"
 list args _bb1250
 END
-%bb.logger //tests/all.bb line 14
+%bb.logger //tests/all.bb line 15
 get _bb1252 bb logger
-%bb.logger.ok //tests/all.bb line 14
+%bb.logger.ok //tests/all.bb line 15
 get _bb1251 _bb1252 ok
-%bb.logger.ok("No deadlock") //tests/all.bb line 14
+%bb.logger.ok("No deadlock") //tests/all.bb line 15
 call _bb1248 _bb1249 _bb1251
 END
-%catch(_bbmacro24)bb.logger.fail("No dead //tests/all.bb line 14
+%catch(_bbmacro24)bb.logger.fail("No dead //tests/all.bb line 15
 catch # _bbmacro24 _bb1237 _bb1247
-%{db=sqlite("file://blombly@dir/.cache/da //tests/all.bb line 15
+%{db=sqlite("bb://.cache/database.db");db //tests/all.bb line 16
 BEGIN _bb1255
-%("file://blombly@dir/.cache/database.db" //tests/database.bb line 3
-BUILTIN _bb1256 "file://blombly@dir/.cache/database.db"
-%sqlite("file://blombly@dir/.cache/databa //tests/database.bb line 3
+%("bb://.cache/database.db") //tests/database.bb line 3
+BUILTIN _bb1256 "bb://.cache/database.db"
+%sqlite("bb://.cache/database.db") //tests/database.bb line 3
 sqlite db _bb1256
 %db["CREATE TABLE IF NOT EXISTS users (id //tests/database.bb line 5
 BUILTIN _bb1259 "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER);"
@@ -2432,40 +2432,40 @@ BUILTIN _bb1315 "DELETE FROM users;"
 at _bb1314 db _bb1315
 return # #
 END
-%try{db=sqlite("file://blombly@dir/.cache //tests/all.bb line 15
+%try{db=sqlite("bb://.cache/database.db") //tests/all.bb line 16
 try _bbmacro25 _bb1255
-%catch(_bbmacro25)bb.logger.fail("Databas //tests/all.bb line 15
+%catch(_bbmacro25)bb.logger.fail("Databas //tests/all.bb line 16
 BEGIN _bb1316
-%bb.logger.fail("Database"+"\n"+str(_bbma //tests/all.bb line 15
+%bb.logger.fail("Database"+"\n"+str(_bbma //tests/all.bb line 16
 BEGIN _bb1318
-%str(_bbmacro25) //tests/all.bb line 15
+%str(_bbmacro25) //tests/all.bb line 16
 str _bb1320 _bbmacro25
-%"Database"+"\n" //tests/all.bb line 15
+%"Database"+"\n" //tests/all.bb line 16
 BUILTIN _bb1322 "\n"
 BUILTIN _bb1323 "Database"
 add _bb1321 _bb1323 _bb1322
 add _bb1319 _bb1321 _bb1320
 list args _bb1319
 END
-%bb.logger //tests/all.bb line 15
+%bb.logger //tests/all.bb line 16
 get _bb1325 bb logger
-%bb.logger.fail //tests/all.bb line 15
+%bb.logger.fail //tests/all.bb line 16
 get _bb1324 _bb1325 fail
-%bb.logger.fail("Database"+"\n"+str(_bbma //tests/all.bb line 15
+%bb.logger.fail("Database"+"\n"+str(_bbma //tests/all.bb line 16
 call _bb1317 _bb1318 _bb1324
 END
 BEGIN _bb1326
-%bb.logger.ok("Database") //tests/all.bb line 15
+%bb.logger.ok("Database") //tests/all.bb line 16
 BEGIN _bb1328
 BUILTIN _bb1329 "Database"
 list args _bb1329
 END
-%bb.logger //tests/all.bb line 15
+%bb.logger //tests/all.bb line 16
 get _bb1331 bb logger
-%bb.logger.ok //tests/all.bb line 15
+%bb.logger.ok //tests/all.bb line 16
 get _bb1330 _bb1331 ok
-%bb.logger.ok("Database") //tests/all.bb line 15
+%bb.logger.ok("Database") //tests/all.bb line 16
 call _bb1327 _bb1328 _bb1330
 END
-%catch(_bbmacro25)bb.logger.fail("Databas //tests/all.bb line 15
+%catch(_bbmacro25)bb.logger.fail("Databas //tests/all.bb line 16
 catch # _bbmacro25 _bb1316 _bb1326

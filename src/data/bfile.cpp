@@ -21,23 +21,30 @@ static std::vector<std::string> allowedLocations = {};
 static std::vector<std::string> allowedWriteLocations = {};
 extern std::string blombly_executable_path;
 
+#include <filesystem>
+#include <string>
+#include <unordered_map>
+#include <stdexcept>
+
+namespace fs = std::filesystem;
+
 std::string normalizeFilePath(const std::string& path) {
-    if(path.rfind("http://", 0) == 0) return path;
-    if(path.rfind("https://", 0) == 0) return path;
-    if(path.rfind("file://terminal@dir/", 0) == 0) {
-        std::filesystem::path execFilePath = std::filesystem::path(std::filesystem::current_path().string()) / path.substr(std::string("file://terminal@dir/").size());
-        return fs::weakly_canonical(execFilePath);
+    static const std::unordered_map<std::string, fs::path> prefixToBaseDir = {
+        {"cwd://", fs::current_path()},           // Current working directory for terminal paths
+        {"bb://", blombly_executable_path},       // Base directory where ./blombly resides
+        {"file://", ""}                           // Direct file path without a specific base
+    };
+    if (path.rfind("http://", 0) == 0 || path.rfind("https://", 0) == 0) return path;
+
+    for (const auto& [prefix, baseDir] : prefixToBaseDir) {
+        if (path.rfind(prefix, 0) == 0) {
+            fs::path execFilePath = baseDir / path.substr(prefix.size());
+            return fs::weakly_canonical(execFilePath).string();
+        }
     }
-    if(path.rfind("file://blombly@dir/", 0) == 0) {
-        std::filesystem::path execFilePath = std::filesystem::path(blombly_executable_path) / path.substr(std::string("file://blombly@dir/").size());
-        return fs::weakly_canonical(execFilePath);
-    }
-    if(path.rfind("file://any@dir/", 0) == 0) {
-        std::filesystem::path execFilePath = std::filesystem::path(path.substr(std::string("file://any@dir/").size()));
-        return fs::weakly_canonical(execFilePath);
-    }
-    bberror("Provided file path `"+path+"` needs to start from one among `http://`, `https://`, `file://terminal@dir/`, `file://blombly@dir/`, `file://any@dir/`");
+    throw std::invalid_argument("Provided file path `" + path + "` must start with a valid URI prefix (e.g., `http://`, `https://`, or `exec://`, `cwd://`, `file://`)");
 }
+
 
 bool isAllowedLocation(const std::string& path_) {
     std::string path = fs::weakly_canonical(normalizeFilePath(path_));
