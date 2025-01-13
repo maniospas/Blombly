@@ -56,6 +56,7 @@ int main(int argc, char* argv[]) {
     int threads = std::thread::hardware_concurrency();
     int default_threads = threads;
     bool cexecute = false;
+    bool minimify = true;
 
     if(threads == 0) threads = 4;
 
@@ -71,6 +72,7 @@ int main(int argc, char* argv[]) {
             std::cout << "--threads <num>   Set max threads. Default for this machine: " << default_threads << "\n";
             return 0;
         } 
+        else if(arg == "--library" || arg == "-l") minimify = false;
         else if(arg == "--strip" || arg == "-s") debug_info = false;
         else fileName = arg;
     }
@@ -78,7 +80,7 @@ int main(int argc, char* argv[]) {
     try {
         if(fileName.substr(fileName.size() - 3, 3) == ".bb") {
             compile(fileName, fileName + "vm");
-            optimize(fileName + "vm", fileName + "vm");
+            optimize(fileName + "vm", fileName + "vm", minimify);
             fileName = fileName + "vm";
         }
     }

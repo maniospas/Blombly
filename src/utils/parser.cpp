@@ -44,7 +44,7 @@ extern std::string blombly_executable_path;
 extern bool debug_info;
 
 std::string compileFromCode(const std::string& code, const std::string& source);
-std::string optimizeFromCode(const std::string& code);
+std::string optimizeFromCode(const std::string& code, bool minimify);
 extern void addAllowedLocation(const std::string& location);
 extern void addAllowedWriteLocation(const std::string& location);
 extern void clearAllowedLocations();
@@ -2048,7 +2048,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             bbassert(newCode.size()>1, "!`comptime` encloses an empty expression\n" + Parser::show_position(tokens, starti));
             if(newCode[newCode.size()-2]!='}') newCode += ";";  // skip traiking space with -2 instead of -1
             newCode = compileFromCode(newCode, "!comptime in "+first_source);
-            newCode = optimizeFromCode(newCode);
+            newCode = optimizeFromCode(newCode, true); // always minify at comptime
             newCode = singleThreadedVMForComptime(newCode, first_source);
             
             updatedTokens.emplace_back(newCode, tokens[starti].file, tokens[starti].line, true);

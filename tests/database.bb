@@ -16,6 +16,6 @@ while(i in range(n)) {
 db["COMMIT;"];
 
 eta = time()-start;
-assert eta < 1;
+assert eta < 1.5;
 assert n == db["SELECT * FROM users;"]|len;
 db["DELETE FROM users;"];

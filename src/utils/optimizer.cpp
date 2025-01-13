@@ -63,7 +63,7 @@ void moveRangeToFront(std::vector<std::shared_ptr<OptimizerCommand>>& program, s
 }
 
 
-std::string optimizeFromCode(const std::string& code) {
+std::string optimizeFromCode(const std::string& code, bool minimify) {
     std::istringstream inputStream(code);
     std::vector<std::shared_ptr<OptimizerCommand>> program;
     std::string line;
@@ -95,7 +95,7 @@ std::string optimizeFromCode(const std::string& code) {
     }
     
     // remove unused methods
-    int changes = -1;
+    int changes = minimify?-1:0; // skip the loop if not minifying
     while(changes!=0) {
         std::unordered_map<std::string, int> symbolUsageCount;
         for (const auto& command : program) {
@@ -187,7 +187,7 @@ std::string optimizeFromCode(const std::string& code) {
 }
 
 
-void optimize(const std::string& source, const std::string& destination) {
+void optimize(const std::string& source, const std::string& destination, bool minimify) {
     std::ifstream inputFile(source);
     bbassert(inputFile.is_open(), "Unable to open file: " + source);
     std::string code = "";
@@ -195,7 +195,7 @@ void optimize(const std::string& source, const std::string& destination) {
     while (std::getline(inputFile, line)) code += line + "\n";
     inputFile.close();
 
-    std::string optimized = optimizeFromCode(code);
+    std::string optimized = optimizeFromCode(code, minimify);
     //optimized = cacheDuplicates(optimized);
 
     std::ofstream outputFile(destination);

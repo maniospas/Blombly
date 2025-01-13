@@ -20,7 +20,7 @@ Result compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
     std::string file = fileName;
     if (fileName.substr(fileName.size() - 3, 3) == ".bb") {
         compile(fileName, fileName + "vm");
-        optimize(fileName + "vm", fileName + "vm");
+        optimize(fileName + "vm", fileName + "vm", true); // always minify
         file = fileName + "vm";
     }
 

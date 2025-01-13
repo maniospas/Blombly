@@ -1,27 +1,24 @@
 # Setup
 
+## Get ready
+
+Download Blombly's latest [release](https://github.com/maniospas/Blombly/releases/latest). Extract that into a folder
+and add the latter to your filepath to let your operating system know where the main executable is located. Alternatively,
+use the full path to the executable everywhere. Instructions to build the library from source are in the
+[GitHub](https://github.com/maniospas/Blombly) page.
+When writting in the language, use a Java keyword highlighter (but not syntax checker).
 
 ## Hello world!
 
-Let's make a first program to demonstrate compilation and interpretation. Create the following example file, where the `.bb` extension is associated with Blombly source code. 
-Prefer a Java keyword highlighter (but not syntax checker).
-
+Make a first program to demonstrate compilation and interpretation.
+Create the following example file, where the *.bb* extension is associated with Blombly source code.
+Then run the language's interpreter followed by the file name.
+If a message starting with `( ERROR )` appears, everything runs properly but there was some syntax or logic issue.
 
 ```java
 // main.bb
 print("Hello world!");
 ```
-
-To run this file, download Blombly's latest [release](https://github.com/maniospas/Blombly/releases/latest). Extract that into a folder
-and add the latter to your filepath to let your operating system know where `blombly.exe` is located. Alternatively,
-use the full path to the executable everywhere. Instructions to build the library from source are in the
-[GitHub](https://github.com/maniospas/Blombly) page.
-
-<br>
-
-Once you set things up, run the following console command. 
-If a message starting with `( ERROR )` appears, everything runs properly but there was some syntax or logic issue.
-For example, brackets may have closed with a semicolon, or there could be some other type of infraction. More on errors below.
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
 > <span style="color: cyan;">./blombly</span> main.bb
@@ -32,12 +29,12 @@ Hello world!
 
 ## VM code
 
-Compilation converts code to the intermediate representation of 
-the **BLO**ck ase**MBLY** **V**irtual **M**achine (blomblyVM). 
-This representation is stored in files with the `.bbvm` extension.
-These are self-contained by packing all dependencies inside, 
-and therefore can be shared with others to run directly. 
-The following `main.bbvm` file is generated when you run the above snippet.
+The interpreter first compiles code to the intermediate representation of the
+**BLO**ck ase**MBLY** **V**irtual **M**achine (blomblyVM). 
+Virtual machine instructions are stored in files with the *.bbvm* extension,
+which are self-contained by packing all dependencies inside.
+Share them with others to run directly. 
+The following *main.bbvm* file is generated from the previous snippet.
 
 ```java
 %("Hello world!") //main.bb line 1
@@ -58,15 +55,20 @@ second a variable to assign to, where `#` indicates
 assignment to nothing. Temporary variables have the `_bb` prefix,
 and code blocks start by `BEGIN` or `BEGINFINAL` and end at `END`.
 
-<br>
+## Compilation arguments
 
 Compilation optimizes the code for faster execution,
 for example by removing unused variables or code segments.
 For example, notice that above there are no needless instructions
-from the standard library `libs/.bb`, despite this being
-imported in every program.
-Avoid generating debugging symbols during compilation with the `--strip` or `-s` option.
-This speeds up compilation and optimization finish and produces a much smaller bbvm file - around 
+from the standard library *libs/.bb*, despite the latter being
+imported in every program. If your aim to produce bbvm files
+to be used as libraries, retain everything with 
+the `--library` or `-l` option.
+
+<br>
+
+Independently of which symbols remain, avoid generating debugging symbols with the `--strip` or `-s` option.
+This speeds up compilation and optimization and produces a smaller bbvm file - around 
 half the size. For example, below is a compilation outcome
 with stripped away debug info. In this case, any errors contain virtual machine instructions
 instead of a source code stack traces.
