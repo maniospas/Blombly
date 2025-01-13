@@ -1,0 +1,30 @@
+%time() //playground/bench.bb line 1
+time tic
+%ret=0 //playground/bench.bb line 2
+BUILTIN ret I0
+%range(10000000) //playground/bench.bb line 3
+BUILTIN _bb567 I10000000
+%range(10000000) //playground/bench.bb line 3
+range _bb566 _bb567
+%iter(range(10000000)) //playground/bench.bb line 3
+iter _bbmacro8 _bb566
+%while(ias next(_bbmacro8))ret+=i //playground/bench.bb line 3
+BEGIN _bb569
+%next(_bbmacro8) //playground/bench.bb line 3
+next _bb570 _bbmacro8
+AS i _bb570
+exists _bb571 i
+END
+BEGIN _bb572
+%ret+=i //playground/bench.bb line 4
+add ret ret i
+END
+%while(ias next(_bbmacro8))ret+=i //playground/bench.bb line 3
+while # _bb569 _bb572
+%time() //playground/bench.bb line 6
+time _bb574
+sub _bb573 _bb574 tic
+%print(time()-tic) //playground/bench.bb line 6
+print # _bb573
+%print(ret) //playground/bench.bb line 7
+print # ret

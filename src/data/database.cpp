@@ -69,9 +69,7 @@ Result Database::implement(const OperationType operation, BuiltinArgs* args, BMe
         clear();
         return std::move(Result(nullptr));
     }
-    if (operation == TOSTR && args->size == 1) {
-        STRING_RESULT(toString(memory));
-    }
+    if (operation == TOSTR && args->size == 1) STRING_RESULT(toString(memory));
     if (operation == AT && args->size == 2 && args->arg1->getType() == STRING) {
         std::string query = args->arg1->toString(memory);
         char* errMsg = nullptr;
@@ -101,9 +99,8 @@ Result Database::implement(const OperationType operation, BuiltinArgs* args, BMe
             if (!isAllowedWriteLocation(dbPath)) {
                 error = "Write access denied for database path: " + dbPath +
                         "\n   \033[33m!!!\033[0m This is likely due to missing permissions. Add modify permissions using `!modify \"location\"`.";
-            } else {
-                error = "SQL error: " + std::string(errMsg);
             }
+            else error = "SQL error: " + std::string(errMsg);
             bberror(error);
         } else if (rc != SQLITE_OK) {
             std::string error = "SQL error: " + std::string(errMsg);

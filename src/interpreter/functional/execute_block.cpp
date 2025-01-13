@@ -18,9 +18,10 @@ Result executeBlock(Code* code, BMemory* memory, bool &returnSignal, bool forceS
         for (; i <= end; ++i) {
             handleCommand(program, i, memory, returnSignal, args, value, forceStayInThread);
             if (returnSignal) {
+                Result res(value);
                 memory->runFinally();
                 //if(value && value->getType()==FUTURE) return std::move(static_cast<Future*>(value)->getResult());
-                return std::move(Result(value));
+                return std::move(res);
             }
         }
         //if(value && value->getType()==FUTURE) value = static_cast<Future*>(value)->getResult();

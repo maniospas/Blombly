@@ -93,6 +93,13 @@ void Struct::removeFromOwner() {
     //std::cout << "removing "<<this<<" from "<<data<<" with counter "<<referenceCounter<<"\n";
     if(counter<=1) {// its held memory will always hold this, in which case we do want a destruction
         //std::cout << "destroying "<<toString()<<" "<<this<<"\n";
+        //std::lock_guard<std::recursive_mutex> lock(memoryLock);
+        //memory->data[variableManager.thisId] = nullptr;
+        //memory->release();
+
+        //std::lock_guard<std::recursive_mutex> lock(memoryLock);
+        //memory->data[variableManager.thisId] = nullptr;
+        //memory->release();
         delete this;
     }
     //else 

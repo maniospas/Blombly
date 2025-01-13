@@ -13,7 +13,9 @@ extern VariableManager variableManager;
 
 void BMemory::verify_noleaks() {
     bbassert(memories.size() == 0, "There are " + std::to_string(memories.size()) + " leftover memory contexts leaked");
-    bbassert(countUnrealeasedMemories.load() == 0, "There are " + std::to_string(countUnrealeasedMemories.load()) + " leftover memory contexts leaked");  // the main memory is a global object (needed to sync threads on errors)
+    int countUnreleased = countUnrealeasedMemories.load();
+    countUnrealeasedMemories = 0;
+    bbassert(countUnreleased == 0, "There are " + std::to_string(countUnreleased) + " leftover memory contexts leaked");  // the main memory is a global object (needed to sync threads on errors)
 }
 
 BMemory::BMemory(BMemory* par, int expectedAssignments, Data* thisObject) : parent(par), allowMutables(true), fastId(-1) {
@@ -49,35 +51,34 @@ void BMemory::release() {
     //std::cout << "releasing "<<this<<"\n";
     std::string destroyerr = "";
     for (const auto& thread : attached_threads) {
-        try {
-            thread->getResult();
-        }
-        catch (const BBError& e) {
-            destroyerr += std::string(e.what())+"\n";
-        }
+        try {Result res = thread->getResult();}
+        catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
+        thread->removeFromOwner();
+    }
+    
+    attached_threads.clear();
+    try {runFinally();}
+    catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
+
+    for (const auto& thread : attached_threads) {
+        try {thread->getResult();}
+        catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
+        thread->removeFromOwner();
     }
     attached_threads.clear();
-    try {
-        runFinally();
-    }
-    catch (const BBError& e) {
-        destroyerr += std::string(e.what())+"\n";
-    }
+
     for (const auto& element : data) {
         auto dat = element.second;
         try {
             if (dat && dat->getType() == ERRORTYPE && !static_cast<BError*>(dat)->isConsumed())  
                 destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:\n"+dat->toString(this)+"\n";
-            if(dat) 
-                dat->removeFromOwner();
+            if(dat) dat->removeFromOwner();
         }
-        catch (const BBError& e) {
-            destroyerr += std::string(e.what())+"\n";
-        }
+        catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
     }
+    data.clear();
 
-    if(destroyerr.size()) 
-        throw BBError(destroyerr.substr(0, destroyerr.size()-1));
+    if(destroyerr.size())  throw BBError(destroyerr.substr(0, destroyerr.size()-1));
         //bberror("The following error(s) were found while releasing a struct or memory:"+destroyerr);
 }
 
@@ -221,8 +222,7 @@ Data* BMemory::getOrNull(int item, bool allowMutable) {
 
 void BMemory::removeWithoutDelete(int item) {
     data[item] = nullptr;
-    if(fastId==item)
-        fastData = nullptr;
+    if(fastId==item) fastData = nullptr;
 }
 
 void BMemory::unsafeSet(BMemory* handler, int item, Data* value, Data* prev) {

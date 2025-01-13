@@ -1,0 +1,237 @@
+%{final ansi=new{final black="\e[0;30m";f //libs/.bb line 8
+BEGIN _bb12
+%{final toback(element)={return new{.elem //libs/collections.bb line 1
+BEGIN _bb35
+%{return new{.func=this.func;call(A)={..f //libs/collections.bb line 8
+BEGIN _bb43
+next func args
+%{.func=this.func;call(A)={..func=this..f //libs/collections.bb line 8
+BEGIN _bb46
+%this.func //libs/collections.bb line 8
+get _bb47 this func
+IS .func _bb47
+%{..func=this..func;ret=list();_bbmacro0= //libs/collections.bb line 8
+BEGIN _bb48
+next A args
+%this..func //libs/collections.bb line 8
+get _bb49 this .func
+IS ..func _bb49
+%list() //libs/collections.bb line 8
+list ret
+%iter(A) //libs/collections.bb line 8
+iter _bbmacro0 A
+%while(xas next(_bbmacro0))push(ret,..fun //libs/collections.bb line 8
+BEGIN _bb52
+%next(_bbmacro0) //libs/collections.bb line 8
+next _bb53 _bbmacro0
+AS x _bb53
+exists _bb54 x
+END
+BEGIN _bb55
+%..func(x) //libs/collections.bb line 8
+BEGIN _bb57
+list args x
+END
+%..func(x) //libs/collections.bb line 8
+call _bb56 _bb57 ..func
+%push(ret,..func(x)) //libs/collections.bb line 8
+push # ret _bb56
+END
+%while(xas next(_bbmacro0))push(ret,..fun //libs/collections.bb line 8
+while # _bb52 _bb55
+%return ret //libs/collections.bb line 8
+return # ret
+END
+IS call _bb48
+return # this
+END
+%new{.func=this.func;call(A)={..func=this //libs/collections.bb line 8
+new _bb44 _bb46
+%return new{.func=this.func;call(A)={..fu //libs/collections.bb line 8
+return # _bb44
+END
+IS transform _bb43
+final # transform
+return # this
+END
+%new{final toback(element)={return new{.e //libs/collections.bb line 1
+new collection _bb35
+final # collection
+%new{call(str value)={return value;}final //libs/collections.bb line 98
+return # this
+END
+%new{final ansi=new{final black="\e[0;30m //libs/.bb line 8
+new bb _bb12
+final # bb
+%{int={return this.value;}lt(other)={retu //playground/sort.bb line 1
+BEGIN _bb565
+%{return this.value;} //playground/sort.bb line 2
+BEGIN _bb566
+%this.value //playground/sort.bb line 2
+get _bb567 this value
+%return this.value //playground/sort.bb line 2
+return # _bb567
+END
+IS int _bb566
+%{return this.value<other.vale;} //playground/sort.bb line 3
+BEGIN _bb568
+next other args
+%other.vale //playground/sort.bb line 3
+get _bb570 other vale
+%this.value //playground/sort.bb line 3
+get _bb571 this value
+lt _bb569 _bb571 _bb570
+%return this.value<other.vale //playground/sort.bb line 3
+return # _bb569
+END
+IS lt _bb568
+%{return "num "+str(this.value)+"";} //playground/sort.bb line 4
+BEGIN _bb572
+%"num "+str(this.value)+"" //playground/sort.bb line 4
+BUILTIN _bb574 ""
+%this.value //playground/sort.bb line 4
+get _bb576 this value
+%str(this.value) //playground/sort.bb line 4
+str _bb577 _bb576
+BUILTIN _bb578 "num "
+add _bb575 _bb578 _bb577
+add _bb573 _bb575 _bb574
+%return "num "+str(this.value)+"" //playground/sort.bb line 4
+return # _bb573
+END
+IS str _bb572
+END
+IS Num _bb565
+final # Num
+%{return new{Num:value=x};} //playground/sort.bb line 6
+BEGIN _bb579
+next x args
+%{Num:value=x} //playground/sort.bb line 6
+BEGIN _bb582
+%Num: //playground/sort.bb line 6
+inline _bb583 Num
+%value=x //playground/sort.bb line 6
+IS value x
+return # this
+END
+%new{Num:value=x} //playground/sort.bb line 6
+new _bb580 _bb582
+%return new{Num:value=x} //playground/sort.bb line 6
+return # _bb580
+END
+IS num _bb579
+%{n=A|len;_bbmacro8=iter(range(n));while( //playground/sort.bb line 8
+BEGIN _bb584
+next A args
+%A|len //playground/sort.bb line 9
+len n A
+%range(n) //playground/sort.bb line 10
+range _bb586 n
+%iter(range(n)) //playground/sort.bb line 10
+iter _bbmacro8 _bb586
+%while(ias next(_bbmacro8)){_bbmacro9=ite //playground/sort.bb line 10
+BEGIN _bb588
+%next(_bbmacro8) //playground/sort.bb line 10
+next _bb589 _bbmacro8
+AS i _bb589
+exists _bb590 i
+END
+BEGIN _bb591
+%i+1 //playground/sort.bb line 11
+BUILTIN _bb594 I1
+add _bb593 i _bb594
+%range(i+1,n) //playground/sort.bb line 11
+range _bb592 _bb593 n
+%iter(range(i+1,n)) //playground/sort.bb line 11
+iter _bbmacro9 _bb592
+%while(jas next(_bbmacro9))if(A[j]<A[i]){ //playground/sort.bb line 11
+BEGIN _bb596
+%next(_bbmacro9) //playground/sort.bb line 11
+next _bb597 _bbmacro9
+AS j _bb597
+exists _bb598 j
+END
+BEGIN _bb599
+%if(A[j]<A[i]){tmp=A[i];A[i]=A[j];A[j]=tm //playground/sort.bb line 11
+BEGIN _bb600
+%A[i] //playground/sort.bb line 12
+at _bb601 A i
+IS tmp _bb601
+%A[j] //playground/sort.bb line 13
+at _bb602 A j
+put # A i _bb602
+%A[j]=tmp //playground/sort.bb line 14
+put # A j tmp
+END
+%A[i] //playground/sort.bb line 11
+at _bb604 A i
+%A[j] //playground/sort.bb line 11
+at _bb605 A j
+lt _bb603 _bb605 _bb604
+%if(A[j]<A[i]){tmp=A[i];A[i]=A[j];A[j]=tm //playground/sort.bb line 11
+if # _bb603 _bb600
+END
+%while(jas next(_bbmacro9))if(A[j]<A[i]){ //playground/sort.bb line 11
+while # _bb596 _bb599
+END
+%while(ias next(_bbmacro8)){_bbmacro9=ite //playground/sort.bb line 10
+while # _bb588 _bb591
+END
+IS sort _bb584
+%5,2,3,4,1 //playground/sort.bb line 19
+BUILTIN _bb606 I5
+BUILTIN _bb607 I2
+BUILTIN _bb608 I3
+BUILTIN _bb609 I4
+BUILTIN _bb610 I1
+%5,2,3,4,1 //playground/sort.bb line 19
+list A _bb606 _bb607 _bb608 _bb609 _bb610
+%A|bb.collection.transform(num) //playground/sort.bb line 20
+BEGIN _bb613
+list args A
+END
+%bb.collection.transform(num) //playground/sort.bb line 20
+BEGIN _bb616
+list args num
+END
+%bb.collection //playground/sort.bb line 20
+get _bb618 bb collection
+%bb.collection.transform //playground/sort.bb line 20
+get _bb617 _bb618 transform
+%bb.collection.transform(num) //playground/sort.bb line 20
+call _bb615 _bb616 _bb617
+%A|bb.collection.transform(num) //playground/sort.bb line 20
+call _bb612 _bb613 _bb615
+IS A _bb612
+%sort(A) //playground/sort.bb line 21
+BEGIN _bb621
+%sort(A) //playground/sort.bb line 21
+BEGIN _bb623
+list args A
+END
+%sort(A) //playground/sort.bb line 21
+call _bb622 _bb623 sort
+END
+%try sort(A) //playground/sort.bb line 21
+try _bb619 _bb621
+%if((A[0]|int ==1)== false)fail("Assertio //playground/sort.bb line 23
+BEGIN _bb624
+%("Assertion failed") //playground/sort.bb line 23
+BUILTIN _bb625 "Assertion failed"
+%fail("Assertion failed") //playground/sort.bb line 23
+fail # _bb625
+END
+%(A[0]|int ==1)== false //playground/sort.bb line 23
+BUILTIN _bb627 Bfalse
+%A[0]|int ==1 //playground/sort.bb line 23
+BUILTIN _bb629 I1
+%A[0] //playground/sort.bb line 23
+BUILTIN _bb632 I0
+%A[0] //playground/sort.bb line 23
+at _bb631 A _bb632
+%A[0]|int //playground/sort.bb line 23
+int _bb630 _bb631
+eq _bb628 _bb630 _bb629
+eq _bb626 _bb628 _bb627
+%if((A[0]|int ==1)== false)fail("Assertio //playground/sort.bb line 23
+if # _bb626 _bb624

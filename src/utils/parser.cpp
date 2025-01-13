@@ -57,48 +57,63 @@ extern std::unordered_map<int, Data*> cachedData;
 std::string singleThreadedVMForComptime(const std::string& code, const std::string& fileName) {
     Future::setMaxThreads(1);
     std::string result;
-    {
+    bool hadError = false;
+    try {
         {
             BMemory memory(nullptr, DEFAULT_LOCAL_EXPECTATION);
+            try {
+                auto program = new std::vector<Command*>();
+                auto source = new SourceFile(fileName);
+                std::string line;
+                int i = 1;
+                
+                CommandContext* descriptor = nullptr;
+                std::istringstream inputStream(code);
+                while (std::getline(inputStream, line)) {
+                    if (line[0] != '%') program->push_back(new Command(line, source, i, descriptor));
+                    else descriptor = new CommandContext(line.substr(1));
+                    ++i;
+                }
 
-            auto program = new std::vector<Command*>();
-            auto source = new SourceFile(fileName);
-            std::string line;
-            int i = 1;
-            
-            CommandContext* descriptor = nullptr;
-            std::istringstream inputStream(code);
-            while (std::getline(inputStream, line)) {
-                if (line[0] != '%') program->push_back(new Command(line, source, i, descriptor));
-                else descriptor = new CommandContext(line.substr(1));
-                ++i;
+                auto code = new Code(program, 0, program->size() - 1);
+                bool hasReturned(false);
+                auto res = executeBlock(code, &memory, hasReturned, true);
+                Data* ret = res.get();
+                if (ret && ret->getType() == FUTURE) {
+                    auto res2 = static_cast<Future*>(ret)->getResult();
+                    ret = res2.get();
+                    res = res2;
+                }
+
+                bbassert(!hasReturned, "`!comptime` must evaluate to a value but not run a return statement.");
+                bbassert(ret, "`!comptime` must evaluate to a non-missing value.");
+
+                if (ret->getType() == STRING) result = "\"" + ret->toString(nullptr) + "\"";
+                else if (ret->getType() == BB_INT || ret->getType() == BB_FLOAT || ret->getType() == BB_BOOL) result = ret->toString(nullptr);
+                else bberror("`!comptime` must must evaluate to a float, int, str, or bool.");
+            } catch (const BBError& e) {
+                std::cerr << e.what() << "\033[0m\n";
+                hadError = true;
             }
-
-            auto code = new Code(program, 0, program->size() - 1);
-            bool hasReturned(false);
-            auto res = executeBlock(code, &memory, hasReturned, true);
-            Data* ret = res.get();
-            if(ret && ret->getType()==FUTURE) {
-                auto res2 = static_cast<Future*>(ret)->getResult();
-                ret = res2.get();
-                res = res2;
-            }
-
-            bbassert(!hasReturned, "`!comptime` must evaluate to a value but not run a return statement.");
-            bbassert(ret, "!comptime` must evaluate to a non-missing value.");
-
-            if(ret->getType()==STRING) result = "\""+ret->toString(nullptr)+"\"";
-            else if(ret->getType()==BB_INT) result = ret->toString(nullptr);
-            else if(ret->getType()==BB_FLOAT) result = ret->toString(nullptr);
-            else if(ret->getType()==BB_BOOL) result = ret->toString(nullptr);
-            else bberror("`!comptime` must evaluate to a float,int,str, or bool.");
+            memory.release();
         }
+        for (const auto& [key, data] : cachedData) data->removeFromOwner();
+        cachedData.clear();
         BMemory::verify_noleaks();
+    } catch (const BBError& e) {
+        for (const auto& [key, data] : cachedData) data->removeFromOwner();
+        cachedData.clear();
+        std::cerr << e.what() << "\033[0m\n";
+        hadError = true;
     }
-    for (const auto& [key, data] : cachedData) delete data;
-    cachedData.clear();
+
+    if (hadError) {
+        std::cerr << "Docs and bug reports: https://maniospas.github.io/Blombly\n";
+    }
+
     return std::move(result);
 }
+
 
 
 extern void replaceAll(std::string &str, const std::string &from, const std::string &to);

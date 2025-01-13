@@ -12,8 +12,6 @@ Contains several ansi color codes that you can use to colorize strings:
 ## bb.collection
 
 Contains helper methods for list and map manipulation using the semi-type notation. 
-
-
 Here is how to push to a list (or struct with the corresponding overloaded operation):
 
 ```java

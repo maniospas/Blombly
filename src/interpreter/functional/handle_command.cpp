@@ -188,6 +188,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 if(code->jitable && code->jitable->run(&newMemory, result, newReturnSignal, forceStayInThread)) {
                     if(thisObj) newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
                     newMemory.detach(nullptr);
+                    //newMemory.release();
                     SET_RESULT;
                 }
                 else {
@@ -195,6 +196,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     newMemory.detach(nullptr);
                     result = returnedValue.get();
                     if(thisObj) newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
+                    //newMemory.release();
                     SET_RESULT;
                 }
                 break;
