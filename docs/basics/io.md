@@ -139,7 +139,7 @@ request through the file system, as described above.
 Treat the generated server as a map from resource location strings to code blocks
 to be called when the respective resource is requested. Blocks that run this
 ways should returned either a string plain text or a request result struct (see below). 
-Parts of resource names that reside in angular brackets `<...>` indicate that the respective 
+Parts of resource names that reside in angular brackets `<…>` indicate that the respective 
 part of therequest should be treated as a string argument to the callable.
 For example, the following snippet redirects `echo/<input>` to echo the provided input;
 run code and open the browser and visit `localhost:8000/echo/MyTest` to see this in action.
@@ -248,7 +248,7 @@ while(i in range(5)) {
         db["INSERT INTO users (name, age) VALUES ('User{i}', {20 + (i % 10)});"];
         db["SELECT * FROM users WHERE id = {i};"];
         db["UPDATE users SET age = age + 1 WHERE id = {i};"];
-        //db["DELETE FROM users WHERE id = {i};"]; // deletes are generally very slow
+        //db["DELETE FROM users WHERE id = {i};"]; // deletes are generally slow
     db["COMMIT;"];
 }
 

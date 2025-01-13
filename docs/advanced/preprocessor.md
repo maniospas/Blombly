@@ -74,7 +74,7 @@ To define a macro within the nested macro use three att symbols, and so on.
 To support faster compilation, improve comprehension, and avoid the inherent ambiguity that mixfit operators may create,
 the first token of the expression needs to be a keyword (e.g., `fn @name (@args)` is a valid definition, but `@name = fn (@args)` is not)
 Macros are always applied based on order of occurrence, with the last applicable one taking precedence.
-Next is an example of how macros can be used to alter code writing. This is very intrusive to the language and is not really recommended,
+Next is an example of how macros can be used to alter code writing. This is intrusive to the language and not really recommended,
 but you can use things like this to customize the language to your tastes, effectively creating a variant.
 
 ```java

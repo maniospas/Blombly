@@ -14,7 +14,7 @@ later in this page.
 
 ## Lists
 Declare lists by separating values with a comma. Access and set
-its elements with square brackets (`[...]`) where element indexes
+its elements with square brackets (`[…]`) where element indexes
 start from zero. Here is an example that also demonstrates usage of
 the `len` builtin to obtain the number of elements. 
 
