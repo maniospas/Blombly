@@ -49,7 +49,7 @@ std::string normalizeFilePath(const std::string& path) {
 
 
 bool isAllowedLocation(const std::string& path_) {
-    std::string path = fs::weakly_canonical(normalizeFilePath(path_));
+    std::string path = fs::weakly_canonical(normalizeFilePath(path_)).string();
     for (const auto& location : allowedLocations) if(path.size() >= location.size() && path.compare(0, location.size(), location) == 0) return true;
     return false;
 }
@@ -61,7 +61,7 @@ bool isAllowedLocationNoNorm(const std::string& path_) {
 }
 
 bool isAllowedWriteLocation(const std::string& path_) {
-    std::string path = fs::weakly_canonical(normalizeFilePath(path_));
+    std::string path = fs::weakly_canonical(normalizeFilePath(path_)).string();
     for (const auto& location : allowedWriteLocations) if(path.size() >= location.size() && path.compare(0, location.size(), location) == 0) return true;
     return false;
 }
