@@ -50,6 +50,8 @@ extern void addAllowedWriteLocation(const std::string& location);
 extern void clearAllowedLocations();
 extern bool isAllowedLocation(const std::string& path);
 extern bool isAllowedWriteLocation(const std::string& path);
+extern std::string normalizeFilePath(const std::string& path);
+extern bool isAllowedLocationNoNorm(const std::string& path_);
 std::string top_level_file;
 
 extern std::unordered_map<int, Data*> cachedData;
@@ -1835,7 +1837,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                                             "\n      file being parsed. Permissions then passed on to all `!include` and `!comptime` directives, like the one that has"
                                             "\n      just been interrupted. Here, you cannot add new permissions that are not already present."
                                             "\n  \033[33m!!!\033[0m The permissions being requested can be added your main file at an earlier stage after"
-                                            "\n      reviewing them. Add either a generalization or the following: `!access "+tokens[i+2].name+"`"
+                                            "\n      reviewing them. Add either a generalization or the following: `!access "+ tokens[i+2].name+"`"
                                             "\n      Beware that permissions are transferred to your main application if not further modified.\n"+Parser::show_position(tokens, i));
 
             }
@@ -2082,25 +2084,24 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                         ++libpathend;
                     }
                     libpath += "\"";
-                } else {// if comptime
+                } else {// TODO: add comptime interpretation here
                     
                 }
             }
             else 
                 bbassert(libpath[0] == '"', 
-                        "Invalid `#include` syntax."
-                        "\n   \033[33m!!!\033[0m  Include statements should enclose paths"
-                        "\n       in quotations, like this: `#include \"libname\"`.\n" 
+                        "Invalid `!include` syntax."
+                        "\n   \033[33m!!!\033[0m  Include statements should enclose paths in quotations, like this: `#include \"libname\"`.\n" 
                         + Parser::show_position(tokens, i+2));
             bbassert(tokens[libpathend].name != ";", 
                       "Unexpected `;` encountered."
-                      "\n   \033[33m!!!\033[0m  Include statements cannot "
-                      "\n       be followed by `;`.\n" 
+                      "\n   \033[33m!!!\033[0m  Include statements cannot be followed by `;`.\n" 
                       + Parser::show_position(tokens, libpathend));
 
             // actually handle the import
             std::string source = libpath.substr(1, libpath.size() - 2);
             std::error_code ec;
+            source = normalizeFilePath(source);
             if(std::filesystem::is_directory(source, ec))
                 source = source+"/.bb";
             else 
@@ -2112,7 +2113,15 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 continue;
             }
 
+            bbassert(isAllowedLocationNoNorm(source), "Access denied for path: " + source +
+                                      "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
+                                      "\n       You need to add read permissions to a location containting the prefix with `!access \"location\"`."
+                                      "\n       Permisions can only be granted this way from the virtual machine's entry point."
+                                      "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.\n"
+                                      + Parser::show_position(tokens, libpathend));
+
             std::ifstream inputFile(source);
+            /*std::ifstream inputFile(source);
             if (!inputFile.is_open()) {
                 std::filesystem::path execFilePath = std::filesystem::path(std::filesystem::current_path().string()) / source;
                 inputFile.open(execFilePath.string());
@@ -2120,7 +2129,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             if (!inputFile.is_open()) {
                 std::filesystem::path execFilePath = std::filesystem::path(blombly_executable_path) / source;
                 inputFile.open(execFilePath.string());
-            }
+            }*/
 
             if (!inputFile.is_open()) 
                 bberror("Unable to open file: " + source +

@@ -9,7 +9,8 @@ In addition to the basic operations described here, find supporting ones in [lib
 
 The main way blombly interacts with the file system is through the `file` data type.
 This is an abstraction over resources like files, directories, and web data obtained
-with http. These are automatically recognized given the provided path. 
+with http. Path meaning and resolution depends on their prefix, as described in the second
+of the drop-down tables below.
 Operations applicable to file data include pushing data to resources and iterating
 through retrieved resource data are summarized here. Of those operations, pushing
 is applicable only to files and overwrites their text contents with the pushed string.
@@ -52,13 +53,56 @@ is applicable only to files and overwrites their text contents with the pushed s
   </table>
 </details>
 
+<details>
+  <summary>Special path prefixes</summary>
+<table>
+  <thead>
+    <tr>
+      <th>Prefix</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>http://</td>
+      <td>Refers to a resource accessible over the HTTP protocol.</td>
+    </tr>
+    <tr>
+      <td>https://</td>
+      <td>Refers to a resource accessible over the HTTPS protocol.</td>
+    </tr>
+    <tr>
+      <td>bb://</td>
+      <td>Starts from the directory where the Blombly executable resides.</td>
+    </tr>
+    <tr>
+      <td>raw://</td>
+      <td>Do not modify the provided path (this is not the default for safety).</td>
+    </tr>
+    <tr>
+      <td>vfs://</td>
+      <td>Accesses the path on a virtual file system. This is lost when the interpeter exits but persists throughout all compilation.</td>
+    </tr>
+    <tr>
+      <td>Empty path</td>
+      <td>Used to grant permissions for everything (NOT RECOMMENDED)</td>
+    </tr>
+    <tr>
+      <td>No prefix</td>
+      <td>Starts from the user's working directory.</td>
+    </tr>
+  </tbody>
+</table>
+</details>
 
 
-If you run file system operations out-of-the-box you will encounter an error
+
+If you run file system operations out-of-the-box, you will encounter an error
 like below. This happens because Blombly prioritizes **execution safety** and does 
-not allow you to access system resources unless you intent to do so. Intent is obvious
-here, but may not be if [preprocessor](../advanced/preprocessor.md) directives are involved,
-like including code that uses `!comptime` for dependency retrieval. 
+not allow you to access system resources unless you intent to do so. 
+By default, only has access rights to the *bb://libs* directory.
+The intent is obvious here, but may not be if [preprocessor](../advanced/preprocessor.md) directives are involved,
+like including code that executes at comple time to retrieve dependencies. 
 Normal operating system safety features also apply externally.
 
 ```java
@@ -80,7 +124,7 @@ print(f);
 Blombly permissions can only be declared on the file that is directly
 executed; they will create errors if declared elsewhere but don't have access.
 There are two kinds of permissions; read access with the `!access @str` 
-directive and read&write access with the `!modify @str` directive.
+directive and read and write access with the `!modify @str` directive.
 Both directives parse a string that indicates the *beginning* of an accepted file path.
 Permissions extend everywhere, including to files being included, the `!comptime` preprocessor directive that 
 executes some code during compilation, as well as the generated *.bbvm* file. 
@@ -88,19 +132,20 @@ executes some code during compilation, as well as the generated *.bbvm* file.
 <br>
 
 Iterating through file contents yields the read lines. Whereas iterating
-through directories yields their contents. You cannot push to directories, and -for safety- can only clear empty directories.
+through directories yields their contents. You cannot push to directories, 
+and -for safety- can only clear empty directories.
 Here is an example for reading from the local file system,
 as well as checking whether a non-existing file name exists:
 
 ```java
-!access "" // read access to every file in your system and the network (NOT RECOMMENDED)
+!access "" // read access to all resources (NOT RECOMMENDED)
 
-f = file("README.md");
-thisdir = ".";
-print("Is directory: {path/thisdir|bool}");
+f = file("README.md");]
 while(line in f) print(line);
 print("nonexisting filename"|file|bool); // false
 ```
+
+## Web resources
 
 Web resources are accessed in the same way. 
 Under the hood, they perform get requests, where errors

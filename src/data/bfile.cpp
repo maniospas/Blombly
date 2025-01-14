@@ -29,10 +29,11 @@ extern std::string blombly_executable_path;
 namespace fs = std::filesystem;
 
 std::string normalizeFilePath(const std::string& path) {
+    if(path=="") return "";
     static const std::unordered_map<std::string, fs::path> prefixToBaseDir = {
-        {"cwd://", fs::current_path()},           // Current working directory for terminal paths
+        //{".//", fs::current_path()},           // Current working directory for terminal paths
         {"bb://", blombly_executable_path},       // Base directory where ./blombly resides
-        {"file://", ""}                           // Direct file path without a specific base
+        {"raw://", ""}                           // Direct file path without a specific base
     };
     if (path.rfind("http://", 0) == 0 || path.rfind("https://", 0) == 0) return path;
 
@@ -42,7 +43,8 @@ std::string normalizeFilePath(const std::string& path) {
             return fs::weakly_canonical(execFilePath).string();
         }
     }
-    throw std::invalid_argument("Provided file path `" + path + "` must start with a valid URI prefix (e.g., `http://`, `https://`, or `exec://`, `cwd://`, `file://`)");
+    return fs::weakly_canonical(fs::current_path()/path).string();
+    //bberror("Provided file path `" + path + "` must start with a valid URI prefix (e.g., `http://`, `https://`, or `exec://`, `cwd://`, `file://`)");
 }
 
 
@@ -82,6 +84,7 @@ void addAllowedWriteLocation(const std::string& location_) {
 void clearAllowedLocations() {
     allowedLocations.clear();
     allowedWriteLocations.clear();
+    addAllowedLocation("bb://libs/");
 }
 
 // Helper function to handle HTTP GET responses

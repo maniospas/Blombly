@@ -26,7 +26,7 @@ Hello world!
 ## Scopes
 
 Scopes, which refer to isolated execution contexts. Each program starts from one initial scope, and 
-new ones are entered with `new{@code}` -this also creates [structs](structs.md)- or when calling functions.
+new ones are entered when creating structs or calling functions.
 Assign values to variables per `@var = @value;`, which also creates the variables if they do not exist already. 
 Subsequent code can normally overwrite variable values. Make them 
 immutable by prepending the `final` keyword to their last assignment. This prevents overwrites by subsequent code
@@ -51,7 +51,7 @@ x = x+1; // CREATES AN ERROR
 
 There are several builtin data types that are directly incorporated in the language.
 Exhaustively, these are `int`, `float`, `bool`, `str`, `list`, `vector`, `map`, `iter`, `code`, `struct`, `file`, `server`, `sqlite`.
-Here we start with the first four, and split the rest to dedicated pages, like the one describing [iterables](iterables.md).
+Here we start with the first four, and split the rest to dedicated pages.
 Some well-known operations are implemented, computed as one might have come to learn from other programming
 languages. Only difference to usual practices the existence of `as` assignments (more details later), and that element access
 is overloaded by some data types. For example, format a float to a string of three decimal digits per `x[".3f"]`.
@@ -151,6 +151,8 @@ own string formatting function and applies it
 after converting a string to a float number.
 
 ```java
+// main.bb
+// `=>` is a shorthand for functions that directly return
 fmt(x) => x[".3f"];
 print("1.2345"|float|fmt);
 ```
@@ -178,20 +180,21 @@ Semi-types are a weak typing system in that they allow
 automatic conversion between built-ins.
 But they also bring strong typing conventions by applying specific 
 transformations to ensure that a desired state
-is maintained for subsequent code. Do not let this thinking
-restrict you of using the dash (`|`) notation wherever possible.
+is maintained for subsequent code. 
+They naturally occur as long if you use the dash (`|`) notation 
+for function calls of one argument.
 
 
 ## Control flow
 
-Control flow alters which code segments are executed next. Blombly offers similar options to most programming languages in terms of conditional branching, loops, deferring
-execution for later, function calling,
-and error handling. Functions are described [elsewhere](blocks.md) because they offer more options than what is common.
+Control flow alters which code segments are executed next. Blombly offers similar options to most programming languages in terms of conditional branching, loops, deferring execution for later, function calling,
+and error handling. The first three is described in this and the next section,
+but functions are described [elsewhere](blocks.md) because they offer more options than what is common.
 
 <br>
 
-Conditionals take the form `if(@condition){@accept}else{@reject}` where `@` denotes code segments or expressions. By the way,
-this notation is also used by [macros](../advanced/preprocessor.md). 
+Conditionals take the form `if(@condition){@accept}else{@reject}` where `@` denotes code segments or expressions
+and is the nnotation also used by [macros](../advanced/preprocessor.md). 
 The condition must yield a boolean and makes the respective branch execute, where the `else` branch is optional.
 You may omit brackets for single-command segments, but put semicolons only at the end of commands.
 
@@ -206,8 +209,9 @@ Here is an example with both control flow options.
 // main.bb
 counter = 0;
 while (counter<5) {
-    if(counter%2==0) print("{counter} is even")  // no semicolon (signifies that the command continues to `else`)
-    else print("{counter} is odd");
+    // no semicolon before `else`
+    if(counter%2==0) print("!{counter} is even")
+    else print("!{counter} is odd");
     counter = counter + 1;
 }
 ```
@@ -221,7 +225,13 @@ while (counter<5) {
 4 is even 
 </pre>
 
-Finally, deferring declares code to run later. *The deferred code is always executed*, even
+!!! tip
+    Emulate *switch*, *continue*, or *break* concepts
+    by intercepting return signals. This is described [later](../advanced/try.md).
+
+## Defer
+
+Deferring declares code to run later. *The deferred code is always executed*, even
 if errors occur in the interim. Normally, defer occurs just before return statements, including returning from
 `new` scopes that create structs. It is also applied upon entering and exiting `try` blocks.
 In advanced settings, you can clear resources, remove cyclic struct references,
@@ -230,9 +240,10 @@ of the deferred code block for simplicity.
 
 ```java
 // main.bb
-A = new { // this is how structs are created
+// create a struct creation scope
+A = new {
     x=0;
-    defer x=1; // executed just before the end of struct creation
+    defer x=1;
     print(x);
 }
 print(A.x);

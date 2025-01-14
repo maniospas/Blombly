@@ -13,23 +13,29 @@ later in this page.
 
 
 ## Lists
+
 Declare lists by separating values with a comma. Access and set
-its elements with square brackets (`[…]`) where element indexes
-start from zero. Here is an example that also demonstrates usage of
-the `len` builtin to obtain the number of elements. 
+its elements with square brackets where element indexes
+start from zero. You can also provide other iterables that hold
+integer-only values to retrieve multiple elements until that
+iterable goes out of bounds.
+Here is an example that also demonstrates usage of
+the `len` function to obtain the number of elements.
 
 ```java
 // main.bb
-A = 1,2,3;
-A[0] = 4;
+A = 1,2,3,4;
+A[0] = 100;
 print(A);
 print(A|len);
+print(A[range(1,3)]);
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
 > <span style="color: cyan;">./blombly</span> main.bb
-[4, 2, 3]
-3
+[100, 2, 3, 4]
+4
+[2, 3, 4]
 </pre>
 
 You may initialize lists based on one element like below.
@@ -61,16 +67,19 @@ A[3] = 0; // CREATES AN ERROR
    <span style="color: lightblue;">→</span>  A[3]=0                                              main.bb line 4
 </pre>
 
+## Len changes
 
 The above examples do not modify lists during execution.
 To extract data while removing them from lists use the `next` and `pop` operators
 to obtain the first or last list elements respectively. 
 These yield error values if the list is empty, so use the `as` assignment to detect
 whether the list was empty in loops. All list modifications are efficient; even front popping with next.
+Append elements at the end using the `push` operator.
 
 ```java
 // main.bb
 A = 1,2,3;
+push(A, 4);
 while(a as A|next) print(a);
 ```
 
@@ -80,25 +89,12 @@ while(a as A|next) print(a);
 1
 2
 3
+4
 </pre>
 
 
-Append elements at the end using the `push` operator, like below.
 
-```java
-// main.bb
-A = 1,2,3;
-push(A, 4);
-print(A);
-```
-
-
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-> <span style="color: cyan;">./blombly</span> main.bb
-[1,2,3,4]
-</pre>
-
-Concatenate lists by adding them like below.
+To leave the original list intact as you add more data, concatenate it with other lists, like below.
 
 ```java
 // main.bb
@@ -111,23 +107,7 @@ print((1,2,3)+(4,5));
 [1,2,3,4,5]
 </pre>
 
-Finally, lists can yield multiple elements at once by providing any iterable yielding integer identifiers.
-Internally, lists obtain an iterator from that iterable and traverse its values like below.
-Value repetitions are allowed. If the iterable yields an out-of-range value, 
-sub-indexing will stop at the first missing one. 
 
-```java
-A = 1,2,3,4,5;
-print(A[1,3]);
-print(A[range(1,4)]);  // more on ranges later
-```
-
-
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-> <span style="color: cyan;">./blombly</span> main.bb
-[2,4]
-[2,3,4]
-</pre>
 
 ## Iterators
 
@@ -159,6 +139,28 @@ while(i as it|next) print(i);
     through is modified, for example by adding, changing, or removing elements. The iterator
     may miss parts of the modifications it has already traversed through.
 
+The blombly compiler preloads a couple of common [macros](../advanced/preprocessor.md) in `libs/,bb`.
+The important part for iterables is that an `in` operator
+is provided. This preconstructs an iterator from any given data type
+and runs `as next` on it. Here is an example.
+
+```java
+A = 1,2,3;
+print("Original length {A|len}");
+while(i in A) print(i);
+print("Length after iteration {A|len}");
+```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+Original length 3
+1
+2
+3
+Length after iteration 3
+</pre>
+
+## Ranges
 
 An addition to other iterators, Blombly provide ranges that go through a specified range
 of numbers. Like all iterators, ranges are only consumed once and need to be created anew to be
@@ -183,31 +185,6 @@ while(i as next(it)) print(i);
 1.500000
 1.000000
 0.500000
-</pre>
-
-
-
-## In 
-
-The blombly compiler preloads a couple of common [macros](../advanced/preprocessor.md) in `libs/,bb`.
-The important part for iterables is that an `in` operator
-is provided. This preconstructs an iterator from any given data type
-and runs `as next` on it. Here is an example.
-
-```java
-A = 1,2,3;
-print("Original length {A|len}");
-while(i in A) print(i);
-print("Length after iteration {A|len}");
-```
-
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-> <span style="color: cyan;">./blombly</span> main.bb
-Original length 3
-1
-2
-3
-Length after iteration 3
 </pre>
 
 

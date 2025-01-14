@@ -137,12 +137,13 @@ You can then access list elements or use `args|next` to sequentially pop argumen
 <br>
 
 A shorthand of the last practice is to add positional comma-separated variable names inside a parenthesis next to the block. 
-You can still assign the block to other variables or inline it
+This front-pops the values. You can still assign the block to other variables or inline it
 within other blocks given that they have enough remainder elements in `args`.
 
 ```java
 // main.bb
-adder(x, y) = {return x+y} // parenthesis front-pops the values, could also write `adder(x,y)=>x+y;`
+// could also write `adder(x,y)=>x+y;`
+adder(x, y) = {return x+y} 
 test = adder;
 result = test(1, 2);
 print(result);

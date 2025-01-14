@@ -24,6 +24,7 @@ bool debug_info = true;
 BError* OUT_OF_RANGE = new BError("Out of range");
 BError* INCOMPATIBLE_SIZES = new BError("Incompatible sizes in operation");
 BError* NO_TRY_INTERCEPT = new BError("No error or return statement intercepted with `try`.");
+extern void clearAllowedLocations();
 
 
 std::string get_executable_directory(const std::string& argv0) {
@@ -49,7 +50,8 @@ int main(int argc, char* argv[]) {
     
     blombly_executable_path = get_executable_directory(argv[0]);
     Terminal::enableVirtualTerminalProcessing();
-    initializeOperationMapping();   
+    initializeOperationMapping();  
+    clearAllowedLocations(); 
     std::cout<<"\033[0m";
 
     std::string fileName = "main.bb";
