@@ -10,7 +10,6 @@ When writting in the language, use a Java keyword highlighter (but not syntax ch
 
 ## Hello world!
 
-Make a first program to demonstrate compilation and interpretation.
 Create the following example file, where the *.bb* extension is associated with Blombly source code.
 Then run the language's interpreter followed by the file name.
 If a message starting with `( ERROR )` appears, everything runs properly but there was some syntax or logic issue.
@@ -53,21 +52,39 @@ debugging info and can be ignored. The rest of the commands are space-separated
 tuples of virtual machine instructions. The first element is the command name and the
 second a variable to assign to, where `#` indicates
 assignment to nothing. Temporary variables have the `_bb` prefix,
-and code blocks start by `BEGIN` or `BEGINFINAL` and end at `END`.
+and code blocks start at `BEGIN` or `BEGINFINAL` and end at `END`.
 
-## Compilation arguments
+## Arguments
 
-Compilation optimizes the code for faster execution,
-for example by removing unused variables or code segments.
-For example, notice that above there are no needless instructions
-from the standard library *libs/.bb*, despite the latter being
-imported in every program. If your aim to produce bbvm files
-to be used as libraries, retain everything with 
-the `--library` or `-l` option.
+Set the number of operating system threads that the virtual machine
+is allowed to use with the option `--threads <num>` or `-t <num>`.
+If you specify nothing, the maximum amount is used. 
+Set to zero threads to compile without executing.
 
 <br>
 
-Independently of which symbols remain, avoid generating debugging symbols with the `--strip` or `-s` option.
+Compilation optimizes the code by removing many unused variables or segments.
+For example, notice that above there are no needless instructions
+from the standard library *libs/.bb*, despite the latter being
+imported in every program. If your plan to produce bbvm files
+to be used as libraries (to be optimized by programs using them),
+retain everything with the `--library` or `-l` option. 
+Below is an example that compiles a file without running it while switching
+between applying and not applying optimizations. The `du` linux
+utility is used to show file sizes. Notice the bloat comming from the standard
+library when there is no optimization!
+
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb  --threads 0
+> <span style="color: cyan;">du</span>  -sh main.bbvm
+4.0K    main.bbvm
+> <span style="color: cyan;">./blombly</span> main.bb  --threads 0 --library
+> <span style="color: cyan;">du</span>  -sh main.bbvm
+48K     main.bbvm
+</pre>
+
+Avoid generating debugging symbols with the `--strip` or `-s` option.
 This speeds up compilation and optimization and produces a smaller bbvm file - around 
 half the size. For example, below is a compilation outcome
 with stripped away debug info. In this case, any errors contain virtual machine instructions

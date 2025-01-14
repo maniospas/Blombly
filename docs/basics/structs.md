@@ -10,7 +10,7 @@ a fullstop (`.`) accesses fields or values from the creation closure, and privat
 All assignments during initialization are transferred to the produced struct. The latter is afterwards detached from its creating scope.
 In addition to these above, we demonstrate usage of code blocks as constructors to be inlined within struct creation. 
 
-!!! info 
+!!! tip 
     Code blocks only contain code. Use structs to transfer state.
 
 ## New

@@ -187,7 +187,7 @@ while(i as next(it)) print(i);
 
 
 
-## `in` 
+## In 
 
 The blombly compiler preloads a couple of common [macros](../advanced/preprocessor.md) in `libs/,bb`.
 The important part for iterables is that an `in` operator

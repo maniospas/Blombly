@@ -9,7 +9,8 @@
         - 4. Structs: basics/structs.md
         - 5. IO: basics/io.md
         - 6. Preprocessing: advanced/preprocessor.md
-        - 7. Libs: advanced/libs.md
+        - 7. Errors & returns: advanced/try.md
+        - 8. Libs: advanced/libs.md
     - Principles:
         - Concurrency: material/concurrency.md
         - Typeless OOP: material/typeless.md

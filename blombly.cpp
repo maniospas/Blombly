@@ -62,14 +62,17 @@ int main(int argc, char* argv[]) {
 
     for(int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
-        if((arg == "--threads" || arg == "-threads") && i + 1 < argc) threads = std::stoi(argv[++i]);
+        if((arg == "--threads" || arg == "-t") && i + 1 < argc) threads = std::stoi(argv[++i]);
         else if(arg == "--version" || arg == "-v") {
-            std::cout << "Version: blombly 1.9.0\n";
+            std::cout << "Version: blombly 1.12.0\n";
             return 0;
         } 
         else if(arg == "--help" || arg == "-h") {
-            std::cout << "Usage: blombly [options] [file]\n";
+            std::cout << "Usage: ./blombly [file] [options] \n";
             std::cout << "--threads <num>   Set max threads. Default for this machine: " << default_threads << "\n";
+            std::cout << "--library         Prevents compilation optimizations\n";
+            std::cout << "--strip           Strips away debugging symbols\n";
+            std::cout << "--version         Prints the current blombly version\n";
             return 0;
         } 
         else if(arg == "--library" || arg == "-l") minimify = false;
@@ -89,11 +92,15 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     
-    program_start = std::chrono::steady_clock::now();
-    auto ret = vm(fileName, threads);
+    int ret = 0;
+    if(threads) {
+        program_start = std::chrono::steady_clock::now();
+        ret = vm(fileName, threads);
+    }
 
     OUT_OF_RANGE->removeFromOwner();
     INCOMPATIBLE_SIZES->removeFromOwner();
+    NO_TRY_INTERCEPT->removeFromOwner();
 
     return ret;
 }

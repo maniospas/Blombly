@@ -123,8 +123,9 @@ print(next(finder));
 
 The following directives play a supporting role to other language features.
 
+<br>
 
-### !of
+**!of**
 
 The first code transformation we will look at is the `!of` statement.
 This is prepended at the beginning of a parenthesis to assign
@@ -152,7 +153,7 @@ while(x as next(!of A|iter)) print(x);
 
 
 
-### !stringify
+**!stringify**
 
 This converts a sequence of keywords and strings separated by spaces
 into one larger string. This operation is executed *at compile time*
@@ -170,7 +171,7 @@ print(message);
 Hello world!
 </pre>
 
-### !symbol
+**!symbol**
 
 This is similar to `!stringify` with the difference that at the end
 it converts the sequence of tokens into a source code symbol. 
@@ -190,7 +191,7 @@ print(varname);
 Hello world!
 </pre>
 
-### !fail
+**!fail**
 
 This immediately fails the compilation process upon occurrence. It
 stringifies the next symbol (or leaves it intact if it is a string)
