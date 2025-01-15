@@ -7,12 +7,11 @@
 #include "data/Struct.h"
 #include <unordered_set>  
 
-tsl::hopscotch_set<BMemory*> memories;
 std::atomic<unsigned long long> countUnrealeasedMemories(0);
 extern VariableManager variableManager;
 
 void BMemory::verify_noleaks() {
-    bbassert(memories.size() == 0, "There are " + std::to_string(memories.size()) + " leftover memory contexts leaked");
+    //bbassert(memories.size() == 0, "There are " + std::to_string(memories.size()) + " leftover memory contexts leaked");
     int countUnreleased = countUnrealeasedMemories.load();
     countUnrealeasedMemories = 0;
     bbassert(countUnreleased == 0, "There are " + std::to_string(countUnreleased) + " leftover memory contexts leaked");  // the main memory is a global object (needed to sync threads on errors)

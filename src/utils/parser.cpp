@@ -88,9 +88,9 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
                 }
 
                 bbassert(!hasReturned, "`!comptime` must evaluate to a value but not run a return statement.");
-                bbassert(ret, "`!comptime` must evaluate to a non-missing value.");
-
-                if (ret->getType() == STRING) result = "\"" + ret->toString(nullptr) + "\"";
+                //bbassert(ret, "`!comptime` must evaluate to a non-missing value.");
+                if(!ret) result = "#";
+                else if (ret->getType() == STRING) result = "\"" + ret->toString(nullptr) + "\"";
                 else if (ret->getType() == BB_INT || ret->getType() == BB_FLOAT || ret->getType() == BB_BOOL) result = ret->toString(nullptr);
                 else bberror("`!comptime` must must evaluate to a float, int, str, or bool.");
             } catch (const BBError& e) {
@@ -109,10 +109,7 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
         hadError = true;
     }
 
-    if (hadError) {
-        std::cerr << "Docs and bug reports: https://maniospas.github.io/Blombly\n";
-    }
-
+    if (hadError) std::cerr << "Docs and bug reports: https://maniospas.github.io/Blombly\n";
     return std::move(result);
 }
 
@@ -2026,26 +2023,29 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
         }
         else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && tokens[i + 1].name == "comptime") {
             int starti = i;
-            int depth = 1;
-            i += 3;
-            bbassert(tokens[starti+2].name=="(", "`!comptime` should always be followed by a parenthesis\n"+ Parser::show_position(tokens, starti))
+            int depth = 0;
+            i += 2;
+            std::string starter = tokens[i].name;
+            //bbassert(tokens[starti+2].name=="(", "`!comptime` should always be followed by a parenthesis\n"+ Parser::show_position(tokens, starti))
             std::string newCode;
             while(i<tokens.size()) {
                 if(tokens[i].name=="{") depth++;
-                if(tokens[i].name=="}") depth--;
+                if(tokens[i].name=="}") {depth--;if(depth==0 && starter=="{") {++i;newCode += tokens[i].name+" ";break;}};
                 if(tokens[i].name=="(") depth++;
-                if(tokens[i].name==")") {depth--;if(depth==0) break;}
+                if(tokens[i].name==")") {depth--;if(depth==0 && starter=="(") {++i;newCode += tokens[i].name+" ";break;}};
+                if(depth<0) {--i;break;}
+                if(tokens[i].name==";" && depth==0) break;
                 newCode += tokens[i].name+" ";
                 ++i;
             }
-            bbassert(i<tokens.size(), "`!comptime` parenthesis never ended (it reached the end of file)\n" + Parser::show_position(tokens, starti));
+            bbassert(i<tokens.size(), "`!comptime` never ended (it reached the end of file)\n" + Parser::show_position(tokens, starti));
             bbassert(newCode.size()>1, "!`comptime` encloses an empty expression\n" + Parser::show_position(tokens, starti));
-            if(newCode[newCode.size()-2]!='}') newCode += ";";  // skip traiking space with -2 instead of -1
+            if(newCode[newCode.size()-2]!='}') newCode += ";";  // skip trailing space with -2 instead of -1
             newCode = compileFromCode(newCode, "!comptime in "+first_source);
             newCode = optimizeFromCode(newCode, true); // always minify at comptime
             newCode = singleThreadedVMForComptime(newCode, first_source);
             
-            updatedTokens.emplace_back(newCode, tokens[starti].file, tokens[starti].line, true);
+            if(newCode!="#") updatedTokens.emplace_back(newCode, tokens[starti].file, tokens[starti].line, true);
         }
         else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 2 && tokens[i + 1].name == "include") {
             std::string libpath = tokens[i + 2].name;

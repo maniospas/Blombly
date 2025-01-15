@@ -54,25 +54,24 @@ int vm(const std::string& fileName, int numThreads) {
     bool hadError = false;
     try {
         {
+            std::ifstream inputFile(fileName);
+            bbassert(inputFile.is_open(), "Unable to open file: " + fileName);
+
+            auto program = new std::vector<Command*>();
+            auto source = new SourceFile(fileName);
+            std::string line;
+            int i = 1;
+            
+            CommandContext* descriptor = nullptr;
+            while (std::getline(inputFile, line)) {
+                if (line[0] != '%') program->push_back(new Command(line, source, i, descriptor));
+                else descriptor = new CommandContext(line.substr(1));
+                ++i;
+            }
+            inputFile.close();
+            
             BMemory memory(nullptr, DEFAULT_LOCAL_EXPECTATION);
             try {
-                std::ifstream inputFile(fileName);
-                bbassert(inputFile.is_open(), "Unable to open file: " + fileName);
-
-                auto program = new std::vector<Command*>();
-                auto source = new SourceFile(fileName);
-                std::string line;
-                int i = 1;
-                
-                CommandContext* descriptor = nullptr;
-                while (std::getline(inputFile, line)) {
-                    if (line[0] != '%') program->push_back(new Command(line, source, i, descriptor));
-                    else descriptor = new CommandContext(line.substr(1));
-                    ++i;
-                }
-
-                inputFile.close();
-
                 auto code = new Code(program, 0, program->size() - 1);
                 bool hasReturned(false);
                 executeBlock(code, &memory, hasReturned, false);
@@ -108,10 +107,10 @@ int vmFromSourceCode(const std::string& sourceCode, int numThreads) {
     bool hadError = false;
     try {
         {
+            std::string newCode = compileFromCode(sourceCode, "terminal argument");
+            newCode = optimizeFromCode(newCode, true); 
             BMemory memory(nullptr, DEFAULT_LOCAL_EXPECTATION);
             try {
-                std::string newCode = compileFromCode(sourceCode, "terminal argument");
-                newCode = optimizeFromCode(newCode, true); 
                 std::istringstream inputFile(newCode);
 
                 auto program = new std::vector<Command*>();
@@ -128,7 +127,7 @@ int vmFromSourceCode(const std::string& sourceCode, int numThreads) {
 
                 auto code = new Code(program, 0, program->size() - 1);
                 bool hasReturned(false);
-                executeBlock(code, &memory, hasReturned, false);
+                if(numThreads) executeBlock(code, &memory, hasReturned, false);
                 bbassert(!hasReturned, "The virtual machine cannot return a value.");
                 //memory.detach(nullptr);
             }

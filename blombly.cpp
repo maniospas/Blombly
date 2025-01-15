@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
         top_level_file = "";
         if(!(fileName.size()>=3 && fileName.substr(fileName.size() - 3, 3) == ".bb")
             && !(fileName.size()>=3 && fileName.substr(fileName.size() - 3, 3) == ".bb")) {
-            ret = vmFromSourceCode(fileName, 1);
+            ret = vmFromSourceCode(fileName, threads);
             if(ret) break;
             continue;
         }

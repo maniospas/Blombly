@@ -113,7 +113,7 @@ Directly run short code snippets instead of files
 by adding them as console arguments enclosed in single quotes. An example follows.
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-> <span style="color: cyan;">./blombly</span> main.bb '!comptime print("Compiled.");'  --norun
+> <span style="color: cyan;">./blombly</span> main.bb '!comptime{print("Compiled.")}'  --norun
 Compiled.
 </pre>
 
