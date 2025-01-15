@@ -2,7 +2,7 @@
 
 This section covers Blombly commands that are used in writing sequential code. It includes concepts 
 that may already be familiar, such as comments, variable handling, builtin datatypes, and flow control. 
-But rarer features are added to the mix, like immutable variables, pipes, and trying until return.
+But rarer features are added to the mix, like immutable variables, semi-types, and deferred execution.
 
 ## Comments
 

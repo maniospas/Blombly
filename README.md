@@ -99,9 +99,9 @@ Development status of planned features:
 - [x] Memory management (refcounter, raii, defer, clear, move)
 - [x] Automatic thread scheduling
 - [x] Resource access and modification safety
-- [ ] Explicit filesystem name resolution
+- [x] Explicit filesystem name resolution
 - [ ] Virtual filesystem
-- [ ] Fuzz tests (depend on virtual filesystem)
+- [ ] Fuzz tests (depends on virtual filesystem)
 - [ ] Permission management when running bbvm files, permission summaries
 - [x] Database: sqlite
 - [x] Comptime
@@ -111,9 +111,11 @@ Development status of planned features:
 - [x] Test suite (implemented through the standard library)
 - [x] Macros
 - [ ] Web sockets
-- [ ] Get client
-- [ ] FTP
-- [ ] JIT using gcc at runtime (progress: unstable at development testing)
+- [x] HTTP, HTTPS clients
+- [x] FTP, SFTP, FTPS clients
+- [ ] FTP server (may be skipped)
+- [ ] SSH
+- [ ] JIT using gcc at runtime (progress: numeric only, unstable at development testing)
 - [ ] Improve list semi-type semantics
 - [ ] Simplify map creation
 - [ ] CUDA vectors
