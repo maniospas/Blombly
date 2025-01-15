@@ -212,8 +212,8 @@ start = time();
 // join the string contents of the file iterable
 response = "https://www.google.com"|file|bb.string.join("\n");
 
-print("Response length: {response|len}");
-print("Response time: {time()-start} sec");
+print("Response length: !{response|len}");
+print("Response time: !{time()-start} sec");
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">

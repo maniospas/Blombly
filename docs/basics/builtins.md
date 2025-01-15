@@ -118,18 +118,18 @@ is overloaded by some data types. For example, format a float to a string of thr
 
 
 
-Blombly also supports string literals as syntactic sugar; expressions enclosed in brackets
-within strings are replaced with their evaluation and converted to `str`. For safety,
-symbols that terminate expressions (brackets, colons, or semicolons) 
-are not allowed within literals. Here is an example that contains a literal and some operations.
+Blombly also supports string interpolation as syntactic sugar: expressions enclosed in the pattern
+`!{...}` within string literals are replaced at compile time with their evaluation and converted to `str`. 
+For safety, symbols that terminate expressions (brackets, colons, or semicolons) 
+are not allowed within linterpolation. Here is an example that contains several operations.
 
 ```java
 // main.bb
 x = int("1");
 y = float("0.5");
 x += 1;
-print("Sum is {x+y}");
-print("Is it positive? {x+y>0}")
+print("Sum is !{x+y}");
+print("Is it positive? !{x+y>0}")
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
@@ -205,12 +205,12 @@ Here is an example with both control flow options.
 
 ```java
 // main.bb
-counter = 0;
-while (counter<5) {
+i = 0;
+while (i<5) {
     // no semicolon before `else`
-    if(counter%2==0) print("!{counter} is even")
-    else print("!{counter} is odd");
-    counter = counter + 1;
+    if(i%2==0) print("!{i} is even")
+    else print("!{i} is odd");
+    i += 1;
 }
 ```
 
@@ -224,7 +224,7 @@ while (counter<5) {
 </pre>
 
 !!! tip
-    Emulate *switch*, *continue*, or *break* concepts
+    Emulate *switch*, *continue*, or *break* 
     by intercepting return signals. This is described [later](../advanced/try.md).
 
 ## Defer

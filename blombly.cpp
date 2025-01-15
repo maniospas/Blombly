@@ -12,6 +12,7 @@
 #include "interpreter/functional.h"
 
 // git clone https://github.com/microsoft/vcpkg.git
+// codespell docs/ -i 3 -w
 
 // Experimental cmake build system (other compilers may be up to 1.5x slower than gcc):
 // mkdir build

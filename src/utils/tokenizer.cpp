@@ -178,7 +178,8 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
                 i += 1;
                 continue;
             }
-            if (c == '{') {
+            if (c == '!' && i<text.size()-1 && text[i+1]=='{') {
+                i += 1;
                 // Add current string
                 wordStream << "\"";
                 ret.emplace_back(wordStream.str(), file, line);

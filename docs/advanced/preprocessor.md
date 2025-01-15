@@ -38,7 +38,7 @@ str, obtains the latter's length, and finally prints the result. Make the whole 
 look at what the produced intermediate representation looks like: it contains only the precomputed value. 
 This directive accepts any blombly expression, including those that include other comptimes. 
 To avoid removal of the return value due to optimizations run code blocks inside it with `try`.
-If you donnot plan to retrieve a value, just put a code block next to it, or write a single bracketless command.
+If you do not plan to retrieve a value, just put a code block next to it, or write a single bracketless command.
 
 ```java
 // main.bb
@@ -60,7 +60,7 @@ print # googlelen
 
 !!! info
     Each comptime is executed independentently from the rest of compilation, although it
-    inherits its permisions (it cannot set its own). If a return value is insufficient,
+    inherits its permissions (it cannot set its own). If a return value is insufficient,
     it can also exchange information through permmited resources, such as the virtual 
     file system.
 

@@ -21,7 +21,7 @@ Unzip the release in a directory and create a file `main.bb`. Use any name but w
 ```java
 // main.bb
 name = read("What's your name?");
-print("Hello {name}.");
+print("Hello !{name}."); // string interpolation with !{...}
 ```
 
 Run `./blombly main.bb`, where the executable and main files can be any path, and check that everything is working properly. 
@@ -46,7 +46,7 @@ final Point = {
         // struct field access and f-string
         x = this.x;
         y = this.y;
-        return "({x}, {y})";
+        return "(!{x}, !{y})";
     }
 
     add(other) => new { // `=> ..` is `= {return ...}`
@@ -62,7 +62,7 @@ b = new {Point:x=3;y=4}
 
 // we defined `add`and `str`, which overload operations
 c = a+b; 
-print("{a} + {b} = {c}"); 
+print("!{a} + !{b} = !{c}"); 
 ```
 
 ```text

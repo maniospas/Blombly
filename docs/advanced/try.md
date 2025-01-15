@@ -59,8 +59,8 @@ result = try while (i <= end) {
     if (i >= start) return i;
 }
 print("Finished searching.");
-catch (result) fail("Found nothing: {result|str}"); // creates a custom error on-demand
-print("The least multiple of 3 in range [{start}, {end}] is: {result}");
+catch (result) fail("Found nothing: !{result}"); // creates a custom error on-demand
+print("The least multiple of 3 in range [!{start}, !{end}] is: !{result}");
 ```
 
 <pre style="font-size: 80%; background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto; overflow-x: auto;">

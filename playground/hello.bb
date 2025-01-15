@@ -1,1 +1,3 @@
-print("hello world!");
+// main.bb
+name = read("What's your name?");
+print("Hello !{name}.");

@@ -7,12 +7,12 @@ html.html(title, body) = {
     return "<!DOCTYPE html>
         <html>
         <head>
-            <title>{title|str}</title>
-            <link href='{stylesheet}' rel='stylesheet'>
+            <title>!{title|str}</title>
+            <link href='!{stylesheet}' rel='stylesheet'>
         </head>
         <body>
-            <script src='{src|str}'>{script|str}</script>
-            {body}
+            <script src='!{src|str}'>!{script|str}</script>
+            !{body}
         </body>
         </html>
     ";
@@ -33,10 +33,10 @@ html.dom(name) = {
                 contents = contents + element|str;
             // additional element values
             preample = "";
-            if(this.cssclass|len|bool) preample += " class='{this.cssclass}'";
-            if(this.style|len|bool) preample += " style='{this.style}'";
+            if(this.cssclass|len|bool) preample += " class='!{this.cssclass}'";
+            if(this.style|len|bool) preample += " style='!{this.style}'";
             // compose everything
-            ret = "<{this.name}{preample}>{contents}</{this.name}>";
+            ret = "<!{this.name}!{preample}>!{contents}</!{this.name}>";
             return ret;
         }
         child(name) = {

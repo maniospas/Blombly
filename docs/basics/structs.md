@@ -91,8 +91,8 @@ final fib = {
 tic = time();
 result = fib(n=21);
 toc = time();
-print("Result {result}");
-print("Elapsed {toc-tic} sec");
+print("Result !{result}");
+print("Elapsed !{toc-tic} sec");
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
@@ -147,7 +147,7 @@ by returning `this` from the method and calling it with the pattern `accum = acc
 ```java
 accum = new {
     value = 0;
-    add(x) = {this.value += x; print("added {x}  sum {this.value}")}
+    add(x) = {this.value += x; print("added !{x}  sum !{this.value}")}
 }
 
 try while(i in range(10)) accum.add(i); // try synchronizes everything at its end
@@ -266,9 +266,7 @@ print(result);
 </pre>
 
 !!! info
-    All overloaded operations are executed synchronously to minimize side effects.
-    Only functions and overloaded struct calls execute concurrently to the rest 
-    of the program.
+    All struct methods other than overloaded calls are executed synchronously to minimize side effects.
 
 ## Creation closure
 
@@ -297,7 +295,7 @@ Point2D = {
         x = this..x + other.x;
         y = this..y + other.y;
     }
-    str() => "({this.x}, {this.y})"; 
+    str() => "(!{this.x}, !{this.y})"; 
 }
 
 p1 = new {Point2D:x=1;y=2} 

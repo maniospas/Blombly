@@ -144,9 +144,9 @@ and runs `as next` on it. Here is an example.
 
 ```java
 A = 1,2,3;
-print("Original length {A|len}");
+print("Original length !{A|len}");
 while(i in A) print(i);
-print("Length after iteration {A|len}");
+print("Length after iteration !{A|len}");
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">

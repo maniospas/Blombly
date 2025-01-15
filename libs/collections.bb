@@ -17,7 +17,7 @@ final collection = new {
 final db(str path) => new {
     final connector = sqlite(path);
     final table(str table_name, str signature) = {
-        this.connector["CREATE TABLE IF NOT EXISTS {table_name} ({signature});"];
+        this.connector["CREATE TABLE IF NOT EXISTS !{table_name} (!{signature});"];
         return new {
             insert(entry) = {
                 keys = list();
@@ -27,11 +27,11 @@ final db(str path) => new {
                     push(values, pair|next|str);
                 }
                 join = bb.string.join(",");
-                this...connector["INSERT INTO {this..table_name} ({keys|join}) VALUES ({values|join})"];
+                this...connector["INSERT INTO !{this..table_name} (!{keys|join}) VALUES (!{values|join})"];
             }
             select(str where) = {
-                if(where=="*") return this...connector["SELECT * FROM {this..table_name}"];
-                return this...connector["SELECT * FROM {this..table_name} WHERE {where};"];
+                if(where=="*") return this...connector["SELECT * FROM !{this..table_name}"];
+                return this...connector["SELECT * FROM !{this..table_name} WHERE !{where};"];
             }
         }
     }
@@ -48,10 +48,10 @@ final db(str path) => new {
 }
 
 final logger = new {
-    final ok(str text) = {print("[  {bb.ansi.lightgreen}ok{bb.ansi.reset}  ] {text}")}
-    final fail(str text) = {print("[ {bb.ansi.lightred}fail{bb.ansi.reset} ] {text}")}
-    final warn(str text) = {print("[ {bb.ansi.yellow}warn{bb.ansi.reset} ] {text}")}
-    final info(str text) = {print("[ {bb.ansi.lightcyan}info{bb.ansi.reset} ] {text}")}
+    final ok(str text) = {print("[  !{bb.ansi.lightgreen}ok!{bb.ansi.reset}  ] !{text}")}
+    final fail(str text) = {print("[ !{bb.ansi.lightred}fail!{bb.ansi.reset} ] !{text}")}
+    final warn(str text) = {print("[ !{bb.ansi.yellow}warn!{bb.ansi.reset} ] !{text}")}
+    final info(str text) = {print("[ !{bb.ansi.lightcyan}info!{bb.ansi.reset} ] !{text}")}
 }
 
 final memory = new {
@@ -61,9 +61,7 @@ final memory = new {
             push(this.entries, obj);
             return obj;
         }
-        final clear() = {
-            while(obj as this.entries|next) clear(obj);
-        }
+        final clear() = {while(obj as this.entries|next) clear(obj)}
     }
 }
 
@@ -89,7 +87,7 @@ final os = new {
             if(checksum==dsttext["md5"]) return true;
         }
         text = src|bb.os.read;
-        if(checksum|len|bool) if(checksum!=text["md5"]) fail("Mismatching checksum: {src|str}");
+        if(checksum|len|bool) if(checksum!=text["md5"]) fail("Mismatching checksum: !{src|str}");
         push(dst, text);
         return true;
     }

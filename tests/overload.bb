@@ -1,7 +1,7 @@
 final Num = {
     int => this.value;
     lt(other) => this.value < other.value;
-    str => "num {this.value}";
+    str => "num !{this.value}";
 }
 num(x) => new {Num:value=x}
 
