@@ -35,12 +35,15 @@ automously by the interpreter.
 This directive evaluates expressions at compile time, and then packs their outcome in the produced intermediate
 representation. For example, consider the next code open that opens web page as a file, obtains its contents with conversion to
 str, obtains the latter's length, and finally prints the result. Make the whole process run at `!comptime` and 
-look at what the produced intermediate representation looks like: it contains only the precomputed value.
+look at what the produced intermediate representation looks like: it contains only the precomputed value. 
+This directive accepts any blombly expression, including those that include other comptimes. 
+To avoid removal of the return value due to optimizations run code blocks inside it with `try`.
+If you donnot plan to retrieve a value, just put a code block next to it, or write a single bracketless command.
 
 ```java
 // main.bb
 !access "http://" // grant access permissions to http requests
-googlelen = !comptime("http://www.google.com/"|file|str|len);
+googlelen = !comptime "http://www.google.com/"|file|str|len;
 print(googlelen);
 ```
 
@@ -54,10 +57,12 @@ print # googlelen
 </pre>
 
 
-`!comptime` accepts any blombly expression, including those that include itself. 
-To avoid removal of the return value due to optimizations run code blocks inside it with `try`.
-Note that each directive is executed independentently from the rest of the build process, 
-meaning that you cannot make it depend on other steps of the build process.
+
+!!! info
+    Each comptime is executed independentently from the rest of compilation, although it
+    inherits its permisions (it cannot set its own). If a return value is insufficient,
+    it can also exchange information through permmited resources, such as the virtual 
+    file system.
 
 
 ## !macro

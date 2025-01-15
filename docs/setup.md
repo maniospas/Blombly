@@ -106,16 +106,18 @@ Provide multiple source files to compile and run in their order of
 occurrence. Consider those files as steps of a modular build process.
 Command line arguments apply to all of them, and [IO](basics/io.md) 
 configurations described in the user guide carry over between the steps. 
-For example, resource permissions and the virtual file system can be defined
-at one step and carried over to the next ones. Think of this as 
-sharing the same execution environment across steps.
-Directly run short code snippets instead of files
+Example configurations are resource permissions and the virtual file system.
+Directly run short code snippets instead of files in some steps
 by adding them as console arguments enclosed in single quotes. An example follows.
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-> <span style="color: cyan;">./blombly</span> main.bb '!comptime{print("Compiled.")}'  --norun
-Compiled.
+> <span style="color: cyan;">./blombly</span> main.bb 'print("Hi from the terminal.");'
+Hello world!
+Hi from the terminal.
 </pre>
+
+!!! tip
+    Think of build process steps as programs running on the same virtual environment.
 
 ## Errors
 
