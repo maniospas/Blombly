@@ -10,8 +10,11 @@
 #include <fstream>
 #include <sstream>
 #include <curl/curl.h> // Include libcurl
-#include <filesystem> // Include filesystem library
 #include <algorithm>  // For std::remove
+#include <filesystem>
+#include <string>
+#include <unordered_map>
+#include <stdexcept>
 
 namespace fs = std::filesystem;
 
@@ -20,11 +23,8 @@ extern BError* OUT_OF_RANGE;
 static std::vector<std::string> allowedLocations = {};
 static std::vector<std::string> allowedWriteLocations = {};
 extern std::string blombly_executable_path;
-
-#include <filesystem>
-#include <string>
-#include <unordered_map>
-#include <stdexcept>
+std::unordered_map<std::string, std::string> virtualFileSystem;
+std::recursive_mutex virtualFileSystemLock;
 
 namespace fs = std::filesystem;
 
@@ -54,7 +54,15 @@ std::string normalizeFilePath(const std::string& path) {
 
 
 bool isAllowedLocation(const std::string& path_) {
-    std::string path = fs::weakly_canonical(normalizeFilePath(path_)).string();
+    std::string path = normalizeFilePath(path_);
+    if(path.rfind("http://", 0)==0 
+        || path.rfind("https://", 0)==0 
+        || path.rfind("ftp://", 0)==0 
+        || path.rfind("sftp://", 0)==0
+        || path.rfind("ftps://", 0)==0
+        || path.rfind("vfs://", 0)==0){}
+    else
+        path = fs::weakly_canonical(path).string();
     for (const auto& location : allowedLocations) if(path.size() >= location.size() && path.compare(0, location.size(), location) == 0) return true;
     return false;
 }
@@ -66,7 +74,15 @@ bool isAllowedLocationNoNorm(const std::string& path_) {
 }
 
 bool isAllowedWriteLocation(const std::string& path_) {
-    std::string path = fs::weakly_canonical(normalizeFilePath(path_)).string();
+    std::string path = normalizeFilePath(path_);
+    if(path.rfind("http://", 0)==0 
+        || path.rfind("https://", 0)==0 
+        || path.rfind("ftp://", 0)==0 
+        || path.rfind("sftp://", 0)==0
+        || path.rfind("ftps://", 0)==0
+        || path.rfind("vfs://", 0)==0){}
+    else
+        path = fs::weakly_canonical(path).string();
     for (const auto& location : allowedWriteLocations) if(path.size() >= location.size() && path.compare(0, location.size(), location) == 0) return true;
     return false;
 }
@@ -108,13 +124,11 @@ size_t ReadCallback(void* ptr, size_t size, size_t nmemb, void* stream) {
     return contentStream->gcount(); // Return the number of bytes read
 }
 
-
 class CurlHandle {
 public:
     CurlHandle() : handle(curl_easy_init()) {if (!handle) throw std::runtime_error("Failed to initialize CURL");}
     ~CurlHandle() {if (handle) curl_easy_cleanup(handle);}
     CURL* get() const {return handle;}
-
 private:
     CURL* handle;
     CurlHandle(const CurlHandle&) = delete;
@@ -314,8 +328,13 @@ void BFile::loadContents() {
                                       "\n       Permisions can only be granted this way from the virtual machine's entry point."
                                       "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
     if (contentsLoaded) return;
-
-    if (path.rfind("http://", 0) == 0) {
+    if (path.rfind("vfs://", 0) == 0) {
+        std::lock_guard<std::recursive_mutex> lock(virtualFileSystemLock);
+        if(virtualFileSystem.find(path)==virtualFileSystem.end()) bberror("Virtual file does not exist: " + path);
+        std::istringstream file(virtualFileSystem[path]);
+        std::string line;
+        while (std::getline(file, line)) contents.push_back(line);
+    } else if (path.rfind("http://", 0) == 0) {
         std::string httpContent = fetchHttpContent(path, timeout);
         bbassert(!httpContent.empty(), "Failed to fetch content from HTTP path: " + path);
         std::istringstream stream(httpContent);
@@ -378,6 +397,7 @@ bool BFile::exists() const {
     if (path.rfind("ftp://", 0) == 0) return true;
     if (path.rfind("sftp://", 0) == 0) return true;
     if (path.rfind("ftps://", 0) == 0) return true;
+    if (path.rfind("vfs://", 0) == 0) virtualFileSystem.find(path) != virtualFileSystem.end();
     return fs::exists(path);
 }
 
@@ -409,9 +429,13 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
 
         std::string newContents = args->arg1->toString(memory);
         
-        if (path.rfind("ftp", 0) == 0) uploadFtpContent(path, newContents, username, password, timeout);
-        else if (path.rfind("sftp", 0) == 0) uploadSftpContent(path, newContents, username, password, timeout);
-        else if (path.rfind("ftps", 0) == 0) uploadFtpsContent(path, newContents, username, password, timeout);
+        if (path.rfind("vfs://", 0) == 0) {
+            std::lock_guard<std::recursive_mutex> lock(virtualFileSystemLock);
+            virtualFileSystem[path] = newContents;
+        }
+        else if (path.rfind("ftp://", 0) == 0) uploadFtpContent(path, newContents, username, password, timeout);
+        else if (path.rfind("sftp://", 0) == 0) uploadSftpContent(path, newContents, username, password, timeout);
+        else if (path.rfind("ftps://", 0) == 0) uploadFtpsContent(path, newContents, username, password, timeout);
         else {
             fs::path filePath(path);
             if (filePath.parent_path().string().size() && !fs::exists(filePath.parent_path())) {

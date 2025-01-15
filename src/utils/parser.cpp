@@ -1842,7 +1842,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             std::string source = libpath.substr(1, libpath.size() - 2);
             if(top_level_file!=tokens[i].file.back()) {
                 bbassert(isAllowedWriteLocation(source), "Unexpected `!modify` for new permissions"
-                                            "\n  \033[33m!!!\033[0m This preprocessor directive creates permissions only if generate at the top-level (aka main)"
+                                            "\n  \033[33m!!!\033[0m This preprocessor directive creates permissions only if generated at the top-level (aka main)"
                                             "\n      file being parsed. It is then passed on to all `!include` and `!comptime` directives, like the one that has"
                                             "\n      just been interrupted. Here, you cannot add new permissions that are not already present."
                                             "\n  \033[33m!!!\033[0m The permissions being requested can be added your main file at an earlier stage after"
