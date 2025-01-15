@@ -13,6 +13,7 @@ extern BError* OUT_OF_RANGE;
 extern bool isAllowedLocationNoNorm(const std::string& path);
 extern bool isAllowedWriteLocationNoNorm(const std::string& path);
 extern std::string normalizeFilePath(const std::string& path);
+extern void ensureWritePermissionsNoNorm(const std::string& dbPath);
 
 
 Database::Database(const std::string& dbPath_) : Data(SQLLITE), dbPath(normalizeFilePath(dbPath_)), db(nullptr) {
@@ -27,10 +28,7 @@ Database::Database(const std::string& dbPath_) : Data(SQLLITE), dbPath(normalize
                                         "\n   \033[33m!!!\033[0m Add read permissions using `!access \"location\"`.");
 
     int flags = isAllowedWriteLocationNoNorm(dbPath) ? (SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE) : SQLITE_OPEN_READONLY;
-    if(flags!=SQLITE_OPEN_READONLY) {
-        fs::path filePath(dbPath);
-        if (filePath.parent_path().string().size() && !fs::exists(filePath.parent_path())) fs::create_directories(filePath.parent_path());
-    }
+    if(flags!=SQLITE_OPEN_READONLY) ensureWritePermissionsNoNorm(dbPath);
     int rc = sqlite3_open_v2(dbPath.c_str(), &db, flags, nullptr);
     if (rc == SQLITE_CANTOPEN) {
         std::string error;

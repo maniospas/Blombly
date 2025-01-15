@@ -102,6 +102,23 @@ void addAllowedWriteLocation(const std::string& location_) {
     addAllowedLocation(location_);
 }
 
+void ensureWritePermissionsNoNorm(const std::string& dbPath) {
+    namespace fs = std::filesystem;
+    
+    fs::path filePath(dbPath);
+    fs::path parentPath = filePath.parent_path();
+    while (!parentPath.empty()) {
+        if (fs::exists(parentPath)) {
+            if (filePath.parent_path().string().size() && !fs::exists(filePath.parent_path())) fs::create_directories(filePath.parent_path());
+            return; 
+        }
+        parentPath = parentPath.parent_path();
+    }
+    bberror("There are no parent paths with write access for: " + dbPath + 
+            "\n   \033[33m!!!\033[0m Add write permissions using `!access \"location\"`.");
+}
+
+
 void clearAllowedLocations() {
     allowedLocations.clear();
     allowedWriteLocations.clear();
@@ -437,10 +454,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
         else if (path.find("sftp://", 0) == 0) uploadSftpContent(path, newContents, username, password, timeout);
         else if (path.find("ftps://", 0) == 0) uploadFtpsContent(path, newContents, username, password, timeout);
         else {
-            fs::path filePath(path);
-            if (filePath.parent_path().string().size() && !fs::exists(filePath.parent_path())) {
-                fs::create_directories(filePath.parent_path());
-            }
+            ensureWritePermissionsNoNorm(path);
             std::ofstream file(path, std::ios::trunc);
             bbassert(file.is_open(), "Failed to open file for writing: " + path);
             file << newContents;
