@@ -35,15 +35,15 @@ std::string normalizeFilePath(const std::string& path) {
         {"bb://", blombly_executable_path},       // Base directory where ./blombly resides
         {"raw://", ""}                           // Direct file path without a specific base
     };
-    if (path.rfind("http://", 0) == 0 
-        || path.rfind("https://", 0) == 0 
-        || path.rfind("ftp://", 0) == 0 
-        || path.rfind("sftp://", 0) == 0 
-        || path.rfind("ftps://", 0) == 0 
-        || path.rfind("vfs://", 0) == 0) return path;
+    if (path.find("http://", 0) == 0 
+        || path.find("https://", 0) == 0 
+        || path.find("ftp://", 0) == 0 
+        || path.find("sftp://", 0) == 0 
+        || path.find("ftps://", 0) == 0 
+        || path.find("vfs://", 0) == 0) return path;
 
     for (const auto& [prefix, baseDir] : prefixToBaseDir) {
-        if (path.rfind(prefix, 0) == 0) {
+        if (path.find(prefix, 0) == 0) {
             fs::path execFilePath = baseDir / path.substr(prefix.size());
             return fs::weakly_canonical(execFilePath).string();
         }
@@ -55,12 +55,12 @@ std::string normalizeFilePath(const std::string& path) {
 
 bool isAllowedLocation(const std::string& path_) {
     std::string path = normalizeFilePath(path_);
-    if(path.rfind("http://", 0)==0 
-        || path.rfind("https://", 0)==0 
-        || path.rfind("ftp://", 0)==0 
-        || path.rfind("sftp://", 0)==0
-        || path.rfind("ftps://", 0)==0
-        || path.rfind("vfs://", 0)==0){}
+    if(path.find("http://", 0)==0 
+        || path.find("https://", 0)==0 
+        || path.find("ftp://", 0)==0 
+        || path.find("sftp://", 0)==0
+        || path.find("ftps://", 0)==0
+        || path.find("vfs://", 0)==0){}
     else
         path = fs::weakly_canonical(path).string();
     for (const auto& location : allowedLocations) if(path.size() >= location.size() && path.compare(0, location.size(), location) == 0) return true;
@@ -75,12 +75,12 @@ bool isAllowedLocationNoNorm(const std::string& path_) {
 
 bool isAllowedWriteLocation(const std::string& path_) {
     std::string path = normalizeFilePath(path_);
-    if(path.rfind("http://", 0)==0 
-        || path.rfind("https://", 0)==0 
-        || path.rfind("ftp://", 0)==0 
-        || path.rfind("sftp://", 0)==0
-        || path.rfind("ftps://", 0)==0
-        || path.rfind("vfs://", 0)==0){}
+    if(path.find("http://", 0)==0 
+        || path.find("https://", 0)==0 
+        || path.find("ftp://", 0)==0 
+        || path.find("sftp://", 0)==0
+        || path.find("ftps://", 0)==0
+        || path.find("vfs://", 0)==0){}
     else
         path = fs::weakly_canonical(path).string();
     for (const auto& location : allowedWriteLocations) if(path.size() >= location.size() && path.compare(0, location.size(), location) == 0) return true;
@@ -328,37 +328,37 @@ void BFile::loadContents() {
                                       "\n       Permisions can only be granted this way from the virtual machine's entry point."
                                       "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
     if (contentsLoaded) return;
-    if (path.rfind("vfs://", 0) == 0) {
+    if (path.find("vfs://", 0) == 0) {
         std::lock_guard<std::recursive_mutex> lock(virtualFileSystemLock);
         if(virtualFileSystem.find(path)==virtualFileSystem.end()) bberror("Virtual file does not exist: " + path);
         std::istringstream file(virtualFileSystem[path]);
         std::string line;
         while (std::getline(file, line)) contents.push_back(line);
-    } else if (path.rfind("http://", 0) == 0) {
+    } else if (path.find("http://", 0) == 0) {
         std::string httpContent = fetchHttpContent(path, timeout);
         bbassert(!httpContent.empty(), "Failed to fetch content from HTTP path: " + path);
         std::istringstream stream(httpContent);
         std::string line;
         while (std::getline(stream, line)) contents.push_back(line);
-    } else if (path.rfind("https://", 0) == 0) {
+    } else if (path.find("https://", 0) == 0) {
         std::string httpContent = fetchHttpsContent(path, username, password, timeout);
         bbassert(!httpContent.empty(), "Failed to fetch content from HTTP path: " + path);
         std::istringstream stream(httpContent);
         std::string line;
         while (std::getline(stream, line)) contents.push_back(line);
-    } else if (path.rfind("ftp://", 0) == 0) {
+    } else if (path.find("ftp://", 0) == 0) {
         std::string ftpContent = fetchFtpContent(path, username, password, timeout);
         bbassert(!ftpContent.empty(), "Failed to fetch content from FTP path: " + path);
         std::istringstream stream(ftpContent);
         std::string line;
         while (std::getline(stream, line)) contents.push_back(line);
-    } else if (path.rfind("sftp://", 0) == 0) {
+    } else if (path.find("sftp://", 0) == 0) {
         std::string sftpContent = fetchSftpContent(path, username, password, timeout);
         bbassert(!sftpContent.empty(), "Failed to fetch content from SFTP path: " + path);
         std::istringstream stream(sftpContent);
         std::string line;
         while (std::getline(stream, line)) contents.push_back(line);
-    } else if (path.rfind("ftps://", 0) == 0) {
+    } else if (path.find("ftps://", 0) == 0) {
         std::string ftpsContent = fetchFtpsContent(path, username, password, timeout);
         bbassert(!ftpsContent.empty(), "Failed to fetch content from FTPS path: " + path);
         std::istringstream stream(ftpsContent);
@@ -392,12 +392,12 @@ bool BFile::exists() const {
                                       "\n       You need to add read permissions to a location containting the prefix with `!access \"location\"`."
                                       "\n       Permisions can only be granted this way from the virtual machine's entry point."
                                       "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
-    if (path.rfind("http://", 0) == 0) return true;
-    if (path.rfind("https://", 0) == 0) return true;
-    if (path.rfind("ftp://", 0) == 0) return true;
-    if (path.rfind("sftp://", 0) == 0) return true;
-    if (path.rfind("ftps://", 0) == 0) return true;
-    if (path.rfind("vfs://", 0) == 0) virtualFileSystem.find(path) != virtualFileSystem.end();
+    if (path.find("http://", 0) == 0) return true;
+    if (path.find("https://", 0) == 0) return true;
+    if (path.find("ftp://", 0) == 0) return true;
+    if (path.find("sftp://", 0) == 0) return true;
+    if (path.find("ftps://", 0) == 0) return true;
+    if (path.find("vfs://", 0) == 0) virtualFileSystem.find(path) != virtualFileSystem.end();
     return fs::exists(path);
 }
 
@@ -429,13 +429,13 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
 
         std::string newContents = args->arg1->toString(memory);
         
-        if (path.rfind("vfs://", 0) == 0) {
+        if (path.find("vfs://", 0) == 0) {
             std::lock_guard<std::recursive_mutex> lock(virtualFileSystemLock);
             virtualFileSystem[path] = newContents;
         }
-        else if (path.rfind("ftp://", 0) == 0) uploadFtpContent(path, newContents, username, password, timeout);
-        else if (path.rfind("sftp://", 0) == 0) uploadSftpContent(path, newContents, username, password, timeout);
-        else if (path.rfind("ftps://", 0) == 0) uploadFtpsContent(path, newContents, username, password, timeout);
+        else if (path.find("ftp://", 0) == 0) uploadFtpContent(path, newContents, username, password, timeout);
+        else if (path.find("sftp://", 0) == 0) uploadSftpContent(path, newContents, username, password, timeout);
+        else if (path.find("ftps://", 0) == 0) uploadFtpsContent(path, newContents, username, password, timeout);
         else {
             fs::path filePath(path);
             if (filePath.parent_path().string().size() && !fs::exists(filePath.parent_path())) {
@@ -464,14 +464,14 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
                                             "\n       Permisions can only be granted this way from the virtual machine's entry point."
                                             "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
 
-            /*bbassert(path.rfind("http://", 0)!=0, "Cannot clear HTTP resource (it does not persist): " + path);
-            bbassert(path.rfind("https://", 0)!=0, "Cannot clear HTTPS resource (it does not persist): " + path);
-            bbassert(path.rfind("https://", 0)!=0, "Cannot clear FTP resource (it does not persist): " + path);*/
-            if(path.rfind("http://", 0)==0 
-                || path.rfind("https://", 0)==0 
-                || path.rfind("ftp://", 0)==0 
-                || path.rfind("sftp://", 0)==0
-                || path.rfind("ftps://", 0)==0) {
+            /*bbassert(path.find("http://", 0)!=0, "Cannot clear HTTP resource (it does not persist): " + path);
+            bbassert(path.find("https://", 0)!=0, "Cannot clear HTTPS resource (it does not persist): " + path);
+            bbassert(path.find("https://", 0)!=0, "Cannot clear FTP resource (it does not persist): " + path);*/
+            if(path.find("http://", 0)==0 
+                || path.find("https://", 0)==0 
+                || path.find("ftp://", 0)==0 
+                || path.find("sftp://", 0)==0
+                || path.find("ftps://", 0)==0) {
                     bberror("Cannot clear a web resource: "+path);
                 }
             bbassert(fs::exists(path), "Path does not exist: " + path);

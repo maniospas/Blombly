@@ -28,7 +28,7 @@ Database::Database(const std::string& dbPath_) : Data(SQLLITE), dbPath(normalize
 
     int flags = isAllowedWriteLocationNoNorm(dbPath) ? (SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE) : SQLITE_OPEN_READONLY;
     if(flags!=SQLITE_OPEN_READONLY) {
-        fs::path filePath(dbPath_);
+        fs::path filePath(dbPath);
         if (filePath.parent_path().string().size() && !fs::exists(filePath.parent_path())) fs::create_directories(filePath.parent_path());
     }
     int rc = sqlite3_open_v2(dbPath.c_str(), &db, flags, nullptr);
