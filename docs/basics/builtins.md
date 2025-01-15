@@ -165,24 +165,22 @@ print("1.2345"|float|fmt);
 
 Similarly to numeric operations, the expression `variable |= func;` reassigns to a variable. 
 In this case, however, the leftwise function is applied first, enabling the pattern
-`variable |= func1|func2|...;` 
-This notation is intentionally similar to 
-[double turnstile](https://en.wikipedia.org/wiki/Double_turnstile) and may be thought of as 
-a way to indicate that a variable being able to model
-some property through a series of transformations. For example a statement `x|=float;` indicates
-that `x` can be converted to a float and will be treated thusly from thereon.
+`variable |= func1|func2|...;`.
 We call the modelled property that is common across function outputs
 a *semi-type* given that it is semantically guaranteed for subsequent code.
-
-<br>
-
-Semi-types are a weak typing system in that they allow
-automatic conversion between built-ins.
-But they also bring strong typing conventions by applying specific 
-transformations to ensure that a desired state
+It brings strong typing conventions by ensuring that a desired state
 is maintained for subsequent code. 
-They naturally occur as long if you use the dash (`|`) notation 
-for function calls of one argument.
+
+
+!!! info
+    This notation is intentionally similar to 
+    [double turnstile](https://en.wikipedia.org/wiki/Double_turnstile) and may be thought of as 
+    a way to indicate that a variable being able to model
+    some property through a series of transformations. For example a statement `x|=float;` indicates
+    that `x` can be converted to a float and will be treated thusly from thereon.
+
+!!! tip
+    Usi the dash (`|`) notation for function calls of one argument, even if you don't have a semi-type interpretation in mind.
 
 
 ## Control flow

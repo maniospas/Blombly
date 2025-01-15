@@ -1,15 +1,13 @@
 # Iterables
 
-Here we cover builtin types that represent collections of elements.
+Here we cover builtin types that represent collections of elements that can
+be iterated.
 These are `list`, `vector`, `map`, `range`, and the complementary `iter`
-that helps loops iterate through elements. All the aforementioned
-data types are called iterables because they can successfully be
-typecasted into `iter` instances. 
-Some [structs](structs.md) are
-also treated as iterables if they overload the appropriate operations, 
-but more on this elsewhere. For now, keep in mind that converting to
-iterators is done automatically when you use the `in` syntactic sugar presented
-later in this page.
+that helps loop through the elements of the rest.
+[Structs](structs.md) overloading element access and length are
+also treated as iterables. Converting to
+iterators before looping is done 
+automatically when using the `in` statement presented later.
 
 
 ## Lists
@@ -94,7 +92,7 @@ while(a as A|next) print(a);
 
 
 
-To leave the original list intact as you add more data, concatenate it with other lists, like below.
+Cconcatenate lists to leave the originals intact, like below.
 
 ```java
 // main.bb
@@ -228,7 +226,7 @@ the same based on their value, whereas other data match only themselves.
 Maps implement member access and set operators. But they are also iterables
 that yield `key, value` pairs as lists of two entries. Pop from the front or back of the pair 
 with the `|` notation to extract keys and values with concise syntax that retains
-clear semantics.
+clear semantics. Finally, concatenate maps by adding them.
 
 
 ```java
@@ -256,5 +254,5 @@ C
 A
 </pre>
 
-
-*Blombly does not implement sets. Instead, treat those as maps from objects to `true`.*
+!!! tip
+    Blombly does not implement sets. Instead, treat those as maps from objects to `true`.

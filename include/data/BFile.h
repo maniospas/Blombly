@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include "data/Data.h"
+#include <mutex>
 
 
 class BFile : public Data {
@@ -15,6 +16,10 @@ private:
     bool contentsLoaded;
     void loadContents();
     bool exists() const;
+    std::string username;
+    std::string password;
+    long timeout = 0;
+    mutable std::recursive_mutex memoryLock;
 public:
     explicit BFile(const std::string& path_);
 

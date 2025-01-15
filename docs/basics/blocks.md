@@ -38,6 +38,14 @@ Use a `return` statement to yield back a value. This stops block
 execution immediately. An example of running 
 a code block follows.
 
+<br>
+
+Being able to execute code as part of the arguments allows more
+dynamic patterns than regular keyword arguments, namely the reuse
+of arbitrary preparations before calling methods. For example,
+declare configuration blocks that generate the arguments 
+and inline them within the calling parenthesis.
+
 ```java 
 // main.bb
 adder = {
@@ -52,11 +60,8 @@ print(result);
 3
 </pre>
 
-Being able to execute code as part of the arguments allows more
-dynamic patterns than regular keyword arguments, namely the reuse
-of arbitrary preparations before calling methods. For example,
-declare configuration blocks that generate the arguments 
-and inline them within the calling parenthesis.
+## Immediate return
+
 Blombly comes alongside several [macros](../advanced/preprocessor.md), one of which is `@signature => @expression`. This is a shorthand for code blocks that only return an expression's outcome.
 Below is an example that combines several concepts.
 

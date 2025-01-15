@@ -48,6 +48,36 @@ print(point.zbias); // CREATES AN ERROR
         <span style="color: lightblue;">→</span>  get _bb12 point zbias                              main.bbvm line 20
 </pre>
 
+In Blombly, inlining can be used to treat code blocks as part of constructors. This is a generalization of multi-inheritance that allows any number of blocks to work together during struct definitions. Inline the declaration of member functions as in the following example.
+To prevent code smells, the compiler does not accept the notation `new @block` where `@block` is a code block variable. 
+Inline code per `new {@block:}`. Also for security, any field that is not made final during a struct creation cannot be made final in the future. 
+This imposes a clear distinction between mutable and immutable fields.  
+
+```java
+Point = { 
+    final norm => (this.x^2+this.y^2)^0.5;
+} 
+XYSetter = { 
+    // setters return `this` for synchronization
+    final setx(value) = {this.x = value;return this} 
+    final sety(value) = {this.y = value;return this}
+} 
+point = new {Point:XYSetter:x=0;y=0} 
+point = point.sety(4);
+print(point.norm());
+```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+(0, 4) 
+4.000000 
+</pre>
+
+
+
+
+## Return from new
+
 Interrupting struct creation with a return statement changes the yielded value to something else. It is thus equivalent to isolating the scope.
 For example, the following snippet is a valid (though not efficient in terms of asymptotic complexity) method for recursively computing 
 a term of the Fibonacci sequence *without function calls*. Blombly always executes `new` without parallelization.
@@ -69,33 +99,6 @@ print("Elapsed {toc-tic} sec");
 > <span style="color: cyan;">./blombly</span> main.bb
 Result 17711 
 Elapsed 0.051626 sec 
-</pre>
-
-
-
-In Blombly, inlining can be used to treat code blocks as part of constructors. This is a generalization of multi-inheritance that allows any number of blocks to work together during struct definitions. Inline the declaration of member functions as in the following example.
-To prevent code smells, the compiler does not accept the notation `new {@block}` where `@block` is a code block. Inline code per `new {@block:}`. Similarly, 
-final struct fields cannot be set. That is, any field that is not made final during a struct creation cannot be made final in the future. 
-This imposes a clear distinction between mutable and immutable fields.  
-
-```java
-Point = { 
-    final norm => (this.x^2+this.y^2)^0.5;
-} 
-XYSetter = { 
-    // setters return `this` for synchronization
-    final setx(value) = {this.x = value;return this} 
-    final sety(value) = {this.y = value;return this}
-} 
-point = new {Point:XYSetter:x=0;y=0} 
-point = point.sety(4);
-print(point.norm());
-```
-
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-> <span style="color: cyan;">./blombly</span> main.bb
-(0, 4) 
-4.000000 
 </pre>
 
 
@@ -128,7 +131,7 @@ The relation between the struct and the method retrieved with the dot notation
 is maintained only within the current scope. But the block may be attached to another struct to serve as its method, or even
 be completely detached from any struct when returned from a function call. 
 
-<br>
+## Struct locality
 
 Blombly retains struct atomicity while calling methods.
 That is, structs are guaranteed to never be modified while any of their methods run, without
@@ -279,31 +282,17 @@ However, this requires a lot of additional code to maintain information
 and could be shadowed by other struct fields. For this reason, Blombly offers an
 automatic way to bring external values to the struct; accessing them
 like fields while using more than one dots after `this`. When doing so, each additional dot
-injects a pattern from obtaining a value from an enclosing scope. Below is an example.
-
-```java
-// main.bb (simplified equivalent)
-value = 1;
-A = new {
-    float => this..value; // escape from float and then from A
-}
-value = 2;
-print(A|float);
-```
-
-
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-> <span style="color: cyan;">./blombly</span> main.bb
-1
-</pre>
-
+injects a pattern from obtaining a value from an enclosing scope. For example, `this..value` 
+indicates that the variable `value` is maintained from the scope in which the struct
+was created.
 The same pattern may be used in more levels of closure. Here is an example similar to the previous 2D point.
-But, even in the more complicated scenario, we retain the same small level of visual nesting.
+Thanks to creation closure, we can use `=>` to retain a small level of visual nesting.
 
 ```java
 Point2D = {
     add(other) => new {
-        Point2D = this...Point2D; // needed to assign to Point2D so that inlining can see it again
+        // Point2D need to exist against to be transferred
+        Point2D = this...Point2D;
         Point2D:
         x = this..x + other.x;
         y = this..y + other.y;
@@ -313,7 +302,7 @@ Point2D = {
 
 p1 = new {Point2D:x=1;y=2} 
 p2 = new {Point2D:x=2;y=3}
-Point2D = {fail("Point2D has been invalidated")} // prevents future usage
+Point2D = {fail("Point2D has been invalidated")} // invalidated
 print(p1+p2);
 ```
 

@@ -35,7 +35,12 @@ std::string normalizeFilePath(const std::string& path) {
         {"bb://", blombly_executable_path},       // Base directory where ./blombly resides
         {"raw://", ""}                           // Direct file path without a specific base
     };
-    if (path.rfind("http://", 0) == 0 || path.rfind("https://", 0) == 0) return path;
+    if (path.rfind("http://", 0) == 0 
+        || path.rfind("https://", 0) == 0 
+        || path.rfind("ftp://", 0) == 0 
+        || path.rfind("sftp://", 0) == 0 
+        || path.rfind("ftps://", 0) == 0 
+        || path.rfind("vfs://", 0) == 0) return path;
 
     for (const auto& [prefix, baseDir] : prefixToBaseDir) {
         if (path.rfind(prefix, 0) == 0) {
@@ -86,30 +91,211 @@ void clearAllowedLocations() {
     allowedWriteLocations.clear();
     addAllowedLocation("bb://libs/");
 }
-
-// Helper function to handle HTTP GET responses
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* response) {
+    if (response == nullptr) return 0;
     size_t totalSize = size * nmemb;
-    response->append((char*)contents, totalSize);
+    try {response->append(static_cast<char*>(contents), totalSize); } 
+    catch (const std::bad_alloc& e) {return 0;}
     return totalSize;
 }
 
-// Function to perform HTTP GET request
-std::string fetchHttpContent(const std::string& url) {
-    CURL* curl;
+
+size_t ReadCallback(void* ptr, size_t size, size_t nmemb, void* stream) {
+    std::istream* contentStream = static_cast<std::istream*>(stream);
+    if (!contentStream->good()) return 0; // Stop if the stream is in a bad state
+    contentStream->read(static_cast<char*>(ptr), size * nmemb);
+    return contentStream->gcount(); // Return the number of bytes read
+}
+
+
+class CurlHandle {
+public:
+    CurlHandle() : handle(curl_easy_init()) {if (!handle) throw std::runtime_error("Failed to initialize CURL");}
+    ~CurlHandle() {if (handle) curl_easy_cleanup(handle);}
+    CURL* get() const {return handle;}
+
+private:
+    CURL* handle;
+    CurlHandle(const CurlHandle&) = delete;
+    CurlHandle& operator=(const CurlHandle&) = delete;
+    CurlHandle(CurlHandle&&) = delete;
+    CurlHandle& operator=(CurlHandle&&) = delete;
+};
+
+std::string fetchHttpContent(const std::string& url, long timeout = 0) {
+    CurlHandle curlHandle; 
+    CURL* curl = curlHandle.get();
     CURLcode res;
     std::string response;
-
-    curl = curl_easy_init();
-    bbassert (curl, "Failed to initialize CURL");
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+    if(timeout) curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
     res = curl_easy_perform(curl);
     bbassert (res == CURLE_OK, "Failed to fetch URL: " + url + ", error: " + curl_easy_strerror(res));
-    curl_easy_cleanup(curl);
     return response;
 }
+
+std::string fetchFtpContent(const std::string& url, const std::string& username = "", const std::string& password = "", long timeout = 0) {
+    CurlHandle curlHandle;  // Assume CurlHandle manages CURL initialization and cleanup.
+    CURL* curl = curlHandle.get();
+    CURLcode res;
+    std::string response;
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+    if(timeout) curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
+    if (!username.empty()) {
+        curl_easy_setopt(curl, CURLOPT_USERNAME, username.c_str());
+        curl_easy_setopt(curl, CURLOPT_PASSWORD, password.c_str());
+    }
+    res = curl_easy_perform(curl);
+    bbassert(res == CURLE_OK, "Failed to fetch FTP content: " + url + ", error: " + curl_easy_strerror(res));
+
+    return response;
+}
+
+
+std::string fetchFtpsContent(const std::string& url, const std::string& username = "", const std::string& password = "", long timeout = 0) {
+    CurlHandle curlHandle;
+    CURL* curl = curlHandle.get();
+    CURLcode res;
+    std::string response;
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);  // Enable SSL/TLS
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+    if(timeout) curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
+    if (!username.empty()) {
+        curl_easy_setopt(curl, CURLOPT_USERNAME, username.c_str());
+        curl_easy_setopt(curl, CURLOPT_PASSWORD, password.c_str());
+    }
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
+    res = curl_easy_perform(curl);
+    bbassert(res == CURLE_OK, "Failed to fetch FTPS content: " + url + ", error: " + curl_easy_strerror(res));
+    return response;
+}
+
+std::string fetchSftpContent(const std::string& url, const std::string& username = "", const std::string& password = "", long timeout = 0) {
+    CurlHandle curlHandle; 
+    CURL* curl = curlHandle.get();
+    CURLcode res;
+    std::string response;
+    //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+    if(timeout) curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
+    //curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
+    if (!username.empty()) {
+        curl_easy_setopt(curl, CURLOPT_USERNAME, username.c_str());
+        curl_easy_setopt(curl, CURLOPT_PASSWORD, password.c_str());
+    }
+    res = curl_easy_perform(curl);
+    bbassert(res == CURLE_OK, "Failed to fetch SFTP content: " + url + ", error: " + curl_easy_strerror(res));
+    return response;
+}
+
+void uploadSftpContent(const std::string& url, const std::string& content, const std::string& username = "", const std::string& password = "", long timeout = 0) {
+    CurlHandle curlHandle; 
+    CURL* curl = curlHandle.get();
+    CURLcode res;
+    std::istringstream contentStream(content);
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+    curl_easy_setopt(curl, CURLOPT_READFUNCTION, ReadCallback);
+    curl_easy_setopt(curl, CURLOPT_READDATA, &contentStream);
+    if(timeout) curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
+    if (!username.empty()) {
+        curl_easy_setopt(curl, CURLOPT_USERNAME, username.c_str());
+        curl_easy_setopt(curl, CURLOPT_PASSWORD, password.c_str());
+    }
+    res = curl_easy_perform(curl);
+    bbassert(res == CURLE_OK, "Failed to upload SFTP content to: " + url + ", error: " + curl_easy_strerror(res));
+    curl_easy_cleanup(curl);
+}
+
+
+void uploadFtpsContent(const std::string& url, const std::string& content, const std::string& username = "", const std::string& password = "", long timeout = 0) {
+    CurlHandle curlHandle;
+    CURL* curl = curlHandle.get();
+    CURLcode res;
+    std::istringstream contentStream(content);
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
+    curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+    curl_easy_setopt(curl, CURLOPT_READFUNCTION, ReadCallback);
+    curl_easy_setopt(curl, CURLOPT_READDATA, &contentStream);
+    if(timeout) curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
+    if (!username.empty()) {
+        curl_easy_setopt(curl, CURLOPT_USERNAME, username.c_str());
+        curl_easy_setopt(curl, CURLOPT_PASSWORD, password.c_str());
+    }
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
+    res = curl_easy_perform(curl);
+    bbassert(res == CURLE_OK, "Failed to upload FTPS content to: " + url + ", error: " + curl_easy_strerror(res));
+}
+
+std::string fetchHttpsContent(const std::string& url, const std::string& username = "", const std::string& password = "", long timeout = 0) {
+    CurlHandle curlHandle; 
+    CURL* curl = curlHandle.get();
+    CURLcode res;
+    std::string response;
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+    if(timeout) curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
+    if (!username.empty()) {
+        curl_easy_setopt(curl, CURLOPT_USERNAME, username.c_str());
+        curl_easy_setopt(curl, CURLOPT_PASSWORD, password.c_str());
+    }
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
+    res = curl_easy_perform(curl);
+    bbassert(res == CURLE_OK, "Failed to fetch HTTPS content: " + url + ", error: " + curl_easy_strerror(res));
+    return response;
+}
+
+std::string fetchHttpsContentWithToken(const std::string& url, const std::string& token) {
+    CurlHandle curlHandle; 
+    CURL* curl = curlHandle.get();
+    CURLcode res;
+    std::string response;
+    struct curl_slist* headers = nullptr;
+    std::string authHeader = "Authorization: Bearer " + token;
+    headers = curl_slist_append(headers, authHeader.c_str());
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
+    res = curl_easy_perform(curl);
+    curl_slist_free_all(headers);
+    bbassert(res == CURLE_OK, "Failed to fetch HTTPS content: " + url + ", error: " + curl_easy_strerror(res));
+    return response;
+}
+
+void uploadFtpContent(const std::string& url, const std::string& content, const std::string& username, const std::string& password, long timeout) {
+    CurlHandle curlHandle; 
+    CURL* curl = curlHandle.get();
+    CURLcode res;
+    std::istringstream contentStream(content);
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+    curl_easy_setopt(curl, CURLOPT_READFUNCTION, ReadCallback);
+    curl_easy_setopt(curl, CURLOPT_READDATA, &contentStream);
+    if(timeout) curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
+    if(!username.empty()) {
+        curl_easy_setopt(curl, CURLOPT_USERNAME, username.c_str());
+        curl_easy_setopt(curl, CURLOPT_PASSWORD, password.c_str());
+    }
+    res = curl_easy_perform(curl);
+    bbassert(res == CURLE_OK, "Failed to upload FTP content to: " + url + ", error: " + curl_easy_strerror(res));
+}
+
 
 BFile::BFile(const std::string& path_) : path(normalizeFilePath(path_)), size(0), Data(FILETYPE), contentsLoaded(false) {
     bbassert(isAllowedLocationNoNorm(path), "Access denied for path: " + path +
@@ -120,16 +306,42 @@ BFile::BFile(const std::string& path_) : path(normalizeFilePath(path_)), size(0)
 }
 
 void BFile::loadContents() {
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
     bbassert(isAllowedLocationNoNorm(path), "Access denied for path: " + path +
                                       "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
                                       "\n       You need to add read permissions to a location containting the prefix with `!access \"location\"`."
                                       "\n       Permisions can only be granted this way from the virtual machine's entry point."
                                       "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
     if (contentsLoaded) return;
-    if (path.rfind("http", 0) == 0) {
-        std::string httpContent = fetchHttpContent(path);
+
+    if (path.rfind("http://", 0) == 0) {
+        std::string httpContent = fetchHttpContent(path, timeout);
         bbassert(!httpContent.empty(), "Failed to fetch content from HTTP path: " + path);
         std::istringstream stream(httpContent);
+        std::string line;
+        while (std::getline(stream, line)) contents.push_back(line);
+    } else if (path.rfind("https://", 0) == 0) {
+        std::string httpContent = fetchHttpsContent(path, username, password, timeout);
+        bbassert(!httpContent.empty(), "Failed to fetch content from HTTP path: " + path);
+        std::istringstream stream(httpContent);
+        std::string line;
+        while (std::getline(stream, line)) contents.push_back(line);
+    } else if (path.rfind("ftp://", 0) == 0) {
+        std::string ftpContent = fetchFtpContent(path, username, password, timeout);
+        bbassert(!ftpContent.empty(), "Failed to fetch content from FTP path: " + path);
+        std::istringstream stream(ftpContent);
+        std::string line;
+        while (std::getline(stream, line)) contents.push_back(line);
+    } else if (path.rfind("sftp://", 0) == 0) {
+        std::string sftpContent = fetchSftpContent(path, username, password, timeout);
+        bbassert(!sftpContent.empty(), "Failed to fetch content from SFTP path: " + path);
+        std::istringstream stream(sftpContent);
+        std::string line;
+        while (std::getline(stream, line)) contents.push_back(line);
+    } else if (path.rfind("ftps://", 0) == 0) {
+        std::string ftpsContent = fetchFtpsContent(path, username, password, timeout);
+        bbassert(!ftpsContent.empty(), "Failed to fetch content from FTPS path: " + path);
+        std::istringstream stream(ftpsContent);
         std::string line;
         while (std::getline(stream, line)) contents.push_back(line);
     } else if (fs::is_directory(path)) {
@@ -141,6 +353,7 @@ void BFile::loadContents() {
         while (std::getline(file, line)) contents.push_back(line);
         file.close();
     }
+
     size = contents.size();
     contentsLoaded = true;
 }
@@ -159,7 +372,11 @@ bool BFile::exists() const {
                                       "\n       You need to add read permissions to a location containting the prefix with `!access \"location\"`."
                                       "\n       Permisions can only be granted this way from the virtual machine's entry point."
                                       "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
-    if (path.rfind("http", 0) == 0) return true;
+    if (path.rfind("http://", 0) == 0) return true;
+    if (path.rfind("https://", 0) == 0) return true;
+    if (path.rfind("ftp://", 0) == 0) return true;
+    if (path.rfind("sftp://", 0) == 0) return true;
+    if (path.rfind("ftps://", 0) == 0) return true;
     return fs::exists(path);
 }
 
@@ -182,7 +399,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
         BB_BOOLEAN_RESULT(fileExists);
     }
     if (operation == PUSH && args->size == 2 && args->arg1->getType() == STRING) {
-
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
         bbassert(isAllowedWriteLocationNoNorm(path), "Write access denied for path: " + path +
                                         "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
                                         "\n       You need to add write permissions to a location containting the prefix with `!modify \"location\"`."
@@ -190,44 +407,65 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
                                         "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
 
         std::string newContents = args->arg1->toString(memory);
-        fs::path filePath(path);
-        if (filePath.parent_path().string().size() && !fs::exists(filePath.parent_path())) fs::create_directories(filePath.parent_path());
-        std::ofstream file(path, std::ios::trunc); 
-        bbassert(file.is_open(), "Failed to open file for writing: " + path);
-        file << newContents;
-        file.close();
+        
+        if (path.rfind("ftp", 0) == 0) uploadFtpContent(path, newContents, username, password, timeout);
+        else if (path.rfind("sftp", 0) == 0) uploadSftpContent(path, newContents, username, password, timeout);
+        else if (path.rfind("ftps", 0) == 0) uploadFtpsContent(path, newContents, username, password, timeout);
+        else {
+            fs::path filePath(path);
+            if (filePath.parent_path().string().size() && !fs::exists(filePath.parent_path())) {
+                fs::create_directories(filePath.parent_path());
+            }
+            std::ofstream file(path, std::ios::trunc);
+            bbassert(file.is_open(), "Failed to open file for writing: " + path);
+            file << newContents;
+            file.close();
+        }
+
         contents.clear();
         std::istringstream stream(newContents);
         std::string line;
         while (std::getline(stream, line)) contents.push_back(line);
         size = contents.size();
+        contentsLoaded = true;
         return std::move(Result(nullptr));
     }
     if (args->size == 1) {
         if (operation == CLEAR) {
+            std::lock_guard<std::recursive_mutex> lock(memoryLock);
             bbassert(isAllowedWriteLocationNoNorm(path), "Write access denied for path: " + path +
                                             "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
                                             "\n       You need to add write permissions to a location containting the prefix with `!modify \"location\"`."
                                             "\n       Permisions can only be granted this way from the virtual machine's entry point."
                                             "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
 
-            bbassert(path.rfind("http", 0)!=0, "Cannot clear HTTP resource (it does not persist): " + path);
+            /*bbassert(path.rfind("http://", 0)!=0, "Cannot clear HTTP resource (it does not persist): " + path);
+            bbassert(path.rfind("https://", 0)!=0, "Cannot clear HTTPS resource (it does not persist): " + path);
+            bbassert(path.rfind("https://", 0)!=0, "Cannot clear FTP resource (it does not persist): " + path);*/
+            if(path.rfind("http://", 0)==0 
+                || path.rfind("https://", 0)==0 
+                || path.rfind("ftp://", 0)==0 
+                || path.rfind("sftp://", 0)==0
+                || path.rfind("ftps://", 0)==0) {
+                    bberror("Cannot clear a web resource: "+path);
+                }
             bbassert(fs::exists(path), "Path does not exist: " + path);
             if (fs::is_regular_file(path)) {
                 fs::remove(path);
                 size = 0;
                 contentsLoaded = false;
+                contents.clear();
                 return std::move(Result(nullptr));
             } 
             else if (fs::is_directory(path)) {
-                bbassert(fs::is_empty(path), "For safety, only empty directories can be cleared but this has contents: " + path);
+                bbassert(fs::is_empty(path), "For safety, only empty directories can be cleared by the virtual machine, but this has contents: " + path);
                 fs::remove(path);
                 contents.clear();
                 size = 0;
                 contentsLoaded = false;
                 return std::move(Result(nullptr));
             } 
-            else bberror("Path is neither a regular file nor a directory: " + path);
+            else bberror("Path is not a regular file or directory: " + path);
         }
         if (operation == LEN) {
             loadContents();
@@ -249,6 +487,25 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
             }
             return std::move(Result(list));
         }
+    }
+
+    if (operation == PUT && args->size==3 && args->arg1->getType()==STRING) {
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
+        std::string param = args->arg1->toString(memory);
+        if(param=="username") {
+            bbassert(args->arg2->getType()==STRING, param+" must a string");
+            username = args->arg2->toString(memory);
+        }
+        else if(param=="password") {
+            bbassert(args->arg2->getType()==STRING, param+" must a string");
+            password = args->arg2->toString(memory);
+        }
+        else if(param=="timeout") {
+            bbassert(args->arg2->getType()==BB_INT, param+" must an int");
+            timeout = static_cast<Integer*>(args->arg2)->getValue();
+        }
+        else bberror("Only \"username\", \"password\", or \"timeout\" parameters can be set.");
+        return std::move(Result(nullptr));
     }
     throw Unimplemented();
 }

@@ -5,7 +5,43 @@ Blombly offers several input and output operations.
 In addition to the basic operations described here, find supporting ones in [libs](../advanced/libs.md).
 
 
-## File system
+## Permissions
+
+
+If you run IO operations out-of-the-box, you will encounter an error
+like below. This happens because Blombly prioritizes **execution safety** and does 
+not allow you to access system resources unless you intent to do so. 
+By default, only has access rights to the *bb://libs* directory.
+The intent is obvious here, but may not be if [preprocessor](../advanced/preprocessor.md) directives are involved,
+like including code that executes at comple time to retrieve dependencies. 
+Normal operating system safety features also apply externally.
+
+```java
+// main.bb
+f = file("README.md");
+print(f);
+```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
+> <span style="color: cyan;">./blombly</span> playground/main.bb
+(<span style="color: red;"> ERROR </span>) Access denied for path: README.md
+   <span style="color: yellow;">!!!</span> This is a safety measure imposed by Blombly.
+       You need to add read permissions to a location containing the prefix with `!access "location"`.
+       Permissions can only be granted this way from the virtual machine's entry point.
+       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.
+   <span style="color: lightblue;">→</span>  file("README.md")                                   playground/main.bb line 1
+</pre>
+
+Blombly permissions can only be declared on the file that is directly
+executed; they will create errors if declared elsewhere but don't have access.
+There are two kinds of permissions; read access with the `!access @str` 
+directive and read and write access with the `!modify @str` directive.
+Both directives parse a string that indicates the *beginning* of an accepted file path.
+Permissions extend everywhere, including to files being included, the `!comptime` preprocessor directive that 
+executes some code during compilation, as well as the generated *.bbvm* file. 
+
+## FIles
+
 
 The main way blombly interacts with the file system is through the `file` data type.
 This is an abstraction over resources like files, directories, and web data obtained
@@ -72,6 +108,18 @@ is applicable only to files and overwrites their text contents with the pushed s
       <td>Refers to a resource accessible over the HTTPS protocol.</td>
     </tr>
     <tr>
+      <td>ftp://</td>
+      <td>Refers to a files accessible over the FTP protocol.</td>
+    </tr>
+    <tr>
+      <td>ftps://</td>
+      <td>Refers to a files accessible over the FTPS protocol.</td>
+    </tr>
+    <tr>
+      <td>sftp://</td>
+      <td>Refers to a files accessible over the SFTP protocol (FTP over SSH).</td>
+    </tr>
+    <tr>
       <td>bb://</td>
       <td>Starts from the directory where the Blombly executable resides.</td>
     </tr>
@@ -96,41 +144,6 @@ is applicable only to files and overwrites their text contents with the pushed s
 </details>
 
 
-
-If you run file system operations out-of-the-box, you will encounter an error
-like below. This happens because Blombly prioritizes **execution safety** and does 
-not allow you to access system resources unless you intent to do so. 
-By default, only has access rights to the *bb://libs* directory.
-The intent is obvious here, but may not be if [preprocessor](../advanced/preprocessor.md) directives are involved,
-like including code that executes at comple time to retrieve dependencies. 
-Normal operating system safety features also apply externally.
-
-```java
-// main.bb
-f = file("README.md");
-print(f);
-```
-
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
-> <span style="color: cyan;">./blombly</span> playground/main.bb
-(<span style="color: red;"> ERROR </span>) Access denied for path: README.md
-   <span style="color: yellow;">!!!</span> This is a safety measure imposed by Blombly.
-       You need to add read permissions to a location containing the prefix with `!access "location"`.
-       Permissions can only be granted this way from the virtual machine's entry point.
-       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.
-   <span style="color: lightblue;">→</span>  file("README.md")                                   playground/main.bb line 1
-</pre>
-
-Blombly permissions can only be declared on the file that is directly
-executed; they will create errors if declared elsewhere but don't have access.
-There are two kinds of permissions; read access with the `!access @str` 
-directive and read and write access with the `!modify @str` directive.
-Both directives parse a string that indicates the *beginning* of an accepted file path.
-Permissions extend everywhere, including to files being included, the `!comptime` preprocessor directive that 
-executes some code during compilation, as well as the generated *.bbvm* file. 
-
-<br>
-
 Iterating through file contents yields the read lines. Whereas iterating
 through directories yields their contents. You cannot push to directories, 
 and -for safety- can only clear empty directories.
@@ -147,27 +160,66 @@ print("nonexisting filename"|file|bool); // false
 
 ## Web resources
 
-Web resources are accessed in the same way. 
-Under the hood, they perform get requests, where errors
-can be intercepted and handled normally with Blombly's `try-catch`
-pattern. Below is an example.
+Web resources are read in the same way given the prefixes for the protocols:
+http, https, ftp, sftp, ftps, sftp. The first two of those protocols do not
+support pushing to the resource but the rest do.
+All resource access errors can be intercepted and handled normally
+with Blombly's `try-catch` pattern. 
 
 ```java
-!access "http://"  // allow http requests
-!access "https://" // also allow https requests
-
-get(url) = {
-    ret = "";
-    while(line in url|file) ret += line;
-    return ret;
-}
+// main.bb
+// grant necessary read access rights
+!access "https://" 
 start = time();
-print("Waiting");
 
-response = get("https://www.google.com");
+// join the string contents of the file iterable
+response = "https://www.google.com"|file|bb.string.join("\n");
+
 print("Response length: {response|len}");
 print("Response time: {time()-start} sec");
 ```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb 
+Response length: 55078 
+Response time: 0.319413 sec 
+</pre>
+
+## Authentication
+
+For web resources, you can set authentication and timout parameters.
+With the element setting notation. Once set, these parameters cannot
+be retrieved and do not appear in any error messages.
+Below is an example, in which set username and password with credentials from
+[sftpcloud's](https://sftpcloud.io/tools/free-ftp-server) free SFTP server - create
+a testing server for one hour with just a click and without logging in.
+
+```java
+!modify "sftp://"
+
+// new server for 1 hour at: https://sftpcloud.io/tools/free-ftp-server
+username = "username";
+password = "password";
+
+// create file from sftp
+sftp = "sftp://eu-central-1.sftpcloud.io/test_file"|file;
+sftp["username"] = username;
+sftp["password"] = password; 
+sftp["timeout"] = 10;
+push(sftp, "Transferred data.");
+
+// retrieve file from sftp
+sftp = "sftp://eu-central-1.sftpcloud.io/test_file"|file;
+sftp["username"] = username;
+sftp["password"] = password; 
+sftp["timeout"] = 10;
+print(ftp|bb.string.join("\n"));
+```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb 
+Transferred data.
+</pre>
 
 
 
