@@ -90,7 +90,9 @@ void clearAllowedLocations() {
     allowedLocations.clear();
     allowedWriteLocations.clear();
     addAllowedLocation("bb://libs/");
+    addAllowedLocation(".");
 }
+
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* response) {
     if (response == nullptr) return 0;
     size_t totalSize = size * nmemb;
@@ -98,7 +100,6 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* res
     catch (const std::bad_alloc& e) {return 0;}
     return totalSize;
 }
-
 
 size_t ReadCallback(void* ptr, size_t size, size_t nmemb, void* stream) {
     std::istream* contentStream = static_cast<std::istream*>(stream);

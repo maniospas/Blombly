@@ -1,30 +1,37 @@
 # IO
 
-Blombly offers several input and output operations.
-*The ones below are currently implemented, and more will become available in the future.*
-In addition to the basic operations described here, find supporting ones in [libs](../advanced/libs.md).
+Blombly offers ways to interact with the file system and web resources.
+*Expect more options in the future.*
+In addition to the basic operations described here, find supporting 
+functions in [libs](../advanced/libs.md).
 
 
 ## Permissions
 
-
-If you run IO operations out-of-the-box, you will encounter an error
+If you run IO operations out-of-the-box, you will likely encounter an error
 like below. This happens because Blombly prioritizes **execution safety** and does 
 not allow you to access system resources unless you intent to do so. 
-By default, only has access rights to the *bb://libs* directory.
-The intent is obvious here, but may not be if [preprocessor](../advanced/preprocessor.md) directives are involved,
-like including code that executes at comple time to retrieve dependencies. 
-Normal operating system safety features also apply externally.
+By default, the virtual machine only has read access rights for the *bb://libs* (the contents
+of its standard library next to the executable) and working
+directories. It cannot modify anything and cannot read from anywhere else.
+
+<br>
+
+This ensures that the one running the virtual machine is always in control of effects
+on their machine. For example, this limits 
+[preprocessor](../advanced/preprocessor.md) directives in included files from escaping
+from the intended build system. Normal safety features from your operating system also 
+apply externally, but this is how Blombly ensures that its programs are as safe as they can get.
 
 ```java
 // main.bb
-f = file("README.md");
+f = file("../README.md");
 print(f);
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
-> <span style="color: cyan;">./blombly</span> playground/main.bb
-(<span style="color: red;"> ERROR </span>) Access denied for path: README.md
+> <span style="color: cyan;">./blombly</span> main.bb
+(<span style="color: red;"> ERROR </span>) Access denied for path: ../README.md
    <span style="color: yellow;">!!!</span> This is a safety measure imposed by Blombly.
        You need to add read permissions to a location containing the prefix with `!access "location"`.
        Permissions can only be granted this way from the virtual machine's entry point.
@@ -33,12 +40,42 @@ print(f);
 </pre>
 
 Blombly permissions can only be declared on the file that is directly
-executed; they will create errors if declared elsewhere but don't have access.
+executed; they will create errors if declared elsewhere without already
+being allowed.
 There are two kinds of permissions; read access with the `!access @str` 
-directive and read and write access with the `!modify @str` directive.
-Both directives parse a string that indicates the *beginning* of an accepted file path.
-Permissions extend everywhere, including to files being included, the `!comptime` preprocessor directive that 
-executes some code during compilation, as well as the generated *.bbvm* file. 
+directive, and read and write access with the `!modify @str` directive.
+Resource paths can only extend the provided strings, but multiple permissions
+may be declared.
+
+<br>
+
+Permissions apply everywhere for the running language instance.
+For example, they restrict include directives, and code executed during compilation.
+But they do not carry over to new runs, for example of *.bbvm* files.
+Those do not preserve permissions to let people running programs
+protect themselves against unintended consequences. You
+
+```java
+// permissions.bb
+// grants read permissions to the higher-level directory
+!access "../"
+```
+
+```java
+// main.bb
+// permissions here are available only when compiling and running the .bb file
+!access "../"
+print("../README.md"|file|str|len);
+```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+<span style="color:green;"># compilation without running</span>
+> <span style="color: cyan;">./blombly</span> main.bb  --norun
+<span style="color:green;"># option 1: directly run permission code</span>
+> <span style="color: cyan;">./blombly</span> {!access "../"} main.bbvm
+<span style="color:green;"># option 2: run permission file</span>
+> <span style="color: cyan;">./blombly</span> permissions.bb main.bbvm
+</pre>
 
 ## FIles
 
@@ -129,7 +166,7 @@ is applicable only to files and overwrites their text contents with the pushed s
     </tr>
     <tr>
       <td>vfs://</td>
-      <td>Accesses the path on a virtual file system. This is lost when the interpeter exits but persists throughout all compilation.</td>
+      <td>Accesses the path on a virtual file system. This is lost when the interpreter exits but persists throughout all compilation.</td>
     </tr>
     <tr>
       <td>Empty path</td>
@@ -153,7 +190,7 @@ as well as checking whether a non-existing file name exists:
 ```java
 !access "" // read access to all resources (NOT RECOMMENDED)
 
-f = file("README.md");]
+f = file("README.md");
 while(line in f) print(line);
 print("nonexisting filename"|file|bool); // false
 ```
@@ -187,7 +224,7 @@ Response time: 0.319413 sec
 
 ## Authentication
 
-For web resources, you can set authentication and timout parameters.
+For web resources, you can set authentication and timeout parameters.
 With the element setting notation. Once set, these parameters cannot
 be retrieved and do not appear in any error messages.
 Below is an example, in which set username and password with credentials from

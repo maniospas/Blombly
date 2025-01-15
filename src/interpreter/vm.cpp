@@ -85,7 +85,60 @@ int vm(const std::string& fileName, int numThreads) {
             }
             memory.release();
         }
-        for (const auto& [key, data] : cachedData) delete data;
+        for (const auto& [key, data] : cachedData) data->removeFromOwner();
+        cachedData.clear();
+        BMemory::verify_noleaks();
+        //std::cout<<"Program completed successfully\n";
+    } catch (const BBError& e) {
+        std::cerr << e.what() << "\033[0m\n";
+        hadError = true;
+    }
+    if(hadError) {
+        std::cerr << "Docs and bug reports: https://maniospas.github.io/Blombly\n";
+        return 1;
+    }
+    return 0;
+}
+
+extern std::string compileFromCode(const std::string& code, const std::string& source);
+extern std::string optimizeFromCode(const std::string& code, bool minimify);
+
+int vmFromSourceCode(const std::string& sourceCode, int numThreads) {
+    Future::setMaxThreads(numThreads);
+    bool hadError = false;
+    try {
+        {
+            BMemory memory(nullptr, DEFAULT_LOCAL_EXPECTATION);
+            try {
+                std::string newCode = compileFromCode(sourceCode, "terminal argument");
+                newCode = optimizeFromCode(newCode, true); 
+                std::istringstream inputFile(newCode);
+
+                auto program = new std::vector<Command*>();
+                auto source = new SourceFile("terminal argument");
+                std::string line;
+                int i = 1;
+                
+                CommandContext* descriptor = nullptr;
+                while (std::getline(inputFile, line)) {
+                    if (line[0] != '%') program->push_back(new Command(line, source, i, descriptor));
+                    else descriptor = new CommandContext(line.substr(1));
+                    ++i;
+                }
+
+                auto code = new Code(program, 0, program->size() - 1);
+                bool hasReturned(false);
+                executeBlock(code, &memory, hasReturned, false);
+                bbassert(!hasReturned, "The virtual machine cannot return a value.");
+                //memory.detach(nullptr);
+            }
+            catch (const BBError& e) {
+                std::cerr << e.what() << "\033[0m\n";
+                hadError = true;
+            }
+            memory.release();
+        }
+        for (const auto& [key, data] : cachedData) data->removeFromOwner();
         cachedData.clear();
         BMemory::verify_noleaks();
         //std::cout<<"Program completed successfully\n";

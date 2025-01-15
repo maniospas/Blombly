@@ -126,27 +126,26 @@ private:
     static int tmp_var;
     std::string ret;
     std::string code_block_prepend;
-    int find_end(int start, int end, const std::string& end_string, 
-                 bool missing_error = false) {
+    int find_end(int start, int end, const std::string& end_string, bool missing_error = false) {
+        if(tokens[start].name==end_string) return start;
+        if(start>=tokens.size() || start>=end) {
+            if(missing_error) bberror("Unexpected end of code.\n"+show_position(tokens.size()-1));
+            return MISSING;
+        }
         int depth = 0;
         std::stack<int> last_open;
         std::stack<std::string> last_open_type;
         int last_open_value = start;
         last_open.push(start);
         for (int i = start; i <= end; ++i) {
-            if (depth == 0 && tokens[i].name == end_string)
-                return i;
+            if (depth == 0 && tokens[i].name == end_string) return i;
             if (depth < 0) {
                 int pos = last_open_value;
-                std::string name = tokens[pos].name;
-                if(name=="(")
-                    bberror("Closing `)` is missing.\n"+show_position(pos));
-                if(name=="{")
-                    bberror("Closing `}` is missing.\n"+show_position(pos));
-                if(name=="[")
-                    bberror("Closing `]` is missing.\n"+show_position(pos));
-                    
-                 bberror("Unknown symbol imbalance.\n"+show_position(pos));
+                std::string name = tokens[last_open.top()].name;
+                if(name=="(") bberror("Closing `)` is missing.\n"+show_position(last_open.top()));
+                if(name=="{") bberror("Closing `}` is missing.\n"+show_position(last_open.top()));
+                if(name=="[") bberror("Closing `]` is missing.\n"+show_position(last_open.top()));
+                bberror("Did not find ending `"+end_string+"`.\n"+show_position(start));
             }
             std::string name = tokens[i].name;
             if (name == "(" || name == "[" || name == "{") {
@@ -168,26 +167,21 @@ private:
                 }
         }
         if (missing_error) {
+            int pos = depth<0?start:last_open.top();
+            if(pos>=tokens.size()) bberror("Unexpected end of code.\n"+show_position(tokens.size()-1));
             if(end_string==";") {
-                int pos = depth<0?start:last_open.top();
                 std::string name = tokens[pos].name;
-                if(name=="(")
-                    bberror("Closing `)` is missing.\n"+show_position(pos));
-                if(name=="{")
-                    bberror("Closing `}` is missing.\n"+show_position(pos));
-                if(name=="[")
-                    bberror("Closing `]` is missing.\n"+show_position(pos));
-                    
-                 bberror("Unknown symbol imbalance.\n"+show_position(start));
+                if(name=="(") bberror("Closing `)` is missing.\n"+show_position(pos));
+                if(name=="{") bberror("Closing `}` is missing.\n"+show_position(pos));
+                if(name=="[") bberror("Closing `]` is missing.\n"+show_position(pos));
+                bberror("Closing `" + end_string + "` is missing.\n"+show_position(start));
             }
-            else {
-                bberror("Closing `" + end_string + "` is missing.\n"+show_position(depth<0?start:last_open.top()));
-            }
+            else bberror("Closing `" + end_string + "` is missing.\n"+show_position(pos));
         }
         return MISSING;
     }
-    int find_last_end(int start, int end, const std::string& end_string, 
-                      bool missing_error = false) {
+    
+    int find_last_end(int start, int end, const std::string& end_string, bool missing_error = false) {
         int depth = 0;
         int pos = MISSING;
         int last_open = end;
@@ -412,8 +406,7 @@ public:
                 ret += "BEGIN " + requested_var + "\n";
                 ret += code_block_prepend;
                 code_block_prepend = "";
-                if (start <= end)
-                    parse(start, end);  // important to do a full parse
+                if (start <= end) parse(start, end);  // important to do a full parse
                 ret += "END\n";
                 return requested_var;
             }
@@ -1406,9 +1399,8 @@ public:
         int statement_start = start;
         //try {
             while (statement_start <= end) {
-                int statement_end = find_end(statement_start + 1, end, ";", end - start == tokens.size() - 1);
-                if (statement_end == MISSING)
-                    statement_end = end + 1;
+                int statement_end = find_end(statement_start + 1, end, ";");//, end - start == tokens.size() - 1 && statement_start<end);
+                if (statement_end == MISSING) statement_end = end + 1;
                 parse_expression(statement_start, statement_end - 1);
                 statement_start = statement_end + 1;
             }

@@ -20,6 +20,7 @@
 // cmake --build ./build --config Release --parallel 8
 
 std::string blombly_executable_path;
+extern std::string top_level_file;
 bool debug_info = true;
 BError* OUT_OF_RANGE = new BError("Out of range");
 BError* INCOMPATIBLE_SIZES = new BError("Incompatible sizes in operation");
@@ -38,7 +39,7 @@ std::string get_executable_directory(const std::string& argv0) {
 }
 
 int main(int argc, char* argv[]) {
-
+    
     OUT_OF_RANGE->consume();
     OUT_OF_RANGE->addOwner();
     INCOMPATIBLE_SIZES->consume();
@@ -54,14 +55,13 @@ int main(int argc, char* argv[]) {
     clearAllowedLocations(); 
     std::cout<<"\033[0m";
 
-    std::string fileName = "main.bb";
     int threads = std::thread::hardware_concurrency();
     int default_threads = threads;
     bool cexecute = false;
     bool minimify = true;
 
     if(threads == 0) threads = 4;
-
+    std::vector<std::string> instructions;
     for(int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
         if((arg == "--threads" || arg == "-t") && i + 1 < argc) threads = std::stoi(argv[++i]);
@@ -72,6 +72,7 @@ int main(int argc, char* argv[]) {
         else if(arg == "--help" || arg == "-h") {
             std::cout << "Usage: ./blombly [file] [options] \n";
             std::cout << "--threads <num>   Set max threads. Default for this machine: " << default_threads << "\n";
+            std::cout << "--norun           Compiles a bbvm file only by setting max threads to zero.\n";
             std::cout << "--library         Prevents compilation optimizations\n";
             std::cout << "--strip           Strips away debugging symbols\n";
             std::cout << "--version         Prints the current blombly version\n";
@@ -79,25 +80,41 @@ int main(int argc, char* argv[]) {
         } 
         else if(arg == "--library" || arg == "-l") minimify = false;
         else if(arg == "--strip" || arg == "-s") debug_info = false;
-        else fileName = arg;
+        else if(arg == "--norun") threads = 0;
+        else instructions.push_back(arg);
     }
 
-    try {
-        if(fileName.substr(fileName.size() - 3, 3) == ".bb") {
-            compile(fileName, fileName + "vm");
-            optimize(fileName + "vm", fileName + "vm", minimify);
-            fileName = fileName + "vm";
-        }
-    }
-    catch(const BBError& e) {
-        std::cerr << e.what() << "\n";
-        return 1;
-    }
-    
+    if(instructions.empty()) instructions.push_back("main.bb");
+
     int ret = 0;
-    if(threads) {
-        program_start = std::chrono::steady_clock::now();
-        ret = vm(fileName, threads);
+    for(std::string fileName : instructions) {
+        top_level_file = "";
+        if(!(fileName.size()>=3 && fileName.substr(fileName.size() - 3, 3) == ".bb")
+            && !(fileName.size()>=3 && fileName.substr(fileName.size() - 3, 3) == ".bb")) {
+            ret = vmFromSourceCode(fileName, 1);
+            if(ret) break;
+            continue;
+        }
+        try {
+            bbassert((fileName.size()>=3 && fileName.substr(fileName.size() - 3, 3) == ".bb")
+                        || (fileName.size()>=3 && fileName.substr(fileName.size() - 3, 3) == ".bb"),
+                        "Blombly can only compile and run .bb or .bbvm files, or code enclosed in single quotes '...', but an invalid option was provided: "+fileName)
+            if(fileName.size()>=3 && fileName.substr(fileName.size() - 3, 3) == ".bb") {
+                compile(fileName, fileName + "vm");
+                optimize(fileName + "vm", fileName + "vm", minimify);
+                fileName = fileName + "vm";
+            }
+        }
+        catch(const BBError& e) {
+            std::cerr << e.what() << "\n";
+            return 1;
+        }
+        
+        if(threads) {
+            program_start = std::chrono::steady_clock::now();
+            ret = vm(fileName, threads);
+        }
+        if(ret) break;
     }
 
     OUT_OF_RANGE->removeFromOwner();

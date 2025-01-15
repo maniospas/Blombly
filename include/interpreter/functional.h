@@ -23,5 +23,6 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
 Result compileAndLoad(const std::string& fileName, BMemory* currentMemory);
 int vm(const std::string& fileName, int numThreads);
+int vmFromSourceCode(const std::string& sourceCode, int numThreads);
 
 #endif

@@ -6,7 +6,7 @@ Download Blombly's latest [release](https://github.com/maniospas/Blombly/release
 and add the latter to your filepath to let your operating system know where the main executable is located. Alternatively,
 use the full path to the executable everywhere. Instructions to build the library from source are in the
 [GitHub](https://github.com/maniospas/Blombly) page.
-When writting in the language, use a Java keyword highlighter (but not syntax checker).
+When writing in the language, use a Java keyword highlighter (but not syntax checker).
 
 ## Hello world!
 
@@ -59,7 +59,8 @@ and code blocks start at `BEGIN` or `BEGINFINAL` and end at `END`.
 Set the number of operating system threads that the virtual machine
 is allowed to use with the option `--threads <num>` or `-t <num>`.
 If you specify nothing, the maximum amount is used. 
-Set to zero threads to compile without executing.
+Set to zero threads to compile without executing. You may use
+the `--norun` option as a shorthand for no executing any file.
 
 <br>
 
@@ -71,15 +72,15 @@ to be used as libraries (to be optimized by programs using them),
 retain everything with the `--library` or `-l` option. 
 Below is an example that compiles a file without running it while switching
 between applying and not applying optimizations. The `du` linux
-utility is used to show file sizes. Notice the bloat comming from the standard
+utility is used to show file sizes. Notice the bloat coming from the standard
 library when there is no optimization!
 
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-> <span style="color: cyan;">./blombly</span> main.bb  --threads 0
+> <span style="color: cyan;">./blombly</span> main.bb  --norun
 > <span style="color: cyan;">du</span>  -sh main.bbvm
 4.0K    main.bbvm
-> <span style="color: cyan;">./blombly</span> main.bb  --threads 0 --library
+> <span style="color: cyan;">./blombly</span> main.bb  --norun --library
 > <span style="color: cyan;">du</span>  -sh main.bbvm
 48K     main.bbvm
 </pre>
@@ -99,11 +100,28 @@ print # _bb162
 </pre>
 
 
+## Build processes
+
+Provide multiple source files to compile and run in their order of 
+occurrence. Consider those files as steps of a modular build process.
+Command line arguments apply to all of them, and [IO](basics/io.md) 
+configurations described in the user guide carry over between the steps. 
+For example, resource permissions and the virtual file system can be defined
+at one step and carried over to the next ones. Think of this as 
+sharing the same execution environment across steps.
+Directly run short code snippets instead of files
+by adding them as console arguments enclosed in single quotes. An example follows.
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb '!comptime print("Compiled.");'  --norun
+Compiled.
+</pre>
+
 ## Errors
 
 Before jumping into actual coding, let us peek at errors that Blombly may create. There are two types. 
 First, syntax errors make the compiler halt.
-Second, logical errors occur at runtime, are intercepted with `try`, and handled with `catch`.
+Second, lfiogical errors occur at runtime, are intercepted with `try`, and handled with `catch`.
 To see what a syntax error looks like, execute the following invalid code.
 We get an error telling us that the + operation for string concatenation has no right-hand side. 
 The compiler shows the exact position of the missing expression within the source code.

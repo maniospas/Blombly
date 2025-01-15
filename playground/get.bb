@@ -1,6 +1,6 @@
 // main.bb
 // grant necessary read access rights
-!access "https://" 
+//!access "https://" 
 !access "ftp://" 
 start = time();
 

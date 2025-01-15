@@ -88,9 +88,9 @@ is overloaded by some data types. For example, format a float to a string of thr
         <td>Element get and set, for example for lists and maps.</td>
       </tr>
       <tr>
-        <td>Arithmetics</td>
+        <td>Arithmetic</td>
         <td><code>+</code>, <code>-</code>, <code>*</code>, <code>/</code><br><code>^</code><br><code>%</code></td>
-        <td>Basic arithmetics (division is floating-point).<br>Exponentiation.<br>Modulo for integers.</td>
+        <td>Basic arithmetic (division is floating-point).<br>Exponentiation.<br>Modulo for integers.</td>
       </tr>
       <tr>
         <td>Self-assignment</td>
