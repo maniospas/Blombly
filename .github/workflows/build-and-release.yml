@@ -18,24 +18,27 @@ jobs:
             triplet: x64-windows
             build-script: .\vcpkg\bootstrap-vcpkg.bat
             cmake-command: |
-              cmake -B ./build -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake
+              ./vcpkg/vcpkg install sdl2 sdl2-image
+              cmake -B ./build
               cmake --build ./build --config Release
             package-command: |
               mkdir release
               cp ./*.exe release/ || echo "No executables found"
               cp ./*.dll release/ || echo "No DLLs found"
               cp -r libs/ release/ || echo "No libs directory found"
+              # Use PowerShell's Compress-Archive for zipping files on Windows
               powershell Compress-Archive -Path release/* -DestinationPath windows_release.zip
             artifact-name: windows-build
             artifact-path: windows_release.zip
           # Linux Configuration
           - os: ubuntu-latest
             triplet: x64-linux
-            build-script: |
+            build-script: | 
               ./vcpkg/bootstrap-vcpkg.sh
-              apt-get update && apt-get install -y libsdl2-dev libsdl2-image-dev
+              apt-get install libsdl2-dev
+              apt-get install libsdl2-image-dev
             cmake-command: |
-              cmake -B ./build -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake
+              cmake -B ./build
               cmake --build ./build --config Release
             package-command: |
               mkdir release
@@ -57,7 +60,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          ./vcpkg/vcpkg install sqlite3 crow civetweb openssl zlib curl[core,ssl,ssh] sdl2 sdl2-image --recurse --triplet=${{ matrix.triplet }}
+          ./vcpkg/vcpkg install sqlite3 crow civetweb openssl zlib curl[core,ssl,ssh] --recurse --triplet=${{ matrix.triplet }}
 
       - name: Configure and build
         run: |
@@ -82,7 +85,7 @@ jobs:
         with:
           name: windows-build
           path: .
-
+  
       - name: Download Linux build artifact
         uses: actions/download-artifact@v4
         with:
