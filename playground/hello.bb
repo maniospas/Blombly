@@ -12,9 +12,11 @@ logo = new {
         this.x += this.speedx*dt*100;
         this.y += this.speedy*dt*100;
         this.angle += 100*dt;
+        return this;
     }
     texture => "docs/blombly.png",this.x,this.y,100,100,this.angle;
 }
+
 logox = 400-50;
 logoy = 300-50;
 logoangle = 0;
@@ -38,13 +40,13 @@ while(events as g|pop) {
         if(event.key=="A") logo.speedx -= 1;
         if(event.key=="D") logo.speedx += 1;
     }
-
-    // update loop
-    try logo.update(dt);
     
     // update fps
     current_frame = time();
     dt = current_frame-previous_frame;
     previous_frame = current_frame;
     invfps = invfps*0.99+0.01*dt;
+
+    // update loop (use try for forceful synchronization)
+    logo = logo.update(dt);
 }
