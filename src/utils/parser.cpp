@@ -1155,12 +1155,26 @@ public:
                 bbassert(find_end(start + 2, end, ")") == end, "Leftover code after the last `)` for `" + first_name+"`.\n"+show_position(start+2));
                 int separator = find_end(start + 2, end, ",");
                 bbassert(separator != MISSING, "push requires at least two arguments.\n"+show_position(end));
-                if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::")
-                    first_name = first_name.substr(6);
+                if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::") first_name = first_name.substr(6);
                 auto toret = first_name + " # " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, end - 1) + "\n";
                 breakpoint(start, end);
                 ret += toret;
                 return "#";
+            }
+
+            if (first_name == "bbvm::graphics" || first_name=="graphics") {
+                bbassert(tokens[start + 1].name == "(", "Missing ( just after `" + first_name+"`.\n"+show_position(start+1));
+                bbassert(find_end(start + 2, end, ")") == end, "Leftover code after the last `)` for `" + first_name+"`.\n"+show_position(start+2));
+                int separator = find_end(start + 2, end, ",");
+                bbassert(separator != MISSING, "graphics require three arguments.\n"+show_position(end));
+                int separator2 = find_end(separator + 2, end, ",");
+                bbassert(separator2 != MISSING, "graphics require three arguments.\n"+show_position(end));
+                if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::") first_name = first_name.substr(6);
+                std::string var = create_temp();
+                auto toret = first_name + " " + var + " " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, separator2 - 1) + " " + parse_expression(separator2 + 1, end - 1) + "\n";
+                breakpoint(start, end);
+                ret += toret;
+                return var;
             }
 
             if (first_name == "bbvm::len" || first_name == "bbvm::iter" || 
@@ -1172,7 +1186,7 @@ public:
                 first_name == "bbvm::move" || first_name == "bbvm::clear" || first_name == "bbvm::pop" || 
                 first_name == "bbvm::file" || first_name == "bbvm::next" || 
                 first_name == "bbvm::list" || first_name == "bbvm::map" || 
-                first_name == "bbvm::server" || first_name == "bbvm::sqlite" || 
+                first_name == "bbvm::server" || first_name == "bbvm::sqlite" || first_name == "bbvm::graphics" || 
                 first_name == "bbvm::vector" ||
                 first_name == "len" || first_name == "iter" || 
                 first_name == "int" || first_name == "float" || 
@@ -1183,7 +1197,7 @@ public:
                 first_name == "clear" || first_name == "move" || first_name == "pop" || 
                 first_name == "file" || first_name == "next" || 
                 first_name == "list" || first_name == "map" || 
-                first_name == "server" || first_name == "sqlite" || 
+                first_name == "server" || first_name == "sqlite" || first_name == "graphics" || 
                 first_name == "vector") {
                 bbassert(tokens[start + 1].name == "(", "Missing '(' just after '" + first_name+"'.\n"+show_position(start+1));
                 if (start + 1 >= end - 1 && (first_name == "map" || 

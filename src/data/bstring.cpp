@@ -6,6 +6,7 @@
 #include "data/BError.h"
 #include "data/Iterator.h"
 #include "data/Database.h"
+#include "data/Graphics.h"
 #include "common.h"
 #include <openssl/evp.h>
 #include <iostream>
@@ -217,6 +218,11 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
         }
     }
 
+    if(operation == TOGRAPHICS && args->size==3 && args->arg1->getType()==BB_INT && args->arg2->getType()==BB_INT) {
+        int width = static_cast<Integer*>(args->arg1)->getValue();
+        int height = static_cast<Integer*>(args->arg2)->getValue();
+        return std::move(Result(new Graphics(toString(memory), width, height)));
+    }
 
 
     throw Unimplemented();

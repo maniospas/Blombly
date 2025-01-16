@@ -6,6 +6,7 @@
 #include <mutex>
 #include "data/Data.h"
 
+class Graphics;
 
 class BList : public Data {
 private:
@@ -23,6 +24,8 @@ public:
     std::string toString(BMemory* memory)override;
     virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
     Data* at(int64_t index) const;
+
+    friend class Graphics;
 };
 
 #endif // LIST_H

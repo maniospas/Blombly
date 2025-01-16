@@ -17,7 +17,7 @@ final collection = new {
 final db(str path) => new {
     final connector = sqlite(path);
     final table(str table_name, str signature) = {
-        this.connector["CREATE TABLE IF NOT EXISTS !{table_name} (!{signature});"];
+        this.connector << "CREATE TABLE IF NOT EXISTS !{table_name} (!{signature});";
         return new {
             insert(entry) = {
                 keys = list();
@@ -27,24 +27,24 @@ final db(str path) => new {
                     values << pair|next|str;
                 }
                 join = bb.string.join(",");
-                this...connector["INSERT INTO !{this..table_name} (!{keys|join}) VALUES (!{values|join})"];
+                this...connector << "INSERT INTO !{this..table_name} (!{keys|join}) VALUES (!{values|join})";
             }
             select(str where) = {
-                if(where=="*") return this...connector["SELECT * FROM !{this..table_name}"];
-                return this...connector["SELECT * FROM !{this..table_name} WHERE !{where};"];
+                if(where=="*") return this...connector << "SELECT * FROM !{this..table_name}";
+                return this...connector << "SELECT * FROM !{this..table_name} WHERE !{where};";
             }
         }
     }
     final transaction() = {
-        this.connector["BEGIN TRANSACTION;"];
+        this.connector << "BEGIN TRANSACTION;";
         return new {
             // this is how to end the transaction
             final connector = this..connector;
             call() => this...commit();
         }
     }
-    final commit() => this.connector["COMMIT;"];
-    final run(query) => this.connector[query|str];
+    final commit() => this.connector << "COMMIT;";
+    final run(query) => this.connector << query|str;
 }
 
 final logger = new {

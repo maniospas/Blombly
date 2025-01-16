@@ -32,7 +32,10 @@ jobs:
           # Linux Configuration
           - os: ubuntu-latest
             triplet: x64-linux
-            build-script: ./vcpkg/bootstrap-vcpkg.sh
+            build-script: | 
+              ./vcpkg/bootstrap-vcpkg.sh
+              apt-get install libsdl2-dev
+              apt-get install libsdl2-image-dev
             cmake-command: |
               cmake -B ./build
               cmake --build ./build --config Release

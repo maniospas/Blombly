@@ -74,6 +74,26 @@ else()
     message(FATAL_ERROR "SQLite3 library not found. Make sure it is installed via vcpkg.")
 endif()
 
+# Find and link SDL2
+find_package(SDL2 REQUIRED)
+if(SDL2_FOUND)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2 SDL2::SDL2main)
+else()
+    message(FATAL_ERROR "SDL2 library not found. Make sure it is installed on the system.")
+endif()
+
+# Find and link SDL2_image
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SDL2_IMAGE REQUIRED SDL2_image)
+if(SDL2_IMAGE_FOUND)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_IMAGE_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_IMAGE_LIBRARIES})
+else()
+    message(FATAL_ERROR "SDL2_image library not found. Make sure it is installed on the system.")
+endif()
+
+
 # Specify where to place the final executable
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}"
