@@ -16,20 +16,22 @@ jobs:
           # Windows Configuration
           - os: windows-latest
             triplet: x64-windows
-            build-script: .\vcpkg\bootstrap-vcpkg.bat
+            build-script: |
+              .\vcpkg\bootstrap-vcpkg.bat
+              .\vcpkg\vcpkg.exe install sdl2 sdl2-image
             cmake-command: |
-              ./vcpkg/vcpkg install sdl2 sdl2-image
-              cmake -B ./build
-              cmake --build ./build --config Release
+              mkdir build
+              cmake -B .\build -DCMAKE_TOOLCHAIN_FILE=.\vcpkg\scripts\buildsystems\vcpkg.cmake
+              cmake --build .\build --config Release
             package-command: |
               mkdir release
-              cp ./*.exe release/ || echo "No executables found"
-              cp ./*.dll release/ || echo "No DLLs found"
-              cp -r libs/ release/ || echo "No libs directory found"
-              # Use PowerShell's Compress-Archive for zipping files on Windows
-              powershell Compress-Archive -Path release/* -DestinationPath windows_release.zip
+              Copy-Item -Path .\build\Release\*.exe -Destination .\release\ -ErrorAction SilentlyContinue
+              Copy-Item -Path .\build\Release\*.dll -Destination .\release\ -ErrorAction SilentlyContinue
+              Copy-Item -Recurse -Path .\libs\* -Destination .\release\ -ErrorAction SilentlyContinue
+              Compress-Archive -Path .\release\* -DestinationPath windows_release.zip
             artifact-name: windows-build
             artifact-path: windows_release.zip
+
           # Linux Configuration
           - os: ubuntu-latest
             triplet: x64-linux
