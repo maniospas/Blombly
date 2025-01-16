@@ -185,7 +185,7 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
         value->leak();
         value->addOwner();
         contents.push_back((value));
-        return std::move(Result(nullptr));
+        return std::move(Result(this));
     }
 
     if (operation == PUT && args->size == 3 && args->arg1->getType() == BB_INT) {

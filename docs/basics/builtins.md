@@ -98,9 +98,9 @@ is overloaded by some data types. For example, format a float to a string of thr
         <td>Replace <code>op</code> with any arithmetic, string, or boolean operation.</td>
       </tr>
       <tr>
-        <td>String operations</td>
-        <td><code>+</code></td>
-        <td>Concatenation.</td>
+        <td>Iterable operations</td>
+        <td><code>+</code><br><code>a&lt;&lt;i</code><br><code>pop(a)</code><br><code>next(a)</code></td>
+        <td>String or list concatenation.<br>Push value `i` to iterable `a` (returns either the iterable or a result).<br>Extract the last value.<br>Extract the first value.</td>
       </tr>
       <tr>
         <td>Comparisons</td>

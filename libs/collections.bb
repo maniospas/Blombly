@@ -1,14 +1,14 @@
 final collection = new {
     final toback(element) => new {
         call(A) = {
-            push(A, this..element);
+            A << this..element;
             return A;
         }
     }
     final transform(func) => new {
         call(A) = {
             ret = list();
-            while(x in A) push(ret, this..func(x));
+            while(x in A) ret << this..func(x);
             return ret;
         }
     }
@@ -23,8 +23,8 @@ final db(str path) => new {
                 keys = list();
                 values = list();
                 while(pair in entry) {
-                    push(keys, pair|next|str);
-                    push(values, pair|next|str);
+                    keys << pair|next|str;
+                    values << pair|next|str;
                 }
                 join = bb.string.join(",");
                 this...connector["INSERT INTO !{this..table_name} (!{keys|join}) VALUES (!{values|join})"];
@@ -58,7 +58,7 @@ final memory = new {
     final raii() => new {
         final entries = list();
         final add(obj) = {
-            push(this.entries, obj);
+            this.entries << obj;
             return obj;
         }
         final clear() = {while(obj as this.entries|next) clear(obj)}
@@ -88,7 +88,7 @@ final os = new {
         }
         text = src|bb.os.read;
         if(checksum|len|bool) if(checksum!=text["md5"]) fail("Mismatching checksum: !{src|str}");
-        push(dst, text);
+        dst << text;
         return true;
     }
 }
@@ -180,7 +180,7 @@ final string = new {
                 prev_pos = pos;
                 pos = search|bb.string.index(query :: pos=pos);
                 s = search[range(prev_pos, pos)];
-                push(ret, s);
+                ret << s;
                 pos += nquery;
             }
             return ret;

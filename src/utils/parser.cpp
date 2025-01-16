@@ -183,23 +183,16 @@ private:
         int pos = MISSING;
         int last_open = end;
         for (int i = start; i <= end; ++i) {
-            if (depth == 0 && tokens[i].name == end_string)
-                pos = i;
-            if (tokens[i].name == "(" || tokens[i].name == "[" || 
-                tokens[i].name == "{") 
-                depth += 1;
-            if (depth < 0)
-                bberror("Imbalanced parentheses, brackets, or scopes\n"+show_position(last_open));
+            if (depth == 0 && tokens[i].name == end_string) pos = i;
+            if (tokens[i].name == "(" || tokens[i].name == "[" || tokens[i].name == "{") depth += 1;
+            if (depth < 0) bberror("Imbalanced parentheses, brackets, or scopes\n"+show_position(last_open));
             if (tokens[i].name == ")" || tokens[i].name == "]" || 
                 tokens[i].name == "}") {
-                if(depth==0)
-                    last_open = i;
+                if(depth==0) last_open = i;
                 depth -= 1;
             }
         }
-        if (missing_error && pos == MISSING) {
-            bberror("Closing " + end_string + " is missing\n"+show_position(last_open));
-        }
+        if (missing_error && pos == MISSING)  bberror("Closing " + end_string + " is missing\n"+show_position(last_open));
         return pos;
     }
 public:
@@ -528,6 +521,7 @@ public:
                     || tokens[assignment-1].name=="%"
                     || tokens[assignment-1].name=="and"
                     || tokens[assignment-1].name=="or"
+                    || tokens[assignment-1].name=="<<"
                     )) {
                     isSelfOperation = 1; 
                     // if for whatever reason operations like +as become available (which shouldn't) then don't forget to fix subsequent code
@@ -567,6 +561,8 @@ public:
                             ret += "and " + entryvalue + " " + entryvalue + " " + rhs + "\n";
                         } else if (tokens[assignment - 1].name == "or") {
                             ret += "or " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        } else if (tokens[assignment - 1].name == "<<") {
+                            ret += "push " + entryvalue + " " + entryvalue + " " + rhs + "\n";
                         }
                         ret += "put # " + obj + " " + entry + " " + entryvalue + "\n";
                     }
@@ -647,6 +643,7 @@ public:
                                 name == "this" || 
                                 name == "and" || 
                                 name == "or" || 
+                                name == "<<" || 
                                 name == "not" || 
                                 name == "=" || name == "+" || 
                                 name == "-" || name == "*" || 
@@ -713,6 +710,8 @@ public:
                             ret += "and " + entryvalue + " " + entryvalue + " " + rhs + "\n";
                         } else if (tokens[assignment - 1].name == "or") {
                             ret += "or " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        } else if (tokens[assignment - 1].name == "<<") {
+                            ret += "push " + entryvalue + " " + entryvalue + " " + rhs + "\n";
                         }
                         ret += (is_final ? "setfinal # " : "set # ") + obj + " " + entry + " " + entryvalue + "\n";
                     }
@@ -781,6 +780,7 @@ public:
                     first_name == "this" || 
                     first_name == "and" || 
                     first_name == "or" || 
+                    first_name == "<<" || 
                     first_name == "not" || 
                     first_name == "=" || first_name == "+" || 
                     first_name == "-" || first_name == "*" || 
@@ -869,6 +869,7 @@ public:
                                 name == "this" || 
                                 name == "and" || 
                                 name == "or" || 
+                                name == "<<" || 
                                 name == "not" || 
                                 name == "=" || name == "+" || 
                                 name == "-" || name == "*" || 
@@ -927,6 +928,8 @@ public:
                         ret += "and "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
                     if(tokens[assignment-1].name=="or")
                         ret += "or "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    if(tokens[assignment-1].name=="<<")
+                        ret += "push "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
                     // the |= expression is handled by the sanitizer
                 }
                 else
@@ -992,6 +995,13 @@ public:
                 std::string var = "#";
                 breakpoint(start, end);
                 ret += first_name + " " + var + " " + parsed + "\n";
+                return var;
+            }
+
+            int epush = find_last_end(start, end, "<<");
+            if (epush != MISSING) {
+                std::string var = create_temp();
+                ret += "push " + var + " " + parse_expression(start, epush - 1) + " " + parse_expression(epush + 1, end) + "\n";
                 return var;
             }
 
@@ -1383,7 +1393,7 @@ public:
                 ret += toret;
                 return var;
             }
-            bberror("Unknown type of command\n"+show_position(start));
+            bberror("Unknown type of command: `"+to_string(start, end)+"`\n"+show_position(start));
         /*} catch (const BBError& e) {
             if (tokens[start].line != tokens[end].line)
                 throw e;
@@ -1421,8 +1431,7 @@ void sanitize(std::vector<Token>& tokens) {
             updatedTokens.emplace_back("=", tokens[i].file, tokens[i].line, false);
         }*/
 
-        if (tokens[i].name == "\\")
-            bberror("A stray `\\` was encountered.\n" + Parser::show_position(tokens, i));
+        if (tokens[i].name == "\\") bberror("A stray `\\` was encountered.\n" + Parser::show_position(tokens, i));
 
         if (tokens[i].name.size() >= 3 && tokens[i].name.substr(0, 3) == "_bb")
             bberror("Variable name `" + tokens[i].name + "` cannot start with _bb."
@@ -1457,6 +1466,12 @@ void sanitize(std::vector<Token>& tokens) {
             updatedTokens.emplace_back("return", tokens[i].file, tokens[i].line, true); // => as return statement
             continue;
         }*/
+
+        if(tokens[i].name=="<" && i<tokens.size()-1 && tokens[i+1].name=="<") {
+            updatedTokens.emplace_back("<<", tokens[i].file, tokens[i].line, false);
+            i += 1;
+            continue;
+        }
 
 
         if (tokens[i].name=="-" && (i==0 || (tokens[i-1].name=="=" || tokens[i-1].name=="as" || tokens[i-1].name=="{" ||  tokens[i-1].name=="[" || tokens[i-1].name=="(" || tokens[i-1].name==",")) 

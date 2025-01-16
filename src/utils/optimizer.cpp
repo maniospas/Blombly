@@ -86,12 +86,12 @@ std::string optimizeFromCode(const std::string& code, bool minimify) {
         }
     }
 
-    // remove put and push assignments
+    // remove outputs from some expressions
     for(int i=0;i<program.size();i++) {
         std::shared_ptr<OptimizerCommand> command = program[i];
         if(command->args.size()<2) continue;
-        if(command->args[0]=="put" || command->args[0]=="push" || command->args[0]=="clear" || command->args[0]=="setfinal" || command->args[0]=="set" || command->args[0]=="final") 
-            command->args[1] = "#";
+        if(command->args[0]=="put" || command->args[0]=="clear" || command->args[0]=="setfinal" || command->args[0]=="set" || command->args[0]=="final") command->args[1] = "#";
+        //if(command->args[0]=="push" && command->args[1]=="#") command->args[1]  = command->args[2];
     }
     
     // remove unused methods

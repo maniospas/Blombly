@@ -467,7 +467,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
         while (std::getline(stream, line)) contents.push_back(line);
         size = contents.size();
         contentsLoaded = true;
-        return std::move(Result(nullptr));
+        return std::move(Result(this));
     }
     if (args->size == 1) {
         if (operation == CLEAR) {
@@ -494,7 +494,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
                 size = 0;
                 contentsLoaded = false;
                 contents.clear();
-                return std::move(Result(nullptr));
+                return std::move(Result(this));
             } 
             else if (fs::is_directory(path)) {
                 bbassert(fs::is_empty(path), "For safety, only empty directories can be cleared by the virtual machine, but this has contents: " + path);
@@ -502,7 +502,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
                 contents.clear();
                 size = 0;
                 contentsLoaded = false;
-                return std::move(Result(nullptr));
+                return std::move(Result(this));
             } 
             else bberror("Path is not a regular file or directory: " + path);
         }

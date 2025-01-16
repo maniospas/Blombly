@@ -216,17 +216,15 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
             justBrokenLine = false;*/
         bool prevSpecialCharacter = specialCharacter;
         if (c == ' ' || c == '\t' || c == '\n'
-            || c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '=' ||
-            (c == ':' && (i == text.size() - 1 || text[i + 1] != ':') && (i == 0 || text[i - 1] != ':'))
+            || c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '=' 
+            || (c == ':' && (i == text.size() - 1 || text[i + 1] != ':') && (i == 0 || text[i - 1] != ':'))
             || c == ';' || c == ',' || c == '.' ||
             c == '*' || c == '+' || c == '^' || c == '-' || c == '/' || c == '%' || c == '&' || c == '|' || c == '!' || c == '<' || c == '>' ||
             c == '/' || c == '#') {
-            if (wordStream.str().size())
-                ret.emplace_back(wordStream.str(), file, line);
+            if (wordStream.str().size()) ret.emplace_back(wordStream.str(), file, line);
             wordStream.str("");  // Clear the stream
             wordStream.clear();
-            if (c == '\n')
-                line++;
+            if (c == '\n') line++;
             if (c == ' ' || c == '\t' || c == '\n')
                 continue;
             specialCharacter = true;
@@ -241,11 +239,8 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
         }
         wordStream << c;
     }
-    if (inString)
-        bberror("Missing `\"`. The file ended without closing the string: " + wordStream.str());
-    if (wordStream.str().size())
-        ret.emplace_back(wordStream.str(), file, line);
-    
+    if (inString) bberror("Missing `\"`. The file ended without closing the string: " + wordStream.str());
+    if (wordStream.str().size()) ret.emplace_back(wordStream.str(), file, line);
     return ret;
 }
 

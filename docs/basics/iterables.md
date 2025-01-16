@@ -72,12 +72,12 @@ To extract data while removing them from lists use the `next` and `pop` operator
 to obtain the first or last list elements respectively. 
 These yield error values if the list is empty, so use the `as` assignment to detect
 whether the list was empty in loops. All list modifications are efficient; even front popping with next.
-Append elements at the end using the `push` operator.
+Push elements to the end using the `<<` operator.
 
 ```java
 // main.bb
 A = 1,2,3;
-push(A, 4);
+A << 4;
 while(a as A|next) print(a);
 ```
 
@@ -105,6 +105,8 @@ print((1,2,3)+(4,5));
 [1,2,3,4,5]
 </pre>
 
+!!! tip
+    Pushing to lists returns the list itself, for example to enable syntax like `A = list()<<1<<2<<3;`.
 
 
 ## Iterators

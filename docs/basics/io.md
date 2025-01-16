@@ -99,8 +99,8 @@ is applicable only to files and overwrites their text contents with the pushed s
     </thead>
     <tbody>
       <tr>
-        <td>push</td>
-        <td>Write data to the resource without expecting persistence.</td>
+        <td><<</td>
+        <td>Push data to overwrite the resource without expecting persistence. May return a reply.</td>
       </tr>
       <tr>
         <td>iter</td>
@@ -243,7 +243,7 @@ sftp = "sftp://eu-central-1.sftpcloud.io/test_file"|file;
 sftp["username"] = username;
 sftp["password"] = password; 
 sftp["timeout"] = 10;
-push(sftp, "Transferred data.");
+sftp << "Transferred data.";
 
 // retrieve file from sftp
 sftp = "sftp://eu-central-1.sftpcloud.io/test_file"|file;
@@ -368,26 +368,26 @@ Blombly wraps the [sqlite](https://www.sqlite.org/) database connector, which st
 Initialize a database with a string denoting a file location. An empty string creates a temporary
 file to be deleted when closed, and `":memory:"` creates an in-memory instance without persistence.
 Like before, databases require appropriate permissions to access the file system.
-After initializing them, perform operations with the element access notation. Each operation returns list
-data containing maps from column names to string values. Below is an example that iterates through a list of users.
+After initializing them, push string operations. Each operation returns a list that contains
+maps from column names to string values. Below is an example that creates and iterates through a list of users.
 
 
 ```java
 db = sqlite(":memory:");
-db["PRAGMA journal_mode = 'wal';"]; // often speeds things up (https://www.sqlite.org/wal.html)
-db["CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER);"];
+db << "PRAGMA journal_mode = 'wal';"; // often speeds things up (https://www.sqlite.org/wal.html)
+db << "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER);";
 
 while(i in range(5)) {
-    db["BEGIN TRANSACTION;"]; // instead of this, prefer batching operations into larger transactions
-        db["INSERT INTO users (name, age) VALUES ('User{i}', {20 + (i % 10)});"];
-        db["SELECT * FROM users WHERE id = {i};"];
-        db["UPDATE users SET age = age + 1 WHERE id = {i};"];
+    db << "BEGIN TRANSACTION;"; // instead of this, prefer batching operations into larger transactions
+        db << "INSERT INTO users (name, age) VALUES ('User{i}', {20 + (i % 10)});";
+        db << "SELECT * FROM users WHERE id = {i};";
+        db << "UPDATE users SET age = age + 1 WHERE id = {i};";
         //db["DELETE FROM users WHERE id = {i};"]; // deletes are generally slow
-    db["COMMIT;"];
+    db << "COMMIT;";
 }
 
-while(user in db["SELECT * FROM users;"]) print(user);
-db["DELETE FROM users;"];
+while(user in db<<"SELECT * FROM users;") print(user);
+db << "DELETE FROM users;";
 ```
 
 

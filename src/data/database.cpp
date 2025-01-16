@@ -69,7 +69,7 @@ Result Database::implement(const OperationType operation, BuiltinArgs* args, BMe
         return std::move(Result(nullptr));
     }
     if (operation == TOSTR && args->size == 1) STRING_RESULT(toString(memory));
-    if (operation == AT && args->size == 2 && args->arg1->getType() == STRING) {
+    if (operation == PUSH && args->size == 2 && args->arg1->getType() == STRING) {
         std::string query = args->arg1->toString(memory);
         char* errMsg = nullptr;
 
