@@ -19,7 +19,16 @@ private:
 
     void initializeSDL();
     void destroySDL();
-
+    int xVariable;
+    int yVariable;
+    int typeVariable;
+    int buttonVariable;
+    int keyVariable;
+    BString* keyDownString;
+    BString* keyUpString;
+    BString* mouseDownString;
+    BString* mouseUpString;
+    BString* mouseMoveString;
 public:
     explicit Graphics(const std::string& title, int width, int height);
     ~Graphics();

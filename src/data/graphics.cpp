@@ -3,6 +3,8 @@
 #include <SDL2/SDL_image.h>
 #include "data/Graphics.h"
 #include "data/BError.h"
+#include "data/Boolean.h"
+#include "data/Struct.h"
 #include <stdexcept>
 #include <iostream>
 
@@ -20,9 +22,31 @@ Graphics::Graphics(const std::string& title, int width, int height) : Data(GRAPH
         destroySDL();
         bberror("Failed to create SDL renderer: " + std::string(SDL_GetError()));
     }
+    typeVariable = variableManager.getId("type");
+    xVariable = variableManager.getId("x");
+    yVariable = variableManager.getId("y");
+    buttonVariable = variableManager.getId("button");
+    keyVariable = variableManager.getId("key");
+
+    keyUpString = new BString("key::up");
+    keyDownString = new BString("key::down");
+    mouseUpString = new BString("mouse::up");
+    mouseDownString = new BString("mouse::down");
+    mouseMoveString = new BString("mouse::move");
+
+    keyUpString->addOwner();
+    keyDownString->addOwner();
+    mouseUpString->addOwner();
+    mouseDownString->addOwner();
+    mouseMoveString->addOwner();
 }
 
 Graphics::~Graphics() {
+    keyUpString->removeFromOwner();
+    keyDownString->removeFromOwner();
+    mouseUpString->removeFromOwner();
+    mouseDownString->removeFromOwner();
+    mouseMoveString->removeFromOwner();
     for (BList* list : renderQueue) list->removeFromOwner();
     destroySDL();
 }
@@ -91,7 +115,7 @@ std::string Graphics::toString(BMemory* memory) {return "graphics";}
 Result Graphics::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     if (operation == CLEAR && args->size == 1) {
         clear();
-        return std::move(Result(nullptr));
+        return std::move(Result(this));
     }
     if (operation == PUSH && args->size == 2 && args->arg1->getType() == LIST) {
         args->arg1->addOwner();
@@ -100,7 +124,66 @@ Result Graphics::implement(const OperationType operation, BuiltinArgs* args, BMe
     }
     if (operation == POP && args->size == 1) {
         render();
-        return std::move(Result(this));
+        bool keep_running = true;
+        SDL_Event event;
+        BList* signals = new BList();
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                destroySDL();
+                return std::move(Result(OUT_OF_RANGE));
+            } else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+                SDL_Keycode keyPressed = event.key.keysym.sym;
+                const char* keyName = SDL_GetKeyName(keyPressed);
+
+                // Create a new struct for key events
+                BMemory* memory = new BMemory(nullptr, 3);
+                Struct* signalStruct = new Struct(memory);
+                memory->unsafeSet(variableManager.thisId, signalStruct, nullptr);
+                signalStruct->getMemory()->unsafeSet(typeVariable, event.type == SDL_KEYDOWN?keyDownString:keyUpString, nullptr);
+                signalStruct->getMemory()->unsafeSet(keyVariable, new BString(keyName), nullptr);
+                
+                // Add the struct to signals
+                signalStruct->addOwner();
+                signals->contents.push_back(signalStruct);
+            } else if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP) {
+                int x = event.button.x;
+                int y = event.button.y;
+
+                std::string button;
+                switch (event.button.button) {
+                    case SDL_BUTTON_LEFT: button = "left"; break;
+                    case SDL_BUTTON_RIGHT: button = "right"; break;
+                    case SDL_BUTTON_MIDDLE: button = "middle"; break;
+                    default: button = "unknown"; break;
+                }
+
+                BMemory* memory = new BMemory(nullptr, 5);
+                Struct* signalStruct = new Struct(memory);
+                memory->unsafeSet(variableManager.thisId, signalStruct, nullptr);
+                signalStruct->getMemory()->unsafeSet(typeVariable, event.type == SDL_MOUSEBUTTONDOWN ? mouseDownString : mouseUpString, nullptr);
+                signalStruct->getMemory()->unsafeSet(keyVariable, new BString(button), nullptr);
+                signalStruct->getMemory()->unsafeSet(xVariable, new BFloat(static_cast<float>(x)), nullptr);
+                signalStruct->getMemory()->unsafeSet(yVariable, new BFloat(static_cast<float>(y)), nullptr);
+                signalStruct->addOwner();
+                signals->contents.push_back(signalStruct);
+            } else if (event.type == SDL_MOUSEMOTION) {
+                int x = event.motion.x;
+                int y = event.motion.y;
+
+                BMemory* memory = new BMemory(nullptr, 4);
+                Struct* signalStruct = new Struct(memory);
+                memory->unsafeSet(variableManager.thisId, signalStruct, nullptr);
+                signalStruct->getMemory()->unsafeSet(typeVariable, mouseMoveString, nullptr);
+                signalStruct->getMemory()->unsafeSet(xVariable, new BFloat(static_cast<float>(x)), nullptr);
+                signalStruct->getMemory()->unsafeSet(yVariable, new BFloat(static_cast<float>(y)), nullptr);
+
+                // Add the struct to signals
+                signalStruct->addOwner();
+                signals->contents.push_back(signalStruct);
+            }
+        }
+
+        return std::move(Result(signals));
     }
     throw Unimplemented();
 }
