@@ -18,7 +18,7 @@ jobs:
             triplet: x64-windows
             build-script: |
               .\vcpkg\bootstrap-vcpkg.bat
-              .\vcpkg\vcpkg.exe install sdl2 sdl2-image
+              .\vcpkg\vcpkg.exe install sdl2 sdl2-image sdl2-ttf
             cmake-command: |
               cmake -B ./build
               cmake --build ./build --config Release
@@ -38,6 +38,7 @@ jobs:
             cmake-command: |
               sudo apt-get install libsdl2-dev
               sudo apt-get install libsdl2-image-dev
+              sudo apt-get install libsdl2-ttf-dev
               cmake -B ./build
               cmake --build ./build --config Release
             package-command: |

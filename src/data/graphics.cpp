@@ -1,9 +1,10 @@
-
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include "data/Graphics.h"
 #include "data/BError.h"
 #include "data/Boolean.h"
+#include "data/Integer.h"
 #include "data/Struct.h"
 #include <stdexcept>
 #include <iostream>
@@ -22,6 +23,11 @@ Graphics::Graphics(const std::string& title, int width, int height) : Data(GRAPH
         destroySDL();
         bberror("Failed to create SDL renderer: " + std::string(SDL_GetError()));
     }
+    if (TTF_Init() == -1) {
+        destroySDL();
+        bberror("Failed to initialize SDL_ttf: " + std::string(TTF_GetError()));
+    }
+    
     typeVariable = variableManager.getId("type");
     xVariable = variableManager.getId("x");
     yVariable = variableManager.getId("y");
@@ -48,13 +54,12 @@ Graphics::~Graphics() {
     mouseDownString->removeFromOwner();
     mouseMoveString->removeFromOwner();
     for (BList* list : renderQueue) list->removeFromOwner();
+    TTF_Quit();
     destroySDL();
 }
 
 void Graphics::initializeSDL() {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0 || IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) {
-        throw std::runtime_error("Failed to initialize SDL: " + std::string(SDL_GetError()));
-    }
+    if (SDL_Init(SDL_INIT_VIDEO) < 0 || IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) bberror("Failed to initialize SDL: " + std::string(SDL_GetError()));
 }
 
 void Graphics::destroySDL() {
@@ -74,32 +79,67 @@ void Graphics::render() {
 
     for (BList* list : renderQueue) {
         std::lock_guard<std::recursive_mutex> lock(list->memoryLock);
-        bbassert (list->contents.size() == 6, "Cannot render a list with len other than 6");
-        bbassert(list->contents[0]->getType()==STRING
-            && list->contents[1]->getType()==BB_FLOAT
-            && list->contents[2]->getType()==BB_FLOAT
-            && list->contents[3]->getType()==BB_FLOAT
-            && list->contents[4]->getType()==BB_FLOAT
-            && list->contents[5]->getType()==BB_FLOAT, 
-            "Can only push lists in the form of `texture|str,x|float,y|float,dx|float,dy|float,angle|float`");
+        bbassert(list->contents.size() == 6, "Can only push lists of 6 elements to graphics. You cannot add or remove elements from those lists afterwards.");
 
-        auto texturePath = static_cast<BString*>(list->contents[0])->toString(nullptr);
-        auto x = static_cast<BFloat*>(list->contents[1])->getValue();
-        auto y = static_cast<BFloat*>(list->contents[2])->getValue();
-        auto dx = static_cast<BFloat*>(list->contents[3])->getValue();
-        auto dy = static_cast<BFloat*>(list->contents[4])->getValue();
-        auto angle = static_cast<BFloat*>(list->contents[5])->getValue();
+        if (list->contents[1]->getType() == STRING) {  // texts have the font path as the second argument
+            bbassert(list->contents[0]->getType() == STRING, "First element must be a string (text)");
+            bbassert(list->contents[1]->getType() == STRING, "Second element must be a string (font path)");
+            bbassert(list->contents[2]->getType() == BB_FLOAT || list->contents[2]->getType() == BB_INT, "Third element must be a float or integer (font size)");
+            bbassert(list->contents[3]->getType() == BB_FLOAT || list->contents[3]->getType() == BB_INT, "Third element must be a float or integer (x-coordinate)");
+            bbassert(list->contents[4]->getType() == BB_FLOAT || list->contents[4]->getType() == BB_INT, "Fourth element must be a float or integer (y-coordinate)");
+            bbassert(list->contents[5]->getType() == BB_FLOAT || list->contents[5]->getType() == BB_INT, "Fifth element must be a float or integer (angle)");
 
-        SDL_Surface* surface = IMG_Load(texturePath.c_str());
-        if (!surface) continue;
+            // Render text
+            std::string text = static_cast<BString*>(list->contents[0])->toString(nullptr);
+            std::string fontPath = static_cast<BString*>(list->contents[1])->toString(nullptr);
+            double fontSize = list->contents[2]->getType() == BB_INT ? static_cast<Integer*>(list->contents[2])->getValue() : static_cast<BFloat*>(list->contents[2])->getValue();
+            double x = list->contents[3]->getType() == BB_INT ? static_cast<Integer*>(list->contents[3])->getValue() : static_cast<BFloat*>(list->contents[3])->getValue();
+            double y = list->contents[4]->getType() == BB_INT ? static_cast<Integer*>(list->contents[4])->getValue() : static_cast<BFloat*>(list->contents[4])->getValue();
+            double angle = static_cast<BFloat*>(list->contents[4])->getValue();
 
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_FreeSurface(surface);
-        if (!texture) continue;
+            TTF_Font* font = TTF_OpenFont(fontPath.c_str(), (int)(fontSize+0.5));
+            bbassert(font, "Failed to load font: " + fontPath);
 
-        SDL_Rect dstRect = {static_cast<int>(x), static_cast<int>(y), static_cast<int>(dx), static_cast<int>(dy)};
-        SDL_RenderCopyEx(renderer, texture, nullptr, &dstRect, angle, nullptr, SDL_FLIP_NONE);
-        SDL_DestroyTexture(texture);
+            SDL_Color color = {255, 255, 255, 255};
+            SDL_Surface* textSurface = TTF_RenderText_Solid(font, text.c_str(), color);
+            TTF_CloseFont(font);
+            bbassert(textSurface, "Failed to render text: " + text);
+
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, textSurface);
+            SDL_FreeSurface(textSurface);
+            if (!texture) continue;
+
+            SDL_Rect dstRect = {static_cast<int>(x + 0.5), static_cast<int>(y + 0.5), textSurface->w, textSurface->h};
+            SDL_RenderCopyEx(renderer, texture, nullptr, &dstRect, angle, nullptr, SDL_FLIP_NONE);
+            SDL_DestroyTexture(texture);
+        } else {
+            // Validate data types for texture rendering
+            bbassert(list->contents[0]->getType() == STRING, "First element must be a string (texture path)");
+            bbassert(list->contents[1]->getType() == BB_FLOAT || list->contents[1]->getType() == BB_INT, "Second element must be a float or integer (x-coordinate)");
+            bbassert(list->contents[2]->getType() == BB_FLOAT || list->contents[2]->getType() == BB_INT, "Third element must be a float or integer (y-coordinate)");
+            bbassert(list->contents[3]->getType() == BB_FLOAT || list->contents[3]->getType() == BB_INT, "Fourth element must be a float or integer (width)");
+            bbassert(list->contents[4]->getType() == BB_FLOAT || list->contents[4]->getType() == BB_INT, "Fifth element must be a float or integer (height)");
+            bbassert(list->contents[5]->getType() == BB_FLOAT || list->contents[5]->getType() == BB_INT, "Sixth element must be a float or integer (angle)");
+
+            // Render texture
+            std::string texturePath = static_cast<BString*>(list->contents[0])->toString(nullptr);
+            double x = list->contents[1]->getType() == BB_INT ? static_cast<Integer*>(list->contents[1])->getValue() : static_cast<BFloat*>(list->contents[1])->getValue();
+            double y = list->contents[2]->getType() == BB_INT ? static_cast<Integer*>(list->contents[2])->getValue() : static_cast<BFloat*>(list->contents[2])->getValue();
+            double dx = list->contents[3]->getType() == BB_INT ? static_cast<Integer*>(list->contents[3])->getValue() : static_cast<BFloat*>(list->contents[3])->getValue();
+            double dy = list->contents[4]->getType() == BB_INT ? static_cast<Integer*>(list->contents[4])->getValue() : static_cast<BFloat*>(list->contents[4])->getValue();
+            double angle = list->contents[5]->getType() == BB_INT ? static_cast<Integer*>(list->contents[5])->getValue() : static_cast<BFloat*>(list->contents[5])->getValue();
+
+            SDL_Surface* surface = IMG_Load(texturePath.c_str());
+            bbassert(surface, "Failed to obtain texture path: " + texturePath);
+
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+            SDL_FreeSurface(surface);
+            if (!texture) continue;
+
+            SDL_Rect dstRect = {static_cast<int>(x + 0.5), static_cast<int>(y + 0.5), static_cast<int>(dx + 0.5), static_cast<int>(dy + 0.5)};
+            SDL_RenderCopyEx(renderer, texture, nullptr, &dstRect, angle, nullptr, SDL_FLIP_NONE);
+            SDL_DestroyTexture(texture);
+        }
     }
 
     SDL_RenderPresent(renderer);
@@ -110,12 +150,13 @@ void Graphics::clear() {
     renderQueue.clear();
 }
 
-std::string Graphics::toString(BMemory* memory) {return "graphics";}
+std::string Graphics::toString(BMemory* memory) { return "graphics"; }
+
 
 Result Graphics::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     if (operation == CLEAR && args->size == 1) {
         clear();
-        return std::move(Result(this));
+        return std::move(Result(nullptr));
     }
     if (operation == PUSH && args->size == 2 && args->arg1->getType() == LIST) {
         args->arg1->addOwner();

@@ -93,6 +93,15 @@ else()
     message(FATAL_ERROR "SDL2_image library not found. Make sure it is installed on the system.")
 endif()
 
+# Find and link SDL2_ttf
+pkg_check_modules(SDL2_TTF REQUIRED SDL2_ttf)
+if(SDL2_TTF_FOUND)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_TTF_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_TTF_LIBRARIES})
+else()
+    message(FATAL_ERROR "SDL2_ttf library not found. Make sure it is installed on the system.")
+endif()
+
 
 # Specify where to place the final executable
 set_target_properties(${PROJECT_NAME} PROPERTIES
