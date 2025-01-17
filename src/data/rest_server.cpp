@@ -63,7 +63,7 @@ Result RestServer::implement(const OperationType operation, BuiltinArgs* args, B
 }
 
 
-Result RestServer::executeCodeWithMemory(Data* called, BMemory* memory) const {
+Result RestServer::executeCodeWithMemory(DataPtr called, BMemory* memory) const {
     if(called->getType()==STRUCT) {
         auto strct = static_cast<Struct*>(called);
         auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
@@ -78,11 +78,11 @@ Result RestServer::executeCodeWithMemory(Data* called, BMemory* memory) const {
 
     BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
     bool newReturnSignal(false);
-    Data* result;
+    DataPtr result;
     //newMemory.detach(code->getDeclarationMemory());
     //newMemory.detach(memory);
     auto it = memory->codeOwners.find(code);
-    Data* thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
+    DataPtr thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
     if(thisObj) newMemory.unsafeSet(variableManager.thisId, thisObj, nullptr);
     std::unique_lock<std::recursive_mutex> executorLock;
     if(thisObj) {
@@ -175,13 +175,13 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                 }
 
                 Result result_ = server->executeCodeWithMemory(entry.second, mem);
-                Data* result = result_.get();
+                DataPtr result = result_.get();
                 if(result->getType()==STRUCT) {
                     Struct* resultStruct = static_cast<Struct*>(result);
-                    //Data* resultContentData = resultStruct->getMemory()->get(resultContent);
+                    //DataPtr resultContentData = resultStruct->getMemory()->get(resultContent);
                     //bbassert(resultContentData, "Route returned a struct without a `content` field.");
                     std::string response = result->toString(mem);
-                    Data* resultTypeData = resultStruct->getMemory()->getOrNull(resultType, true);
+                    DataPtr resultTypeData = resultStruct->getMemory()->getOrNull(resultType, true);
                     bbassert(resultTypeData, "Server route returned a struct without a `type` field (it return nothing).");
                     bbassert(resultTypeData->getType()==Datatype::STRING, "Server route `type` field was not a string (type is not a string).");
 

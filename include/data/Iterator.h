@@ -28,7 +28,7 @@ public:
         bberror("Internal error: the chosen iterator type does not implement `getEnd`, which means that `isContiguous` was not checked first.");
         return 0;
     }
-    virtual Data* fastNext() {return nullptr;} // signify to JIT using this that it needs to fallback to implement to guarantee memory safety
+    virtual DataPtr fastNext() {return nullptr;} // signify to JIT using this that it needs to fallback to implement to guarantee memory safety
 };
 
 
@@ -36,11 +36,11 @@ class AccessIterator : public Iterator {
 private:
     mutable std::recursive_mutex memoryLock;
     int64_t size;
-    Data* object;
+    DataPtr object;
     Integer* pos;
 
 public:
-    explicit AccessIterator(Data* object_);
+    explicit AccessIterator(DataPtr object_);
     ~AccessIterator();
     virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
 };
@@ -69,7 +69,7 @@ public:
     int64_t getEnd() const override {
         return last;
     }
-    virtual Data* fastNext() override;
+    virtual DataPtr fastNext() override;
 };
 
 class FloatRange : public Iterator {
@@ -81,7 +81,7 @@ public:
     explicit FloatRange(double first, double last, double step);
     ~FloatRange();
     virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
-    virtual Data* fastNext() override;
+    virtual DataPtr fastNext() override;
 };
 
 #endif // ITERATOR_H

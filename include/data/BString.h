@@ -31,7 +31,7 @@ public:
     explicit BString(const std::string& val);
     
     virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
-    virtual bool isSame(Data* other) override;
+    virtual bool isSame(DataPtr other) override;
     virtual size_t toHash() const override;
     virtual std::string toString(BMemory* memory) override;
 

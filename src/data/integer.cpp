@@ -66,7 +66,7 @@ void Integer::setValue(int64_t val) {
     value = val;
 }
 
-bool Integer::isSame(Data* other) {
+bool Integer::isSame(DataPtr other) {
     if(other->getType()!=BB_INT)
         return false;
     return static_cast<Integer*>(other)->value==value;

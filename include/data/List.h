@@ -15,7 +15,7 @@ private:
     void resizeContents();
 
 public:
-    std::vector<Data*> contents;
+    std::vector<DataPtr> contents;
     
     explicit BList();
     explicit BList(int64_t reserve);
@@ -23,7 +23,7 @@ public:
 
     std::string toString(BMemory* memory)override;
     virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
-    Data* at(int64_t index) const;
+    DataPtr at(int64_t index) const;
 
     friend class Graphics;
 };

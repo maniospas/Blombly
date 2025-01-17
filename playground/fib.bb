@@ -6,5 +6,5 @@ final fib(n) = {
 tic = time();
 result = fib(21);
 toc = time();
-print("Result {result}");
-print("Elapsed {toc-tic} sec");
+print("Result !{result}");
+print("Elapsed !{toc-tic} sec");

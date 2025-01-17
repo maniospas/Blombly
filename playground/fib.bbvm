@@ -1,70 +1,70 @@
 %{if(n<2)return1;return fib(n-1)+fib(n-2) //playground/fib.bb line 1
-BEGIN _bb432
+BEGIN _bb570
 next n args
 %if(n<2)return1 //playground/fib.bb line 2
-BEGIN _bb433
-BUILTIN _bb434 I1
+BEGIN _bb571
+BUILTIN _bb572 I1
 %return1 //playground/fib.bb line 2
-return # _bb434
+return # _bb572
 END
 %n<2 //playground/fib.bb line 2
-BUILTIN _bb436 I2
-lt _bb435 n _bb436
+BUILTIN _bb574 I2
+lt _bb573 n _bb574
 %if(n<2)return1 //playground/fib.bb line 2
-if # _bb435 _bb433
+if # _bb573 _bb571
 %fib(n-2) //playground/fib.bb line 3
-BEGIN _bb439
+BEGIN _bb577
 %n-2 //playground/fib.bb line 3
-BUILTIN _bb441 I2
-sub _bb440 n _bb441
-list args _bb440
+BUILTIN _bb579 I2
+sub _bb578 n _bb579
+list args _bb578
 END
 %fib(n-2) //playground/fib.bb line 3
-call _bb438 _bb439 fib
+call _bb576 _bb577 fib
 %fib(n-1) //playground/fib.bb line 3
-BEGIN _bb443
+BEGIN _bb581
 %n-1 //playground/fib.bb line 3
-BUILTIN _bb445 I1
-sub _bb444 n _bb445
-list args _bb444
+BUILTIN _bb583 I1
+sub _bb582 n _bb583
+list args _bb582
 END
 %fib(n-1) //playground/fib.bb line 3
-call _bb442 _bb443 fib
-add _bb437 _bb442 _bb438
+call _bb580 _bb581 fib
+add _bb575 _bb580 _bb576
 %return fib(n-1)+fib(n-2) //playground/fib.bb line 3
-return # _bb437
+return # _bb575
 END
-IS fib _bb432
+IS fib _bb570
 final # fib
 %time() //playground/fib.bb line 6
 time tic
 %fib(21) //playground/fib.bb line 7
-BEGIN _bb448
-BUILTIN _bb449 I21
-list args _bb449
+BEGIN _bb586
+BUILTIN _bb587 I21
+list args _bb587
 END
 %fib(21) //playground/fib.bb line 7
-call _bb447 _bb448 fib
-IS result _bb447
+call _bb585 _bb586 fib
+IS result _bb585
 %time() //playground/fib.bb line 8
 time toc
 %"Result "+str(result)+"" //playground/fib.bb line 9
-BUILTIN _bb452 ""
+BUILTIN _bb590 ""
 %str(result) //playground/fib.bb line 9
-str _bb454 result
-BUILTIN _bb455 "Result "
-add _bb453 _bb455 _bb454
-add _bb451 _bb453 _bb452
+str _bb592 result
+BUILTIN _bb593 "Result "
+add _bb591 _bb593 _bb592
+add _bb589 _bb591 _bb590
 %print("Result "+str(result)+"") //playground/fib.bb line 9
-print # _bb451
+print # _bb589
 %"Elapsed "+str(toc-tic)+" sec" //playground/fib.bb line 10
-BUILTIN _bb457 " sec"
+BUILTIN _bb595 " sec"
 %toc-tic //playground/fib.bb line 10
-sub _bb459 toc tic
+sub _bb597 toc tic
 %str(toc-tic) //playground/fib.bb line 10
-str _bb460 _bb459
-BUILTIN _bb461 "Elapsed "
-add _bb458 _bb461 _bb460
-add _bb456 _bb458 _bb457
+str _bb598 _bb597
+BUILTIN _bb599 "Elapsed "
+add _bb596 _bb599 _bb598
+add _bb594 _bb596 _bb595
 %print("Elapsed "+str(toc-tic)+" sec") //playground/fib.bb line 10
-print # _bb456
+print # _bb594

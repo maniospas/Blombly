@@ -39,10 +39,10 @@ std::string int2type(int type) {
 // Class representing a Jitable that returns a primitive
 class ReturnPrimitiveJitable : public Jitable {
 private:
-    Data* primitive;
+    DataPtr primitive;
 public:
-    explicit ReturnPrimitiveJitable(Data* primitive): primitive(primitive) {}
-    virtual bool run(BMemory* memory, Data*& returnValue, bool &returnSignal, bool forceStayInThread) override {
+    explicit ReturnPrimitiveJitable(DataPtr primitive): primitive(primitive) {}
+    virtual bool run(BMemory* memory, DataPtr& returnValue, bool &returnSignal, bool forceStayInThread) override {
         returnValue = primitive;
         returnSignal = true;
         return true;
@@ -62,7 +62,7 @@ private:
     bool setExists;
 public:
     explicit NextAsExistsJitable(int from, int next, int as, int exists, bool setNext, bool setExists): from(from), next(next), as(as), exists(exists), setNext(setNext), setExists(setExists) {}
-    virtual bool run(BMemory* memory, Data*& returnValue, bool &returnSignal, bool forceStayInThread) override {
+    virtual bool run(BMemory* memory, DataPtr& returnValue, bool &returnSignal, bool forceStayInThread) override {
         bberror("Internal error: runWithBooleanIntent should always be returning true for NextAsExistsJitable.");
     }
 
@@ -71,7 +71,7 @@ public:
         if(iterator->getType()!=ITERATOR) // optimize only for iterators
             return false;
         auto it = static_cast<Iterator*>(iterator);
-        Data* nextValue = it->fastNext();
+        DataPtr nextValue = it->fastNext();
         //if(!nextValue) return false;
         if(!nextValue) {
             BuiltinArgs args;
@@ -188,10 +188,10 @@ public:
                 else bberror("Internal error: some jit functionality has not been implemented yet");
             }
         }
-    virtual bool run(BMemory* memory, Data*& returnValue, bool &returnSignal, bool forceStayInThread) override {
+    virtual bool run(BMemory* memory, DataPtr& returnValue, bool &returnSignal, bool forceStayInThread) override {
         // preample
         BuiltinArgs args;
-        Data* value = nullptr;
+        DataPtr value = nullptr;
         int i = start;
         try {
             for (; i <= preparationEnd; ++i) {
@@ -209,7 +209,7 @@ public:
 
         for (int symbol : argumentOrder) {
             int type = arguments[symbol];
-            Data* data = memory->get(symbol);
+            DataPtr data = memory->get(symbol);
             if (type == TOBB_BOOL) {
                 bbassert(data->getType()==BB_BOOL, "Internal JIT error: Preparation failed to create a bool");
                 std::memcpy(argPtr, &static_cast<Boolean*>(data)->value, sizeof(bool));

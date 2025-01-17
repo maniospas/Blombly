@@ -21,7 +21,7 @@ public:
     virtual void removeFromOwner() override {}
 
     virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
-    virtual bool isSame(Data* other) override;
+    virtual bool isSame(DataPtr other) override;
 
     friend class Integer; 
     friend class BFloat; 

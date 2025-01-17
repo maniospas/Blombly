@@ -19,7 +19,7 @@ extern BError* OUT_OF_RANGE;
 class MapIterator : public Iterator {
 private:
     BHashMap* map;
-    std::unordered_map<size_t, std::vector<std::pair<Data*, Data*>>>::iterator bucketIt;
+    std::unordered_map<size_t, std::vector<std::pair<DataPtr, DataPtr>>>::iterator bucketIt;
     int64_t elementIndex;
 
 public:
@@ -83,7 +83,7 @@ std::string BHashMap::toString(BMemory* memory) {
     return result;
 }
 
-void BHashMap::put(Data* from, Data* to) {
+void BHashMap::put(DataPtr from, DataPtr to) {
     bbassert(from, "Missing key");
     bbassert(to, "Missing map value");
     bbassert(from->getType()!=ERRORTYPE, "Cannot have an error as a map key");
@@ -95,7 +95,7 @@ void BHashMap::put(Data* from, Data* to) {
 
     for (auto& kvPair : entryList) {
         if (kvPair.first->isSame(from)) {
-            Data* prevValue = kvPair.second;
+            DataPtr prevValue = kvPair.second;
             kvPair.second = to;            
             to->addOwner();
             prevValue->removeFromOwner();
@@ -127,7 +127,7 @@ Result BHashMap::implement(const OperationType operation, BuiltinArgs* args, BMe
     }
 
     if (operation == AT && args->size == 2) {
-        Data* keyData = args->arg1;
+        DataPtr keyData = args->arg1;
 
         // Handle regular single-key access
         {
@@ -145,7 +145,7 @@ Result BHashMap::implement(const OperationType operation, BuiltinArgs* args, BMe
         implArgs.size = 1;
         implArgs.arg0 = keyData;
         Result iterResult = keyData->implement(TOITER, &implArgs, memory);
-        Data* iterator = iterResult.get();
+        DataPtr iterator = iterResult.get();
 
         if (iterator && iterator->getType() == ITERATOR) {
             Iterator* iter = static_cast<Iterator*>(iterator);
@@ -158,7 +158,7 @@ Result BHashMap::implement(const OperationType operation, BuiltinArgs* args, BMe
                 while (true) {
                     // Retrieve the next key from the iterator
                     Result nextKeyResult = iter->implement(NEXT, &implArgs, memory);
-                    Data* nextKey = nextKeyResult.get();
+                    DataPtr nextKey = nextKeyResult.get();
 
                     if (!nextKey) break; // Iterator exhausted
 
@@ -180,13 +180,13 @@ Result BHashMap::implement(const OperationType operation, BuiltinArgs* args, BMe
                     }
                 }
             } catch (...) {
-                for (Data* item : resultList->contents) if (item) item->removeFromOwner();
+                for (DataPtr item : resultList->contents) if (item) item->removeFromOwner();
                 delete resultList;
                 throw;
             }
 
             if (!allKeysFound) {
-                for (Data* item : resultList->contents)  if (item) item->removeFromOwner();
+                for (DataPtr item : resultList->contents)  if (item) item->removeFromOwner();
                 delete resultList;
                 return Result(OUT_OF_RANGE);
             }
@@ -198,8 +198,8 @@ Result BHashMap::implement(const OperationType operation, BuiltinArgs* args, BMe
     }
 
     if (operation == PUT && args->size == 3) {
-        Data* keyData   = args->arg1;
-        Data* valueData = args->arg2;
+        DataPtr keyData   = args->arg1;
+        DataPtr valueData = args->arg2;
         put(keyData, valueData);
         return Result(nullptr);
     }

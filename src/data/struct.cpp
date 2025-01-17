@@ -12,9 +12,9 @@ std::string Struct::toString(BMemory* memory){
     try {
         BuiltinArgs args;
         args.size = 1;
-        args.arg0 = (Data*)this;
+        args.arg0 = (DataPtr)this;
         Result reprValue = args.arg0->implement(TOSTR, &args, memory);
-        Data* repr = reprValue.get();
+        DataPtr repr = reprValue.get();
         return repr->toString(memory);
     } catch (Unimplemented&) {
         return "struct";
@@ -28,7 +28,7 @@ Result Struct::implement(const OperationType operation_, BuiltinArgs* args_, BMe
 
     std::string operation = getOperationTypeName(operation_);
     BMemory* mem;
-    Data* implementation;
+    DataPtr implementation;
     {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         mem = getMemory();
@@ -43,7 +43,7 @@ Result Struct::implement(const OperationType operation_, BuiltinArgs* args_, BMe
             if(operation_==MOVE) {
                 memory = new BMemory(nullptr, 1);
                 memory->unsafeSet(variableManager.thisId, this);
-                Data* ret = new Struct(mem);
+                DataPtr ret = new Struct(mem);
                 mem->unsafeSet(variableManager.thisId, ret);
                 return std::move(Result(ret));
             }

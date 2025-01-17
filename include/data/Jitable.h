@@ -19,7 +19,7 @@ class Command;
 class Jitable {
 public:
     virtual ~Jitable() = default;
-    virtual bool run(BMemory* memory, Data*& returnValue, bool &returnSignal, bool forceStayInThread) = 0;
+    virtual bool run(BMemory* memory, DataPtr& returnValue, bool &returnSignal, bool forceStayInThread) = 0;
     virtual bool runWithBooleanIntent(BMemory* memory, bool &returnValue, bool forceStayInThread) {return false;}
     virtual std::string toString() = 0;
 };

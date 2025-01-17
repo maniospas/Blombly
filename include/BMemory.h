@@ -47,10 +47,10 @@ public:
 
 class BMemory {
 private:
-    tsl::hopscotch_map<int, Data*> data;
+    tsl::hopscotch_map<int, DataPtr> data;
     int fastId;
-    Data* fastData;
-    void unsafeSet(int item, Data* value);
+    DataPtr fastData;
+    void unsafeSet(int item, DataPtr value);
     std::vector<Code*> finally;
 public:
     tsl::hopscotch_map<Code*, Struct*> codeOwners;
@@ -64,17 +64,17 @@ public:
     bool isOrDerivedFrom(BMemory* memory) const;
     void leak();
 
-    explicit BMemory(BMemory* par, int expectedAssignments, Data* thisObject=nullptr);
+    explicit BMemory(BMemory* par, int expectedAssignments, DataPtr thisObject=nullptr);
     ~BMemory();
 
     bool contains(int item);
-    Data* get(int item); // allowMutable = true
-    Data* get(int item, bool allowMutable);
-    Data* getShallow(int item);
-    Data* getOrNull(int item, bool allowMutable);
-    Data* getOrNullShallow(int item);
-    void unsafeSet(BMemory* handler, int item, Data* value, Data* prev);
-    void unsafeSet(int item, Data* value, Data* prev);
+    DataPtr get(int item); // allowMutable = true
+    DataPtr get(int item, bool allowMutable);
+    DataPtr getShallow(int item);
+    DataPtr getOrNull(int item, bool allowMutable);
+    DataPtr getOrNullShallow(int item);
+    void unsafeSet(BMemory* handler, int item, DataPtr value, DataPtr prev);
+    void unsafeSet(int item, DataPtr value, DataPtr prev);
     int size() const;
     void removeWithoutDelete(int item);
     void setFinal(int item);

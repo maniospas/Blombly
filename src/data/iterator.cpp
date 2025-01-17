@@ -19,7 +19,7 @@ std::string Iterator::toString(BMemory* memory){
 }
 
 
-AccessIterator::AccessIterator(Data* object_) : object(object_), pos(new Integer(-1)), Iterator(), size(-1) {
+AccessIterator::AccessIterator(DataPtr object_) : object(object_), pos(new Integer(-1)), Iterator(), size(-1) {
 }
 
 AccessIterator::~AccessIterator() {
@@ -32,7 +32,7 @@ Result AccessIterator::implement(const OperationType operation, BuiltinArgs* arg
         args.arg0 = object;
         args.size = 1;
         Result lenValue = object->implement(LEN, &args, memory);
-        Data* len = lenValue.get();
+        DataPtr len = lenValue.get();
         bbassert(len && len->getType()==BB_INT, "`len` failed to return an integer");
         size = static_cast<Integer*>(len)->getValue();
     }
@@ -90,7 +90,7 @@ Result IntRange::implement(const OperationType operation, BuiltinArgs* args, BMe
     throw Unimplemented();
 }
 
-Data* IntRange::fastNext() {
+DataPtr IntRange::fastNext() {
     if (step>0 && first >= last) 
         return OUT_OF_RANGE;
     if (step<0 && first <= last) 
@@ -131,7 +131,7 @@ Result FloatRange::implement(const OperationType operation, BuiltinArgs* args, B
     throw Unimplemented();
 }
 
-Data* FloatRange::fastNext() {
+DataPtr FloatRange::fastNext() {
     if (step>0 && first >= last) 
         return OUT_OF_RANGE;
     if (step<0 && first <= last) 

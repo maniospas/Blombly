@@ -55,7 +55,7 @@ extern bool isAllowedLocationNoNorm(const std::string& path_);
 extern void preliminarySimpleChecks(std::vector<Command*>* program);
 std::string top_level_file;
 
-extern std::unordered_map<int, Data*> cachedData;
+extern std::unordered_map<int, DataPtr> cachedData;
 
 std::string singleThreadedVMForComptime(const std::string& code, const std::string& fileName) {
     Future::setMaxThreads(1);
@@ -82,7 +82,7 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
                 auto code = new Code(program, 0, program->size() - 1);
                 bool hasReturned(false);
                 auto res = executeBlock(code, &memory, hasReturned, true);
-                Data* ret = res.get();
+                DataPtr ret = res.get();
                 if (ret && ret->getType() == FUTURE) {
                     auto res2 = static_cast<Future*>(ret)->getResult();
                     ret = res2.get();

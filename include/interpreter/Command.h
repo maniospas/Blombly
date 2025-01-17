@@ -24,7 +24,7 @@ public:
     OperationType operation;
     std::vector<int> args;
     std::vector<bool> knownLocal;
-    Data* value;
+    DataPtr value;
     SourceFile* source;
     int line;
     int nargs;

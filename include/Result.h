@@ -1,20 +1,20 @@
 #ifndef RESULT_H
 #define RESULT_H
 
-class Data;
+#include "common.h"
 
 class Result {
 private:
-    Data* data;
+    DataPtr data;
 
 public:
-    explicit Result(Data* data);
+    explicit Result(DataPtr data);
     explicit Result(Result& other) noexcept;
     Result(Result&& other) noexcept;
     ~Result();
     Result& operator=(const Result& other);
     Result& operator=(Result&& other) noexcept;
-    Data* get() const;
+    DataPtr get() const;
 };
 
 #endif // RESULT_H

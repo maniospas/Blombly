@@ -8,7 +8,7 @@
 
 Result executeBlock(Code* code, BMemory* memory, bool &returnSignal, bool forceStayInThread) {
     BuiltinArgs args;
-    Data* value = nullptr;
+    DataPtr value = nullptr;
 
     auto program = code->getProgram();
     int end = code->getEnd();

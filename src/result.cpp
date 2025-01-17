@@ -2,7 +2,7 @@
 #include "data/Data.h" // Assuming Data is implemented elsewhere
 
 
-Result::Result(Data* data) : data(data) {
+Result::Result(DataPtr data) : data(data) {
     if (data) data->addOwner();
 }
 
@@ -36,6 +36,6 @@ Result& Result::operator=(Result&& other) noexcept {
     return *this;
 }
 
-Data* Result::get() const {
+DataPtr Result::get() const {
     return data;
 }

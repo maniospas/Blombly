@@ -8,6 +8,8 @@
 #include <cstring>
 #include <stdexcept>
 
+#define DataPtr Data*
+
 
 #define WHILE_WITH_CODE_BLOCKS  // this changes the while loop parsing and implementation. define for slower but more easily jitable loops
 

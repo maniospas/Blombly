@@ -62,7 +62,7 @@ Result Future::getResult() const {
         result->value = Result(nullptr);
         throw BBError(error_message);
     }
-    Data* ret = result->value.get();
+    DataPtr ret = result->value.get();
     //if(ret && ret->getType()==FUTURE) return std::move(static_cast<Future*>(ret)->getResult());
     //std::cout << result->value.get() << "\n";
     return std::move(Result(ret));

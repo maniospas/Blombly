@@ -123,7 +123,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemo
             implargs.arg0 = args->arg1;
 
             Result iter = args->arg1->implement(TOITER, &implargs, memory);
-            Data* iterator = iter.get();
+            DataPtr iterator = iter.get();
             bbassert(iterator && iterator->getType() == ITERATOR, 
                     "Can only find vector indexes based on an iterable object, but a non-iterable struct was provided.");
 
@@ -150,7 +150,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemo
                 while (true) {
                     implargs.size = 1;
                     Result next = iterator->implement(NEXT, &implargs, memory);
-                    Data* indexData = next.get();
+                    DataPtr indexData = next.get();
                     if (!indexData || indexData == OUT_OF_RANGE) break;
                     bbassert(indexData->getType() == BB_INT, 
                             "Iterable vector indexes can only contain integers.");

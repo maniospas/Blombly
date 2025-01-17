@@ -61,14 +61,14 @@ std::string replaceEscapeSequences(const std::string& input) {
 std::chrono::steady_clock::time_point program_start;
 std::recursive_mutex printMutex;
 std::recursive_mutex compileMutex;
-std::unordered_map<int, Data*> cachedData;
+std::unordered_map<int, DataPtr> cachedData;
 
 #define SET_RESULT if(command->args[0]!=variableManager.noneId) memory->unsafeSet(command->args[0], result, nullptr);return
 
 
-void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool &returnSignal, BuiltinArgs &args, Data*& result, bool forceStayInThread) {
+void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool &returnSignal, BuiltinArgs &args, DataPtr& result, bool forceStayInThread) {
     Command* command = (*program)[i];
-    //Data* toReplace = command->nargs?memory->getOrNullShallow(command->args[0]):nullptr;
+    //DataPtr toReplace = command->nargs?memory->getOrNullShallow(command->args[0]):nullptr;
     //BMemory* memory = memory_.get();
 
     //std::cout<<command->toString()<<"\t "<<std::this_thread::get_id()<<"\n";
@@ -96,7 +96,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             cacheMemory.await();
             bbassert(!cacheReturn, "Cache declaration cannot return a value");
             for (int key : cacheMemory.finals) {
-                Data* obj = cacheMemory.get(key);
+                DataPtr obj = cacheMemory.get(key);
                 bbassert(obj && obj->getType()!=STRUCT, "Structs cannot be cached");
                 obj->addOwner();
                 cachedData[key] = obj;
@@ -139,8 +139,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
         case CALL: {
             // Function or method call
-            Data* context = command->args[1] == variableManager.noneId ? nullptr : memory->get(command->args[1]);
-            Data* called = memory->get(command->args[2]);
+            DataPtr context = command->args[1] == variableManager.noneId ? nullptr : memory->get(command->args[1]);
+            DataPtr called = memory->get(command->args[2]);
             bbassert(called, "Cannot call a missing value.");
             if(called->getType()!=CODE && called->getType()!=STRUCT) {
                 args.size = 2;
@@ -174,7 +174,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 //newMemory.detach(code->getDeclarationMemory());
                 //newMemory.detach(memory);
                 auto it = memory->codeOwners.find(code);
-                Data* thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
+                DataPtr thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
                 if(thisObj) newMemory.unsafeSet(variableManager.thisId, thisObj, nullptr);
                 std::unique_lock<std::recursive_mutex> executorLock;
                 if(thisObj) {
@@ -215,7 +215,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 }
                 //newMemory->detach(memory);
                 auto it = memory->codeOwners.find(code);
-                Data* thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
+                DataPtr thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
                 if(thisObj) newMemory->unsafeSet(variableManager.thisId, thisObj, nullptr);
                 newMemory->allowMutables = false;
                 newMemory->leak(); // for all transferred variables, make their reference counter thread safe
@@ -274,16 +274,16 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         } break;
 
         case EXISTS: {
-            Data* res = memory->getOrNull(command->args[1], true);
+            DataPtr res = memory->getOrNull(command->args[1], true);
             result = (res?res->getType()!=ERRORTYPE:false)?::Boolean::valueTrue:Boolean::valueFalse;
         } break;
 
         case SET: {
-            Data* obj = memory->get(command->args[1]);
+            DataPtr obj = memory->get(command->args[1]);
             bbassert(obj->getType() == STRUCT, "Can only set fields in a struct.");
             auto structObj = static_cast<Struct*>(obj);
                 std::lock_guard<std::recursive_mutex> lock(structObj->memoryLock);
-            Data* setValue = memory->getOrNullShallow(command->args[3]);
+            DataPtr setValue = memory->getOrNullShallow(command->args[3]);
             if(setValue && setValue->getType()==CODE) setValue = static_cast<Code*>(setValue)->copy();
             if(setValue) setValue->leak();
             auto structMemory = structObj->getMemory();
@@ -292,13 +292,13 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         } break;
 
         case SETFINAL: {
-            Data* obj = memory->get(command->args[1]);
+            DataPtr obj = memory->get(command->args[1]);
             bbassert(obj->getType() == STRUCT, "Can only set fields in a struct.");
             bberror("Cannot set final fields in a struct using field access operators (. or \\). This also ensures that finals can only be set during `new` statements.");
-            /*Data* obj = memory->get(command->args[1]);
+            /*DataPtr obj = memory->get(command->args[1]);
             bbassert(obj->getType() == CODE, "Can only set metadata for code blocks.");
             auto code = static_cast<Code*>(obj);
-            Data* setValue = memory->get(command->args[3]);
+            DataPtr setValue = memory->get(command->args[3]);
             if(setValue)
                 setValue->leak();
             code->setMetadata(command->args[2], setValue);
@@ -308,8 +308,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         case WHILE: {
             // WE HAVE TWO OPTIONS: either the block-based mechanism or the inlined mechanism. Do not forget to change the parser too.
             #ifdef WHILE_WITH_CODE_BLOCKS
-            Data* condition = memory->get(command->args[1]);
-            Data* body = memory->get(command->args[2]);
+            DataPtr condition = memory->get(command->args[1]);
+            DataPtr body = memory->get(command->args[2]);
             bbassert(body->getType() == CODE, "While body can only be a code block.");
             bbassert(condition->getType() == CODE, "While condition can only be a code block.");
             auto codeBody = static_cast<Code*>(body);
@@ -320,7 +320,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
             }
             else if(codeCondition->jitable && codeCondition->jitable->run(memory, result, returnSignal, forceStayInThread)){
-                Data* check = result;
+                DataPtr check = result;
                 if (returnSignal) {result = check;SET_RESULT;break;}
                 bbassert(check, "Nothing was evaluated in while condition");
                 bbassert(check->getType()==BB_BOOL, "Condition did not evaluate to a boolean");
@@ -329,7 +329,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             else
             {
                 Result returnedValue = executeBlock(codeCondition, memory, returnSignal, forceStayInThread);
-                Data* check = returnedValue.get();
+                DataPtr check = returnedValue.get();
                 if (returnSignal) {result = check;SET_RESULT;break;}
                 bbassert(check, "Nothing was evaluated in while condition");
                 bbassert(check->getType()==BB_BOOL, "Condition did not evaluate to a boolean");
@@ -347,7 +347,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 }
                 else 
                 if(codeCondition->jitable && codeCondition->jitable->run(memory, result, returnSignal, forceStayInThread)) {
-                    Data* check = result;
+                    DataPtr check = result;
                     if (returnSignal) {result = check;SET_RESULT;break;}
                     bbassert(check, "Nothing was evaluated in while condition");
                     bbassert(check->getType()==BB_BOOL, "Condition did not evaluate to a boolean");
@@ -355,7 +355,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 }
                 else {
                     Result returnedValue = executeBlock(codeCondition, memory, returnSignal, forceStayInThread);
-                    Data* check = returnedValue.get();
+                    DataPtr check = returnedValue.get();
                     if (returnSignal) {result = check;SET_RESULT;break;}
                     bbassert(check, "Nothing was evaluated in while condition");
                     bbassert(check->getType()==BB_BOOL, "Condition did not evaluate to a boolean");
@@ -366,8 +366,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             if(returnSignal)
                 break;
             #else
-            Data* condition = memory->get(command->args[1]);
-            Data* body = memory->get(command->args[2]);
+            DataPtr condition = memory->get(command->args[1]);
+            DataPtr body = memory->get(command->args[2]);
             bbassert(body->getType() == CODE, "While body can only be a code block.");
             auto codeBody = static_cast<Code*>(body);
 
@@ -387,9 +387,9 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         } break;
 
         case IF: {
-            Data* condition = memory->get(command->args[1]);
-            Data* accept = memory->get(command->args[2]);
-            Data* reject = command->nargs > 3 ? memory->get(command->args[3]) : nullptr;
+            DataPtr condition = memory->get(command->args[1]);
+            DataPtr accept = memory->get(command->args[2]);
+            DataPtr reject = command->nargs > 3 ? memory->get(command->args[3]) : nullptr;
 
             if(condition==Boolean::valueTrue) {
                 if(accept->getType() == CODE) {
@@ -420,7 +420,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         case BB_PRINT: {
             std::string printing;
             for(int i = 1; i < command->nargs; i++) {
-                Data* printable = MEMGET(memory, i);
+                DataPtr printable = MEMGET(memory, i);
                 if(printable) {
                     std::string out = printable->toString(memory);
                     printing += out + " ";
@@ -436,7 +436,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         } return;
 
         case CREATESERVER: {
-            Data* port = memory->get(command->args[1]);
+            DataPtr port = memory->get(command->args[1]);
             bbassert(port && port->getType()==BB_INT, "The server's port must be an integer.");
             auto res = new RestServer(static_cast<Integer*>(port)->getValue());
             res->runServer();
@@ -446,7 +446,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         case READ:{
             std::string printing;
             for(int i=1;i<command->nargs;i++) {
-                Data* printable = MEMGET(memory, i);
+                DataPtr printable = MEMGET(memory, i);
                 if(printable) {
                     std::string out = printable->toString(memory);
                     printing += out+" ";
@@ -475,7 +475,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         case TRY: {
             memory->detach(memory->parent);
             try {
-                Data* condition = MEMGET(memory, 1);
+                DataPtr condition = MEMGET(memory, 1);
                 bbassert(condition->getType()==CODE, "Can only inline a non-called code block for try condition");
                 auto codeCondition = static_cast<Code*>(condition);
                 bool tryReturnSignal(false);
@@ -493,9 +493,9 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         } break;
         
         case CATCH: {
-            Data* condition = (command->knownLocal[1]?memory->getOrNullShallow(command->args[1]):memory->getOrNull(command->args[1], true)); //MEMGET(memory, 1);
-            Data* accept = MEMGET(memory, 2);
-            Data* reject = command->nargs>3?MEMGET(memory, 3):nullptr;
+            DataPtr condition = (command->knownLocal[1]?memory->getOrNullShallow(command->args[1]):memory->getOrNull(command->args[1], true)); //MEMGET(memory, 1);
+            DataPtr accept = MEMGET(memory, 2);
+            DataPtr reject = command->nargs>3?MEMGET(memory, 3):nullptr;
             bbverify(accept, !accept || accept->getType()==CODE, "Can only inline a code block for catch acceptance");
             bbverify(reject, !reject || reject->getType()==CODE, "Can only inline a code block for catch rejection");
             auto codeAccept = static_cast<Code*>(accept);
@@ -517,12 +517,12 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         } break;
 
         case FAIL: {
-            Data* result = MEMGET(memory, 1);
+            DataPtr result = MEMGET(memory, 1);
             bberror(std::move(enrichErrorDescription(command, result->toString(memory))));
         } break;
 
         case INLINE: {
-            Data* source = MEMGET(memory, 1);
+            DataPtr source = MEMGET(memory, 1);
             /*if(source->getType()==FILETYPE) {
                 if(command->value) {
                     auto code = static_cast<Code*>(command->value);
@@ -554,7 +554,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         } break;
 
         case DEFER: {
-            Data* source = MEMGET(memory, 1);
+            DataPtr source = MEMGET(memory, 1);
             if(source->getType()!=CODE) 
                 bberror("Finally can only inline a code block or struct");
             memory->addFinally(static_cast<Code*>(source));
@@ -562,7 +562,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         }
 
         case DEFAULT: {
-            Data* source = MEMGET(memory, 1);
+            DataPtr source = MEMGET(memory, 1);
             bbassert(source->getType()==CODE, "Can only call `default` on a code block");
             auto code = static_cast<Code*>(source);
             BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
@@ -574,7 +574,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         } break;
 
         case NEW: {
-            Data* source = MEMGET(memory, 1);
+            DataPtr source = MEMGET(memory, 1);
             bbassert(source->getType()==CODE, "Can only call `new` on a code block");
             auto code = static_cast<Code*>(source);
             auto newMemory = new BMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
@@ -597,7 +597,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         case TOLIST: {
             auto list = new BList(command->nargs-1);
             for(int i=1;i<command->nargs;i++) {
-                Data* element = MEMGET(memory, i);
+                DataPtr element = MEMGET(memory, i);
                 bbassert(element->getType()!=ERRORTYPE, "Cannot push an error to a list");
                 element->addOwner();
                 element->leak();
@@ -626,7 +626,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
     }
     //if(!result && command->knownLocal[0])
     //    bberror("Missing value encountered in intermediate computation "+variableManager.getSymbol(command->args[0])+". Explicitly use the `as` assignment to explicitly set potentially missing values\n");
-    //Data* prevResult = command->knownLocal[0]?memory->getOrNullShallow(command->args[0]):memory->getOrNull(command->args[0], true)
+    //DataPtr prevResult = command->knownLocal[0]?memory->getOrNullShallow(command->args[0]):memory->getOrNull(command->args[0], true)
     if(command->args[0]!=variableManager.noneId) 
         memory->unsafeSet(command->args[0], result, nullptr);
 }

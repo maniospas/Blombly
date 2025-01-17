@@ -79,7 +79,7 @@ std::string BString::toString(BMemory* memory){
     return buffer.front()->value;
 }
 
-bool BString::isSame(Data* other) {
+bool BString::isSame(DataPtr other) {
     if (other->getType() != STRING) 
         return false;
     return toString(nullptr) == static_cast<BString*>(other)->toString(nullptr);
@@ -182,7 +182,7 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
         implargs.size = 1;
         implargs.arg0 = args->arg1;
         auto res = args->arg1->implement(TOITER, &implargs, memory);
-        Data* _iterator = res.get();
+        DataPtr _iterator = res.get();
         bbassert(_iterator && _iterator->getType() == ITERATOR, "String index is neither an integer nor can be converted to an iterator viat `iter`: "+args->arg1->toString(memory));
         Iterator* iterator = static_cast<Iterator*>(_iterator);
 
@@ -204,7 +204,7 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
             while (true) {
                 nextArgs.size = 1;  // important to have this here, as the iterator adds an argument to nextArgs internally to save up on memory
                 Result nextResult = iterator->implement(NEXT, &nextArgs, memory);
-                Data* indexData = nextResult.get();
+                DataPtr indexData = nextResult.get();
                 if (indexData == OUT_OF_RANGE) 
                     break; 
                 bbassert(indexData && indexData->getType() == BB_INT, "String index iterator must contain integers: "+args->arg1->toString(memory));

@@ -8,7 +8,7 @@ void threadExecute(Code* code,
                    BMemory* memory,
                    ThreadResult* result,
                    Command *command,
-                   Data* thisObj) {
+                   DataPtr thisObj) {
 
     std::unique_lock<std::recursive_mutex> executorLock;
     if(thisObj) {
@@ -19,7 +19,7 @@ void threadExecute(Code* code,
     try {
         bool returnSignal(false);
         Result returnValue = executeBlock(code, memory, returnSignal, thisObj);
-        Data* value = returnValue.get();
+        DataPtr value = returnValue.get();
         if(!returnSignal) {
             value = nullptr;
             returnValue = Result(nullptr);

@@ -12,11 +12,11 @@
 class Data;
 class BMemory;
 struct BuiltinArgs {
-    Data* arg0;
-    Data* arg1;
-    Data* arg2;
+    DataPtr arg0;
+    DataPtr arg1;
+    DataPtr arg2;
     uint8_t size;
-    //Data* preallocResult;
+    //DataPtr preallocResult;
 };
 
 // Abstract base class for all data types
@@ -31,7 +31,7 @@ public:
     static Result run(const OperationType operation, BuiltinArgs* args, BMemory* memory);
     virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory);
     virtual size_t toHash() const;
-    virtual bool isSame(Data* other);
+    virtual bool isSame(DataPtr other);
     
     virtual void addOwner();
     virtual void removeFromOwner();

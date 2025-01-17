@@ -11,12 +11,12 @@ public:
     BHashMap();
     virtual ~BHashMap();
     std::string toString(BMemory* memory) override;
-    void put(Data* from, Data* to);
+    void put(DataPtr from, DataPtr to);
     Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
 
 private:
     mutable std::recursive_mutex memoryLock;
-    std::unordered_map<size_t, std::vector<std::pair<Data*, Data*>>> contents;
+    std::unordered_map<size_t, std::vector<std::pair<DataPtr, DataPtr>>> contents;
     friend class MapIterator; 
 };
 #endif // BHASHMAP_H

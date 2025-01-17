@@ -19,7 +19,7 @@ extern std::recursive_mutex compileMutex;
 Result executeBlock(Code* code, BMemory* memory, bool &returnSignal, bool forceStayInThread);
 std::string enrichErrorDescription(Command*, std::string message);
 void handleExecutionError(std::vector<Command*>* program, int i, const BBError& e);
-void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool &returnSignal, BuiltinArgs &args, Data*& result, bool forceStayInThread);
+void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool &returnSignal, BuiltinArgs &args, DataPtr& result, bool forceStayInThread);
 
 Result compileAndLoad(const std::string& fileName, BMemory* currentMemory);
 int vm(const std::string& fileName, int numThreads);

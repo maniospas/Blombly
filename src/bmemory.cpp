@@ -17,7 +17,7 @@ void BMemory::verify_noleaks() {
     bbassert(countUnreleased == 0, "There are " + std::to_string(countUnreleased) + " leftover memory contexts leaked");  // the main memory is a global object (needed to sync threads on errors)
 }
 
-BMemory::BMemory(BMemory* par, int expectedAssignments, Data* thisObject) : parent(par), allowMutables(true), fastId(-1) {
+BMemory::BMemory(BMemory* par, int expectedAssignments, DataPtr thisObject) : parent(par), allowMutables(true), fastId(-1) {
     //std::cout << "created "<<this<<"\n";
     ++countUnrealeasedMemories;
     data.reserve(expectedAssignments);
@@ -31,7 +31,7 @@ bool BMemory::isOrDerivedFrom(BMemory* memory) const {
 
 void BMemory::leak() { // only do this after detach so that there are no leftover FUTURE values
     for (const auto& element : data) {
-        Data* ret = element.second;
+        DataPtr ret = element.second;
         /*if(ret && ret->getType()==FUTURE) {
             auto prevRet = static_cast<Future*>(ret);
             auto resVal = prevRet->getResult();
@@ -95,7 +95,7 @@ int BMemory::size() const {
     return data.size();
 }
 
-Data* BMemory::get(int item) { // allowMutable = true
+DataPtr BMemory::get(int item) { // allowMutable = true
     if(item==fastId)
         return fastData;
     auto ret = data[item];
@@ -114,7 +114,7 @@ Data* BMemory::get(int item) { // allowMutable = true
     return ret;
 }
 
-Data* BMemory::get(int item, bool allowMutable) {
+DataPtr BMemory::get(int item, bool allowMutable) {
     if(item==fastId) return fastData;
     auto ret = data[item];
     if (ret && ret->getType() == FUTURE) {
@@ -163,7 +163,7 @@ bool BMemory::contains(int item) {
     return ret!=nullptr;
 }
 
-Data* BMemory::getShallow(int item) {
+DataPtr BMemory::getShallow(int item) {
     if(item==fastId)
         return fastData;
     auto it = data.find(item);
@@ -182,7 +182,7 @@ Data* BMemory::getShallow(int item) {
     return ret;
 }
 
-Data* BMemory::getOrNullShallow(int item) {
+DataPtr BMemory::getOrNullShallow(int item) {
     if(item==fastId)
         return fastData;
     auto it = data.find(item);
@@ -199,7 +199,7 @@ Data* BMemory::getOrNullShallow(int item) {
     return ret;
 }
 
-Data* BMemory::getOrNull(int item, bool allowMutable) {
+DataPtr BMemory::getOrNull(int item, bool allowMutable) {
     if(item==fastId)
         return fastData;
     auto ret = data[item];
@@ -224,7 +224,7 @@ void BMemory::removeWithoutDelete(int item) {
     if(fastId==item) fastData = nullptr;
 }
 
-void BMemory::unsafeSet(BMemory* handler, int item, Data* value, Data* prev) {
+void BMemory::unsafeSet(BMemory* handler, int item, DataPtr value, DataPtr prev) {
     if(value && value->getType()==FUTURE) fastId = -1;
     else {
         fastId = item;
@@ -237,7 +237,7 @@ void BMemory::unsafeSet(BMemory* handler, int item, Data* value, Data* prev) {
     data[item] = value;
 }
 
-void BMemory::unsafeSet(int item, Data* value, Data* prev) {
+void BMemory::unsafeSet(int item, DataPtr value, DataPtr prev) {
     if(value && value->getType()!=FUTURE) {
         fastId = item;
         fastData = value;
@@ -253,8 +253,8 @@ void BMemory::unsafeSet(int item, Data* value, Data* prev) {
     //std::cout << "set "<<variableManager.getSymbol(item)<<" to "<<value<<"\n";
 }
 
-void BMemory::unsafeSet(int item, Data* value) {
-    Data* prev = data[item];
+void BMemory::unsafeSet(int item, DataPtr value) {
+    DataPtr prev = data[item];
     if(prev && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev)->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
     if(value) value->addOwner();
     if(prev) prev->removeFromOwner();

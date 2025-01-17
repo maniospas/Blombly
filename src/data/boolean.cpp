@@ -19,7 +19,7 @@ void Boolean::setValue(bool val) {
     value = val;
 }
 
-bool Boolean::isSame(Data* other) {
+bool Boolean::isSame(DataPtr other) {
     if(other->getType()!=BB_BOOL)
         return false;
     return static_cast<Boolean*>(other)->value==value;

@@ -69,7 +69,7 @@ Result compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
     return Result(new Code(program, 0, program->size() - 1));
 }
 
-extern std::unordered_map<int, Data*> cachedData;
+extern std::unordered_map<int, DataPtr> cachedData;
 
 int vm(const std::string& fileName, int numThreads) {
     Future::setMaxThreads(numThreads);
