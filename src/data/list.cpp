@@ -1,6 +1,5 @@
 #include "data/List.h"
 #include "data/Integer.h"
-#include "data/Boolean.h"
 #include "data/Iterator.h"
 #include "data/BFloat.h"
 #include "data/Vector.h"

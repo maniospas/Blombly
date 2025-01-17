@@ -16,20 +16,24 @@
 extern std::string enrichErrorDescription(Command* command, std::string message);
 extern std::unordered_map<std::string, OperationType> toOperationTypeMap;
 
-void preliminarySimpleChecks(std::vector<Command*>* program) {
+void preliminarySimpleChecks(std::vector<Command>* program) {
     std::unordered_set<int> symbolDefinitions;
-    for (int i=0;i<program->size();++i) {
-        auto& command = program->at(i);
-        if(command->args.size()) symbolDefinitions.insert(command->args[0]);
-        if(command->operation==SET && command->args.size()>2)  symbolDefinitions.insert(command->args[1]);
-        if(command->operation==SETFINAL && command->args.size()>2)  symbolDefinitions.insert(command->args[1]);
+    for (const auto& command : *program) {
+        if(command.nargs) symbolDefinitions.insert(command.result);
+        if(command.operation==SET && command.nargs>2)  symbolDefinitions.insert(command.arg0);
+        if(command.operation==SETFINAL && command.nargs>2)  symbolDefinitions.insert(command.arg0);
     }
-    for (int i=0;i<program->size();++i) {
-        auto& command = program->at(i);
-        for(int arg : command->args) {
-            if(arg==variableManager.thisId || arg==variableManager.noneId) continue;
+    for (const auto& command : *program) {
+        int arg = command.arg0;
+        if(command.nargs>1 && !(arg==variableManager.thisId || arg==variableManager.noneId))
             if(symbolDefinitions.find(arg)==symbolDefinitions.end()) bberror(enrichErrorDescription(command, "Missing symbol (is declared nowhere and would create a runtime error): "+variableManager.getSymbol(arg)));
-        }
+        arg = command.arg1;
+        if(command.nargs>1 && !(arg==variableManager.thisId || arg==variableManager.noneId))
+            if(symbolDefinitions.find(arg)==symbolDefinitions.end()) bberror(enrichErrorDescription(command, "Missing symbol (is declared nowhere and would create a runtime error): "+variableManager.getSymbol(arg)));
+        arg = command.arg2;
+        if(command.nargs>1 && !(arg==variableManager.thisId || arg==variableManager.noneId))
+            if(symbolDefinitions.find(arg)==symbolDefinitions.end()) bberror(enrichErrorDescription(command, "Missing symbol (is declared nowhere and would create a runtime error): "+variableManager.getSymbol(arg)));
+        
     }
 }
 
@@ -53,14 +57,12 @@ Result compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
     }
 
     // Organize each line into a new assembly command
-    auto program = new std::vector<Command*>();
+    auto program = new std::vector<Command>();
     auto source = new SourceFile(file);
     std::string line;
     int i = 1;
     while (std::getline(inputFile, line)) {
-        if (line[0] != '%') {
-            program->push_back(new Command(line, source, i, nullptr));
-        }
+        if (line[0] != '%') program->emplace_back(line, source, i, nullptr);
         ++i;
     }
     inputFile.close();
@@ -79,14 +81,14 @@ int vm(const std::string& fileName, int numThreads) {
             std::ifstream inputFile(fileName);
             bbassert(inputFile.is_open(), "Unable to open file: " + fileName);
 
-            auto program = new std::vector<Command*>();
+            auto program = new std::vector<Command>();
             auto source = new SourceFile(fileName);
             std::string line;
             int i = 1;
             
             CommandContext* descriptor = nullptr;
             while (std::getline(inputFile, line)) {
-                if (line[0] != '%') program->push_back(new Command(line, source, i, descriptor));
+                if (line[0] != '%') program->emplace_back(line, source, i, descriptor);
                 else descriptor = new CommandContext(line.substr(1));
                 ++i;
             }
@@ -137,14 +139,14 @@ int vmFromSourceCode(const std::string& sourceCode, int numThreads) {
             try {
                 std::istringstream inputFile(newCode);
 
-                auto program = new std::vector<Command*>();
+                auto program = new std::vector<Command>();
                 auto source = new SourceFile("terminal argument");
                 std::string line;
                 int i = 1;
                 
                 CommandContext* descriptor = nullptr;
                 while (std::getline(inputFile, line)) {
-                    if (line[0] != '%') program->push_back(new Command(line, source, i, descriptor));
+                    if (line[0] != '%') program->emplace_back(line, source, i, descriptor);
                     else descriptor = new CommandContext(line.substr(1));
                     ++i;
                 }

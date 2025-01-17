@@ -1,7 +1,6 @@
 // BString.cpp
 #include "data/BError.h"
 #include "data/BString.h"
-#include "data/Boolean.h"
 #include "common.h"
 
 // Constructor

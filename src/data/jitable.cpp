@@ -1,6 +1,5 @@
 #include "data/Jitable.h"
 #include "data/Iterator.h"
-#include "data/Boolean.h"
 #include "data/BError.h"
 #include "data/Integer.h"
 #include "data/BFloat.h"
@@ -58,38 +57,36 @@ private:
     int next;
     int as;
     int exists;
-    bool setNext;
-    bool setExists;
 public:
-    explicit NextAsExistsJitable(int from, int next, int as, int exists, bool setNext, bool setExists): from(from), next(next), as(as), exists(exists), setNext(setNext), setExists(setExists) {}
+    explicit NextAsExistsJitable(int from, int next, int as, int exists): from(from), next(next), as(as), exists(exists) {}
     virtual bool run(BMemory* memory, DataPtr& returnValue, bool &returnSignal, bool forceStayInThread) override {
         bberror("Internal error: runWithBooleanIntent should always be returning true for NextAsExistsJitable.");
     }
 
-    virtual bool runWithBooleanIntent(BMemory* memory, bool &returnValue, bool forceStayInThread) override{
+    virtual bool runWithBooleanIntent(BMemory* memory, bool &returnValue, bool forceStayInThread) override {
         auto iterator = memory->get(from);
-        if(iterator->getType()!=ITERATOR) // optimize only for iterators
-            return false;
+        if(iterator->getType()!=ITERATOR) return false;
         auto it = static_cast<Iterator*>(iterator.get());
         DataPtr nextValue = it->fastNext();
-        //if(!nextValue) return false;
-        if(!nextValue.exists()) {
+
+        if(!nextValue.islitorexists()) {
             BuiltinArgs args;
             args.size = 1;
             args.arg0 = it;
             Result res = it->implement(NEXT, &args, memory);
             nextValue = res.get();
                 
-            if(setNext) memory->set(next, nextValue);
-            returnValue = nextValue.get()!=OUT_OF_RANGE;
-            if(setExists) memory->set(exists, returnValue?Boolean::valueTrue:Boolean::valueFalse);
-            memory->set(as, nextValue); // set last to optimize with unsafeSet
+            memory->set(next, nextValue);
+            returnValue = nextValue.islit() || nextValue.get()!=OUT_OF_RANGE;
+            memory->set(exists, returnValue);
+            memory->set(as, nextValue); // set last to optimize with set
             return true;
         }
-        if(setNext) memory->set(next, nextValue);
-        returnValue = nextValue.get()!=OUT_OF_RANGE;
-        if(setExists) memory->set(exists, returnValue?Boolean::valueTrue:Boolean::valueFalse);
-        memory->set(as, nextValue); // set last to optimize with unsafeSet
+
+        memory->set(next, nextValue);
+        returnValue = nextValue.islit() || nextValue.get()!=OUT_OF_RANGE;
+        memory->set(exists, returnValue);
+        memory->set(as, nextValue); // set last to optimize with set
         return true;
     }
     virtual std::string toString() {return "JIT: the sequence of .bbvm instructions next as exists has been optimized to not store intermediate variables";}
@@ -166,7 +163,7 @@ public:
 class JitCode : public Jitable {
 private:
     Compile compile;
-    std::vector<Command*>* program;
+    std::vector<Command>* program;
     int start;
     int preparationEnd;
     std::unordered_map<int, int> arguments;
@@ -176,7 +173,7 @@ private:
 public:
     virtual std::string toString() {return "JIT: used gcc to compile away everything after line "+std::to_string(preparationEnd);}
 
-    explicit JitCode(const std::string& code, const std::string& func, std::vector<Command*>* program, int start, int preparationEnd, 
+    explicit JitCode(const std::string& code, const std::string& func, std::vector<Command>* program, int start, int preparationEnd, 
                     std::unordered_map<int, int> arguments, std::vector<int> argumentOrder, int returnType): 
         compile(code, func), program(program), start(start), preparationEnd(preparationEnd), arguments(arguments), argumentOrder(argumentOrder), returnType(returnType) {
             expected_size = 0;
@@ -254,76 +251,74 @@ public:
 // Implementation of the jit function
 Jitable* jit(const Code* code) {
     std::lock_guard<std::recursive_mutex> lock(compileMutex);
-    std::vector<Command*>* program = code->getProgram();
+    std::vector<Command>* program = code->getProgram();
     int start = code->getStart();
     int end = code->getEnd();
     int size = end-start;
     if(size==2) {
-        Command* c0 = program->at(start);
-        Command* c1 = program->at(start+1);
-        if(c0->operation==BUILTIN && c1->operation==RETURN && c0->args[0]==c1->args[1]) 
-            return new ReturnPrimitiveJitable(c0->value);
+        const Command& c0 = program->at(start);
+        const Command& c1 = program->at(start+1);
+        if(c0.operation==BUILTIN && c1.operation==RETURN && c0.result==c1.arg0) return new ReturnPrimitiveJitable(c0.value);
     }
     
     if(size==3) {
-        Command* c0 = program->at(start);
-        Command* c1 = program->at(start+1);
-        Command* c2 = program->at(start+2);
-        if(c0->operation==NEXT && c1->operation==AS && c2->operation==EXISTS){
-            if(c0->args[0]==c1->args[1] && c1->args[0]==c2->args[1])  
-                return new NextAsExistsJitable(c0->args[1], c0->args[0], c1->args[0], c2->args[0], !c0->knownLocal[0], !c2->knownLocal[0]);
+        const Command& c0 = program->at(start);
+        const Command& c1 = program->at(start+1);
+        const Command& c2 = program->at(start+2);
+        if(c0.operation==NEXT && c1.operation==AS && c2.operation==EXISTS) {
+            if(c0.result==c1.arg0 && c1.result==c2.arg0) return new NextAsExistsJitable(c0.arg0, c0.result, c1.result, c2.result);
         }
     }
 
-    if(!allowJit)
-        return nullptr;
-
+    if(!allowJit) return nullptr;
 
     std::unordered_map<int, int> assignmentCounts;
     std::unordered_map<int, int> usageCounts;
     std::unordered_map<int, int> knownStates;
     for (int i = start; i <= end; ++i) {
-        Command* cmd = program->at(i);
-        if(!cmd->args.size() || cmd->args[0]==variableManager.noneId) continue;
-        int symbol = cmd->args[0];
-        assignmentCounts[cmd->args[0]]++;
-        for(int j=1;j<cmd->args.size();++j) usageCounts[cmd->args[j]]++;
-        knownStates[cmd->args[0]] = TOCOPY;  // use TOCOPY as an operator that can never be jitted
+        const Command& cmd = program->at(i);
+        if(!cmd.nargs || cmd.result==variableManager.noneId) continue;
+        int symbol = cmd.result;
+        assignmentCounts[cmd.result]++;
+        if(cmd.nargs>1) usageCounts[cmd.arg0]++;
+        if(cmd.nargs>2) usageCounts[cmd.arg1]++;
+        if(cmd.nargs>3) usageCounts[cmd.arg2]++;
+        knownStates[cmd.result] = TOCOPY;  // use TOCOPY as an operator that can never be jitted
     }
 
     int start_jit_from = -1;
     for (int i = start; i < end; ++i) {
-        Command* cmd = program->at(i);
-        if(!cmd->args.size() || cmd->args[0]==variableManager.noneId) continue;
-        int prev_known_state = knownStates[cmd->args[0]];
-        knownStates[cmd->args[0]] = cmd->operation;
-        if(cmd->operation==BUILTIN && cmd->value->getType()==BB_FLOAT) knownStates[cmd->args[0]] = TOBB_FLOAT;
-        if(cmd->operation==BUILTIN && cmd->value->getType()==BB_INT) knownStates[cmd->args[0]] = TOBB_INT;
-        if(cmd->operation==BUILTIN && cmd->value->getType()==STRING) knownStates[cmd->args[0]] = TOSTR;
-        if(cmd->operation==ADD && knownStates[cmd->args[1]]==TOBB_FLOAT && knownStates[cmd->args[2]]==TOBB_FLOAT) knownStates[cmd->args[0]] = TOBB_FLOAT;
-        if(cmd->operation==ADD && knownStates[cmd->args[1]]==TOBB_INT && knownStates[cmd->args[2]]==TOBB_FLOAT) knownStates[cmd->args[0]] = TOBB_FLOAT;
-        if(cmd->operation==ADD && knownStates[cmd->args[1]]==TOBB_FLOAT && knownStates[cmd->args[2]]==TOBB_INT) knownStates[cmd->args[0]] = TOBB_FLOAT;
-        if(cmd->operation==ADD && knownStates[cmd->args[1]]==TOBB_INT && knownStates[cmd->args[2]]==TOBB_INT) knownStates[cmd->args[0]] = TOBB_INT;
-        if(cmd->operation==MUL && knownStates[cmd->args[1]]==TOBB_FLOAT && knownStates[cmd->args[2]]==TOBB_FLOAT) knownStates[cmd->args[0]] = TOBB_FLOAT;
-        if(cmd->operation==MUL && knownStates[cmd->args[1]]==TOBB_INT && knownStates[cmd->args[2]]==TOBB_FLOAT) knownStates[cmd->args[0]] = TOBB_FLOAT;
-        if(cmd->operation==MUL && knownStates[cmd->args[1]]==TOBB_FLOAT && knownStates[cmd->args[2]]==TOBB_INT) knownStates[cmd->args[0]] = TOBB_FLOAT;
-        if(cmd->operation==MUL && knownStates[cmd->args[1]]==TOBB_INT && knownStates[cmd->args[2]]==TOBB_INT) knownStates[cmd->args[0]] = TOBB_INT;
-        if(cmd->operation==SUB && knownStates[cmd->args[1]]==TOBB_FLOAT && knownStates[cmd->args[2]]==TOBB_FLOAT) knownStates[cmd->args[0]] = TOBB_FLOAT;
-        if(cmd->operation==SUB && knownStates[cmd->args[1]]==TOBB_INT && knownStates[cmd->args[2]]==TOBB_FLOAT) knownStates[cmd->args[0]] = TOBB_FLOAT;
-        if(cmd->operation==SUB && knownStates[cmd->args[1]]==TOBB_FLOAT && knownStates[cmd->args[2]]==TOBB_INT) knownStates[cmd->args[0]] = TOBB_FLOAT;
-        if(cmd->operation==SUB && knownStates[cmd->args[1]]==TOBB_INT && knownStates[cmd->args[2]]==TOBB_INT) knownStates[cmd->args[0]] = TOBB_INT;
-        if(cmd->operation==DIV && knownStates[cmd->args[1]]==TOBB_FLOAT && knownStates[cmd->args[2]]==TOBB_FLOAT) knownStates[cmd->args[0]] = TOBB_FLOAT;
-        if(cmd->operation==DIV && knownStates[cmd->args[1]]==TOBB_INT && knownStates[cmd->args[2]]==TOBB_FLOAT) knownStates[cmd->args[0]] = TOBB_FLOAT;
-        if(cmd->operation==DIV && knownStates[cmd->args[1]]==TOBB_FLOAT && knownStates[cmd->args[2]]==TOBB_INT) knownStates[cmd->args[0]] = TOBB_FLOAT;
-        if(cmd->operation==DIV && knownStates[cmd->args[1]]==TOBB_INT && knownStates[cmd->args[2]]==TOBB_INT) knownStates[cmd->args[0]] = TOBB_FLOAT;
-        if(cmd->operation==POW && knownStates[cmd->args[1]]==TOBB_FLOAT && knownStates[cmd->args[2]]==TOBB_FLOAT) knownStates[cmd->args[0]] = TOBB_FLOAT;
-        if(cmd->operation==POW && knownStates[cmd->args[1]]==TOBB_INT && knownStates[cmd->args[2]]==TOBB_FLOAT) knownStates[cmd->args[0]] = TOBB_FLOAT;
-        if(cmd->operation==POW && knownStates[cmd->args[1]]==TOBB_FLOAT && knownStates[cmd->args[2]]==TOBB_INT) knownStates[cmd->args[0]] = TOBB_FLOAT;
-        if(cmd->operation==POW && knownStates[cmd->args[1]]==TOBB_INT && knownStates[cmd->args[2]]==TOBB_INT) knownStates[cmd->args[0]] = TOBB_INT;
-        //if(cmd->operation==TOLIST) return nullptr;
+        const Command& cmd = program->at(i);
+        if(!cmd.nargs || cmd.result==variableManager.noneId) continue;
+        int prev_known_state = knownStates[cmd.result];
+        knownStates[cmd.result] = cmd.operation;
+        if(cmd.operation==BUILTIN && cmd.value->getType()==BB_FLOAT) knownStates[cmd.result] = TOBB_FLOAT;
+        if(cmd.operation==BUILTIN && cmd.value->getType()==BB_INT) knownStates[cmd.result] = TOBB_INT;
+        if(cmd.operation==BUILTIN && cmd.value->getType()==STRING) knownStates[cmd.result] = TOSTR;
+        if(cmd.operation==ADD && knownStates[cmd.arg0]==TOBB_FLOAT && knownStates[cmd.arg1]==TOBB_FLOAT) knownStates[cmd.result] = TOBB_FLOAT;
+        if(cmd.operation==ADD && knownStates[cmd.arg0]==TOBB_INT && knownStates[cmd.arg1]==TOBB_FLOAT) knownStates[cmd.result] = TOBB_FLOAT;
+        if(cmd.operation==ADD && knownStates[cmd.arg0]==TOBB_FLOAT && knownStates[cmd.arg1]==TOBB_INT) knownStates[cmd.result] = TOBB_FLOAT;
+        if(cmd.operation==ADD && knownStates[cmd.arg0]==TOBB_INT && knownStates[cmd.arg1]==TOBB_INT) knownStates[cmd.result] = TOBB_INT;
+        if(cmd.operation==MUL && knownStates[cmd.arg0]==TOBB_FLOAT && knownStates[cmd.arg1]==TOBB_FLOAT) knownStates[cmd.result] = TOBB_FLOAT;
+        if(cmd.operation==MUL && knownStates[cmd.arg0]==TOBB_INT && knownStates[cmd.arg1]==TOBB_FLOAT) knownStates[cmd.result] = TOBB_FLOAT;
+        if(cmd.operation==MUL && knownStates[cmd.arg0]==TOBB_FLOAT && knownStates[cmd.arg1]==TOBB_INT) knownStates[cmd.result] = TOBB_FLOAT;
+        if(cmd.operation==MUL && knownStates[cmd.arg0]==TOBB_INT && knownStates[cmd.arg1]==TOBB_INT) knownStates[cmd.result] = TOBB_INT;
+        if(cmd.operation==SUB && knownStates[cmd.arg0]==TOBB_FLOAT && knownStates[cmd.arg1]==TOBB_FLOAT) knownStates[cmd.result] = TOBB_FLOAT;
+        if(cmd.operation==SUB && knownStates[cmd.arg0]==TOBB_INT && knownStates[cmd.arg1]==TOBB_FLOAT) knownStates[cmd.result] = TOBB_FLOAT;
+        if(cmd.operation==SUB && knownStates[cmd.arg0]==TOBB_FLOAT && knownStates[cmd.arg1]==TOBB_INT) knownStates[cmd.result] = TOBB_FLOAT;
+        if(cmd.operation==SUB && knownStates[cmd.arg0]==TOBB_INT && knownStates[cmd.arg1]==TOBB_INT) knownStates[cmd.result] = TOBB_INT;
+        if(cmd.operation==DIV && knownStates[cmd.arg0]==TOBB_FLOAT && knownStates[cmd.arg1]==TOBB_FLOAT) knownStates[cmd.result] = TOBB_FLOAT;
+        if(cmd.operation==DIV && knownStates[cmd.arg0]==TOBB_INT && knownStates[cmd.arg1]==TOBB_FLOAT) knownStates[cmd.result] = TOBB_FLOAT;
+        if(cmd.operation==DIV && knownStates[cmd.arg0]==TOBB_FLOAT && knownStates[cmd.arg1]==TOBB_INT) knownStates[cmd.result] = TOBB_FLOAT;
+        if(cmd.operation==DIV && knownStates[cmd.arg0]==TOBB_INT && knownStates[cmd.arg1]==TOBB_INT) knownStates[cmd.result] = TOBB_FLOAT;
+        if(cmd.operation==POW && knownStates[cmd.arg0]==TOBB_FLOAT && knownStates[cmd.arg1]==TOBB_FLOAT) knownStates[cmd.result] = TOBB_FLOAT;
+        if(cmd.operation==POW && knownStates[cmd.arg0]==TOBB_INT && knownStates[cmd.arg1]==TOBB_FLOAT) knownStates[cmd.result] = TOBB_FLOAT;
+        if(cmd.operation==POW && knownStates[cmd.arg0]==TOBB_FLOAT && knownStates[cmd.arg1]==TOBB_INT) knownStates[cmd.result] = TOBB_FLOAT;
+        if(cmd.operation==POW && knownStates[cmd.arg0]==TOBB_INT && knownStates[cmd.arg1]==TOBB_INT) knownStates[cmd.result] = TOBB_INT;
+        //if(cmd.operation==TOLIST) return nullptr;
         
-        bool known_state_for_everything = start_jit_from==-1 || prev_known_state==knownStates[cmd->args[0]] || prev_known_state==TOCOPY;
-        if(cmd->operation==TOLIST)
+        bool known_state_for_everything = start_jit_from==-1 || prev_known_state==knownStates[cmd.result] || prev_known_state==TOCOPY;
+        if(cmd.operation==TOLIST)
             known_state_for_everything = false;
         if(known_state_for_everything)
             for (const auto& [symbol, operation] : knownStates) 
@@ -333,12 +328,12 @@ Jitable* jit(const Code* code) {
                     && operation != TOVECTOR
                     && operation != BUILTIN 
                     && operation != TOCOPY 
-                    && usageCounts[cmd->args[0]]) {
+                    && usageCounts[cmd.result]) {
                         known_state_for_everything = false;
                         break;
                     }
 
-        //std::cout << "newstate recalc for "<<variableManager.getSymbol(cmd->args[0])<<"\n";
+        //std::cout << "newstate recalc for "<<variableManager.getSymbol(cmd.result)<<"\n";
         //for (const auto& [symbol, operation] : knownStates) 
         //    std::cout << variableManager.getSymbol(symbol)<< " "<<int2type(operation)<<"\n";
 
@@ -348,8 +343,10 @@ Jitable* jit(const Code* code) {
         else if(start_jit_from==-1)
             start_jit_from = i;
 
-        assignmentCounts[cmd->args[0]]--;
-        for(int j=1;j<cmd->args.size();++j) usageCounts[cmd->args[j]]--;
+        assignmentCounts[cmd.result]--;
+        if(cmd.nargs>1) usageCounts[cmd.arg0]--;
+        if(cmd.nargs>2) usageCounts[cmd.arg1]--;
+        if(cmd.nargs>3) usageCounts[cmd.arg2]--;
     }
 
 
@@ -358,22 +355,26 @@ Jitable* jit(const Code* code) {
     assignmentCounts.clear();
     usageCounts.clear();
     for (int i = start; i <= end; ++i) {
-        Command* cmd = program->at(i);
-        if(!cmd->args.size() || cmd->args[0]==variableManager.noneId) continue;
-        int symbol = cmd->args[0];
-        assignmentCounts[cmd->args[0]]++;
-        totalAssignmentCounts[cmd->args[0]]++;
-        for(int j=1;j<cmd->args.size();++j) usageCounts[cmd->args[j]]++;
+        const Command& cmd = program->at(i);
+        if(!cmd.nargs || cmd.result==variableManager.noneId) continue;
+        int symbol = cmd.result;
+        assignmentCounts[cmd.result]++;
+        totalAssignmentCounts[cmd.result]++;
+        if(cmd.nargs>1) usageCounts[cmd.arg0]++;
+        if(cmd.nargs>2) usageCounts[cmd.arg1]++;
+        if(cmd.nargs>3) usageCounts[cmd.arg2]++;
         // CAREFUL NOT TO AFFECT THE KNOWN STATE
     }
 
     if(start_jit_from!=-1 && start_jit_from<end-1) {
         //std::cout << "NEW JIT "<<start<<" to "<<end<<"\n";
         for (int i = start; i <= start_jit_from; ++i) {
-            Command* cmd = program->at(i);
-            assignmentCounts[cmd->args[0]]--;
-            for(int j=1;j<cmd->args.size();++j) usageCounts[cmd->args[j]]--;
-            //std::cout << "    " << cmd->toString() << "\n";
+            const Command& cmd = program->at(i);
+            assignmentCounts[cmd.result]--;
+            if(cmd.nargs>1) usageCounts[cmd.arg0]--;
+            if(cmd.nargs>2) usageCounts[cmd.arg1]--;
+            if(cmd.nargs>3) usageCounts[cmd.arg2]--;
+            //std::cout << "    " << cmd.toString() << "\n";
         }
 
         std::unordered_map<int, int> arguments;
@@ -395,26 +396,26 @@ Jitable* jit(const Code* code) {
 
         int returnType = TOCOPY;
         for (int i = start_jit_from+1; i<end; ++ i) {
-            Command* com = program->at(i);
-            if(com->operation==ADD) body += "  "+variableManager.getSymbol(com->args[0])+"="+variableManager.getSymbol(com->args[1])+"+"+variableManager.getSymbol(com->args[2])+";\n";
-            else if(com->operation==MUL) body += "  "+variableManager.getSymbol(com->args[0])+"="+variableManager.getSymbol(com->args[1])+"*"+variableManager.getSymbol(com->args[2])+";\n";
-            else if(com->operation==SUB) body += "  "+variableManager.getSymbol(com->args[0])+"="+variableManager.getSymbol(com->args[1])+"-"+variableManager.getSymbol(com->args[2])+";\n";
-            else if(com->operation==BUILTIN) body += "  "+variableManager.getSymbol(com->args[0])+"="+com->value->toString(nullptr)+";\n";
-            else if(com->operation==RETURN){
-                std::string type = int2type(knownStates[com->args[1]]);
-                //body += "  *_bbjitisreturning="+std::to_string(knownStates[com->args[1]])+";\n";
+            const Command& com = program->at(i);
+            if(com.operation==ADD) body += "  "+variableManager.getSymbol(com.result)+"="+variableManager.getSymbol(com.arg0)+"+"+variableManager.getSymbol(com.arg1)+";\n";
+            else if(com.operation==MUL) body += "  "+variableManager.getSymbol(com.result)+"="+variableManager.getSymbol(com.arg0)+"*"+variableManager.getSymbol(com.arg1)+";\n";
+            else if(com.operation==SUB) body += "  "+variableManager.getSymbol(com.result)+"="+variableManager.getSymbol(com.arg0)+"-"+variableManager.getSymbol(com.arg1)+";\n";
+            else if(com.operation==BUILTIN) body += "  "+variableManager.getSymbol(com.result)+"="+com.value->toString(nullptr)+";\n";
+            else if(com.operation==RETURN){
+                std::string type = int2type(knownStates[com.arg0]);
+                //body += "  *_bbjitisreturning="+std::to_string(knownStates[com.arg0])+";\n";
                 //body += "  "+type+"* _bbjitret=("+type+"*)malloc(sizeof("+type+"));\n";
-                //body += "  *_bbjitret = "+variableManager.getSymbol(com->args[1])+";\n";
+                //body += "  *_bbjitret = "+variableManager.getSymbol(com.arg0)+";\n";
                 //body += "  return _bbjitret;\n";
-                body += "  return "+variableManager.getSymbol(com->args[1])+";\n";
-                if(returnType!=TOCOPY && returnType!=knownStates[com->args[1]]) return nullptr;  // if different types are returned per case, we cannot JIT
-                returnType = knownStates[com->args[1]];
+                body += "  return "+variableManager.getSymbol(com.arg0)+";\n";
+                if(returnType!=TOCOPY && returnType!=knownStates[com.arg0]) return nullptr;  // if different types are returned per case, we cannot JIT
+                returnType = knownStates[com.arg0];
             }
             else {
-                std::cerr << "Internal error: cannot jit command: " << com->toString() << "\nThis does not indicate critical failure (and will be fixed in the future)\n";
+                std::cerr << "Internal error: cannot jit command: " << com.toString() << "\nThis does not indicate critical failure (and will be fixed in the future)\n";
                 return nullptr;
             }    
-            //body += "    "+com->toString()+"\n";
+            //body += "    "+com.toString()+"\n";
         }
         body = "#include <stdint.h>\n"+int2type(returnType)+" call(void* _bbjitargsvoid) {\n"+body+"}";
         //std::cout << body << "\n\n";

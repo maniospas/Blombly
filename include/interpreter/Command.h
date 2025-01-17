@@ -22,19 +22,19 @@ public:
 class Command {
 public:
     OperationType operation;
-    std::vector<int> args;
-    std::vector<bool> knownLocal;
-    DataPtr value;
+    int result;
+    int arg0;
+    int arg1;
+    int arg2;
+    int nargs;
+    mutable DataPtr value;
     SourceFile* source;
     int line;
-    int nargs;
     CommandContext* descriptor;
 
     Command(const std::string& command, SourceFile* source, int line, CommandContext* descriptor);
-    std::string toString();
+    std::string toString() const;
     std::string tocpp(bool first_assignment) const;
-    bool jitable;
-    bool hascheckedjitable;
 };
 
 #endif // COMMAND_H

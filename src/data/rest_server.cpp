@@ -5,7 +5,6 @@
 #include "data/BString.h"
 #include "data/Integer.h"
 #include "data/Jitable.h"
-#include "data/Boolean.h"
 #include "BMemory.h"
 #include "common.h"
 #include <iostream>
@@ -149,7 +148,7 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                     //mem->setFinal(variableManager.getId("http"));
                 }
                 mem->set(variableManager.getId("server::ip"), new BString(req_info->remote_addr));
-                mem->set(variableManager.getId("server::ssl"), req_info->is_ssl?Boolean::valueTrue:Boolean::valueFalse);
+                mem->set(variableManager.getId("server::ssl"), (bool)req_info->is_ssl);
                 //mem->setFinal(variableManager.getId("ip"));
                 //mem->setFinal(variableManager.getId("ssl"));
 

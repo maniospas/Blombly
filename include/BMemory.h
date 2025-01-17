@@ -49,8 +49,12 @@ class BMemory {
 private:
     tsl::hopscotch_map<int, int> data;
     std::vector<DataPtr> contents;
-    void unsafeSet(int item, DataPtr value);
+    void unsafeSet(int item, const DataPtr& value);
     std::vector<Code*> finally;
+    inline int find(int item) const;
+    static const int end = -1;
+    int first_item;
+    int max_cache_size;
 public:
     tsl::hopscotch_map<Code*, Struct*> codeOwners;
     tsl::hopscotch_set<int> finals;
@@ -68,7 +72,7 @@ public:
     const DataPtr& getShallow(int item);
     const DataPtr& getOrNull(int item, bool allowMutable);
     const DataPtr& getOrNullShallow(int item);
-    void set(int item, DataPtr value);
+    void set(int item, const DataPtr& value);
     void unsafeSetLiteral(int item, const DataPtr& value);
     int size() const;
     void setFinal(int item);

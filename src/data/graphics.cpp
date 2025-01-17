@@ -1,6 +1,5 @@
 #include "data/Graphics.h"
 #include "data/BError.h"
-#include "data/Boolean.h"
 #include "data/Integer.h"
 #include "data/Struct.h"
 #include <stdexcept>

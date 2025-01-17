@@ -3,7 +3,7 @@
 #include "BMemory.h"
 #include "data/Jitable.h"
 
-Code::Code(std::vector<Command*>* programAt, int startAt, int endAt)
+Code::Code(std::vector<Command>* programAt, int startAt, int endAt)
     : program(programAt), start(startAt), end(endAt), scheduleForParallelExecution(true), Data(CODE), jitable(nullptr) {}
 
 std::string Code::toString(BMemory* memory){
@@ -19,10 +19,8 @@ int Code::getEnd() const {
     return end;
 }
 
-std::vector<Command*>* Code::getProgram() const {
+std::vector<Command>* Code::getProgram() const {
     return program;
 }
 
-Result Code::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
-    throw Unimplemented();
-}
+Result Code::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {throw Unimplemented();}

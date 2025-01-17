@@ -52,7 +52,7 @@ extern bool isAllowedLocation(const std::string& path);
 extern bool isAllowedWriteLocation(const std::string& path);
 extern std::string normalizeFilePath(const std::string& path);
 extern bool isAllowedLocationNoNorm(const std::string& path_);
-extern void preliminarySimpleChecks(std::vector<Command*>* program);
+extern void preliminarySimpleChecks(std::vector<Command>* program);
 std::string top_level_file;
 
 extern std::unordered_map<int, DataPtr> cachedData;
@@ -65,7 +65,7 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
         {
             BMemory memory(nullptr, DEFAULT_LOCAL_EXPECTATION);
             try {
-                auto program = new std::vector<Command*>();
+                auto program = new std::vector<Command>();
                 auto source = new SourceFile(fileName);
                 std::string line;
                 int i = 1;
@@ -73,7 +73,7 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
                 CommandContext* descriptor = nullptr;
                 std::istringstream inputStream(code);
                 while (std::getline(inputStream, line)) {
-                    if (line[0] != '%') program->push_back(new Command(line, source, i, descriptor));
+                    if (line[0] != '%') program->emplace_back(line, source, i, descriptor);
                     else descriptor = new CommandContext(line.substr(1));
                     ++i;
                 }
@@ -92,9 +92,10 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
 
                 bbassert(!executor.hasReturned(), "`!comptime` must evaluate to a value but not run a return statement.");
                 //bbassert(ret, "`!comptime` must evaluate to a non-missing value.");
-                if(!ret.exists()) result = "#";
+                if(ret.isbool()) result = ret.tobool()?"true":"false";
+                else if(!ret.exists()) result = "#";
                 else if (ret->getType() == STRING) result = "\"" + ret->toString(nullptr) + "\"";
-                else if (ret->getType() == BB_INT || ret->getType() == BB_FLOAT || ret->getType() == BB_BOOL) result = ret->toString(nullptr);
+                else if (ret->getType() == BB_INT || ret->getType() == BB_FLOAT) result = ret->toString(nullptr);
                 else bberror("`!comptime` must must evaluate to a float, int, str, or bool.");
             } catch (const BBError& e) {
                 std::cerr << e.what() << "\033[0m\n";

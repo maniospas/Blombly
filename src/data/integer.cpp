@@ -1,5 +1,4 @@
 #include "data/Integer.h"
-#include "data/Boolean.h"
 #include "data/BFloat.h"
 #include "data/Vector.h"
 #include "data/BString.h"

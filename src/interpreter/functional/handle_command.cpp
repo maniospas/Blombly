@@ -5,7 +5,6 @@
 #include "common.h"
 #include "data/Struct.h"
 #include "data/Code.h"
-#include "data/Boolean.h"
 #include "data/Future.h"
 #include "data/BFile.h"
 #include "data/List.h"
@@ -64,132 +63,128 @@ std::recursive_mutex printMutex;
 std::recursive_mutex compileMutex;
 std::unordered_map<int, DataPtr> cachedData;
 
-#define SET_RESULT if(command->args[0]!=variableManager.noneId) memory->set(command->args[0], result);return
-#define SET_RESULT_LITERAL(expr) result=DataPtr(expr); memory->set(command->args[0], result); return;
+#define SET_RESULT {int carg = command.result;if(carg!=variableManager.noneId) memory.set(carg, result);return;}
+#define SET_RESULT_LITERAL(expr) {result=DataPtr(expr); memory.set(command.result, result); return;}
+#define SET_RESULT_VALUE(expr) {int carg = command.result;result=(expr); if(carg!=variableManager.noneId); memory.set(carg, result); return;}
 
 
 void ExecutionInstance::handleCommand(int &i){
-    Command* command = program[i];
-    //DataPtr toReplace = command->nargs?memory->getOrNullShallow(command->args[0]):nullptr;
-    //BMemory* memory = memory_.get();
-
-    //std::cout<<command->toString()<<"\t "<<std::this_thread::get_id()<<"\n";
-    
-    switch (command->operation) {
+    const Command& command = program[i];
+    switch (command.operation) {
         case ADD: {
-            const auto& arg0 = MEMGET(memory, 1);
-            const auto& arg1 = MEMGET(memory, 2);
-            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()+arg1.toint());
-            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL((double)(arg0.unsafe_toint()+arg1.tofloat()));
-            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL((double)(arg0.unsafe_tofloat()+arg1.toint()));
-            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()+arg1.tofloat());
+            const auto& arg0 = memory.get(command.arg0);
+            const auto& arg1 = memory.get(command.arg1);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()+arg1.unsafe_toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL((double)(arg0.unsafe_toint()+arg1.unsafe_tofloat()));
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL((double)(arg0.unsafe_tofloat()+arg1.unsafe_toint()));
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()+arg1.unsafe_tofloat());
             args.arg0 = arg0;
             args.arg1 = arg1;
             args.size = 2;
         }
         case SUB: {
-            const auto& arg0 = MEMGET(memory, 1);
-            const auto& arg1 = MEMGET(memory, 2);
-            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()-arg1.toint());
-            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL((double)(arg0.unsafe_toint()-arg1.tofloat()));
-            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL((double)(arg0.unsafe_tofloat()-arg1.toint()));
-            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()-arg1.tofloat());
+            const auto& arg0 = memory.get(command.arg0);
+            const auto& arg1 = memory.get(command.arg1);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()-arg1.unsafe_toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL((double)(arg0.unsafe_toint()-arg1.unsafe_tofloat()));
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL((double)(arg0.unsafe_tofloat()-arg1.unsafe_toint()));
+            if(arg0.isfloat() && arg1.isfloat()) {SET_RESULT_LITERAL(arg0.unsafe_tofloat()-arg1.unsafe_tofloat());}
             args.arg0 = arg0;
             args.arg1 = arg1;
             args.size = 2;
         }
         case MUL: {
-            const auto& arg0 = MEMGET(memory, 1);
-            const auto& arg1 = MEMGET(memory, 2);
-            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()*arg1.toint());
-            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL((double)(arg0.unsafe_toint()*arg1.tofloat()));
-            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL((double)(arg0.unsafe_tofloat()*arg1.toint()));
-            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()*arg1.tofloat());
+            const auto& arg0 = memory.get(command.arg0);
+            const auto& arg1 = memory.get(command.arg1);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()*arg1.unsafe_toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL((double)(arg0.unsafe_toint()*arg1.unsafe_tofloat()));
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL((double)(arg0.unsafe_tofloat()*arg1.unsafe_toint()));
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()*arg1.unsafe_tofloat());
             args.arg0 = arg0;
             args.arg1 = arg1;
             args.size = 2;
         }
         case DIV: {
-            const auto& arg0 = MEMGET(memory, 1);
-            const auto& arg1 = MEMGET(memory, 2);
-            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()/(double)arg1.toint());
-            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL((double)(arg0.unsafe_toint()/arg1.tofloat()));
-            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL((double)(arg0.unsafe_tofloat()/arg1.toint()));
-            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()/arg1.tofloat());
+            const auto& arg0 = memory.get(command.arg0);
+            const auto& arg1 = memory.get(command.arg1);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()/(double)arg1.unsafe_toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL((double)(arg0.unsafe_toint()/arg1.unsafe_tofloat()));
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL((double)(arg0.unsafe_tofloat()/arg1.unsafe_toint()));
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()/arg1.unsafe_tofloat());
             args.arg0 = arg0;
             args.arg1 = arg1;
             args.size = 2;
         }
         case LT: {
-            const auto& arg0 = MEMGET(memory, 1);
-            const auto& arg1 = MEMGET(memory, 2);
-            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()<arg1.toint());
-            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()<arg1.tofloat());
-            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()<arg1.toint());
-            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()<arg1.tofloat());
+            const auto& arg0 = memory.get(command.arg0);
+            const auto& arg1 = memory.get(command.arg1);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()<arg1.unsafe_toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()<arg1.unsafe_tofloat());
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()<arg1.unsafe_toint());
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()<arg1.unsafe_tofloat());
             args.arg0 = arg0;
             args.arg1 = arg1;
             args.size = 2;
         }
         case GT: {
-            const auto& arg0 = MEMGET(memory, 1);
-            const auto& arg1 = MEMGET(memory, 2);
-            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()>arg1.toint());
-            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()>arg1.tofloat());
-            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()>arg1.toint());
-            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()>arg1.tofloat());
+            const auto& arg0 = memory.get(command.arg0);
+            const auto& arg1 = memory.get(command.arg1);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()>arg1.unsafe_toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()>arg1.unsafe_tofloat());
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()>arg1.unsafe_toint());
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()>arg1.unsafe_tofloat());
             args.arg0 = arg0;
             args.arg1 = arg1;
             args.size = 2;
         }
         case LE: {
-            const auto& arg0 = MEMGET(memory, 1);
-            const auto& arg1 = MEMGET(memory, 2);
-            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()<=arg1.toint());
-            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()<=arg1.tofloat());
-            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()<=arg1.toint());
-            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()<=arg1.tofloat());
+            const auto& arg0 = memory.get(command.arg0);
+            const auto& arg1 = memory.get(command.arg1);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()<=arg1.unsafe_toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()<=arg1.unsafe_tofloat());
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()<=arg1.unsafe_toint());
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()<=arg1.unsafe_tofloat());
             args.arg0 = arg0;
             args.arg1 = arg1;
             args.size = 2;
         }
         case GE: {
-            const auto& arg0 = MEMGET(memory, 1);
-            const auto& arg1 = MEMGET(memory, 2);
-            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()>=arg1.toint());
-            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()>=arg1.tofloat());
-            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()>=arg1.toint());
-            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()>=arg1.tofloat());
+            const auto& arg0 = memory.get(command.arg0);
+            const auto& arg1 = memory.get(command.arg1);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()>=arg1.unsafe_toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()>=arg1.unsafe_tofloat());
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()>=arg1.unsafe_toint());
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()>=arg1.unsafe_tofloat());
             args.arg0 = arg0;
             args.arg1 = arg1;
             args.size = 2;
         }
         case EQ: {
-            const auto& arg0 = MEMGET(memory, 1);
-            const auto& arg1 = MEMGET(memory, 2);
-            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()==arg1.toint());
-            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()==arg1.tofloat());
-            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()==arg1.toint());
-            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()==arg1.tofloat());
-            if(arg0.isbool() && arg1.isbool()) SET_RESULT_LITERAL(arg0.unsafe_tobool()==arg1.tobool());
+            const auto& arg0 = memory.get(command.arg0);
+            const auto& arg1 = memory.get(command.arg1);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()==arg1.unsafe_toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()==arg1.unsafe_tofloat());
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()==arg1.unsafe_toint());
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()==arg1.unsafe_tofloat());
+            if(arg0.isbool() && arg1.isbool()) SET_RESULT_LITERAL(arg0.unsafe_tobool()==arg1.unsafe_tobool());
             args.arg0 = arg0;
             args.arg1 = arg1;
             args.size = 2;
         }
         case NEQ: {
-            const auto& arg0 = MEMGET(memory, 1);
-            const auto& arg1 = MEMGET(memory, 2);
-            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()!=arg1.toint());
-            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()!=arg1.tofloat());
-            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()!=arg1.toint());
-            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()!=arg1.tofloat());
-            if(arg0.isbool() && arg1.isbool()) SET_RESULT_LITERAL(arg0.unsafe_tobool()!=arg1.tobool());
+            const auto& arg0 = memory.get(command.arg0);
+            const auto& arg1 = memory.get(command.arg1);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()!=arg1.unsafe_toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()!=arg1.unsafe_tofloat());
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()!=arg1.unsafe_toint());
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()!=arg1.unsafe_tofloat());
+            if(arg0.isbool() && arg1.isbool()) SET_RESULT_LITERAL(arg0.unsafe_tobool()!=arg1.unsafe_tobool());
             args.arg0 = arg0;
             args.arg1 = arg1;
             args.size = 2;
         }
         case TOSTR: {
-            const auto& arg0 = MEMGET(memory, 1);
+            const auto& arg0 = memory.get(command.arg0);
             if(arg0.islit()) {
                 result = new BString(arg0.torepr());
                 SET_RESULT;
@@ -198,20 +193,20 @@ void ExecutionInstance::handleCommand(int &i){
             args.size = 1;
         }
         case TORANGE: {
-            const auto& arg0 = MEMGET(memory, 1);
+            const auto& arg0 = memory.get(command.arg0);
             if(arg0.isint()) {
                 result = new IntRange(0, arg0.unsafe_toint(), 1);
                 break;
             }
             args.arg0 = arg0;
         }
-        case BUILTIN: result = command->value;break;
+        case BUILTIN: result = command.value;break;
         case BEGINCACHE: {
             int pos = i + 1;
             int depth = 0;
             OperationType command_type;
             while(pos <= program.size()) {
-                command_type = program[pos]->operation;
+                command_type = program[pos].operation;
                 if(command_type == BEGIN || command_type == BEGINFINAL) depth++;
                 if(command_type == END) {
                     if (depth == 0) break;
@@ -238,10 +233,10 @@ void ExecutionInstance::handleCommand(int &i){
         case BEGIN:
         case BEGINFINAL: {
             // Start a block of code
-            if(command->value.exists()) {
-                auto code = static_cast<Code*>(command->value.get());
+            if(command.value.exists()) {
+                auto code = static_cast<Code*>(command.value.get());
                 result = code;
-                if (command->operation == BEGINFINAL) memory->setFinal(command->args[0]);
+                if (command.operation == BEGINFINAL) memory.setFinal(command.result);
                 i = code->getEnd();
                 break;
             }
@@ -250,7 +245,7 @@ void ExecutionInstance::handleCommand(int &i){
             int depth = 0;
             OperationType command_type;
             while(pos <= program.size()) {
-                command_type = program[pos]->operation;
+                command_type = program[pos].operation;
                 if(command_type == BEGIN || command_type == BEGINFINAL) depth++;
                 if(command_type == END) {
                     if(depth == 0) break;
@@ -262,22 +257,22 @@ void ExecutionInstance::handleCommand(int &i){
             auto cache = new Code(&program, i + 1, pos);
             cache->addOwner();
             cache->jitable = jit(cache);
-            command->value = cache;
+            command.value = cache;
             result = cache;
-            if(command->operation == BEGINFINAL) memory->setFinal(command->args[0]);
+            if(command.operation == BEGINFINAL) memory.setFinal(command.result);
             i = pos;
         } break;
 
         case CALL: {
             // Function or method call
-            DataPtr context = command->args[1] == variableManager.noneId ? nullptr : memory->get(command->args[1]);
-            DataPtr called = memory->get(command->args[2]);
+            DataPtr context = command.arg0 == variableManager.noneId ? nullptr : memory.get(command.arg0);
+            DataPtr called = memory.get(command.arg1);
             bbassert(called.exists(), "Cannot call a missing value or literal.");
             if(called->getType()!=CODE && called->getType()!=STRUCT) {
                 args.size = 2;
                 args.arg0 = called;
                 args.arg1 = context;
-                Result returnValue = Data::run(command->operation, &args, memory);
+                Result returnValue = Data::run(command.operation, &args, &memory);
                 result = returnValue.get();
                 SET_RESULT;
             }
@@ -286,14 +281,14 @@ void ExecutionInstance::handleCommand(int &i){
                 auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
                 bbassert(val.existsAndTypeEquals(CODE), "Struct was called like a method but has no implemented code for `call`.");
                 //static_cast<Code*>(val)->scheduleForParallelExecution = false; // struct calls are never executed in parallel
-                memory->codeOwners[static_cast<Code*>(val.get())] = static_cast<Struct*>(called.get());
+                memory.codeOwners[static_cast<Code*>(val.get())] = static_cast<Struct*>(called.get());
                 called = (val);
             }
             auto code = static_cast<Code*>(called.get());
             if(forceStayInThread || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
-                BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
+                BMemory newMemory(&memory, LOCAL_EXPECTATION_FROM_CODE(code));
                 if(context.exists()) {
-                    bbassert(context->getType() == CODE, "Call context must be a code block.");
+                    bbassert(context.existsAndTypeEquals(CODE), "Call context must be a code block.");
                     Code* callCode = static_cast<Code*>(context.get());
                     ExecutionInstance executor(callCode, &newMemory, forceStayInThread);
                     Result returnedValue = executor.run(callCode);
@@ -303,12 +298,12 @@ void ExecutionInstance::handleCommand(int &i){
                         break;
                     }
                 }
-                auto it = memory->codeOwners.find(code);
-                const auto& thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
+                auto it = memory.codeOwners.find(code);
+                const auto& thisObj = (it != memory.codeOwners.end() ? it->second->getMemory() : &memory)->getOrNull(variableManager.thisId, true);
                 if(thisObj.exists()) newMemory.set(variableManager.thisId, thisObj);
                 std::unique_lock<std::recursive_mutex> executorLock;
                 if(thisObj.exists()) {
-                    bbassert(thisObj->getType()==STRUCT, "Internal error: `this` was neither a struct nor missing (in the last case it would have been replaced by the scope)");
+                    bbassert(thisObj.existsAndTypeEquals(STRUCT), "Internal error: `this` was neither a struct nor missing (in the last case it would have been replaced by the scope)");
                     //if(!forceStayInThread) 
                     executorLock = std::unique_lock<std::recursive_mutex>(static_cast<Struct*>(thisObj.get())->memoryLock);
                 }
@@ -323,9 +318,9 @@ void ExecutionInstance::handleCommand(int &i){
                 break;
             } 
             else { // 
-                auto newMemory = new BMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
+                auto newMemory = new BMemory(&memory, LOCAL_EXPECTATION_FROM_CODE(code));
                 if(context.exists()) {
-                    bbassert(context->getType() == CODE, "Call context must be a code block.");
+                    bbassert(context.existsAndTypeEquals(CODE), "Call context must be a code block.");
                     ExecutionInstance executor(static_cast<Code*>(context.get()), newMemory, forceStayInThread);
                     Result returnedValue = executor.run(static_cast<Code*>(context.get()));
                     if(executor.hasReturned()) {
@@ -334,105 +329,107 @@ void ExecutionInstance::handleCommand(int &i){
                         break;
                     }
                 }
-                //newMemory->detach(memory);
-                auto it = memory->codeOwners.find(code);
-                const auto& thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
+                //newmemory.detach(memory);
+                auto it = memory.codeOwners.find(code);
+                const auto& thisObj = (it != memory.codeOwners.end() ? it->second->getMemory() : &memory)->getOrNull(variableManager.thisId, true);
                 if(thisObj.exists()) newMemory->set(variableManager.thisId, thisObj);
                 newMemory->allowMutables = false;
                 auto futureResult = new ThreadResult();
                 auto future = new Future(futureResult);
                 future->addOwner();//the attached_threads are also an owner
-                memory->attached_threads.insert(future);
+                memory.attached_threads.insert(future);
                 futureResult->start(code, newMemory, futureResult, command, thisObj);
                 result = future;
             }
         } break;
 
         case RETURN: {
-            result = command->args[1] == variableManager.noneId ? nullptr : memory->get(command->args[1]);
+            result = command.arg0 == variableManager.noneId ? nullptr : memory.get(command.arg0);
             returnSignal = true;
         } return;
 
         case GET: {
             BMemory* from(nullptr);
-            const auto& objFound = memory->getOrNull(command->args[1], true);
+            const auto& objFound = memory.getOrNull(command.arg0, true);
             if(!objFound.exists()) {
-                bbassert(command->args[1]==variableManager.thisId, "Missing value"+std::string(memory->size()?"":" in cleared memory ")+": " + variableManager.getSymbol(command->args[1]));
-                from = memory;
-                result = from->get(command->args[2]);
+                bbassert(command.arg0==variableManager.thisId, "Missing value"+std::string(memory.size()?"":" in cleared memory ")+": " + variableManager.getSymbol(command.arg0));
+                from = &memory;
+                result = from->get(command.arg1);
             }
             else {
                 bbassert(objFound.existsAndTypeEquals(STRUCT), "Can only get elements from structs, not"+std::to_string(objFound->getType()));
                 auto obj = static_cast<Struct*>(objFound.get());
                 std::lock_guard<std::recursive_mutex> lock(obj->memoryLock);
                 from = obj->getMemory();
-                result = from->get(command->args[2]);
-                if(result.existsAndTypeEquals(CODE)) memory->codeOwners[static_cast<Code*>(result.get())] = obj;
+                result = from->get(command.arg1);
+                if(result.existsAndTypeEquals(CODE)) memory.codeOwners[static_cast<Code*>(result.get())] = obj;
             }
         } break;
         case ISCACHED: {
-            result = cachedData[command->args[1]];
-            bbassert(result.exists(), "Missing cache value (typically cached due to optimization):" + variableManager.getSymbol(command->args[1]));
+            result = cachedData[command.arg0];
+            bbassert(result.exists(), "Missing cache value (typically cached due to optimization):" + variableManager.getSymbol(command.arg0));
             break;
         }
         case IS: {
-            result = memory->get(command->args[1], true);
-            if(result->getType()==ERRORTYPE) bberror(enrichErrorDescription(command, result->toString(memory)));
+            result = memory.get(command.arg0, true);
+            if(result.existsAndTypeEquals(ERRORTYPE)) bberror(enrichErrorDescription(command, result->toString(&memory)));
         } break;
 
         case AS: {
-            result = memory->getOrNull(command->args[1], true);
-            //bbassert(!result.islitorexists(), "Missing value"+std::string(memory->size()?"":" in cleared memory ")+": " + variableManager.getSymbol(command->args[1]));
+            result = memory.getOrNull(command.arg0, true);
+            //bbassert(!result.islitorexists(), "Missing value"+std::string(memory.size()?"":" in cleared memory ")+": " + variableManager.getSymbol(command.arg0));
             if(result.existsAndTypeEquals(ERRORTYPE)) static_cast<BError*>(result.get())->consume();
         } break;
 
         case EXISTS: {
-            DataPtr res = memory->getOrNull(command->args[1], true);
+            DataPtr res = memory.getOrNull(command.arg0, true);
             result = DataPtr(!res.existsAndTypeEquals(ERRORTYPE));
         } break;
 
         case SET: {
-            DataPtr obj = memory->get(command->args[1]);
-            bbassert(obj->getType() == STRUCT, "Can only set fields in a struct.");
+            DataPtr obj = memory.get(command.arg0);
+            bbassert(obj.existsAndTypeEquals(STRUCT), "Can only set fields in a struct.");
             auto structObj = static_cast<Struct*>(obj.get());
             std::lock_guard<std::recursive_mutex> lock(structObj->memoryLock);
-            DataPtr setValue = memory->getOrNullShallow(command->args[3]);
+            DataPtr setValue = memory.getOrNullShallow(command.arg2);
             if(setValue.existsAndTypeEquals(CODE)) setValue = static_cast<Code*>(setValue.get())->copy();
             if(setValue.exists()) setValue->leak();
             auto structMemory = structObj->getMemory();
-            structMemory->set(command->args[2], setValue);//structMemory->getOrNullShallow(command->args[2]));
+            structMemory->set(command.arg1, setValue);//structmemory.getOrNullShallow(command.args[2]));
             result = nullptr;
         } break;
 
         case SETFINAL: {
-            DataPtr obj = memory->get(command->args[1]);
-            bbassert(obj->getType() == STRUCT, "Can only set fields in a struct.");
+            DataPtr obj = memory.get(command.arg0);
+            bbassert(obj.existsAndTypeEquals(STRUCT), "Can only set fields in a struct.");
             bberror("Cannot set final fields in a struct using field access operators (. or \\). This also ensures that finals can only be set during `new` statements.");
-            /*DataPtr obj = memory->get(command->args[1]);
+            /*DataPtr obj = memory.get(command.arg0);
             bbassert(obj->getType() == CODE, "Can only set metadata for code blocks.");
             auto code = static_cast<Code*>(obj);
-            DataPtr setValue = memory->get(command->args[3]);
+            DataPtr setValue = memory.get(command.args[3]);
             if(setValue)
                 setValue->leak();
-            code->setMetadata(command->args[2], setValue);
+            code->setMetadata(command.args[2], setValue);
             result = nullptr;*/
         } break;
 
         case WHILE: {
-            DataPtr condition = memory->get(command->args[1]);
-            DataPtr body = memory->get(command->args[2]);
-            bbassert(body->getType() == CODE, "While body can only be a code block.");
-            bbassert(condition->getType() == CODE, "While condition can only be a code block.");
+            const DataPtr& condition = memory.get(command.arg0);
+            const DataPtr& body = memory.get(command.arg1);
+            bbassert(body.existsAndTypeEquals(CODE), "While body can only be a code block.");
+            bbassert(body.existsAndTypeEquals(CODE), "While condition can only be a code block.");
             auto codeBody = static_cast<Code*>(body.get());
             auto codeCondition = static_cast<Code*>(condition.get());
-            
+            Jitable* jitableCondition = codeCondition->jitable;
             bool checkValue(true);
             while(checkValue) {
-                Result returnedValue = run(codeCondition);
-                DataPtr check = returnedValue.get();
-                if (returnSignal) {result = check;SET_RESULT;break;}
-                bbassert(check.isbool(), "While condition did not evaluate to bool");
-                checkValue = check.unsafe_tobool();
+                if(!jitableCondition || !jitableCondition->runWithBooleanIntent(&memory, checkValue, forceStayInThread)) {
+                    Result returnedValue = run(codeCondition);
+                    const DataPtr& check = returnedValue.get();
+                    if (returnSignal) SET_RESULT_VALUE(check);  // {result = check;SET_RESULT;break;}
+                    bbassert(check.isbool(), "While condition did not evaluate to bool");
+                    checkValue = check.unsafe_tobool();
+                }
                 if(!checkValue) break;
 
                 Result returnedValueFromBody = run(codeBody);
@@ -443,12 +440,13 @@ void ExecutionInstance::handleCommand(int &i){
         } break;
 
         case IF: {
-            DataPtr condition = memory->get(command->args[1]);
-            DataPtr accept = memory->get(command->args[2]);
-            DataPtr reject = command->nargs > 3 ? memory->get(command->args[3]) : nullptr;
+            DataPtr condition = memory.get(command.arg0);
+            DataPtr accept = memory.get(command.arg1);
+            DataPtr reject = command.nargs > 3 ? memory.get(command.arg2) : nullptr;
+            bbassert(condition.tobool(), "If condition did not evaluate to bool");
 
-            if(condition==Boolean::valueTrue) {
-                if(accept->getType() == CODE) {
+            if(condition.unsafe_tobool()) {
+                if(accept.existsAndTypeEquals(CODE)) {
                     Code* code = static_cast<Code*>(accept.get());
                     Result returnedValue = run(code);
                     result = returnedValue.get();
@@ -473,9 +471,14 @@ void ExecutionInstance::handleCommand(int &i){
 
         case BB_PRINT: {
             std::string printing;
-            for(int i = 1; i < command->nargs; i++) {
-                DataPtr printable = MEMGET(memory, i);
-                std::string out = printable.exists()?printable->toString(memory):printable.torepr();
+            if(command.nargs>1){
+                DataPtr printable = command.arg1;
+                std::string out = printable.exists()?printable->toString(&memory):printable.torepr();
+                printing += out + " ";
+            }
+            if(command.nargs>2){
+                DataPtr printable = command.arg2;
+                std::string out = printable.exists()?printable->toString(&memory):printable.torepr();
                 printing += out + " ";
             }
             printing = replaceEscapeSequences(printing);
@@ -488,7 +491,7 @@ void ExecutionInstance::handleCommand(int &i){
         } return;
 
         case CREATESERVER: {
-            DataPtr port = memory->get(command->args[1]);
+            DataPtr port = memory.get(command.arg0);
             bbassert(port.existsAndTypeEquals(BB_INT), "The server's port must be an integer.");
             auto res = new RestServer(static_cast<Integer*>(port.get())->getValue());
             res->runServer();
@@ -497,10 +500,17 @@ void ExecutionInstance::handleCommand(int &i){
 
         case READ:{
             std::string printing;
-            for(int i=1;i<command->nargs;i++) {
-                DataPtr printable = MEMGET(memory, i);
+            if(command.nargs>1) {
+                DataPtr printable = memory.get(command.arg0);
                 if(printable.exists()) {
-                    std::string out = printable->toString(memory);
+                    std::string out = printable->toString(&memory);
+                    printing += out+" ";
+                }
+            }
+            if(command.nargs>2) {
+                DataPtr printable = memory.get(command.arg1);
+                if(printable.exists()) {
+                    std::string out = printable->toString(&memory);
                     printing += out+" ";
                 }
             }
@@ -516,23 +526,22 @@ void ExecutionInstance::handleCommand(int &i){
 
         case FINAL:
             // setting a memory content to final should alway be an attomic operation
-            if(command->knownLocal[1]) 
-                bberror("Cannot finalize a local variable (starting with _bb...)");
-            memory->setFinal(command->args[1]);
+            //if(command.knownLocal[1]) 
+            //    bberror("Cannot finalize a local variable (starting with _bb...)");
+            memory.setFinal(command.arg0);
             return;
 
-        case END:
-            return;
+        case END: return;
 
         case TRY: {
-            memory->detach(memory->parent);
+            memory.detach(memory.parent);
             bool prevReturnSignal = returnSignal;
             try {
-                DataPtr condition = MEMGET(memory, 1);
-                bbassert(condition->getType()==CODE, "Can only inline a non-called code block for try condition");
+                DataPtr condition = memory.get(command.arg0);
+                bbassert(condition.existsAndTypeEquals(CODE), "Can only inline a non-called code block for try condition");
                 auto codeCondition = static_cast<Code*>(condition.get());
                 Result returnedValue = run(codeCondition);
-                memory->detach(memory->parent);
+                memory.detach(memory.parent);
                 result = returnedValue.get();
                 if(!returnSignal) result = NO_TRY_INTERCEPT;
                 returnSignal = prevReturnSignal;
@@ -545,11 +554,11 @@ void ExecutionInstance::handleCommand(int &i){
         } break;
         
         case CATCH: {
-            DataPtr condition = (command->knownLocal[1]?memory->getOrNullShallow(command->args[1]):memory->getOrNull(command->args[1], true)); //MEMGET(memory, 1);
-            DataPtr accept = MEMGET(memory, 2);
-            DataPtr reject = command->nargs>3?MEMGET(memory, 3):nullptr;
-            bbverify(accept.exists(), !accept.exists() || accept->getType()==CODE, "Can only inline a code block for catch acceptance");
-            bbverify(reject.exists(), !reject.exists() || reject->getType()==CODE, "Can only inline a code block for catch rejection");
+            DataPtr condition = memory.getOrNull(command.arg0, true); //(command.knownLocal[1]?memory.getOrNullShallow(command.arg0):memory.getOrNull(command.arg0, true)); //memory.get(command.arg0);
+            DataPtr accept = memory.get(command.arg1);
+            DataPtr reject = command.nargs>3?memory.get(command.arg2):nullptr;
+            bbverify(accept.exists(), !accept.exists() || accept.existsAndTypeEquals(CODE), "Can only inline a code block for catch acceptance");
+            bbverify(reject.exists(), !reject.exists() || reject.existsAndTypeEquals(CODE), "Can only inline a code block for catch rejection");
             auto codeAccept = static_cast<Code*>(accept.get());
             auto codeReject = static_cast<Code*>(reject.get());
             
@@ -569,20 +578,20 @@ void ExecutionInstance::handleCommand(int &i){
         } break;
 
         case FAIL: {
-            DataPtr result = MEMGET(memory, 1);
-            bberror(std::move(enrichErrorDescription(command, result->toString(memory))));
+            DataPtr result = memory.get(command.arg0);
+            bberror(std::move(enrichErrorDescription(command, result->toString(&memory))));
         } break;
 
         case INLINE: {
-            DataPtr source = MEMGET(memory, 1);
-            if(source->getType()==STRUCT) {
-                memory->pull(static_cast<Struct*>(source.get())->getMemory());
+            DataPtr source = memory.get(command.arg0);
+            if(source.existsAndTypeEquals(STRUCT)) {
+                memory.pull(static_cast<Struct*>(source.get())->getMemory());
                 result = nullptr;
             }
-            else if(source->getType()!=CODE) bberror("Can only inline a code block or struct");
+            else if(!source.exists() || source->getType()!=CODE) bberror("Can only inline a code block or struct");
             else {
                 auto code = static_cast<Code*>(source.get());
-                ExecutionInstance executor(code, memory, forceStayInThread);
+                ExecutionInstance executor(code, &memory, forceStayInThread);
                 Result returnedValue = executor.run(code);
                 result = returnedValue.get();
                 SET_RESULT;
@@ -590,28 +599,28 @@ void ExecutionInstance::handleCommand(int &i){
         } break;
 
         case DEFER: {
-            DataPtr source = MEMGET(memory, 1);
-            if(source->getType()!=CODE) bberror("Finally can only inline a code block or struct");
-            memory->addFinally(static_cast<Code*>(source.get()));
+            DataPtr source = memory.get(command.arg0);
+            if(source.existsAndTypeEquals(CODE)) bberror("Finally can only inline a code block or struct");
+            memory.addFinally(static_cast<Code*>(source.get()));
             break;
         }
 
         case DEFAULT: {
-            DataPtr source = MEMGET(memory, 1);
-            bbassert(source->getType()==CODE, "Can only call `default` on a code block");
+            DataPtr source = memory.get(command.arg0);
+            bbassert(source.existsAndTypeEquals(CODE), "Can only call `default` on a code block");
             auto code = static_cast<Code*>(source.get());
-            BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
+            BMemory newMemory(&memory, LOCAL_EXPECTATION_FROM_CODE(code));
             ExecutionInstance executor(code, &newMemory, forceStayInThread);
             Result returnedValue = executor.run(code);
             if(executor.hasReturned())  bberror("Cannot return from within a `default` statement");
-            memory->replaceMissing(&newMemory);
+            memory.replaceMissing(&newMemory);
         } break;
 
         case NEW: {
-            DataPtr source = MEMGET(memory, 1);
-            bbassert(source->getType()==CODE, "Can only call `new` on a code block");
+            DataPtr source = memory.get(command.arg0);
+            bbassert(source.existsAndTypeEquals(CODE), "Can only call `new` on a code block");
             auto code = static_cast<Code*>(source.get());
-            auto newMemory = new BMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
+            auto newMemory = new BMemory(&memory, LOCAL_EXPECTATION_FROM_CODE(code));
             auto thisObj = new Struct(newMemory); 
             newMemory->set(variableManager.thisId, thisObj);
             newMemory->setFinal(variableManager.thisId);
@@ -619,7 +628,7 @@ void ExecutionInstance::handleCommand(int &i){
             Result returnedValue = executor.run(code);
             newMemory->detach(nullptr);
             if(returnedValue.get().get()!=thisObj) {
-                if(command->args[0]!=variableManager.noneId) memory->set(command->args[0], result);
+                if(command.result!=variableManager.noneId) memory.set(command.result, result);
                 thisObj->removeFromOwner(); // do this after setting
                 return;
             }
@@ -627,43 +636,39 @@ void ExecutionInstance::handleCommand(int &i){
         } break;
 
         case TOLIST: {
-            auto list = new BList(command->nargs-1);
-            for(int i=1;i<command->nargs;i++) {
-                DataPtr element = MEMGET(memory, i);
-                bbassert(element->getType()!=ERRORTYPE, "Cannot push an error to a list");
+            int n = command.nargs;
+            auto list = new BList(n-1);
+            /*for(int j=1;j<n;j++) {
+                DataPtr element = MEMGET(memory, j);
+                bbassert(!element.existsAndTypeEquals(ERRORTYPE), "Cannot push an error to a list");
                 element->addOwner();
                 element->leak();
                 list->contents.push_back(element);
-            }
+            }*/
             result = list;
         } break;
 
-        case TOMAP: if(command->nargs==1) {
-            result = new BHashMap();
-            break;
-        }
-        case TIME:
-            result = new BFloat(std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now()-program_start).count());
-        break;
+        case TOMAP: if(command.nargs==1) {result = new BHashMap();break;}
+        case TIME: result = DataPtr(static_cast<double>(std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now()-program_start).count()));break;
         default: {
-            if(command->operation==ADD || command->operation==SUB || command->operation==MUL || command->operation==DIV || command->operation==TOSTR 
-            || command->operation==LT || command->operation==LE || command->operation==GT || command->operation==GE || command->operation==EQ || command->operation==NEQ) {
+            if(command.operation==ADD || command.operation==SUB || command.operation==MUL || command.operation==DIV || command.operation==TOSTR 
+            || command.operation==LT || command.operation==LE || command.operation==GT || command.operation==GE || command.operation==EQ || command.operation==NEQ) {
                 // DO NOT RETRIEVE MEMORY AGAIN SINCE WE ALREADY TOOK CARE TO HELP THIS BLOCK AT THE BEGINNING WHERE WE WERE HANDLING LITERALS
             }
             else {
-                int nargs = command->nargs;
+                int nargs = command.nargs;
                 args.size = nargs - 1;
-                if (nargs > 1) args.arg0 = MEMGET(memory, 1);
-                if (nargs > 2) args.arg1 = MEMGET(memory, 2);
-                if (nargs > 3) args.arg2 = MEMGET(memory, 3);
+                if (nargs > 1) args.arg0 = memory.get(command.arg0);
+                if (nargs > 2) args.arg1 = memory.get(command.arg1);
+                if (nargs > 3) args.arg2 = memory.get(command.arg2);
             }
-            Result returnValue = Data::run(command->operation, &args, memory);
+            Result returnValue = Data::run(command.operation, &args, &memory);
             result = returnValue.get();
             SET_RESULT;
         } break;
     }
-    //if(!result && command->knownLocal[0])
-    //    bberror("Missing value encountered in intermediate computation "+variableManager.getSymbol(command->args[0])+". Explicitly use the `as` assignment to explicitly set potentially missing values\n");
-    //DataPtr prevResult = command->knownLocal[0]?memory->getOrNullShallow(command->args[0]):memory->getOrNull(command->args[0], true)
-    if(command->args[0]!=variableManager.noneId) memory->set(command->args[0], result);
+    //if(!result && command.knownLocal[0])
+    //    bberror("Missing value encountered in intermediate computation "+variableManager.getSymbol(command.result)+". Explicitly use the `as` assignment to explicitly set potentially missing values\n");
+    //DataPtr prevResult = command.knownLocal[0]?memory.getOrNullShallow(command.result):memory.getOrNull(command.result, true)
+    if(command.result!=variableManager.noneId) memory.set(command.result, result);
 }

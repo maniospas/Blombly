@@ -32,12 +32,12 @@ public:
 
 // Enumeration of data types
 enum Datatype {
-    FUTURE, BB_BOOL, BB_INT, BB_FLOAT, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE, ERRORTYPE, MAP, SERVER, SQLLITE, GRAPHICS
+    FUTURE, BB_INT, BB_FLOAT, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE, ERRORTYPE, MAP, SERVER, SQLLITE, GRAPHICS
 };
 
 // Array to map datatype enums to string representations
 static const char* datatypeName[] = {
-    "future", "bool", "int", "float", "vector", "list", "string", "code", "struct", "iterator", "file", "error", "map", "server", "sqlite", "graphics"
+    "future", "int", "float", "vector", "list", "string", "code", "struct", "iterator", "file", "error", "map", "server", "sqlite", "graphics"
 };
 
 // Global strings for different operations
@@ -81,11 +81,9 @@ class Code;
 class Result;
 extern VariableManager variableManager;
 
-#define MEMGET(memory, arg) memory->get(command->args[arg])
-
 // Code reused when returning various data from overridden Data::implement 
 #define STRING_RESULT(expr) return std::move(Result(new BString(expr)))
-#define BB_BOOLEAN_RESULT(expr) return std::move(Result((expr)?Boolean::valueTrue:Boolean::valueFalse))
+#define BB_BOOLEAN_RESULT(expr) return std::move(Result(std::move(DataPtr((bool)(expr)))))
 #define BB_INT_RESULT(expr) return std::move(Result(new Integer(expr)))
 #define BB_FLOAT_RESULT(expr) return std::move(Result(new BFloat(expr)))
 
@@ -112,6 +110,9 @@ extern VariableManager variableManager;
 #define IS_NOT_INT ~IS_INT
 #define IS_NOT_BOOL ~IS_BOOL
 #define IS_NOT_PTR ~IS_PTR
+
+
+//#define SAFETYCHECKS
 
 
 /**
@@ -159,25 +160,33 @@ struct DataPtr {
     }
 
     inline double tofloat() const {
+        #ifdef SAFETYCHECKS
         if (datatype & IS_PTR) bberror("Internal error: cannot run `tobool` for a data structure implicitly.");
+        #endif
         if (datatype & IS_NOT_FLOAT) return data;
         return std::bit_cast<double>(data);
     }
 
     inline int64_t toint() const {
+        #ifdef SAFETYCHECKS
         if (datatype & IS_PTR) bberror("Internal error: cannot run `toint` for a data structure implicitly.");
         if (datatype & IS_FLOAT) return std::bit_cast<double>(data);
+        #endif
         return data;
     }
 
     inline bool tobool() const {
+        #ifdef SAFETYCHECKS
         if (datatype & IS_PTR) bberror("Internal error: cannot run `tobool` for a data structure implicitly.");
+        #endif
         return data;
     }
 
     inline Data* get() const {
+        #ifdef SAFETYCHECKS
         if (datatype & IS_NOT_PTR) bberror("Internal error: trying to `get` on a builtin that is not stored as a data type");
         if (!data)  bberror("Internal error: Trying to `get` a null pointer. This should not happen as everything should be guarded by testing whether the pointer `exists` first."); 
+        #endif
         return std::bit_cast<Data*>(data);
     }
 
@@ -196,7 +205,7 @@ struct DataPtr {
         return datatype & IS_NOT_PTR;
     }
 
-    std::string torepr() const {
+    inline std::string torepr() const {
         if(datatype & IS_PTR) return "Data object at memory address: "+std::to_string(data);
         if(datatype & IS_FLOAT) return std::to_string(unsafe_tofloat());
         if(datatype & IS_INT) return std::to_string(unsafe_toint());
@@ -204,7 +213,7 @@ struct DataPtr {
         return "Corrupted data";
     }
 
-    bool operator==(const DataPtr& other) const {
+    inline bool operator==(const DataPtr& other) const {
         if (datatype & IS_NOT_PTR) return false;
         return data==other.data;
     }

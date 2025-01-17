@@ -7,7 +7,6 @@
 #include <cctype>
 #include <bitset>
 #include "data/Integer.h"
-#include "data/Boolean.h"
 #include "data/BString.h"
 #include "data/Iterator.h"
 

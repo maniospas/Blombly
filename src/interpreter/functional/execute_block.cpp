@@ -7,7 +7,7 @@
 #include "data/Jitable.h"
 
 Result ExecutionInstance::run(Code* code) {
-    bbassert(code->getProgram()==&program, "Internal error: it should be impossible to change the global program pointer.");
+    //bbassert(code->getProgram()==&program, "Internal error: it should be impossible to change the global program pointer.");
     auto program = code->getProgram();
     int end = code->getEnd();
     int i = code->getStart();
@@ -16,7 +16,7 @@ Result ExecutionInstance::run(Code* code) {
             handleCommand(i);
             if (returnSignal) {
                 Result res(result);
-                memory->runFinally();
+                memory.runFinally();
                 return std::move(res);
             }
         }

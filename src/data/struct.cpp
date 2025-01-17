@@ -1,5 +1,4 @@
 #include "data/Struct.h"
-#include "data/Boolean.h"
 #include "data/List.h"
 #include "data/Code.h"
 #include "BMemory.h"

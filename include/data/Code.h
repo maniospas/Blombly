@@ -15,19 +15,19 @@ class Jitable;
 class Code : public Data {
 private:
     int start, end;
-    std::vector<Command*>* program;
+    std::vector<Command>* program;
 
 public:
     bool scheduleForParallelExecution;
     Jitable* jitable;
     
-    explicit Code(std::vector<Command*>* programAt, int startAt, int endAt);
+    explicit Code(std::vector<Command>* programAt, int startAt, int endAt);
     
     Code* copy() const {Code* ret = new Code(program, start, end);ret->jitable=jitable; return ret;}
     std::string toString(BMemory* memory)override;
     int getStart() const;
     int getEnd() const;
-    std::vector<Command*>* getProgram() const;
+    std::vector<Command>* getProgram() const;
     virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
 };
 

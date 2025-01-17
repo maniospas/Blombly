@@ -1,30 +1,18 @@
-%time() //playground/test.bb line 1
 time tic
-%ret=0 //playground/test.bb line 2
 BUILTIN ret I0
-%range(1000000000) //playground/test.bb line 3
-BUILTIN _bb574 I1000000000
-%range(1000000000) //playground/test.bb line 3
+BUILTIN _bb574 I100000000
 range _bb573 _bb574
-%iter(range(1000000000)) //playground/test.bb line 3
 iter _bbmacro8 _bb573
-%while(ias next(_bbmacro8))ret+=i //playground/test.bb line 3
 BEGIN _bb576
-%next(_bbmacro8) //playground/test.bb line 3
 next _bb577 _bbmacro8
 AS i _bb577
 exists _bb578 i
 END
 BEGIN _bb579
-%ret+=i //playground/test.bb line 3
 add ret ret i
 END
-%while(ias next(_bbmacro8))ret+=i //playground/test.bb line 3
 while # _bb576 _bb579
-%time() //playground/test.bb line 4
 time _bb581
 sub _bb580 _bb581 tic
-%print(time()-tic) //playground/test.bb line 4
 print # _bb580
-%print(ret) //playground/test.bb line 5
 print # ret
