@@ -43,7 +43,7 @@ static const char* datatypeName[] = {
 // Global strings for different operations
 enum OperationType {
     NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, DIV, MOD, LEN, POW, LOG,
-    PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOMAP, TOBB_INT, TOBB_FLOAT, TOSTR, TOBB_BOOL, TOCOPY, TOFILE,
+    PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOMAP, TOBB_INT, TOBB_FLOAT, TOSTR, TOBB_BOOL, TOFILE,
     SUM, MAX, MIN,
     BUILTIN, BEGIN, BEGINFINAL, BEGINCACHE, END, RETURN, FINAL, IS,
     CALL, WHILE, IF, NEW, BB_PRINT, INLINE, GET, SET, SETFINAL, DEFAULT,
@@ -55,7 +55,7 @@ enum OperationType {
 static const std::string OperationTypeNames[] = {
     "not", "and", "or", "eq", "neq", "le", "ge", "lt", "gt", "add", "sub", "mul", "mmul",
     "div", "mod", "len", "pow", "log", "push", "pop", "next", "put", "at", "shape",
-    "vector", "list", "map", "int", "float", "str", "bool", "copy", "file",
+    "vector", "list", "map", "int", "float", "str", "bool", "file",
     "sum", "max", "min",
     "BUILTIN", "BEGIN", "BEGINFINAL", "CACHE", "END", "return", "final", "IS",
     "call", "while", "if", "new", "print", "inline", "get", "set", "setfinal", "default",
@@ -106,12 +106,15 @@ extern VariableManager variableManager;
 #define IS_INT static_cast<DATTYPETYPE>(2)
 #define IS_BOOL static_cast<DATTYPETYPE>(4)
 #define IS_PTR static_cast<DATTYPETYPE>(8)
-#define IS_PROPERTY_A static_cast<DATTYPETYPE>(16)
-#define IS_PROPERTY_B static_cast<DATTYPETYPE>(32)
+#define IS_FUTURE static_cast<DATTYPETYPE>(16)
+#define IS_PROPERTY_A static_cast<DATTYPETYPE>(64)
+#define IS_PROPERTY_B static_cast<DATTYPETYPE>(128)
 #define IS_NOT_FLOAT (~IS_FLOAT & ~IS_PROPERTY_A & ~IS_PROPERTY_B)
 #define IS_NOT_INT (~IS_INT & ~IS_PROPERTY_A & ~IS_PROPERTY_B)
 #define IS_NOT_BOOL (~IS_BOOL & ~IS_PROPERTY_A & ~IS_PROPERTY_B)
 #define IS_NOT_PTR (~IS_PTR & ~IS_PROPERTY_A & ~IS_PROPERTY_B)
+#define IS_NOT_FUTURE (~IS_FUTURE & ~IS_PROPERTY_A & ~IS_PROPERTY_B)
+#define IS_LIT (IS_FLOAT | IS_INT | IS_BOOL)
 
 #define SAFETYCHECKS
 
@@ -121,6 +124,7 @@ extern VariableManager variableManager;
  * disabled by commenting out the lines with bberror; sefety refers to the language's executable.
  */
 class Data;
+class Future;
 struct DataPtr {
     DataPtr(double data) noexcept : data(std::bit_cast<int64_t>(data)), datatype(IS_FLOAT) {}
     DataPtr(Data* data) noexcept : data(std::bit_cast<int64_t>(data)), datatype(IS_PTR) {}
@@ -131,6 +135,7 @@ struct DataPtr {
         other.data = 0;
         other.datatype = IS_PTR;
     }
+    DataPtr(void* data, DATTYPETYPE datatype) noexcept : data(std::bit_cast<int64_t>(data)), datatype(datatype) {}
     DataPtr(const DataPtr& other) : data(other.data), datatype(other.datatype) {}
     DataPtr& operator=(Data* other) {
         data = std::bit_cast<int64_t>(other);
@@ -183,6 +188,17 @@ struct DataPtr {
         return data;
     }
 
+    inline Future* tofuture() const {
+        #ifdef SAFETYCHECKS
+        if (datatype & IS_NOT_FUTURE) bberror("Internal error: cannot run `tofuture` for a data structure implicitly.");
+        #endif
+        return std::bit_cast<Future*>(data);
+    }
+
+    inline Future* unsafe_tofuture() const {
+        return std::bit_cast<Future*>(data);
+    }
+
     inline Data* get() const {
         #ifdef SAFETYCHECKS
         if (datatype & IS_NOT_PTR) bberror("Internal error: trying to `get` on a builtin that is not stored as a data type");
@@ -203,7 +219,7 @@ struct DataPtr {
         return true;
     }
     inline bool islit() const {
-        return datatype & IS_NOT_PTR;
+        return datatype & IS_LIT;
     }
 
     inline std::string torepr() const {
@@ -226,6 +242,7 @@ struct DataPtr {
     inline bool isfloat() const { return datatype & IS_FLOAT; }
     inline bool isint() const { return datatype & IS_INT; }
     inline bool isbool() const { return datatype & IS_BOOL; }
+    inline bool isfuture() const { return datatype & IS_FUTURE; }
     inline bool isptr() const { return datatype & IS_PTR; }
     inline bool isA() const { return datatype & IS_PROPERTY_A; }
     inline bool isB() const { return datatype & IS_PROPERTY_B; }

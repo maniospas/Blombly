@@ -72,6 +72,12 @@ std::unordered_map<int, DataPtr> cachedData;
 void initialize_dispatch_table() {}
 
 
+struct CompiledCommand {
+    OperationType operation;
+};
+
+
+
 Result ExecutionInstance::run(Code* code) {
     //bbassert(code->getProgram()==&program, "Internal error: it should be impossible to change the global program pointer.");
     auto& program = *code->getProgram();
@@ -80,10 +86,12 @@ Result ExecutionInstance::run(Code* code) {
     try {
     for(;i<=end;++i) {
     const Command& command = program[i];
+
+    //std::cout << command.toString() << "\n";
     
     /*
-     NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, DIV, MOD, LEN, POW, LOG,
-    PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOMAP, TOBB_INT, TOBB_FLOAT, TOSTR, TOBB_BOOL, TOCOPY, TOFILE,
+    NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, DIV, MOD, LEN, POW, LOG,
+    PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOMAP, TOBB_INT, TOBB_FLOAT, TOSTR, TOBB_BOOL, TOFILE,
     SUM, MAX, MIN,
     BUILTIN, BEGIN, BEGINFINAL, BEGINCACHE, END, RETURN, FINAL, IS,
     CALL, WHILE, IF, NEW, BB_PRINT, INLINE, GET, SET, SETFINAL, DEFAULT,
@@ -123,7 +131,6 @@ Result ExecutionInstance::run(Code* code) {
         &&DO_TOBB_FLOAT,
         &&DO_TOSTR,
         &&DO_TOBB_BOOL,
-        &&DO_TOCOPY,
         &&DO_TOFILE,
         &&DO_SUM,
         &&DO_MAX,
@@ -173,6 +180,7 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL((double)(arg0.unsafe_toint()+arg1.unsafe_tofloat()));
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL((double)(arg0.unsafe_tofloat()+arg1.unsafe_toint()));
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()+arg1.unsafe_tofloat());
+        if(arg0.islit() && arg1.islit()) bberror("There was no implementation for add("+arg0.torepr()+", "+arg1.torepr()+")");
         args.arg0 = arg0;
         args.arg1 = arg1;
         args.size = 2;
@@ -185,6 +193,7 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL((double)(arg0.unsafe_toint()-arg1.unsafe_tofloat()));
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL((double)(arg0.unsafe_tofloat()-arg1.unsafe_toint()));
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()-arg1.unsafe_tofloat());
+        if(arg0.islit() && arg1.islit()) bberror("There was no implementation for sub("+arg0.torepr()+", "+arg1.torepr()+")");
         args.arg0 = arg0;
         args.arg1 = arg1;
         args.size = 2;
@@ -197,6 +206,7 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL((double)(arg0.unsafe_toint()*arg1.unsafe_tofloat()));
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL((double)(arg0.unsafe_tofloat()*arg1.unsafe_toint()));
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()*arg1.unsafe_tofloat());
+        if(arg0.islit() && arg1.islit()) bberror("There was no implementation for mul("+arg0.torepr()+", "+arg1.torepr()+")");
         args.arg0 = arg0;
         args.arg1 = arg1;
         args.size = 2;
@@ -209,6 +219,7 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL((double)(arg0.unsafe_toint()/arg1.unsafe_tofloat()));
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL((double)(arg0.unsafe_tofloat()/arg1.unsafe_toint()));
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()/arg1.unsafe_tofloat());
+        if(arg0.islit() && arg1.islit()) bberror("There was no implementation for div("+arg0.torepr()+", "+arg1.torepr()+")");
         args.arg0 = arg0;
         args.arg1 = arg1;
         args.size = 2;
@@ -221,6 +232,7 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(std::pow(arg0.unsafe_toint(), arg1.unsafe_tofloat()));
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(std::pow(arg0.unsafe_tofloat(), arg1.unsafe_toint()));
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(std::pow(arg0.unsafe_tofloat(), arg1.unsafe_tofloat()));
+        if(arg0.islit() && arg1.islit()) bberror("There was no implementation for pow("+arg0.torepr()+", "+arg1.torepr()+")");
         args.arg0 = arg0;
         args.arg1 = arg1;
         args.size = 2;
@@ -230,6 +242,7 @@ Result ExecutionInstance::run(Code* code) {
         const auto& arg0 = memory.get(command.args[1]);
         const auto& arg1 = memory.get(command.args[2]);
         if(arg0.isint() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_toint() % arg1.unsafe_toint());
+        if(arg0.islit() && arg1.islit()) bberror("There was no implementation for mod("+arg0.torepr()+", "+arg1.torepr()+")");
         args.arg0 = arg0;
         args.arg1 = arg1;
         args.size = 2;
@@ -242,6 +255,7 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_toint()<arg1.unsafe_tofloat());
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_tofloat()<arg1.unsafe_toint());
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()<arg1.unsafe_tofloat());
+        if(arg0.islit() && arg1.islit()) bberror("There was no implementation for lt("+arg0.torepr()+", "+arg1.torepr()+")");
         args.arg0 = arg0;
         args.arg1 = arg1;
         args.size = 2;
@@ -254,6 +268,7 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_toint()>arg1.unsafe_tofloat());
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_tofloat()>arg1.unsafe_toint());
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()>arg1.unsafe_tofloat());
+        if(arg0.islit() && arg1.islit()) bberror("There was no implementation for gt("+arg0.torepr()+", "+arg1.torepr()+")");
         args.arg0 = arg0;
         args.arg1 = arg1;
         args.size = 2;
@@ -266,6 +281,7 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_toint()<=arg1.unsafe_tofloat());
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_tofloat()<=arg1.unsafe_toint());
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()<=arg1.unsafe_tofloat());
+        if(arg0.islit() && arg1.islit()) bberror("There was no implementation for le("+arg0.torepr()+", "+arg1.torepr()+")");
         args.arg0 = arg0;
         args.arg1 = arg1;
         args.size = 2;
@@ -278,6 +294,7 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_toint()>=arg1.unsafe_tofloat());
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_tofloat()>=arg1.unsafe_toint());
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()>=arg1.unsafe_tofloat());
+        if(arg0.islit() && arg1.islit()) bberror("There was no implementation for ge("+arg0.torepr()+", "+arg1.torepr()+")");
         args.arg0 = arg0;
         args.arg1 = arg1;
         args.size = 2;
@@ -291,6 +308,7 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_tofloat()==arg1.unsafe_toint());
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()==arg1.unsafe_tofloat());
         if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool()==arg1.unsafe_tobool());
+        if(arg0.islit() && arg1.islit()) bberror("There was no implementation for eq("+arg0.torepr()+", "+arg1.torepr()+")");
         args.arg0 = arg0;
         args.arg1 = arg1;
         args.size = 2;
@@ -304,6 +322,7 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_tofloat()!=arg1.unsafe_toint());
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()!=arg1.unsafe_tofloat());
         if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool()!=arg1.unsafe_tobool());
+        if(arg0.islit() && arg1.islit()) bberror("There was no implementation for neq("+arg0.torepr()+", "+arg1.torepr()+")");
         args.arg0 = arg0;
         args.arg1 = arg1;
         args.size = 2;
@@ -313,6 +332,7 @@ Result ExecutionInstance::run(Code* code) {
         const auto& arg0 = memory.get(command.args[1]);
         const auto& arg1 = memory.get(command.args[2]);
         if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool() && arg1.unsafe_tobool());
+        if(arg0.islit() && arg1.islit()) bberror("There was no implementation for and("+arg0.torepr()+", "+arg1.torepr()+")");
         args.arg0 = arg0;
         args.arg1 = arg1;
         args.size = 2;
@@ -322,14 +342,18 @@ Result ExecutionInstance::run(Code* code) {
         const auto& arg0 = memory.get(command.args[1]);
         const auto& arg1 = memory.get(command.args[2]);
         if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool() && arg1.unsafe_tobool());
+        if(arg0.islit() && arg1.islit()) bberror("There was no implementation for or("+arg0.torepr()+", "+arg1.torepr()+")");
         args.arg0 = arg0;
         args.arg1 = arg1;
         args.size = 2;
         goto FALLBACK;
     }
     DO_MMUL: {
-        args.arg0 = memory.get(command.args[1]);
-        args.arg1 = memory.get(command.args[2]);
+        const auto& arg0 = memory.get(command.args[1]);
+        const auto& arg1 = memory.get(command.args[2]);
+        if(arg0.islit() && arg1.islit()) bberror("There was no implementation for mmul("+arg0.torepr()+", "+arg1.torepr()+")");
+        args.arg0 = arg0;
+        args.arg1 = arg1;
         args.size = 2;
         goto FALLBACK;
     }
@@ -496,7 +520,7 @@ Result ExecutionInstance::run(Code* code) {
     }
     DO_IF: {
         const auto& condition = memory.get(command.args[1]);
-        bbassert(condition.tobool(), "If condition did not evaluate to bool");
+        bbassert(condition.isbool(), "If condition did not evaluate to bool");
 
         if(condition.unsafe_tobool()) {
             const auto& accept = memory.get(command.args[2]);
@@ -614,7 +638,7 @@ Result ExecutionInstance::run(Code* code) {
         auto list = new BList(n-1);
         for(int j=1;j<n;j++) {
             const DataPtr& element = memory.get(command.args[j]);
-            bbassert(!element.existsAndTypeEquals(ERRORTYPE), "Cannot push an error to a list");
+            if(element.existsAndTypeEquals(ERRORTYPE)) bberror("Cannot push an error to a list");
             if(element.exists()) element->addOwner();
             list->contents.push_back(element);
         }
@@ -630,8 +654,7 @@ Result ExecutionInstance::run(Code* code) {
     DO_PUSH: {
         args.arg0 = memory.get(command.args[1]);
         args.arg1 = memory.get(command.args[2]);
-        args.arg2 = memory.get(command.args[3]);
-        args.size = 3;
+        args.size = 2;
         goto FALLBACK;
     }
     DO_PUT: {
@@ -658,7 +681,6 @@ Result ExecutionInstance::run(Code* code) {
     DO_CLEAR: 
     DO_SHAPE: 
     DO_AT: 
-    DO_TOCOPY: 
     DO_TOFILE: 
     DO_TOSQLITE:
     DO_TOITER: {
@@ -763,7 +785,7 @@ Result ExecutionInstance::run(Code* code) {
     }
     DO_CALL: {
         // Function or method call
-        DataPtr context = command.args[1] == variableManager.noneId ? nullptr : memory.get(command.args[1]);
+        const auto& context = command.args[1] == variableManager.noneId ? nullptr : memory.get(command.args[1]);
         DataPtr called = memory.get(command.args[2]);
         bbassert(called.exists(), "Cannot call a missing value or literal.");
         if(called->getType()!=CODE && called->getType()!=STRUCT) {
@@ -783,17 +805,14 @@ Result ExecutionInstance::run(Code* code) {
             called = (val);
         }
         auto code = static_cast<Code*>(called.get());
-        if(forceStayInThread || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
+        if(true || forceStayInThread || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
             BMemory newMemory(&memory, LOCAL_EXPECTATION_FROM_CODE(code));
             if(context.exists()) {
                 bbassert(context.existsAndTypeEquals(CODE), "Call context must be a code block.");
                 Code* callCode = static_cast<Code*>(context.get());
                 ExecutionInstance executor(callCode, &newMemory, forceStayInThread);
                 Result returnedValue = executor.run(callCode);
-                if(executor.hasReturned()) {
-                    result = returnedValue.get();
-                    DISPATCH_COMPUTED_RESULT;
-                }
+                if(executor.hasReturned()) DISPATCH_RESULT(returnedValue.get());
             }
             auto it = memory.codeOwners.find(code);
             const auto& thisObj = (it != memory.codeOwners.end() ? it->second->getMemory() : &memory)->getOrNull(variableManager.thisId, true);
@@ -807,7 +826,6 @@ Result ExecutionInstance::run(Code* code) {
             newMemory.allowMutables = false;
             bool forceStayInThread = thisObj.exists(); // overwrite the option
             ExecutionInstance executor(code, &newMemory, forceStayInThread);
-            newMemory.detach(nullptr);
             Result returnedValue = executor.run(code);
             result = returnedValue.get();
             if(thisObj.exists()) newMemory.set(variableManager.thisId, nullptr);
@@ -837,7 +855,7 @@ Result ExecutionInstance::run(Code* code) {
             result = future;
             DISPATCH_COMPUTED_RESULT;
         }
-    } 
+    }
 
     /*
     *  CASES END HERE

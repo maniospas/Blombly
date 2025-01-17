@@ -80,9 +80,12 @@ int BMemory::find(int item) const {
 
 const DataPtr& BMemory::get(int item) { // allowMutable = true
     int idx = find(item);
-    if(idx==end) bberror("Missing value: " + variableManager.getSymbol(item));
+    if(idx==end) {
+        if(parent) return parent->get(item, allowMutables);
+        bberror("Missing value: " + variableManager.getSymbol(item));
+    }
     const auto& ret = contents[idx];
-    if (ret.existsAndTypeEquals(FUTURE)) {
+    if (ret.isfuture()) {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get()); 
@@ -92,16 +95,19 @@ const DataPtr& BMemory::get(int item) { // allowMutable = true
     }
     if (!ret.islitorexists()) {
         bbassert(parent, "Missing value: " + variableManager.getSymbol(item));
-        if(parent) return parent->get(item, allowMutables);
+        return parent->get(item, allowMutables);
     }
     return ret;
 }
 
 const DataPtr& BMemory::get(int item, bool allowMutable) {
     int idx = find(item);
-    if(idx==end) bberror("Missing value: " + variableManager.getSymbol(item));
+    if(idx==end) {
+        if(parent) return parent->get(item, allowMutables);
+        bberror("Missing value: " + variableManager.getSymbol(item));
+    }
     const auto& ret = contents[idx];
-    if (ret.existsAndTypeEquals(FUTURE)) {
+    if (ret.isfuture()) {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get()); 
@@ -110,7 +116,7 @@ const DataPtr& BMemory::get(int item, bool allowMutable) {
         bbassert(ret.islitorexists(), "Missing value: " + variableManager.getSymbol(item));
         return get(item, allowMutable);
     }
-    if (ret.islitorexists()) {bbassert(allowMutable || ret.isA(), "Mutable symbol cannot be requested from another scope: " + variableManager.getSymbol(item));}
+    if (ret.islitorexists()) {bbassert(allowMutable || ret.isA(), "Non-final symbol found but cannot be accessed from another scope: " + variableManager.getSymbol(item));}
     else if (parent) return parent->get(item, allowMutables && allowMutable);
     bbassert(ret.islitorexists(), "Missing value: " + variableManager.getSymbol(item));
     return ret;
@@ -120,7 +126,7 @@ const DataPtr& BMemory::getShallow(int item) {
     int idx = find(item);
     if(idx==end) bberror("Missing value: " + variableManager.getSymbol(item));
     const auto& ret = contents[idx];
-    if (ret.existsAndTypeEquals(FUTURE)) {
+    if (ret.isfuture()) {
         //std::cout << "here4\n";
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
@@ -136,7 +142,7 @@ const DataPtr& BMemory::getOrNullShallow(int item) {
     int idx = find(item);
     if(idx==end) return DataPtr::NULLP;
     const auto& ret = contents[idx];
-    if (ret.existsAndTypeEquals(FUTURE)) {
+    if (ret.isfuture()) {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get());
@@ -150,7 +156,7 @@ const DataPtr& BMemory::getOrNull(int item, bool allowMutable) {
     int idx = find(item);
     if(idx==end) return DataPtr::NULLP;
     const auto& ret = contents[idx];
-    if (ret.existsAndTypeEquals(FUTURE)) {
+    if (ret.isfuture()) {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get());
@@ -202,7 +208,9 @@ void BMemory::set(int item, const DataPtr& value) {
     if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
     if(value.exists()) value->addOwner();
     if(prev.exists()) prev->removeFromOwner();
-    prev = value;
+
+    if(value.existsAndTypeEquals(FUTURE)) prev = DataPtr(value.get(), IS_FUTURE);
+    else prev = value;
 }
 
 void BMemory::unsafeSet(int item, const DataPtr& value) {
@@ -223,7 +231,9 @@ void BMemory::unsafeSet(int item, const DataPtr& value) {
     if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
     if(value.exists()) value->addOwner();
     if(prev.exists()) prev->removeFromOwner();
-    prev = value;
+
+    if(value.existsAndTypeEquals(FUTURE)) prev = DataPtr(value.get(), IS_FUTURE);
+    else prev = value;
     if(prevFinal) prev.setA(true);
 }
 

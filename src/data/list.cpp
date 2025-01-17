@@ -26,7 +26,7 @@ std::string BList::toString(BMemory* memory){
     int64_t n = contents.size();
     for(int64_t i=front;i<n;++i) {
         if (result.size()!=1) result += ", ";
-        if(contents[i].exists()) result += contents[i]->toString(memory); else result += " ";
+        if(contents[i].exists()) result += contents[i]->toString(memory); else result += contents[i].torepr();
     }
     return result + "]";
 }
@@ -45,22 +45,26 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
     
     if (args->size == 1) {
         switch (operation) {
-            case LEN: return std::move(Result(new Integer(contents.size()-front)));
+            case LEN: {
+                int res = contents.size()-front;
+                return std::move(Result(res));
+            }
             case TOITER: return std::move(Result(new AccessIterator(args->arg0)));
             case NEXT: {
                 if (front >= contents.size()) return std::move(Result(OUT_OF_RANGE));
-                auto ret = Result(contents[front]);
-                //contents.erase(contents.begin());
+                const auto& element = contents[front];
+                auto ret = Result(element);
                 front++;
                 resizeContents();
-                ret.get()->removeFromOwner();
+                if(element.exists()) element->removeFromOwner();
                 return std::move(ret);
             }
             case POP: {
                 if (contents.empty()) return std::move(Result(OUT_OF_RANGE));
-                auto ret = Result(contents.back());
+                const auto& element = contents.back();
+                auto ret = Result(element);
                 contents.pop_back();
-                //ret.get()->removeFromOwner();
+                if(element.exists()) element->removeFromOwner();
                 return std::move(ret);
             }
             case CLEAR : {
@@ -179,10 +183,10 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
 
     if (operation == PUSH && args->size == 2 && args->arg0 == this) {
         auto value = args->arg1;
-        bbassert(value.exists(), "Cannot push a missing value to a list");
-        bbassert(value->getType()!=ERRORTYPE, "Cannot push an error to a list");
-        value->addOwner();
-        contents.push_back((value));
+        bbassert(value.islitorexists(), "Cannot push a missing value to a list");
+        if(value.existsAndTypeEquals(ERRORTYPE)) bberror("Cannot push an error to a list");
+        if(value.exists())value->addOwner();
+        contents.push_back(value);
         return std::move(Result(this));
     }
 

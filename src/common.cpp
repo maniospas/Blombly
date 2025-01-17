@@ -17,7 +17,7 @@ OperationType getOperationType(const std::string &str) {
     auto it = toOperationTypeMap.find(str);
     if (it != toOperationTypeMap.end()) return it->second;
     bberror("Invalid operation name "+str);
-    return TOCOPY;
+    return END;
 }
 
 std::string getOperationTypeName(OperationType type) {

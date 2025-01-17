@@ -290,7 +290,7 @@ Jitable* jit(const Code* code) {
         if(cmd.nargs>1) usageCounts[cmd.args[1]]++;
         if(cmd.nargs>2) usageCounts[cmd.args[2]]++;
         if(cmd.nargs>3) usageCounts[cmd.args[3]]++;
-        knownStates[cmd.args[0]] = TOCOPY;  // use TOCOPY as an operator that can never be jitted
+        knownStates[cmd.args[0]] = END;  // use TOCOPY as an operator that can never be jitted
     }
 
     int start_jit_from = -1;
@@ -324,7 +324,7 @@ Jitable* jit(const Code* code) {
         if(cmd.operation==POW && knownStates[cmd.args[1]]==TOBB_INT && knownStates[cmd.args[2]]==TOBB_INT) knownStates[cmd.args[0]] = TOBB_INT;
         //if(cmd.operation==TOLIST) return nullptr;
         
-        bool known_state_for_everything = start_jit_from==-1 || prev_known_state==knownStates[cmd.args[0]] || prev_known_state==TOCOPY;
+        bool known_state_for_everything = start_jit_from==-1 || prev_known_state==knownStates[cmd.args[0]] || prev_known_state==END;
         if(cmd.operation==TOLIST)
             known_state_for_everything = false;
         if(known_state_for_everything)
@@ -334,7 +334,7 @@ Jitable* jit(const Code* code) {
                     && operation != TOBB_BOOL
                     && operation != TOVECTOR
                     && operation != BUILTIN 
-                    && operation != TOCOPY 
+                    && operation != END 
                     && usageCounts[cmd.args[0]]) {
                         known_state_for_everything = false;
                         break;
@@ -401,7 +401,7 @@ Jitable* jit(const Code* code) {
             body += "  "+type+" "+variableManager.getSymbol(symbol)+";\n";
         }
 
-        int returnType = TOCOPY;
+        int returnType = END;
         for (int i = start_jit_from+1; i<end; ++ i) {
             const Command& com = program->at(i);
             if(com.operation==ADD) body += "  "+variableManager.getSymbol(com.args[0])+"="+variableManager.getSymbol(com.args[1])+"+"+variableManager.getSymbol(com.args[2])+";\n";
@@ -415,7 +415,7 @@ Jitable* jit(const Code* code) {
                 //body += "  *_bbjitret = "+variableManager.getSymbol(com.args[1])+";\n";
                 //body += "  return _bbjitret;\n";
                 body += "  return "+variableManager.getSymbol(com.args[1])+";\n";
-                if(returnType!=TOCOPY && returnType!=knownStates[com.args[1]]) return nullptr;  // if different types are returned per case, we cannot JIT
+                if(returnType!=END && returnType!=knownStates[com.args[1]]) return nullptr;  // if different types are returned per case, we cannot JIT
                 returnType = knownStates[com.args[1]];
             }
             else {

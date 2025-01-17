@@ -2,9 +2,13 @@
 #include "data/Data.h" // Assuming Data is implemented elsewhere
 
 
-Result::Result(DataPtr data) : data(data) {
+Result::Result(DataPtr data) noexcept : data(data)  {
     if (data.exists()) data->addOwner();
 }
+
+//Result::Result(const DataPtr& data) noexcept : data(data) {
+//    if (data.exists()) data->addOwner();
+//}
 
 Result::Result(Result& other) noexcept : data(other.data) {
     //other.data = nullptr;

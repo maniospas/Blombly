@@ -130,7 +130,6 @@ Result Integer::implement(const OperationType operation, BuiltinArgs* args, BMem
 
     if (args->size == 1) {
         switch (operation) {
-            case TOCOPY:
             case TOBB_INT: BB_INT_RESULT(value);
             case TOBB_FLOAT: BB_FLOAT_RESULT(value);
             case TOSTR: STRING_RESULT(std::to_string(value));

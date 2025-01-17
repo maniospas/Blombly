@@ -140,7 +140,6 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
 
     if (args->size == 1) {
         switch (operation) {
-            case TOCOPY:
             case TOSTR: STRING_RESULT(toString(memory));
             case TOBB_INT: {
                 char* endptr = nullptr;
@@ -217,7 +216,7 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
     if(operation == TOGRAPHICS && args->size==3 && args->arg1->getType()==BB_INT && args->arg2->getType()==BB_INT) {
         int width = static_cast<Integer*>(args->arg1.get())->getValue();
         int height = static_cast<Integer*>(args->arg2.get())->getValue();
-        return std::move(Result(new Graphics(toString(memory), width, height)));
+        return std::move(Result(DataPtr(new Graphics(toString(memory), width, height))));
     }
 
 

@@ -8,7 +8,8 @@ private:
     DataPtr data;
 
 public:
-    explicit Result(DataPtr data);
+    explicit Result(DataPtr data) noexcept;
+    //explicit Result(const DataPtr& data) noexcept;
     explicit Result(Result& other) noexcept;
     Result(Result&& other) noexcept;
     ~Result();
