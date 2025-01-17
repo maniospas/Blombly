@@ -204,7 +204,7 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
                 nextArgs.size = 1;  // important to have this here, as the iterator adds an argument to nextArgs internally to save up on memory
                 Result nextResult = iterator->implement(NEXT, &nextArgs, memory);
                 DataPtr indexData = nextResult.get();
-                if (indexData == OUT_OF_RANGE) break; 
+                if (indexData.get() == OUT_OF_RANGE) break; 
                 bbassert(indexData.exists() && indexData->getType() == BB_INT, "String index iterator must contain integers: "+args->arg1->toString(memory));
                 int index = static_cast<Integer*>(indexData.get())->getValue();
                 if (index < 0 || index >= size) 

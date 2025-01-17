@@ -117,6 +117,10 @@ Result executeBlock(Code* code, BMemory* memory, bool  &returnSignal, bool force
 #define IS_NOT_PTR ~IS_PTR
 
 
+/**
+ * The DataPtr class has both safety and optimization features. The safety features can be
+ * disabled by commenting out the lines with bberror; sefety refers to the language's executable.
+ */
 class Data;
 struct DataPtr {
     DataPtr(double data) noexcept : data(std::bit_cast<int64_t>(data)), datatype(IS_FLOAT) {}
@@ -152,36 +156,37 @@ struct DataPtr {
     }
     DataPtr(): data(0), datatype(IS_PTR) {}
 
-    Data* operator->() const {
-        if (datatype & IS_NOT_PTR) bberror("Internal error: trying to -> on a builting that is not stored as a data type");
+    inline Data* operator->() const {
+        //if (datatype & IS_NOT_PTR) bberror("Internal error: trying to -> on a builtin that is not stored as a data type");
         return std::bit_cast<Data*>(data);
     }
 
-    double tofloat() const {
-        if (datatype & IS_PTR) return this->tofloat();
+    inline double tofloat() const {
+        if (datatype & IS_PTR) bberror("Internal error: cannot run `tobool` for a data structure implicitly.");
         if (datatype & IS_NOT_FLOAT) return data;
         return std::bit_cast<double>(data);
     }
 
-    int64_t toint() const {
-        if (datatype & IS_PTR) return this->toint();
+    inline int64_t toint() const {
+        if (datatype & IS_PTR) bberror("Internal error: cannot run `toint` for a data structure implicitly.");
         if (datatype & IS_FLOAT) return std::bit_cast<double>(data);
         return data;
     }
 
-    bool tobool() const {
-        if (datatype & IS_PTR) return this->tobool();
+    inline bool tobool() const {
+        if (datatype & IS_PTR) bberror("Internal error: cannot run `tobool` for a data structure implicitly.");
         return data;
     }
 
-    Data* get() const {
-        if (datatype & IS_NOT_PTR) bberror("Internal error: trying to `get` on a builting that is not stored as a data type");
+    inline Data* get() const {
+        if (datatype & IS_NOT_PTR) bberror("Internal error: trying to `get` on a builtin that is not stored as a data type");
+        if (!data)  bberror("Internal error: Trying to `get` a null pointer. This should not happen as everything should be guarded by testing whether the pointer `exists` first."); 
         return std::bit_cast<Data*>(data);
     }
 
-    bool exists() const {
+    inline bool exists() const {
         if(datatype & IS_PTR) return data;
-        return true;
+        return true; // the "object" is always there if there is no data structure
     }
 
     bool operator==(const DataPtr& other) const {

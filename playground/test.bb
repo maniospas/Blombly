@@ -8,6 +8,7 @@ print(ret);
 // direct equivalent in Python 3.12.7  43 sec
 // direct equivalent in C++            0.27 sec
 // prototype of improved memory model  2.4 sec (volatile everywhere, so some optimization may be ignored)
+// adding safeptrs from prototype      99 sec (10% slowdown, expecting this to be the worst case slowdown for non-improved code, 3 sec faster if no safety checks)
 
 
 // * C++ and prototype optimized with -O3, blombly is always optimized with -O2
