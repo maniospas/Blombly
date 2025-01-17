@@ -28,17 +28,17 @@ Result Data::run(const OperationType operation, BuiltinArgs *args, BMemory* memo
     if (args->size > 0) {
         auto arg = args->arg0;
         if (i++) err += ",";
-        if (arg) err += datatypeName[arg->getType()];
+        if (arg.exists()) err += datatypeName[arg->getType()];
     }
     if (args->size > 1) {
         auto arg = args->arg1;
         if (i++) err += ",";
-        if (arg) err += datatypeName[arg->getType()];
+        if (arg.exists()) err += datatypeName[arg->getType()];
     }
     if (args->size > 2) {
         auto arg = args->arg2;
         if (i++) err += ",";
-        if (arg) err += datatypeName[arg->getType()];
+        if (arg.exists()) err += datatypeName[arg->getType()];
     }
     err += ")";
     bberror(err);

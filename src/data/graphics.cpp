@@ -111,12 +111,12 @@ void Graphics::render() {
             bbassert(list->contents[5]->getType() == BB_FLOAT || list->contents[5]->getType() == BB_INT, "Fifth element must be a float or integer (angle)");
 
             // Render text
-            std::string text = static_cast<BString*>(list->contents[0])->toString(nullptr);
-            std::string fontPath = static_cast<BString*>(list->contents[1])->toString(nullptr);
-            double fontSize = list->contents[2]->getType() == BB_INT ? static_cast<Integer*>(list->contents[2])->getValue() : static_cast<BFloat*>(list->contents[2])->getValue();
-            double x = list->contents[3]->getType() == BB_INT ? static_cast<Integer*>(list->contents[3])->getValue() : static_cast<BFloat*>(list->contents[3])->getValue();
-            double y = list->contents[4]->getType() == BB_INT ? static_cast<Integer*>(list->contents[4])->getValue() : static_cast<BFloat*>(list->contents[4])->getValue();
-            double angle = static_cast<BFloat*>(list->contents[4])->getValue();
+            std::string text = static_cast<BString*>(list->contents[0].get())->toString(nullptr);
+            std::string fontPath = static_cast<BString*>(list->contents[1].get())->toString(nullptr);
+            double fontSize = list->contents[2]->getType() == BB_INT ? static_cast<Integer*>(list->contents[2].get())->getValue() : static_cast<BFloat*>(list->contents[2].get())->getValue();
+            double x = list->contents[3]->getType() == BB_INT ? static_cast<Integer*>(list->contents[3].get())->getValue() : static_cast<BFloat*>(list->contents[3].get())->getValue();
+            double y = list->contents[4]->getType() == BB_INT ? static_cast<Integer*>(list->contents[4].get())->getValue() : static_cast<BFloat*>(list->contents[4].get())->getValue();
+            double angle = static_cast<BFloat*>(list->contents[4].get())->getValue();
 
             TTF_Font* font = getFont(fontPath, static_cast<int>(fontSize + 0.5));
             SDL_Color color = {255, 255, 255, 255};
@@ -138,12 +138,12 @@ void Graphics::render() {
             bbassert(list->contents[5]->getType() == BB_FLOAT || list->contents[5]->getType() == BB_INT, "Sixth element must be a float or integer (angle)");
 
             // Render texture
-            std::string texturePath = static_cast<BString*>(list->contents[0])->toString(nullptr);
-            double x = list->contents[1]->getType() == BB_INT ? static_cast<Integer*>(list->contents[1])->getValue() : static_cast<BFloat*>(list->contents[1])->getValue();
-            double y = list->contents[2]->getType() == BB_INT ? static_cast<Integer*>(list->contents[2])->getValue() : static_cast<BFloat*>(list->contents[2])->getValue();
-            double dx = list->contents[3]->getType() == BB_INT ? static_cast<Integer*>(list->contents[3])->getValue() : static_cast<BFloat*>(list->contents[3])->getValue();
-            double dy = list->contents[4]->getType() == BB_INT ? static_cast<Integer*>(list->contents[4])->getValue() : static_cast<BFloat*>(list->contents[4])->getValue();
-            double angle = list->contents[5]->getType() == BB_INT ? static_cast<Integer*>(list->contents[5])->getValue() : static_cast<BFloat*>(list->contents[5])->getValue();
+            std::string texturePath = static_cast<BString*>(list->contents[0].get())->toString(nullptr);
+            double x = list->contents[1]->getType() == BB_INT ? static_cast<Integer*>(list->contents[1].get())->getValue() : static_cast<BFloat*>(list->contents[1].get())->getValue();
+            double y = list->contents[2]->getType() == BB_INT ? static_cast<Integer*>(list->contents[2].get())->getValue() : static_cast<BFloat*>(list->contents[2].get())->getValue();
+            double dx = list->contents[3]->getType() == BB_INT ? static_cast<Integer*>(list->contents[3].get())->getValue() : static_cast<BFloat*>(list->contents[3].get())->getValue();
+            double dy = list->contents[4]->getType() == BB_INT ? static_cast<Integer*>(list->contents[4].get())->getValue() : static_cast<BFloat*>(list->contents[4].get())->getValue();
+            double angle = list->contents[5]->getType() == BB_INT ? static_cast<Integer*>(list->contents[5].get())->getValue() : static_cast<BFloat*>(list->contents[5].get())->getValue();
 
             SDL_Texture* texture = getTexture(texturePath);
             SDL_Rect dstRect = {static_cast<int>(x + 0.5), static_cast<int>(y + 0.5), static_cast<int>(dx + 0.5), static_cast<int>(dy + 0.5)};
@@ -169,7 +169,7 @@ Result Graphics::implement(const OperationType operation, BuiltinArgs* args, BMe
     }
     if (operation == PUSH && args->size == 2 && args->arg1->getType() == LIST) {
         args->arg1->addOwner();
-        push(static_cast<BList*>(args->arg1));
+        push(static_cast<BList*>(args->arg1.get()));
         return std::move(Result(this));
     }
     if (operation == POP && args->size == 1) {

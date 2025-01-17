@@ -421,7 +421,7 @@ bool BFile::exists() const {
 Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
         loadContents();
-        int64_t lineNum = static_cast<Integer*>(args->arg1)->getValue();
+        int64_t lineNum = static_cast<Integer*>(args->arg1.get())->getValue();
         if (lineNum < 0 || lineNum >= contents.size()) return std::move(Result(OUT_OF_RANGE));
         std::string lineContent = contents[lineNum];
         STRING_RESULT(lineContent);
@@ -541,7 +541,7 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
         }
         else if(param=="timeout") {
             bbassert(args->arg2->getType()==BB_INT, param+" must an int");
-            timeout = static_cast<Integer*>(args->arg2)->getValue();
+            timeout = static_cast<Integer*>(args->arg2.get())->getValue();
         }
         else bberror("Only \"username\", \"password\", or \"timeout\" parameters can be set.");
         return std::move(Result(nullptr));

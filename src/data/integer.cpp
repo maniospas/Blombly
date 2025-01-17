@@ -69,7 +69,7 @@ void Integer::setValue(int64_t val) {
 bool Integer::isSame(DataPtr other) {
     if(other->getType()!=BB_INT)
         return false;
-    return static_cast<Integer*>(other)->value==value;
+    return static_cast<Integer*>(other.get())->value==value;
 }
 
 
@@ -83,8 +83,8 @@ Result Integer::implement(const OperationType operation, BuiltinArgs* args, BMem
         int64_t type1 = args->arg1->getType();
 
         if (type0 == BB_INT && type1 == BB_INT) {
-            int64_t v1 = static_cast<Integer*>(args->arg0)->getValue();
-            int64_t v2 = static_cast<Integer*>(args->arg1)->getValue();
+            int64_t v1 = static_cast<Integer*>(args->arg0.get())->getValue();
+            int64_t v2 = static_cast<Integer*>(args->arg1.get())->getValue();
 
             switch (operation) {
                 case EQ: BB_BOOLEAN_RESULT(v1 == v2);
@@ -103,10 +103,10 @@ Result Integer::implement(const OperationType operation, BuiltinArgs* args, BMem
             }
         } 
         else if ((type0 == BB_FLOAT || type0 == BB_INT) && (type1 == BB_FLOAT || type1 == BB_INT)) {
-            double v1 = type0 == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg0)->getValue())
-                                     : static_cast<BFloat*>(args->arg0)->getValue();
-            double v2 = type1 == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg1)->getValue())
-                                     : static_cast<BFloat*>(args->arg1)->getValue();
+            double v1 = type0 == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg0.get())->getValue())
+                                     : static_cast<BFloat*>(args->arg0.get())->getValue();
+            double v2 = type1 == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg1.get())->getValue())
+                                     : static_cast<BFloat*>(args->arg1.get())->getValue();
 
             switch (operation) {
                 case EQ: BB_BOOLEAN_RESULT(v1 == v2);
@@ -145,15 +145,15 @@ Result Integer::implement(const OperationType operation, BuiltinArgs* args, BMem
     
     if (args->size == 3 && operation == TORANGE) {
         if(args->arg0->getType()==BB_INT && args->arg1->getType()==BB_INT && args->arg2->getType()==BB_INT) {
-            int64_t v0 = static_cast<Integer*>(args->arg0)->getValue();
-            int64_t v1 = static_cast<Integer*>(args->arg1)->getValue();
-            int64_t v2 = static_cast<Integer*>(args->arg2)->getValue();
+            int64_t v0 = static_cast<Integer*>(args->arg0.get())->getValue();
+            int64_t v1 = static_cast<Integer*>(args->arg1.get())->getValue();
+            int64_t v2 = static_cast<Integer*>(args->arg2.get())->getValue();
             return std::move(Result(new IntRange(v0, v1, v2)));
         }
         else {
-            double v0 = args->arg0->getType() == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg0)->getValue()) : static_cast<BFloat*>(args->arg0)->getValue();
-            double v1 = args->arg1->getType() == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg1)->getValue()) : static_cast<BFloat*>(args->arg1)->getValue();
-            double v2 = args->arg2->getType() == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg2)->getValue()) : static_cast<BFloat*>(args->arg2)->getValue();
+            double v0 = args->arg0->getType() == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg0.get())->getValue()) : static_cast<BFloat*>(args->arg0.get())->getValue();
+            double v1 = args->arg1->getType() == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg1.get())->getValue()) : static_cast<BFloat*>(args->arg1.get())->getValue();
+            double v2 = args->arg2->getType() == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg2.get())->getValue()) : static_cast<BFloat*>(args->arg2.get())->getValue();
             return std::move(Result(new FloatRange(v0, v1, v2)));
         }
     }

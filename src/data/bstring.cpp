@@ -80,9 +80,8 @@ std::string BString::toString(BMemory* memory){
 }
 
 bool BString::isSame(DataPtr other) {
-    if (other->getType() != STRING) 
-        return false;
-    return toString(nullptr) == static_cast<BString*>(other)->toString(nullptr);
+    if (other->getType() != STRING) return false;
+    return toString(nullptr) == static_cast<BString*>(other.get())->toString(nullptr);
 }
 
 size_t BString::toHash() const {
@@ -95,8 +94,8 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
         consolidate();
     if (args->size == 2 && args->arg0->getType() == STRING && args->arg1->getType() == STRING) {
         if(operation==ADD) {
-            auto v1 = static_cast<BString*>(args->arg0);
-            auto v2 = static_cast<BString*>(args->arg1);
+            auto v1 = static_cast<BString*>(args->arg0.get());
+            auto v2 = static_cast<BString*>(args->arg1.get());
             std::lock_guard<std::recursive_mutex> lock(v2->memoryLock);
             BString* ret = new BString();
             ret->buffer.insert(ret->buffer.end(), v1->buffer.begin(), v1->buffer.end());
@@ -104,8 +103,8 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
             ret->size = v1->size + v2->size;
             return std::move(Result(ret)); 
         }
-        std::string v1 = static_cast<BString*>(args->arg0)->toString(memory);
-        std::string v2 = static_cast<BString*>(args->arg1)->toString(memory);
+        std::string v1 = static_cast<BString*>(args->arg0.get())->toString(memory);
+        std::string v2 = static_cast<BString*>(args->arg1.get())->toString(memory);
 
         if (operation == AT) {
             bbassert(v2 == "md5" || v2 == "sha1" || v2 == "sha256" || v2 == "sha512" ||
@@ -170,7 +169,7 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
     }
 
     if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
-        int64_t index = static_cast<Integer*>(args->arg1)->getValue();
+        int64_t index = static_cast<Integer*>(args->arg1.get())->getValue();
         if(index>=buffer.front()->value.size()) consolidate();
         if (index < 0 || index >= toString(memory).size()) return std::move(Result(OUT_OF_RANGE));
         return std::move(Result(new BString(std::string(1, toString(memory)[index]))));
@@ -183,8 +182,8 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
         implargs.arg0 = args->arg1;
         auto res = args->arg1->implement(TOITER, &implargs, memory);
         DataPtr _iterator = res.get();
-        bbassert(_iterator && _iterator->getType() == ITERATOR, "String index is neither an integer nor can be converted to an iterator viat `iter`: "+args->arg1->toString(memory));
-        Iterator* iterator = static_cast<Iterator*>(_iterator);
+        bbassert(_iterator.exists() && _iterator->getType() == ITERATOR, "String index is neither an integer nor can be converted to an iterator viat `iter`: "+args->arg1->toString(memory));
+        Iterator* iterator = static_cast<Iterator*>(_iterator.get());
 
         // Treat contiguous iterators more efficiently
         if (iterator->isContiguous()) {
@@ -205,10 +204,9 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
                 nextArgs.size = 1;  // important to have this here, as the iterator adds an argument to nextArgs internally to save up on memory
                 Result nextResult = iterator->implement(NEXT, &nextArgs, memory);
                 DataPtr indexData = nextResult.get();
-                if (indexData == OUT_OF_RANGE) 
-                    break; 
-                bbassert(indexData && indexData->getType() == BB_INT, "String index iterator must contain integers: "+args->arg1->toString(memory));
-                int index = static_cast<Integer*>(indexData)->getValue();
+                if (indexData == OUT_OF_RANGE) break; 
+                bbassert(indexData.exists() && indexData->getType() == BB_INT, "String index iterator must contain integers: "+args->arg1->toString(memory));
+                int index = static_cast<Integer*>(indexData.get())->getValue();
                 if (index < 0 || index >= size) 
                     return std::move(Result(OUT_OF_RANGE));
                 result += front->value[index];
@@ -219,8 +217,8 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
     }
 
     if(operation == TOGRAPHICS && args->size==3 && args->arg1->getType()==BB_INT && args->arg2->getType()==BB_INT) {
-        int width = static_cast<Integer*>(args->arg1)->getValue();
-        int height = static_cast<Integer*>(args->arg2)->getValue();
+        int width = static_cast<Integer*>(args->arg1.get())->getValue();
+        int height = static_cast<Integer*>(args->arg2.get())->getValue();
         return std::move(Result(new Graphics(toString(memory), width, height)));
     }
 

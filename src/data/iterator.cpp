@@ -33,8 +33,8 @@ Result AccessIterator::implement(const OperationType operation, BuiltinArgs* arg
         args.size = 1;
         Result lenValue = object->implement(LEN, &args, memory);
         DataPtr len = lenValue.get();
-        bbassert(len && len->getType()==BB_INT, "`len` failed to return an integer");
-        size = static_cast<Integer*>(len)->getValue();
+        bbassert(len.exists() && len->getType()==BB_INT, "`len` failed to return an integer");
+        size = static_cast<Integer*>(len.get())->getValue();
     }
 
     if (args->size == 1 && operation == NEXT) {

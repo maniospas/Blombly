@@ -84,8 +84,8 @@ std::string BHashMap::toString(BMemory* memory) {
 }
 
 void BHashMap::put(DataPtr from, DataPtr to) {
-    bbassert(from, "Missing key");
-    bbassert(to, "Missing map value");
+    bbassert(from.exists(), "Missing key");
+    bbassert(to.exists(), "Missing map value");
     bbassert(from->getType()!=ERRORTYPE, "Cannot have an error as a map key");
     bbassert(to->getType()!=ERRORTYPE, "Cannot have an error as a map value");
 
@@ -147,8 +147,8 @@ Result BHashMap::implement(const OperationType operation, BuiltinArgs* args, BMe
         Result iterResult = keyData->implement(TOITER, &implArgs, memory);
         DataPtr iterator = iterResult.get();
 
-        if (iterator && iterator->getType() == ITERATOR) {
-            Iterator* iter = static_cast<Iterator*>(iterator);
+        if (iterator.exists() && iterator->getType() == ITERATOR) {
+            Iterator* iter = static_cast<Iterator*>(iterator.get());
             std::lock_guard<std::recursive_mutex> lock(memoryLock);
 
             BList* resultList = new BList();
@@ -160,7 +160,7 @@ Result BHashMap::implement(const OperationType operation, BuiltinArgs* args, BMe
                     Result nextKeyResult = iter->implement(NEXT, &implArgs, memory);
                     DataPtr nextKey = nextKeyResult.get();
 
-                    if (!nextKey) break; // Iterator exhausted
+                    if (!nextKey.exists()) break; // Iterator exhausted
 
                     // Find the value corresponding to the key
                     size_t keyHash = nextKey->toHash();
@@ -180,13 +180,13 @@ Result BHashMap::implement(const OperationType operation, BuiltinArgs* args, BMe
                     }
                 }
             } catch (...) {
-                for (DataPtr item : resultList->contents) if (item) item->removeFromOwner();
+                for (DataPtr item : resultList->contents) if (item.exists()) item->removeFromOwner();
                 delete resultList;
                 throw;
             }
 
             if (!allKeysFound) {
-                for (DataPtr item : resultList->contents)  if (item) item->removeFromOwner();
+                for (DataPtr item : resultList->contents)  if (item.exists()) item->removeFromOwner();
                 delete resultList;
                 return Result(OUT_OF_RANGE);
             }

@@ -104,7 +104,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemo
     if (operation == AT && args->size == 2) {
         if (args->arg1->getType() == BB_INT) {
             std::lock_guard<std::recursive_mutex> lock(memoryLock);
-            int index = static_cast<Integer*>(args->arg1)->getValue();
+            int index = static_cast<Integer*>(args->arg1.get())->getValue();
             if (natdims) {
                 for (int i = 0; i < natdims; ++i) {
                     index *= dims[i + 1];
@@ -124,10 +124,9 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemo
 
             Result iter = args->arg1->implement(TOITER, &implargs, memory);
             DataPtr iterator = iter.get();
-            bbassert(iterator && iterator->getType() == ITERATOR, 
-                    "Can only find vector indexes based on an iterable object, but a non-iterable struct was provided.");
+            bbassert(iterator.exists() && iterator->getType() == ITERATOR, "Can only find vector indexes based on an iterable object, but a non-iterable struct was provided.");
 
-            Iterator* iterPtr = static_cast<Iterator*>(iterator);
+            Iterator* iterPtr = static_cast<Iterator*>(iterator.get());
 
             // Efficiently handle contiguous iterators
             if (iterPtr->isContiguous()) {
@@ -151,11 +150,11 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemo
                     implargs.size = 1;
                     Result next = iterator->implement(NEXT, &implargs, memory);
                     DataPtr indexData = next.get();
-                    if (!indexData || indexData == OUT_OF_RANGE) break;
+                    if (!indexData.exists() || indexData.get() == OUT_OF_RANGE) break;
                     bbassert(indexData->getType() == BB_INT, 
                             "Iterable vector indexes can only contain integers.");
 
-                    int64_t idx = static_cast<Integer*>(indexData)->getValue();
+                    int64_t idx = static_cast<Integer*>(indexData.get())->getValue();
                     if (idx < 0 || idx >= size) return std::move(Result(OUT_OF_RANGE));
 
                     resultVec->data[indexCount++] = data[idx];
@@ -169,13 +168,13 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemo
     if (operation == PUT && args->size == 3 && args->arg1->getType() == BB_INT) {
         double value;
         if(args->arg2->getType() == BB_FLOAT)
-            value = static_cast<BFloat*>(args->arg2)->getValue();
+            value = static_cast<BFloat*>(args->arg2.get())->getValue();
         else if(args->arg2->getType() == BB_INT)
-            value = static_cast<Integer*>(args->arg2)->getValue();
+            value = static_cast<Integer*>(args->arg2.get())->getValue();
         else
             throw Unimplemented();
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
-        int index = static_cast<Integer*>(args->arg1)->getValue();
+        int index = static_cast<Integer*>(args->arg1.get())->getValue();
         for (int i = 0; i < natdims; ++i) {
             index *= dims[i + 1];
             index += atdims[i];
@@ -190,8 +189,8 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemo
 
 
     if (operation == ADD && args->size == 2 && args->arg0->getType() == VECTOR && args->arg1->getType() == VECTOR) {
-        Vector* a1 = static_cast<Vector*>(args->arg0);
-        Vector* a2 = static_cast<Vector*>(args->arg1);
+        Vector* a1 = static_cast<Vector*>(args->arg0.get());
+        Vector* a2 = static_cast<Vector*>(args->arg1.get());
 
         if (a1->size != a2->size) {
             //bberror("Vector sizes do not match for addition.");
@@ -209,8 +208,8 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemo
     }
 
     if (operation == SUB && args->size == 2 && args->arg0->getType() == VECTOR && args->arg1->getType() == VECTOR) {
-        Vector* a1 = static_cast<Vector*>(args->arg0);
-        Vector* a2 = static_cast<Vector*>(args->arg1);
+        Vector* a1 = static_cast<Vector*>(args->arg0.get());
+        Vector* a2 = static_cast<Vector*>(args->arg1.get());
 
         if (a1->size != a2->size) {
             //bberror("Vector sizes do not match for subtraction.");
@@ -228,8 +227,8 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemo
     }
 
     if (operation == MUL && args->size == 2 && args->arg0->getType() == VECTOR && args->arg1->getType() == VECTOR) {
-        Vector* a1 = static_cast<Vector*>(args->arg0);
-        Vector* a2 = static_cast<Vector*>(args->arg1);
+        Vector* a1 = static_cast<Vector*>(args->arg0.get());
+        Vector* a2 = static_cast<Vector*>(args->arg1.get());
         if (a1->size != a2->size) {
             //bberror("Vector sizes do not match for multiplication.");
             return std::move(Result(INCOMPATIBLE_SIZES));
@@ -243,8 +242,8 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemo
     }
 
     if (operation == MUL && args->size == 2 && args->arg0->getType() == VECTOR && args->arg1->getType() == VECTOR) {
-        Vector* a1 = static_cast<Vector*>(args->arg0);
-        Vector* a2 = static_cast<Vector*>(args->arg1);
+        Vector* a1 = static_cast<Vector*>(args->arg0.get());
+        Vector* a2 = static_cast<Vector*>(args->arg1.get());
         if (a1->size != a2->size) {
             //bberror("Vector sizes do not match for multiplication.");
             return std::move(Result(INCOMPATIBLE_SIZES));
@@ -258,8 +257,8 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemo
     }
 
     if (operation == POW && args->size == 2 && args->arg0->getType() == VECTOR && args->arg1->getType() == VECTOR) {
-        Vector* a1 = static_cast<Vector*>(args->arg0);
-        Vector* a2 = static_cast<Vector*>(args->arg1);
+        Vector* a1 = static_cast<Vector*>(args->arg0.get());
+        Vector* a2 = static_cast<Vector*>(args->arg1.get());
 
         if (a1->size != a2->size) {
             //bberror("Vector sizes do not match for power operation.");
@@ -277,7 +276,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemo
     }
 
     if (operation == SUM && args->size == 1 && args->arg0->getType() == VECTOR) {
-        Vector* vec = static_cast<Vector*>(args->arg0);
+        Vector* vec = static_cast<Vector*>(args->arg0.get());
 
         std::lock_guard<std::recursive_mutex> lock(vec->memoryLock);
 
@@ -289,7 +288,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemo
     }
 
     if (operation == MAX && args->size == 1 && args->arg0->getType() == VECTOR) {
-        Vector* vec = static_cast<Vector*>(args->arg0);
+        Vector* vec = static_cast<Vector*>(args->arg0.get());
 
         if (vec->size == 0) {
             //bberror("Cannot apply max on an empty vector.");
@@ -309,7 +308,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemo
 
 
     if (operation == MIN && args->size == 1 && args->arg0->getType() == VECTOR) {
-        Vector* vec = static_cast<Vector*>(args->arg0);
+        Vector* vec = static_cast<Vector*>(args->arg0.get());
 
         if (vec->size == 0) {
             //bberror("Cannot apply min on an empty vector.");
@@ -332,10 +331,10 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemo
         args->size == 2 && 
         (args->arg0->getType() == BB_FLOAT || args->arg0->getType() == BB_INT || args->arg1->getType() == BB_FLOAT || args->arg1->getType() == BB_INT)) {
 
-        Vector* vec = args->arg0->getType() == VECTOR ? static_cast<Vector*>(args->arg0) : static_cast<Vector*>(args->arg1);
+        Vector* vec = args->arg0->getType() == VECTOR ? static_cast<Vector*>(args->arg0.get()) : static_cast<Vector*>(args->arg1.get());
         double scalar = args->arg0->getType() != VECTOR 
-            ? args->arg0->getType()==BB_FLOAT?static_cast<BFloat*>(args->arg0)->getValue(): static_cast<Integer*>(args->arg0)->getValue()  
-            : args->arg1->getType()==BB_FLOAT?static_cast<BFloat*>(args->arg1)->getValue(): static_cast<Integer*>(args->arg1)->getValue() ;
+            ? args->arg0->getType()==BB_FLOAT?static_cast<BFloat*>(args->arg0.get())->getValue(): static_cast<Integer*>(args->arg0.get())->getValue()  
+            : args->arg1->getType()==BB_FLOAT?static_cast<BFloat*>(args->arg1.get())->getValue(): static_cast<Integer*>(args->arg1.get())->getValue() ;
 
         std::lock_guard<std::recursive_mutex> lock(vec->memoryLock);
 

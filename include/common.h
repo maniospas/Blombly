@@ -7,8 +7,8 @@
 #include <iostream>
 #include <cstring>
 #include <stdexcept>
-
-#define DataPtr Data*
+#include <bit>
+#include <cstdint>
 
 
 #define WHILE_WITH_CODE_BLOCKS  // this changes the while loop parsing and implementation. define for slower but more easily jitable loops
@@ -91,5 +91,119 @@ Result executeBlock(Code* code, BMemory* memory, bool  &returnSignal, bool force
 #define BB_BOOLEAN_RESULT(expr) return std::move(Result((expr)?Boolean::valueTrue:Boolean::valueFalse))
 #define BB_INT_RESULT(expr) return std::move(Result(new Integer(expr)))
 #define BB_FLOAT_RESULT(expr) return std::move(Result(new BFloat(expr)))
+
+
+
+
+
+
+
+
+
+
+// data pointer class
+//#define DataPtr Data*
+
+
+
+#define DATTYPETYPE char
+#define IS_FLOAT static_cast<DATTYPETYPE>(1)
+#define IS_INT static_cast<DATTYPETYPE>(2)
+#define IS_BOOL static_cast<DATTYPETYPE>(4)
+#define IS_PTR static_cast<DATTYPETYPE>(8)
+#define IS_NOT_FLOAT ~IS_FLOAT
+#define IS_NOT_INT ~IS_INT
+#define IS_NOT_BOOL ~IS_BOOL
+#define IS_NOT_PTR ~IS_PTR
+
+
+class Data;
+struct DataPtr {
+    DataPtr(double data) noexcept : data(std::bit_cast<int64_t>(data)), datatype(IS_FLOAT) {}
+    DataPtr(Data* data) noexcept : data(std::bit_cast<int64_t>(data)), datatype(IS_PTR) {}
+    DataPtr(int64_t data) noexcept : data(data), datatype(IS_INT) {}
+    DataPtr(int data) noexcept : data(static_cast<int64_t>(data)), datatype(IS_INT) {}
+    DataPtr(bool data) noexcept : data(static_cast<int64_t>(data)), datatype(IS_BOOL) {}
+    DataPtr(DataPtr&& other) noexcept : data(other.data), datatype(other.datatype) {
+        other.data = 0;
+        other.datatype = IS_PTR;
+    }
+    DataPtr(const DataPtr& other) : data(other.data), datatype(other.datatype) {}
+    DataPtr& operator=(Data* other) {
+        data = std::bit_cast<int64_t>(other);
+        datatype = IS_PTR;
+        return *this;
+    }
+    DataPtr& operator=(const DataPtr& other) {
+        if (this != &other) {
+            data = other.data;
+            datatype = other.datatype;
+        }
+        return *this;
+    }
+    DataPtr& operator=(DataPtr&& other) noexcept {
+        if (this != &other) {
+            data = other.data;
+            datatype = other.datatype;
+            other.data = 0;
+            other.datatype = IS_PTR;
+        }
+        return *this;
+    }
+    DataPtr(): data(0), datatype(IS_PTR) {}
+
+    Data* operator->() const {
+        if (datatype & IS_NOT_PTR) bberror("Internal error: trying to -> on a builting that is not stored as a data type");
+        return std::bit_cast<Data*>(data);
+    }
+
+    double tofloat() const {
+        if (datatype & IS_PTR) return this->tofloat();
+        if (datatype & IS_NOT_FLOAT) return data;
+        return std::bit_cast<double>(data);
+    }
+
+    int64_t toint() const {
+        if (datatype & IS_PTR) return this->toint();
+        if (datatype & IS_FLOAT) return std::bit_cast<double>(data);
+        return data;
+    }
+
+    bool tobool() const {
+        if (datatype & IS_PTR) return this->tobool();
+        return data;
+    }
+
+    Data* get() const {
+        if (datatype & IS_NOT_PTR) bberror("Internal error: trying to `get` on a builting that is not stored as a data type");
+        return std::bit_cast<Data*>(data);
+    }
+
+    bool exists() const {
+        if(datatype & IS_PTR) return data;
+        return true;
+    }
+
+    bool operator==(const DataPtr& other) const {
+        if (datatype & IS_NOT_PTR) return false;
+        return data==other.data;
+    }
+
+    inline double unsafe_tofloat() const { return std::bit_cast<double>(data); }
+    inline int64_t unsafe_toint() const { return data; }
+    inline bool unsafe_tobool() const { return data; }
+
+    inline bool isfloat() const { return datatype & IS_FLOAT; }
+    inline bool isint() const { return datatype & IS_INT; }
+    inline bool isbool() const { return datatype & IS_BOOL; }
+    inline bool isptr() const { return datatype & IS_PTR; }
+
+private:
+    DATTYPETYPE datatype;
+    int64_t data;
+};
+
+
+
 
 #endif // COMMON_H

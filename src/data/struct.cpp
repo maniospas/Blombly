@@ -34,7 +34,7 @@ Result Struct::implement(const OperationType operation_, BuiltinArgs* args_, BMe
         mem = getMemory();
         implementation = mem->getOrNullShallow(variableManager.getId(operation));
 
-        if(!implementation) {
+        if(!implementation.exists()) {
             if(operation_==CLEAR) {
                 delete memory;
                 memory = new BMemory(nullptr, 0);
@@ -50,10 +50,10 @@ Result Struct::implement(const OperationType operation_, BuiltinArgs* args_, BMe
         }
     }
 
-    bbassert(implementation, "Must define " + operation + " for the struct");
+    bbassert(implementation.exists(), "Must define " + operation + " for the struct");
     bbassert(implementation->getType() == CODE, operation + " is not a method");
 
-    if (!implementation) {
+    if (!implementation.exists()) {
         //return std::move(Result(nullptr));
         throw Unimplemented();
     }
@@ -69,7 +69,7 @@ Result Struct::implement(const OperationType operation_, BuiltinArgs* args_, BMe
         args->contents.push_back(args_->arg2);
     }
 
-    Code* code = (Code*)implementation;
+    Code* code = static_cast<Code*>(implementation.get());
     BMemory newMemory(calledMemory, LOCAL_EXPECTATION_FROM_CODE(code));
     newMemory.unsafeSet(variableManager.thisId, this, nullptr);
     newMemory.unsafeSet(variableManager.argsId, args, nullptr);

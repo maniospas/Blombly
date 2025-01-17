@@ -70,7 +70,7 @@ void BFloat::setValue(double val) {
 bool BFloat::isSame(DataPtr other) {
     if(other->getType()!=BB_FLOAT)
         return false;
-    return static_cast<BFloat*>(other)->value==value;
+    return static_cast<BFloat*>(other.get())->value==value;
 }
 
 size_t BFloat::toHash() const {
@@ -82,8 +82,8 @@ Result BFloat::implement(const OperationType operation, BuiltinArgs* args, BMemo
         int type0 = args->arg0->getType();
         int type1 = args->arg1->getType();
 
-        double v1 = (type0 == BB_INT) ? static_cast<double>(static_cast<Integer*>(args->arg0)->getValue()) : static_cast<BFloat*>(args->arg0)->getValue();
-        double v2 = (type1 == BB_INT) ? static_cast<double>(static_cast<Integer*>(args->arg1)->getValue()) : static_cast<BFloat*>(args->arg1)->getValue();
+        double v1 = (type0 == BB_INT) ? static_cast<double>(static_cast<Integer*>(args->arg0.get())->getValue()) : static_cast<BFloat*>(args->arg0.get())->getValue();
+        double v2 = (type1 == BB_INT) ? static_cast<double>(static_cast<Integer*>(args->arg1.get())->getValue()) : static_cast<BFloat*>(args->arg1.get())->getValue();
 
         switch (operation) {
             case EQ: BB_BOOLEAN_RESULT(v1 == v2);
@@ -119,9 +119,9 @@ Result BFloat::implement(const OperationType operation, BuiltinArgs* args, BMemo
     }
 
     if (args->size == 3 && operation == TORANGE) {
-        double v0 = args->arg0->getType() == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg0)->getValue()) : static_cast<BFloat*>(args->arg0)->getValue();
-        double v1 = args->arg1->getType() == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg1)->getValue()) : static_cast<BFloat*>(args->arg1)->getValue();
-        double v2 = args->arg2->getType() == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg2)->getValue()) : static_cast<BFloat*>(args->arg2)->getValue();
+        double v0 = args->arg0->getType() == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg0.get())->getValue()) : static_cast<BFloat*>(args->arg0.get())->getValue();
+        double v1 = args->arg1->getType() == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg1.get())->getValue()) : static_cast<BFloat*>(args->arg1.get())->getValue();
+        double v2 = args->arg2->getType() == BB_INT ? static_cast<double>(static_cast<Integer*>(args->arg2.get())->getValue()) : static_cast<BFloat*>(args->arg2.get())->getValue();
         return std::move(Result(new FloatRange(v0, v1, v2)));
     }
 

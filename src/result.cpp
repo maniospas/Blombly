@@ -3,12 +3,12 @@
 
 
 Result::Result(DataPtr data) : data(data) {
-    if (data) data->addOwner();
+    if (data.exists()) data->addOwner();
 }
 
 Result::Result(Result& other) noexcept : data(other.data) {
     //other.data = nullptr;
-    if (data) data->addOwner();
+    if (data.exists()) data->addOwner();
 }
 
 Result::Result(Result&& other) noexcept : data(other.data) {
@@ -16,20 +16,20 @@ Result::Result(Result&& other) noexcept : data(other.data) {
 }
 
 Result::~Result() {
-    if (data) data->removeFromOwner();
+    if (data.exists()) data->removeFromOwner();
 }
 
 Result& Result::operator=(const Result& other) {
     if (this != &other) {
         data = other.data;
-        if (data) data->addOwner();
+        if (data.exists()) data->addOwner();
     }
     return *this;
 }
 
 Result& Result::operator=(Result&& other) noexcept {
     if (this != &other) {
-        if(data) data->removeFromOwner();
+        if(data.exists()) data->removeFromOwner();
         data = other.data;
         other.data = nullptr;
     }

@@ -70,10 +70,10 @@ public:
         auto iterator = memory->get(from);
         if(iterator->getType()!=ITERATOR) // optimize only for iterators
             return false;
-        auto it = static_cast<Iterator*>(iterator);
+        auto it = static_cast<Iterator*>(iterator.get());
         DataPtr nextValue = it->fastNext();
         //if(!nextValue) return false;
-        if(!nextValue) {
+        if(!nextValue.exists()) {
             BuiltinArgs args;
             args.size = 1;
             args.arg0 = it;
@@ -81,13 +81,13 @@ public:
             nextValue = res.get();
                 
             if(setNext) memory->unsafeSet(next, nextValue, nullptr);
-            returnValue = nextValue!=OUT_OF_RANGE;
+            returnValue = nextValue.get()!=OUT_OF_RANGE;
             if(setExists) memory->unsafeSet(exists, returnValue?Boolean::valueTrue:Boolean::valueFalse, nullptr);
             memory->unsafeSet(as, nextValue, nullptr); // set last to optimize with unsafeSet
             return true;
         }
         if(setNext) memory->unsafeSet(next, nextValue, nullptr);
-        returnValue = nextValue!=OUT_OF_RANGE;
+        returnValue = nextValue.get()!=OUT_OF_RANGE;
         if(setExists) memory->unsafeSet(exists, returnValue?Boolean::valueTrue:Boolean::valueFalse, nullptr);
         memory->unsafeSet(as, nextValue, nullptr); // set last to optimize with unsafeSet
         return true;
@@ -212,15 +212,15 @@ public:
             DataPtr data = memory->get(symbol);
             if (type == TOBB_BOOL) {
                 bbassert(data->getType()==BB_BOOL, "Internal JIT error: Preparation failed to create a bool");
-                std::memcpy(argPtr, &static_cast<Boolean*>(data)->value, sizeof(bool));
+                std::memcpy(argPtr, &static_cast<Boolean*>(data.get())->value, sizeof(bool));
                 argPtr += sizeof(bool);
             } else if (type == TOBB_FLOAT) {
                 bbassert(data->getType()==BB_FLOAT, "Internal JIT error: Preparation failed to create a float");
-                std::memcpy(argPtr, &static_cast<BFloat*>(data)->value, sizeof(double));
+                std::memcpy(argPtr, &static_cast<BFloat*>(data.get())->value, sizeof(double));
                 argPtr += sizeof(double);
             } else if (type == TOBB_INT) {
                 bbassert(data->getType()==BB_INT, "Internal JIT error: Preparation failed to create an integer");
-                std::memcpy(argPtr, &static_cast<Integer*>(data)->value, sizeof(int64_t));
+                std::memcpy(argPtr, &static_cast<Integer*>(data.get())->value, sizeof(int64_t));
                 argPtr += sizeof(int64_t);
             } else {
                 bberror("Internal JIT error: Unhandled argument type during argument transfer.");

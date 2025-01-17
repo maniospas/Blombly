@@ -20,15 +20,14 @@ void Boolean::setValue(bool val) {
 }
 
 bool Boolean::isSame(DataPtr other) {
-    if(other->getType()!=BB_BOOL)
-        return false;
-    return static_cast<Boolean*>(other)->value==value;
+    if(other->getType()!=BB_BOOL) return false;
+    return static_cast<Boolean*>(other.get())->value==value;
 }
 
 Result Boolean::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     if (args->size == 2 && args->arg0->getType() == BB_BOOL && args->arg1->getType() == BB_BOOL) {
-        bool v1 = static_cast<Boolean*>(args->arg0)->getValue();
-        bool v2 = static_cast<Boolean*>(args->arg1)->getValue();
+        bool v1 = static_cast<Boolean*>(args->arg0.get())->getValue();
+        bool v2 = static_cast<Boolean*>(args->arg1.get())->getValue();
         switch (operation) {
             case AND: BB_BOOLEAN_RESULT(v1 && v2);
             case OR: BB_BOOLEAN_RESULT(v1 || v2);

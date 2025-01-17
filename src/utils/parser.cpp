@@ -83,15 +83,15 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
                 bool hasReturned(false);
                 auto res = executeBlock(code, &memory, hasReturned, true);
                 DataPtr ret = res.get();
-                if (ret && ret->getType() == FUTURE) {
-                    auto res2 = static_cast<Future*>(ret)->getResult();
+                if (ret.exists() && ret->getType() == FUTURE) {
+                    auto res2 = static_cast<Future*>(ret.get())->getResult();
                     ret = res2.get();
                     res = res2;
                 }
 
                 bbassert(!hasReturned, "`!comptime` must evaluate to a value but not run a return statement.");
                 //bbassert(ret, "`!comptime` must evaluate to a non-missing value.");
-                if(!ret) result = "#";
+                if(!ret.exists()) result = "#";
                 else if (ret->getType() == STRING) result = "\"" + ret->toString(nullptr) + "\"";
                 else if (ret->getType() == BB_INT || ret->getType() == BB_FLOAT || ret->getType() == BB_BOOL) result = ret->toString(nullptr);
                 else bberror("`!comptime` must must evaluate to a float, int, str, or bool.");
