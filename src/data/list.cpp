@@ -133,7 +133,7 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
 
             Result iter = args->arg1->implement(TOITER, &implargs, memory);
             DataPtr iterator = iter.get();
-            bbassert(iterator.exists() && iterator->getType() == ITERATOR, "Can only find list indexes based on an iterable object, but a non-iterable struct was provided.");
+            bbassert(iterator.existsAndTypeEquals(ITERATOR), "Can only find list indexes based on an iterable object, but a non-iterable struct was provided.");
 
             Iterator* iterPtr = static_cast<Iterator*>(iterator.get());
 

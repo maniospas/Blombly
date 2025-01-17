@@ -23,3 +23,6 @@ OperationType getOperationType(const std::string &str) {
 std::string getOperationTypeName(OperationType type) {
     return OperationTypeNames[type];
 }
+
+
+DataPtr DataPtr::NULLP((Data*)nullptr);

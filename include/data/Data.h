@@ -41,4 +41,10 @@ private:
     Datatype type;
 };
 
+bool DataPtr::existsAndTypeEquals(Datatype type) const {
+    if(datatype & IS_NOT_PTR) return false;
+    if(!data) return false;
+    return std::bit_cast<Data*>(data)->getType() == type;
+}
+
 #endif // DATA_H

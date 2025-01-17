@@ -16,11 +16,22 @@ extern std::chrono::steady_clock::time_point program_start;
 extern std::recursive_mutex printMutex;
 extern std::recursive_mutex compileMutex;
 
-Result executeBlock(Code* code, BMemory* memory, bool &returnSignal, bool forceStayInThread);
-std::string enrichErrorDescription(Command*, std::string message);
-void handleExecutionError(std::vector<Command*>* program, int i, const BBError& e);
-void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool &returnSignal, BuiltinArgs &args, DataPtr& result, bool forceStayInThread);
+class ExecutionInstance {
+    BuiltinArgs args;
+    DataPtr result;
+    std::vector<Command*>& program;
+    BMemory* memory;
+    bool returnSignal;
+    bool forceStayInThread;
+    void handleCommand(int &i);
+public:
+    ExecutionInstance(Code* code, BMemory* memory, bool forceStayInThread): returnSignal(false), program(*code->getProgram()), memory(memory), forceStayInThread(forceStayInThread) {}
+    Result run(Code* code);
+    void handleExecutionError(int i, const BBError& e);
+    bool hasReturned() const {return returnSignal;}
+};
 
+std::string enrichErrorDescription(Command*, std::string message);
 Result compileAndLoad(const std::string& fileName, BMemory* currentMemory);
 int vm(const std::string& fileName, int numThreads);
 int vmFromSourceCode(const std::string& sourceCode, int numThreads);

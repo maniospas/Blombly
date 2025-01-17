@@ -147,7 +147,7 @@ Result BHashMap::implement(const OperationType operation, BuiltinArgs* args, BMe
         Result iterResult = keyData->implement(TOITER, &implArgs, memory);
         DataPtr iterator = iterResult.get();
 
-        if (iterator.exists() && iterator->getType() == ITERATOR) {
+        if (iterator.existsAndTypeEquals(ITERATOR)) {
             Iterator* iter = static_cast<Iterator*>(iterator.get());
             std::lock_guard<std::recursive_mutex> lock(memoryLock);
 

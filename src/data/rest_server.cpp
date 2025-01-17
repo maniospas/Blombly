@@ -11,6 +11,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include "interpreter/functional.h"
 
 
 std::vector<std::string> splitRoute(const std::string& route) {
@@ -66,7 +67,7 @@ Result RestServer::executeCodeWithMemory(DataPtr called, BMemory* memory) const 
     if(called->getType()==STRUCT) {
         auto strct = static_cast<Struct*>(called.get());
         auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
-        bbassert(val.exists() && val->getType()==CODE, "Struct was called like a method but has no implemented code for `call`.");
+        bbassert(val.existsAndTypeEquals(CODE), "Struct was called like a method but has no implemented code for `call`.");
         //static_cast<Code*>(val)->scheduleForParallelExecution = false; // struct calls are never executed in parallel
         memory->codeOwners[static_cast<Code*>(val.get())] = static_cast<Struct*>(called.get());
         called = (val);
@@ -76,13 +77,12 @@ Result RestServer::executeCodeWithMemory(DataPtr called, BMemory* memory) const 
 
 
     BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
-    bool newReturnSignal(false);
     DataPtr result;
     //newMemory.detach(code->getDeclarationMemory());
     //newMemory.detach(memory);
     auto it = memory->codeOwners.find(code);
     DataPtr thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
-    if(thisObj.exists()) newMemory.unsafeSet(variableManager.thisId, thisObj, nullptr);
+    if(thisObj.exists()) newMemory.set(variableManager.thisId, thisObj);
     std::unique_lock<std::recursive_mutex> executorLock;
     if(thisObj.exists()) {
         bbassert(thisObj->getType()==STRUCT, "Internal error: `this` was neither a struct nor missing (in the last case it would have been replaced by the scope)");
@@ -91,25 +91,16 @@ Result RestServer::executeCodeWithMemory(DataPtr called, BMemory* memory) const 
     }
     newMemory.allowMutables = false;
     bool forceStayInThread = thisObj.exists(); // overwrite the option
-    //newMemory.leak(); (this is for testing only - we are not leaking any memory to other threads if we continue in the same thread, so no need to enable atomic reference counting)
-    if(code->jitable && code->jitable->run(&newMemory, result, newReturnSignal, forceStayInThread)) {
-        if(thisObj.exists()) newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
-        newMemory.detach(nullptr);
+    
+    ExecutionInstance executor(code, &newMemory, forceStayInThread);
+    Result returnedValue = executor.run(code);
+    newMemory.detach(nullptr);
+    result = returnedValue.get();
+    if(thisObj.exists()) newMemory.set(variableManager.thisId, DataPtr::NULLP);
 
-        bbassert(newReturnSignal, "Server route handler did not reach a return statement.");
-        bbassert(result.exists(), "Server route handler returned no value.");
-        return std::move(Result(result));   
-    }
-    else {
-        Result returnedValue = executeBlock(code, &newMemory, newReturnSignal, forceStayInThread);
-        newMemory.detach(nullptr);
-        result = returnedValue.get();
-        if(thisObj.exists()) newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
-
-        bbassert(newReturnSignal, "Server route handler did not reach a return statement.");
-        bbassert(result.exists(), "Server route handler returned no value.");
-        return std::move(returnedValue);   
-    }
+    bbassert(executor.hasReturned(), "Server route handler did not reach a return statement.");
+    bbassert(result.exists(), "Server route handler returned no value.");
+    return std::move(returnedValue);   
 
 }
 
@@ -130,7 +121,7 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                     std::string varValue = routeParts[i];
                     // TODO: prevent invalid variable names
                     int varId = variableManager.getId(varName);
-                    mem->unsafeSet(varId, new BString(varValue), nullptr);
+                    mem->set(varId, new BString(varValue));
                     //mem->setFinal(varId);
                 } 
                 else if (registeredRouteParts[i] != routeParts[i]) {
@@ -142,23 +133,23 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
 
             try {
                 if(req_info->request_uri) {
-                    mem->unsafeSet(variableManager.getId("server::uri"), new BString(req_info->request_uri), nullptr);
+                    mem->set(variableManager.getId("server::uri"), new BString(req_info->request_uri));
                     //mem->setFinal(variableManager.getId("uri"));
                 }
                 if(req_info->query_string) {
-                    mem->unsafeSet(variableManager.getId("server::query"), new BString(req_info->query_string), nullptr);
+                    mem->set(variableManager.getId("server::query"), new BString(req_info->query_string));
                     //mem->setFinal(variableManager.getId("query"));
                 }
                 if(req_info->request_method) {
-                    mem->unsafeSet(variableManager.getId("server::method"), new BString(req_info->request_method), nullptr);
+                    mem->set(variableManager.getId("server::method"), new BString(req_info->request_method));
                     //mem->setFinal(variableManager.getId("method"));
                 }
                 if(req_info->http_version) {
-                    mem->unsafeSet(variableManager.getId("server::http"), new BString(req_info->http_version), nullptr);
+                    mem->set(variableManager.getId("server::http"), new BString(req_info->http_version));
                     //mem->setFinal(variableManager.getId("http"));
                 }
-                mem->unsafeSet(variableManager.getId("server::ip"), new BString(req_info->remote_addr), nullptr);
-                mem->unsafeSet(variableManager.getId("server::ssl"), req_info->is_ssl?Boolean::valueTrue:Boolean::valueFalse, nullptr);
+                mem->set(variableManager.getId("server::ip"), new BString(req_info->remote_addr));
+                mem->set(variableManager.getId("server::ssl"), req_info->is_ssl?Boolean::valueTrue:Boolean::valueFalse);
                 //mem->setFinal(variableManager.getId("ip"));
                 //mem->setFinal(variableManager.getId("ssl"));
 
@@ -169,7 +160,7 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                     if (bytesRead > 0) {
                         bodyData[bytesRead] = '\0';
                         std::string requestBody(&bodyData[0]);
-                        mem->unsafeSet(variableManager.getId("server::content"), new BString(requestBody), nullptr);
+                        mem->set(variableManager.getId("server::content"), new BString(requestBody));
                     }
                 }
 

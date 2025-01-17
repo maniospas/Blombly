@@ -97,9 +97,9 @@ int vm(const std::string& fileName, int numThreads) {
             BMemory memory(nullptr, DEFAULT_LOCAL_EXPECTATION);
             try {
                 auto code = new Code(program, 0, program->size() - 1);
-                bool hasReturned(false);
-                executeBlock(code, &memory, hasReturned, false);
-                bbassert(!hasReturned, "The virtual machine cannot return a value.");
+                ExecutionInstance executor(code, &memory, true);
+                Result returnedValue = executor.run(code);
+                bbassert(!executor.hasReturned(), "The virtual machine cannot return a value.");
                 //memory.detach(nullptr);
             }
             catch (const BBError& e) {
@@ -150,9 +150,11 @@ int vmFromSourceCode(const std::string& sourceCode, int numThreads) {
                 }
 
                 auto code = new Code(program, 0, program->size() - 1);
-                bool hasReturned(false);
-                if(numThreads) executeBlock(code, &memory, hasReturned, false);
-                bbassert(!hasReturned, "The virtual machine cannot return a value.");
+                if(numThreads) {
+                    ExecutionInstance executor(code, &memory, false);
+                    Result returnedValue = executor.run(code);
+                    bbassert(!executor.hasReturned(), "The virtual machine cannot return a value.");
+                }
                 //memory.detach(nullptr);
             }
             catch (const BBError& e) {

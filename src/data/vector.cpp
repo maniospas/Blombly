@@ -132,14 +132,9 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemo
             if (iterPtr->isContiguous()) {
                 int64_t start = iterPtr->getStart();
                 int64_t end = iterPtr->getEnd();
-                if (start < 0 || end < 0 || start >= size || end > size) {
-                    return std::move(Result(OUT_OF_RANGE));
-                }
-
+                if (start < 0 || end < 0 || start >= size || end > size) return std::move(Result(OUT_OF_RANGE));
                 auto* resultVec = new Vector(end - start);
-                for (int64_t i = start; i < end; ++i) {
-                    resultVec->data[i - start] = data[i];
-                }
+                for (int64_t i = start; i < end; ++i) resultVec->data[i - start] = data[i];
                 return std::move(Result(resultVec));
             } else {
                 // Handle arbitrary iterators

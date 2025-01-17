@@ -80,16 +80,16 @@ public:
             Result res = it->implement(NEXT, &args, memory);
             nextValue = res.get();
                 
-            if(setNext) memory->unsafeSet(next, nextValue, nullptr);
+            if(setNext) memory->set(next, nextValue);
             returnValue = nextValue.get()!=OUT_OF_RANGE;
-            if(setExists) memory->unsafeSet(exists, returnValue?Boolean::valueTrue:Boolean::valueFalse, nullptr);
-            memory->unsafeSet(as, nextValue, nullptr); // set last to optimize with unsafeSet
+            if(setExists) memory->set(exists, returnValue?Boolean::valueTrue:Boolean::valueFalse);
+            memory->set(as, nextValue); // set last to optimize with unsafeSet
             return true;
         }
-        if(setNext) memory->unsafeSet(next, nextValue, nullptr);
+        if(setNext) memory->set(next, nextValue);
         returnValue = nextValue.get()!=OUT_OF_RANGE;
-        if(setExists) memory->unsafeSet(exists, returnValue?Boolean::valueTrue:Boolean::valueFalse, nullptr);
-        memory->unsafeSet(as, nextValue, nullptr); // set last to optimize with unsafeSet
+        if(setExists) memory->set(exists, returnValue?Boolean::valueTrue:Boolean::valueFalse);
+        memory->set(as, nextValue); // set last to optimize with unsafeSet
         return true;
     }
     virtual std::string toString() {return "JIT: the sequence of .bbvm instructions next as exists has been optimized to not store intermediate variables";}
@@ -189,8 +189,9 @@ public:
             }
         }
     virtual bool run(BMemory* memory, DataPtr& returnValue, bool &returnSignal, bool forceStayInThread) override {
+        return false;
         // preample
-        BuiltinArgs args;
+        /*BuiltinArgs args;
         DataPtr value = nullptr;
         int i = start;
         try {
@@ -246,7 +247,7 @@ public:
         // close defer statements
         if(returnSignal)
             memory->runFinally();
-        return true;
+        return true;*/
     }
 };
 

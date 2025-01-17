@@ -14,7 +14,7 @@ public:
     ~Result();
     Result& operator=(const Result& other);
     Result& operator=(Result&& other) noexcept;
-    DataPtr get() const;
+    const DataPtr& get() const;
 };
 
 #endif // RESULT_H

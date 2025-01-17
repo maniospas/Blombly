@@ -5,6 +5,7 @@
 #include "data/Future.h"
 #include "data/Code.h"
 #include "data/Struct.h"
+#include "interpreter/functional.h"
 #include <unordered_set>  
 
 std::atomic<unsigned long long> countUnrealeasedMemories(0);
@@ -17,33 +18,10 @@ void BMemory::verify_noleaks() {
     bbassert(countUnreleased == 0, "There are " + std::to_string(countUnreleased) + " leftover memory contexts leaked");  // the main memory is a global object (needed to sync threads on errors)
 }
 
-BMemory::BMemory(BMemory* par, int expectedAssignments, DataPtr thisObject) : parent(par), allowMutables(true), fastId(-1) {
+BMemory::BMemory(BMemory* par, int expectedAssignments, DataPtr thisObject) : parent(par), allowMutables(true) {
     //std::cout << "created "<<this<<"\n";
     ++countUnrealeasedMemories;
     data.reserve(expectedAssignments);
-}
-
-bool BMemory::isOrDerivedFrom(BMemory* memory) const {
-    if (memory == this) return true;  // stop on cycle
-    if (parent) return parent->isOrDerivedFrom(memory);
-    return false;
-}
-
-void BMemory::leak() { // only do this after detach so that there are no leftover FUTURE values
-    for (const auto& element : data) {
-        DataPtr ret = element.second;
-        /*if(ret && ret->getType()==FUTURE) {
-            auto prevRet = static_cast<Future*>(ret);
-            auto resVal = prevRet->getResult();
-            ret = resVal.get();
-            unsafeSet(element.first, ret); 
-            attached_threads.erase(prevRet);prevRet->removeFromOwner();
-            if(ret)
-                ret->leak();
-        }
-        else */if(ret.exists())
-            ret->leak();
-    }
 }
 
 void BMemory::release() {
@@ -66,224 +44,179 @@ void BMemory::release() {
     }
     attached_threads.clear();
 
-    for (const auto& element : data) {
-        auto dat = element.second;
+    for (const auto& dat : contents) {
         try {
-            if (dat.exists() && dat->getType() == ERRORTYPE && !static_cast<BError*>(dat.get())->isConsumed())  
-                destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:\n"+dat->toString(this)+"\n";
+            if(dat.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(dat.get())->isConsumed()) destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:\n"+dat->toString(this)+"\n";
             if(dat.exists()) dat->removeFromOwner();
         }
         catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
     }
     data.clear();
-
+    contents.clear();
     if(destroyerr.size())  throw BBError(destroyerr.substr(0, destroyerr.size()-1));
-        //bberror("The following error(s) were found while releasing a struct or memory:"+destroyerr);
 }
 
 
 
 BMemory::~BMemory() {
-    // first remove any this object the memory might have, as this is what is actually calling the destruction (unless there is no this object)
-    data[variableManager.thisId] = nullptr;
+    contents[data[variableManager.thisId]] = DataPtr::NULLP;
+    countUnrealeasedMemories--; 
     release();
-    //data.clear();
-    countUnrealeasedMemories--;
 }
 
 int BMemory::size() const {
     return data.size();
 }
 
-DataPtr BMemory::get(int item) { // allowMutable = true
-    if(item==fastId)
-        return fastData;
-    auto ret = data[item];
-    if (ret.exists() && ret->getType() == FUTURE) {
+const DataPtr& BMemory::get(int item) { // allowMutable = true
+    const auto& idx = data.find(item);
+    if(idx==data.end()) bberror("Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
+    const auto& ret = contents[idx->second];
+    if (ret.existsAndTypeEquals(FUTURE)) {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
-        ret = resVal.get();
-        unsafeSet(item, ret); 
-        attached_threads.erase(prevRet);prevRet->removeFromOwner();
-        return ret;
+        unsafeSet(item, resVal.get()); 
+        attached_threads.erase(prevRet);
+        prevRet->removeFromOwner();
+        return get(item);
     }
-    if (!ret.exists() && parent) ret = parent->get(item, allowMutables);
-    if (!ret.exists()) {
-        bberror("Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
+    if (!ret.islitorexists()) {
+        bbassert(parent, "Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
+        if(parent) return parent->get(item, allowMutables);
     }
     return ret;
 }
 
-DataPtr BMemory::get(int item, bool allowMutable) {
-    if(item==fastId) return fastData;
-    auto ret = data[item];
-    if (ret.exists() && ret->getType() == FUTURE) {
+const DataPtr& BMemory::get(int item, bool allowMutable) {
+    const auto& idx = data.find(item);
+    if(idx==data.end()) bberror("Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
+    const auto& ret = contents[idx->second];
+    if (ret.existsAndTypeEquals(FUTURE)) {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
-        ret = resVal.get();
-        unsafeSet(item, ret); 
-        attached_threads.erase(prevRet);prevRet->removeFromOwner();
-        bbassert(ret.exists(), "Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
-        return ret;
+        unsafeSet(item, resVal.get()); 
+        attached_threads.erase(prevRet);
+        prevRet->removeFromOwner();
+        bbassert(ret.islitorexists(), "Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
+        return get(item, allowMutable);
     }
-    if (ret.exists()) {bbassert(allowMutable || isFinal(item), "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));}
-    else if (parent) ret = parent->get(item, allowMutables && allowMutable);
-    bbassert(ret.exists(), "Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
+    if (ret.islitorexists()) {bbassert(allowMutable || isFinal(item), "Mutable symbol cannot be requested from another scope: " + variableManager.getSymbol(item));}
+    else if (parent) return parent->get(item, allowMutables && allowMutable);
+    bbassert(ret.islitorexists(), "Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
     return ret;
 }
 
-
-bool BMemory::containsAnywhere(BMemory* other) {
-    if(other==this)
-        return true;
-    detach(parent); // synchronize all threads
-    for(const auto& it : data)
-        if(it.second.exists() && it.second->getType()==STRUCT && it.first!=variableManager.thisId && static_cast<Struct*>(it.second.get())->getMemory()->containsAnywhere(other)) 
-            return true;
-    return false;
-}
-
-
-bool BMemory::contains(int item) {
-    if(item==fastId) return fastData.get();
-    auto it = data.find(item);
-    if (it == data.end())
-        return false;
-    auto ret = it->second;
-    if (ret.exists() && ret->getType() == FUTURE) {
-        auto prevRet = static_cast<Future*>(ret.get());
-        auto resVal = prevRet->getResult();
-        ret = resVal.get();
-        unsafeSet(item, ret); 
-        attached_threads.erase(prevRet);prevRet->removeFromOwner();
-    }
-    return ret.exists();
-}
-
-DataPtr BMemory::getShallow(int item) {
-    if(item==fastId)
-        return fastData;
-    auto it = data.find(item);
-    if (it == data.end()) bberror("Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
-    auto ret = it->second;
-    if (ret.exists() && ret->getType() == FUTURE) {
+const DataPtr& BMemory::getShallow(int item) {
+    const auto& idx = data.find(item);
+    if(idx==data.end()) bberror("Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
+    const auto& ret = contents[idx->second];
+    if (ret.existsAndTypeEquals(FUTURE)) {
         //std::cout << "here4\n";
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
-        ret = resVal.get();
-        unsafeSet(item, ret);
+        unsafeSet(item, resVal.get());
         attached_threads.erase(prevRet);prevRet->removeFromOwner();
-        //std::cout << "done\n";
+        return getShallow(item);
     }
-    if(!ret.exists()) bberror("Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
+    if(!ret.islitorexists()) bberror("Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
     return ret;
 }
 
-DataPtr BMemory::getOrNullShallow(int item) {
-    if(item==fastId)
-        return fastData;
-    auto it = data.find(item);
-    if (it == data.end())
-        return nullptr;
-    auto ret = it->second;
-    if (ret.exists() && ret->getType() == FUTURE) {
+const DataPtr& BMemory::getOrNullShallow(int item) {
+    const auto& idx = data.find(item);
+    if(idx==data.end()) return DataPtr::NULLP;
+    const auto& ret = contents[idx->second];
+    if (ret.existsAndTypeEquals(FUTURE)) {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
-        ret = resVal.get();
-        unsafeSet(item, ret);
+        unsafeSet(item, resVal.get());
         attached_threads.erase(prevRet);prevRet->removeFromOwner();
+        return contents[idx->second];
     }
     return ret;
 }
 
-DataPtr BMemory::getOrNull(int item, bool allowMutable) {
-    if(item==fastId)
-        return fastData;
-    auto ret = data[item];
-    if (ret.exists() && ret->getType() == FUTURE) {
+const DataPtr& BMemory::getOrNull(int item, bool allowMutable) {
+    const auto& idx = data.find(item);
+    if(idx==data.end()) return DataPtr::NULLP;
+    const auto& ret = contents[idx->second];
+    if (ret.existsAndTypeEquals(FUTURE)) {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
-        ret = resVal.get();
-        unsafeSet(item, ret);
+        unsafeSet(item, resVal.get());
         attached_threads.erase(prevRet);prevRet->removeFromOwner();
+        return contents[idx->second];
     }
-    if (ret.exists()) {
-        bbassert(allowMutable || isFinal(item), "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));
-    }
-    else if (parent) 
-        ret = parent->getOrNull(item, allowMutables && allowMutable);
-    
+    if (ret.islitorexists()) {bbassert(allowMutable || isFinal(item), "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));}
+    else if (parent) return parent->getOrNull(item, allowMutables && allowMutable);
     return ret;
 }
 
-void BMemory::removeWithoutDelete(int item) {
-    data[item] = nullptr;
-    if(fastId==item) fastData = nullptr;
+
+void BMemory::unsafeSetLiteral(int item, const DataPtr& value) { // when this is called, we are guaranteed that value.exists() == false
+    const auto& idx = data.find(item);
+    if(idx==data.end()) {
+        data[item] = contents.size();
+        contents.push_back(value);
+        return;
+    }
+    const auto& prev = contents[idx->second];
+    if(prev.exists()) {
+        if(isFinal(item)) bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
+        if(prev->getType()==ERRORTYPE && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
+        prev->removeFromOwner();
+    }
+    contents[idx->second] = value;
 }
 
-void BMemory::unsafeSet(BMemory* handler, int item, DataPtr value, DataPtr prev) {
-    if(value.exists() && value->getType()==FUTURE) fastId = -1;
-    else {
-        fastId = item;
-        fastData = value;
+void BMemory::set(int item, DataPtr value) {
+    const auto& idx = data.find(item);
+    if(idx==data.end()) {
+        data[item] = contents.size();
+        contents.push_back(value);
+        if(value.exists()) value->addOwner();
+        return;
     }
-    if (prev.exists() && isFinal(item)) bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
-    if(prev.exists() && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
+    const auto& prev = contents[idx->second];
+    if(prev.exists() && isFinal(item)) bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
+    if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
     if(value.exists()) value->addOwner();
     if(prev.exists()) prev->removeFromOwner();
-    data[item] = value;
-}
-
-void BMemory::unsafeSet(int item, DataPtr value, DataPtr prev) {
-    if(value.exists() && value->getType()!=FUTURE) {
-        fastId = item;
-        fastData = value;
-    }
-    else
-        fastId = -1;
-    prev = data[item];
-    if (prev.exists() && isFinal(item)) bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
-    if(prev.exists() && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
-    if(value.exists()) value->addOwner();
-    if(prev.exists()) prev->removeFromOwner();
-    data[item] = value;
-    //std::cout << "set "<<variableManager.getSymbol(item)<<" to "<<value<<"\n";
+    contents[idx->second] = value;
 }
 
 void BMemory::unsafeSet(int item, DataPtr value) {
+    const auto& idx = data.find(item);
+    if(idx==data.end()) {
+        data[item] = contents.size();
+        contents.push_back(value);
+        if(value.exists()) value->addOwner();
+        return;
+    }
     DataPtr prev = data[item];
-    if(prev.exists() && prev->getType()==ERRORTYPE && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
+    if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
     if(value.exists()) value->addOwner();
     if(prev.exists()) prev->removeFromOwner();
-    data[item] = value;
-    //std::cout << "set "<<variableManager.getSymbol(item)<<" to "<<value<<"\n";
+    contents[idx->second] = value;
 }
 
-void BMemory::setFinal(int item) {
-    //await();
-    finals.insert(item);
-}
-
-bool BMemory::isFinal(int item) const {
-    return finals.find(item) != finals.end();
-}
+void BMemory::setFinal(int item) {finals.insert(item);}
+bool BMemory::isFinal(int item) const {return finals.find(item) != finals.end();}
 
 void BMemory::pull(BMemory* other) {
     for (const auto& it : other->data) {
-        if (it.second.exists() && it.first!=variableManager.thisId) {
-            it.second->leak();
-            unsafeSet(it.first, it.second, getOrNullShallow(it.first));
-        }
+        const auto& dat = other->contents[it.second];
+        if (dat.islitorexists() && it.first!=variableManager.thisId) set(it.first, it.second);
     }
 }
 
 void BMemory::replaceMissing(BMemory* other) {
     for (const auto& it : other->data) {
         int item = it.first;
-        auto existing = getOrNullShallow(item);
-        if (!existing.exists()) {
-            auto dat = it.second;
-            if (dat.exists()) unsafeSet(item, dat, nullptr);
+        const auto& existing = getOrNullShallow(item);
+        if (!existing.islitorexists()) {
+            const auto& dat = contents[it.second];
+            if (dat.islitorexists()) set(item, dat);
         }
     }
 }
@@ -308,21 +241,17 @@ void BMemory::await() {
     }
     attached_threads.clear();
 
-    for (const auto& element : data) {
-        auto dat = element.second;
-        if (dat.exists() && dat->getType() == ERRORTYPE && !static_cast<BError*>(dat.get())->isConsumed())  {
+    for (const auto& dat : contents) {
+        if (dat.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(dat.get())->isConsumed())  {
             static_cast<BError*>(dat.get())->consume();
             destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was intercepted with `try` but never handled:\n"+dat->toString(this)+"\n";
         }
     }
-
     if(destroyerr.size()) throw BBError(destroyerr.substr(0, destroyerr.size()-1));
 }
 
 void BMemory::detach(BMemory* par) {
     await();
-    //if(!par)
-    //    allowMutables = false;
     parent = par;
 }
 
@@ -333,9 +262,9 @@ void BMemory::runFinally() {
 
     for(Code* code : tempFinally) {
         try {
-            bool returnSignal;
-            Result returnedValue = executeBlock(code, this, returnSignal, true); // everything deferred runs after all threads have been synchronized, so stay in thread (last true argument)
-            bbassert(!returnSignal, "Cannot return a value from within `defer`");
+            ExecutionInstance executor(code, this, true); // everything deferred runs after all threads have been synchronized, so stay in thread (last true argument)
+            Result returnedValue = executor.run(code);
+            bbassert(!executor.hasReturned(), "Cannot return a value from within `defer`");
         }
         catch (const BBError& e) {
             destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error occurred within `defer`:\n";

@@ -9,6 +9,7 @@
 #include "data/Future.h"
 #include "data/BFile.h"
 #include "data/List.h"
+#include "data/Iterator.h"
 #include "data/BHashMap.h"
 #include "data/BFloat.h"
 #include "data/BString.h"
@@ -63,24 +64,154 @@ std::recursive_mutex printMutex;
 std::recursive_mutex compileMutex;
 std::unordered_map<int, DataPtr> cachedData;
 
-#define SET_RESULT if(command->args[0]!=variableManager.noneId) memory->unsafeSet(command->args[0], result, nullptr);return
+#define SET_RESULT if(command->args[0]!=variableManager.noneId) memory->set(command->args[0], result);return
+#define SET_RESULT_LITERAL(expr) result=DataPtr(expr); memory->set(command->args[0], result); return;
 
 
-void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool &returnSignal, BuiltinArgs &args, DataPtr& result, bool forceStayInThread) {
-    Command* command = (*program)[i];
+void ExecutionInstance::handleCommand(int &i){
+    Command* command = program[i];
     //DataPtr toReplace = command->nargs?memory->getOrNullShallow(command->args[0]):nullptr;
     //BMemory* memory = memory_.get();
 
     //std::cout<<command->toString()<<"\t "<<std::this_thread::get_id()<<"\n";
     
     switch (command->operation) {
+        case ADD: {
+            const auto& arg0 = MEMGET(memory, 1);
+            const auto& arg1 = MEMGET(memory, 2);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()+arg1.toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL((double)(arg0.unsafe_toint()+arg1.tofloat()));
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL((double)(arg0.unsafe_tofloat()+arg1.toint()));
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()+arg1.tofloat());
+            args.arg0 = arg0;
+            args.arg1 = arg1;
+            args.size = 2;
+        }
+        case SUB: {
+            const auto& arg0 = MEMGET(memory, 1);
+            const auto& arg1 = MEMGET(memory, 2);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()-arg1.toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL((double)(arg0.unsafe_toint()-arg1.tofloat()));
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL((double)(arg0.unsafe_tofloat()-arg1.toint()));
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()-arg1.tofloat());
+            args.arg0 = arg0;
+            args.arg1 = arg1;
+            args.size = 2;
+        }
+        case MUL: {
+            const auto& arg0 = MEMGET(memory, 1);
+            const auto& arg1 = MEMGET(memory, 2);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()*arg1.toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL((double)(arg0.unsafe_toint()*arg1.tofloat()));
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL((double)(arg0.unsafe_tofloat()*arg1.toint()));
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()*arg1.tofloat());
+            args.arg0 = arg0;
+            args.arg1 = arg1;
+            args.size = 2;
+        }
+        case DIV: {
+            const auto& arg0 = MEMGET(memory, 1);
+            const auto& arg1 = MEMGET(memory, 2);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()/(double)arg1.toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL((double)(arg0.unsafe_toint()/arg1.tofloat()));
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL((double)(arg0.unsafe_tofloat()/arg1.toint()));
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()/arg1.tofloat());
+            args.arg0 = arg0;
+            args.arg1 = arg1;
+            args.size = 2;
+        }
+        case LT: {
+            const auto& arg0 = MEMGET(memory, 1);
+            const auto& arg1 = MEMGET(memory, 2);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()<arg1.toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()<arg1.tofloat());
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()<arg1.toint());
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()<arg1.tofloat());
+            args.arg0 = arg0;
+            args.arg1 = arg1;
+            args.size = 2;
+        }
+        case GT: {
+            const auto& arg0 = MEMGET(memory, 1);
+            const auto& arg1 = MEMGET(memory, 2);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()>arg1.toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()>arg1.tofloat());
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()>arg1.toint());
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()>arg1.tofloat());
+            args.arg0 = arg0;
+            args.arg1 = arg1;
+            args.size = 2;
+        }
+        case LE: {
+            const auto& arg0 = MEMGET(memory, 1);
+            const auto& arg1 = MEMGET(memory, 2);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()<=arg1.toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()<=arg1.tofloat());
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()<=arg1.toint());
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()<=arg1.tofloat());
+            args.arg0 = arg0;
+            args.arg1 = arg1;
+            args.size = 2;
+        }
+        case GE: {
+            const auto& arg0 = MEMGET(memory, 1);
+            const auto& arg1 = MEMGET(memory, 2);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()>=arg1.toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()>=arg1.tofloat());
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()>=arg1.toint());
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()>=arg1.tofloat());
+            args.arg0 = arg0;
+            args.arg1 = arg1;
+            args.size = 2;
+        }
+        case EQ: {
+            const auto& arg0 = MEMGET(memory, 1);
+            const auto& arg1 = MEMGET(memory, 2);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()==arg1.toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()==arg1.tofloat());
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()==arg1.toint());
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()==arg1.tofloat());
+            if(arg0.isbool() && arg1.isbool()) SET_RESULT_LITERAL(arg0.unsafe_tobool()==arg1.tobool());
+            args.arg0 = arg0;
+            args.arg1 = arg1;
+            args.size = 2;
+        }
+        case NEQ: {
+            const auto& arg0 = MEMGET(memory, 1);
+            const auto& arg1 = MEMGET(memory, 2);
+            if(arg0.isint() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_toint()!=arg1.toint());
+            if(arg0.isint() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_toint()!=arg1.tofloat());
+            if(arg0.isfloat() && arg1.isint()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()!=arg1.toint());
+            if(arg0.isfloat() && arg1.isfloat()) SET_RESULT_LITERAL(arg0.unsafe_tofloat()!=arg1.tofloat());
+            if(arg0.isbool() && arg1.isbool()) SET_RESULT_LITERAL(arg0.unsafe_tobool()!=arg1.tobool());
+            args.arg0 = arg0;
+            args.arg1 = arg1;
+            args.size = 2;
+        }
+        case TOSTR: {
+            const auto& arg0 = MEMGET(memory, 1);
+            if(arg0.islit()) {
+                result = new BString(arg0.torepr());
+                SET_RESULT;
+            }
+            args.arg0 = arg0;
+            args.size = 1;
+        }
+        case TORANGE: {
+            const auto& arg0 = MEMGET(memory, 1);
+            if(arg0.isint()) {
+                result = new IntRange(0, arg0.unsafe_toint(), 1);
+                break;
+            }
+            args.arg0 = arg0;
+        }
         case BUILTIN: result = command->value;break;
         case BEGINCACHE: {
             int pos = i + 1;
             int depth = 0;
             OperationType command_type;
-            while(pos <= program->size()) {
-                command_type = (*program)[pos]->operation;
+            while(pos <= program.size()) {
+                command_type = program[pos]->operation;
                 if(command_type == BEGIN || command_type == BEGINFINAL) depth++;
                 if(command_type == END) {
                     if (depth == 0) break;
@@ -89,15 +220,15 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 pos++;
             }
             bbassert(depth >= 0, "Cache declaration never ended.");
-            auto cache = new Code(program, i + 1, pos);
-            bool cacheReturn(false);
+            auto cache = new Code(&program, i + 1, pos);
             BMemory cacheMemory(nullptr, 16, nullptr);
-            executeBlock(cache, &cacheMemory, cacheReturn, forceStayInThread);
+            ExecutionInstance cacheExecutor(cache, &cacheMemory, forceStayInThread);
+            cacheExecutor.run(cache);
             cacheMemory.await();
-            bbassert(!cacheReturn, "Cache declaration cannot return a value");
+            bbassert(!cacheExecutor.hasReturned(), "Cache declaration cannot return a value");
             for (int key : cacheMemory.finals) {
                 DataPtr obj = cacheMemory.get(key);
-                bbassert(obj.exists() && obj->getType()!=STRUCT, "Structs cannot be cached");
+                bbassert(!obj.existsAndTypeEquals(STRUCT), "Structs cannot be cached");
                 obj->addOwner();
                 cachedData[key] = obj;
             }
@@ -118,8 +249,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             int pos = i + 1;
             int depth = 0;
             OperationType command_type;
-            while(pos <= program->size()) {
-                command_type = (*program)[pos]->operation;
+            while(pos <= program.size()) {
+                command_type = program[pos]->operation;
                 if(command_type == BEGIN || command_type == BEGINFINAL) depth++;
                 if(command_type == END) {
                     if(depth == 0) break;
@@ -128,7 +259,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 pos++;
             }
             bbassert(depth >= 0, "Code block never ended.");
-            auto cache = new Code(program, i + 1, pos);
+            auto cache = new Code(&program, i + 1, pos);
             cache->addOwner();
             cache->jitable = jit(cache);
             command->value = cache;
@@ -141,7 +272,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             // Function or method call
             DataPtr context = command->args[1] == variableManager.noneId ? nullptr : memory->get(command->args[1]);
             DataPtr called = memory->get(command->args[2]);
-            bbassert(called.exists(), "Cannot call a missing value.");
+            bbassert(called.exists(), "Cannot call a missing value or literal.");
             if(called->getType()!=CODE && called->getType()!=STRUCT) {
                 args.size = 2;
                 args.arg0 = called;
@@ -153,7 +284,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             if(called->getType()==STRUCT) {
                 auto strct = static_cast<Struct*>(called.get());
                 auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
-                bbassert(val.exists() && val->getType()==CODE, "Struct was called like a method but has no implemented code for `call`.");
+                bbassert(val.existsAndTypeEquals(CODE), "Struct was called like a method but has no implemented code for `call`.");
                 //static_cast<Code*>(val)->scheduleForParallelExecution = false; // struct calls are never executed in parallel
                 memory->codeOwners[static_cast<Code*>(val.get())] = static_cast<Struct*>(called.get());
                 called = (val);
@@ -161,21 +292,20 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto code = static_cast<Code*>(called.get());
             if(forceStayInThread || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
                 BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
-                bool newReturnSignal(false);
                 if(context.exists()) {
                     bbassert(context->getType() == CODE, "Call context must be a code block.");
-                    Result returnedValue = executeBlock(static_cast<Code*>(context.get()), &newMemory, newReturnSignal, forceStayInThread);
-                    if(newReturnSignal) {
+                    Code* callCode = static_cast<Code*>(context.get());
+                    ExecutionInstance executor(callCode, &newMemory, forceStayInThread);
+                    Result returnedValue = executor.run(callCode);
+                    if(executor.hasReturned()) {
                         result = returnedValue.get();
                         SET_RESULT;
                         break;
                     }
                 }
-                //newMemory.detach(code->getDeclarationMemory());
-                //newMemory.detach(memory);
                 auto it = memory->codeOwners.find(code);
-                DataPtr thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
-                if(thisObj.exists()) newMemory.unsafeSet(variableManager.thisId, thisObj, nullptr);
+                const auto& thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
+                if(thisObj.exists()) newMemory.set(variableManager.thisId, thisObj);
                 std::unique_lock<std::recursive_mutex> executorLock;
                 if(thisObj.exists()) {
                     bbassert(thisObj->getType()==STRUCT, "Internal error: `this` was neither a struct nor missing (in the last case it would have been replaced by the scope)");
@@ -184,30 +314,21 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 }
                 newMemory.allowMutables = false;
                 bool forceStayInThread = thisObj.exists(); // overwrite the option
-                //newMemory.leak(); (this is for testing only - we are not leaking any memory to other threads if we continue in the same thread, so no need to enable atomic reference counting)
-                if(code->jitable && code->jitable->run(&newMemory, result, newReturnSignal, forceStayInThread)) {
-                    if(thisObj.exists()) newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
-                    newMemory.detach(nullptr);
-                    //newMemory.release();
-                    SET_RESULT;
-                }
-                else {
-                    Result returnedValue = executeBlock(code, &newMemory, newReturnSignal, forceStayInThread);
-                    newMemory.detach(nullptr);
-                    result = returnedValue.get();
-                    if(thisObj.exists()) newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
-                    //newMemory.release();
-                    SET_RESULT;
-                }
+                ExecutionInstance executor(code, &newMemory, forceStayInThread);
+                newMemory.detach(nullptr);
+                Result returnedValue = executor.run(code);
+                result = returnedValue.get();
+                if(thisObj.exists()) newMemory.set(variableManager.thisId, nullptr);
+                SET_RESULT;
                 break;
             } 
-            else {
+            else { // 
                 auto newMemory = new BMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
-                bool newReturnSignal(false);
                 if(context.exists()) {
                     bbassert(context->getType() == CODE, "Call context must be a code block.");
-                    Result returnedValue = executeBlock(static_cast<Code*>(context.get()), newMemory, newReturnSignal, forceStayInThread);
-                    if(newReturnSignal) {
+                    ExecutionInstance executor(static_cast<Code*>(context.get()), newMemory, forceStayInThread);
+                    Result returnedValue = executor.run(static_cast<Code*>(context.get()));
+                    if(executor.hasReturned()) {
                         result = returnedValue.get();
                         SET_RESULT;
                         break;
@@ -215,15 +336,13 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                 }
                 //newMemory->detach(memory);
                 auto it = memory->codeOwners.find(code);
-                DataPtr thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
-                if(thisObj.exists()) newMemory->unsafeSet(variableManager.thisId, thisObj, nullptr);
+                const auto& thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
+                if(thisObj.exists()) newMemory->set(variableManager.thisId, thisObj);
                 newMemory->allowMutables = false;
-                newMemory->leak(); // for all transferred variables, make their reference counter thread safe
                 auto futureResult = new ThreadResult();
                 auto future = new Future(futureResult);
                 future->addOwner();//the attached_threads are also an owner
                 memory->attached_threads.insert(future);
-                //newMemory->attached_threads.insert(future);
                 futureResult->start(code, newMemory, futureResult, command, thisObj);
                 result = future;
             }
@@ -231,29 +350,24 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
         case RETURN: {
             result = command->args[1] == variableManager.noneId ? nullptr : memory->get(command->args[1]);
-            //if(result)
-            //    result->leak();
             returnSignal = true;
         } return;
 
         case GET: {
             BMemory* from(nullptr);
-            result = memory->getOrNull(command->args[1], true);
-            if(result==nullptr) {
+            const auto& objFound = memory->getOrNull(command->args[1], true);
+            if(!objFound.exists()) {
                 bbassert(command->args[1]==variableManager.thisId, "Missing value"+std::string(memory->size()?"":" in cleared memory ")+": " + variableManager.getSymbol(command->args[1]));
                 from = memory;
                 result = from->get(command->args[2]);
             }
             else {
-                bbassert(result->getType() == STRUCT, "Can only get elements from structs");
-                auto obj = static_cast<Struct*>(result.get());
+                bbassert(objFound.existsAndTypeEquals(STRUCT), "Can only get elements from structs, not"+std::to_string(objFound->getType()));
+                auto obj = static_cast<Struct*>(objFound.get());
                 std::lock_guard<std::recursive_mutex> lock(obj->memoryLock);
                 from = obj->getMemory();
                 result = from->get(command->args[2]);
-                if(result->getType() == CODE && from) {
-                    //static_cast<Code*>(result)->scheduleForParallelExecution = false;  // never execute struct calls in parallel
-                    memory->codeOwners[static_cast<Code*>(result.get())] = obj;
-                }
+                if(result.existsAndTypeEquals(CODE)) memory->codeOwners[static_cast<Code*>(result.get())] = obj;
             }
         } break;
         case ISCACHED: {
@@ -262,20 +376,19 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             break;
         }
         case IS: {
-            result = command->knownLocal[1]?memory->getShallow(command->args[1]):memory->get(command->args[1], true);
-            bbassert(result.exists(), "Missing value"+std::string(memory->size()?"":" in cleared memory ")+": " + variableManager.getSymbol(command->args[1]));
+            result = memory->get(command->args[1], true);
             if(result->getType()==ERRORTYPE) bberror(enrichErrorDescription(command, result->toString(memory)));
         } break;
 
         case AS: {
             result = memory->getOrNull(command->args[1], true);
-            bbassert(result.exists(), "Missing value"+std::string(memory->size()?"":" in cleared memory ")+": " + variableManager.getSymbol(command->args[1]));
-            if(result->getType()==ERRORTYPE) static_cast<BError*>(result.get())->consume();
+            //bbassert(!result.islitorexists(), "Missing value"+std::string(memory->size()?"":" in cleared memory ")+": " + variableManager.getSymbol(command->args[1]));
+            if(result.existsAndTypeEquals(ERRORTYPE)) static_cast<BError*>(result.get())->consume();
         } break;
 
         case EXISTS: {
             DataPtr res = memory->getOrNull(command->args[1], true);
-            result = (res.exists()?res->getType()!=ERRORTYPE:false)?::Boolean::valueTrue:Boolean::valueFalse;
+            result = DataPtr(!res.existsAndTypeEquals(ERRORTYPE));
         } break;
 
         case SET: {
@@ -284,10 +397,10 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto structObj = static_cast<Struct*>(obj.get());
             std::lock_guard<std::recursive_mutex> lock(structObj->memoryLock);
             DataPtr setValue = memory->getOrNullShallow(command->args[3]);
-            if(setValue.exists() && setValue->getType()==CODE) setValue = static_cast<Code*>(setValue.get())->copy();
+            if(setValue.existsAndTypeEquals(CODE)) setValue = static_cast<Code*>(setValue.get())->copy();
             if(setValue.exists()) setValue->leak();
             auto structMemory = structObj->getMemory();
-            structMemory->unsafeSet(memory, command->args[2], setValue, nullptr);//structMemory->getOrNullShallow(command->args[2]));
+            structMemory->set(command->args[2], setValue);//structMemory->getOrNullShallow(command->args[2]));
             result = nullptr;
         } break;
 
@@ -306,8 +419,6 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
         } break;
 
         case WHILE: {
-            // WE HAVE TWO OPTIONS: either the block-based mechanism or the inlined mechanism. Do not forget to change the parser too.
-            #ifdef WHILE_WITH_CODE_BLOCKS
             DataPtr condition = memory->get(command->args[1]);
             DataPtr body = memory->get(command->args[2]);
             bbassert(body->getType() == CODE, "While body can only be a code block.");
@@ -315,75 +426,20 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto codeBody = static_cast<Code*>(body.get());
             auto codeCondition = static_cast<Code*>(condition.get());
             
-            bool checkValue;
-            if(codeCondition->jitable && codeCondition->jitable->runWithBooleanIntent(memory, checkValue, forceStayInThread)){
-
-            }
-            else if(codeCondition->jitable && codeCondition->jitable->run(memory, result, returnSignal, forceStayInThread)){
-                DataPtr check = result;
-                if (returnSignal) {result = check;SET_RESULT;break;}
-                bbassert(check.exists(), "Nothing was evaluated in while condition");
-                bbassert(check->getType()==BB_BOOL, "Condition did not evaluate to a boolean");
-                checkValue = check==Boolean::valueTrue;
-            }
-            else
-            {
-                Result returnedValue = executeBlock(codeCondition, memory, returnSignal, forceStayInThread);
+            bool checkValue(true);
+            while(checkValue) {
+                Result returnedValue = run(codeCondition);
                 DataPtr check = returnedValue.get();
                 if (returnSignal) {result = check;SET_RESULT;break;}
-                bbassert(check.exists(), "Nothing was evaluated in while condition");
-                bbassert(check->getType()==BB_BOOL, "Condition did not evaluate to a boolean");
-                checkValue = check==Boolean::valueTrue;
-            }
-            while(checkValue) {
-                if(codeBody->jitable && codeBody->jitable->run(memory, result, returnSignal, forceStayInThread)) {
-                    if(returnSignal) {SET_RESULT;break;}
-                }
-                else {
-                    Result returnedValue = executeBlock(codeBody, memory, returnSignal, forceStayInThread);
-                    if (returnSignal) {result = returnedValue.get();SET_RESULT;break;}
-                }
-                if(codeCondition->jitable && codeCondition->jitable->runWithBooleanIntent(memory, checkValue, forceStayInThread)){
-                }
-                else 
-                if(codeCondition->jitable && codeCondition->jitable->run(memory, result, returnSignal, forceStayInThread)) {
-                    DataPtr check = result;
-                    if (returnSignal) {result = check;SET_RESULT;break;}
-                    bbassert(check.exists(), "Nothing was evaluated in while condition");
-                    bbassert(check->getType()==BB_BOOL, "Condition did not evaluate to a boolean");
-                    checkValue = check==Boolean::valueTrue;
-                }
-                else {
-                    Result returnedValue = executeBlock(codeCondition, memory, returnSignal, forceStayInThread);
-                    DataPtr check = returnedValue.get();
-                    if (returnSignal) {result = check;SET_RESULT;break;}
-                    bbassert(check.exists(), "Nothing was evaluated in while condition");
-                    bbassert(check->getType()==BB_BOOL, "Condition did not evaluate to a boolean");
-                    checkValue = check==Boolean::valueTrue;
-                }
-            }
-            result = nullptr;
-            if(returnSignal)
-                break;
-            #else
-            DataPtr condition = memory->get(command->args[1]);
-            DataPtr body = memory->get(command->args[2]);
-            bbassert(body->getType() == CODE, "While body can only be a code block.");
-            auto codeBody = static_cast<Code*>(body);
+                bbassert(check.isbool(), "While condition did not evaluate to bool");
+                checkValue = check.unsafe_tobool();
+                if(!checkValue) break;
 
-            while (condition==Boolean::valueTrue) {
-                if(codeBody->jitable && codeBody->jitable->run(memory, result, returnSignal)) {
-                    if(returnSignal)
-                        break;
-                    condition = memory->get(command->args[1]);
-                    continue;
-                }
-                Result returnedValue = executeBlock(codeBody, memory, returnSignal);
-                if (returnSignal) {result = returnedValue.get();SET_RESULT;break;}
-                condition = memory->get(command->args[1]);
+                Result returnedValueFromBody = run(codeBody);
+                if (returnSignal) {result = returnedValueFromBody.get();SET_RESULT;break;}
             }
             result = nullptr;
-            #endif
+            if(returnSignal) break;
         } break;
 
         case IF: {
@@ -394,8 +450,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             if(condition==Boolean::valueTrue) {
                 if(accept->getType() == CODE) {
                     Code* code = static_cast<Code*>(accept.get());
-                    if(code->jitable && code->jitable->run(memory, result, returnSignal, forceStayInThread)) return;
-                    Result returnedValue = executeBlock(code, memory, returnSignal, forceStayInThread);
+                    Result returnedValue = run(code);
                     result = returnedValue.get();
                     SET_RESULT;
                 }
@@ -404,10 +459,9 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
                     SET_RESULT;
                 }
             } 
-            else if (reject.exists() && reject->getType() == CODE) {
+            else if (reject.existsAndTypeEquals(CODE)) {
                 Code* code = static_cast<Code*>(reject.get());
-                if(code->jitable && code->jitable->run(memory, result, returnSignal, forceStayInThread))  return;
-                Result returnedValue = executeBlock(code, memory, returnSignal, forceStayInThread);
+                Result returnedValue = run(code);
                 result = returnedValue.get();
                 SET_RESULT;
             }
@@ -421,10 +475,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             std::string printing;
             for(int i = 1; i < command->nargs; i++) {
                 DataPtr printable = MEMGET(memory, i);
-                if(printable.exists()) {
-                    std::string out = printable->toString(memory);
-                    printing += out + " ";
-                }
+                std::string out = printable.exists()?printable->toString(memory):printable.torepr();
+                printing += out + " ";
             }
             printing = replaceEscapeSequences(printing);
             printing += "\n";
@@ -437,7 +489,7 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
         case CREATESERVER: {
             DataPtr port = memory->get(command->args[1]);
-            bbassert(port.exists() && port->getType()==BB_INT, "The server's port must be an integer.");
+            bbassert(port.existsAndTypeEquals(BB_INT), "The server's port must be an integer.");
             auto res = new RestServer(static_cast<Integer*>(port.get())->getValue());
             res->runServer();
             result = res;
@@ -474,21 +526,21 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
         case TRY: {
             memory->detach(memory->parent);
+            bool prevReturnSignal = returnSignal;
             try {
                 DataPtr condition = MEMGET(memory, 1);
                 bbassert(condition->getType()==CODE, "Can only inline a non-called code block for try condition");
                 auto codeCondition = static_cast<Code*>(condition.get());
-                bool tryReturnSignal(false);
-                Result returnedValue = executeBlock(codeCondition, memory, tryReturnSignal, forceStayInThread);
+                Result returnedValue = run(codeCondition);
                 memory->detach(memory->parent);
                 result = returnedValue.get();
-                if(!tryReturnSignal) {
-                    result = NO_TRY_INTERCEPT;
-                }
+                if(!returnSignal) result = NO_TRY_INTERCEPT;
+                returnSignal = prevReturnSignal;
                 SET_RESULT;
             }
             catch (const BBError& e) {
                 result = new BError(std::move(enrichErrorDescription(command, e.what())));
+                returnSignal = prevReturnSignal;
             }
         } break;
         
@@ -501,16 +553,16 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto codeAccept = static_cast<Code*>(accept.get());
             auto codeReject = static_cast<Code*>(reject.get());
             
-            if(condition.exists() && condition->getType()==ERRORTYPE) { //&& !((BError*)condition)->isConsumed()) {
+            if(condition.existsAndTypeEquals(ERRORTYPE)) { //&& !((BError*)condition)->isConsumed()) {
                 static_cast<BError*>(condition.get())->consume();
                 if(codeAccept) {
-                    Result returnValue = executeBlock(codeAccept, memory, returnSignal, forceStayInThread);
+                    Result returnValue = run(codeAccept);
                     result = returnValue.get();
                     SET_RESULT;
                 }
             }
             else if(codeReject) {
-                Result returnValue = executeBlock(codeReject, memory, returnSignal, forceStayInThread);
+                Result returnValue = run(codeReject);
                 result = returnValue.get();
                 SET_RESULT;
             }
@@ -523,22 +575,6 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
 
         case INLINE: {
             DataPtr source = MEMGET(memory, 1);
-            /*if(source->getType()==FILETYPE) {
-                if(command->value) {
-                    auto code = static_cast<Code*>(command->value);
-                    auto res = new Code(code->getProgram(), code->getStart(), code->getEnd(), nullptr, nullptr);//code->getAllMetadata());
-                    res->jitable = jit(res);
-                    result = res;
-                }
-                else {
-                    Result returnValue = compileAndLoad(static_cast<BFile*>(source)->getPath(), nullptr);
-                    result = returnValue.get();
-                    command->value = result;
-                    result->addOwner();
-                    SET_RESULT;
-                }
-            }
-            else */
             if(source->getType()==STRUCT) {
                 memory->pull(static_cast<Struct*>(source.get())->getMemory());
                 result = nullptr;
@@ -546,7 +582,8 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             else if(source->getType()!=CODE) bberror("Can only inline a code block or struct");
             else {
                 auto code = static_cast<Code*>(source.get());
-                Result returnedValue = executeBlock(code, memory, returnSignal, forceStayInThread);
+                ExecutionInstance executor(code, memory, forceStayInThread);
+                Result returnedValue = executor.run(code);
                 result = returnedValue.get();
                 SET_RESULT;
             }
@@ -564,10 +601,9 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             bbassert(source->getType()==CODE, "Can only call `default` on a code block");
             auto code = static_cast<Code*>(source.get());
             BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
-            bool defaultReturnSignal(false);
-            executeBlock(code, &newMemory, defaultReturnSignal, forceStayInThread);
-            if(defaultReturnSignal)
-                bberror("Cannot return from within a `default` statement");
+            ExecutionInstance executor(code, &newMemory, forceStayInThread);
+            Result returnedValue = executor.run(code);
+            if(executor.hasReturned())  bberror("Cannot return from within a `default` statement");
             memory->replaceMissing(&newMemory);
         } break;
 
@@ -577,15 +613,13 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             auto code = static_cast<Code*>(source.get());
             auto newMemory = new BMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
             auto thisObj = new Struct(newMemory); 
-            newMemory->unsafeSet(variableManager.thisId, thisObj, nullptr);
+            newMemory->set(variableManager.thisId, thisObj);
             newMemory->setFinal(variableManager.thisId);
-            bool newReturnSignal(false);
-            Result returnedValue = executeBlock(code, newMemory, newReturnSignal, forceStayInThread);
-            result = returnedValue.get();
+            ExecutionInstance executor(code, newMemory, forceStayInThread);
+            Result returnedValue = executor.run(code);
             newMemory->detach(nullptr);
-            newMemory->leak(); // TODO: investigate if this should be here or manually on getting and setting (here may be better to remove checks given that setting and getting are already slower)
-            if(result!=thisObj) {
-                if(command->args[0]!=variableManager.noneId) memory->unsafeSet(command->args[0], result, nullptr);
+            if(returnedValue.get().get()!=thisObj) {
+                if(command->args[0]!=variableManager.noneId) memory->set(command->args[0], result);
                 thisObj->removeFromOwner(); // do this after setting
                 return;
             }
@@ -612,11 +646,17 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
             result = new BFloat(std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now()-program_start).count());
         break;
         default: {
-            int nargs = command->nargs;
-            args.size = nargs - 1;
-            if (nargs > 1) args.arg0 = MEMGET(memory, 1);
-            if (nargs > 2) args.arg1 = MEMGET(memory, 2);
-            if (nargs > 3) args.arg2 = MEMGET(memory, 3);
+            if(command->operation==ADD || command->operation==SUB || command->operation==MUL || command->operation==DIV || command->operation==TOSTR 
+            || command->operation==LT || command->operation==LE || command->operation==GT || command->operation==GE || command->operation==EQ || command->operation==NEQ) {
+                // DO NOT RETRIEVE MEMORY AGAIN SINCE WE ALREADY TOOK CARE TO HELP THIS BLOCK AT THE BEGINNING WHERE WE WERE HANDLING LITERALS
+            }
+            else {
+                int nargs = command->nargs;
+                args.size = nargs - 1;
+                if (nargs > 1) args.arg0 = MEMGET(memory, 1);
+                if (nargs > 2) args.arg1 = MEMGET(memory, 2);
+                if (nargs > 3) args.arg2 = MEMGET(memory, 3);
+            }
             Result returnValue = Data::run(command->operation, &args, memory);
             result = returnValue.get();
             SET_RESULT;
@@ -625,6 +665,5 @@ void handleCommand(std::vector<Command*>* program, int& i, BMemory* memory, bool
     //if(!result && command->knownLocal[0])
     //    bberror("Missing value encountered in intermediate computation "+variableManager.getSymbol(command->args[0])+". Explicitly use the `as` assignment to explicitly set potentially missing values\n");
     //DataPtr prevResult = command->knownLocal[0]?memory->getOrNullShallow(command->args[0]):memory->getOrNull(command->args[0], true)
-    if(command->args[0]!=variableManager.noneId) 
-        memory->unsafeSet(command->args[0], result, nullptr);
+    if(command->args[0]!=variableManager.noneId) memory->set(command->args[0], result);
 }

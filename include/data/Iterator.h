@@ -50,7 +50,6 @@ class IntRange : public Iterator {
 private:
     mutable std::recursive_mutex memoryLock; 
     int64_t first, last, step;
-    //Integer* cache;
 public:
     explicit IntRange(int64_t first, int64_t last, int64_t step);
     ~IntRange();
@@ -59,16 +58,12 @@ public:
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         return (last-first)/step;
     }
-    bool isContiguous() const override {
-        return step==1;
-    }
+    bool isContiguous() const override {return step==1;}
     int64_t getStart() const override {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         return first;
     }
-    int64_t getEnd() const override {
-        return last;
-    }
+    int64_t getEnd() const override {return last;}
     virtual DataPtr fastNext() override;
 };
 
@@ -76,7 +71,6 @@ class FloatRange : public Iterator {
 private:
     mutable std::recursive_mutex memoryLock; 
     double first, last, step;
-    //BFloat* cache;
 public:
     explicit FloatRange(double first, double last, double step);
     ~FloatRange();

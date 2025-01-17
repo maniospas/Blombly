@@ -69,9 +69,9 @@ Command::Command(const std::string& command, SourceFile* source_, int line_, Com
             //replaceAll(raw, "\\\"", "\"");
             value = new BString(raw);
         }
-        else if (raw[0] == 'I') value = new Integer(std::atoi(raw.substr(1).c_str()));
-        else if (raw[0] == 'F') value = new BFloat(std::atof(raw.substr(1).c_str()));
-        else if (raw[0] == 'B') value = (raw == "Btrue")?Boolean::valueTrue:Boolean::valueFalse;
+        else if (raw[0] == 'I') value = DataPtr((int64_t)std::atoi(raw.substr(1).c_str()));//new Integer(std::atoi(raw.substr(1).c_str()));
+        else if (raw[0] == 'F') value = DataPtr((double)std::atof(raw.substr(1).c_str()));//new BFloat(std::atof(raw.substr(1).c_str()));
+        else if (raw[0] == 'B') value = DataPtr((raw == "Btrue")?true:false);//(raw == "Btrue")?Boolean::valueTrue:Boolean::valueFalse;
         else bberror("Unable to understand builtin value prefix (should be one of I,F,B,\"): " + raw);
         if(value.exists()) value->addOwner();
     }

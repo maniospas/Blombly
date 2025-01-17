@@ -11,8 +11,8 @@ Result::Result(Result& other) noexcept : data(other.data) {
     if (data.exists()) data->addOwner();
 }
 
-Result::Result(Result&& other) noexcept : data(other.data) {
-    other.data = nullptr;
+Result::Result(Result&& other) noexcept : data(std::move(other.data)) {
+    other.data = DataPtr::NULLP;
 }
 
 Result::~Result() {
@@ -21,8 +21,10 @@ Result::~Result() {
 
 Result& Result::operator=(const Result& other) {
     if (this != &other) {
+        auto prevData = data;
         data = other.data;
         if (data.exists()) data->addOwner();
+        if (prevData.exists()) prevData->removeFromOwner();
     }
     return *this;
 }
@@ -30,12 +32,12 @@ Result& Result::operator=(const Result& other) {
 Result& Result::operator=(Result&& other) noexcept {
     if (this != &other) {
         if(data.exists()) data->removeFromOwner();
-        data = other.data;
-        other.data = nullptr;
+        data = std::move(other.data);
+        other.data = DataPtr::NULLP;
     }
     return *this;
 }
 
-DataPtr Result::get() const {
+const DataPtr& Result::get() const {
     return data;
 }

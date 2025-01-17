@@ -189,9 +189,9 @@ Result Graphics::implement(const OperationType operation, BuiltinArgs* args, BMe
                 // Create a new struct for key events
                 BMemory* memory = new BMemory(nullptr, 3);
                 Struct* signalStruct = new Struct(memory);
-                memory->unsafeSet(variableManager.thisId, signalStruct, nullptr);
-                signalStruct->getMemory()->unsafeSet(typeVariable, event.type == SDL_KEYDOWN?keyDownString:keyUpString, nullptr);
-                signalStruct->getMemory()->unsafeSet(keyVariable, new BString(keyName), nullptr);
+                memory->set(variableManager.thisId, signalStruct);
+                signalStruct->getMemory()->set(typeVariable, event.type == SDL_KEYDOWN?keyDownString:keyUpString);
+                signalStruct->getMemory()->set(keyVariable, new BString(keyName));
                 
                 // Add the struct to signals
                 signalStruct->addOwner();
@@ -210,11 +210,11 @@ Result Graphics::implement(const OperationType operation, BuiltinArgs* args, BMe
 
                 BMemory* memory = new BMemory(nullptr, 5);
                 Struct* signalStruct = new Struct(memory);
-                memory->unsafeSet(variableManager.thisId, signalStruct, nullptr);
-                signalStruct->getMemory()->unsafeSet(typeVariable, event.type == SDL_MOUSEBUTTONDOWN ? mouseDownString : mouseUpString, nullptr);
-                signalStruct->getMemory()->unsafeSet(keyVariable, new BString(button), nullptr);
-                signalStruct->getMemory()->unsafeSet(xVariable, new BFloat(static_cast<float>(x)), nullptr);
-                signalStruct->getMemory()->unsafeSet(yVariable, new BFloat(static_cast<float>(y)), nullptr);
+                memory->set(variableManager.thisId, signalStruct);
+                signalStruct->getMemory()->set(typeVariable, event.type == SDL_MOUSEBUTTONDOWN ? mouseDownString : mouseUpString);
+                signalStruct->getMemory()->set(keyVariable, new BString(button));
+                signalStruct->getMemory()->set(xVariable, new BFloat(static_cast<float>(x)));
+                signalStruct->getMemory()->set(yVariable, new BFloat(static_cast<float>(y)));
                 signalStruct->addOwner();
                 signals->contents.push_back(signalStruct);
             } else if (event.type == SDL_MOUSEMOTION) {
@@ -223,10 +223,10 @@ Result Graphics::implement(const OperationType operation, BuiltinArgs* args, BMe
 
                 BMemory* memory = new BMemory(nullptr, 4);
                 Struct* signalStruct = new Struct(memory);
-                memory->unsafeSet(variableManager.thisId, signalStruct, nullptr);
-                signalStruct->getMemory()->unsafeSet(typeVariable, mouseMoveString, nullptr);
-                signalStruct->getMemory()->unsafeSet(xVariable, new BFloat(static_cast<float>(x)), nullptr);
-                signalStruct->getMemory()->unsafeSet(yVariable, new BFloat(static_cast<float>(y)), nullptr);
+                memory->set(variableManager.thisId, signalStruct);
+                signalStruct->getMemory()->set(typeVariable, mouseMoveString);
+                signalStruct->getMemory()->set(xVariable, new BFloat(static_cast<float>(x)));
+                signalStruct->getMemory()->set(yVariable, new BFloat(static_cast<float>(y)));
 
                 // Add the struct to signals
                 signalStruct->addOwner();

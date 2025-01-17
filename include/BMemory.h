@@ -47,9 +47,8 @@ public:
 
 class BMemory {
 private:
-    tsl::hopscotch_map<int, DataPtr> data;
-    int fastId;
-    DataPtr fastData;
+    tsl::hopscotch_map<int, int> data;
+    std::vector<DataPtr> contents;
     void unsafeSet(int item, DataPtr value);
     std::vector<Code*> finally;
 public:
@@ -61,25 +60,19 @@ public:
     void release();
     bool allowMutables;
 
-    bool isOrDerivedFrom(BMemory* memory) const;
-    void leak();
-
     explicit BMemory(BMemory* par, int expectedAssignments, DataPtr thisObject=nullptr);
     ~BMemory();
 
-    bool contains(int item);
-    DataPtr get(int item); // allowMutable = true
-    DataPtr get(int item, bool allowMutable);
-    DataPtr getShallow(int item);
-    DataPtr getOrNull(int item, bool allowMutable);
-    DataPtr getOrNullShallow(int item);
-    void unsafeSet(BMemory* handler, int item, DataPtr value, DataPtr prev);
-    void unsafeSet(int item, DataPtr value, DataPtr prev);
+    const DataPtr& get(int item); // allowMutable = true
+    const DataPtr& get(int item, bool allowMutable);
+    const DataPtr& getShallow(int item);
+    const DataPtr& getOrNull(int item, bool allowMutable);
+    const DataPtr& getOrNullShallow(int item);
+    void set(int item, DataPtr value);
+    void unsafeSetLiteral(int item, const DataPtr& value);
     int size() const;
-    void removeWithoutDelete(int item);
     void setFinal(int item);
     bool isFinal(int item) const;
-    bool containsAnywhere(BMemory* other);
 
     void pull(BMemory* other);
     void replaceMissing(BMemory* other);

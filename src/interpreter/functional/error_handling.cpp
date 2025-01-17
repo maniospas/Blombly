@@ -21,9 +21,8 @@ std::string enrichErrorDescription(Command* command, std::string message) {
     return std::move(message);
 }
 
-void handleExecutionError(std::vector<Command*>* program, int i, const BBError& e) {
-    Command* command = program->at(i);
-    throw BBError(std::move(enrichErrorDescription(command, e.what())));
+void ExecutionInstance::handleExecutionError(int i, const BBError& e) {
+    throw BBError(std::move(enrichErrorDescription(program[i], e.what())));
 }
 
 #endif

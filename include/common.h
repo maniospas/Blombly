@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <bit>
 #include <cstdint>
+#include <string>
 
 
 #define WHILE_WITH_CODE_BLOCKS  // this changes the while loop parsing and implementation. define for slower but more easily jitable loops
@@ -78,13 +79,9 @@ struct BuiltinArgs;
 class VariableManager;
 class Code;
 class Result;
-
 extern VariableManager variableManager;
 
-Result executeBlock(Code* code, BMemory* memory, bool  &returnSignal, bool forceStayInThread);
-
-#define UNSAFEMEMGET(memory, arg) (command->knownLocal[arg]?memory->getOrNullShallow(command->args[arg]):memory->get(command->args[arg]))
-#define MEMGET(memory, arg) (command->knownLocal[arg]?memory->getShallow(command->args[arg]):memory->get(command->args[arg]))
+#define MEMGET(memory, arg) memory->get(command->args[arg])
 
 // Code reused when returning various data from overridden Data::implement 
 #define STRING_RESULT(expr) return std::move(Result(new BString(expr)))
@@ -185,8 +182,26 @@ struct DataPtr {
     }
 
     inline bool exists() const {
-        if(datatype & IS_PTR) return data;
-        return true; // the "object" is always there if there is no data structure
+        if(datatype & IS_NOT_PTR) return false; //exists is always a check for pointers
+        return data;
+    }
+
+    inline bool existsAndTypeEquals(Datatype type) const;
+
+    inline bool islitorexists() const {
+        if(datatype & IS_PTR) return data; 
+        return true;
+    }
+    inline bool islit() const {
+        return datatype & IS_NOT_PTR;
+    }
+
+    std::string torepr() const {
+        if(datatype & IS_PTR) return "Data object at memory address: "+std::to_string(data);
+        if(datatype & IS_FLOAT) return std::to_string(unsafe_tofloat());
+        if(datatype & IS_INT) return std::to_string(unsafe_toint());
+        if(datatype & IS_BOOL) return std::to_string(unsafe_tobool());
+        return "Corrupted data";
     }
 
     bool operator==(const DataPtr& other) const {
@@ -202,12 +217,11 @@ struct DataPtr {
     inline bool isint() const { return datatype & IS_INT; }
     inline bool isbool() const { return datatype & IS_BOOL; }
     inline bool isptr() const { return datatype & IS_PTR; }
-
+    static DataPtr NULLP;
 private:
     DATTYPETYPE datatype;
     int64_t data;
 };
-
 
 
 

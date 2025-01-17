@@ -6,34 +6,23 @@
 #include "data/Future.h"
 #include "data/Jitable.h"
 
-Result executeBlock(Code* code, BMemory* memory, bool &returnSignal, bool forceStayInThread) {
-    BuiltinArgs args;
-    DataPtr value = nullptr;
-
+Result ExecutionInstance::run(Code* code) {
+    bbassert(code->getProgram()==&program, "Internal error: it should be impossible to change the global program pointer.");
     auto program = code->getProgram();
     int end = code->getEnd();
     int i = code->getStart();
-
     try {
         for (; i <= end; ++i) {
-            handleCommand(program, i, memory, returnSignal, args, value, forceStayInThread);
+            handleCommand(i);
             if (returnSignal) {
-                Result res(value);
+                Result res(result);
                 memory->runFinally();
-                //if(value && value->getType()==FUTURE) return std::move(static_cast<Future*>(value)->getResult());
                 return std::move(res);
             }
         }
-        //if(value && value->getType()==FUTURE) value = static_cast<Future*>(value)->getResult();
     } 
-    catch (const BBError& e) {
-        //return std::move(Result(new BError(std::move(e.what()))));
-        handleExecutionError(program, i, e);
-        value = nullptr;
-        // return std::move(Result(nullptr));
-    }
-    //memory->runFinally();
-    return std::move(Result(value));
+    catch (const BBError& e) {handleExecutionError(i, e);}
+    return std::move(Result(result));
 }
 
 

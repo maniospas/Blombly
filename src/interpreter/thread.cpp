@@ -18,14 +18,16 @@ void threadExecute(Code* code,
 
     try {
         bool returnSignal(false);
-        Result returnValue = executeBlock(code, memory, returnSignal, thisObj.exists());
-        DataPtr value = returnValue.get();
+
+        ExecutionInstance executor(code, memory, thisObj.exists());
+        Result returnedValue = executor.run(code);
+        DataPtr value = returnedValue.get();
         if(!returnSignal) {
             value = nullptr;
-            returnValue = Result(nullptr);
+            returnedValue = Result(nullptr);
         }
         if(value.exists()) value->leak();
-        result->value = std::move(returnValue);
+        result->value = std::move(returnedValue);
 
     } 
     catch (const BBError& e) {
@@ -34,7 +36,7 @@ void threadExecute(Code* code,
 
     try {
         memory->detach(nullptr); 
-        memory->unsafeSet(variableManager.thisId, nullptr, nullptr);
+        memory->set(variableManager.thisId, DataPtr::NULLP);
         delete memory;
     } 
     catch (const BBError& e) {

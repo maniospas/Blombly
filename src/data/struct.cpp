@@ -3,6 +3,7 @@
 #include "data/List.h"
 #include "data/Code.h"
 #include "BMemory.h"
+#include "interpreter/functional.h"
 #include <iostream>
 #include <stdexcept>
 #include "common.h"
@@ -71,13 +72,13 @@ Result Struct::implement(const OperationType operation_, BuiltinArgs* args_, BMe
 
     Code* code = static_cast<Code*>(implementation.get());
     BMemory newMemory(calledMemory, LOCAL_EXPECTATION_FROM_CODE(code));
-    newMemory.unsafeSet(variableManager.thisId, this, nullptr);
-    newMemory.unsafeSet(variableManager.argsId, args, nullptr);
+    newMemory.unsafeSet(variableManager.thisId, this);
+    newMemory.unsafeSet(variableManager.argsId, args);
 
-    bool hasReturned(false);
-    Result value = executeBlock(code, &newMemory, hasReturned, true); // avoid deadlocks by forcing execution to stay in thread (last true argument)
-    newMemory.unsafeSet(variableManager.thisId, nullptr, nullptr);
-    bbassert(hasReturned || operation_==PUT || operation_==PUSH || operation_==CLEAR, "Implementation for `" + operation + "` did not return anything");
+    ExecutionInstance executor(code, &newMemory, true);
+    Result value = executor.run(code);
+    newMemory.unsafeSet(variableManager.thisId, DataPtr::NULLP);
+    bbassert(executor.hasReturned() || operation_==PUT || operation_==PUSH || operation_==CLEAR, "Implementation for `" + operation + "` did not return anything");
     return Result(value);
 }
 

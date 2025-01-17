@@ -182,15 +182,14 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
         implargs.arg0 = args->arg1;
         auto res = args->arg1->implement(TOITER, &implargs, memory);
         DataPtr _iterator = res.get();
-        bbassert(_iterator.exists() && _iterator->getType() == ITERATOR, "String index is neither an integer nor can be converted to an iterator viat `iter`: "+args->arg1->toString(memory));
+        bbassert(_iterator.existsAndTypeEquals(ITERATOR), "String index is neither an integer nor can be converted to an iterator viat `iter`: "+args->arg1->toString(memory));
         Iterator* iterator = static_cast<Iterator*>(_iterator.get());
 
         // Treat contiguous iterators more efficiently
         if (iterator->isContiguous()) {
             int64_t start = iterator->getStart();
             int64_t end = iterator->getEnd();
-            if (start < 0 || start >= toString(memory).size() || end < 0 || end > toString(memory).size() || start > end) 
-                return std::move(Result(OUT_OF_RANGE));
+            if (start < 0 || start >= toString(memory).size() || end < 0 || end > toString(memory).size() || start > end) return std::move(Result(OUT_OF_RANGE));
             std::string result = toString(memory).substr(start, end - start);
             return std::move(Result(new BString(std::move(result))));
         } else {
