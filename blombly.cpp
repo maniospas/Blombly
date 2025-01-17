@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
         std::string arg = argv[i];
         if((arg == "--threads" || arg == "-t") && i + 1 < argc) threads = std::stoi(argv[++i]);
         else if(arg == "--version" || arg == "-v") {
-            std::cout << "Version: blombly 1.12.0\n";
+            std::cout << "Version: blombly 1.18.0\n";
             return 0;
         } 
         else if(arg == "--help" || arg == "-h") {

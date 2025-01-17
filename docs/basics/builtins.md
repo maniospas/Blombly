@@ -100,7 +100,7 @@ is overloaded by some data types. For example, format a float to a string of thr
       <tr>
         <td>Iterable operations</td>
         <td><code>+</code><br><code>a&lt;&lt;i</code><br><code>pop(a)</code><br><code>next(a)</code></td>
-        <td>String or list concatenation.<br>Push value `i` to iterable `a` (returns either the iterable or a result).<br>Extract the last value.<br>Extract the first value.</td>
+        <td>String or list concatenation.<br>Push value `i` to `a` (often to the end, returns either the iterable or a result).<br>Extract the last value.<br>Extract the first value.</td>
       </tr>
       <tr>
         <td>Comparisons</td>
@@ -180,7 +180,7 @@ is maintained for subsequent code.
     that `x` can be converted to a float and will be treated thusly from thereon.
 
 !!! tip
-    Usi the dash (`|`) notation for function calls of one argument, even if you don't have a semi-type interpretation in mind.
+    Use the dash (`|`) notation for function calls of one argument, even if you don't have a semi-type interpretation in mind.
 
 
 ## Control flow

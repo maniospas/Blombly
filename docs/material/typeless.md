@@ -30,7 +30,7 @@ of the conversion to the latter.
 ```java
 // point.bb
 final Point2D = {
-    str => "({this.x}, {this.y})";
+    str => "(!{this.x}, !{this.y})";
     add(other) => new {
         Point2D:
         x = this..x + other.x|float;
@@ -46,13 +46,13 @@ final Point2D = {
 
 Coords = {
     default name = "coords";
-    x = "{name}.x="|read|float;
-    y = "{name}.y="|read|float;
+    x = "!{name}.x="|read|float;
+    y = "!{name}.y="|read|float;
 }
 
 a = new {Point2D:name="a";Coords:}
 b = new {Point2D:name="b";Coords:}
-print("a.b = {a.dot(b)}");
+print("a.b = !{a.dot(b)}");
 ```
 
 ## Testing

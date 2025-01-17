@@ -51,14 +51,14 @@ Two equivalent examples follow.
 // main.bb (without applyign =>, which is not preferred)
 fmt(x) = {return x[".3f"]}
 number = "Give a number:"|read|float;
-print("This is a number {number:fmt}");
+print("This is a number !{number:fmt}");
 ```
 
 ```java
 // main.bb (preferred)
 fmt(x) => x[".3f"];
 number = "Give a number:"|read|float;
-print("This is a number {number:fmt}");
+print("This is a number !{number:fmt}");
 ```
 
 Similarly, prefer using control flow without brackets. If so,

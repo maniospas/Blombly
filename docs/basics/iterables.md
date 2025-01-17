@@ -13,10 +13,11 @@ automatically when using the `in` statement presented later.
 ## Lists
 
 Declare lists by separating values with a comma. Access and set
-its elements with square brackets where element indexes
-start from zero. You can also provide other iterables that hold
-integer-only values to retrieve multiple elements until that
-iterable goes out of bounds.
+their elements with square brackets where element indexes
+start from zero. You can also provide as indexes 
+lists or other iterables that hold integer-only values.
+This retrieves multiple elements until the key's index
+goes out of bounds.
 Here is an example that also demonstrates usage of
 the `len` function to obtain the number of elements.
 
@@ -139,7 +140,7 @@ while(i as it|next) print(i);
     through is modified, for example by adding, changing, or removing elements. The iterator
     may miss parts of the modifications it has already traversed through.
 
-The blombly compiler preloads a couple of common [macros](../advanced/preprocessor.md) in `libs/,bb`.
+The blombly compiler preloads a couple of common [macros](../advanced/preprocessor.md) in `libs/.bb`.
 The important part for iterables is that an `in` operator
 is provided. This preconstructs an iterator from any given data type
 and runs `as next` on it. Here is an example.
@@ -162,8 +163,8 @@ Length after iteration 3
 
 ## Ranges
 
-An addition to other iterators, Blombly provide ranges that go through a specified range
-of numbers. Like all iterators, ranges are only consumed once and need to be created anew to be
+Blombly provides ranges that go through a specified set
+of numbers. Like other iterators, ranges are only consumed once and need to be created anew to be
 repeated. There are four construction patterns for them.
 
 - `range(int end)` creates a range from `0` up to `end-1` and step `1`.
@@ -221,9 +222,8 @@ print(z);
 
 ## Maps
 
-Maps contain transformations between iterable objects
-that match keys to values. Use any objects or non-error primitives
-as keys and values. For keys, numbers and strings keys are considered
+Maps contain match struct or non-error primitive keys to values. 
+For keys, numbers and strings keys are considered
 the same based on their value, whereas other data match only themselves.
 Maps implement member access and set operators. But they are also iterables
 that yield `key, value` pairs as lists of two entries. Pop from the front or back of the pair 

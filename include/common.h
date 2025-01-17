@@ -14,9 +14,7 @@
 // Exception classes
 class Unimplemented : public std::exception {
 public:
-    const char* what() const noexcept override {
-        return "Unimplemented method.";
-    }
+    const char* what() const noexcept override {return "Unimplemented method.";}
 };
 
 class BBError : public std::runtime_error {

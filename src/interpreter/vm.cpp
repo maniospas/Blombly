@@ -6,11 +6,32 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <unordered_set>
 
 #include "BMemory.h"
 #include "data/Future.h"
 #include "utils.h"
 #include "interpreter/functional.h"
+
+extern std::string enrichErrorDescription(Command* command, std::string message);
+extern std::unordered_map<std::string, OperationType> toOperationTypeMap;
+
+void preliminarySimpleChecks(std::vector<Command*>* program) {
+    std::unordered_set<int> symbolDefinitions;
+    for (int i=0;i<program->size();++i) {
+        auto& command = program->at(i);
+        if(command->args.size()) symbolDefinitions.insert(command->args[0]);
+        if(command->operation==SET && command->args.size()>2)  symbolDefinitions.insert(command->args[1]);
+        if(command->operation==SETFINAL && command->args.size()>2)  symbolDefinitions.insert(command->args[1]);
+    }
+    for (int i=0;i<program->size();++i) {
+        auto& command = program->at(i);
+        for(int arg : command->args) {
+            if(arg==variableManager.thisId || arg==variableManager.noneId) continue;
+            if(symbolDefinitions.find(arg)==symbolDefinitions.end()) bberror(enrichErrorDescription(command, "Missing symbol (is declared nowhere and would create a runtime error): "+variableManager.getSymbol(arg)));
+        }
+    }
+}
 
 
 Result compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
@@ -43,6 +64,7 @@ Result compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
         ++i;
     }
     inputFile.close();
+    preliminarySimpleChecks(program);
 
     return Result(new Code(program, 0, program->size() - 1));
 }
@@ -69,6 +91,8 @@ int vm(const std::string& fileName, int numThreads) {
                 ++i;
             }
             inputFile.close();
+
+            preliminarySimpleChecks(program);
             
             BMemory memory(nullptr, DEFAULT_LOCAL_EXPECTATION);
             try {

@@ -160,18 +160,16 @@ std::string optimizeFromCode(const std::string& code, bool minimify) {
             command->enabled = false;
             while(i<program.size()) {
                 program[i]->enabled = false;
-                if(program[i]->args[0]=="BEGIN" || program[i]->args[0]=="BEGINFINAL")
-                    depth += 1;
-                if(program[i]->args[0]=="END")
-                    depth -= 1;
-                if(depth==0)
-                    break;
+                if(program[i]->args[0]=="BEGIN" || program[i]->args[0]=="BEGINFINAL") depth += 1;
+                if(program[i]->args[0]=="END") depth -= 1;
+                if(depth==0) break;
                 ++i;
             }
         }
-
     }
 
+
+    //export the program
     std::string result;
     int n = program.size();
     std::string towrite;
@@ -183,6 +181,8 @@ std::string optimizeFromCode(const std::string& code, bool minimify) {
         if (!program[i]->info.empty()) towrite = program[i]->info;
         else result += program[i]->toString();
     }
+
+
     return std::move(result);
 }
 

@@ -52,6 +52,7 @@ extern bool isAllowedLocation(const std::string& path);
 extern bool isAllowedWriteLocation(const std::string& path);
 extern std::string normalizeFilePath(const std::string& path);
 extern bool isAllowedLocationNoNorm(const std::string& path_);
+extern void preliminarySimpleChecks(std::vector<Command*>* program);
 std::string top_level_file;
 
 extern std::unordered_map<int, Data*> cachedData;
@@ -76,6 +77,7 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
                     else descriptor = new CommandContext(line.substr(1));
                     ++i;
                 }
+                preliminarySimpleChecks(program);
 
                 auto code = new Code(program, 0, program->size() - 1);
                 bool hasReturned(false);

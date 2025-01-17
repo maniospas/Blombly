@@ -1,6 +1,3 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
 #include "data/Graphics.h"
 #include "data/BError.h"
 #include "data/Boolean.h"
@@ -48,6 +45,8 @@ Graphics::Graphics(const std::string& title, int width, int height) : Data(GRAPH
 }
 
 Graphics::~Graphics() {
+    for (auto& pair : textureCache)  SDL_DestroyTexture(pair.second);
+    for (auto& pair : fontCache) TTF_CloseFont(pair.second);
     keyUpString->removeFromOwner();
     keyDownString->removeFromOwner();
     mouseUpString->removeFromOwner();
@@ -56,6 +55,28 @@ Graphics::~Graphics() {
     for (BList* list : renderQueue) list->removeFromOwner();
     TTF_Quit();
     destroySDL();
+}
+
+SDL_Texture* Graphics::getTexture(const std::string& path) {
+    auto it = textureCache.find(path);
+    if (it != textureCache.end()) return it->second;
+    SDL_Surface* surface = IMG_Load(path.c_str());
+    bbassert(surface, "Failed to load texture: " + path + ", SDL Error: " + IMG_GetError());
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+    bbassert(texture, "Failed to create texture: " + path + ", SDL Error: " + SDL_GetError());
+    textureCache[path] = texture;
+    return texture;
+}
+
+TTF_Font* Graphics::getFont(const std::string& path, int fontSize) {
+    std::string key = path + "?" + std::to_string(fontSize);
+    auto it = fontCache.find(key);
+    if (it != fontCache.end()) return it->second;
+    TTF_Font* font = TTF_OpenFont(path.c_str(), fontSize);
+    bbassert(font, "Failed to load font: " + path + ", TTF Error: " + TTF_GetError());
+    fontCache[key] = font;
+    return font;
 }
 
 void Graphics::initializeSDL() {
@@ -83,7 +104,7 @@ void Graphics::render() {
 
         if (list->contents[1]->getType() == STRING) {  // texts have the font path as the second argument
             bbassert(list->contents[0]->getType() == STRING, "First element must be a string (text)");
-            bbassert(list->contents[1]->getType() == STRING, "Second element must be a string (font path)");
+            //bbassert(list->contents[1]->getType() == STRING, "Second element must be a string (font path)");
             bbassert(list->contents[2]->getType() == BB_FLOAT || list->contents[2]->getType() == BB_INT, "Third element must be a float or integer (font size)");
             bbassert(list->contents[3]->getType() == BB_FLOAT || list->contents[3]->getType() == BB_INT, "Third element must be a float or integer (x-coordinate)");
             bbassert(list->contents[4]->getType() == BB_FLOAT || list->contents[4]->getType() == BB_INT, "Fourth element must be a float or integer (y-coordinate)");
@@ -97,18 +118,13 @@ void Graphics::render() {
             double y = list->contents[4]->getType() == BB_INT ? static_cast<Integer*>(list->contents[4])->getValue() : static_cast<BFloat*>(list->contents[4])->getValue();
             double angle = static_cast<BFloat*>(list->contents[4])->getValue();
 
-            TTF_Font* font = TTF_OpenFont(fontPath.c_str(), (int)(fontSize+0.5));
-            bbassert(font, "Failed to load font: " + fontPath);
-
+            TTF_Font* font = getFont(fontPath, static_cast<int>(fontSize + 0.5));
             SDL_Color color = {255, 255, 255, 255};
             SDL_Surface* textSurface = TTF_RenderText_Solid(font, text.c_str(), color);
-            TTF_CloseFont(font);
             bbassert(textSurface, "Failed to render text: " + text);
-
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, textSurface);
             SDL_FreeSurface(textSurface);
-            if (!texture) continue;
-
+            bbassert(texture, "Failed to render text: " + text);
             SDL_Rect dstRect = {static_cast<int>(x + 0.5), static_cast<int>(y + 0.5), textSurface->w, textSurface->h};
             SDL_RenderCopyEx(renderer, texture, nullptr, &dstRect, angle, nullptr, SDL_FLIP_NONE);
             SDL_DestroyTexture(texture);
@@ -129,16 +145,9 @@ void Graphics::render() {
             double dy = list->contents[4]->getType() == BB_INT ? static_cast<Integer*>(list->contents[4])->getValue() : static_cast<BFloat*>(list->contents[4])->getValue();
             double angle = list->contents[5]->getType() == BB_INT ? static_cast<Integer*>(list->contents[5])->getValue() : static_cast<BFloat*>(list->contents[5])->getValue();
 
-            SDL_Surface* surface = IMG_Load(texturePath.c_str());
-            bbassert(surface, "Failed to obtain texture path: " + texturePath);
-
-            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-            SDL_FreeSurface(surface);
-            if (!texture) continue;
-
+            SDL_Texture* texture = getTexture(texturePath);
             SDL_Rect dstRect = {static_cast<int>(x + 0.5), static_cast<int>(y + 0.5), static_cast<int>(dx + 0.5), static_cast<int>(dy + 0.5)};
             SDL_RenderCopyEx(renderer, texture, nullptr, &dstRect, angle, nullptr, SDL_FLIP_NONE);
-            SDL_DestroyTexture(texture);
         }
     }
 
@@ -155,7 +164,7 @@ std::string Graphics::toString(BMemory* memory) { return "graphics"; }
 
 Result Graphics::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     if (operation == CLEAR && args->size == 1) {
-        clear();
+        //clear();
         return std::move(Result(nullptr));
     }
     if (operation == PUSH && args->size == 2 && args->arg1->getType() == LIST) {
@@ -165,6 +174,7 @@ Result Graphics::implement(const OperationType operation, BuiltinArgs* args, BMe
     }
     if (operation == POP && args->size == 1) {
         render();
+        clear();
         bool keep_running = true;
         SDL_Event event;
         BList* signals = new BList();

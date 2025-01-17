@@ -18,6 +18,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexec-charset=UTF-8 -finput-charset=UTF-8 -O2 -s")
 add_definitions(-DUNICODE -D_UNICODE)
 
+if(MSVC)
+    string(REPLACE "-fexec-charset=UTF-8" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    string(REPLACE "-finput-charset=UTF-8" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    string(REPLACE "-s" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+endif()
+
 # Include directories: add your project's include folder
 include_directories(${PROJECT_SOURCE_DIR}/include)
 

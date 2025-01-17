@@ -1,10 +1,10 @@
 !access ""
-
 g = graphics("MyApp", 800, 600);
 
 logo = new {
-    x = 400-50;
-    y = 300-50;
+    size = 200;
+    x = 400-size/2;
+    y = 300-size/2;
     speedx = 0;
     speedy = 0;
     angle = 0;
@@ -14,24 +14,20 @@ logo = new {
         this.angle += 100*dt;
         return this;
     }
-    texture => "docs/blombly.png",this.x,this.y,100,100,this.angle;
+    texture() => "docs/blombly.png",this.x,this.y,this.size,this.size,this.angle;
 }
 
-logox = 400-50;
-logoy = 300-50;
-logoangle = 0;
-font = "playground/fonts/OpenSans-VariableFont_wdth,wght.ttf";
 
+font = "playground/fonts/OpenSans-VariableFont_wdth,wght.ttf";
 invfps = 1/60;
 previous_frame = time();
 while(events as g|pop) {
     // draw graphics
-    g|clear;
     g << logo.texture();
 
     // show fps
     fps = (1/invfps)|int|str+" fps";
-    g << fps,font,12,700,500,0;
+    g << fps,font,12,800-42,600-20,0;
 
     // process events
     while(event in events) if(event.type=="key::down") {
