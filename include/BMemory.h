@@ -72,6 +72,7 @@ public:
     const DataPtr& getOrNull(int item, bool allowMutable);
     const DataPtr& getOrNullShallow(int item);
     void set(int item, const DataPtr& value);
+    void setFuture(int item, const DataPtr& value);
     void unsafeSetLiteral(int item, const DataPtr& value);
     int size() const;
     void setFinal(int item);

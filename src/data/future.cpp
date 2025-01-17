@@ -44,7 +44,7 @@ std::string Future::toString(BMemory* memory){
 // Get the result after joining the thread
 Result Future::getResult() const {
     std::lock_guard<std::recursive_mutex> lock(syncMutex);
-    try {
+    try { 
         if (result->thread.joinable()) {
             result->thread.join();
             --thread_count;
@@ -55,7 +55,6 @@ Result Future::getResult() const {
         --thread_count;
         bberror("Failed to join thread");
     }
-
     if (result->error) {
         std::string error_message = std::move(result->error->what());
         result->error = nullptr;
@@ -63,7 +62,7 @@ Result Future::getResult() const {
         throw BBError(error_message);
     }
     DataPtr ret = result->value.get();
-    //if(ret && ret->getType()==FUTURE) return std::move(static_cast<Future*>(ret)->getResult());
+    if(ret.existsAndTypeEquals(FUTURE)) return std::move(static_cast<Future*>(ret.get())->getResult());
     //std::cout << result->value.get() << "\n";
     return std::move(Result(ret));
 }

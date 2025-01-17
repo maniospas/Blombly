@@ -85,7 +85,7 @@ const DataPtr& BMemory::get(int item) { // allowMutable = true
         bberror("Missing value: " + variableManager.getSymbol(item));
     }
     const auto& ret = contents[idx];
-    if (ret.isfuture()) {
+    if (ret.existsAndTypeEquals(FUTURE)) {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get()); 
@@ -107,7 +107,7 @@ const DataPtr& BMemory::get(int item, bool allowMutable) {
         bberror("Missing value: " + variableManager.getSymbol(item));
     }
     const auto& ret = contents[idx];
-    if (ret.isfuture()) {
+    if (ret.existsAndTypeEquals(FUTURE)) {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get()); 
@@ -126,7 +126,7 @@ const DataPtr& BMemory::getShallow(int item) {
     int idx = find(item);
     if(idx==end) bberror("Missing value: " + variableManager.getSymbol(item));
     const auto& ret = contents[idx];
-    if (ret.isfuture()) {
+    if (ret.existsAndTypeEquals(FUTURE)) {
         //std::cout << "here4\n";
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
@@ -142,7 +142,7 @@ const DataPtr& BMemory::getOrNullShallow(int item) {
     int idx = find(item);
     if(idx==end) return DataPtr::NULLP;
     const auto& ret = contents[idx];
-    if (ret.isfuture()) {
+    if (ret.existsAndTypeEquals(FUTURE)) {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get());
@@ -156,7 +156,7 @@ const DataPtr& BMemory::getOrNull(int item, bool allowMutable) {
     int idx = find(item);
     if(idx==end) return DataPtr::NULLP;
     const auto& ret = contents[idx];
-    if (ret.isfuture()) {
+    if (ret.existsAndTypeEquals(FUTURE)) {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get());
@@ -213,13 +213,35 @@ void BMemory::set(int item, const DataPtr& value) {
     else prev = value;
 }
 
+void BMemory::setFuture(int item, const DataPtr& value) {  // value.exists() == true always considering that this will be a valid future objhect
+    int idx = find(item);
+    if(idx==end) {
+        value->addOwner();
+        if(first_item==INT_MAX && item>=4) {
+            first_item = item;
+            contents[0] = DataPtr(value.get(), IS_FUTURE);
+            return;
+        }
+        data[item] = contents.size();
+        contents.push_back(value);
+        return;
+    }
+    auto& prev = contents[idx];
+    if(prev.isA()) bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
+    if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
+    value->addOwner();
+    if(prev.exists()) prev->removeFromOwner();
+    prev = DataPtr(value); //std::move(DataPtr(value.get(), IS_FUTURE));
+}
+
 void BMemory::unsafeSet(int item, const DataPtr& value) {
     int idx = find(item);
     if(idx==end) {
         if(value.exists()) value->addOwner();
         if(first_item==INT_MAX && item>=4) {
             first_item = item;
-            contents[0] = value;
+            /*if(value.existsAndTypeEquals(FUTURE)) contents[0] = DataPtr(value.get(), IS_FUTURE);
+            else*/ contents[0] = value;
             return;
         }
         data[item] = contents.size();
@@ -232,8 +254,8 @@ void BMemory::unsafeSet(int item, const DataPtr& value) {
     if(value.exists()) value->addOwner();
     if(prev.exists()) prev->removeFromOwner();
 
-    if(value.existsAndTypeEquals(FUTURE)) prev = DataPtr(value.get(), IS_FUTURE);
-    else prev = value;
+    /*f(value.existsAndTypeEquals(FUTURE)) prev = DataPtr(value.get(), IS_FUTURE);
+    else*/ prev = value;
     if(prevFinal) prev.setA(true);
 }
 

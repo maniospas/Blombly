@@ -7,7 +7,7 @@
 void threadExecute(Code* code,
                    BMemory* memory,
                    ThreadResult* result,
-                   const Command& command,
+                   Command* command,
                    DataPtr thisObj) {
 
     std::unique_lock<std::recursive_mutex> executorLock;
@@ -17,12 +17,10 @@ void threadExecute(Code* code,
     }
 
     try {
-        bool returnSignal(false);
-
         ExecutionInstance executor(code, memory, thisObj.exists());
         Result returnedValue = executor.run(code);
         DataPtr value = returnedValue.get();
-        if(!returnSignal) {
+        if(!executor.hasReturned()) {
             value = nullptr;
             returnedValue = Result(nullptr);
         }
@@ -30,15 +28,14 @@ void threadExecute(Code* code,
 
     } 
     catch (const BBError& e) {
-        result->error = new BBError(enrichErrorDescription(command, e.what()));
+        result->error = new BBError(enrichErrorDescription(*command, e.what()));
     }
-
     try {
         memory->detach(nullptr); 
         memory->set(variableManager.thisId, DataPtr::NULLP);
         delete memory;
     } 
     catch (const BBError& e) {
-        result->error = new BBError(enrichErrorDescription(command, e.what()));
+        result->error = new BBError(enrichErrorDescription(*command, e.what()));
     }
 }

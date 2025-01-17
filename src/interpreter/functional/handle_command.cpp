@@ -805,7 +805,7 @@ Result ExecutionInstance::run(Code* code) {
             called = (val);
         }
         auto code = static_cast<Code*>(called.get());
-        if(true || forceStayInThread || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
+        if(forceStayInThread || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
             BMemory newMemory(&memory, LOCAL_EXPECTATION_FROM_CODE(code));
             if(context.exists()) {
                 bbassert(context.existsAndTypeEquals(CODE), "Call context must be a code block.");
@@ -851,9 +851,12 @@ Result ExecutionInstance::run(Code* code) {
             auto future = new Future(futureResult);
             future->addOwner();//the attached_threads are also an owner
             memory.attached_threads.insert(future);
-            futureResult->start(code, newMemory, futureResult, command, thisObj);
             result = future;
-            DISPATCH_COMPUTED_RESULT;
+            int carg = command.args[0]; 
+            if(carg!=variableManager.noneId) memory.setFuture(carg, result); 
+            futureResult->start(code, newMemory, futureResult, &program[i], thisObj);
+            goto SKIP_ASSIGNMENT;
+
         }
     }
 
