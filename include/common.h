@@ -113,7 +113,7 @@ extern VariableManager variableManager;
 #define IS_NOT_BOOL (~IS_BOOL & ~IS_PROPERTY_A & ~IS_PROPERTY_B)
 #define IS_NOT_PTR (~IS_PTR & ~IS_PROPERTY_A & ~IS_PROPERTY_B)
 
-//#define SAFETYCHECKS
+#define SAFETYCHECKS
 
 
 /**

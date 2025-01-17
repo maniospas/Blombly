@@ -80,7 +80,7 @@ Result ExecutionInstance::run(Code* code) {
     try {
     for(;i<=end;++i) {
     const Command& command = program[i];
-
+    
     /*
      NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, DIV, MOD, LEN, POW, LOG,
     PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOMAP, TOBB_INT, TOBB_FLOAT, TOSTR, TOBB_BOOL, TOCOPY, TOFILE,
@@ -681,7 +681,7 @@ Result ExecutionInstance::run(Code* code) {
         BMemory* from(nullptr);
         const auto& objFound = memory.getOrNull(command.args[1], true);
         if(!objFound.exists()) {
-            bbassert(command.args[1]==variableManager.thisId, "Missing value"+std::string(memory.size()?"":" in cleared memory ")+": " + variableManager.getSymbol(command.args[1]));
+            bbassert(command.args[1]==variableManager.thisId, "Missing value: " + variableManager.getSymbol(command.args[1]));
             from = &memory;
             result = from->get(command.args[2]);
         }

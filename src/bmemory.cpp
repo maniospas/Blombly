@@ -80,7 +80,7 @@ int BMemory::find(int item) const {
 
 const DataPtr& BMemory::get(int item) { // allowMutable = true
     int idx = find(item);
-    if(idx==end) bberror("Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
+    if(idx==end) bberror("Missing value: " + variableManager.getSymbol(item));
     const auto& ret = contents[idx];
     if (ret.existsAndTypeEquals(FUTURE)) {
         auto prevRet = static_cast<Future*>(ret.get());
@@ -91,7 +91,7 @@ const DataPtr& BMemory::get(int item) { // allowMutable = true
         return get(item);
     }
     if (!ret.islitorexists()) {
-        bbassert(parent, "Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
+        bbassert(parent, "Missing value: " + variableManager.getSymbol(item));
         if(parent) return parent->get(item, allowMutables);
     }
     return ret;
@@ -99,7 +99,7 @@ const DataPtr& BMemory::get(int item) { // allowMutable = true
 
 const DataPtr& BMemory::get(int item, bool allowMutable) {
     int idx = find(item);
-    if(idx==end) bberror("Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
+    if(idx==end) bberror("Missing value: " + variableManager.getSymbol(item));
     const auto& ret = contents[idx];
     if (ret.existsAndTypeEquals(FUTURE)) {
         auto prevRet = static_cast<Future*>(ret.get());
@@ -107,18 +107,18 @@ const DataPtr& BMemory::get(int item, bool allowMutable) {
         unsafeSet(item, resVal.get()); 
         attached_threads.erase(prevRet);
         prevRet->removeFromOwner();
-        bbassert(ret.islitorexists(), "Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
+        bbassert(ret.islitorexists(), "Missing value: " + variableManager.getSymbol(item));
         return get(item, allowMutable);
     }
     if (ret.islitorexists()) {bbassert(allowMutable || ret.isA(), "Mutable symbol cannot be requested from another scope: " + variableManager.getSymbol(item));}
     else if (parent) return parent->get(item, allowMutables && allowMutable);
-    bbassert(ret.islitorexists(), "Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
+    bbassert(ret.islitorexists(), "Missing value: " + variableManager.getSymbol(item));
     return ret;
 }
 
 const DataPtr& BMemory::getShallow(int item) {
     int idx = find(item);
-    if(idx==end) bberror("Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
+    if(idx==end) bberror("Missing value: " + variableManager.getSymbol(item));
     const auto& ret = contents[idx];
     if (ret.existsAndTypeEquals(FUTURE)) {
         //std::cout << "here4\n";
@@ -128,7 +128,7 @@ const DataPtr& BMemory::getShallow(int item) {
         attached_threads.erase(prevRet);prevRet->removeFromOwner();
         return getShallow(item);
     }
-    if(!ret.islitorexists()) bberror("Missing value"+std::string(size()?"":" in cleared memory ")+": " + variableManager.getSymbol(item));
+    if(!ret.islitorexists()) bberror("Missing value: " + variableManager.getSymbol(item));
     return ret;
 }
 
