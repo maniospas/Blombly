@@ -57,7 +57,6 @@ private:
     int max_cache_size;
 public:
     tsl::hopscotch_map<Code*, Struct*> codeOwners;
-    tsl::hopscotch_set<int> finals;
     BMemory* parent;
     tsl::hopscotch_set<Future*> attached_threads;
 
@@ -76,7 +75,6 @@ public:
     void unsafeSetLiteral(int item, const DataPtr& value);
     int size() const;
     void setFinal(int item);
-    bool isFinal(int item) const;
 
     void pull(BMemory* other);
     void replaceMissing(BMemory* other);

@@ -106,11 +106,12 @@ extern VariableManager variableManager;
 #define IS_INT static_cast<DATTYPETYPE>(2)
 #define IS_BOOL static_cast<DATTYPETYPE>(4)
 #define IS_PTR static_cast<DATTYPETYPE>(8)
-#define IS_NOT_FLOAT ~IS_FLOAT
-#define IS_NOT_INT ~IS_INT
-#define IS_NOT_BOOL ~IS_BOOL
-#define IS_NOT_PTR ~IS_PTR
-
+#define IS_PROPERTY_A static_cast<DATTYPETYPE>(16)
+#define IS_PROPERTY_B static_cast<DATTYPETYPE>(32)
+#define IS_NOT_FLOAT (~IS_FLOAT & ~IS_PROPERTY_A & ~IS_PROPERTY_B)
+#define IS_NOT_INT (~IS_INT & ~IS_PROPERTY_A & ~IS_PROPERTY_B)
+#define IS_NOT_BOOL (~IS_BOOL & ~IS_PROPERTY_A & ~IS_PROPERTY_B)
+#define IS_NOT_PTR (~IS_PTR & ~IS_PROPERTY_A & ~IS_PROPERTY_B)
 
 //#define SAFETYCHECKS
 
@@ -226,6 +227,10 @@ struct DataPtr {
     inline bool isint() const { return datatype & IS_INT; }
     inline bool isbool() const { return datatype & IS_BOOL; }
     inline bool isptr() const { return datatype & IS_PTR; }
+    inline bool isA() const { return datatype & IS_PROPERTY_A; }
+    inline bool isB() const { return datatype & IS_PROPERTY_B; }
+    inline void setA(bool value){if(value) datatype |= IS_PROPERTY_A; else datatype &= ~IS_PROPERTY_A;}
+    inline void setB(bool value){if(value) datatype |= IS_PROPERTY_B; else datatype &= ~IS_PROPERTY_B;}
     static DataPtr NULLP;
 private:
     DATTYPETYPE datatype;

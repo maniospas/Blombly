@@ -26,7 +26,7 @@ BError* OUT_OF_RANGE = new BError("Out of range");
 BError* INCOMPATIBLE_SIZES = new BError("Incompatible sizes in operation");
 BError* NO_TRY_INTERCEPT = new BError("No error or return statement intercepted with `try`.");
 extern void clearAllowedLocations();
-
+extern void initialize_dispatch_table();
 
 std::string get_executable_directory(const std::string& argv0) {
     #ifdef _WIN32
@@ -39,7 +39,7 @@ std::string get_executable_directory(const std::string& argv0) {
 }
 
 int main(int argc, char* argv[]) {
-    
+    initialize_dispatch_table();
     OUT_OF_RANGE->consume();
     OUT_OF_RANGE->addOwner();
     INCOMPATIBLE_SIZES->consume();

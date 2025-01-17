@@ -22,15 +22,12 @@ public:
 class Command {
 public:
     OperationType operation;
-    int result;
-    int arg0;
-    int arg1;
-    int arg2;
+    std::vector<int> args;
     int nargs;
     mutable DataPtr value;
     SourceFile* source;
-    int line;
     CommandContext* descriptor;
+    int line;
 
     Command(const std::string& command, SourceFile* source, int line, CommandContext* descriptor);
     std::string toString() const;

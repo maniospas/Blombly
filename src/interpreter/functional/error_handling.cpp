@@ -21,8 +21,8 @@ std::string enrichErrorDescription(const Command& command, std::string message) 
     return std::move(message);
 }
 
-void ExecutionInstance::handleExecutionError(int i, const BBError& e) {
-    throw BBError(std::move(enrichErrorDescription(program[i], e.what())));
+void ExecutionInstance::handleExecutionError(const Command& command, const BBError& e) {
+    throw BBError(std::move(enrichErrorDescription(command, e.what())));
 }
 
 #endif

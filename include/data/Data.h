@@ -33,9 +33,8 @@ public:
     virtual size_t toHash() const;
     virtual bool isSame(DataPtr other);
     
-    virtual void addOwner();
-    virtual void removeFromOwner();
-    void leak();
+    inline void addOwner() {++referenceCounter;}
+    virtual void removeFromOwner() {if((--referenceCounter)==0) delete this;}
     std::atomic<int> referenceCounter;
 private:
     Datatype type;

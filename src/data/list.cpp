@@ -181,7 +181,6 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
         auto value = args->arg1;
         bbassert(value.exists(), "Cannot push a missing value to a list");
         bbassert(value->getType()!=ERRORTYPE, "Cannot push an error to a list");
-        value->leak();
         value->addOwner();
         contents.push_back((value));
         return std::move(Result(this));
@@ -197,7 +196,6 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
         bbassert(value->getType()!=ERRORTYPE, "Cannot set an error on a list");
         DataPtr prev = contents[index];
         contents[index] = value;
-        value->leak();
         value->addOwner();
         prev->removeFromOwner();
         return std::move(Result(nullptr));

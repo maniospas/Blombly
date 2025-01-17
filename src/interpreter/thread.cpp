@@ -26,7 +26,6 @@ void threadExecute(Code* code,
             value = nullptr;
             returnedValue = Result(nullptr);
         }
-        if(value.exists()) value->leak();
         result->value = std::move(returnedValue);
 
     } 

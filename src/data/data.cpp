@@ -1,9 +1,6 @@
 #include "data/Data.h"
 
 Data::Data(Datatype type) : type(type), referenceCounter(0) {}
-void Data::addOwner() {++referenceCounter;}
-void Data::removeFromOwner() {if((--referenceCounter)==0) delete this;}
-void Data::leak() {}
 bool Data::isSame(DataPtr other) {return other==this;}
 size_t Data::toHash() const {return (size_t)this;}
 Result Data::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {throw Unimplemented();}

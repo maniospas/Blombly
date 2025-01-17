@@ -13,27 +13,21 @@
 #include "utils.h"
 #include "interpreter/functional.h"
 
-extern std::string enrichErrorDescription(Command* command, std::string message);
+extern std::string enrichErrorDescription(const Command& command, std::string message);
 extern std::unordered_map<std::string, OperationType> toOperationTypeMap;
 
 void preliminarySimpleChecks(std::vector<Command>* program) {
     std::unordered_set<int> symbolDefinitions;
     for (const auto& command : *program) {
-        if(command.nargs) symbolDefinitions.insert(command.result);
-        if(command.operation==SET && command.nargs>2)  symbolDefinitions.insert(command.arg0);
-        if(command.operation==SETFINAL && command.nargs>2)  symbolDefinitions.insert(command.arg0);
+        if(command.args.size()) symbolDefinitions.insert(command.args[0]);
+        if(command.operation==SET && command.args.size()>2)  symbolDefinitions.insert(command.args[1]);
+        if(command.operation==SETFINAL && command.args.size()>2)  symbolDefinitions.insert(command.args[1]);
     }
     for (const auto& command : *program) {
-        int arg = command.arg0;
-        if(command.nargs>1 && !(arg==variableManager.thisId || arg==variableManager.noneId))
+        for(int arg : command.args) {
+            if(arg==variableManager.thisId || arg==variableManager.noneId) continue;
             if(symbolDefinitions.find(arg)==symbolDefinitions.end()) bberror(enrichErrorDescription(command, "Missing symbol (is declared nowhere and would create a runtime error): "+variableManager.getSymbol(arg)));
-        arg = command.arg1;
-        if(command.nargs>1 && !(arg==variableManager.thisId || arg==variableManager.noneId))
-            if(symbolDefinitions.find(arg)==symbolDefinitions.end()) bberror(enrichErrorDescription(command, "Missing symbol (is declared nowhere and would create a runtime error): "+variableManager.getSymbol(arg)));
-        arg = command.arg2;
-        if(command.nargs>1 && !(arg==variableManager.thisId || arg==variableManager.noneId))
-            if(symbolDefinitions.find(arg)==symbolDefinitions.end()) bberror(enrichErrorDescription(command, "Missing symbol (is declared nowhere and would create a runtime error): "+variableManager.getSymbol(arg)));
-        
+        }
     }
 }
 

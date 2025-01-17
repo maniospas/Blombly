@@ -520,7 +520,6 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
             for (int64_t i = 0; i < n; ++i) {
                 BString* element = new BString(contents[i]);
                 element->addOwner();
-                element->leak();
                 list->contents.push_back(element);
             }
             return std::move(Result(list));
