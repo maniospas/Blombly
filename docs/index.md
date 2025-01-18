@@ -25,7 +25,7 @@ how code is written compared to most other languages. The next tip summarizes th
 features on reasoning about your code:
 
 !!! tip
-    You can reason about struct state only while its methods run;
+    You can reason about the state of structs only while their methods run;
     consider all non-final data and called methods of other structs 
     to be volatile.
 

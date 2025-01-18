@@ -603,7 +603,7 @@ Result ExecutionInstance::run(Code* code) {
     }
     DO_DEFER: {
         const auto& source = memory.get(command.args[1]);
-        if(source.existsAndTypeEquals(CODE)) bberror("Finally can only inline a code block or struct");
+        bbassert(source.existsAndTypeEquals(CODE), "Defer can only inline a code block");
         memory.addFinally(static_cast<Code*>(source.get()));
         goto SKIP_ASSIGNMENT;
     }
@@ -711,7 +711,7 @@ Result ExecutionInstance::run(Code* code) {
             result = from->get(command.args[2]);
         }
         else {
-            bbassert(objFound.existsAndTypeEquals(STRUCT), "Can only get elements from structs, not"+std::to_string(objFound->getType()));
+            bbassert(objFound.existsAndTypeEquals(STRUCT), "Can only get elements from structs, but instead found this: "+objFound->toString(&memory));
             auto obj = static_cast<Struct*>(objFound.get());
             std::lock_guard<std::recursive_mutex> lock(obj->memoryLock);
             from = obj->getMemory();
