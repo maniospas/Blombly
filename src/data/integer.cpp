@@ -11,46 +11,6 @@
 #include <bitset>
 
 
-std::string __python_like_int_format(int int_number, const std::string& format) {
-    std::ostringstream output;
-    size_t precision_pos = format.find('.');
-    size_t type_pos = format.find_last_of("fFeEgGdxXob");
-
-    int precision = 6;
-    char type = 'f';
-
-    if (precision_pos != std::string::npos && (type_pos == std::string::npos || precision_pos < type_pos)) 
-        precision = std::stoi(format.substr(precision_pos + 1, type_pos - precision_pos - 1));
-
-    if (type_pos != std::string::npos) 
-        type = format[type_pos];
-
-    bool is_integer_format = (type == 'd' || type == 'x' || type == 'X' || type == 'o' || type == 'b');
-
-    if (is_integer_format) {
-        switch (type) {
-            case 'd': output << int_number; break;
-            case 'x': output << std::hex << int_number; break;
-            case 'X': output << std::uppercase << std::hex << int_number; break;
-            case 'o': output << std::oct << int_number; break;
-            case 'b': output << std::bitset<sizeof(int) * 8>(int_number); break;
-            default: throw std::invalid_argument("Unsupported integer format specifier.");
-        }
-    } else {
-        double number = static_cast<double>(int_number);
-        output << std::setprecision(precision);
-        switch (type) {
-            case 'f': case 'F': output << std::fixed << number; break;
-            case 'e': output << std::scientific << number; break;
-            case 'E': output << std::scientific << std::uppercase << number; break;
-            case 'g': case 'G': output << std::defaultfloat << number; break;
-            default: output << std::fixed << number;
-        }
-    }
-
-    return output.str();
-}
-
 Integer::Integer(int64_t val) : value(val), Data(BB_INT) {}
 
 std::string Integer::toString(BMemory* memory){
@@ -123,7 +83,7 @@ Result Integer::implement(const OperationType operation, BuiltinArgs* args, BMem
         }
 
         if (operation == AT && type1 == STRING) {
-            STRING_RESULT((__python_like_int_format(value, args->arg1->toString(memory))));
+            //STRING_RESULT((__python_like_int_format(value, args->arg1->toString(memory))));
         }
         throw Unimplemented();
     }

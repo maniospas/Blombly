@@ -11,46 +11,6 @@
 #include "data/Iterator.h"
 
 
-// Helper function for formatted output similar to Python's float formatting
-std::string __python_like_float_format(double number, const std::string& format) {
-    std::ostringstream output;
-    size_t precision_pos = format.find('.');
-    size_t type_pos = format.find_last_of("fFeEgGdxXob");
-
-    int precision = 6; // Default precision
-    char type = 'f';   // Default to fixed-point notation
-
-    if (precision_pos != std::string::npos && (type_pos == std::string::npos || precision_pos < type_pos)) 
-        precision = std::stoi(format.substr(precision_pos + 1, type_pos - precision_pos - 1));
-
-    if (type_pos != std::string::npos) 
-        type = format[type_pos];
-
-    bool is_integer_format = (type == 'd' || type == 'x' || type == 'X' || type == 'o' || type == 'b');
-    if (is_integer_format) {
-        int int_number = static_cast<int>(number);
-        switch (type) {
-            case 'd': output << int_number; break;
-            case 'x': output << std::hex << int_number; break;
-            case 'X': output << std::uppercase << std::hex << int_number; break;
-            case 'o': output << std::oct << int_number; break;
-            case 'b': output << std::bitset<sizeof(int) * 8>(int_number); break;
-            default: throw std::invalid_argument("Unsupported integer format specifier.");
-        }
-    } 
-    else {
-        output << std::setprecision(precision);
-        switch (type) {
-            case 'f': case 'F': output << std::fixed << number; break;
-            case 'e': output << std::scientific << number; break;
-            case 'E': output << std::scientific << std::uppercase << number; break;
-            case 'g': case 'G': output << std::defaultfloat << number; break;
-            default: output << std::fixed << number;
-        }
-    }
-
-    return output.str();
-}
 
 BFloat::BFloat(double val) : value(val), Data(BB_FLOAT) {}
 
@@ -99,8 +59,9 @@ Result BFloat::implement(const OperationType operation, BuiltinArgs* args, BMemo
         }
 
         // Handle formatted string conversion
-        if (operation == AT && type1 == STRING) 
-            STRING_RESULT(__python_like_float_format(value, args->arg1->toString(memory)));
+        if (operation == AT && type1 == STRING) {
+            //STRING_RESULT(__python_like_float_format(value, args->arg1->toString(memory)));
+        }
         
         throw Unimplemented();
     }

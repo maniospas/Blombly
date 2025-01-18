@@ -17,7 +17,7 @@ BList::BList() : Data(LIST), front(0) {}
 BList::BList(int64_t reserve) : Data(LIST), front(0)  {contents.reserve(reserve);}
 BList::~BList() {
     int64_t n = contents.size();
-    for(int64_t i=front;i<n;++i) if(contents[i].exists()) contents[i]->removeFromOwner();
+    for(int64_t i=front;i<n;++i) contents[i].existsRemoveFromOwner();
 }
 
 std::string BList::toString(BMemory* memory){
@@ -56,7 +56,7 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
                 auto ret = Result(element);
                 front++;
                 resizeContents();
-                if(element.exists()) element->removeFromOwner();
+                element.existsRemoveFromOwner();
                 return std::move(ret);
             }
             case POP: {
@@ -64,13 +64,13 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
                 const auto& element = contents.back();
                 auto ret = Result(element);
                 contents.pop_back();
-                if(element.exists()) element->removeFromOwner();
+                element.existsRemoveFromOwner();
                 return std::move(ret);
             }
             case CLEAR : {
                 int64_t n = contents.size();
-                for(int64_t i=front;i<n;++i) if(contents[i].exists()) contents[i]->removeFromOwner();
-                contents.clear();
+                for(int64_t i=front;i<n;++i) contents[i].existsRemoveFromOwner();
+                contents = std::vector<DataPtr>();
                 front = 0;
                 return std::move(Result(nullptr));
             }
@@ -121,21 +121,21 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
     }
 
     if (operation == AT && args->size == 2) {
-        if (args->arg1->getType() == BB_INT) {
-            int64_t index = static_cast<Integer*>(args->arg1.get())->getValue();
+        if (args->arg1.isint()) {
+            int64_t index = args->arg1.unsafe_toint();
             if (index < 0) return std::move(Result(OUT_OF_RANGE));
             index += front;
             if (index>=contents.size()) return std::move(Result(OUT_OF_RANGE));
             DataPtr res = contents[index];
             return std::move(Result(res));
         } 
-        else if (args->arg1->getType() == STRUCT || args->arg1->getType() == LIST || args->arg1->getType() == ITERATOR) {
+        else if (args->arg1.existsAndTypeEquals(STRUCT) || args->arg1.existsAndTypeEquals(LIST) || args->arg1.existsAndTypeEquals(ITERATOR)) {
             BuiltinArgs implargs;
             implargs.size = 1;
             implargs.arg0 = args->arg1;
 
             Result iter = args->arg1->implement(TOITER, &implargs, memory);
-            DataPtr iterator = iter.get();
+            const auto& iterator = iter.get();
             bbassert(iterator.existsAndTypeEquals(ITERATOR), "Can only find list indexes based on an iterable object, but a non-iterable struct was provided.");
 
             Iterator* iterPtr = static_cast<Iterator*>(iterator.get());
@@ -153,8 +153,8 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
                 BList* ret = new BList(end - start);
                 for (int64_t i = start; i < end; ++i) {
                     DataPtr element = contents[i];
-                    element->addOwner();
-                    ret->contents.push_back(element);
+                    element.existsAddOwner();
+                    ret->contents.emplace_back(element);
                 }
                 return std::move(Result(ret));
             } 
@@ -166,15 +166,15 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
                     implargs.size = 1;
                     Result next = iterator->implement(NEXT, &implargs, memory);
                     DataPtr indexData = next.get();
-                    if (!indexData.exists() || indexData.get()==OUT_OF_RANGE) break;
-                    bbassert(indexData->getType() == BB_INT, "Iterable list indexes can only contain integers.");
-                    int64_t id = static_cast<Integer*>(indexData.get())->getValue();
+                    if (indexData==OUT_OF_RANGE) break;
+                    bbassert(indexData.isint(), "Iterable list indexes can only contain integers.");
+                    int64_t id = indexData.unsafe_toint();
                     if (id < 0) return std::move(Result(OUT_OF_RANGE));
                     id += front;
                     if (id>=contents.size()) return std::move(Result(OUT_OF_RANGE));
                     DataPtr element = contents[id];
-                    element->addOwner();
-                    ret->contents.push_back(element);
+                    element.existsAddOwner();
+                    ret->contents.emplace_back(element);
                 }
                 return std::move(Result(ret));
             }
@@ -185,33 +185,33 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
         auto value = args->arg1;
         bbassert(value.islitorexists(), "Cannot push a missing value to a list");
         if(value.existsAndTypeEquals(ERRORTYPE)) bberror("Cannot push an error to a list");
-        if(value.exists())value->addOwner();
-        contents.push_back(value);
+        value.existsAddOwner();
+        contents.emplace_back(value);
         return std::move(Result(this));
     }
 
-    if (operation == PUT && args->size == 3 && args->arg1->getType() == BB_INT) {
-        int64_t index = static_cast<Integer*>(args->arg1.get())->getValue();
+    if (operation == PUT && args->size == 3 && args->arg1.isint()) {
+        int64_t index = args->arg1.unsafe_toint();
         if (index < 0) bberror("Out of range");//return std::move(Result(OUT_OF_RANGE));
         index += front;
         if (index>=contents.size()) bberror("Out of range");//return std::move(Result(OUT_OF_RANGE));
         auto value = args->arg2;
-        bbassert(value.exists(), "Cannot set a missing value on a list");
-        bbassert(value->getType()!=ERRORTYPE, "Cannot set an error on a list");
+        bbassert(value.islitorexists(), "Cannot set a missing value on a list");
+        if(value.existsAndTypeEquals(ERRORTYPE)) bberror("Cannot set an error on a list");
         DataPtr prev = contents[index];
         contents[index] = value;
-        value->addOwner();
-        prev->removeFromOwner();
+        value.existsAddOwner();
+        prev.existsRemoveFromOwner();
         return std::move(Result(nullptr));
     }
     
-    if (operation == ADD && args->size == 2 && args->arg1->getType()==LIST) {
+    if (operation == ADD && args->size == 2 && args->arg1.existsAndTypeEquals(LIST) && args->arg0==this) {
         BList* other = static_cast<BList*>(args->arg1.get());
         std::lock_guard<std::recursive_mutex> otherLock(other->memoryLock);
         BList* ret = new BList(contents.size()+other->contents.size());
         ret->contents.insert(ret->contents.end(), contents.begin(), contents.end());
         ret->contents.insert(ret->contents.end(), other->contents.begin(), other->contents.end());
-        for(DataPtr dat : ret->contents) dat->addOwner();
+        for(const DataPtr& dat : ret->contents) dat.existsAddOwner();
         return std::move(Result(ret));
     }
 

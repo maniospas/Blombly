@@ -83,9 +83,9 @@ extern VariableManager variableManager;
 
 // Code reused when returning various data from overridden Data::implement 
 #define STRING_RESULT(expr) return std::move(Result(new BString(expr)))
-#define BB_BOOLEAN_RESULT(expr) return std::move(Result(std::move(DataPtr((bool)(expr)))))
-#define BB_INT_RESULT(expr) return std::move(Result(new Integer(expr)))
-#define BB_FLOAT_RESULT(expr) return std::move(Result(new BFloat(expr)))
+#define BB_BOOLEAN_RESULT(expr) return std::move(Result((bool)(expr)))
+#define BB_INT_RESULT(expr) return std::move(Result((int64_t)(expr)))
+#define BB_FLOAT_RESULT(expr) return std::move(Result((double)(expr)))
 
 
 
@@ -212,7 +212,10 @@ struct DataPtr {
         return data;
     }
 
+
     inline bool existsAndTypeEquals(Datatype type) const;
+    inline void existsAddOwner() const;
+    inline void existsRemoveFromOwner() const;
 
     inline bool islitorexists() const {
         if(datatype & IS_PTR) return data; 

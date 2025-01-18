@@ -32,5 +32,7 @@ public:
 std::string enrichErrorDescription(const Command&, std::string message);
 int vm(const std::string& fileName, int numThreads);
 int vmFromSourceCode(const std::string& sourceCode, int numThreads);
+std::string __python_like_float_format(double number, const std::string& format);
+std::string __python_like_int_format(int64_t int_number, const std::string& format);
 
 #endif

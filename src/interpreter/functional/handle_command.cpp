@@ -664,7 +664,8 @@ Result ExecutionInstance::run(Code* code) {
     DO_PUT: {
         args.arg0 = memory.get(command.args[1]);
         args.arg1 = memory.get(command.args[2]);
-        args.size = 2;
+        args.arg2 = memory.get(command.args[3]);
+        args.size = 3;
         goto FALLBACK;
     }
     DO_TOGRAPHICS: {
@@ -672,6 +673,18 @@ Result ExecutionInstance::run(Code* code) {
         args.arg1 = memory.get(command.args[2]);
         args.arg2 = memory.get(command.args[3]);
         args.size = 3;
+        goto FALLBACK;
+    }
+    DO_AT: {
+        const auto& arg0 = memory.get(command.args[1]);
+        const auto& arg1 = memory.get(command.args[2]);
+        if(arg1.existsAndTypeEquals(STRING)) {
+            if(arg0.isfloat()) DISPATCH_RESULT(new BString(__python_like_float_format(arg0.unsafe_tofloat(), arg1->toString(&memory))));
+            if(arg0.isint()) DISPATCH_RESULT(new BString(__python_like_int_format(arg0.unsafe_toint(), arg1->toString(&memory))));
+        }
+        args.arg0 = arg0;
+        args.arg1 = arg1;
+        args.size = 2;
         goto FALLBACK;
     }
     DO_SUM:
@@ -684,7 +697,6 @@ Result ExecutionInstance::run(Code* code) {
     DO_MOVE: 
     DO_CLEAR: 
     DO_SHAPE: 
-    DO_AT: 
     DO_TOFILE: 
     DO_TOSQLITE:
     DO_TOITER: {

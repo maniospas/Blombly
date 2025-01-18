@@ -79,8 +79,8 @@ std::string BString::toString(BMemory* memory){
 }
 
 bool BString::isSame(DataPtr other) {
-    if (other->getType() != STRING) return false;
-    return toString(nullptr) == static_cast<BString*>(other.get())->toString(nullptr);
+    if (other.existsAndTypeEquals(STRING)) return toString(nullptr) == static_cast<BString*>(other.get())->toString(nullptr);
+    return false;
 }
 
 size_t BString::toHash() const {
@@ -89,9 +89,8 @@ size_t BString::toHash() const {
 
 Result BString::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
-    if((operation!=ADD && operation!=LEN && operation!=AT && operation!=TOITER) || buffer.size()>512)
-        consolidate();
-    if (args->size == 2 && args->arg0->getType() == STRING && args->arg1->getType() == STRING) {
+    if((operation!=ADD && operation!=LEN && operation!=AT && operation!=TOITER) || buffer.size()>512) consolidate();
+    if (args->size == 2 && args->arg0.existsAndTypeEquals(STRING) && args->arg1.existsAndTypeEquals(STRING)) {
         if(operation==ADD) {
             auto v1 = static_cast<BString*>(args->arg0.get());
             auto v2 = static_cast<BString*>(args->arg1.get());
@@ -153,9 +152,7 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
             case TOBB_FLOAT: {
                 char* endptr = nullptr;
                 double ret = std::strtod(toString(memory).c_str(), &endptr);
-                if (endptr == toString(memory).c_str() || *endptr != '\0') {
-                    return std::move(Result(new BError("Failed to convert string to float")));
-                }
+                if (endptr == toString(memory).c_str() || *endptr != '\0') return std::move(Result(new BError("Failed to convert string to float")));
                 BB_FLOAT_RESULT(ret);
             }
             case TOBB_BOOL: BB_BOOLEAN_RESULT(toString(memory) == "true");
@@ -166,14 +163,14 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
         throw Unimplemented();
     }
 
-    if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
-        int64_t index = static_cast<Integer*>(args->arg1.get())->getValue();
+    if (operation == AT && args->size == 2 && args->arg1.isint()) {
+        int64_t index = args->arg1.unsafe_toint();
         if(index>=buffer.front()->value.size()) consolidate();
         if (index < 0 || index >= toString(memory).size()) return std::move(Result(OUT_OF_RANGE));
         return std::move(Result(new BString(std::string(1, toString(memory)[index]))));
     }
 
-    if (operation == AT && args->size == 2 && (args->arg1->getType()==STRUCT || args->arg1->getType()==LIST || args->arg1->getType()==ITERATOR)) {
+    if (operation == AT && args->size == 2 && (args->arg1.existsAndTypeEquals(STRUCT) || args->arg1.existsAndTypeEquals(LIST) || args->arg1.existsAndTypeEquals(ITERATOR))) {
         // Obtain an iterator from the object
         BuiltinArgs implargs;
         implargs.size = 1;
@@ -201,11 +198,10 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
                 nextArgs.size = 1;  // important to have this here, as the iterator adds an argument to nextArgs internally to save up on memory
                 Result nextResult = iterator->implement(NEXT, &nextArgs, memory);
                 DataPtr indexData = nextResult.get();
-                if (indexData.get() == OUT_OF_RANGE) break; 
-                bbassert(indexData.exists() && indexData->getType() == BB_INT, "String index iterator must contain integers: "+args->arg1->toString(memory));
-                int index = static_cast<Integer*>(indexData.get())->getValue();
-                if (index < 0 || index >= size) 
-                    return std::move(Result(OUT_OF_RANGE));
+                if (indexData == OUT_OF_RANGE) break; 
+                bbassert(indexData.isint(), "String index iterator must contain integers: "+args->arg1.torepr());
+                int64_t index = indexData.unsafe_toint();
+                if (index < 0 || index >= size) return std::move(Result(OUT_OF_RANGE));
                 result += front->value[index];
             }
 
@@ -213,10 +209,10 @@ Result BString::implement(const OperationType operation, BuiltinArgs* args, BMem
         }
     }
 
-    if(operation == TOGRAPHICS && args->size==3 && args->arg1->getType()==BB_INT && args->arg2->getType()==BB_INT) {
-        int width = static_cast<Integer*>(args->arg1.get())->getValue();
-        int height = static_cast<Integer*>(args->arg2.get())->getValue();
-        return std::move(Result(DataPtr(new Graphics(toString(memory), width, height))));
+    if(operation == TOGRAPHICS && args->size==3 && args->arg1.isint() && args->arg2.isint()) {
+        int width = args->arg1.unsafe_toint();
+        int height = args->arg2.unsafe_toint();
+        return std::move(Result(new Graphics(toString(memory), width, height)));
     }
 
 

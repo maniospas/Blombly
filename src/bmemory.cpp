@@ -193,7 +193,7 @@ void BMemory::unsafeSetLiteral(int item, const DataPtr& value) { // when this is
 void BMemory::set(int item, const DataPtr& value) {
     int idx = find(item);
     if(idx==end) {
-        if(value.exists()) value->addOwner();
+        value.existsAddOwner();
         if(first_item==INT_MAX && item>=4) {
             first_item = item;
             contents[0] = value;
@@ -206,11 +206,9 @@ void BMemory::set(int item, const DataPtr& value) {
     auto& prev = contents[idx];
     if(prev.isA()) bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
     if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
-    if(value.exists()) value->addOwner();
-    if(prev.exists()) prev->removeFromOwner();
-
-    if(value.existsAndTypeEquals(FUTURE)) prev = DataPtr(value.get(), IS_FUTURE);
-    else prev = value;
+    value.existsAddOwner();
+    prev.existsRemoveFromOwner();
+    prev = value;
 }
 
 void BMemory::setFuture(int item, const DataPtr& value) {  // value.exists() == true always considering that this will be a valid future objhect
@@ -230,14 +228,14 @@ void BMemory::setFuture(int item, const DataPtr& value) {  // value.exists() == 
     if(prev.isA()) bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
     if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
     value->addOwner();
-    if(prev.exists()) prev->removeFromOwner();
+    prev.existsRemoveFromOwner();
     prev = DataPtr(value); //std::move(DataPtr(value.get(), IS_FUTURE));
 }
 
 void BMemory::unsafeSet(int item, const DataPtr& value) {
     int idx = find(item);
     if(idx==end) {
-        if(value.exists()) value->addOwner();
+        value.existsAddOwner();
         if(first_item==INT_MAX && item>=4) {
             first_item = item;
             /*if(value.existsAndTypeEquals(FUTURE)) contents[0] = DataPtr(value.get(), IS_FUTURE);
@@ -251,8 +249,8 @@ void BMemory::unsafeSet(int item, const DataPtr& value) {
     DataPtr& prev = contents[idx];
     bool prevFinal = prev.isA();
     if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
-    if(value.exists()) value->addOwner();
-    if(prev.exists()) prev->removeFromOwner();
+    value.existsAddOwner();
+    prev.existsRemoveFromOwner();
 
     /*f(value.existsAndTypeEquals(FUTURE)) prev = DataPtr(value.get(), IS_FUTURE);
     else*/ prev = value;

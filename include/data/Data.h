@@ -35,6 +35,7 @@ public:
     
     inline void addOwner() {++referenceCounter;}
     virtual void removeFromOwner() {if((--referenceCounter)==0) delete this;}
+protected:
     std::atomic<int> referenceCounter;
 private:
     Datatype type;
@@ -44,6 +45,18 @@ bool DataPtr::existsAndTypeEquals(Datatype type) const {
     if(datatype & IS_NOT_PTR) return false;
     if(!data) return false;
     return std::bit_cast<Data*>(data)->getType() == type;
+}
+
+void DataPtr::existsAddOwner() const {
+    if(datatype & IS_NOT_PTR) return;
+    if(!data) return;
+    std::bit_cast<Data*>(data)->addOwner();
+}
+
+void DataPtr::existsRemoveFromOwner() const {
+    if(datatype & IS_NOT_PTR) return;
+    if(!data) return;
+    std::bit_cast<Data*>(data)->removeFromOwner();
 }
 
 #endif // DATA_H
