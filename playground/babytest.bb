@@ -1,11 +1,10 @@
 tic = time();
 
-final fact(n) = {
-    if(n==0) {return 1;}
-    return n*fact(n-1);
+final fib(n) = {
+    if(n<=1) return 1;
+    return fib(n-1)+fib(n-2);
 }
-
-x = fact(20);
-print("here");
+x = fib(32);
+print("running");
 print(x);
 print(time()-tic);

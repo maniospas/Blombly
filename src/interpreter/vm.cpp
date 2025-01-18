@@ -93,7 +93,7 @@ int vm(const std::string& fileName, int numThreads) {
             BMemory memory(nullptr, DEFAULT_LOCAL_EXPECTATION);
             try {
                 auto code = new Code(program, 0, program->size() - 1);
-                ExecutionInstance executor(code, &memory, true);
+                ExecutionInstance executor(code, &memory, false);
                 Result returnedValue = executor.run(code);
                 bbassert(!executor.hasReturned(), "The virtual machine cannot return a value.");
                 //memory.detach(nullptr);

@@ -71,6 +71,7 @@ public:
     const DataPtr& getShallow(int item);
     const DataPtr& getOrNull(int item, bool allowMutable);
     const DataPtr& getOrNullShallow(int item);
+    void directTransfer(int to, int from);
     void set(int item, const DataPtr& value);
     void setFuture(int item, const DataPtr& value);
     void unsafeSetLiteral(int item, const DataPtr& value);

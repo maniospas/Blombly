@@ -17,7 +17,6 @@ Future::Future(ThreadResult* result_) : result((result_)), Data(FUTURE) {
 // Future destructor
 Future::~Future() {
     {
-        std::lock_guard<std::recursive_mutex> lock(syncMutex);
         if (result->thread.joinable()) {
             result->thread.join();
             --thread_count;
@@ -43,7 +42,6 @@ std::string Future::toString(BMemory* memory){
 
 // Get the result after joining the thread
 Result Future::getResult() const {
-    std::lock_guard<std::recursive_mutex> lock(syncMutex);
     try { 
         if (result->thread.joinable()) {
             result->thread.join();

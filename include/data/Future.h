@@ -26,7 +26,6 @@ class Future : public Data {
 private:
     static int max_threads;
     static std::atomic<int> thread_count;
-    mutable std::recursive_mutex syncMutex;
     ThreadResult* result;
 
 public:

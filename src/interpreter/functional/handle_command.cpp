@@ -74,6 +74,8 @@ void initialize_dispatch_table() {}
 
 struct CompiledCommand {
     OperationType operation;
+    std::vector<int> registers;
+    Command* sourceCommand;
 };
 
 
@@ -83,6 +85,8 @@ Result ExecutionInstance::run(Code* code) {
     auto& program = *code->getProgram();
     int end = code->getEnd();
     int i = code->getStart();
+
+
     try {
     for(;i<=end;++i) {
     const Command& command = program[i];
@@ -463,9 +467,8 @@ Result ExecutionInstance::run(Code* code) {
         DISPATCH_COMPUTED_RESULT;
     }
     DO_IS: {
-        result = memory.get(command.args[1], true);
-        if(result.existsAndTypeEquals(ERRORTYPE)) bberror(enrichErrorDescription(command, result->toString(&memory)));
-        DISPATCH_COMPUTED_RESULT;
+        memory.directTransfer(command.args[0], command.args[1]);
+        goto SKIP_ASSIGNMENT;
     }
     DO_AS: {
         result = memory.getOrNull(command.args[1], true);
@@ -824,8 +827,7 @@ Result ExecutionInstance::run(Code* code) {
                 executorLock = std::unique_lock<std::recursive_mutex>(static_cast<Struct*>(thisObj.get())->memoryLock);
             }
             newMemory.allowMutables = false;
-            bool forceStayInThread = thisObj.exists(); // overwrite the option
-            ExecutionInstance executor(code, &newMemory, forceStayInThread);
+            ExecutionInstance executor(code, &newMemory, thisObj.exists());
             Result returnedValue = executor.run(code);
             result = returnedValue.get();
             if(thisObj.exists()) newMemory.set(variableManager.thisId, nullptr);

@@ -108,9 +108,9 @@ const DataPtr& BMemory::get(int item, bool allowMutable) {
     }
     const auto& ret = contents[idx];
     if (ret.existsAndTypeEquals(FUTURE)) {
-        auto prevRet = static_cast<Future*>(ret.get());
-        auto resVal = prevRet->getResult();
-        unsafeSet(item, resVal.get()); 
+        Future* prevRet = static_cast<Future*>(ret.get());
+        Result resVal = prevRet->getResult();
+        unsafeSet(item, resVal.get());
         attached_threads.erase(prevRet);
         prevRet->removeFromOwner();
         bbassert(ret.islitorexists(), "Missing value: " + variableManager.getSymbol(item));
@@ -257,6 +257,11 @@ void BMemory::unsafeSet(int item, const DataPtr& value) {
     /*f(value.existsAndTypeEquals(FUTURE)) prev = DataPtr(value.get(), IS_FUTURE);
     else*/ prev = value;
     if(prevFinal) prev.setA(true);
+}
+
+void BMemory::directTransfer(int to, int from) {
+    const auto& value = get(from);
+    unsafeSet(to, value);
 }
 
 void BMemory::setFinal(int item) {
