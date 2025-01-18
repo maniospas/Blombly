@@ -626,6 +626,7 @@ Result ExecutionInstance::run(Code* code) {
         auto thisObj = new Struct(newMemory); 
         newMemory->set(variableManager.thisId, thisObj);
         newMemory->setFinal(variableManager.thisId);
+        result = thisObj;
         ExecutionInstance executor(code, newMemory, forceStayInThread);
         Result returnedValue = executor.run(code);
         newMemory->detach(nullptr);
