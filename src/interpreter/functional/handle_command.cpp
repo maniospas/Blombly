@@ -65,7 +65,7 @@ std::string replaceEscapeSequences(const std::string& input) {
 std::chrono::steady_clock::time_point program_start;
 std::recursive_mutex printMutex;
 std::recursive_mutex compileMutex;
-std::unordered_map<int, DataPtr> cachedData;
+BMemory cachedData(nullptr, 1024);
 
 #define DISPATCH_LITERAL(expr) {int carg = command.args[0]; result=DataPtr(expr); if(carg!=variableManager.noneId) memory.unsafeSetLiteral(carg, result); goto SKIP_ASSIGNMENT;}
 #define DISPATCH_RESULT(expr) {int carg = command.args[0]; result=DataPtr(expr); if(carg!=variableManager.noneId) memory.set(carg, result); goto SKIP_ASSIGNMENT;}
@@ -326,16 +326,13 @@ Result ExecutionInstance::run(Code* code) {
     DO_TOVECTOR: {
         const auto& arg0 = memory.get(command.args[1]);
         if(arg0.isint()) DISPATCH_RESULT(new Vector(arg0.unsafe_toint()));
-        args.arg0 = arg0;
-        args.size = 1;
-        goto FALLBACK;
+        if(arg0.existsAndTypeEquals(LIST)) DISPATCH_RESULT(static_cast<BList*>(arg0.get())->toVector(&memory));
+        bberror("Vectors can only be instantiated from an int size or a list of values convertible to float");
     }
     DO_LOG: {
         const auto& arg0 = memory.get(command.args[1]);
-        if(arg0.isfloat()) DISPATCH_RESULT(std::log(arg0.unsafe_tofloat()));
-        args.arg0 = arg0;
-        args.size = 1;
-        goto FALLBACK;
+        bbassert(arg0.isptr(), "Did not find builtin operation: log("+arg0.torepr()+")");
+        DISPATCH_OUTCOME(arg0->logarithm(&memory));
     }
     DO_TOBB_INT: {
         const auto& arg0 = memory.get(command.args[1]);
@@ -415,8 +412,8 @@ Result ExecutionInstance::run(Code* code) {
         DISPATCH_RESULT(command.args[1] == variableManager.noneId ? DataPtr::NULLP : memory.get(command.args[1]));
     }
     DO_ISCACHED: {
-        result = cachedData[command.args[1]];
-        bbassert(result.exists(), "Missing cache value (typically cached due to optimization):" + variableManager.getSymbol(command.args[1]));
+        result = cachedData.getOrNullShallow(command.args[1]);
+        bbassert(result.islitorexists(), "Missing cache value (typically cached due to optimization):" + variableManager.getSymbol(command.args[1]));
         DISPATCH_COMPUTED_RESULT;
     }
     DO_IS: {
@@ -602,7 +599,12 @@ Result ExecutionInstance::run(Code* code) {
         DISPATCH_RESULT(list);
     }
     DO_TOMAP: {
-        DISPATCH_RESULT(new BHashMap());
+        int n = command.nargs;
+        if(n==1) DISPATCH_RESULT(new BHashMap());
+        const auto& arg0 = memory.get(command.args[1]);
+        if(arg0.existsAndTypeEquals(MAP)) DISPATCH_RESULT(arg0);
+        bbassert(arg0.existsAndTypeEquals(MAP), "Not implemented: map("+arg0.torepr()+")");
+        DISPATCH_RESULT(static_cast<BList*>(arg0.get())->toMap());
     }
     DO_TIME: {
         result = DataPtr(static_cast<double>(std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now()-program_start).count()));
@@ -745,13 +747,9 @@ Result ExecutionInstance::run(Code* code) {
         ExecutionInstance cacheExecutor(cache, &cacheMemory, forceStayInThread);
         cacheExecutor.run(cache);
         cacheMemory.await();
-        bbassert(!cacheExecutor.hasReturned(), "Cache declaration cannot return a value");
-        /*for (const DataPtr& key : cacheMemory.contents) {
-            bbassert(!obj.existsAndTypeEquals(STRUCT), "Structs cannot be cached");
-            obj->addOwner();
-            cachedData[key] = obj;
-        }*/
+        cachedData.pull(&cacheMemory);
         result = nullptr;
+        bbassert(!cacheExecutor.hasReturned(), "Cache declaration cannot return a value");
         goto SKIP_ASSIGNMENT;
     }
     DO_BEGIN:

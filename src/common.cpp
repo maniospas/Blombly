@@ -8,7 +8,6 @@ VariableManager variableManager; // .lastId will always be 0 (currently it is di
 std::unordered_map<std::string, OperationType> toOperationTypeMap;
 void initializeOperationMapping() {
     for (int i = 0; i < sizeof(OperationTypeNames) / sizeof(OperationTypeNames[0]); ++i) {
-        // std::cout << OperationTypeNames[i] << " "<<static_cast<OperationType>(i)<<"\n";
         toOperationTypeMap[OperationTypeNames[i]] = static_cast<OperationType>(i);
     }
 }
@@ -20,9 +19,7 @@ OperationType getOperationType(const std::string &str) {
     return END;
 }
 
-std::string getOperationTypeName(OperationType type) {
-    return OperationTypeNames[type];
-}
+std::string getOperationTypeName(OperationType type) {return OperationTypeNames[type];}
 
 
 DataPtr DataPtr::NULLP((Data*)nullptr);

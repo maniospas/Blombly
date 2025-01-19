@@ -8,7 +8,7 @@
 #include "interpreter/functional.h"
 #include <unordered_set>  
 
-std::atomic<unsigned long long> countUnrealeasedMemories(0);
+std::atomic<unsigned long long> countUnrealeasedMemories(-1); // do not count cachedData as memory (-1+1=0 after first entry with despite the unsigned type)
 extern VariableManager variableManager;
 
 void BMemory::verify_noleaks() {

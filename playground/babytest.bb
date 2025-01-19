@@ -1,3 +1,3 @@
-name = "name?"|read;
-x = "my name is !{name}";
-while(i in x) print(i);
+A = 1,2,3;
+A << 4;
+print(A|pop);
