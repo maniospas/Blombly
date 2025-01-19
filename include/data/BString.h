@@ -31,6 +31,8 @@ public:
     explicit BString(const std::string& val);
     
     bool isSame(const DataPtr& other) override;
+    Result eq(BMemory *memory, const DataPtr& other) override;
+    Result neq(BMemory *memory, const DataPtr& other) override;
     Result at(BMemory *memory, const DataPtr& other) override;
     size_t toHash() const override;
     std::string toString(BMemory* memory) override;

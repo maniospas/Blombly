@@ -70,13 +70,13 @@ Result Struct::implement(const OperationType operation_, BuiltinArgs* args_, BMe
     }
 
     Code* code = static_cast<Code*>(implementation.get());
-    BMemory newMemory(calledMemory, LOCAL_EXPECTATION_FROM_CODE(code));
+    BMemory newMemory(calledMemory->getParentWithFinals(), LOCAL_EXPECTATION_FROM_CODE(code));
     newMemory.unsafeSet(variableManager.thisId, this);
     newMemory.unsafeSet(variableManager.argsId, args);
 
     ExecutionInstance executor(code, &newMemory, true);
     Result value = executor.run(code);
-    newMemory.unsafeSet(variableManager.thisId, DataPtr::NULLP);
+    newMemory.setToNullIgnoringFinals(variableManager.thisId);
     bbassert(executor.hasReturned() || operation_==PUT || operation_==PUSH || operation_==CLEAR, "Implementation for `" + operation + "` did not return anything");
     return Result(value);
 }

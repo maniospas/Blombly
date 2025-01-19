@@ -24,11 +24,10 @@ Graphics::Graphics(const std::string& title, int width, int height) : Data(GRAPH
         bberror("Failed to initialize SDL_ttf: " + std::string(TTF_GetError()));
     }
     
-    typeVariable = variableManager.getId("type");
-    xVariable = variableManager.getId("x");
-    yVariable = variableManager.getId("y");
-    buttonVariable = variableManager.getId("button");
-    keyVariable = variableManager.getId("key");
+    typeVariable = variableManager.getId("graphics::type");
+    keyVariable = variableManager.getId("graphics::key");
+    xVariable = variableManager.getId("graphics::x");
+    yVariable = variableManager.getId("graphics::y");
 
     keyUpString = new BString("key::up");
     keyDownString = new BString("key::down");
@@ -90,6 +89,7 @@ void Graphics::destroySDL() {
 }
 
 void Graphics::push(BList* list) {
+    list->addOwner();
     renderQueue.push_back(list);
 }
 
@@ -101,21 +101,21 @@ void Graphics::render() {
         std::lock_guard<std::recursive_mutex> lock(list->memoryLock);
         bbassert(list->contents.size() == 6, "Can only push lists of 6 elements to graphics. You cannot add or remove elements from those lists afterwards.");
 
-        if (list->contents[1]->getType() == STRING) {  // texts have the font path as the second argument
-            bbassert(list->contents[0]->getType() == STRING, "First element must be a string (text)");
+        if (list->contents[1].existsAndTypeEquals(STRING)) {  // texts have the font path as the second argument
+            bbassert(list->contents[0].existsAndTypeEquals(STRING), "First element must be a string (text)");
             //bbassert(list->contents[1]->getType() == STRING, "Second element must be a string (font path)");
-            bbassert(list->contents[2]->getType() == BB_FLOAT || list->contents[2]->getType() == BB_INT, "Third element must be a float or integer (font size)");
-            bbassert(list->contents[3]->getType() == BB_FLOAT || list->contents[3]->getType() == BB_INT, "Third element must be a float or integer (x-coordinate)");
-            bbassert(list->contents[4]->getType() == BB_FLOAT || list->contents[4]->getType() == BB_INT, "Fourth element must be a float or integer (y-coordinate)");
-            bbassert(list->contents[5]->getType() == BB_FLOAT || list->contents[5]->getType() == BB_INT, "Fifth element must be a float or integer (angle)");
+            bbassert(list->contents[2].isfloat() || list->contents[2].isint(), "Third element must be a float or integer (font size)");
+            bbassert(list->contents[3].isfloat() || list->contents[3].isint(), "Third element must be a float or integer (x-coordinate)");
+            bbassert(list->contents[4].isfloat() || list->contents[4].isint(), "Fourth element must be a float or integer (y-coordinate)");
+            bbassert(list->contents[5].isfloat() || list->contents[5].isint(), "Fifth element must be a float or integer (angle)");
 
             // Render text
             std::string text = static_cast<BString*>(list->contents[0].get())->toString(nullptr);
             std::string fontPath = static_cast<BString*>(list->contents[1].get())->toString(nullptr);
-            double fontSize = list->contents[2]->getType() == BB_INT ? static_cast<Integer*>(list->contents[2].get())->getValue() : static_cast<BFloat*>(list->contents[2].get())->getValue();
-            double x = list->contents[3]->getType() == BB_INT ? static_cast<Integer*>(list->contents[3].get())->getValue() : static_cast<BFloat*>(list->contents[3].get())->getValue();
-            double y = list->contents[4]->getType() == BB_INT ? static_cast<Integer*>(list->contents[4].get())->getValue() : static_cast<BFloat*>(list->contents[4].get())->getValue();
-            double angle = static_cast<BFloat*>(list->contents[4].get())->getValue();
+            double fontSize = list->contents[2].isint() ? list->contents[2].unsafe_toint() : list->contents[2].unsafe_tofloat();
+            double x = list->contents[3].isint() ? list->contents[3].unsafe_toint() : list->contents[3].unsafe_tofloat();
+            double y = list->contents[4].isint() ? list->contents[4].unsafe_toint() : list->contents[4].unsafe_tofloat();
+            double angle = list->contents[5].isint() ? list->contents[5].unsafe_toint() : list->contents[5].unsafe_tofloat();
 
             TTF_Font* font = getFont(fontPath, static_cast<int>(fontSize + 0.5));
             SDL_Color color = {255, 255, 255, 255};
@@ -129,20 +129,20 @@ void Graphics::render() {
             SDL_DestroyTexture(texture);
         } else {
             // Validate data types for texture rendering
-            bbassert(list->contents[0]->getType() == STRING, "First element must be a string (texture path)");
-            bbassert(list->contents[1]->getType() == BB_FLOAT || list->contents[1]->getType() == BB_INT, "Second element must be a float or integer (x-coordinate)");
-            bbassert(list->contents[2]->getType() == BB_FLOAT || list->contents[2]->getType() == BB_INT, "Third element must be a float or integer (y-coordinate)");
-            bbassert(list->contents[3]->getType() == BB_FLOAT || list->contents[3]->getType() == BB_INT, "Fourth element must be a float or integer (width)");
-            bbassert(list->contents[4]->getType() == BB_FLOAT || list->contents[4]->getType() == BB_INT, "Fifth element must be a float or integer (height)");
-            bbassert(list->contents[5]->getType() == BB_FLOAT || list->contents[5]->getType() == BB_INT, "Sixth element must be a float or integer (angle)");
+            bbassert(list->contents[0].existsAndTypeEquals(STRING), "First element must be a string (texture path)");
+            bbassert(list->contents[1].isfloat() || list->contents[1].isint(), "Second element must be a float or integer (x-coordinate)");
+            bbassert(list->contents[2].isfloat() || list->contents[2].isint(), "Third element must be a float or integer (y-coordinate)");
+            bbassert(list->contents[3].isfloat() || list->contents[3].isint(), "Fourth element must be a float or integer (width)");
+            bbassert(list->contents[4].isfloat() || list->contents[4].isint(), "Fifth element must be a float or integer (height)");
+            bbassert(list->contents[5].isfloat() || list->contents[5].isint(), "Sixth element must be a float or integer (angle)");
 
             // Render texture
             std::string texturePath = static_cast<BString*>(list->contents[0].get())->toString(nullptr);
-            double x = list->contents[1]->getType() == BB_INT ? static_cast<Integer*>(list->contents[1].get())->getValue() : static_cast<BFloat*>(list->contents[1].get())->getValue();
-            double y = list->contents[2]->getType() == BB_INT ? static_cast<Integer*>(list->contents[2].get())->getValue() : static_cast<BFloat*>(list->contents[2].get())->getValue();
-            double dx = list->contents[3]->getType() == BB_INT ? static_cast<Integer*>(list->contents[3].get())->getValue() : static_cast<BFloat*>(list->contents[3].get())->getValue();
-            double dy = list->contents[4]->getType() == BB_INT ? static_cast<Integer*>(list->contents[4].get())->getValue() : static_cast<BFloat*>(list->contents[4].get())->getValue();
-            double angle = list->contents[5]->getType() == BB_INT ? static_cast<Integer*>(list->contents[5].get())->getValue() : static_cast<BFloat*>(list->contents[5].get())->getValue();
+            double x = list->contents[1].isint() ? list->contents[1].unsafe_toint() : list->contents[1].unsafe_tofloat();
+            double y = list->contents[2].isint() ? list->contents[2].unsafe_toint() : list->contents[2].unsafe_tofloat();
+            double dx = list->contents[3].isint() ? list->contents[3].unsafe_toint() : list->contents[3].unsafe_tofloat();
+            double dy = list->contents[4].isint() ? list->contents[4].unsafe_toint() : list->contents[4].unsafe_tofloat();
+            double angle = list->contents[5].isint() ? list->contents[5].unsafe_toint() : list->contents[5].unsafe_tofloat();
 
             SDL_Texture* texture = getTexture(texturePath);
             SDL_Rect dstRect = {static_cast<int>(x + 0.5), static_cast<int>(y + 0.5), static_cast<int>(dx + 0.5), static_cast<int>(dy + 0.5)};
@@ -161,79 +161,72 @@ void Graphics::clear() {
 std::string Graphics::toString(BMemory* memory) { return "graphics"; }
 
 
-Result Graphics::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
-    if (operation == CLEAR && args->size == 1) {
-        //clear();
-        return std::move(Result(nullptr));
-    }
-    if (operation == PUSH && args->size == 2 && args->arg1->getType() == LIST) {
-        args->arg1->addOwner();
-        push(static_cast<BList*>(args->arg1.get()));
-        return std::move(Result(this));
-    }
-    if (operation == POP && args->size == 1) {
-        render();
-        clear();
-        bool keep_running = true;
-        SDL_Event event;
-        BList* signals = new BList();
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                destroySDL();
-                return std::move(Result(OUT_OF_RANGE));
-            } else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
-                SDL_Keycode keyPressed = event.key.keysym.sym;
-                const char* keyName = SDL_GetKeyName(keyPressed);
+void Graphics::clear(BMemory* memory) {destroySDL();}
+Result Graphics::push(BMemory* memory, const DataPtr& other) {
+    bbassert(other.existsAndTypeEquals(LIST), "Can only push lists to graphics");
+    push(static_cast<BList*>(other.get()));
+    return std::move(Result(this));
+}
+Result Graphics::pop(BMemory* memory) {
+    render();
+    clear();
+    bool keep_running = true;
+    SDL_Event event;
+    BList* signals = new BList();
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) {
+            destroySDL();
+            return std::move(Result(OUT_OF_RANGE));
+        } else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+            SDL_Keycode keyPressed = event.key.keysym.sym;
+            const char* keyName = SDL_GetKeyName(keyPressed);
 
-                // Create a new struct for key events
-                BMemory* memory = new BMemory(nullptr, 3);
-                Struct* signalStruct = new Struct(memory);
-                memory->set(variableManager.thisId, signalStruct);
-                signalStruct->getMemory()->set(typeVariable, event.type == SDL_KEYDOWN?keyDownString:keyUpString);
-                signalStruct->getMemory()->set(keyVariable, new BString(keyName));
-                
-                // Add the struct to signals
-                signalStruct->addOwner();
-                signals->contents.push_back(signalStruct);
-            } else if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP) {
-                int x = event.button.x;
-                int y = event.button.y;
+            // Create a new struct for key events
+            BMemory* memory = new BMemory(nullptr, 3);
+            Struct* signalStruct = new Struct(memory);
+            memory->set(variableManager.thisId, signalStruct);
+            signalStruct->getMemory()->set(typeVariable, event.type == SDL_KEYDOWN?keyDownString:keyUpString);
+            signalStruct->getMemory()->set(keyVariable, new BString(keyName));
+            
+            // Add the struct to signals
+            signalStruct->addOwner();
+            signals->contents.push_back(signalStruct);
+        } else if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP) {
+            int x = event.button.x;
+            int y = event.button.y;
 
-                std::string button;
-                switch (event.button.button) {
-                    case SDL_BUTTON_LEFT: button = "left"; break;
-                    case SDL_BUTTON_RIGHT: button = "right"; break;
-                    case SDL_BUTTON_MIDDLE: button = "middle"; break;
-                    default: button = "unknown"; break;
-                }
-
-                BMemory* memory = new BMemory(nullptr, 5);
-                Struct* signalStruct = new Struct(memory);
-                memory->set(variableManager.thisId, signalStruct);
-                signalStruct->getMemory()->set(typeVariable, event.type == SDL_MOUSEBUTTONDOWN ? mouseDownString : mouseUpString);
-                signalStruct->getMemory()->set(keyVariable, new BString(button));
-                signalStruct->getMemory()->set(xVariable, new BFloat(static_cast<float>(x)));
-                signalStruct->getMemory()->set(yVariable, new BFloat(static_cast<float>(y)));
-                signalStruct->addOwner();
-                signals->contents.push_back(signalStruct);
-            } else if (event.type == SDL_MOUSEMOTION) {
-                int x = event.motion.x;
-                int y = event.motion.y;
-
-                BMemory* memory = new BMemory(nullptr, 4);
-                Struct* signalStruct = new Struct(memory);
-                memory->set(variableManager.thisId, signalStruct);
-                signalStruct->getMemory()->set(typeVariable, mouseMoveString);
-                signalStruct->getMemory()->set(xVariable, new BFloat(static_cast<float>(x)));
-                signalStruct->getMemory()->set(yVariable, new BFloat(static_cast<float>(y)));
-
-                // Add the struct to signals
-                signalStruct->addOwner();
-                signals->contents.push_back(signalStruct);
+            std::string button;
+            switch (event.button.button) {
+                case SDL_BUTTON_LEFT: button = "left"; break;
+                case SDL_BUTTON_RIGHT: button = "right"; break;
+                case SDL_BUTTON_MIDDLE: button = "middle"; break;
+                default: button = "unknown"; break;
             }
-        }
 
-        return std::move(Result(signals));
+            BMemory* memory = new BMemory(nullptr, 5);
+            Struct* signalStruct = new Struct(memory);
+            memory->set(variableManager.thisId, signalStruct);
+            signalStruct->getMemory()->set(typeVariable, event.type == SDL_MOUSEBUTTONDOWN ? mouseDownString : mouseUpString);
+            signalStruct->getMemory()->set(keyVariable, new BString(button));
+            signalStruct->getMemory()->set(xVariable, new BFloat(static_cast<float>(x)));
+            signalStruct->getMemory()->set(yVariable, new BFloat(static_cast<float>(y)));
+            signalStruct->addOwner();
+            signals->contents.push_back(signalStruct);
+        } else if (event.type == SDL_MOUSEMOTION) {
+            int x = event.motion.x;
+            int y = event.motion.y;
+
+            BMemory* memory = new BMemory(nullptr, 4);
+            Struct* signalStruct = new Struct(memory);
+            memory->set(variableManager.thisId, signalStruct);
+            signalStruct->getMemory()->set(typeVariable, mouseMoveString);
+            signalStruct->getMemory()->set(xVariable, new BFloat(static_cast<float>(x)));
+            signalStruct->getMemory()->set(yVariable, new BFloat(static_cast<float>(y)));
+
+            // Add the struct to signals
+            signalStruct->addOwner();
+            signals->contents.push_back(signalStruct);
+        }
     }
-    throw Unimplemented();
+    return std::move(Result(signals));
 }

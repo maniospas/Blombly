@@ -21,15 +21,16 @@ private:
     tsl::hopscotch_map<std::string, int> registeredSymbols;
     tsl::hopscotch_map<int, std::string> registeredIds;
 public:
-    int thisId;
-    int argsId;
-    int noneId;
-    int callId;
+    static constexpr int thisId = 0;
+    static constexpr int argsId = 1;
+    static constexpr int noneId = 2;
+    static constexpr int callId = 3;
+
     VariableManager() {
-        thisId = getId("this");
-        argsId = getId("args");
-        noneId = getId("#");
-        callId = getId("call");
+        getId("this");
+        getId("args");
+        getId("#");
+        getId("call");
     }
     int getId(const std::string& symbol) {
         if(registeredSymbols.find(symbol) == registeredSymbols.end()) {
@@ -43,7 +44,6 @@ public:
         return registeredIds[id];
     }
 };
-
 
 class BMemory {
 private:
@@ -82,6 +82,7 @@ public:
     void set(int item, const DataPtr& value);
     void setFuture(int item, const DataPtr& value);
     void unsafeSetLiteral(int item, const DataPtr& value);
+    void setToNullIgnoringFinals(int item);
     int size() const;
     void setFinal(int item);
 

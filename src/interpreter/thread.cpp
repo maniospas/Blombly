@@ -32,7 +32,7 @@ void threadExecute(Code* code,
     }
     try {
         memory->detach(nullptr); 
-        memory->set(variableManager.thisId, DataPtr::NULLP);
+        memory->setToNullIgnoringFinals(variableManager.thisId);
         delete memory;
     } 
     catch (const BBError& e) {

@@ -66,6 +66,9 @@ bool BString::isSame(const DataPtr& other) {
     return false;
 }
 
+Result BString::eq(BMemory *memory, const DataPtr& other) {return std::move(Result(isSame(other)));}
+Result BString::neq(BMemory *memory, const DataPtr& other) {return std::move(Result(!isSame(other)));}
+
 Result BString::at(BMemory *memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     if(other.isint()) {

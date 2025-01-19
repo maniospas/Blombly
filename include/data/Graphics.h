@@ -23,7 +23,6 @@ private:
     int xVariable;
     int yVariable;
     int typeVariable;
-    int buttonVariable;
     int keyVariable;
     BString* keyDownString;
     BString* keyUpString;
@@ -35,16 +34,17 @@ private:
     tsl::hopscotch_map<std::string, TTF_Font*> fontCache;
     SDL_Texture* getTexture(const std::string& path);
     TTF_Font* getFont(const std::string& path, int fontSize);
+    void push(BList* list);
+    void render();
+    void clear();
 public:
     explicit Graphics(const std::string& title, int width, int height);
     ~Graphics();
 
-    void push(BList* list);
-    void render();
-    void clear();
-
     std::string toString(BMemory* memory) override;
-    Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
+    void clear(BMemory* memory) override;
+    Result pop(BMemory* memory) override;
+    Result push(BMemory* memory, const DataPtr& other) override;
 };
 
 #endif // GRAPHICS_H

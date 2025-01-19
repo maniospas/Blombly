@@ -23,6 +23,10 @@ void preliminarySimpleChecks(std::vector<Command>* program) {
         if(command.operation==SET && command.args.size()>2)  symbolDefinitions.insert(command.args[1]);
         if(command.operation==SETFINAL && command.args.size()>2)  symbolDefinitions.insert(command.args[1]);
     }
+    symbolDefinitions.insert(variableManager.getId("graphics::key"));
+    symbolDefinitions.insert(variableManager.getId("graphics::type"));
+    symbolDefinitions.insert(variableManager.getId("graphics::x"));
+    symbolDefinitions.insert(variableManager.getId("graphics::y"));
     for (const auto& command : *program) {
         for(int arg : command.args) {
             if(arg==variableManager.thisId || arg==variableManager.noneId) continue;

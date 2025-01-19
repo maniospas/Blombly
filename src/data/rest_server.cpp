@@ -94,7 +94,7 @@ Result RestServer::executeCodeWithMemory(DataPtr called, BMemory* memory) const 
     Result returnedValue = executor.run(code);
     newMemory.detach(nullptr);
     result = returnedValue.get();
-    if(thisObj.exists()) newMemory.set(variableManager.thisId, DataPtr::NULLP);
+    if(thisObj.exists()) newMemory.setToNullIgnoringFinals(variableManager.thisId);
 
     bbassert(executor.hasReturned(), "Server route handler did not reach a return statement.");
     bbassert(result.exists(), "Server route handler returned no value.");

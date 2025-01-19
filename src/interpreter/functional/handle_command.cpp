@@ -835,7 +835,7 @@ Result ExecutionInstance::run(Code* code) {
             ExecutionInstance executor(code, &newMemory, thisObj.exists());
             Result returnedValue = executor.run(code);
             result = returnedValue.get();
-            if(thisObj.exists()) newMemory.set(variableManager.thisId, nullptr);
+            if(thisObj.exists()) newMemory.setToNullIgnoringFinals(variableManager.thisId);
             DISPATCH_COMPUTED_RESULT;
         } 
         else { // 

@@ -26,9 +26,9 @@ public:
 };
 
 // Custom error message macro
-#define bberror(msg) throw BBError("\033[0m(\x1B[31m ERROR \033[0m) " + std::string(msg))
-#define bbassert(expr, msg) if (!(expr)) { bberror(msg); }
-#define bbverify(precondition, expr, msg) if ((precondition) && !(expr)) { std::cerr << msg << "\n"; exit(1); }
+#define bberror(msg) [[unlikely]] throw BBError("\033[0m(\x1B[31m ERROR \033[0m) " + std::string(msg))
+#define bbassert(expr, msg) if (!(expr)) bberror(msg);
+#define bbverify(precondition, expr, msg) if ((precondition) && !(expr)) bberror(msg); 
 
 // Enumeration of data types
 enum Datatype {
@@ -102,19 +102,25 @@ extern VariableManager variableManager;
 
 
 #define DATTYPETYPE char
-#define IS_FLOAT static_cast<DATTYPETYPE>(1)
-#define IS_INT static_cast<DATTYPETYPE>(2)
-#define IS_BOOL static_cast<DATTYPETYPE>(4)
-#define IS_PTR static_cast<DATTYPETYPE>(8)
-#define IS_FUTURE static_cast<DATTYPETYPE>(16)
-#define IS_PROPERTY_A static_cast<DATTYPETYPE>(64)
-#define IS_PROPERTY_B static_cast<DATTYPETYPE>(128)
-#define IS_NOT_FLOAT (~IS_FLOAT & ~IS_PROPERTY_A & ~IS_PROPERTY_B)
-#define IS_NOT_INT (~IS_INT & ~IS_PROPERTY_A & ~IS_PROPERTY_B)
-#define IS_NOT_BOOL (~IS_BOOL & ~IS_PROPERTY_A & ~IS_PROPERTY_B)
-#define IS_NOT_PTR (~IS_PTR & ~IS_PROPERTY_A & ~IS_PROPERTY_B)
-#define IS_NOT_FUTURE (~IS_FUTURE & ~IS_PROPERTY_A & ~IS_PROPERTY_B)
-#define IS_LIT (IS_FLOAT | IS_INT | IS_BOOL)
+
+constexpr DATTYPETYPE IS_FLOAT = static_cast<DATTYPETYPE>(1);
+constexpr DATTYPETYPE IS_INT = static_cast<DATTYPETYPE>(2);
+constexpr DATTYPETYPE IS_BOOL = static_cast<DATTYPETYPE>(4);
+constexpr DATTYPETYPE IS_PTR = static_cast<DATTYPETYPE>(8);
+constexpr DATTYPETYPE IS_FUTURE = static_cast<DATTYPETYPE>(16);
+constexpr DATTYPETYPE IS_PROPERTY_A = static_cast<DATTYPETYPE>(64);
+constexpr DATTYPETYPE IS_PROPERTY_B = static_cast<DATTYPETYPE>(128);
+
+// Compute negations and combinations at compile-time
+constexpr DATTYPETYPE IS_NOT_FLOAT = static_cast<DATTYPETYPE>(~IS_FLOAT & ~IS_PROPERTY_A & ~IS_PROPERTY_B);
+constexpr DATTYPETYPE IS_NOT_INT = static_cast<DATTYPETYPE>(~IS_INT & ~IS_PROPERTY_A & ~IS_PROPERTY_B);
+constexpr DATTYPETYPE IS_NOT_BOOL = static_cast<DATTYPETYPE>(~IS_BOOL & ~IS_PROPERTY_A & ~IS_PROPERTY_B);
+constexpr DATTYPETYPE IS_NOT_PTR = static_cast<DATTYPETYPE>(~IS_PTR & ~IS_PROPERTY_A & ~IS_PROPERTY_B);
+constexpr DATTYPETYPE IS_NOT_FUTURE = static_cast<DATTYPETYPE>(~IS_FUTURE & ~IS_PROPERTY_A & ~IS_PROPERTY_B);
+constexpr DATTYPETYPE IS_LIT = static_cast<DATTYPETYPE>(IS_FLOAT | IS_INT | IS_BOOL);
+constexpr DATTYPETYPE IS_NOT_PROPERTY_A = static_cast<DATTYPETYPE>(~IS_PROPERTY_A);
+constexpr DATTYPETYPE IS_NOT_PROPERTY_B = static_cast<DATTYPETYPE>(~IS_PROPERTY_B);
+
 
 #define SAFETYCHECKS
 
@@ -221,6 +227,7 @@ struct DataPtr {
         if(datatype & IS_PTR) return data; 
         return true;
     }
+    
     inline bool islit() const {
         return datatype & IS_LIT;
     }
@@ -250,7 +257,9 @@ struct DataPtr {
     inline bool isA() const { return datatype & IS_PROPERTY_A; }
     inline bool isB() const { return datatype & IS_PROPERTY_B; }
     inline void setA(bool value){if(value) datatype |= IS_PROPERTY_A; else datatype &= ~IS_PROPERTY_A;}
+    inline void setAFalse(){datatype &= IS_NOT_PROPERTY_A;}
     inline void setB(bool value){if(value) datatype |= IS_PROPERTY_B; else datatype &= ~IS_PROPERTY_B;}
+    inline void setBFalse(){datatype &= IS_NOT_PROPERTY_B;}
     static DataPtr NULLP;
 private:
     DATTYPETYPE datatype;

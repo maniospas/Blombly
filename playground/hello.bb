@@ -17,7 +17,6 @@ logo = new {
     texture() => "docs/blombly.png",this.x,this.y,this.size,this.size,this.angle;
 }
 
-
 font = "playground/fonts/OpenSans-VariableFont_wdth,wght.ttf";
 invfps = 1/60;
 previous_frame = time();
@@ -30,11 +29,11 @@ while(events as g|pop) {
     g << fps,font,12,800-42,600-20,0;
 
     // process events
-    while(event in events) if(event.type=="key::down") {
-        if(event.key=="W") logo.speedy -= 1;
-        if(event.key=="S") logo.speedy += 1;
-        if(event.key=="A") logo.speedx -= 1;
-        if(event.key=="D") logo.speedx += 1;
+    while(event in events) if(event.graphics::type=="key::down") {
+        if(event.graphics::key=="W") logo.speedy -= 1;
+        if(event.graphics::key=="S") logo.speedy += 1;
+        if(event.graphics::key=="A") logo.speedx -= 1;
+        if(event.graphics::key=="D") logo.speedx += 1;
     }
     
     // update fps
