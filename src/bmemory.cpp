@@ -18,7 +18,7 @@ void BMemory::verify_noleaks() {
     bbassert(countUnreleased == 0, "There are " + std::to_string(countUnreleased) + " leftover memory contexts leaked");  // the main memory is a global object (needed to sync threads on errors)
 }
 
-BMemory::BMemory(BMemory* par, int expectedAssignments, DataPtr thisObject) : parent(par), allowMutables(true), first_item(INT_MAX) {  // we are determined to never use special symbols as the start of our cache index
+BMemory::BMemory(BMemory* par, int expectedAssignments, DataPtr thisObject) : parent(par), allowMutables(true), first_item(INT_MAX), hasAtLeastOneFinal(false) {  // we are determined to never use special symbols as the start of our cache index
     //std::cout << "created "<<this<<"\n";
     ++countUnrealeasedMemories;
     //data.reserve(expectedAssignments);
@@ -268,6 +268,7 @@ void BMemory::setFinal(int item) {
     DataPtr& value = contents[idx];
     bbassert(value.islitorexists(), "Missing variable cannot be set to final: "+variableManager.getSymbol(item));
     value.setA(true);
+    hasAtLeastOneFinal = true;
 }
 
 void BMemory::pull(BMemory* other) {

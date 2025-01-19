@@ -55,7 +55,14 @@ private:
     static const int end = -1;
     int first_item;
     int max_cache_size;
+    bool hasAtLeastOneFinal;
 public:
+    inline BMemory* getParentWithFinals() {
+        // this is used to skip intermediate useless memory contexts in get() within function 
+        if(hasAtLeastOneFinal) return this; 
+        if(parent) return parent->getParentWithFinals();
+        return nullptr;
+    }
     tsl::hopscotch_map<Code*, Struct*> codeOwners;
     BMemory* parent;
     tsl::hopscotch_set<Future*> attached_threads;

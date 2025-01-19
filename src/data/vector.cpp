@@ -379,7 +379,7 @@ Result Vector::implement(const OperationType operation, BuiltinArgs* args, BMemo
 
     
     if(operation==TOITER && args->size==1) 
-        return std::move(Result(new AccessIterator(args->arg0)));
+        return std::move(Result(new AccessIterator(args->arg0, size)));
     
     if(operation==TOVECTOR && args->size==1) 
         return std::move(Result(this));

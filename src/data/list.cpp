@@ -49,7 +49,7 @@ Result BList::implement(const OperationType operation, BuiltinArgs* args, BMemor
                 int res = contents.size()-front;
                 return std::move(Result(res));
             }
-            case TOITER: return std::move(Result(new AccessIterator(args->arg0)));
+            case TOITER: return std::move(Result(new AccessIterator(args->arg0, contents.size()-front)));
             case NEXT: {
                 if (front >= contents.size()) return std::move(Result(OUT_OF_RANGE));
                 const auto& element = contents[front];

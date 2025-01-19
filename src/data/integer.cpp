@@ -25,7 +25,7 @@ void Integer::setValue(int64_t val) {
     value = val;
 }
 
-bool Integer::isSame(DataPtr other) {
+bool Integer::isSame(const DataPtr& other) {
     if(other->getType()!=BB_INT)
         return false;
     return static_cast<Integer*>(other.get())->value==value;

@@ -26,7 +26,7 @@ void BFloat::setValue(double val) {
     value = val;
 }
 
-bool BFloat::isSame(DataPtr other) {
+bool BFloat::isSame(const DataPtr& other) {
     if(other->getType()!=BB_FLOAT)
         return false;
     return static_cast<BFloat*>(other.get())->value==value;

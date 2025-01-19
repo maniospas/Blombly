@@ -100,14 +100,14 @@ Development status of planned features:
 - [x] Automatic thread scheduling
 - [x] Resource access and modification safety
 - [x] Explicit filesystem name resolution
-- [ ] Virtual filesystem
+- [ ] Virtual filesystem (progress: works for files, not databases for now)
 - [ ] Fuzz tests (depends on virtual filesystem)
 - [ ] Permission management when running bbvm files, permission summaries
 - [x] Database: sqlite
 - [x] Comptime
 - [x] Compile optimizations
 - [x] Vectors for scientific computations
-- [x] REST server
+- [ ] REST server (progress: full implementation, but need to rework its closure model)
 - [x] Test suite (implemented through the standard library)
 - [x] Macros
 - [ ] Web sockets
@@ -115,11 +115,11 @@ Development status of planned features:
 - [x] FTP, SFTP, FTPS clients
 - [ ] FTP server (may be skipped)
 - [ ] SSH
-- [ ] JIT using gcc at runtime (progress: numeric only, unstable at development testing)
+- [ ] JIT (progress: some preparation of future gcc compilation, not a priority to focus on engine optimizations)
 - [ ] Improve list semi-type semantics
 - [ ] Simplify map creation
 - [ ] CUDA vectors
-- [ ] Graphics: SDL
+- [X] Graphics: SDL (progress: implemented but breaks the build system - aka "it works on my machine")
 - [ ] Sound: SDL
 
 

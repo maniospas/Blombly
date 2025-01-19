@@ -70,10 +70,7 @@ public:
         DataPtr nextValue = it->fastNext();
 
         if(!nextValue.islitorexists()) {
-            BuiltinArgs args;
-            args.size = 1;
-            args.arg0 = it;
-            Result res = it->implement(NEXT, &args, memory);
+            Result res = it->next(memory);
             nextValue = res.get();
             
             memory->set(next, nextValue);

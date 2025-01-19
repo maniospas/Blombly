@@ -22,7 +22,6 @@ struct BuiltinArgs {
 // Abstract base class for all data types
 class Data {
 public:
-    virtual std::string toString(BMemory* memory)= 0;
     inline Datatype getType() const { return type; }
 
     Data(Datatype type);
@@ -31,7 +30,41 @@ public:
     static Result run(const OperationType operation, BuiltinArgs* args, BMemory* memory);
     virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory);
     virtual size_t toHash() const;
-    virtual bool isSame(DataPtr other);
+    virtual bool isSame(const DataPtr& other);
+
+    virtual Result push(BMemory* memory, const DataPtr& other) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result pop(BMemory* memory) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result next(BMemory* memory) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result at(BMemory* memory, const DataPtr& other) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result put(BMemory* memory, const DataPtr& position, const DataPtr& value) {bberror("Internal error: No implementation for the given data objects");}
+    virtual void clear(BMemory* memory) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result move(BMemory* memory) {bberror("Internal error: No implementation for the given data objects");}
+    virtual double toFloat(BMemory* memory) {bberror("Internal error: No implementation for the given data objects");}
+    virtual bool toBool(BMemory* memory) {bberror("Internal error: No implementation for the given data objects");}
+    virtual int64_t toInt(BMemory* memory) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result add(BMemory* memory, const DataPtr& other) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result sub(BMemory* memory, const DataPtr& other) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result mul(BMemory* memory, const DataPtr& other) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result div(BMemory* memory, const DataPtr& other) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result pow(BMemory* memory, const DataPtr& other) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result mmul(BMemory* memory, const DataPtr& other) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result mod(BMemory* memory, const DataPtr& other) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result lt(BMemory* memory, const DataPtr& other) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result le(BMemory* memory, const DataPtr& other) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result gt(BMemory* memory, const DataPtr& other) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result ge(BMemory* memory, const DataPtr& other) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result eq(BMemory* memory, const DataPtr& other) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result neq(BMemory* memory, const DataPtr& other) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result opand(BMemory* memory, const DataPtr& other) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result opor(BMemory* memory, const DataPtr& other) {bberror("Internal error: No implementation for the given data objects");}
+    virtual int64_t len(BMemory* memory) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result iter(BMemory* memory) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result min(BMemory* memory) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result max(BMemory* memory) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result sum(BMemory* memory) {bberror("Internal error: No implementation for the given data objects");}
+    virtual Result opnot(BMemory* memory) {bberror("Internal error: No implementation for the given data objects");}
+
+    virtual std::string toString(BMemory* memory)= 0;
     
     inline void addOwner() {++referenceCounter;}
     virtual void removeFromOwner() {if((--referenceCounter)==0) delete this;}

@@ -512,7 +512,11 @@ Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemor
         }
         if (operation == TOFILE) return std::move(Result(this));
         if (operation == TOSTR) STRING_RESULT(toString(memory));
-        if (operation == TOITER) return std::move(Result(new AccessIterator(args->arg0)));
+        if (operation == TOITER) {
+            loadContents();
+            int64_t n = contents.size();
+            return std::move(Result(new AccessIterator(args->arg0, n)));
+        }
         if (operation == TOLIST) {
             loadContents();
             int64_t n = contents.size();

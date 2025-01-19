@@ -30,19 +30,16 @@ private:
 public:
     explicit BString(const std::string& val);
     
-    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
-    virtual bool isSame(DataPtr other) override;
-    virtual size_t toHash() const override;
-    virtual std::string toString(BMemory* memory) override;
-
-    friend class Boolean;
-    friend class BFloat;
-    friend class Integer;
-    friend class Vector;
-    friend class BList;
-    friend class BFile;
-    friend class BError;
-    friend class BHashMap;
+    bool isSame(const DataPtr& other) override;
+    Result at(BMemory *memory, const DataPtr& other) override;
+    size_t toHash() const override;
+    std::string toString(BMemory* memory) override;
+    int64_t toInt(BMemory *memory) override;
+    int64_t len(BMemory *memory) override;
+    double toFloat(BMemory *memory) override;
+    bool toBool(BMemory *memory) override;
+    Result iter(BMemory *memory) override;
+    Result add(BMemory *memory, const DataPtr& other) override;
 };
 
 #endif // BSTRING_H
