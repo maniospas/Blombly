@@ -99,8 +99,6 @@ extern VariableManager variableManager;
 // data pointer class
 //#define DataPtr Data*
 
-
-
 #define DATTYPETYPE char
 
 constexpr DATTYPETYPE IS_FLOAT = static_cast<DATTYPETYPE>(1);
@@ -131,7 +129,12 @@ constexpr DATTYPETYPE IS_NOT_PROPERTY_B = static_cast<DATTYPETYPE>(~IS_PROPERTY_
  */
 class Data;
 class Future;
+
 struct DataPtr {
+private:
+    int64_t data;
+    DATTYPETYPE datatype; // second to optimize for alignment
+public:
     DataPtr(double data) noexcept : data(std::bit_cast<int64_t>(data)), datatype(IS_FLOAT) {}
     DataPtr(Data* data) noexcept : data(std::bit_cast<int64_t>(data)), datatype(IS_PTR) {}
     DataPtr(int64_t data) noexcept : data(data), datatype(IS_INT) {}
@@ -261,9 +264,6 @@ struct DataPtr {
     inline void setB(bool value){if(value) datatype |= IS_PROPERTY_B; else datatype &= ~IS_PROPERTY_B;}
     inline void setBFalse(){datatype &= IS_NOT_PROPERTY_B;}
     static DataPtr NULLP;
-private:
-    DATTYPETYPE datatype;
-    int64_t data;
 };
 
 

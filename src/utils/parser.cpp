@@ -79,7 +79,7 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
                 }
                 preliminarySimpleChecks(program);
 
-                auto code = new Code(program, 0, program->size() - 1);
+                auto code = new Code(program, 0, program->size() - 1, program->size() - 1);
 
                 ExecutionInstance executor(code, &memory, true);
                 Result returnedValue = executor.run(code);

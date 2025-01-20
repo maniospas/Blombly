@@ -167,7 +167,7 @@ public:
 class JitCode : public Jitable {
 private:
     Compile compile;
-    std::vector<Command>* program;
+    const std::vector<Command>* program;
     int start;
     int preparationEnd;
     std::unordered_map<int, int> arguments;
@@ -177,7 +177,7 @@ private:
 public:
     virtual std::string toString() {return "JIT: used gcc to compile away everything after line "+std::to_string(preparationEnd);}
 
-    explicit JitCode(const std::string& code, const std::string& func, std::vector<Command>* program, int start, int preparationEnd, 
+    explicit JitCode(const std::string& code, const std::string& func, const std::vector<Command>* program, int start, int preparationEnd, 
                     std::unordered_map<int, int> arguments, std::vector<int> argumentOrder, int returnType): 
         compile(code, func), program(program), start(start), preparationEnd(preparationEnd), arguments(arguments), argumentOrder(argumentOrder), returnType(returnType) {
             expected_size = 0;
@@ -255,7 +255,7 @@ public:
 // Implementation of the jit function
 Jitable* jit(const Code* code) {
     std::lock_guard<std::recursive_mutex> lock(compileMutex);
-    std::vector<Command>* program = code->getProgram();
+    const std::vector<Command>* program = code->getProgram();
     int start = code->getStart();
     int end = code->getEnd();
     int size = end-start;

@@ -66,7 +66,7 @@ Result compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
     inputFile.close();
     preliminarySimpleChecks(program);
 
-    return Result(new Code(program, 0, program->size() - 1));
+    return Result(new Code(program, 0, program->size() - 1, program->size() - 1));
 }
 
 extern std::unordered_map<int, DataPtr> cachedData;
@@ -96,7 +96,7 @@ int vm(const std::string& fileName, int numThreads) {
             
             BMemory memory(nullptr, DEFAULT_LOCAL_EXPECTATION);
             try {
-                auto code = new Code(program, 0, program->size() - 1);
+                auto code = new Code(program, 0, program->size() - 1, program->size() - 1);
                 ExecutionInstance executor(code, &memory, false);
                 Result returnedValue = executor.run(code);
                 bbassert(!executor.hasReturned(), "The virtual machine cannot return a value.");
@@ -149,7 +149,7 @@ int vmFromSourceCode(const std::string& sourceCode, int numThreads) {
                     ++i;
                 }
 
-                auto code = new Code(program, 0, program->size() - 1);
+                auto code = new Code(program, 0, program->size() - 1, program->size() - 1);
                 if(numThreads) {
                     ExecutionInstance executor(code, &memory, false);
                     Result returnedValue = executor.run(code);

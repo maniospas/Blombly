@@ -86,8 +86,8 @@ struct CompiledCommand {
 
 Result ExecutionInstance::run(Code* code) {
     //bbassert(code->getProgram()==&program, "Internal error: it should be impossible to change the global program pointer.");
-    auto& program = *code->getProgram();
-    int end = code->getEnd();
+    const auto& program = *code->getProgram();
+    int end = code->getOptimizedEnd();
     int i = code->getStart();
 
 
@@ -742,7 +742,7 @@ Result ExecutionInstance::run(Code* code) {
             pos++;
         }
         bbassert(depth >= 0, "Cache declaration never ended.");
-        auto cache = new Code(&program, i + 1, pos);
+        auto cache = new Code(&program, i + 1, pos, command_type == END?(pos-1):pos);
         BMemory cacheMemory(nullptr, 16, nullptr);
         ExecutionInstance cacheExecutor(cache, &cacheMemory, forceStayInThread);
         cacheExecutor.run(cache);
@@ -773,12 +773,12 @@ Result ExecutionInstance::run(Code* code) {
             if(command_type == BEGIN || command_type == BEGINFINAL) depth++;
             if(command_type == END) {
                 if(depth == 0) break;
-                depth--;
+                --depth;
             }
-            pos++;
+            ++pos;
         }
         bbassert(depth >= 0, "Code block never ended.");
-        auto cache = new Code(&program, i + 1, pos);
+        auto cache = new Code(&program, i + 1, pos, command_type == END?(pos-1):pos);
         cache->addOwner();
         cache->jitable = jit(cache);
         command.value = cache;
@@ -787,7 +787,6 @@ Result ExecutionInstance::run(Code* code) {
         int carg = command.args[0];
         if(carg!=variableManager.noneId) memory.set(carg, result);
         if (command.operation == BEGINFINAL) memory.setFinal(command.args[0]); // WE NEED TO SET FINALS ONLY AFTER THE VARIABLE IS SET
-        i = cache->getEnd();
         goto SKIP_ASSIGNMENT;
     }
     DO_CALL: {

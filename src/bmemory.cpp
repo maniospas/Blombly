@@ -30,7 +30,7 @@ BMemory::BMemory(BMemory* par, int expectedAssignments, DataPtr thisObject) : pa
 void BMemory::release() {
     //std::cout << "releasing "<<this<<"\n";
     std::string destroyerr = "";
-    for (const auto& thread : attached_threads) {
+    for(const auto& thread : attached_threads) {
         try {Result res = thread->getResult();}
         catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
         thread->removeFromOwner();
@@ -38,28 +38,26 @@ void BMemory::release() {
     
     attached_threads.clear();
     try {runFinally();}
-    catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
+    catch(const BBError& e) {destroyerr += std::string(e.what())+"\n";}
 
-    for (const auto& thread : attached_threads) {
+    for(const auto& thread : attached_threads) {
         try {thread->getResult();}
         catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
         thread->removeFromOwner();
     }
     attached_threads.clear();
 
-    for (const auto& dat : contents) {
+    for(const auto& dat : contents) {
         try {
             if(dat.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(dat.get())->isConsumed()) destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:\n"+dat->toString(this)+"\n";
             if(dat.exists()) dat->removeFromOwner();
         }
-        catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
+        catch(const BBError& e) {destroyerr += std::string(e.what())+"\n";}
     }
     data.clear();
     contents.clear();
     if(destroyerr.size())  throw BBError(destroyerr.substr(0, destroyerr.size()-1));
 }
-
-
 
 BMemory::~BMemory() {
     contents[data[variableManager.thisId]] = DataPtr::NULLP;
@@ -67,9 +65,7 @@ BMemory::~BMemory() {
     release();
 }
 
-int BMemory::size() const {
-    return data.size();
-}
+int BMemory::size() const {return data.size();}
 
 int BMemory::find(int item) const {
     // have there be a difference everywhere to save one instruction
@@ -90,7 +86,7 @@ const DataPtr& BMemory::get(int item) { // allowMutable = true
         bberror("Missing value: " + variableManager.getSymbol(item));
     }
     const auto& ret = contents[idx];
-    if (ret.isB() && ret.existsAndTypeEquals(FUTURE)) {
+    if(ret.existsAndTypeEquals(FUTURE)) {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get()); 
@@ -98,7 +94,7 @@ const DataPtr& BMemory::get(int item) { // allowMutable = true
         prevRet->removeFromOwner();
         return get(item);
     }
-    if (!ret.islitorexists()) {
+    if(!ret.islitorexists()) {
         bbassert(parent, "Missing value: " + variableManager.getSymbol(item));
         return parent->get(item, allowMutables);
     }
@@ -112,7 +108,7 @@ const DataPtr& BMemory::get(int item, bool allowMutable) {
         bberror("Missing value: " + variableManager.getSymbol(item));
     }
     const auto& ret = contents[idx];
-    if (ret.isB() && ret.existsAndTypeEquals(FUTURE)) {
+    if(ret.existsAndTypeEquals(FUTURE)) {
         Future* prevRet = static_cast<Future*>(ret.get());
         Result resVal = prevRet->getResult();
         unsafeSet(item, resVal.get());
@@ -121,8 +117,8 @@ const DataPtr& BMemory::get(int item, bool allowMutable) {
         bbassert(ret.islitorexists(), "Missing value: " + variableManager.getSymbol(item));
         return get(item, allowMutable);
     }
-    if (ret.islitorexists()) {bbassert(allowMutable || ret.isA(), "Non-final symbol found but cannot be accessed from another scope: " + variableManager.getSymbol(item));}
-    else if (parent) return parent->get(item, allowMutables && allowMutable);
+    if(ret.islitorexists()) {bbassert(allowMutable || ret.isA(), "Non-final symbol found but cannot be accessed from another scope: " + variableManager.getSymbol(item));}
+    else if(parent) return parent->get(item, allowMutables && allowMutable);
     else bberror("Missing value: " + variableManager.getSymbol(item));
     return ret;
 }
@@ -131,7 +127,7 @@ const DataPtr& BMemory::getShallow(int item) {
     int idx = find(item);
     if(idx==end) bberror("Missing value: " + variableManager.getSymbol(item));
     const auto& ret = contents[idx];
-    if (ret.isB() && ret.existsAndTypeEquals(FUTURE)) {
+    if(ret.existsAndTypeEquals(FUTURE)) {
         //std::cout << "here4\n";
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
@@ -147,7 +143,7 @@ const DataPtr& BMemory::getOrNullShallow(int item) {
     int idx = find(item);
     if(idx==end) return DataPtr::NULLP;
     const auto& ret = contents[idx];
-    if (ret.isB() && ret.existsAndTypeEquals(FUTURE)) {
+    if (ret.existsAndTypeEquals(FUTURE)) {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get());
@@ -161,7 +157,7 @@ const DataPtr& BMemory::getOrNull(int item, bool allowMutable) {
     int idx = find(item);
     if(idx==end) return DataPtr::NULLP;
     const auto& ret = contents[idx];
-    if (ret.isB() && ret.existsAndTypeEquals(FUTURE)) {
+    if (ret.existsAndTypeEquals(FUTURE)) {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get());
@@ -172,7 +168,6 @@ const DataPtr& BMemory::getOrNull(int item, bool allowMutable) {
     else if (parent) return parent->getOrNull(item, allowMutables && allowMutable);
     return ret;
 }
-
 
 void BMemory::setToNullIgnoringFinals(int item) { 
     int idx = find(item);
@@ -185,7 +180,6 @@ void BMemory::setToNullIgnoringFinals(int item) {
     }
     prev = DataPtr::NULLP;
 }
-
 
 void BMemory::unsafeSetLiteral(int item, const DataPtr& value) { // when this is called, we are guaranteed that value.exists() == false
     int idx = find(item);
@@ -244,7 +238,6 @@ void BMemory::setFuture(int item, const DataPtr& value) {  // value.exists() == 
             first_item = item;
             contents[0] = DataPtr(value.get(), IS_FUTURE);
             contents[0].setAFalse();
-            contents[0].setB(true);
             return;
         }
         data[item] = contents.size();
@@ -259,7 +252,6 @@ void BMemory::setFuture(int item, const DataPtr& value) {  // value.exists() == 
     prev.existsRemoveFromOwner();
     prev = DataPtr(value); //std::move(DataPtr(value.get(), IS_FUTURE));
     prev.setAFalse();
-    prev.setB(true);
 }
 
 void BMemory::unsafeSet(int item, const DataPtr& value) {
@@ -327,25 +319,37 @@ void BMemory::setFinal(int item) {
 }
 
 void BMemory::pull(BMemory* other) {
-    for (const auto& it : other->data) {
+    for(int idx=0;idx<other->max_cache_size;++idx) {
+        const auto& dat = other->contents[idx];
+        if (dat.islitorexists()) {
+            //this can not be stored in the first cache element anyway
+            int item = idx + other->first_item;
+            set(item, dat);
+        }
+    }
+    for(const auto& it : other->data) {
         const auto& dat = other->contents[it.second];
         if (dat.islitorexists() && it.first!=variableManager.thisId) set(it.first, dat);
     }
 }
 
 void BMemory::replaceMissing(BMemory* other) {
-    for (const auto& it : other->data) {
-        int item = it.first;
-        const auto& existing = getOrNullShallow(item);
-        if (!existing.islitorexists()) {
-            const auto& dat = contents[it.second];
-            if (dat.islitorexists()) set(item, dat);
+    for(int idx=0;idx<other->max_cache_size;++idx) {
+        const auto& dat = other->contents[idx];
+        if (dat.islitorexists()) {
+            //this can not be stored in the first cache element anyway
+            int item = idx + other->first_item;
+            if(!getOrNullShallow(item).islitorexists()) set(item, dat);
         }
+    }
+    for(const auto& it : other->data) {
+        const auto& dat = other->contents[it.second];
+        if (dat.islitorexists() && !!getOrNullShallow(it.first).islitorexists()) set(it.first, dat);
     }
 }
 
 void BMemory::await() {
-    if(attached_threads.size()==0) return; // we don't need to lock because on zero threads we are ok, on >=1 threads we don't care about the number
+    //if(attached_threads.size()==0) return; // we don't need to lock because on zero threads we are ok, on >=1 threads we don't care about the number
     std::string destroyerr = "";
     for (const auto& thread : attached_threads) {
         try {Result res = thread->getResult();}

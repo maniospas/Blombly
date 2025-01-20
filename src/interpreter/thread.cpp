@@ -7,7 +7,7 @@
 void threadExecute(Code* code,
                    BMemory* memory,
                    ThreadResult* result,
-                   Command* command,
+                   const Command* command,
                    DataPtr thisObj) {
 
     std::unique_lock<std::recursive_mutex> executorLock;

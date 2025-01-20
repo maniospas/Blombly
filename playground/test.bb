@@ -1,5 +1,6 @@
 tic = time();
 ret = 0;
-while(i in range(100000000)) ret += i;
+n = 100000000;
+while(i in range(n)) ret += i;
 print(time()-tic);
 print(ret);
