@@ -88,7 +88,7 @@ void BHashMap::put(DataPtr from, DataPtr to) {
     bbassert(from->getType()!=ERRORTYPE, "Cannot have an error as a map key");
     bbassert(to->getType()!=ERRORTYPE, "Cannot have an error as a map value");
 
-    size_t keyHash = from.islit()?from.toint():from->toHash();
+    size_t keyHash = from.islit()?from.unsafe_toint():from->toHash();
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     auto& entryList = contents[keyHash];
 
@@ -131,7 +131,7 @@ Result BHashMap::implement(const OperationType operation, BuiltinArgs* args, BMe
         // Handle regular single-key access
         {
             std::lock_guard<std::recursive_mutex> lock(memoryLock);
-            size_t keyHash = keyData.islit()?keyData.toint():keyData->toHash();
+            size_t keyHash = keyData.islit()?keyData.unsafe_toint():keyData->toHash();
             auto it = contents.find(keyHash);
             if (it != contents.end()) 
                 for (const auto& kvPair : it->second) 
@@ -162,7 +162,7 @@ Result BHashMap::implement(const OperationType operation, BuiltinArgs* args, BMe
                     if (!nextKey.islitorexists()) break; // Iterator exhausted
 
                     // Find the value corresponding to the key
-                    size_t keyHash = nextKey.islit()?nextKey.toint():nextKey->toHash();
+                    size_t keyHash = nextKey.islit()?nextKey.unsafe_toint():nextKey->toHash();
                     auto it = contents.find(keyHash);
                     bool keyFound = false;
 

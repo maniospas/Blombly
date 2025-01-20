@@ -21,6 +21,58 @@ std::string Struct::toString(BMemory* memory){
     }
 }
 
+inline Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory) {
+    BMemory* mem;
+    DataPtr implementation;
+    {
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
+        mem = getMemory();
+        implementation = mem->getOrNullShallow(implementationCode);
+    }
+
+    bbassert(implementation.exists(), "Must define `" + variableManager.getSymbol(implementationCode) + "` for the struct to overload the corresponding operation");
+    bbassert(implementation->getType() == CODE, "Struct field `"+variableManager.getSymbol(implementationCode) + "` is not a method and therefore the corresponding operation is not overloaded (even callable structs are not allowed)");
+
+    BList* args = new BList(0);
+
+    Code* code = static_cast<Code*>(implementation.get());
+    BMemory newMemory(calledMemory->getParentWithFinals(), LOCAL_EXPECTATION_FROM_CODE(code));
+    newMemory.unsafeSet(variableManager.thisId, this);
+    newMemory.unsafeSet(variableManager.argsId, args);
+
+    ExecutionInstance executor(code, &newMemory, true);
+    Result value = executor.run(code);
+    newMemory.setToNullIgnoringFinals(variableManager.thisId);
+    return Result(value);
+}
+
+inline Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory, const DataPtr& other) {
+    BMemory* mem;
+    DataPtr implementation;
+    {
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
+        mem = getMemory();
+        implementation = mem->getOrNullShallow(implementationCode);
+    }
+
+    bbassert(implementation.exists(), "Must define `" + variableManager.getSymbol(implementationCode) + "` for the struct to overload the corresponding operation");
+    bbassert(implementation->getType() == CODE, "Struct field `"+variableManager.getSymbol(implementationCode) + "` is not a method and therefore the corresponding operation is not overloaded (even callable structs are not allowed)");
+
+    BList* args = new BList(1);  // will be destroyed alongside the memory
+    other.existsAddOwner();
+    args->contents.emplace_back(other);
+
+    Code* code = static_cast<Code*>(implementation.get());
+    BMemory newMemory(calledMemory->getParentWithFinals(), LOCAL_EXPECTATION_FROM_CODE(code));
+    newMemory.unsafeSet(variableManager.thisId, this);
+    newMemory.unsafeSet(variableManager.argsId, args);
+
+    ExecutionInstance executor(code, &newMemory, true);
+    Result value = executor.run(code);
+    newMemory.setToNullIgnoringFinals(variableManager.thisId);
+    return Result(value);
+}
+
 Result Struct::implement(const OperationType operation_, BuiltinArgs* args_, BMemory* calledMemory) {
     //if (args_->size == 1 && operation_ == TOCOPY) {
     //    bberror("Cannot copy structs");

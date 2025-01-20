@@ -25,12 +25,15 @@ public:
 
     std::string toString(BMemory* memory)override;
     std::string getPath() const;
-    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
 
-    friend class Boolean;
-    friend class Integer;
-    friend class BString;
-    friend class BList;
+    Result iter(BMemory* memory) override;
+    void clear(BMemory* memory) override;
+    Result push(BMemory* memory, const DataPtr& other) override;
+    Result div(BMemory* memory, const DataPtr& other) override;
+    int64_t len(BMemory* memory) override;
+    Result put(BMemory* memory, const DataPtr& position, const DataPtr& value) override;
+    Result at(BMemory* memory, const DataPtr& position) override;
+    bool toBool(BMemory* memory) override;
 };
 
 #endif // BFILE_H

@@ -394,13 +394,9 @@ void BFile::loadContents() {
     contentsLoaded = true;
 }
 
-std::string BFile::toString(BMemory* memory) {
-    return path;
-}
-
-std::string BFile::getPath() const {
-    return path;
-}
+std::string BFile::toString(BMemory* memory) {return path;}
+std::string BFile::getPath() const {return path;}
+bool BFile::toBool(BMemory* memory) {return exists();}
 
 bool BFile::exists() const {
     bbassert(isAllowedLocationNoNorm(path), "Access denied for path: " + path +
@@ -417,136 +413,120 @@ bool BFile::exists() const {
     return fs::exists(path);
 }
 
-Result BFile::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
-    if (operation == AT && args->size == 2 && args->arg1->getType() == BB_INT) {
-        loadContents();
-        int64_t lineNum = static_cast<Integer*>(args->arg1.get())->getValue();
-        if (lineNum < 0 || lineNum >= contents.size()) return std::move(Result(OUT_OF_RANGE));
-        std::string lineContent = contents[lineNum];
-        STRING_RESULT(lineContent);
-    }
-    if (operation == DIV && args->size == 2 && args->arg1->getType() == STRING) {
-        std::string subpath = args->arg1->toString(memory);
-        fs::path basePath(path);
-        fs::path combinedPath = basePath / subpath;
-        return std::move(Result(new BFile(combinedPath.string())));
-    }
-    if (operation == TOBB_BOOL && args->size == 1) {
-        bool fileExists = exists();
-        BB_BOOLEAN_RESULT(fileExists);
-    }
-    if (operation == PUSH && args->size == 2 && args->arg1->getType() == STRING) {
-        std::lock_guard<std::recursive_mutex> lock(memoryLock);
-        bbassert(isAllowedWriteLocationNoNorm(path), "Write access denied for path: " + path +
-                                        "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
-                                        "\n       You need to add write permissions to a location containting the prefix with `!modify \"location\"`."
-                                        "\n       Permisions can only be granted this way from the virtual machine's entry point."
-                                        "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
+Result BFile::iter(BMemory* memory) {
+    loadContents();
+    int64_t n = contents.size();
+    return std::move(Result(new AccessIterator(this, n)));
+}
 
-        std::string newContents = args->arg1->toString(memory);
-        
-        if (path.find("vfs://", 0) == 0) {
-            std::lock_guard<std::recursive_mutex> lock(virtualFileSystemLock);
-            virtualFileSystem[path] = newContents;
-        }
-        else if (path.find("ftp://", 0) == 0) uploadFtpContent(path, newContents, username, password, timeout);
-        else if (path.find("sftp://", 0) == 0) uploadSftpContent(path, newContents, username, password, timeout);
-        else if (path.find("ftps://", 0) == 0) uploadFtpsContent(path, newContents, username, password, timeout);
-        else {
-            ensureWritePermissionsNoNorm(path);
-            std::ofstream file(path, std::ios::trunc);
-            bbassert(file.is_open(), "Failed to open file for writing: " + path);
-            file << newContents;
-            file.close();
-        }
+void BFile::clear(BMemory* memory) {
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    bbassert(isAllowedWriteLocationNoNorm(path), "Write access denied for path: " + path +
+                                    "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
+                                    "\n       You need to add write permissions to a location containting the prefix with `!modify \"location\"`."
+                                    "\n       Permisions can only be granted this way from the virtual machine's entry point."
+                                    "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
 
+    /*bbassert(path.find("http://", 0)!=0, "Cannot clear HTTP resource (it does not persist): " + path);
+    bbassert(path.find("https://", 0)!=0, "Cannot clear HTTPS resource (it does not persist): " + path);
+    bbassert(path.find("https://", 0)!=0, "Cannot clear FTP resource (it does not persist): " + path);*/
+    if(path.find("http://", 0)==0 
+        || path.find("https://", 0)==0 
+        || path.find("ftp://", 0)==0 
+        || path.find("sftp://", 0)==0
+        || path.find("ftps://", 0)==0) {
+            bberror("Cannot clear a web resource: "+path);
+        }
+    bbassert(fs::exists(path), "Path does not exist: " + path);
+    if (fs::is_regular_file(path)) {
+        fs::remove(path);
+        size = 0;
+        contentsLoaded = false;
         contents.clear();
-        std::istringstream stream(newContents);
-        std::string line;
-        while (std::getline(stream, line)) contents.push_back(line);
-        size = contents.size();
-        contentsLoaded = true;
-        return std::move(Result(this));
-    }
-    if (args->size == 1) {
-        if (operation == CLEAR) {
-            std::lock_guard<std::recursive_mutex> lock(memoryLock);
-            bbassert(isAllowedWriteLocationNoNorm(path), "Write access denied for path: " + path +
-                                            "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
-                                            "\n       You need to add write permissions to a location containting the prefix with `!modify \"location\"`."
-                                            "\n       Permisions can only be granted this way from the virtual machine's entry point."
-                                            "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
+    } 
+    else if (fs::is_directory(path)) {
+        bbassert(fs::is_empty(path), "For safety, only empty directories can be cleared by the virtual machine, but this has contents: " + path);
+        fs::remove(path);
+        contents.clear();
+        size = 0;
+        contentsLoaded = false;
+    } 
+    else bberror("Path is not a regular file or directory: " + path);
+}
 
-            /*bbassert(path.find("http://", 0)!=0, "Cannot clear HTTP resource (it does not persist): " + path);
-            bbassert(path.find("https://", 0)!=0, "Cannot clear HTTPS resource (it does not persist): " + path);
-            bbassert(path.find("https://", 0)!=0, "Cannot clear FTP resource (it does not persist): " + path);*/
-            if(path.find("http://", 0)==0 
-                || path.find("https://", 0)==0 
-                || path.find("ftp://", 0)==0 
-                || path.find("sftp://", 0)==0
-                || path.find("ftps://", 0)==0) {
-                    bberror("Cannot clear a web resource: "+path);
-                }
-            bbassert(fs::exists(path), "Path does not exist: " + path);
-            if (fs::is_regular_file(path)) {
-                fs::remove(path);
-                size = 0;
-                contentsLoaded = false;
-                contents.clear();
-                return std::move(Result(this));
-            } 
-            else if (fs::is_directory(path)) {
-                bbassert(fs::is_empty(path), "For safety, only empty directories can be cleared by the virtual machine, but this has contents: " + path);
-                fs::remove(path);
-                contents.clear();
-                size = 0;
-                contentsLoaded = false;
-                return std::move(Result(this));
-            } 
-            else bberror("Path is not a regular file or directory: " + path);
-        }
-        if (operation == LEN) {
-            loadContents();
-            int64_t ret = contents.size();
-            BB_INT_RESULT(ret);
-        }
-        if (operation == TOFILE) return std::move(Result(this));
-        if (operation == TOSTR) STRING_RESULT(toString(memory));
-        if (operation == TOITER) {
-            loadContents();
-            int64_t n = contents.size();
-            return std::move(Result(new AccessIterator(args->arg0, n)));
-        }
-        if (operation == TOLIST) {
-            loadContents();
-            int64_t n = contents.size();
-            BList* list = new BList(n);
-            for (int64_t i = 0; i < n; ++i) {
-                BString* element = new BString(contents[i]);
-                element->addOwner();
-                list->contents.push_back(element);
-            }
-            return std::move(Result(list));
-        }
+Result BFile::push(BMemory* memory, const DataPtr& other) {
+    bbassert(other.existsAndTypeEquals(STRING), "Can only push string contents to a file");
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    bbassert(isAllowedWriteLocationNoNorm(path), "Write access denied for path: " + path +
+                                    "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
+                                    "\n       You need to add write permissions to a location containting the prefix with `!modify \"location\"`."
+                                    "\n       Permisions can only be granted this way from the virtual machine's entry point."
+                                    "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
+
+    std::string newContents = other->toString(nullptr);
+    
+    if (path.find("vfs://", 0) == 0) {
+        std::lock_guard<std::recursive_mutex> lock(virtualFileSystemLock);
+        virtualFileSystem[path] = newContents;
+    }
+    else if (path.find("ftp://", 0) == 0) uploadFtpContent(path, newContents, username, password, timeout);
+    else if (path.find("sftp://", 0) == 0) uploadSftpContent(path, newContents, username, password, timeout);
+    else if (path.find("ftps://", 0) == 0) uploadFtpsContent(path, newContents, username, password, timeout);
+    else {
+        ensureWritePermissionsNoNorm(path);
+        std::ofstream file(path, std::ios::trunc);
+        bbassert(file.is_open(), "Failed to open file for writing: " + path);
+        file << newContents;
+        file.close();
     }
 
-    if (operation == PUT && args->size==3 && args->arg1->getType()==STRING) {
-        std::lock_guard<std::recursive_mutex> lock(memoryLock);
-        std::string param = args->arg1->toString(memory);
-        if(param=="username") {
-            bbassert(args->arg2->getType()==STRING, param+" must a string");
-            username = args->arg2->toString(memory);
-        }
-        else if(param=="password") {
-            bbassert(args->arg2->getType()==STRING, param+" must a string");
-            password = args->arg2->toString(memory);
-        }
-        else if(param=="timeout") {
-            bbassert(args->arg2->getType()==BB_INT, param+" must an int");
-            timeout = static_cast<Integer*>(args->arg2.get())->getValue();
-        }
-        else bberror("Only \"username\", \"password\", or \"timeout\" parameters can be set.");
-        return std::move(Result(nullptr));
+    contents.clear();
+    std::istringstream stream(newContents);
+    std::string line;
+    while (std::getline(stream, line)) contents.push_back(line);
+    size = contents.size();
+    contentsLoaded = true;
+    return std::move(Result(this));
+}
+
+int64_t BFile::len(BMemory* memory) {
+    loadContents();
+    return contents.size();
+}
+
+Result BFile::put(BMemory* memory, const DataPtr& position, const DataPtr& value) {
+    bbassert(position.existsAndTypeEquals(STRING), "Can only set string parameter keys to a file");
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    std::string param = position->toString(nullptr);
+    if(param=="username") {
+        bbassert(value.existsAndTypeEquals(STRING), param+" must a string");
+        username = value->toString(nullptr);
     }
-    throw Unimplemented();
+    else if(param=="password") {
+        bbassert(value.existsAndTypeEquals(STRING), param+" must a string");
+        password = value->toString(nullptr);
+    }
+    else if(param=="timeout") {
+        bbassert(value.isint(), param+" must an int");
+        timeout = value.unsafe_toint();
+    }
+    else bberror("Only \"username\", \"password\", or \"timeout\" parameters can be set.");
+    return std::move(Result(nullptr));
+}
+
+Result BFile::at(BMemory* memory, const DataPtr& position) {
+    bbassert(position.isint(), "Can only obtain file contents at integer indexes");
+    loadContents();
+    int64_t lineNum = position.unsafe_toint();
+    if (lineNum < 0 || lineNum >= contents.size()) return std::move(Result(OUT_OF_RANGE));
+    std::string lineContent = contents[lineNum];
+    STRING_RESULT(lineContent);
+}
+
+Result BFile::div(BMemory* memory, const DataPtr& other) {
+    bbassert(other.existsAndTypeEquals(STRING), "Can only append a string path to a file");
+    std::string subpath = other->toString(memory);
+    fs::path basePath(path);
+    fs::path combinedPath = basePath / subpath;
+    return std::move(Result(new BFile(combinedPath.string())));
 }

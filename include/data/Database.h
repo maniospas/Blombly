@@ -19,7 +19,9 @@ public:
 
     void clear();
     std::string toString(BMemory* memory) override;
-    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
+    void clear(BMemory* memory) override;
+    Result push(BMemory* memory, const DataPtr& other) override;
+
 };
 
 #endif // DATABASE_H

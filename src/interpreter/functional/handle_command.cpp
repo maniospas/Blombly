@@ -76,14 +76,6 @@ BMemory cachedData(nullptr, 1024);
 void initialize_dispatch_table() {}
 
 
-struct CompiledCommand {
-    OperationType operation;
-    std::vector<int> registers;
-    Command* sourceCommand;
-};
-
-
-
 Result ExecutionInstance::run(Code* code) {
     //bbassert(code->getProgram()==&program, "Internal error: it should be impossible to change the global program pointer.");
     const auto& program = *code->getProgram();
@@ -578,14 +570,22 @@ Result ExecutionInstance::run(Code* code) {
         newMemory->setFinal(variableManager.thisId);
         result = thisObj;
         ExecutionInstance executor(code, newMemory, forceStayInThread);
-        Result returnedValue = executor.run(code);
-        newMemory->detach(nullptr);
-        if(returnedValue.get().get()!=thisObj) {
-            if(command.args[0]!=variableManager.noneId) memory.set(command.args[0], result);
-            thisObj->removeFromOwner(); // do this after setting
-            goto SKIP_ASSIGNMENT;
+        try {
+            Result returnedValue = executor.run(code);
+            newMemory->detach(nullptr);
+            if(returnedValue.get().get()!=thisObj) {
+                if(command.args[0]!=variableManager.noneId) memory.set(command.args[0], result);
+                thisObj->removeFromOwner(); // do this after setting
+                goto SKIP_ASSIGNMENT;
+            }
+            DISPATCH_COMPUTED_RESULT;
         }
-        DISPATCH_COMPUTED_RESULT;
+        catch (const BBError& e) {
+            // here we interrupt exceptions thrown during new statements, which would leak the memory being created normally
+            newMemory->setToNullIgnoringFinals(variableManager.thisId);
+            handleExecutionError(program[i], e);
+        }
+        goto SKIP_ASSIGNMENT;
     }
     DO_TOLIST: {
         int n = command.nargs;
@@ -637,14 +637,12 @@ Result ExecutionInstance::run(Code* code) {
     DO_AT: {
         const auto& arg0 = memory.get(command.args[1]);
         const auto& arg1 = memory.get(command.args[2]);
+        if(arg0.exists()) DISPATCH_OUTCOME(arg0->at(&memory, arg1));
         if(arg1.existsAndTypeEquals(STRING)) {
             if(arg0.isfloat()) DISPATCH_RESULT(new BString(__python_like_float_format(arg0.unsafe_tofloat(), arg1->toString(&memory))));
             if(arg0.isint()) DISPATCH_RESULT(new BString(__python_like_int_format(arg0.unsafe_toint(), arg1->toString(&memory))));
         }
-        args.arg0 = arg0;
-        args.arg1 = arg1;
-        args.size = 2;
-        goto FALLBACK;
+        bberror("Did not find builtin operation: at("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_SUM: {
         const auto& arg0 = memory.get(command.args[1]);
@@ -686,11 +684,13 @@ Result ExecutionInstance::run(Code* code) {
     DO_SHAPE: 
     DO_TOFILE: {
         const auto& arg0 = memory.get(command.args[1]);
+        if(arg0.existsAndTypeEquals(FILETYPE)) DISPATCH_RESULT(arg0);
         bbassert(arg0.existsAndTypeEquals(STRING), "Can only create files from string paths");
         DISPATCH_RESULT(new BFile(static_cast<BString*>(arg0.get())->toString(nullptr)));
     }
     DO_TOSQLITE: {
         const auto& arg0 = memory.get(command.args[1]);
+        if(arg0.existsAndTypeEquals(SQLLITE)) DISPATCH_RESULT(arg0);
         bbassert(arg0.existsAndTypeEquals(STRING), "Can only create databases from string paths");
         DISPATCH_RESULT(new Database(static_cast<BString*>(arg0.get())->toString(nullptr)));
     }
@@ -712,7 +712,7 @@ Result ExecutionInstance::run(Code* code) {
     }
     DO_GET: {
         BMemory* from(nullptr);
-        const auto& objFound = memory.getOrNull(command.args[1], true);
+        const DataPtr& objFound = memory.getOrNull(command.args[1], true);
         if(!objFound.exists()) {
             bbassert(command.args[1]==variableManager.thisId, "Missing value: " + variableManager.getSymbol(command.args[1]));
             from = &memory;
@@ -811,7 +811,7 @@ Result ExecutionInstance::run(Code* code) {
             called = (val);
         }
         auto code = static_cast<Code*>(called.get());
-        if(forceStayInThread || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
+        if(true || forceStayInThread || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
             BMemory newMemory(&memory, LOCAL_EXPECTATION_FROM_CODE(code));
             if(context.exists()) {
                 bbassert(context.existsAndTypeEquals(CODE), "Call context must be a code block.");

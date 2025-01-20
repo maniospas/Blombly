@@ -1,6 +1,6 @@
 // main.bb
 // grant necessary read access rights
-//!access "https://" 
+!access "https://" 
 !access "ftp://" 
 start = time();
 
@@ -13,6 +13,8 @@ gnu = "ftp://ftp.gnu.org/README"|file;
 //result["password"] = "password";
 gnu |= bb.string.join("\n");
 
-print("Google response length: {google|len}");
-print("Rebex response length: {gnu|len}");
-print("Response time: {time()-start} sec");
+
+fmt(x) => x[".3f"];
+print("Google response length: !{google|len}");
+print("Rebex response length: !{gnu|len}");
+print("Response time: !{(time()-start)|fmt} sec");

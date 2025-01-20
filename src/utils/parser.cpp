@@ -92,7 +92,7 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
 
                 bbassert(!executor.hasReturned(), "`!comptime` must evaluate to a value but not run a return statement.");
                 //bbassert(ret, "`!comptime` must evaluate to a non-missing value.");
-                if(ret.isbool()) result = ret.tobool()?"true":"false";
+                if(ret.isbool()) result = ret.unsafe_tobool()?"true":"false";
                 else if(!ret.exists()) result = "#";
                 else if (ret->getType() == STRING) result = "\"" + ret->toString(nullptr) + "\"";
                 else if (ret->getType() == BB_INT || ret->getType() == BB_FLOAT) result = ret->toString(nullptr);

@@ -120,7 +120,7 @@ constexpr DATTYPETYPE IS_NOT_PROPERTY_A = static_cast<DATTYPETYPE>(~IS_PROPERTY_
 constexpr DATTYPETYPE IS_NOT_PROPERTY_B = static_cast<DATTYPETYPE>(~IS_PROPERTY_B);
 
 
-#define SAFETYCHECKS
+//#define SAFETYCHECKS
 
 
 /**
@@ -141,8 +141,8 @@ public:
     DataPtr(int data) noexcept : data(static_cast<int64_t>(data)), datatype(IS_INT) {}
     DataPtr(bool data) noexcept : data(static_cast<int64_t>(data)), datatype(IS_BOOL) {}
     DataPtr(DataPtr&& other) noexcept : data(other.data), datatype(other.datatype) {
-        other.data = 0;
-        other.datatype = IS_PTR;
+        //other.data = 0;
+        //other.datatype = IS_PTR;
     }
     DataPtr(void* data, DATTYPETYPE datatype) noexcept : data(std::bit_cast<int64_t>(data)), datatype(datatype) {}
     DataPtr(const DataPtr& other) : data(other.data), datatype(other.datatype) {}
@@ -225,6 +225,7 @@ public:
     inline bool existsAndTypeEquals(Datatype type) const;
     inline void existsAddOwner() const;
     inline void existsRemoveFromOwner() const;
+    inline std::string torepr() const;
 
     inline bool islitorexists() const {
         if(datatype & IS_PTR) return data; 
@@ -233,14 +234,6 @@ public:
     
     inline bool islit() const {
         return datatype & IS_LIT;
-    }
-
-    inline std::string torepr() const {
-        if(datatype & IS_PTR) return "Data object at memory address: "+std::to_string(data);
-        if(datatype & IS_FLOAT) return std::to_string(unsafe_tofloat());
-        if(datatype & IS_INT) return std::to_string(unsafe_toint());
-        if(datatype & IS_BOOL) return std::to_string(unsafe_tobool());
-        return "Corrupted data";
     }
 
     inline bool operator==(const DataPtr& other) const {

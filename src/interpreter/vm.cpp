@@ -29,7 +29,7 @@ void preliminarySimpleChecks(std::vector<Command>* program) {
     symbolDefinitions.insert(variableManager.getId("graphics::y"));
     for (const auto& command : *program) {
         for(int arg : command.args) {
-            if(arg==variableManager.thisId || arg==variableManager.noneId) continue;
+            if(arg==variableManager.thisId || arg==variableManager.noneId || arg==variableManager.argsId) continue;
             if(symbolDefinitions.find(arg)==symbolDefinitions.end()) bberror(enrichErrorDescription(command, "Missing symbol (is declared nowhere and would create a runtime error): "+variableManager.getSymbol(arg)));
         }
     }

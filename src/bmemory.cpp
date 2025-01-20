@@ -147,7 +147,8 @@ const DataPtr& BMemory::getOrNullShallow(int item) {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get());
-        attached_threads.erase(prevRet);prevRet->removeFromOwner();
+        attached_threads.erase(prevRet);
+        prevRet->removeFromOwner();
         return contents[idx];
     }
     return ret;
@@ -155,13 +156,17 @@ const DataPtr& BMemory::getOrNullShallow(int item) {
 
 const DataPtr& BMemory::getOrNull(int item, bool allowMutable) {
     int idx = find(item);
-    if(idx==end) return DataPtr::NULLP;
+    if(idx==end) {
+        if(parent) return parent->getOrNull(item, allowMutables && allowMutable);
+        return DataPtr::NULLP;
+    }
     const auto& ret = contents[idx];
     if (ret.existsAndTypeEquals(FUTURE)) {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get());
-        attached_threads.erase(prevRet);prevRet->removeFromOwner();
+        attached_threads.erase(prevRet);
+        prevRet->removeFromOwner();
         return contents[idx];
     }
     if (ret.islitorexists()) {bbassert(allowMutable || ret.isA(), "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));}
@@ -283,7 +288,7 @@ void BMemory::unsafeSet(int item, const DataPtr& value) {
 
 void BMemory::directTransfer(int to, int from) {
     int fromidx = find(from);
-    const auto& value = fromidx==end ? (parent?parent->get(from, false):DataPtr::NULLP) : contents[fromidx];
+    const auto& value = fromidx==end ? (parent?parent->get(from, allowMutables):DataPtr::NULLP) : contents[fromidx];
 
     int toidx = find(to);
     if(toidx==end) {

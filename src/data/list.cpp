@@ -168,7 +168,7 @@ Result BList::at(BMemory* memory, const DataPtr& other) {
 }
 
 Result BList::put(BMemory* memory, const DataPtr& position, const DataPtr& value) {
-    if(!position.isint()) return Data::put(memory, position, value);
+    bbassert(position.isint(), "Can only set at integer list indices");
     int64_t index = position.unsafe_toint();
     if (index < 0) return std::move(Result(OUT_OF_RANGE));
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
