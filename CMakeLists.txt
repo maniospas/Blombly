@@ -80,17 +80,18 @@ else()
     message(FATAL_ERROR "SQLite3 library not found. Make sure it is installed via vcpkg.")
 endif()
 
-# Find and link SDL2
-find_package(SDL2 REQUIRED)
-if(SDL2_FOUND)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
-    target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2 SDL2::SDL2main)
-else()
-    message(FATAL_ERROR "SDL2 library not found. Make sure it is installed on the system.")
-endif()
-
 # Platform-specific configuration
 if(UNIX AND NOT WIN32) # For Linux and macOS
+
+    # Find and link SDL2
+    find_package(SDL2 REQUIRED)
+    if(SDL2_FOUND)
+        target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
+        target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2 SDL2::SDL2main)
+    else()
+        message(FATAL_ERROR "SDL2 library not found. Make sure it is installed on the system.")
+    endif()
+
     # Use PkgConfig to find SDL2_image and SDL2_ttf
     find_package(PkgConfig REQUIRED)
 
@@ -111,23 +112,18 @@ if(UNIX AND NOT WIN32) # For Linux and macOS
     endif()
 
 elseif(WIN32) # For Windows
-    # Assume SDL2_image and SDL2_ttf are installed via vcpkg
-    find_package(SDL2_image REQUIRED)
-    find_package(SDL2_ttf REQUIRED)
+    find_package(SDL2 CONFIG REQUIRED)
+    target_link_libraries(main
+        PRIVATE
+        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+        $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+    )
 
-    if(SDL2_image_FOUND)
-        target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_IMAGE_INCLUDE_DIRS})
-        target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2_image)
-    else()
-        message(FATAL_ERROR "SDL2_image library not found. Make sure it is installed via vcpkg.")
-    endif()
+    find_package(SDL2_image CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
 
-    if(SDL2_ttf_FOUND)
-        target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_TTF_INCLUDE_DIRS})
-        target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2_ttf)
-    else()
-        message(FATAL_ERROR "SDL2_ttf library not found. Make sure it is installed via vcpkg.")
-    endif()
+    find_package(SDL2_ttf CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>)
 endif()
 
 
