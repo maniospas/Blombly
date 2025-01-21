@@ -102,11 +102,13 @@ Development status of planned features:
 - [x] Explicit filesystem name resolution
 - [ ] Virtual filesystem (progress: works for files, not databases for now)
 - [ ] Fuzz tests (depends on virtual filesystem)
-- [ ] Permission management when running bbvm files, permission summaries
+- [x] Permission management when running bbvm files, build system
+- [ ] Program management (e.g., permission summaries, UI for summaries)
 - [x] Database: sqlite
 - [x] Comptime
 - [x] Compile optimizations
 - [x] Vectors for scientific computations
+- [ ] Matrices/tensors for scientific computations (may use eig)
 - [x] REST server
 - [x] Test suite (implemented through the standard library)
 - [x] Macros
@@ -119,8 +121,11 @@ Development status of planned features:
 - [ ] Improve list semi-type semantics
 - [ ] Simplify map creation
 - [ ] CUDA vectors
-- [X] Graphics: SDL (progress: implemented but breaks the build system - aka "it works on my machine")
+- [x] Graphics: SDL (progress: implemented but unstable)
+- [x] Graphics: Multiple windows, perhaps state-based management 
 - [ ] Sound: SDL
+- [ ] Nameless gather (similar to Python's list comphrehension)
+- [ ] Clarified error handling (progress: currently working but needs more practical clarity)
 
 
 

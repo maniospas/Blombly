@@ -412,10 +412,21 @@ db << "DELETE FROM users;";
 
 ## Graphics
 
-Blombly provides a graphics engine. Under the hood, this uses [SDL2](https://www.libsdl.org/), although advanced
+Blombly provides a graphics engine based on [SDL2](https://www.libsdl.org/).
+The main mechanism consists of initializing a graphics window and then either 
+pushing display data onto it, or popping from it. The last operation yields
+a list of graphics events related to keys and the mouse, or create an out-of-bounds
+error in case an exit signal is given to the window.
 
+<br>
 
-*Section under consrtuction.*
+Below is an example demonstrating interaction with graphics.
+Mainly, text can be pushed in the form of of a list comprising
+a string, a font file name (permission rules apply), 
+the font size, the coordinates, and an angle rotation. Textures
+are displayed by providing a path, corrdinates, dimensions, and 
+rotation. Blombly caches fonts and textures under the hood,
+so everything runs efficiently.
 
 
 ```java
@@ -470,4 +481,4 @@ while(events as g|pop) {
 
 
 !!! warning
-    Multiple windows are not yet properly supported.
+    Multiple windows are not yet supported.
