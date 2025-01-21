@@ -4,8 +4,11 @@ cmake_minimum_required(VERSION 3.16)
 # Set vcpkg toolchain
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 
-set(CMAKE_C_COMPILER "gcc")
-set(CMAKE_CXX_COMPILER "g++")
+# Force usage of GCC and G++
+if(WIN32 AND NOT MSVC)
+    set(CMAKE_C_COMPILER "gcc" CACHE STRING "GCC compiler" FORCE)
+    set(CMAKE_CXX_COMPILER "g++" CACHE STRING "G++ compiler" FORCE)
+endif()
 
 # Project name and version
 project(blombly VERSION 3.1 LANGUAGES CXX)
@@ -82,7 +85,6 @@ endif()
 
 # Platform-specific configuration
 if(UNIX AND NOT WIN32) # For Linux and macOS
-
     # Find and link SDL2
     find_package(SDL2 REQUIRED)
     if(SDL2_FOUND)
@@ -110,8 +112,8 @@ if(UNIX AND NOT WIN32) # For Linux and macOS
     else()
         message(FATAL_ERROR "SDL2_ttf library not found. Make sure it is installed on the system.")
     endif()
-    
-elseif(WIN32) # For Windows
+
+elseif(WIN32 AND NOT MSVC) # For Windows using GCC
     # Find and link SDL2
     find_package(SDL2 CONFIG REQUIRED)
     if(TARGET SDL2::SDL2main AND TARGET SDL2::SDL2)

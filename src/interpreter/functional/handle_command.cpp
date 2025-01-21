@@ -65,7 +65,7 @@ BMemory cachedData(nullptr, 1024);
 
 #define DISPATCH_LITERAL(expr) {int carg = command.args[0]; result=DataPtr(expr); if(carg!=variableManager.noneId) memory.unsafeSetLiteral(carg, result); continue;}
 #define DISPATCH_RESULT(expr) {int carg = command.args[0]; result=DataPtr(expr); if(carg!=variableManager.noneId) memory.set(carg, result); continue;}
-#define DISPATCH_OUTCOME(expr) {int carg = command.args[0]; Result res = (expr); result=res.get(); if(carg!=variableManager.noneId) memory.set(carg, result); continue;}
+#define DISPATCH_OUTCOME(expr) {int carg = command.args[0]; Result res(expr); result=res.get(); if(carg!=variableManager.noneId) memory.set(carg, result); continue;}
 #define DISPATCH_COMPUTED_RESULT {int carg = command.args[0]; if(carg!=variableManager.noneId) memory.set(carg, result); continue;}
 #define RUN_IF_RETURN(expr) {if (returnSignal) {Result res(expr);memory.runFinally();return std::move(res);} continue;}
 
@@ -164,7 +164,7 @@ Result ExecutionInstance::run(Code* code) {
         &&DO_MOVE,
         &&DO_ISCACHED,
         &&DO_TOSQLITE,
-        &&DO_TOGRAPHICS,
+        &&DO_TOGRAPHICS
     };
 
 

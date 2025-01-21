@@ -107,7 +107,7 @@ Development status of planned features:
 - [x] Comptime
 - [x] Compile optimizations
 - [x] Vectors for scientific computations
-- [ ] REST server (progress: full implementation, but need to rework its closure model)
+- [x] REST server
 - [x] Test suite (implemented through the standard library)
 - [x] Macros
 - [ ] Web sockets
