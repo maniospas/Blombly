@@ -1,237 +1,228 @@
-%{final ansi=new{final black="\e[0;30m";f //libs/.bb line 8
+%{final ansi=new{final black="\e[0;30m";f ///home/maniospas/Documents/Blombly/build/libs/.bb line 7
 BEGIN _bb12
-%{final toback(element)={return new{.elem //libs/collections.bb line 1
+%{final toback(element)={return new{.elem ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 1
 BEGIN _bb35
-%{return new{.func=this.func;call(A)={..f //libs/collections.bb line 8
-BEGIN _bb43
+%{return new{.func=this.func;call(A)={..f ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
+BEGIN _bb44
 next func args
-%{.func=this.func;call(A)={..func=this..f //libs/collections.bb line 8
-BEGIN _bb46
-%this.func //libs/collections.bb line 8
-get _bb47 this func
-IS .func _bb47
-%{..func=this..func;ret=list();_bbmacro0= //libs/collections.bb line 8
-BEGIN _bb48
+%{.func=this.func;call(A)={..func=this..f ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
+BEGIN _bb47
+%this.func ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
+get _bb48 this func
+IS .func _bb48
+%{..func=this..func;ret=list();_bbmacro0= ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
+BEGIN _bb49
 next A args
-%this..func //libs/collections.bb line 8
-get _bb49 this .func
-IS ..func _bb49
-%list() //libs/collections.bb line 8
+%this..func ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
+get _bb50 this .func
+IS ..func _bb50
+%list() ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
 list ret
-%iter(A) //libs/collections.bb line 8
+%iter(A) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
 iter _bbmacro0 A
-%while(xas next(_bbmacro0))push(ret,..fun //libs/collections.bb line 8
-BEGIN _bb52
-%next(_bbmacro0) //libs/collections.bb line 8
-next _bb53 _bbmacro0
-AS x _bb53
-exists _bb54 x
+%while(xas next(_bbmacro0))ret ..func(x) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
+BEGIN _bb53
+%next(_bbmacro0) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
+next _bb54 _bbmacro0
+AS x _bb54
+exists _bb55 x
 END
-BEGIN _bb55
-%..func(x) //libs/collections.bb line 8
-BEGIN _bb57
+BEGIN _bb56
+%..func(x) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
+BEGIN _bb59
 list args x
 END
-%..func(x) //libs/collections.bb line 8
-call _bb56 _bb57 ..func
-%push(ret,..func(x)) //libs/collections.bb line 8
-push # ret _bb56
+%..func(x) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
+call _bb58 _bb59 ..func
+push _bb57 ret _bb58
 END
-%while(xas next(_bbmacro0))push(ret,..fun //libs/collections.bb line 8
-while # _bb52 _bb55
-%return ret //libs/collections.bb line 8
+%while(xas next(_bbmacro0))ret ..func(x) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
+while # _bb53 _bb56
+%return ret ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
 return # ret
 END
-IS call _bb48
+IS call _bb49
 return # this
 END
-%new{.func=this.func;call(A)={..func=this //libs/collections.bb line 8
-new _bb44 _bb46
-%return new{.func=this.func;call(A)={..fu //libs/collections.bb line 8
-return # _bb44
+%new{.func=this.func;call(A)={..func=this ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
+new _bb45 _bb47
+%return new{.func=this.func;call(A)={..fu ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
+return # _bb45
 END
-IS transform _bb43
+IS transform _bb44
 final # transform
 return # this
 END
-%new{final toback(element)={return new{.e //libs/collections.bb line 1
+%new{final toback(element)={return new{.e ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 1
 new collection _bb35
 final # collection
-%new{call(str value)={return value;}final //libs/collections.bb line 98
+%new{call(str value)={return value;}final ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 96
 return # this
 END
-%new{final ansi=new{final black="\e[0;30m //libs/.bb line 8
+%new{final ansi=new{final black="\e[0;30m ///home/maniospas/Documents/Blombly/build/libs/.bb line 7
 new bb _bb12
 final # bb
 %{int={return this.value;}lt(other)={retu //playground/sort.bb line 1
-BEGIN _bb565
+BEGIN _bb572
 %{return this.value;} //playground/sort.bb line 2
-BEGIN _bb566
+BEGIN _bb573
 %this.value //playground/sort.bb line 2
-get _bb567 this value
+get _bb574 this value
 %return this.value //playground/sort.bb line 2
-return # _bb567
+return # _bb574
 END
-IS int _bb566
+IS int _bb573
 %{return this.value<other.vale;} //playground/sort.bb line 3
-BEGIN _bb568
+BEGIN _bb575
 next other args
 %other.vale //playground/sort.bb line 3
-get _bb570 other vale
+get _bb577 other vale
 %this.value //playground/sort.bb line 3
-get _bb571 this value
-lt _bb569 _bb571 _bb570
+get _bb578 this value
+lt _bb576 _bb578 _bb577
 %return this.value<other.vale //playground/sort.bb line 3
-return # _bb569
+return # _bb576
 END
-IS lt _bb568
-%{return "num "+str(this.value)+"";} //playground/sort.bb line 4
-BEGIN _bb572
-%"num "+str(this.value)+"" //playground/sort.bb line 4
-BUILTIN _bb574 ""
-%this.value //playground/sort.bb line 4
-get _bb576 this value
-%str(this.value) //playground/sort.bb line 4
-str _bb577 _bb576
-BUILTIN _bb578 "num "
-add _bb575 _bb578 _bb577
-add _bb573 _bb575 _bb574
-%return "num "+str(this.value)+"" //playground/sort.bb line 4
-return # _bb573
+IS lt _bb575
+%{return "num {this.value}";} //playground/sort.bb line 4
+BEGIN _bb579
+BUILTIN _bb580 "num {this.value}"
+%return "num {this.value}" //playground/sort.bb line 4
+return # _bb580
 END
-IS str _bb572
+IS str _bb579
 END
-IS Num _bb565
+IS Num _bb572
 final # Num
 %{return new{Num:value=x};} //playground/sort.bb line 6
-BEGIN _bb579
+BEGIN _bb581
 next x args
 %{Num:value=x} //playground/sort.bb line 6
-BEGIN _bb582
+BEGIN _bb584
 %Num: //playground/sort.bb line 6
-inline _bb583 Num
+inline _bb585 Num
 %value=x //playground/sort.bb line 6
 IS value x
 return # this
 END
 %new{Num:value=x} //playground/sort.bb line 6
-new _bb580 _bb582
+new _bb582 _bb584
 %return new{Num:value=x} //playground/sort.bb line 6
-return # _bb580
+return # _bb582
 END
-IS num _bb579
+IS num _bb581
 %{n=A|len;_bbmacro8=iter(range(n));while( //playground/sort.bb line 8
-BEGIN _bb584
+BEGIN _bb586
 next A args
 %A|len //playground/sort.bb line 9
 len n A
 %range(n) //playground/sort.bb line 10
-range _bb586 n
+range _bb588 n
 %iter(range(n)) //playground/sort.bb line 10
-iter _bbmacro8 _bb586
+iter _bbmacro8 _bb588
 %while(ias next(_bbmacro8)){_bbmacro9=ite //playground/sort.bb line 10
-BEGIN _bb588
+BEGIN _bb590
 %next(_bbmacro8) //playground/sort.bb line 10
-next _bb589 _bbmacro8
-AS i _bb589
-exists _bb590 i
+next _bb591 _bbmacro8
+AS i _bb591
+exists _bb592 i
 END
-BEGIN _bb591
+BEGIN _bb593
 %i+1 //playground/sort.bb line 11
-BUILTIN _bb594 I1
-add _bb593 i _bb594
+BUILTIN _bb596 I1
+add _bb595 i _bb596
 %range(i+1,n) //playground/sort.bb line 11
-range _bb592 _bb593 n
+range _bb594 _bb595 n
 %iter(range(i+1,n)) //playground/sort.bb line 11
-iter _bbmacro9 _bb592
+iter _bbmacro9 _bb594
 %while(jas next(_bbmacro9))if(A[j]<A[i]){ //playground/sort.bb line 11
-BEGIN _bb596
+BEGIN _bb598
 %next(_bbmacro9) //playground/sort.bb line 11
-next _bb597 _bbmacro9
-AS j _bb597
-exists _bb598 j
+next _bb599 _bbmacro9
+AS j _bb599
+exists _bb600 j
 END
-BEGIN _bb599
+BEGIN _bb601
 %if(A[j]<A[i]){tmp=A[i];A[i]=A[j];A[j]=tm //playground/sort.bb line 11
-BEGIN _bb600
+BEGIN _bb602
 %A[i] //playground/sort.bb line 12
-at _bb601 A i
-IS tmp _bb601
+at _bb603 A i
+IS tmp _bb603
 %A[j] //playground/sort.bb line 13
-at _bb602 A j
-put # A i _bb602
+at _bb604 A j
+put # A i _bb604
 %A[j]=tmp //playground/sort.bb line 14
 put # A j tmp
 END
 %A[i] //playground/sort.bb line 11
-at _bb604 A i
+at _bb606 A i
 %A[j] //playground/sort.bb line 11
-at _bb605 A j
-lt _bb603 _bb605 _bb604
+at _bb607 A j
+lt _bb605 _bb607 _bb606
 %if(A[j]<A[i]){tmp=A[i];A[i]=A[j];A[j]=tm //playground/sort.bb line 11
-if # _bb603 _bb600
+if # _bb605 _bb602
 END
 %while(jas next(_bbmacro9))if(A[j]<A[i]){ //playground/sort.bb line 11
-while # _bb596 _bb599
+while # _bb598 _bb601
 END
 %while(ias next(_bbmacro8)){_bbmacro9=ite //playground/sort.bb line 10
-while # _bb588 _bb591
+while # _bb590 _bb593
 END
-IS sort _bb584
+IS sort _bb586
 %5,2,3,4,1 //playground/sort.bb line 19
-BUILTIN _bb606 I5
-BUILTIN _bb607 I2
-BUILTIN _bb608 I3
-BUILTIN _bb609 I4
-BUILTIN _bb610 I1
+BUILTIN _bb608 I5
+BUILTIN _bb609 I2
+BUILTIN _bb610 I3
+BUILTIN _bb611 I4
+BUILTIN _bb612 I1
 %5,2,3,4,1 //playground/sort.bb line 19
-list A _bb606 _bb607 _bb608 _bb609 _bb610
+list A _bb608 _bb609 _bb610 _bb611 _bb612
 %A|bb.collection.transform(num) //playground/sort.bb line 20
-BEGIN _bb613
+BEGIN _bb615
 list args A
 END
 %bb.collection.transform(num) //playground/sort.bb line 20
-BEGIN _bb616
+BEGIN _bb618
 list args num
 END
 %bb.collection //playground/sort.bb line 20
-get _bb618 bb collection
+get _bb620 bb collection
 %bb.collection.transform //playground/sort.bb line 20
-get _bb617 _bb618 transform
+get _bb619 _bb620 transform
 %bb.collection.transform(num) //playground/sort.bb line 20
-call _bb615 _bb616 _bb617
+call _bb617 _bb618 _bb619
 %A|bb.collection.transform(num) //playground/sort.bb line 20
-call _bb612 _bb613 _bb615
-IS A _bb612
-%sort(A) //playground/sort.bb line 21
-BEGIN _bb621
+call _bb614 _bb615 _bb617
+IS A _bb614
 %sort(A) //playground/sort.bb line 21
 BEGIN _bb623
+%sort(A) //playground/sort.bb line 21
+BEGIN _bb625
 list args A
 END
 %sort(A) //playground/sort.bb line 21
-call _bb622 _bb623 sort
+call _bb624 _bb625 sort
 END
 %try sort(A) //playground/sort.bb line 21
-try _bb619 _bb621
+try _bb621 _bb623
 %if((A[0]|int ==1)== false)fail("Assertio //playground/sort.bb line 23
-BEGIN _bb624
+BEGIN _bb626
 %("Assertion failed") //playground/sort.bb line 23
-BUILTIN _bb625 "Assertion failed"
+BUILTIN _bb627 "Assertion failed"
 %fail("Assertion failed") //playground/sort.bb line 23
-fail # _bb625
+fail # _bb627
 END
 %(A[0]|int ==1)== false //playground/sort.bb line 23
-BUILTIN _bb627 Bfalse
+BUILTIN _bb629 Bfalse
 %A[0]|int ==1 //playground/sort.bb line 23
-BUILTIN _bb629 I1
+BUILTIN _bb631 I1
 %A[0] //playground/sort.bb line 23
-BUILTIN _bb632 I0
+BUILTIN _bb634 I0
 %A[0] //playground/sort.bb line 23
-at _bb631 A _bb632
+at _bb633 A _bb634
 %A[0]|int //playground/sort.bb line 23
-int _bb630 _bb631
+int _bb632 _bb633
+eq _bb630 _bb632 _bb631
 eq _bb628 _bb630 _bb629
-eq _bb626 _bb628 _bb627
 %if((A[0]|int ==1)== false)fail("Assertio //playground/sort.bb line 23
-if # _bb626 _bb624
+if # _bb628 _bb626
