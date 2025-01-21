@@ -22,8 +22,6 @@
 #include "interpreter/functional.h"
 #include "interpreter/thread.h"
 
-#define WHILE_WITH_CODE_BLOCKS
-
 extern BError* NO_TRY_INTERCEPT;
 
 std::string replaceEscapeSequences(const std::string& input) {
@@ -490,8 +488,7 @@ Result ExecutionInstance::run(Code* code) {
     DO_CREATESERVER: {
         const auto& port = memory.get(command.args[1]);
         bbassert(port.isint(), "The server's port must be an integer.");
-        auto res = new RestServer(port.unsafe_toint());
-        res->runServer();
+        auto res = new RestServer(&memory, port.unsafe_toint());
         DISPATCH_RESULT(res);
     }
     DO_FINAL: {

@@ -11,23 +11,36 @@
 
 class RestServer : public Data {
 public:
-    RestServer(int port);
+    RestServer(BMemory* attachedMemory, int port);
     ~RestServer();
 
-    // Overrides from Data
     std::string toString(BMemory* memory)override;
-
-    void runServer();
-    //Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
-
+    void clear(BMemory* callerMemory) override;
+    Result move(BMemory* callerMemory) override;
+    Result put(BMemory* callerMemory,const DataPtr& route, const DataPtr& code) override;
 private:
+    RestServer(BMemory* attachedMemory, RestServer* prototype);
+    void stop();
+    void runServer();
+    BMemory* attachedMemory;
     int port_;
     static int resultType;
     struct mg_context* context_;
-    std::unordered_map<std::string, DataPtr> routeHandlers_;
+    std::unordered_map<std::string, Data*> routeHandlers_;
     Result executeCodeWithMemory(DataPtr called, BMemory* memory) const;
     static int requestHandler(struct mg_connection* conn, void* cbdata);
     std::recursive_mutex serverModification;
+    virtual void removeFromOwner() {
+        if((--referenceCounter)==0) delete this; 
+        else {
+            stop();
+            bberror(toString(nullptr)+" stopped because it was removed from at least one memory context.\n"
+                    "Not stopping would be unsafe because servers run on the memory context in which they are created.\n"
+                    "Use `move` to properly transfer ownership of the routes and connections to one new server\n"
+                    "(for example if passing it as a function argument)  or `clear` to properly stop the server.");
+        }
+    }
+
 };
 
 #endif // RESTSERVER_H

@@ -16,20 +16,45 @@ std::vector<std::string> splitRoute(const std::string& route) {
     std::vector<std::string> routeParts;
     std::stringstream ss(route);
     std::string segment;
-    while (std::getline(ss, segment, '/')) {
-        if (!segment.empty()) {
-            routeParts.push_back(segment);
-        }
-    }
+    while (std::getline(ss, segment, '/')) if (!segment.empty()) routeParts.push_back(segment);
     return routeParts;
 }
 
 extern std::recursive_mutex printMutex;
 int RestServer::resultType = variableManager.getId("type");
 
-RestServer::RestServer(int port) : port_(port), context_(nullptr), Data(SERVER) {}
-RestServer::~RestServer() {if (context_) mg_stop(context_);}
+RestServer::RestServer(BMemory* attachedMemory, int port) : port_(port), context_(nullptr), Data(SERVER), attachedMemory(attachedMemory) {runServer();}
+RestServer::RestServer(BMemory* attachedMemory, RestServer* prototype) : port_(prototype->port_), context_(prototype->context_), Data(SERVER), attachedMemory(attachedMemory) {
+    routeHandlers_ = std::move(prototype->routeHandlers_);
+    mg_set_request_handler(context_, "/", requestHandler, (void*)this);
+}
 std::string RestServer::toString(BMemory* memory){return "Server on port " + std::to_string(port_);}
+RestServer::~RestServer() { 
+    if (context_) mg_stop(context_); 
+}
+
+Result RestServer::put(BMemory* callerMemory,const DataPtr& route, const DataPtr& code) {
+    bbassert(context_, "Server has stopped; it has been moved or cleared");
+    bbassert(route.existsAndTypeEquals(STRING), "Server route should be a string");
+    bbassert(code.existsAndTypeEquals(CODE) || code.existsAndTypeEquals(STRUCT), "Server route should assign a code block or struct");
+    std::lock_guard<std::recursive_mutex> lock(serverModification);
+    std::string actualRoute = static_cast<BString*>(route.get())->toString(nullptr);
+    Data* actualCode = static_cast<Data*>(code.get());
+    if(routeHandlers_[actualRoute]!=actualCode) {
+        if(routeHandlers_[actualRoute]) routeHandlers_[actualRoute]->removeFromOwner();
+        routeHandlers_[actualRoute] = actualCode;
+        actualCode->addOwner();
+    }
+    return std::move(Result(nullptr));
+}
+
+void RestServer::stop() {
+    std::lock_guard<std::recursive_mutex> lock(serverModification);
+    if (context_) mg_stop(context_); 
+    context_ = nullptr;
+    routeHandlers_.clear();
+}
+
 
 void RestServer::runServer() {
     const char* options[] = {
@@ -42,23 +67,15 @@ void RestServer::runServer() {
     mg_set_request_handler(context_, "/", requestHandler, (void*)this);
 }
 
-/*
-Result RestServer::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
-    if (operation == PUT && args->size == 3 && args->arg1->getType() == STRING &&
-        (args->arg2->getType() == CODE || args->arg2->getType() == STRUCT)) {
-        std::lock_guard<std::recursive_mutex> lock(serverModification);
-        std::string route = static_cast<BString*>(args->arg1.get())->toString(memory);
-        if(routeHandlers_[route].get()!=args->arg2.get()) {
-            if(routeHandlers_[route].exists())
-                routeHandlers_[route]->removeFromOwner();
-            routeHandlers_[route] = args->arg2;
-            if(routeHandlers_[route].exists())
-                routeHandlers_[route]->addOwner();
-        }
-        return std::move(Result(nullptr));
-    }
-    throw Unimplemented();
-}*/
+
+void RestServer::clear(BMemory* callerMemory) {stop();}
+Result RestServer::move(BMemory* callerMemory) {
+    std::lock_guard<std::recursive_mutex> lock(serverModification);
+    RestServer* ret = new RestServer(callerMemory, this);
+    routeHandlers_ = std::unordered_map<std::string, Data*>();
+    context_ = nullptr;
+    return std::move(Result(ret));
+}
 
 
 Result RestServer::executeCodeWithMemory(DataPtr called, BMemory* memory) const {
@@ -111,7 +128,8 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
     for (const auto& entry : server->routeHandlers_) {
         std::vector<std::string> registeredRouteParts = splitRoute(entry.first);
         if (routeParts.size() == registeredRouteParts.size()) {
-            auto mem = new BMemory(nullptr, (int)routeParts.size()/2+1);
+            BMemory mem(server->attachedMemory, (int)routeParts.size()/2+1);
+            mem.allowMutables = false;
             bool isMatch = true;
             for (size_t i = 0; i < routeParts.size(); ++i) {
                 if (registeredRouteParts[i][0] == '<' && registeredRouteParts[i][registeredRouteParts[i].size()-1] == '>') {
@@ -119,8 +137,8 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                     std::string varValue = routeParts[i];
                     // TODO: prevent invalid variable names
                     int varId = variableManager.getId(varName);
-                    mem->set(varId, new BString(varValue));
-                    //mem->setFinal(varId);
+                    mem.set(varId, new BString(varValue));
+                    //mem.setFinal(varId);
                 } 
                 else if (registeredRouteParts[i] != routeParts[i]) {
                     isMatch = false;
@@ -130,26 +148,14 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
             if (!isMatch) continue;
 
             try {
-                if(req_info->request_uri) {
-                    mem->set(variableManager.getId("server::uri"), new BString(req_info->request_uri));
-                    //mem->setFinal(variableManager.getId("uri"));
-                }
-                if(req_info->query_string) {
-                    mem->set(variableManager.getId("server::query"), new BString(req_info->query_string));
-                    //mem->setFinal(variableManager.getId("query"));
-                }
-                if(req_info->request_method) {
-                    mem->set(variableManager.getId("server::method"), new BString(req_info->request_method));
-                    //mem->setFinal(variableManager.getId("method"));
-                }
-                if(req_info->http_version) {
-                    mem->set(variableManager.getId("server::http"), new BString(req_info->http_version));
-                    //mem->setFinal(variableManager.getId("http"));
-                }
-                mem->set(variableManager.getId("server::ip"), new BString(req_info->remote_addr));
-                mem->set(variableManager.getId("server::ssl"), (bool)req_info->is_ssl);
-                //mem->setFinal(variableManager.getId("ip"));
-                //mem->setFinal(variableManager.getId("ssl"));
+                if(req_info->request_uri) mem.set(variableManager.getId("server::uri"), new BString(req_info->request_uri));
+                if(req_info->query_string) mem.set(variableManager.getId("server::query"), new BString(req_info->query_string));
+                if(req_info->request_method) mem.set(variableManager.getId("server::method"), new BString(req_info->request_method));
+                if(req_info->http_version) mem.set(variableManager.getId("server::http"), new BString(req_info->http_version));
+                mem.set(variableManager.getId("server::ip"), new BString(req_info->remote_addr));
+                mem.set(variableManager.getId("server::ssl"), (bool)req_info->is_ssl);
+                //mem.setFinal(variableManager.getId("ip"));
+                //mem.setFinal(variableManager.getId("ssl"));
 
                 if(req_info->content_length>0) {
                     int contentLength = req_info->content_length;
@@ -158,17 +164,17 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                     if (bytesRead > 0) {
                         bodyData[bytesRead] = '\0';
                         std::string requestBody(&bodyData[0]);
-                        mem->set(variableManager.getId("server::content"), new BString(requestBody));
+                        mem.set(variableManager.getId("server::content"), new BString(requestBody));
                     }
                 }
 
-                Result result_ = server->executeCodeWithMemory(entry.second, mem);
+                Result result_ = server->executeCodeWithMemory(entry.second, &mem);
                 DataPtr result = result_.get();
                 if(result->getType()==STRUCT) {
                     Struct* resultStruct = static_cast<Struct*>(result.get());
                     //DataPtr resultContentData = resultStruct->getMemory()->get(resultContent);
                     //bbassert(resultContentData, "Route returned a struct without a `content` field.");
-                    std::string response = result->toString(mem);
+                    std::string response = result->toString(&mem);
                     DataPtr resultTypeData = resultStruct->getMemory()->getOrNull(resultType, true);
                     bbassert(resultTypeData.exists(), "Server route returned a struct without a `type` field (it return nothing).");
                     bbassert(resultTypeData->getType()==Datatype::STRING, "Server route `type` field was not a string (type is not a string).");
@@ -178,12 +184,12 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                             "Content-Type: %s\r\n"
                             "Content-Length: %lu\r\n"
                             "\r\n%s",
-                            resultTypeData->toString(mem).c_str(),
+                            resultTypeData->toString(&mem).c_str(),
                             response.length(), response.c_str());
                 }
                 else {
                     bbassert(result->getType()==Datatype::STRING, "Server route handler did not return a string or struct with `str` and `type` (it returned neither a struct nor a string).");
-                    std::string response = result->toString(mem);
+                    std::string response = result->toString(&mem);
                     /*std::string html_prefix = "<!DOCTYPE html>";
                     if(html_prefix.size()>=html_prefix.length() && response.substr(0, html_prefix.length())==html_prefix) {
                         mg_printf(conn,
