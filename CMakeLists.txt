@@ -110,22 +110,38 @@ if(UNIX AND NOT WIN32) # For Linux and macOS
     else()
         message(FATAL_ERROR "SDL2_ttf library not found. Make sure it is installed on the system.")
     endif()
-
+    
 elseif(WIN32) # For Windows
+    # Find and link SDL2
     find_package(SDL2 CONFIG REQUIRED)
-    target_link_libraries(main
-        PRIVATE
-        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
-    )
+    if(TARGET SDL2::SDL2main AND TARGET SDL2::SDL2)
+        target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2main SDL2::SDL2)
+    elseif(TARGET SDL2::SDL2-static)
+        target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2-static)
+    else()
+        message(FATAL_ERROR "SDL2 library not found. Ensure SDL2 is properly installed and accessible.")
+    endif()
 
+    # Find and link SDL2_image
     find_package(SDL2_image CONFIG REQUIRED)
-    target_link_libraries(main PRIVATE $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
+    if(TARGET SDL2_image::SDL2_image)
+        target_link_libraries(${PROJECT_NAME} PRIVATE SDL2_image::SDL2_image)
+    elseif(TARGET SDL2_image::SDL2_image-static)
+        target_link_libraries(${PROJECT_NAME} PRIVATE SDL2_image::SDL2_image-static)
+    else()
+        message(FATAL_ERROR "SDL2_image library not found. Ensure SDL2_image is properly installed and accessible.")
+    endif()
 
+    # Find and link SDL2_ttf
     find_package(SDL2_ttf CONFIG REQUIRED)
-    target_link_libraries(main PRIVATE $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>)
+    if(TARGET SDL2_ttf::SDL2_ttf)
+        target_link_libraries(${PROJECT_NAME} PRIVATE SDL2_ttf::SDL2_ttf)
+    elseif(TARGET SDL2_ttf::SDL2_ttf-static)
+        target_link_libraries(${PROJECT_NAME} PRIVATE SDL2_ttf::SDL2_ttf-static)
+    else()
+        message(FATAL_ERROR "SDL2_ttf library not found. Ensure SDL2_ttf is properly installed and accessible.")
+    endif()
 endif()
-
 
 # Specify where to place the final executable
 set_target_properties(${PROJECT_NAME} PROPERTIES
