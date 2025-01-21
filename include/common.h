@@ -1,5 +1,5 @@
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef BCOMMON_H
+#define BCOMMON_H
 
 #include <string>
 #include <vector>
@@ -14,12 +14,6 @@
 
 #define WHILE_WITH_CODE_BLOCKS  // this changes the while loop parsing and implementation. define for slower but more easily jitable loops
 
-// Exception classes
-class Unimplemented : public std::exception {
-public:
-    const char* what() const noexcept override {return "Unimplemented method.";}
-};
-
 class BBError : public std::runtime_error {
 public:
     explicit BBError(const std::string& message) : std::runtime_error(message) {}
@@ -32,12 +26,12 @@ public:
 
 // Enumeration of data types
 enum Datatype {
-    FUTURE, BB_INT, BB_FLOAT, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE, ERRORTYPE, MAP, SERVER, SQLLITE, GRAPHICS
+    FUTURE, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE, ERRORTYPE, MAP, SERVER, SQLLITE, GRAPHICS
 };
 
 // Array to map datatype enums to string representations
 static const char* datatypeName[] = {
-    "future", "int", "float", "vector", "list", "string", "code", "struct", "iterator", "file", "error", "map", "server", "sqlite", "graphics"
+    "future", "vector", "list", "string", "code", "struct", "iterator", "file", "error", "map", "server", "sqlite", "graphics"
 };
 
 // Global strings for different operations
@@ -261,4 +255,4 @@ public:
 
 
 
-#endif // COMMON_H
+#endif // BCOMMON_H

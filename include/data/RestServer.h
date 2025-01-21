@@ -18,7 +18,7 @@ public:
     std::string toString(BMemory* memory)override;
 
     void runServer();
-    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
+    //Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
 
 private:
     int port_;

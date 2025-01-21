@@ -42,6 +42,7 @@ void RestServer::runServer() {
     mg_set_request_handler(context_, "/", requestHandler, (void*)this);
 }
 
+/*
 Result RestServer::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     if (operation == PUT && args->size == 3 && args->arg1->getType() == STRING &&
         (args->arg2->getType() == CODE || args->arg2->getType() == STRUCT)) {
@@ -57,7 +58,7 @@ Result RestServer::implement(const OperationType operation, BuiltinArgs* args, B
         return std::move(Result(nullptr));
     }
     throw Unimplemented();
-}
+}*/
 
 
 Result RestServer::executeCodeWithMemory(DataPtr called, BMemory* memory) const {

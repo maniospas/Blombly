@@ -93,9 +93,9 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
                 bbassert(!executor.hasReturned(), "`!comptime` must evaluate to a value but not run a return statement.");
                 //bbassert(ret, "`!comptime` must evaluate to a non-missing value.");
                 if(ret.isbool()) result = ret.unsafe_tobool()?"true":"false";
+                else if (ret.isint() || ret.isfloat()) result = ret.torepr();
                 else if(!ret.exists()) result = "#";
                 else if (ret->getType() == STRING) result = "\"" + ret->toString(nullptr) + "\"";
-                else if (ret->getType() == BB_INT || ret->getType() == BB_FLOAT) result = ret->toString(nullptr);
                 else bberror("`!comptime` must must evaluate to a float, int, str, or bool.");
             } catch (const BBError& e) {
                 std::cerr << e.what() << "\033[0m\n";

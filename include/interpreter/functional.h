@@ -17,7 +17,6 @@ extern std::recursive_mutex printMutex;
 extern std::recursive_mutex compileMutex;
 
 class ExecutionInstance {
-    BuiltinArgs args;
     DataPtr result;
     BMemory& memory;
     bool returnSignal;

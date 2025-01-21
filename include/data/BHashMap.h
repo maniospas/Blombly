@@ -12,7 +12,7 @@ public:
     virtual ~BHashMap();
     std::string toString(BMemory* memory) override;
     void put(DataPtr from, DataPtr to);
-    Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
+    //Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
 
 private:
     mutable std::recursive_mutex memoryLock;

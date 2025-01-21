@@ -27,7 +27,7 @@ public:
 
     ~MapIterator() override = default;
 
-    Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override {
+    /*Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override {
         if (operation == NEXT && args->size == 1) {
             std::lock_guard<std::recursive_mutex> lock(map->memoryLock);
             if (bucketIt == map->contents.end()) return Result(OUT_OF_RANGE);
@@ -49,7 +49,7 @@ public:
 
         if (operation == TOITER && args->size == 1) return Result(this);
         throw Unimplemented();
-    }
+    }*/
 };
 
 
@@ -106,6 +106,7 @@ void BHashMap::put(DataPtr from, DataPtr to) {
     from->addOwner();
 }
 
+/*
 Result BHashMap::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {
     if (args->size == 1) {
         switch (operation) {
@@ -211,3 +212,4 @@ Result BHashMap::implement(const OperationType operation, BuiltinArgs* args, BMe
 
     throw Unimplemented();
 }
+*/

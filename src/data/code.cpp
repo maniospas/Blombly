@@ -14,4 +14,3 @@ int Code::getStart() const {return start;}
 int Code::getEnd() const {return end;}
 int Code::getOptimizedEnd() const {return premature_end;}
 const std::vector<Command>* Code::getProgram() const {return program;}
-Result Code::implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) {throw Unimplemented();}

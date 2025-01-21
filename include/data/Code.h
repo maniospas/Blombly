@@ -29,7 +29,6 @@ public:
     int getEnd() const;
     int getOptimizedEnd() const;
     const std::vector<Command>* getProgram() const;
-    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
 };
 
 #endif // CODE_H

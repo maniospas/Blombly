@@ -65,10 +65,11 @@ std::recursive_mutex printMutex;
 std::recursive_mutex compileMutex;
 BMemory cachedData(nullptr, 1024);
 
-#define DISPATCH_LITERAL(expr) {int carg = command.args[0]; result=DataPtr(expr); if(carg!=variableManager.noneId) memory.unsafeSetLiteral(carg, result); goto SKIP_ASSIGNMENT;}
-#define DISPATCH_RESULT(expr) {int carg = command.args[0]; result=DataPtr(expr); if(carg!=variableManager.noneId) memory.set(carg, result); goto SKIP_ASSIGNMENT;}
-#define DISPATCH_OUTCOME(expr) {int carg = command.args[0]; Result res = (expr); result=res.get(); if(carg!=variableManager.noneId) memory.set(carg, result); goto SKIP_ASSIGNMENT;}
-#define DISPATCH_COMPUTED_RESULT {int carg = command.args[0]; if(carg!=variableManager.noneId) memory.set(carg, result); goto SKIP_ASSIGNMENT;}
+#define DISPATCH_LITERAL(expr) {int carg = command.args[0]; result=DataPtr(expr); if(carg!=variableManager.noneId) memory.unsafeSetLiteral(carg, result); continue;}
+#define DISPATCH_RESULT(expr) {int carg = command.args[0]; result=DataPtr(expr); if(carg!=variableManager.noneId) memory.set(carg, result); continue;}
+#define DISPATCH_OUTCOME(expr) {int carg = command.args[0]; Result res = (expr); result=res.get(); if(carg!=variableManager.noneId) memory.set(carg, result); continue;}
+#define DISPATCH_COMPUTED_RESULT {int carg = command.args[0]; if(carg!=variableManager.noneId) memory.set(carg, result); continue;}
+#define RUN_IF_RETURN(expr) {if (returnSignal) {Result res(expr);memory.runFinally();return std::move(res);} continue;}
 
 #define DISPATCH(OPERATION) goto *dispatch_table[OPERATION]
 void initialize_dispatch_table() {}
@@ -79,7 +80,6 @@ Result ExecutionInstance::run(Code* code) {
     const auto& program = *code->getProgram();
     int end = code->getOptimizedEnd();
     int i = code->getStart();
-
 
     try {
     for(;i<=end;++i) {
@@ -356,7 +356,7 @@ Result ExecutionInstance::run(Code* code) {
         std::lock_guard<std::recursive_mutex> lock(printMutex);
         std::cout << printing;
         result = nullptr;
-        goto SKIP_ASSIGNMENT;
+        continue;
     }
     DO_READ:{
         std::string printing;
@@ -376,14 +376,14 @@ Result ExecutionInstance::run(Code* code) {
         DISPATCH_RESULT(new BString(printing));
     }
     DO_END: {
-        goto SKIP_ASSIGNMENT;
+        continue;
     }
     DO_INLINE: {
         const auto& source = memory.get(command.args[1]);
         if(source.existsAndTypeEquals(CODE)) {
             auto code = static_cast<Code*>(source.get());
             Result returnedValue = run(code);
-            DISPATCH_RESULT(returnedValue.get());
+            RUN_IF_RETURN(returnedValue);
         }
         if(source.existsAndTypeEquals(STRUCT)) {
             memory.pull(static_cast<Struct*>(source.get())->getMemory());
@@ -410,7 +410,7 @@ Result ExecutionInstance::run(Code* code) {
     }
     DO_IS: {
         memory.directTransfer(command.args[0], command.args[1]);
-        goto SKIP_ASSIGNMENT;
+        continue;
     }
     DO_AS: {
         result = memory.getOrNull(command.args[1], true);
@@ -431,13 +431,13 @@ Result ExecutionInstance::run(Code* code) {
         auto structMemory = structObj->getMemory();
         structMemory->set(command.args[2], setValue);//structmemory.getOrNullShallow(command.args[2]));
         result = nullptr;
-        goto SKIP_ASSIGNMENT;
+        continue;
     }
     DO_SETFINAL: {
         const auto& obj = memory.get(command.args[1]);
         bbassert(obj.existsAndTypeEquals(STRUCT), "Can only set fields in a struct.");
         bberror("Cannot set final fields in a struct using field access operators (. or \\). This also ensures that finals can only be set during `new` statements.");
-        goto SKIP_ASSIGNMENT;
+        continue;
     } 
     DO_WHILE: {
         const DataPtr& condition = memory.get(command.args[1]);
@@ -452,16 +452,16 @@ Result ExecutionInstance::run(Code* code) {
             if(!jitableCondition || !jitableCondition->runWithBooleanIntent(&memory, checkValue, forceStayInThread)) {
                 Result returnedValue = run(codeCondition);
                 const auto& check = returnedValue.get();
-                if (returnSignal) DISPATCH_RESULT(check);  // {result = check;SET_RESULT;break;}
                 bbassert(check.isbool(), "While condition did not evaluate to bool");
                 checkValue = check.unsafe_tobool();
+                RUN_IF_RETURN(check);
             }
             if(!checkValue) break;
             Result returnedValueFromBody = run(codeBody);
-            if (returnSignal) DISPATCH_RESULT(returnedValueFromBody.get());
+            RUN_IF_RETURN(returnedValueFromBody);
         }
         result = nullptr;
-        goto SKIP_ASSIGNMENT;
+        continue;
     }
     DO_IF: {
         const auto& condition = memory.get(command.args[1]);
@@ -472,20 +472,20 @@ Result ExecutionInstance::run(Code* code) {
             if(accept.existsAndTypeEquals(CODE)) {
                 Code* code = static_cast<Code*>(accept.get());
                 Result returnedValue = run(code);
-                DISPATCH_RESULT(returnedValue.get());
+                RUN_IF_RETURN(returnedValue);
             }
-            else DISPATCH_RESULT(accept);
+            else bberror("Can only run `if` body");// DISPATCH_RESULT(accept);
         } 
         else if(command.nargs>3) {
             const auto& reject = memory.get(command.args[3]);
             if (reject.existsAndTypeEquals(CODE)) {
                 Code* code = static_cast<Code*>(reject.get());
                 Result returnedValue = run(code);
-                DISPATCH_RESULT(returnedValue.get());
+                RUN_IF_RETURN(returnedValue.get());
             }
-            else DISPATCH_RESULT(reject);
+            else bberror("Can only run `else` body");
         }
-        goto SKIP_ASSIGNMENT;
+        continue;
     }
     DO_CREATESERVER: {
         const auto& port = memory.get(command.args[1]);
@@ -496,7 +496,7 @@ Result ExecutionInstance::run(Code* code) {
     }
     DO_FINAL: {
         memory.setFinal(command.args[1]);
-        goto SKIP_ASSIGNMENT;
+        continue;
     }
     DO_TRY: {
         memory.detach(memory.parent);
@@ -529,25 +529,25 @@ Result ExecutionInstance::run(Code* code) {
             static_cast<BError*>(condition.get())->consume();
             if(codeAccept) {
                 Result returnValue = run(codeAccept);
-                DISPATCH_RESULT(returnValue.get());
+                RUN_IF_RETURN(returnValue);
             }
         }
         else if(codeReject) {
             Result returnValue = run(codeReject);
-            DISPATCH_RESULT(returnValue.get());
+            RUN_IF_RETURN(returnValue);
         }
-        goto SKIP_ASSIGNMENT;
+        continue;
     }
     DO_FAIL: {
         const auto& result = memory.get(command.args[1]);
         bberror(std::move(enrichErrorDescription(command, result->toString(&memory))));
-        goto SKIP_ASSIGNMENT;
+        continue;
     }
     DO_DEFER: {
         const auto& source = memory.get(command.args[1]);
         bbassert(source.existsAndTypeEquals(CODE), "Defer can only inline a code block");
         memory.addFinally(static_cast<Code*>(source.get()));
-        goto SKIP_ASSIGNMENT;
+        continue;
     }
     DO_DEFAULT: {
         const auto& source = memory.get(command.args[1]);
@@ -558,7 +558,7 @@ Result ExecutionInstance::run(Code* code) {
         Result returnedValue = executor.run(code);
         if(executor.hasReturned())  bberror("Cannot return from within a `default` statement");
         memory.replaceMissing(&newMemory);
-        goto SKIP_ASSIGNMENT;
+        continue;
     }
     DO_NEW: {
         DataPtr source = memory.get(command.args[1]);
@@ -576,7 +576,7 @@ Result ExecutionInstance::run(Code* code) {
             if(returnedValue.get().get()!=thisObj) {
                 if(command.args[0]!=variableManager.noneId) memory.set(command.args[0], result);
                 thisObj->removeFromOwner(); // do this after setting
-                goto SKIP_ASSIGNMENT;
+                continue;
             }
             DISPATCH_COMPUTED_RESULT;
         }
@@ -585,7 +585,7 @@ Result ExecutionInstance::run(Code* code) {
             newMemory->setToNullIgnoringFinals(variableManager.thisId);
             handleExecutionError(program[i], e);
         }
-        goto SKIP_ASSIGNMENT;
+        continue;
     }
     DO_TOLIST: {
         int n = command.nargs;
@@ -689,7 +689,7 @@ Result ExecutionInstance::run(Code* code) {
         const auto& arg0 = memory.get(command.args[1]);
         bbassert(arg0.exists(), "Did not find builtin operation: clear("+arg0.torepr()+")");
         arg0->clear(&memory);
-        goto SKIP_ASSIGNMENT;
+        continue;
     }
     DO_SHAPE: 
     DO_TOFILE: {
@@ -760,7 +760,7 @@ Result ExecutionInstance::run(Code* code) {
         cachedData.pull(&cacheMemory);
         result = nullptr;
         bbassert(!cacheExecutor.hasReturned(), "Cache declaration cannot return a value");
-        goto SKIP_ASSIGNMENT;
+        continue;
     }
     DO_BEGIN:
     DO_BEGINFINAL: {
@@ -772,7 +772,7 @@ Result ExecutionInstance::run(Code* code) {
             if(carg!=variableManager.noneId) memory.set(carg, result);
             if (command.operation == BEGINFINAL) memory.setFinal(command.args[0]); // WE NEED TO SET FINALS ONLY AFTER THE VARIABLE IS SET
             i = code->getEnd();
-            goto SKIP_ASSIGNMENT;
+            continue;
         }
         // Find the matching END for this block
         int pos = i + 1;
@@ -797,7 +797,7 @@ Result ExecutionInstance::run(Code* code) {
         int carg = command.args[0];
         if(carg!=variableManager.noneId) memory.set(carg, result);
         if (command.operation == BEGINFINAL) memory.setFinal(command.args[0]); // WE NEED TO SET FINALS ONLY AFTER THE VARIABLE IS SET
-        goto SKIP_ASSIGNMENT;
+        continue;
     }
     DO_CALL: {
         // Function or method call
@@ -805,12 +805,7 @@ Result ExecutionInstance::run(Code* code) {
         DataPtr called = memory.get(command.args[2]);
         bbassert(called.exists(), "Cannot call a missing value or literal.");
         if(called->getType()!=CODE && called->getType()!=STRUCT) {
-            args.size = 2;
-            args.arg0 = called;
-            args.arg1 = context;
-            Result returnValue = Data::run(command.operation, &args, &memory);
-            result = returnValue.get();
-            DISPATCH_COMPUTED_RESULT;
+            bberror("Can only call code or struct");
         }
         if(called->getType()==STRUCT) {
             auto strct = static_cast<Struct*>(called.get());
@@ -872,27 +867,10 @@ Result ExecutionInstance::run(Code* code) {
             int carg = command.args[0]; 
             if(carg!=variableManager.noneId) memory.setFuture(carg, result); 
             futureResult->start(code, newMemory, futureResult, &program[i], thisObj);
-            goto SKIP_ASSIGNMENT;
-
+            continue;
         }
     }
 
-    /*
-    *  CASES END HERE
-    */
-
-    FALLBACK: {
-        Result returnValue = Data::run(command.operation, &args, &memory);
-        DISPATCH_RESULT(returnValue.get());
-    }
-
-    SKIP_ASSIGNMENT:
-
-    if (returnSignal) {
-        Result res(result);
-        memory.runFinally();
-        return std::move(res);
-    }
     }//end loop
     }//end try 
     catch (const BBError& e) {handleExecutionError(program[i], e);}

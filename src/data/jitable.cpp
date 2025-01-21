@@ -274,7 +274,7 @@ Jitable* jit(const Code* code) {
 
     if(!allowJit) return nullptr;
 
-    std::unordered_map<int, int> assignmentCounts;
+    /*std::unordered_map<int, int> assignmentCounts;
     std::unordered_map<int, int> usageCounts;
     std::unordered_map<int, int> knownStates;
     for (int i = start; i <= end; ++i) {
@@ -430,7 +430,7 @@ Jitable* jit(const Code* code) {
             allowJit = false;
             return nullptr;
         }
-    }
+    }*/
 
 
 

@@ -9,17 +9,7 @@
 #include "common.h"
 #include "Result.h"
 
-class Data;
 class BMemory;
-struct BuiltinArgs {
-    DataPtr arg0;
-    DataPtr arg1;
-    DataPtr arg2;
-    uint8_t size;
-    //DataPtr preallocResult;
-};
-
-// Abstract base class for all data types
 class Data {
 public:
     inline Datatype getType() const { return type; }
@@ -27,8 +17,6 @@ public:
     Data(Datatype type);
     virtual ~Data() = default;
 
-    static Result run(const OperationType operation, BuiltinArgs* args, BMemory* memory);
-    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory);
     virtual size_t toHash() const;
     virtual bool isSame(const DataPtr& other);
 
