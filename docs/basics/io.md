@@ -224,8 +224,8 @@ Response time: 0.319413 sec
 
 ## Authentication
 
-For web resources, you can set authentication and timeout parameters.
-With the element setting notation. Once set, these parameters cannot
+For web resources, you can set authentication and timeout parameters
+with element set notation. Once set, these parameters cannot
 be retrieved and do not appear in any error messages.
 Below is an example, in which set username and password with credentials from
 [sftpcloud's](https://sftpcloud.io/tools/free-ftp-server) free SFTP server - create
@@ -240,16 +240,16 @@ password = "password";
 
 // create file from sftp
 sftp = "sftp://eu-central-1.sftpcloud.io/test_file"|file;
-sftp["username"] = username;
-sftp["password"] = password; 
-sftp["timeout"] = 10;
+sftp.username = username;
+sftp.password = password; 
+sftp.timeout = 10;
 sftp << "Transferred data.";
 
 // retrieve file from sftp
 sftp = "sftp://eu-central-1.sftpcloud.io/test_file"|file;
-sftp["username"] = username;
-sftp["password"] = password; 
-sftp["timeout"] = 10;
+sftp.username = username;
+sftp.password = password; 
+sftp.timeout = 10;
 print(ftp|bb.string.join("\n"));
 ```
 
@@ -263,7 +263,7 @@ Transferred data.
 ## Servers
 
 Blombly offers the ability to set up REST services.
-Instantiating a server is as simple as calling `routes=std::server(port)`,
+Instantiating a server is as simple as calling `routes=server(port)`,
 where the port is provided. The server starts running immediately,
 and you can dynamically add or remove routes from it. Execute client
 request through the file system, as described above.
@@ -271,12 +271,12 @@ request through the file system, as described above.
 <br>
 
 Treat the generated server as a map from resource location strings to code blocks
-to be called when the respective resource is requested. Blocks that run this
-ways should returned either a string plain text or a request result struct (see below). 
-Parts of resource names that reside in angular brackets `<…>` indicate that the respective 
+to be called when respective resources are requested. Blocks that run this
+way should return either a string plain text or a request result struct (see below). 
+Parts of resource names that reside in angular brackets `<...>` indicate that a 
 part of therequest should be treated as a string argument to the callable.
 For example, the following snippet redirects `echo/<input>` to echo the provided input;
-run code and open the browser and visit `localhost:8000/echo/MyTest` to see this in action.
+run the code and open the browser and visit `localhost:8000/echo/MyTest` to see this in action.
 
 ```java
 // main.bb
@@ -286,7 +286,7 @@ while(true) {}  // wait indefinitely
 ```
 
 In addition to parameters obtained by parsing the request, calls
-to route code blocks may be enriched with status information, if available.
+to routes may be enriched with status information, if available.
 Related values that may be present are listed below.
 
 <details>
@@ -342,9 +342,12 @@ Related values that may be present are listed below.
 
 Non-text results for server methods are declared by returning
 a struct with text and type fields, like in the following example.
+In general, rout functions are called from ther 
+*server's* creating scope. So in the example `content` is made 
+final to be visible from the top-level route.
 
 ```java
-content = "
+final content = "
     <!DOCTYPE html>
     <html>
         <head><title>Hi world!</title></head>
@@ -361,6 +364,12 @@ routes[""] => new {
 print("Server running at http://localhost:8000/");
 while(true){}
 ```
+
+!!! info
+    Servers run in their creating scope. They stop and create errors when removed from any
+    scope, though, to promote unique ownership rules.
+    To avoid errors, stop servers with `clear(routes)`,
+    or move them to run in different execution scopes with `move(routes)`.
 
 ## Databases
 
@@ -400,10 +409,65 @@ db << "DELETE FROM users;";
 {name: User4, age: 24, id: 5} 
 </pre>
 
-!!! info
-    Using brackets rather than parentheses to execute database queries
-    lets us avoid side effects due to the potential concurrency of function
-    or method calls that is intrinsic to Blombly. 
-    To the contrary, built-in operations like element access run like normal
-    sequential code, even if overloaded. This lets us write database queries
-    one after the other and expect them to run in the same order.
+
+## Graphics
+
+Blombly provides a graphics engine. Under the hood, this uses [SDL2](https://www.libsdl.org/), although advanced
+
+
+*Section under consrtuction.*
+
+
+```java
+!access ""
+g = graphics("MyApp", 800, 600);
+
+logo = new {
+    size = 200;
+    x = 400-size/2;
+    y = 300-size/2;
+    speedx = 0;
+    speedy = 0;
+    angle = 0;
+    update(dt) = {
+        this.x += this.speedx*dt*100;
+        this.y += this.speedy*dt*100;
+        this.angle += 100*dt;
+        return this;
+    }
+    texture() => "docs/blombly.png",this.x,this.y,this.size,this.size,this.angle;
+}
+
+font = "playground/fonts/OpenSans-VariableFont_wdth,wght.ttf";
+invfps = 1/60;
+previous_frame = time();
+while(events as g|pop) {
+    // draw graphics
+    g << logo.texture();
+
+    // show fps
+    fps = (1/invfps)|int|str+" fps";
+    g << fps,font,12,800-42,600-20,0;
+
+    // process events
+    while(event in events) if(event.graphics::type=="key::down") {
+        if(event.graphics::key=="W") logo.speedy -= 1;
+        if(event.graphics::key=="S") logo.speedy += 1;
+        if(event.graphics::key=="A") logo.speedx -= 1;
+        if(event.graphics::key=="D") logo.speedx += 1;
+    }
+    
+    // update fps
+    current_frame = time();
+    dt = current_frame-previous_frame;
+    previous_frame = current_frame;
+    invfps = invfps*0.99+0.01*dt;
+
+    // update loop (use try for forceful synchronization)
+    logo = logo.update(dt);
+}
+```
+
+
+!!! warning
+    Multiple windows are not yet properly supported.
