@@ -395,7 +395,9 @@ Result ExecutionInstance::run(Code* code) {
     }
     DO_TOSTR: {
         const auto& arg0 = memory.get(command.args[1]);
-        if(arg0.islit()) DISPATCH_RESULT(new BString(arg0.torepr()));
+        if(arg0.isint()) DISPATCH_RESULT(new BString(std::to_string(arg0.unsafe_toint())));
+        if(arg0.isfloat()) DISPATCH_RESULT(new BString(std::to_string(arg0.unsafe_tofloat())));
+        if(arg0.isbool()) DISPATCH_RESULT(new BString(arg0.unsafe_tobool()?"true":"false"));
         if(arg0.exists()) DISPATCH_RESULT(new BString(arg0->toString(&memory)));
         bberror("Internal error: failed to convert to string. This error should never appear.");
     }
@@ -519,9 +521,9 @@ Result ExecutionInstance::run(Code* code) {
     DO_CATCH: {
         const auto& condition = memory.getOrNull(command.args[1], true); //(command.knownLocal[1]?memory.getOrNullShallow(command.args[1]):memory.getOrNull(command.args[1], true)); //memory.get(command.args[1]);
         const auto& accept = memory.get(command.args[2]);
-        const auto& reject = command.nargs>3?memory.get(command.args[3]):nullptr;
-        bbverify(accept.exists(), !accept.exists() || accept.existsAndTypeEquals(CODE), "Can only inline a code block for catch acceptance");
-        bbverify(reject.exists(), !reject.exists() || reject.existsAndTypeEquals(CODE), "Can only inline a code block for catch rejection");
+        const auto& reject = command.nargs>3?memory.get(command.args[3]):DataPtr::NULLP;
+        bbassert(accept.existsAndTypeEquals(CODE), "Can only inline a code block for catch acceptance");
+        bbassert(reject==nullptr || reject.existsAndTypeEquals(CODE), "Can only inline a code block for catch rejection");
         auto codeAccept = static_cast<Code*>(accept.get());
         auto codeReject = static_cast<Code*>(reject.get());
         
@@ -679,8 +681,18 @@ Result ExecutionInstance::run(Code* code) {
         bbassert(arg0.isptr(), "Did not find builtin operation: next("+arg0.torepr()+")");
         DISPATCH_OUTCOME(arg0->next(&memory));
     }
-    DO_MOVE: 
-    DO_CLEAR: 
+    DO_MOVE: {
+        const auto& arg0 = memory.get(command.args[1]);
+        if(arg0.islit()) DISPATCH_RESULT(arg0);
+        bbassert(arg0.exists(), "Did not find builtin operation: clear("+arg0.torepr()+")");
+        DISPATCH_OUTCOME(arg0->move(&memory));
+    }
+    DO_CLEAR: {
+        const auto& arg0 = memory.get(command.args[1]);
+        bbassert(arg0.exists(), "Did not find builtin operation: clear("+arg0.torepr()+")");
+        arg0->clear(&memory);
+        goto SKIP_ASSIGNMENT;
+    }
     DO_SHAPE: 
     DO_TOFILE: {
         const auto& arg0 = memory.get(command.args[1]);

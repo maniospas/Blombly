@@ -21,7 +21,7 @@ std::string Struct::toString(BMemory* memory){
     }
 }
 
-inline Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory) {
+Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory) {
     BMemory* mem;
     DataPtr implementation;
     {
@@ -46,7 +46,7 @@ inline Result Struct::simpleImplement(int implementationCode, BMemory* calledMem
     return Result(value);
 }
 
-inline Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory, const DataPtr& other) {
+Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory, const DataPtr& other) {
     BMemory* mem;
     DataPtr implementation;
     {

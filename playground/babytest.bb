@@ -1,21 +1,11 @@
-final Num = {
-    int => this.value;
-    lt(other) => this.value < other.value;
-    str => "num !{this.value}";
+A = new{
+    x = 1;
+    y = 2;
 }
-num(x) => new {Num:value=x}
 
-A = 5,2,3,4,1;
-A = A|bb.collection.transform(num);
+clear(A);
+err = try print(A.x);
+catch(err) {print("caught")}
 
-
-n = A|len;
-while(i in range(n)) {
-    while(j in range(i+1, n)) if(A[j]<A[i]) {
-        tmp = A[i];
-        A[i]=A[j];
-        A[j]=tmp;
-    }
-}
-assert A[0]|int==1;
-print(A);
+value = try catch(err) return true else return false;
+print(value);

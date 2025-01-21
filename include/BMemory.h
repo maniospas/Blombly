@@ -63,11 +63,12 @@ public:
         if(parent) return parent->getParentWithFinals();
         return nullptr;
     }
+    bool isBlank() {return max_cache_size==0;}
+    void release();
     tsl::hopscotch_map<Code*, Struct*> codeOwners;
     BMemory* parent;
     tsl::hopscotch_set<Future*> attached_threads;
 
-    void release();
     bool allowMutables;
 
     explicit BMemory(BMemory* par, int expectedAssignments, DataPtr thisObject=nullptr);

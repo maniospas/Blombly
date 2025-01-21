@@ -9,18 +9,17 @@
 #include <unordered_set>  
 #include <bit>
 
-std::atomic<unsigned long long> countUnrealeasedMemories(-1); // do not count cachedData as memory (-1+1=0 after first entry with despite the unsigned type)
+std::atomic<unsigned long long> countUnrealeasedMemories(0);
 extern VariableManager variableManager;
 
 void BMemory::verify_noleaks() {
     //bbassert(memories.size() == 0, "There are " + std::to_string(memories.size()) + " leftover memory contexts leaked");
     int countUnreleased = countUnrealeasedMemories.load();
-    countUnrealeasedMemories = 0;
-    bbassert(countUnreleased == 0, "There are " + std::to_string(countUnreleased) + " leftover memory contexts leaked");  // the main memory is a global object (needed to sync threads on errors)
+    countUnrealeasedMemories = 1;  // shared is always leftover
+    bbassert(countUnreleased == 1, "There are " + std::to_string(countUnreleased-1) + " leftover memory contexts leaked");  // the main memory is a global object (needed to sync threads on errors)
 }
 
 BMemory::BMemory(BMemory* par, int expectedAssignments, DataPtr thisObject) : parent(par), allowMutables(true), first_item(INT_MAX), hasAtLeastOneFinal(false) {  // we are determined to never use special symbols as the start of our cache index
-    //std::cout << "created "<<this<<"\n";
     ++countUnrealeasedMemories;
     //data.reserve(expectedAssignments);
     contents.resize(expectedAssignments, DataPtr::NULLP);
@@ -28,7 +27,6 @@ BMemory::BMemory(BMemory* par, int expectedAssignments, DataPtr thisObject) : pa
 }
 
 void BMemory::release() {
-    //std::cout << "releasing "<<this<<"\n";
     std::string destroyerr = "";
     for(const auto& thread : attached_threads) {
         try {Result res = thread->getResult();}
@@ -49,18 +47,22 @@ void BMemory::release() {
 
     for(const auto& dat : contents) {
         try {
-            if(dat.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(dat.get())->isConsumed()) destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:\n"+dat->toString(this)+"\n";
-            if(dat.exists()) dat->removeFromOwner();
+            if(dat.exists()) {
+                Data* data = dat.get();
+                if(data->getType()==(ERRORTYPE) && !static_cast<BError*>(data)->isConsumed()) destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:\n"+data->toString(this)+"\n";
+                dat->removeFromOwner();
+            }
         }
         catch(const BBError& e) {destroyerr += std::string(e.what())+"\n";}
     }
     data.clear();
     contents.clear();
+    max_cache_size = 0;
     if(destroyerr.size())  throw BBError(destroyerr.substr(0, destroyerr.size()-1));
 }
 
 BMemory::~BMemory() {
-    contents[data[variableManager.thisId]] = DataPtr::NULLP;
+    if(data.find(variableManager.thisId)!=data.end()) contents[data[variableManager.thisId]] = DataPtr::NULLP;
     countUnrealeasedMemories--; 
     release();
 }

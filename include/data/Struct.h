@@ -10,8 +10,8 @@
 class Struct : public Data {
 private:
     BMemory* memory;
-    inline Result simpleImplement(int implementationCode, BMemory* scopeMemory);
-    inline Result simpleImplement(int implementationCode, BMemory* scopeMemory, const DataPtr& other);
+    Result simpleImplement(int implementationCode, BMemory* scopeMemory);
+    Result simpleImplement(int implementationCode, BMemory* scopeMemory, const DataPtr& other);
 
 public:
     mutable std::recursive_mutex memoryLock; 
@@ -30,8 +30,9 @@ public:
 
     void clear(BMemory* scopeMemory) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
-        delete memory;
-        memory = new BMemory(nullptr, 0);
+        BMemory* prevMemory = memory;
+        memory = new BMemory(nullptr, 1);
+        delete prevMemory;
     }
 
     int64_t len(BMemory* scopeMemory) {

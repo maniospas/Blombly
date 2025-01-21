@@ -63,6 +63,7 @@ void Database::clear() {
 
 std::string Database::toString(BMemory* memory) {return dbPath;}
 void Database::clear(BMemory* memory) {clear();}
+
 Result Database::push(BMemory* memory, const DataPtr& other) {
     bbassert(other.existsAndTypeEquals(STRING), "Can only push string queries to sqllite");
     std::string query = other->toString(nullptr);

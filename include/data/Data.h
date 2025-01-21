@@ -76,10 +76,14 @@ private:
 };
 
 std::string DataPtr::torepr() const {
-    if(datatype & IS_PTR) return datatypeName[get()->getType()];//return "Data object at memory address: "+std::to_string(data);
+    if(datatype & IS_PTR) {
+        Data* obj = get(); 
+        if(!obj) return "missing"; 
+        return datatypeName[obj->getType()];
+    }//return "Data object at memory address: "+std::to_string(data);
     if(datatype & IS_FLOAT) return std::to_string(unsafe_tofloat());
     if(datatype & IS_INT) return std::to_string(unsafe_toint());
-    if(datatype & IS_BOOL) return std::to_string(unsafe_tobool());
+    if(datatype & IS_BOOL) return unsafe_tobool()?"true":"false";
     return "Corrupted data";
 }
 
