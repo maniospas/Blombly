@@ -17,7 +17,7 @@
 #include "utils.h"
 #include "interpreter/functional.h"
 
-#define MISSING -1
+constexpr int MISSING = -1;
 
 const std::string PARSER_BUILTIN = "BUILTIN";
 const std::string PARSER_BEGIN = "BEGIN";
@@ -361,18 +361,10 @@ public:
                 int type = tokens[start].builtintype;
                 if (type) {
                     std::string var = create_temp();
-                    if (type == 1)
-                        ret += PARSER_BUILTIN + " " + var + " " + first_name 
-                               + "\n";
-                    if (type == 2)
-                        ret += PARSER_BUILTIN + " " + var + " B" + first_name 
-                               + "\n";
-                    if (type == 3)
-                        ret += PARSER_BUILTIN + " " + var + " I" + first_name 
-                               + "\n";
-                    if (type == 4) 
-                        ret += PARSER_BUILTIN + " " + var + " F" + first_name 
-                               + "\n";
+                    if (type == 1) ret += PARSER_BUILTIN + " " + var + " " + first_name + "\n";
+                    if (type == 2) ret += PARSER_BUILTIN + " " + var + " B" + first_name + "\n";
+                    if (type == 3) ret += PARSER_BUILTIN + " " + var + " I" + first_name + "\n";
+                    if (type == 4) ret += PARSER_BUILTIN + " " + var + " F" + first_name + "\n";
                     return var;
                 }
                 return first_name;
@@ -417,7 +409,6 @@ public:
                 std::string condition_text;
                 std::string condition;
                 if(first_name=="while") {
-                    #ifdef WHILE_WITH_CODE_BLOCKS
                         std::string requested_var = create_temp();
                         ret += "BEGIN " + requested_var + "\n";
                         ret += code_block_prepend;
@@ -426,13 +417,12 @@ public:
                             parse(start+1, start_if_body-1);  // important to do a full parse
                         ret += "END\n";
                         condition = requested_var;
-                        //condition = parse_expression(start + 1, start_if_body - 1, true);
-                    #else
+                        /*
                         condition = parse_expression(start + 1, start_if_body - 1);
                         if (first_name == "while" && (ret.size()<5 || ret.substr(condition_start_in_ret, 5) != "BEGIN"))
                             condition_text = ret.substr(condition_start_in_ret);
                         bbassert(condition != "#", first_name + " condition does not evaluate to anything\n"+show_position(start_parenthesis+1));
-                    #endif
+                        */
                 }
                 int body_end = first_name == "while" ? MISSING : 
                                find_end(start_if_body, end, "else");
@@ -549,29 +539,18 @@ public:
                         std::string rhs = parse_expression(assignment + 1, end);
                         std::string entryvalue = create_temp();
                         ret += "at " + entryvalue + " "+ obj + " " + entry + "\n";
-                        if (tokens[assignment - 1].name == "+") {
-                            ret += "add " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        } else if (tokens[assignment - 1].name == "-") {
-                            ret += "sub " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        } else if (tokens[assignment - 1].name == "*") {
-                            ret += "mul " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        } else if (tokens[assignment - 1].name == "/") {
-                            ret += "div " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        } else if (tokens[assignment - 1].name == "^") {
-                            ret += "pow " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        } else if (tokens[assignment - 1].name == "%") {
-                            ret += "mod " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        } else if (tokens[assignment - 1].name == "and") {
-                            ret += "and " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        } else if (tokens[assignment - 1].name == "or") {
-                            ret += "or " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        } else if (tokens[assignment - 1].name == "<<") {
-                            ret += "push " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        }
+                        if (tokens[assignment - 1].name == "+") ret += "add " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        else if (tokens[assignment - 1].name == "-") ret += "sub " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        else if (tokens[assignment - 1].name == "*") ret += "mul " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        else if (tokens[assignment - 1].name == "/") ret += "div " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        else if (tokens[assignment - 1].name == "^") ret += "pow " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        else if (tokens[assignment - 1].name == "%") ret += "mod " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        else if (tokens[assignment - 1].name == "and") ret += "and " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        else if (tokens[assignment - 1].name == "or") ret += "or " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        else if (tokens[assignment - 1].name == "<<") ret += "push " + entryvalue + " " + entryvalue + " " + rhs + "\n";
                         ret += "put # " + obj + " " + entry + " " + entryvalue + "\n";
                     }
-                    else
-                        ret += "put # " + obj + " " + parse_expression(start_entry + 1, end_entry - 1) + " " + parse_expression(assignment + 1, end) + "\n";
+                    else ret += "put # " + obj + " " + parse_expression(start_entry + 1, end_entry - 1) + " " + parse_expression(assignment + 1, end) + "\n";
                     if (asAssignment==assignment) {
                         bberror("`as` cannot be used for setting values outside of the current scope. Use only `=` and catch on failure. This prevents leaking missing values."); // proper integration is to have "asset" and "assetfinal" keywords, but I changed my mind: this is unsafe behavior
                         std::string temp = create_temp();
@@ -689,34 +668,23 @@ public:
                                 code_block_prepend += "next " + tokens[j].name + " args\n";
                             }
                         }*/
-                    } else {
-                        parenthesis_start = assignment-isSelfOperation;
-                    }
+                    } 
+                    else parenthesis_start = assignment-isSelfOperation;
 
                     if(isSelfOperation) {
                         std::string entry = parse_expression(start_assignment + 1, parenthesis_start - 1);
                         std::string rhs = parse_expression(assignment + 1, end);
                         std::string entryvalue = create_temp();
                         ret += "get " + entryvalue + " "+ obj + " " + entry + "\n";
-                        if (tokens[assignment - 1].name == "+") {
-                            ret += "add " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        } else if (tokens[assignment - 1].name == "-") {
-                            ret += "sub " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        } else if (tokens[assignment - 1].name == "*") {
-                            ret += "mul " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        } else if (tokens[assignment - 1].name == "/") {
-                            ret += "div " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        } else if (tokens[assignment - 1].name == "^") {
-                            ret += "pow " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        } else if (tokens[assignment - 1].name == "%") {
-                            ret += "mod " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        } else if (tokens[assignment - 1].name == "and") {
-                            ret += "and " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        } else if (tokens[assignment - 1].name == "or") {
-                            ret += "or " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        } else if (tokens[assignment - 1].name == "<<") {
-                            ret += "push " + entryvalue + " " + entryvalue + " " + rhs + "\n";
-                        }
+                        if (tokens[assignment - 1].name == "+") ret += "add " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        else if (tokens[assignment - 1].name == "-") ret += "sub " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        else if (tokens[assignment - 1].name == "*") ret += "mul " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        else if (tokens[assignment - 1].name == "/") ret += "div " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        else if (tokens[assignment - 1].name == "^") ret += "pow " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        else if (tokens[assignment - 1].name == "%") ret += "mod " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        else if (tokens[assignment - 1].name == "and") ret += "and " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        else if (tokens[assignment - 1].name == "or") ret += "or " + entryvalue + " " + entryvalue + " " + rhs + "\n";
+                        else if (tokens[assignment - 1].name == "<<") ret += "push " + entryvalue + " " + entryvalue + " " + rhs + "\n";
                         ret += (is_final ? "setfinal # " : "set # ") + obj + " " + entry + " " + entryvalue + "\n";
                     }
                     else 
@@ -916,28 +884,18 @@ public:
 
                 if(isSelfOperation) {
                     bbassert(asAssignment!=assignment, "Cannot have a self-operation to. This error should never occur as there is a previous assert. (This is just future-proofing.)");
-                    if(tokens[assignment-1].name=="+")
-                        ret += "add "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
-                    else if(tokens[assignment-1].name=="-")
-                        ret += "sub "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
-                    else if(tokens[assignment-1].name=="*")
-                        ret += "mul "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
-                    else if(tokens[assignment-1].name=="/")
-                        ret += "div "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
-                    else if(tokens[assignment-1].name=="%")
-                        ret += "mod "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
-                    if(tokens[assignment-1].name=="^")
-                        ret += "pow "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
-                    if(tokens[assignment-1].name=="and")
-                        ret += "and "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
-                    if(tokens[assignment-1].name=="or")
-                        ret += "or "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
-                    if(tokens[assignment-1].name=="<<")
-                        ret += "push "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    if(tokens[assignment-1].name=="+") ret += "add "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    else if(tokens[assignment-1].name=="-") ret += "sub "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    else if(tokens[assignment-1].name=="*") ret += "mul "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    else if(tokens[assignment-1].name=="/") ret += "div "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    else if(tokens[assignment-1].name=="%") ret += "mod "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    if(tokens[assignment-1].name=="^") ret += "pow "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    if(tokens[assignment-1].name=="and") ret += "and "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    if(tokens[assignment-1].name=="or") ret += "or "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
+                    if(tokens[assignment-1].name=="<<") ret += "push "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
                     // the |= expression is handled by the sanitizer
                 }
-                else
-                    ret += (asAssignment == assignment?"AS ":"IS ") + first_name + " " + parse_expression(assignment + 1, end) + "\n";
+                else ret += (asAssignment == assignment?"AS ":"IS ") + first_name + " " + parse_expression(assignment + 1, end) + "\n";
                 
                 if (is_final) {
                     bbassert(first_name.size() < 3 || first_name.substr(0, 3) != "_bb", 

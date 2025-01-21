@@ -11,30 +11,13 @@
 #include <cstdint>
 #include <string>
 
-
-#define WHILE_WITH_CODE_BLOCKS  // this changes the while loop parsing and implementation. define for slower but more easily jitable loops
-
-class BBError : public std::runtime_error {
-public:
-    explicit BBError(const std::string& message) : std::runtime_error(message) {}
-};
-
-// Custom error message macro
+class BBError : public std::runtime_error {public: explicit BBError(const std::string& message) : std::runtime_error(message) {}};
 #define bberror(msg) [[unlikely]] throw BBError("\033[0m(\x1B[31m ERROR \033[0m) " + std::string(msg))
 #define bbassert(expr, msg) if (!(expr)) bberror(msg);
-#define bbverify(precondition, expr, msg) if ((precondition) && !(expr)) bberror(msg); 
 
-// Enumeration of data types
-enum Datatype {
-    FUTURE, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE, ERRORTYPE, MAP, SERVER, SQLLITE, GRAPHICS
-};
+enum Datatype {FUTURE, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE, ERRORTYPE, MAP, SERVER, SQLLITE, GRAPHICS};
+static const char* datatypeName[] = {"future", "vector", "list", "string", "code", "struct", "iterator", "file", "error", "map", "server", "sqlite", "graphics"};
 
-// Array to map datatype enums to string representations
-static const char* datatypeName[] = {
-    "future", "vector", "list", "string", "code", "struct", "iterator", "file", "error", "map", "server", "sqlite", "graphics"
-};
-
-// Global strings for different operations
 enum OperationType {
     NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, DIV, MOD, LEN, POW, LOG,
     PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOMAP, TOBB_INT, TOBB_FLOAT, TOSTR, TOBB_BOOL, TOFILE,
@@ -44,8 +27,6 @@ enum OperationType {
     TIME, TOITER, TRY, CATCH, FAIL, EXISTS, READ, CREATESERVER, AS, TORANGE, 
     DEFER, CLEAR, MOVE, ISCACHED, TOSQLITE, TOGRAPHICS
 };
-
-// Array mapping OperationType to string representations
 static const std::string OperationTypeNames[] = {
     "not", "and", "or", "eq", "neq", "le", "ge", "lt", "gt", "add", "sub", "mul", "mmul",
     "div", "mod", "len", "pow", "log", "push", "pop", "next", "put", "at", "shape",
@@ -57,14 +38,12 @@ static const std::string OperationTypeNames[] = {
     "defer", "clear", "move", "ISCACHED", "sqlite", "graphics"
 };
 
-// Map operations to symbols and conversely
 void initializeOperationMapping();
 OperationType getOperationType(const std::string& str);
 std::string getOperationTypeName(OperationType type);
 
-// Block execution declarations
-#define DEFAULT_LOCAL_EXPECTATION 8
-#define LOCAL_EXPECTATION_FROM_CODE(code) std::min((code->getEnd() - code->getStart()) * 2, DEFAULT_LOCAL_EXPECTATION)
+#define DEFAULT_LOCAL_EXPECTATION 32
+#define LOCAL_EXPECTATION_FROM_CODE(code) std::min(1+(code->getEnd() - code->getStart()), DEFAULT_LOCAL_EXPECTATION)
 
 class Data;
 class Command;
