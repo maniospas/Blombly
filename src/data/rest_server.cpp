@@ -3,7 +3,6 @@
 #include "data/List.h"
 #include "data/Struct.h"
 #include "data/BString.h"
-#include "data/Integer.h"
 #include "data/Jitable.h"
 #include "BMemory.h"
 #include "common.h"

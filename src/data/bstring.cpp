@@ -1,6 +1,4 @@
 #include "data/BString.h"
-#include "data/Integer.h"
-#include "data/BFloat.h"
 #include "data/BFile.h"
 #include "data/BError.h"
 #include "data/Iterator.h"

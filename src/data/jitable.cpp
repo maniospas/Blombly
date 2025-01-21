@@ -1,8 +1,6 @@
 #include "data/Jitable.h"
 #include "data/Iterator.h"
 #include "data/BError.h"
-#include "data/Integer.h"
-#include "data/BFloat.h"
 #include "BMemory.h"
 #include "interpreter/Command.h"
 #include "interpreter/functional.h"

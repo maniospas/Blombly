@@ -5,26 +5,26 @@ BUILTIN ret I0
 %n=100000000 //playground/test.bb line 3
 BUILTIN n I100000000
 %range(n) //playground/test.bb line 4
-range _bb574 n
+range _bb571 n
 %iter(range(n)) //playground/test.bb line 4
-iter _bbmacro8 _bb574
+iter _bbmacro8 _bb571
 %while(ias next(_bbmacro8))ret+=i //playground/test.bb line 4
-BEGIN _bb576
+BEGIN _bb573
 %next(_bbmacro8) //playground/test.bb line 4
-next _bb577 _bbmacro8
-AS i _bb577
-exists _bb578 i
+next _bb574 _bbmacro8
+AS i _bb574
+exists _bb575 i
 END
-BEGIN _bb579
+BEGIN _bb576
 %ret+=i //playground/test.bb line 4
 add ret ret i
 END
 %while(ias next(_bbmacro8))ret+=i //playground/test.bb line 4
-while # _bb576 _bb579
+while # _bb573 _bb576
 %time() //playground/test.bb line 5
-time _bb581
-sub _bb580 _bb581 tic
+time _bb578
+sub _bb577 _bb578 tic
 %print(time()-tic) //playground/test.bb line 5
-print # _bb580
+print # _bb577
 %print(ret) //playground/test.bb line 6
 print # ret

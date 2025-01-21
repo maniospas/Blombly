@@ -7,7 +7,6 @@
 #include "data/Data.h"
 #include "data/List.h"
 #include "data/BString.h"
-#include "data/BFloat.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>

@@ -1,7 +1,5 @@
 #include "data/BHashMap.h"
-#include "data/Integer.h"
 #include "data/BString.h"
-#include "data/BFloat.h"
 #include "data/List.h"
 #include "data/Iterator.h"
 #include "data/BError.h"
@@ -115,7 +113,7 @@ Result BHashMap::implement(const OperationType operation, BuiltinArgs* args, BMe
                 std::lock_guard<std::recursive_mutex> lock(memoryLock);
                 int64_t count = 0;
                 for (const auto& bucket : contents) count += bucket.second.size();
-                return Result(new Integer(count));
+                return Result(count);
             }
             case TOITER: {
                 std::lock_guard<std::recursive_mutex> lock(memoryLock);

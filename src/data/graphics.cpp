@@ -1,6 +1,5 @@
 #include "data/Graphics.h"
 #include "data/BError.h"
-#include "data/Integer.h"
 #include "data/Struct.h"
 #include <stdexcept>
 #include <iostream>
@@ -208,8 +207,8 @@ Result Graphics::pop(BMemory* memory) {
             memory->set(variableManager.thisId, signalStruct);
             signalStruct->getMemory()->set(typeVariable, event.type == SDL_MOUSEBUTTONDOWN ? mouseDownString : mouseUpString);
             signalStruct->getMemory()->set(keyVariable, new BString(button));
-            signalStruct->getMemory()->set(xVariable, new BFloat(static_cast<float>(x)));
-            signalStruct->getMemory()->set(yVariable, new BFloat(static_cast<float>(y)));
+            signalStruct->getMemory()->set(xVariable, static_cast<double>(x));
+            signalStruct->getMemory()->set(yVariable, static_cast<double>(y));
             signalStruct->addOwner();
             signals->contents.push_back(signalStruct);
         } else if (event.type == SDL_MOUSEMOTION) {
@@ -220,8 +219,8 @@ Result Graphics::pop(BMemory* memory) {
             Struct* signalStruct = new Struct(memory);
             memory->set(variableManager.thisId, signalStruct);
             signalStruct->getMemory()->set(typeVariable, mouseMoveString);
-            signalStruct->getMemory()->set(xVariable, new BFloat(static_cast<float>(x)));
-            signalStruct->getMemory()->set(yVariable, new BFloat(static_cast<float>(y)));
+            signalStruct->getMemory()->set(xVariable, static_cast<double>(x));
+            signalStruct->getMemory()->set(yVariable, static_cast<double>(y));
 
             // Add the struct to signals
             signalStruct->addOwner();

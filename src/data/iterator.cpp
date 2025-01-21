@@ -1,7 +1,5 @@
 #include "data/Iterator.h"
-#include "data/Integer.h"
 #include "data/Data.h"
-#include "data/BFloat.h"
 #include "data/BError.h"
 #include "common.h"
 #include <iostream>

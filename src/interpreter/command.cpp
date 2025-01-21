@@ -3,8 +3,6 @@
 #include <memory>
 
 #include "interpreter/Command.h"
-#include "data/Integer.h"
-#include "data/BFloat.h"
 #include "data/BString.h"
 #include "BMemory.h"
 #include "common.h"

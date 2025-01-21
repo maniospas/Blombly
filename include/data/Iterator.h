@@ -5,8 +5,6 @@
 #include <vector>
 #include <mutex>
 #include "data/Data.h"
-#include "data/Integer.h"
-#include "data/BFloat.h"
 
 
 class Iterator : public Data {
