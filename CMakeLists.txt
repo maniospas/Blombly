@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 
 # Force usage of GCC and G++
-if(WIN32 AND NOT MSVC)
+if(WIN32)
     set(CMAKE_C_COMPILER "gcc" CACHE STRING "GCC compiler" FORCE)
     set(CMAKE_CXX_COMPILER "g++" CACHE STRING "G++ compiler" FORCE)
 endif()
@@ -113,7 +113,7 @@ if(UNIX AND NOT WIN32) # For Linux and macOS
         message(FATAL_ERROR "SDL2_ttf library not found. Make sure it is installed on the system.")
     endif()
 
-elseif(WIN32 AND NOT MSVC) # For Windows using GCC
+elseif(WIN32) # For Windows using GCC
     # Find and link SDL2
     find_package(SDL2 CONFIG REQUIRED)
     if(TARGET SDL2::SDL2main AND TARGET SDL2::SDL2)

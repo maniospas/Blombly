@@ -20,7 +20,7 @@ jobs:
               .\vcpkg\bootstrap-vcpkg.bat
               .\vcpkg\vcpkg.exe install sdl2 sdl2-image sdl2-ttf
             cmake-command: |
-              cmake -B ./build
+              cmake -G "MinGW Makefiles" -B ./build
               cmake --build ./build --config Release
             package-command: |
               mkdir release
