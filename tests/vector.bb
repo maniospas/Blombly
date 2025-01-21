@@ -1,0 +1,25 @@
+A = vector(0,1);
+B = vector(2,3);
+
+assert min(B) == 2;
+assert max(B) == 3;
+assert sum(A) == 1;
+assert (A+B)[0] == 2;
+assert (A+B)[1] == 4;
+assert (A*B)[0] == 0;
+assert (A*B)[1] == 3;
+assert (A/B)[0] == 0;
+assert (A/B)[1] == 1/3;
+assert (A^B)[0] == 0;
+assert (A^B)[1] == 1;
+assert (A<B)[0] == 1;
+assert (A<B)[1] == 1;
+assert (A>B)[0] == 0;
+assert (A>B)[1] == 0;
+assert (A<=B)[0] == 1;
+assert (A<=B)[1] == 1;
+assert (A>=B)[0] == 0;
+assert (A>=B)[1] == 0;
+assert (A+3<=B)[0] == 0;
+assert (A+3>=B)[0] == 1;
+assert (A*3==B)[1] == 1;

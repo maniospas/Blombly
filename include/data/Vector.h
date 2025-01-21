@@ -6,37 +6,40 @@
 #include <mutex>
 #include "data/Data.h"
 
-
 class Vector : public Data {
 private:
-    int* atdims;      // Accessed dimensions for sub-vectors
-    int natdims;      // Number of accessed dimensions
-    int* dims;        // Shape of the vector
-    int ndims;        // Number of dimensions
-    uint64_t size;         // Size of the vector
-    mutable std::recursive_mutex memoryLock;   // Mutex for thread safety
-    int lockable;     // Counts shared instances-1
+    double* data;
+    uint64_t size;
+    mutable std::recursive_mutex memoryLock;
 
 public:
-    double* data;  // Raw data
-    
     explicit Vector(uint64_t size);
-    Vector(uint64_t size, bool setToZero);
-    Vector(uint64_t size1, uint64_t size2);
-    Vector(uint64_t size1, uint64_t size2, bool setToZero);
-    Vector(double* data, const Vector* prototype);
-    Vector(double* data, const Vector* prototype, uint64_t new_dim_access);
-    Vector(double* data, uint64_t size1, uint64_t size2);
+    explicit Vector(uint64_t size, bool setToZero);
     ~Vector();
 
     std::string toString(BMemory* memory)override;
-    double* getValue() const;
-    virtual Result implement(const OperationType operation, BuiltinArgs* args, BMemory* memory) override;
 
-    void lock() const;
-    void unlock() const;
+    Result at(BMemory* memory, const DataPtr& other) override;
+    Result put(BMemory* memory, const DataPtr& position, const DataPtr& value) override;
+    int64_t len(BMemory* memory) override;
+    Result iter(BMemory* memory) override;
+    Result add(BMemory* memory, const DataPtr& other) override;
+    Result sub(BMemory* memory, const DataPtr& other) override;
+    Result mul(BMemory* memory, const DataPtr& other) override;
+    Result div(BMemory* memory, const DataPtr& other) override;
+    Result pow(BMemory* memory, const DataPtr& other) override;
+    //Result mmul(BMemory* memory, const DataPtr& other) override;
+    Result lt(BMemory* memory, const DataPtr& other) override;
+    Result le(BMemory* memory, const DataPtr& other) override;
+    Result gt(BMemory* memory, const DataPtr& other) override;
+    Result ge(BMemory* memory, const DataPtr& other) override;
+    Result eq(BMemory* memory, const DataPtr& other) override;
+    Result neq(BMemory* memory, const DataPtr& other) override;
+    Result min(BMemory* memory) override;
+    Result max(BMemory* memory) override;
+    Result logarithm(BMemory* memory) override;
+    Result sum(BMemory* memory) override;
 
-    friend class BFloat;
     friend class BList;
 };
 

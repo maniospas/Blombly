@@ -821,7 +821,7 @@ Result ExecutionInstance::run(Code* code) {
             called = (val);
         }
         auto code = static_cast<Code*>(called.get());
-        if(true || forceStayInThread || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
+        if(forceStayInThread || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
             BMemory newMemory(&memory, LOCAL_EXPECTATION_FROM_CODE(code));
             if(context.exists()) {
                 bbassert(context.existsAndTypeEquals(CODE), "Call context must be a code block.");
