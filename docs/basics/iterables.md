@@ -223,8 +223,9 @@ print(z);
 ## Maps
 
 Maps contain match struct or non-error primitive keys to values. 
-For keys, numbers and strings keys are considered
-the same based on their value, whereas other data match only themselves.
+Set their elements or provide an iterable of `(key, value)` pairs,
+that is, a list of two elements. For keys, numbers and strings are considered
+the same based on their value, whereas other data match only specific objects.
 Maps implement member access and set operators. But they are also iterables
 that yield `key, value` pairs as lists of two entries. Pop from the front or back of the pair 
 with the `|` notation to extract keys and values with concise syntax that retains
@@ -233,10 +234,11 @@ clear semantics. Finally, concatenate maps by adding them.
 
 ```java
 // main.bb
-A = map();
-A["A"] = 1;
-A["B"] = 2;
-A["C"] = 3;
+A = map(
+    ("A", 1), 
+    ("B", 2), 
+    ("C", 3));
+A["D"] = 4;
 
 print("---- Pairs");
 while(pair in A) print(pair);
@@ -250,10 +252,12 @@ while(pair in A) print(pair|next);
 [B, 2] 
 [C, 3] 
 [A, 1] 
+[D, 4] 
 ---- Keys
 B
 C
 A
+D
 </pre>
 
 !!! tip

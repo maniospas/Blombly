@@ -12,7 +12,7 @@ test("Closure")    {!include "tests/closure"}
 test("Clear")      {!include "tests/clear"}
 test("Move ")      {!include "tests/move"}
 test("Collection") {!include "tests/collection"}
-//test("Stringutil") {!include "tests/string"}
+test("Stringutil") {!include "tests/string"}
 test("Atomicity")  {!include "tests/atomicity"}
 test("No deadlock"){!include "tests/nodeadlock"}
 test("VFS")        {!include "tests/vfs"}

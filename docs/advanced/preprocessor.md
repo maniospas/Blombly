@@ -2,9 +2,9 @@
 
 Blombly's preprocessor can understand several directives that transform the source code before compilation into `.bbvm` files. 
 These directives are made distinct by prepending them with a `!` symbol.
-Four main types of preprocessing are available: dependencies that make a source code file include another's code, 
-expressions to be evaluated at compile time, and macros that enrich the language's grammar with higher-level expressions, 
-and other supporting code transformations.
+Five main types of preprocessing are available: dependencies that make a source code file include another's code, 
+expressions to be evaluated at compile time, permissions to read and write system resources, string interpolation,
+and macros that enrich the language's grammar with higher-level expressions.
 
 <br>
 
@@ -64,8 +64,70 @@ print # googlelen
     it can also exchange information through permmited resources, such as the virtual 
     file system.
 
+## Permissions
 
-## !macro
+Blombly's environment restricts itself with regards to which resources it can access.
+By default, it only access memory, thread creation, the console's input and output,
+and a virtual file system.
+Reads and writes to the actual file system, the internet, computer graphics, or the ability to
+execute external programs, must be expressly allowed with permissions stated in the
+main running file. By *main file* we refer to the one that is passed as an argument
+to Blombly to compile and run.
+
+<br>
+
+There are two kinds of permissions: accessing resources with `!access` and modifying
+resources with `!modify`. Modifications imply access too, though this may change 
+in the future. Both permission directives are followed by a string literal that determines 
+prefixes of resources. You can have multiple permission statements, which work cumulatively 
+throughout the same Blombly virtual machine.
+For safety, that literal cannot be determined by comptime. For more details about
+permission usage and the various types of resources, look at the [IO](../basics/io.md)
+page.
+
+<br>
+
+In more complicated projects, 
+permissions stated in files other than the main one only help by creating
+pre-emptive error messages during compilation. They should, again,
+be actually allowed from the main file.
+Comptime is also subjected to your main file's permissions.
+Finally, previously compiled *.bbvm* files contain NO permissions.
+In those cases, provide permissions by running more main files.
+Recall that you can provide code to run instead of files
+in the language's command line arguments. For example, below
+we compile a *main.bb* file and then run the compiled file while 
+granting it *https://* access permissions.
+
+```java
+// main.bb
+print("http://www.google.com/"|file|str|len);
+```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb  --norun
+> <span style="color: cyan;">./blombly</span> '!access "https://' main.bbvm
+55079
+</pre>
+
+
+!!! warning
+    If you compile/compile and run multiple main files with the same virtual machine, permissions 
+    and the virtual file system carry over. This is useful for declarative
+    build configurations, but you need to know about it to not arbitrarily
+    add stuff from others to your files.
+
+
+
+## String interpolation
+
+String interpolation is performed by enclosing a part of strings in `!{...}`.
+This splits the string on compile time to calling `str` on the enclosed epxression
+and performing string concatenation with the string segments to the left and right.
+
+## Macros
+
+**!macro**
 
 Macros are transformations for reducing boilerplate code. They are declared with statements of the form `!macro {@expression} as {@transformation}`
 Both the expression and transformation parts consist of fixed "keyword" tokens and named wildcard tokens. Wildcards are prepended with att (`@`). 
@@ -123,8 +185,6 @@ print(next(finder));
 11
 13
 </pre>
-
-## Supporting directives
 
 The following directives play a supporting role to other language features.
 
