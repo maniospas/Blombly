@@ -74,7 +74,7 @@ Result Database::push(BMemory* memory, const DataPtr& other) {
     auto callback = [](void* data, int argc, char** argv, char** colName) -> int {
         BList* resultList = static_cast<BList*>(data);
         auto rowMap = new BHashMap();
-        for (int i = 0; i < argc; ++i) rowMap->put(new BString(colName[i]), new BString(argv[i] ? argv[i] : "NULL"));
+        for (int i = 0; i < argc; ++i) rowMap->fastUnsafePut(new BString(colName[i]), new BString(argv[i] ? argv[i] : "NULL"));
         rowMap->addOwner();
         resultList->contents.push_back(rowMap);
         return 0;

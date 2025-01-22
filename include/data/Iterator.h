@@ -10,7 +10,7 @@
 class Iterator : public Data {
 public:
     explicit Iterator();
-    virtual ~Iterator() {}
+    virtual ~Iterator() = default;
     std::string toString(BMemory* memory) override;
     virtual int64_t expectedSize() const {return 0;} // this is not a guarantee at all
     virtual bool isContiguous() const {return false;}

@@ -5,6 +5,7 @@ test("String add") {!include "tests/concat"}
 test("List")       {!include "tests/list"}
 test("Range")      {!include "tests/range"}
 test("Iteration")  {!include "tests/iter"}
+test("Map")        {!include "tests/map"}
 test("Vector")     {!include "tests/vector"}
 test("Overload")   {!include "tests/overload"}
 test("Closure")    {!include "tests/closure"}

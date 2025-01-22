@@ -600,7 +600,7 @@ Result ExecutionInstance::run(Code* code) {
         if(n==1) DISPATCH_RESULT(new BHashMap());
         const auto& arg0 = memory.get(command.args[1]);
         if(arg0.existsAndTypeEquals(MAP)) DISPATCH_RESULT(arg0);
-        bbassert(arg0.existsAndTypeEquals(MAP), "Not implemented: map("+arg0.torepr()+")");
+        bbassert(arg0.existsAndTypeEquals(LIST), "Not implemented: map("+arg0.torepr()+")");
         DISPATCH_RESULT(static_cast<BList*>(arg0.get())->toMap());
     }
     DO_TIME: {

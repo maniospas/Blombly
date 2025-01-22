@@ -65,7 +65,7 @@ BHashMap* BList::toMap() const {
         bbassert(content.existsAndTypeEquals(LIST), "Can only create a map from a list of key,value pairs (list of two-element lists)");
         BList* list = static_cast<BList*>(contents[i].get());
         if (list->contents.size() != 2) bberror("Can only create a map from a list of key,value pairs (list of two-element lists)");
-        map->put(list->contents[0], list->contents[1]);
+        map->fastUnsafePut(list->contents[0], list->contents[1]);
     }
     return map;
 }

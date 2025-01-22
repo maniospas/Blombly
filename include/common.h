@@ -91,6 +91,7 @@ constexpr DATTYPETYPE IS_NOT_FUTURE = static_cast<DATTYPETYPE>(~IS_FUTURE & ~IS_
 constexpr DATTYPETYPE IS_LIT = static_cast<DATTYPETYPE>(IS_FLOAT | IS_INT | IS_BOOL);
 constexpr DATTYPETYPE IS_NOT_PROPERTY_A = static_cast<DATTYPETYPE>(~IS_PROPERTY_A);
 constexpr DATTYPETYPE IS_NOT_PROPERTY_B = static_cast<DATTYPETYPE>(~IS_PROPERTY_B);
+constexpr DATTYPETYPE REMOVE_PROPERTIES = static_cast<DATTYPETYPE>(~(IS_PROPERTY_A | IS_PROPERTY_B));
 
 
 //#define SAFETYCHECKS
@@ -198,6 +199,7 @@ public:
     inline bool existsAndTypeEquals(Datatype type) const;
     inline void existsAddOwner() const;
     inline void existsRemoveFromOwner() const;
+    inline bool isSame(const DataPtr& other) const;
     inline std::string torepr() const;
 
     inline bool islitorexists() const {
