@@ -183,7 +183,7 @@ std::string optimizeFromCode(const std::string& code, bool minimify) {
     }
 
 
-    return std::move(result);
+    return RESMOVE(result);
 }
 
 

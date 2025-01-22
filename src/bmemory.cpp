@@ -74,8 +74,8 @@ int BMemory::find(int item) const {
     int tentativeidx = item-first_item;
     // prioritize the more likely comparison given that finds are mostly called after setting the first_item
     //if(tentativeidx<max_cache_size && tentativeidx>=0) return tentativeidx;  
-    // if we have a cache size up to MAX_INT/2, the following works just find thanks to overload making all negative values very large
-    if(std::bit_cast<unsigned int>(tentativeidx)<max_cache_size) return tentativeidx;
+    // if we have a cache size up to MAX_INT/2, the following works just fine thanks to overload making all negative values very large
+    if(std::bit_cast<unsigned int>(tentativeidx)<max_cache_size) [[likely]] return tentativeidx;
     const auto& idx = data.find(item);
     if(idx==data.end()) return end;
     return idx->second;
@@ -88,7 +88,7 @@ const DataPtr& BMemory::get(int item) { // allowMutable = true
         bberror("Missing value: " + variableManager.getSymbol(item));
     }
     const auto& ret = contents[idx];
-    if(ret.existsAndTypeEquals(FUTURE)) {
+    if(ret.existsAndTypeEquals(FUTURE)) [[unlikely]] {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get()); 
@@ -96,7 +96,7 @@ const DataPtr& BMemory::get(int item) { // allowMutable = true
         prevRet->removeFromOwner();
         return get(item);
     }
-    if(!ret.islitorexists()) {
+    if(!ret.islitorexists()) [[unlikely]] {
         bbassert(parent, "Missing value: " + variableManager.getSymbol(item));
         return parent->get(item, allowMutables);
     }
@@ -110,7 +110,7 @@ const DataPtr& BMemory::get(int item, bool allowMutable) {
         bberror("Missing value: " + variableManager.getSymbol(item));
     }
     const auto& ret = contents[idx];
-    if(ret.existsAndTypeEquals(FUTURE)) {
+    if(ret.existsAndTypeEquals(FUTURE)) [[unlikely]] {
         Future* prevRet = static_cast<Future*>(ret.get());
         Result resVal = prevRet->getResult();
         unsafeSet(item, resVal.get());
@@ -119,7 +119,7 @@ const DataPtr& BMemory::get(int item, bool allowMutable) {
         bbassert(ret.islitorexists(), "Missing value: " + variableManager.getSymbol(item));
         return get(item, allowMutable);
     }
-    if(ret.islitorexists()) {bbassert(allowMutable || ret.isA(), "Non-final symbol found but cannot be accessed from another scope: " + variableManager.getSymbol(item));}
+    if(ret.islitorexists()) [[likely]] {bbassert(allowMutable || ret.isA(), "Non-final symbol found but cannot be accessed from another scope: " + variableManager.getSymbol(item));}
     else if(parent) return parent->get(item, allowMutables && allowMutable);
     else bberror("Missing value: " + variableManager.getSymbol(item));
     return ret;
@@ -129,7 +129,7 @@ const DataPtr& BMemory::getShallow(int item) {
     int idx = find(item);
     if(idx==end) bberror("Missing value: " + variableManager.getSymbol(item));
     const auto& ret = contents[idx];
-    if(ret.existsAndTypeEquals(FUTURE)) {
+    if(ret.existsAndTypeEquals(FUTURE)) [[unlikely]] {
         //std::cout << "here4\n";
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
@@ -145,7 +145,7 @@ const DataPtr& BMemory::getOrNullShallow(int item) {
     int idx = find(item);
     if(idx==end) return DataPtr::NULLP;
     const auto& ret = contents[idx];
-    if (ret.existsAndTypeEquals(FUTURE)) {
+    if (ret.existsAndTypeEquals(FUTURE)) [[unlikely]] {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get());
@@ -163,7 +163,7 @@ const DataPtr& BMemory::getOrNull(int item, bool allowMutable) {
         return DataPtr::NULLP;
     }
     const auto& ret = contents[idx];
-    if (ret.existsAndTypeEquals(FUTURE)) {
+    if (ret.existsAndTypeEquals(FUTURE)) [[unlikely]] {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get());
@@ -171,7 +171,7 @@ const DataPtr& BMemory::getOrNull(int item, bool allowMutable) {
         prevRet->removeFromOwner();
         return contents[idx];
     }
-    if (ret.islitorexists()) {bbassert(allowMutable || ret.isA(), "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));}
+    if (ret.islitorexists()) [[likely]] {bbassert(allowMutable || ret.isA(), "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));}
     else if (parent) return parent->getOrNull(item, allowMutables && allowMutable);
     return ret;
 }
@@ -309,6 +309,7 @@ void BMemory::directTransfer(int to, int from) {
     DataPtr& prev = contents[toidx];
     if(prev.isA()) bberror("Cannot overwrite final value: " + variableManager.getSymbol(to));
     //if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
+
     value.existsAddOwner();
     prev.existsRemoveFromOwner();
 

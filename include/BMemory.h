@@ -54,7 +54,7 @@ private:
     inline int find(int item) const;
     static const int end = -1;
     int first_item;
-    int max_cache_size;
+    unsigned int max_cache_size;
     bool hasAtLeastOneFinal;
 public:
     inline BMemory* getParentWithFinals() {

@@ -874,5 +874,5 @@ Result ExecutionInstance::run(Code* code) {
     }//end loop
     }//end try 
     catch (const BBError& e) {handleExecutionError(program[i], e);}
-    return std::move(Result(result));
+    return RESMOVE(Result(result));
 }

@@ -30,7 +30,7 @@ Result Vector::at(BMemory* memory, const DataPtr& other) {
     if (other.isint()) {
         int64_t index = other.unsafe_toint();
         if (index < 0 || index >= size) return Result(OUT_OF_RANGE);
-        return std::move(Result(data[index]));
+        return RESMOVE(Result(data[index]));
     }
 
     if (other.existsAndTypeEquals(LIST) || other.existsAndTypeEquals(ITERATOR)) {
@@ -89,7 +89,7 @@ Result Vector::add(BMemory* memory, const DataPtr& other) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
         for (int i = 0; i < size; ++i) result->data[i] = data[i] + val;
-        return std::move(Result(result));
+        return RESMOVE(Result(result));
     }
     bbassert(other.existsAndTypeEquals(VECTOR), "No builtin implementation for add(vector, "+other.torepr()+")");
     Vector* vec = static_cast<Vector*>(other.get());
@@ -97,7 +97,7 @@ Result Vector::add(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
     for (int i = 0; i < size; ++i) result->data[i] = data[i] + vec->data[i];
-    return std::move(Result(result));
+    return RESMOVE(Result(result));
 }
 
 Result Vector::sub(BMemory* memory, const DataPtr& other) {
@@ -106,7 +106,7 @@ Result Vector::sub(BMemory* memory, const DataPtr& other) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
         for (int i = 0; i < size; ++i) result->data[i] = data[i] - val;
-        return std::move(Result(result));
+        return RESMOVE(Result(result));
     }
     bbassert(other.existsAndTypeEquals(VECTOR), "No builtin implementation for sub(vector, "+other.torepr()+")");
     Vector* vec = static_cast<Vector*>(other.get());
@@ -114,7 +114,7 @@ Result Vector::sub(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
     for (int i = 0; i < size; ++i) result->data[i] = data[i] - vec->data[i];
-    return std::move(Result(result));
+    return RESMOVE(Result(result));
 }
 
 Result Vector::mul(BMemory* memory, const DataPtr& other) {
@@ -123,7 +123,7 @@ Result Vector::mul(BMemory* memory, const DataPtr& other) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
         for (int i = 0; i < size; ++i) result->data[i] = data[i] * val;
-        return std::move(Result(result));
+        return RESMOVE(Result(result));
     }
     bbassert(other.existsAndTypeEquals(VECTOR), "No builtin implementation for mul(vector, "+other.torepr()+")");
     Vector* vec = static_cast<Vector*>(other.get());
@@ -131,7 +131,7 @@ Result Vector::mul(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
     for (int i = 0; i < size; ++i) result->data[i] = data[i] * vec->data[i];
-    return std::move(Result(result));
+    return RESMOVE(Result(result));
 }
 
 Result Vector::div(BMemory* memory, const DataPtr& other) {
@@ -140,7 +140,7 @@ Result Vector::div(BMemory* memory, const DataPtr& other) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
         for (int i = 0; i < size; ++i) result->data[i] = data[i] / val;
-        return std::move(Result(result));
+        return RESMOVE(Result(result));
     }
     bbassert(other.existsAndTypeEquals(VECTOR), "No builtin implementation for div(vector, "+other.torepr()+")");
     Vector* vec = static_cast<Vector*>(other.get());
@@ -148,7 +148,7 @@ Result Vector::div(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
     for (int i = 0; i < size; ++i) result->data[i] = data[i] / vec->data[i];
-    return std::move(Result(result));
+    return RESMOVE(Result(result));
 }
 
 Result Vector::pow(BMemory* memory, const DataPtr& other) {
@@ -157,7 +157,7 @@ Result Vector::pow(BMemory* memory, const DataPtr& other) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
         for (int i = 0; i < size; ++i) result->data[i] = std::pow(data[i], val);
-        return std::move(Result(result));
+        return RESMOVE(Result(result));
     }
     bbassert(other.existsAndTypeEquals(VECTOR), "No builtin implementation for pow(vector, "+other.torepr()+")");
     Vector* vec = static_cast<Vector*>(other.get());
@@ -165,7 +165,7 @@ Result Vector::pow(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
     for (int i = 0; i < size; ++i) result->data[i] = std::pow(data[i], vec->data[i]);
-    return std::move(Result(result));
+    return RESMOVE(Result(result));
 }
 
 Result Vector::lt(BMemory* memory, const DataPtr& other) {
@@ -174,7 +174,7 @@ Result Vector::lt(BMemory* memory, const DataPtr& other) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
         for (int i = 0; i < size; ++i) result->data[i] = data[i] < val;
-        return std::move(Result(result));
+        return RESMOVE(Result(result));
     }
     bbassert(other.existsAndTypeEquals(VECTOR), "No builtin implementation for lt(vector, "+other.torepr()+")");
     Vector* vec = static_cast<Vector*>(other.get());
@@ -182,7 +182,7 @@ Result Vector::lt(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
     for (int i = 0; i < size; ++i) result->data[i] = data[i] < vec->data[i];
-    return std::move(Result(result));
+    return RESMOVE(Result(result));
 }
 
 Result Vector::gt(BMemory* memory, const DataPtr& other) {
@@ -191,7 +191,7 @@ Result Vector::gt(BMemory* memory, const DataPtr& other) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
         for (int i = 0; i < size; ++i) result->data[i] = data[i] > val;
-        return std::move(Result(result));
+        return RESMOVE(Result(result));
     }
     bbassert(other.existsAndTypeEquals(VECTOR), "No builtin implementation for gt(vector, "+other.torepr()+")");
     Vector* vec = static_cast<Vector*>(other.get());
@@ -199,7 +199,7 @@ Result Vector::gt(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
     for (int i = 0; i < size; ++i) result->data[i] = data[i] > vec->data[i];
-    return std::move(Result(result));
+    return RESMOVE(Result(result));
 }
 
 Result Vector::le(BMemory* memory, const DataPtr& other) {
@@ -208,7 +208,7 @@ Result Vector::le(BMemory* memory, const DataPtr& other) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
         for (int i = 0; i < size; ++i) result->data[i] = data[i] <= val;
-        return std::move(Result(result));
+        return RESMOVE(Result(result));
     }
     bbassert(other.existsAndTypeEquals(VECTOR), "No builtin implementation for le(vector, "+other.torepr()+")");
     Vector* vec = static_cast<Vector*>(other.get());
@@ -216,7 +216,7 @@ Result Vector::le(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
     for (int i = 0; i < size; ++i) result->data[i] = data[i] <= vec->data[i];
-    return std::move(Result(result));
+    return RESMOVE(Result(result));
 }
 
 Result Vector::ge(BMemory* memory, const DataPtr& other) {
@@ -225,7 +225,7 @@ Result Vector::ge(BMemory* memory, const DataPtr& other) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
         for (int i = 0; i < size; ++i) result->data[i] = data[i] >= val;
-        return std::move(Result(result));
+        return RESMOVE(Result(result));
     }
     bbassert(other.existsAndTypeEquals(VECTOR), "No builtin implementation for ge(vector, "+other.torepr()+")");
     Vector* vec = static_cast<Vector*>(other.get());
@@ -233,7 +233,7 @@ Result Vector::ge(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
     for (int i = 0; i < size; ++i) result->data[i] = data[i] >= vec->data[i];
-    return std::move(Result(result));
+    return RESMOVE(Result(result));
 }
 
 Result Vector::eq(BMemory* memory, const DataPtr& other) {
@@ -242,7 +242,7 @@ Result Vector::eq(BMemory* memory, const DataPtr& other) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
         for (int i = 0; i < size; ++i) result->data[i] = data[i] == val;
-        return std::move(Result(result));
+        return RESMOVE(Result(result));
     }
     bbassert(other.existsAndTypeEquals(VECTOR), "No builtin implementation for eq(vector, "+other.torepr()+")");
     Vector* vec = static_cast<Vector*>(other.get());
@@ -250,7 +250,7 @@ Result Vector::eq(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
     for (int i = 0; i < size; ++i) result->data[i] = data[i] == vec->data[i];
-    return std::move(Result(result));
+    return RESMOVE(Result(result));
 }
 
 Result Vector::neq(BMemory* memory, const DataPtr& other) {
@@ -259,7 +259,7 @@ Result Vector::neq(BMemory* memory, const DataPtr& other) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
         for (int i = 0; i < size; ++i) result->data[i] = data[i] != val;
-        return std::move(Result(result));
+        return RESMOVE(Result(result));
     }
     bbassert(other.existsAndTypeEquals(VECTOR), "No builtin implementation for neq(vector, "+other.torepr()+")");
     Vector* vec = static_cast<Vector*>(other.get());
@@ -267,7 +267,7 @@ Result Vector::neq(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
     for (int i = 0; i < size; ++i) result->data[i] = data[i] != vec->data[i];
-    return std::move(Result(result));
+    return RESMOVE(Result(result));
 }
 
 Result Vector::sum(BMemory* memory) {

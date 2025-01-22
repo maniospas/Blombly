@@ -64,16 +64,16 @@ bool BString::isSame(const DataPtr& other) {
     return false;
 }
 
-Result BString::eq(BMemory *memory, const DataPtr& other) {return std::move(Result(isSame(other)));}
-Result BString::neq(BMemory *memory, const DataPtr& other) {return std::move(Result(!isSame(other)));}
+Result BString::eq(BMemory *memory, const DataPtr& other) {return RESMOVE(Result(isSame(other)));}
+Result BString::neq(BMemory *memory, const DataPtr& other) {return RESMOVE(Result(!isSame(other)));}
 
 Result BString::at(BMemory *memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     if(other.isint()) {
         int64_t index = other.unsafe_toint();
         if (index>=buffer.front()->value.size()) consolidate();
-        if (index < 0 || index >= toString(memory).size()) return std::move(Result(OUT_OF_RANGE));
-        return std::move(Result(new BString(std::string(1, toString(memory)[index]))));
+        if (index < 0 || index >= toString(memory).size()) return RESMOVE(Result(OUT_OF_RANGE));
+        return RESMOVE(Result(new BString(std::string(1, toString(memory)[index]))));
     }
     if(other.existsAndTypeEquals(STRING)) {
         std::string v1 = toString(nullptr);
@@ -85,22 +85,22 @@ Result BString::at(BMemory *memory, const DataPtr& other) {
                     v2 == "ripemd160" || v2 == "whirlpool" || v2 == "sm3", 
                     "Only md5, sha1, sha224, sha256, sha384, sha512, sha3_224, sha3_256, sha3_384, sha3_512, blake2b, blake2s, ripemd160, whirlpool, or sm3 formatting is allowed for strings");
             
-        if (v2 == "sha1") return std::move(Result(new BString(calculateHash(v1, EVP_sha1))));
-        if (v2 == "sha224") return std::move(Result(new BString(calculateHash(v1, EVP_sha224))));
-        if (v2 == "sha256") return std::move(Result(new BString(calculateHash(v1, EVP_sha256))));
-        if (v2 == "sha384") return std::move(Result(new BString(calculateHash(v1, EVP_sha384))));
-        if (v2 == "sha512") return std::move(Result(new BString(calculateHash(v1, EVP_sha512))));
-        if (v2 == "sha3_224") return std::move(Result(new BString(calculateHash(v1, EVP_sha3_224))));
-        if (v2 == "sha3_256") return std::move(Result(new BString(calculateHash(v1, EVP_sha3_256))));
-        if (v2 == "sha3_384") return std::move(Result(new BString(calculateHash(v1, EVP_sha3_384))));
-        if (v2 == "sha3_512") return std::move(Result(new BString(calculateHash(v1, EVP_sha3_512))));
-        if (v2 == "blake2b") return std::move(Result(new BString(calculateHash(v1, EVP_blake2b512))));
-        if (v2 == "blake2s") return std::move(Result(new BString(calculateHash(v1, EVP_blake2s256))));
-        if (v2 == "ripemd160") return std::move(Result(new BString(calculateHash(v1, EVP_ripemd160))));
-        if (v2 == "whirlpool") return std::move(Result(new BString(calculateHash(v1, EVP_whirlpool))));
-        if (v2 == "sm3") return std::move(Result(new BString(calculateHash(v1, EVP_sm3))));
+        if (v2 == "sha1") return RESMOVE(Result(new BString(calculateHash(v1, EVP_sha1))));
+        if (v2 == "sha224") return RESMOVE(Result(new BString(calculateHash(v1, EVP_sha224))));
+        if (v2 == "sha256") return RESMOVE(Result(new BString(calculateHash(v1, EVP_sha256))));
+        if (v2 == "sha384") return RESMOVE(Result(new BString(calculateHash(v1, EVP_sha384))));
+        if (v2 == "sha512") return RESMOVE(Result(new BString(calculateHash(v1, EVP_sha512))));
+        if (v2 == "sha3_224") return RESMOVE(Result(new BString(calculateHash(v1, EVP_sha3_224))));
+        if (v2 == "sha3_256") return RESMOVE(Result(new BString(calculateHash(v1, EVP_sha3_256))));
+        if (v2 == "sha3_384") return RESMOVE(Result(new BString(calculateHash(v1, EVP_sha3_384))));
+        if (v2 == "sha3_512") return RESMOVE(Result(new BString(calculateHash(v1, EVP_sha3_512))));
+        if (v2 == "blake2b") return RESMOVE(Result(new BString(calculateHash(v1, EVP_blake2b512))));
+        if (v2 == "blake2s") return RESMOVE(Result(new BString(calculateHash(v1, EVP_blake2s256))));
+        if (v2 == "ripemd160") return RESMOVE(Result(new BString(calculateHash(v1, EVP_ripemd160))));
+        if (v2 == "whirlpool") return RESMOVE(Result(new BString(calculateHash(v1, EVP_whirlpool))));
+        if (v2 == "sm3") return RESMOVE(Result(new BString(calculateHash(v1, EVP_sm3))));
         
-        return std::move(Result(new BString(calculateHash(v1, EVP_md5))));
+        return RESMOVE(Result(new BString(calculateHash(v1, EVP_md5))));
     }
 
     if(other.exists()) {
@@ -113,9 +113,9 @@ Result BString::at(BMemory *memory, const DataPtr& other) {
         if (iterator->isContiguous()) {
             int64_t start = iterator->getStart();
             int64_t end = iterator->getEnd();
-            if (start < 0 || start >= toString(memory).size() || end < 0 || end > toString(memory).size() || start > end) return std::move(Result(OUT_OF_RANGE));
+            if (start < 0 || start >= toString(memory).size() || end < 0 || end > toString(memory).size() || start > end) return RESMOVE(Result(OUT_OF_RANGE));
             std::string result = toString(memory).substr(start, end - start);
-            return std::move(Result(new BString(std::move(result))));
+            return RESMOVE(Result(new BString(std::move(result))));
         } else {
             // Handle non-contiguous iterators
             std::string result;
@@ -127,10 +127,10 @@ Result BString::at(BMemory *memory, const DataPtr& other) {
                 if (indexData == OUT_OF_RANGE) break; 
                 bbassert(indexData.isint(), "String index iterator must contain integers: "+other->toString(memory));
                 int64_t index = indexData.unsafe_toint();
-                if (index < 0 || index >= size) return std::move(Result(OUT_OF_RANGE));
+                if (index < 0 || index >= size) return RESMOVE(Result(OUT_OF_RANGE));
                 result += front->value[index];
             }
-            return std::move(Result(new BString(result)));
+            return RESMOVE(Result(new BString(result)));
         }
     }
 
@@ -166,9 +166,9 @@ bool BString::toBool(BMemory *memory) {
     bberror("Failed to convert string to bool");
 }
 
-Result BString::iter(BMemory *memory) {return std::move(Result(new AccessIterator(this, size)));}
+Result BString::iter(BMemory *memory) {return RESMOVE(Result(new AccessIterator(this, size)));}
 Result BString::add(BMemory *memory, const DataPtr& other) {
     bbassert(other.existsAndTypeEquals(STRING), "Strings can only be concatenated with other strings");
-    return std::move(Result(new BString(toString(nullptr)+static_cast<BString*>(other.get())->toString(nullptr))));
+    return RESMOVE(Result(new BString(toString(nullptr)+static_cast<BString*>(other.get())->toString(nullptr))));
 }
 int64_t BString::len(BMemory *memory) {return size;}

@@ -79,7 +79,7 @@ Result BList::add(BMemory* memory, const DataPtr& other_) {
     ret->contents.insert(ret->contents.end(), contents.begin(), contents.end());
     ret->contents.insert(ret->contents.end(), other->contents.begin(), other->contents.end());
     for(const DataPtr& dat : ret->contents) dat.existsAddOwner();
-    return std::move(Result(ret));
+    return RESMOVE(Result(ret));
 }
 
 Result BList::push(BMemory* memory, const DataPtr& other) {
@@ -88,12 +88,12 @@ Result BList::push(BMemory* memory, const DataPtr& other) {
     other.existsAddOwner();
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     contents.emplace_back(other);
-    return std::move(Result(this));
+    return RESMOVE(Result(this));
 }
 
 Result BList::pop(BMemory* memory) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
-    if (contents.empty()) return std::move(Result(OUT_OF_RANGE));
+    if (contents.empty()) return RESMOVE(Result(OUT_OF_RANGE));
     const auto& element = contents.back();
     auto ret = Result(element);
     contents.pop_back();
@@ -103,7 +103,7 @@ Result BList::pop(BMemory* memory) {
 
 Result BList::next(BMemory* memory) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
-    if (front >= contents.size()) return std::move(Result(OUT_OF_RANGE));
+    if (front >= contents.size()) return RESMOVE(Result(OUT_OF_RANGE));
     const auto& element = contents[front];
     auto ret = Result(element);
     front++;
@@ -115,12 +115,12 @@ Result BList::next(BMemory* memory) {
 Result BList::at(BMemory* memory, const DataPtr& other) {
     if (other.isint()) {
         int64_t index = other.unsafe_toint();
-        if (index < 0) return std::move(Result(OUT_OF_RANGE));
+        if (index < 0) return RESMOVE(Result(OUT_OF_RANGE));
         index += front;
-        if (index>=contents.size()) return std::move(Result(OUT_OF_RANGE));
+        if (index>=contents.size()) return RESMOVE(Result(OUT_OF_RANGE));
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         const DataPtr& res = contents[index];
-        return std::move(Result(res));
+        return RESMOVE(Result(res));
     } 
     if (other.existsAndTypeEquals(STRUCT) || other.existsAndTypeEquals(LIST) || other.existsAndTypeEquals(ITERATOR)) {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
@@ -131,19 +131,19 @@ Result BList::at(BMemory* memory, const DataPtr& other) {
         if (iterPtr->isContiguous()) {
             int64_t start = iterPtr->getStart();
             int64_t end = iterPtr->getEnd();
-            if (start < 0) return std::move(Result(OUT_OF_RANGE));
+            if (start < 0) return RESMOVE(Result(OUT_OF_RANGE));
             start += front;
-            if (start>=contents.size()) return std::move(Result(OUT_OF_RANGE));
-            if (end < 0) return std::move(Result(OUT_OF_RANGE));
+            if (start>=contents.size()) return RESMOVE(Result(OUT_OF_RANGE));
+            if (end < 0) return RESMOVE(Result(OUT_OF_RANGE));
             end += front;
-            if (end>=contents.size()) return std::move(Result(OUT_OF_RANGE));
+            if (end>=contents.size()) return RESMOVE(Result(OUT_OF_RANGE));
             BList* ret = new BList(end - start);
             for (int64_t i = start; i < end; ++i) {
                 DataPtr element = contents[i];
                 element.existsAddOwner();
                 ret->contents.emplace_back(element);
             }
-            return std::move(Result(ret));
+            return RESMOVE(Result(ret));
         } 
         BList* ret = new BList(contents.size());
         ret->contents.reserve(iterPtr->expectedSize());
@@ -153,14 +153,14 @@ Result BList::at(BMemory* memory, const DataPtr& other) {
             if (indexData==OUT_OF_RANGE) break;
             bbassert(indexData.isint(), "Iterable list indexes can only contain integers.");
             int64_t id = indexData.unsafe_toint();
-            if (id < 0) return std::move(Result(OUT_OF_RANGE));
+            if (id < 0) return RESMOVE(Result(OUT_OF_RANGE));
             id += front;
-            if (id>=contents.size()) return std::move(Result(OUT_OF_RANGE));
+            if (id>=contents.size()) return RESMOVE(Result(OUT_OF_RANGE));
             const auto& element = contents[id];
             element.existsAddOwner();
             ret->contents.emplace_back(element);
         }
-        return std::move(Result(ret));
+        return RESMOVE(Result(ret));
     }
     return Data::at(memory, other);
 }
@@ -168,17 +168,17 @@ Result BList::at(BMemory* memory, const DataPtr& other) {
 Result BList::put(BMemory* memory, const DataPtr& position, const DataPtr& value) {
     bbassert(position.isint(), "Can only set at integer list indices");
     int64_t index = position.unsafe_toint();
-    if (index < 0) return std::move(Result(OUT_OF_RANGE));
+    if (index < 0) return RESMOVE(Result(OUT_OF_RANGE));
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     index += front;
-    if (index>=contents.size()) return std::move(Result(OUT_OF_RANGE));
+    if (index>=contents.size()) return RESMOVE(Result(OUT_OF_RANGE));
     bbassert(value.islitorexists(), "Cannot set a missing value on a list");
     if(value.existsAndTypeEquals(ERRORTYPE)) bberror("Cannot set an error on a list");
     DataPtr prev = contents[index];
     contents[index] = value;
     value.existsAddOwner();
     prev.existsRemoveFromOwner();
-    return std::move(Result(nullptr));
+    return RESMOVE(Result(nullptr));
 }
 
 int64_t BList::len(BMemory* memory) {
@@ -188,7 +188,7 @@ int64_t BList::len(BMemory* memory) {
 
 Result BList::iter(BMemory* memory) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
-    return std::move(Result(new AccessIterator(this, contents.size()-front)));
+    return RESMOVE(Result(new AccessIterator(this, contents.size()-front)));
 }
 
 void BList::clear(BMemory* memory)  {
@@ -206,7 +206,7 @@ Result BList::move(BMemory* memory) {
     ret->contents = std::move(contents);
     contents.clear();
     front = 0;
-    return std::move(Result(ret));
+    return RESMOVE(Result(ret));
 }
 
 void BList::resizeContents() {

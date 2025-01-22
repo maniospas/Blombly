@@ -414,7 +414,7 @@ bool BFile::exists() const {
 Result BFile::iter(BMemory* memory) {
     loadContents();
     int64_t n = contents.size();
-    return std::move(Result(new AccessIterator(this, n)));
+    return RESMOVE(Result(new AccessIterator(this, n)));
 }
 
 void BFile::clear(BMemory* memory) {
@@ -484,7 +484,7 @@ Result BFile::push(BMemory* memory, const DataPtr& other) {
     while (std::getline(stream, line)) contents.push_back(line);
     size = contents.size();
     contentsLoaded = true;
-    return std::move(Result(this));
+    return RESMOVE(Result(this));
 }
 
 int64_t BFile::len(BMemory* memory) {
@@ -509,14 +509,14 @@ Result BFile::put(BMemory* memory, const DataPtr& position, const DataPtr& value
         timeout = value.unsafe_toint();
     }
     else bberror("Only \"username\", \"password\", or \"timeout\" parameters can be set.");
-    return std::move(Result(nullptr));
+    return RESMOVE(Result(nullptr));
 }
 
 Result BFile::at(BMemory* memory, const DataPtr& position) {
     bbassert(position.isint(), "Can only obtain file contents at integer indexes");
     loadContents();
     int64_t lineNum = position.unsafe_toint();
-    if (lineNum < 0 || lineNum >= contents.size()) return std::move(Result(OUT_OF_RANGE));
+    if (lineNum < 0 || lineNum >= contents.size()) return RESMOVE(Result(OUT_OF_RANGE));
     std::string lineContent = contents[lineNum];
     STRING_RESULT(lineContent);
 }
@@ -526,5 +526,5 @@ Result BFile::div(BMemory* memory, const DataPtr& other) {
     std::string subpath = other->toString(memory);
     fs::path basePath(path);
     fs::path combinedPath = basePath / subpath;
-    return std::move(Result(new BFile(combinedPath.string())));
+    return RESMOVE(Result(new BFile(combinedPath.string())));
 }

@@ -45,7 +45,7 @@ Result RestServer::put(BMemory* callerMemory,const DataPtr& route, const DataPtr
         routeHandlers_[actualRoute] = actualCode;
         actualCode->addOwner();
     }
-    return std::move(Result(nullptr));
+    return RESMOVE(Result(nullptr));
 }
 
 void RestServer::stop() {
@@ -74,7 +74,7 @@ Result RestServer::move(BMemory* callerMemory) {
     RestServer* ret = new RestServer(callerMemory, this);
     routeHandlers_ = std::unordered_map<std::string, Data*>();
     context_ = nullptr;
-    return std::move(Result(ret));
+    return RESMOVE(Result(ret));
 }
 
 

@@ -98,7 +98,7 @@ Result Struct::move(BMemory* scopeMemory) {
     memory->unsafeSet(variableManager.thisId, this);
     DataPtr ret = new Struct(mem);
     mem->unsafeSet(variableManager.thisId, ret);
-    return std::move(Result(ret));
+    return RESMOVE(Result(ret));
 }
 
 Result Struct::iter(BMemory* scopeMemory) { return simpleImplement(variableManager.getId("iter"), scopeMemory); }

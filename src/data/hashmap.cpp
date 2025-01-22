@@ -36,7 +36,7 @@ Result MapIterator::next(BMemory* memory) {
     kvPair.second.existsAddOwner();
     return Result(item);
 }
-Result MapIterator::iter(BMemory* memory) {return std::move(Result(this));}
+Result MapIterator::iter(BMemory* memory) {return RESMOVE(Result(this));}
 
 
 BHashMap::BHashMap() : Data(MAP) {}
@@ -95,14 +95,14 @@ Result BHashMap::put(BMemory* memory, const DataPtr& from, const DataPtr& to) {
         kvPair.second = to;            
         to.existsAddOwner();
         prevValue.existsRemoveFromOwner();
-        return std::move(Result(nullptr));
+        return RESMOVE(Result(nullptr));
     }
 
     // If not found, we add a new key-value pair
     entryList.emplace_back(from, to);
     to.existsAddOwner();
     from.existsAddOwner();
-    return std::move(Result(nullptr));
+    return RESMOVE(Result(nullptr));
 }
 
 
@@ -115,7 +115,7 @@ Result BHashMap::at(BMemory* memory, const DataPtr& keyData) {
         if (it != contents.end()) for (const auto& kvPair : it->second) if (kvPair.first->isSame(keyData)) 
             return Result(kvPair.second);
     }
-    if(keyData.islit()) return std::move(Result(nullptr));
+    if(keyData.islit()) return RESMOVE(Result(nullptr));
     Result iterResult = keyData->iter(memory);
     DataPtr iterator = iterResult.get();
 
@@ -172,7 +172,7 @@ Result BHashMap::move(BMemory* memory) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     ret->contents = std::move(contents);
     contents.clear();
-    return std::move(Result(ret));
+    return RESMOVE(Result(ret));
 }
 int64_t BHashMap::len(BMemory* memory) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);

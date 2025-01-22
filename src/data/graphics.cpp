@@ -182,7 +182,7 @@ void Graphics::clear(BMemory* memory) {destroySDL();}
 Result Graphics::push(BMemory* memory, const DataPtr& other) {
     bbassert(other.existsAndTypeEquals(LIST), "Can only push lists to graphics");
     push(static_cast<BList*>(other.get()));
-    return std::move(Result(this));
+    return RESMOVE(Result(this));
 }
 Result Graphics::pop(BMemory* memory) {
     render();
@@ -193,7 +193,7 @@ Result Graphics::pop(BMemory* memory) {
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
             destroySDL();
-            return std::move(Result(OUT_OF_RANGE));
+            return RESMOVE(Result(OUT_OF_RANGE));
         } else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
             SDL_Keycode keyPressed = event.key.keysym.sym;
             const char* keyName = SDL_GetKeyName(keyPressed);
@@ -245,5 +245,5 @@ Result Graphics::pop(BMemory* memory) {
             signals->contents.push_back(signalStruct);
         }
     }
-    return std::move(Result(signals));
+    return RESMOVE(Result(signals));
 }

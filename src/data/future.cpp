@@ -54,7 +54,7 @@ Result Future::getResult() const {
         bberror("Failed to join thread");
     }
     if (result->error) {
-        std::string error_message = std::move(result->error->what());
+        std::string error_message = RESMOVE(result->error->what());
         result->error = nullptr;
         result->value = Result(nullptr);
         throw BBError(error_message);
@@ -62,5 +62,5 @@ Result Future::getResult() const {
     DataPtr ret = result->value.get();
     if(ret.existsAndTypeEquals(FUTURE)) return std::move(static_cast<Future*>(ret.get())->getResult());
     //std::cout << result->value.get() << "\n";
-    return std::move(Result(ret));
+    return RESMOVE(Result(ret));
 }

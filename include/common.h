@@ -55,12 +55,12 @@ class Result;
 extern VariableManager variableManager;
 
 // Code reused when returning various data from overridden Data::implement 
-#define STRING_RESULT(expr) return std::move(Result(new BString(expr)))
-#define BB_BOOLEAN_RESULT(expr) return std::move(Result((bool)(expr)))
-#define BB_INT_RESULT(expr) return std::move(Result((int64_t)(expr)))
-#define BB_FLOAT_RESULT(expr) return std::move(Result((double)(expr)))
+#define STRING_RESULT(expr) return RESMOVE(Result(new BString(expr)))
+#define BB_BOOLEAN_RESULT(expr) return RESMOVE(Result((bool)(expr)))
+#define BB_INT_RESULT(expr) return RESMOVE(Result((int64_t)(expr)))
+#define BB_FLOAT_RESULT(expr) return RESMOVE(Result((double)(expr)))
 
-
+#define RESMOVE(value) (value)
 
 
 
@@ -120,19 +120,19 @@ public:
     }
     DataPtr(void* data, DATTYPETYPE datatype) noexcept : data(std::bit_cast<int64_t>(data)), datatype(datatype) {}
     DataPtr(const DataPtr& other) : data(other.data), datatype(other.datatype) {}
-    DataPtr& operator=(Data* other) {
+    inline DataPtr& operator=(Data* other) {
         data = std::bit_cast<int64_t>(other);
         datatype = IS_PTR;
         return *this;
     }
-    DataPtr& operator=(const DataPtr& other) {
+    inline DataPtr& operator=(const DataPtr& other) {
         if (this != &other) {
             data = other.data;
             datatype = other.datatype;
         }
         return *this;
     }
-    DataPtr& operator=(DataPtr&& other) noexcept {
+    inline DataPtr& operator=(DataPtr&& other) noexcept {
         if (this != &other) {
             data = other.data;
             datatype = other.datatype;
@@ -207,9 +207,7 @@ public:
         return true;
     }
     
-    inline bool islit() const {
-        return datatype & IS_LIT;
-    }
+    inline bool islit() const {return datatype & IS_LIT;}
 
     inline bool operator==(const DataPtr& other) const {
         if (datatype & IS_NOT_PTR) return false;

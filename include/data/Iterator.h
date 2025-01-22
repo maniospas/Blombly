@@ -17,7 +17,7 @@ public:
     virtual int64_t getStart() const {bberror("Internal error: thechosen iterator type does not implement `getStart`, which means that `isContiguous` was not checked first.");}
     virtual int64_t getEnd() const {bberror("Internal error: the chosen iterator type does not implement `getEnd`, which means that `isContiguous` was not checked first.");}
     virtual DataPtr fastNext() {return nullptr;} // nullptr signifies to JIT that it needs to fallback to calling next();
-    Result iter(BMemory* memory) override {return std::move(Result(this));} // not virtual to not be overriden
+    Result iter(BMemory* memory) override {return RESMOVE(Result(this));} // not virtual to not be overriden
 };
 
 

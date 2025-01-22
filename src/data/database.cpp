@@ -95,5 +95,5 @@ Result Database::push(BMemory* memory, const DataPtr& other) {
         sqlite3_free(errMsg);
         bberror(error);
     } 
-    return std::move(Result(resultList));
+    return RESMOVE(Result(resultList));
 }

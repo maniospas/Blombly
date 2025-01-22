@@ -114,7 +114,7 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
     }
 
     if (hadError) std::cerr << "Docs and bug reports: https://maniospas.github.io/Blombly\n";
-    return std::move(result);
+    return RESMOVE(result);
 }
 
 

@@ -83,14 +83,12 @@ bool DataPtr::existsAndTypeEquals(Datatype type) const {
 
 void DataPtr::existsAddOwner() const {
     if(datatype & IS_NOT_PTR) return;
-    if(!data) return;
-    std::bit_cast<Data*>(data)->addOwner();
+    if(data) std::bit_cast<Data*>(data)->addOwner();
 }
 
 void DataPtr::existsRemoveFromOwner() const {
     if(datatype & IS_NOT_PTR) return;
-    if(!data) return;
-    std::bit_cast<Data*>(data)->removeFromOwner();
+    if(data) std::bit_cast<Data*>(data)->removeFromOwner();
 }
 
 bool DataPtr::isSame(const DataPtr& other) const {

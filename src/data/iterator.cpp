@@ -14,42 +14,42 @@ AccessIterator::~AccessIterator() {}
 Result AccessIterator::next(BMemory* memory) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     pos += 1; 
-    if (pos >= size) return std::move(Result(OUT_OF_RANGE));
-    return std::move(object->at(memory, pos));
+    if (pos >= size) return RESMOVE(Result(OUT_OF_RANGE));
+    return RESMOVE(object->at(memory, pos));
 }
 
 IntRange::IntRange(int64_t first, int64_t last, int64_t step) : first(first), last(last), step(step), Iterator() {bbassert(step, "A range iterator with zero step never ends.");}
 IntRange::~IntRange() {}
 Result IntRange::next(BMemory* memory) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
-    if (step>0 && first >= last) return std::move(Result(OUT_OF_RANGE));
-    if (step<0 && first <= last) return std::move(Result(OUT_OF_RANGE));
+    if (step>0 && first >= last) return RESMOVE(Result(OUT_OF_RANGE));
+    if (step<0 && first <= last) return RESMOVE(Result(OUT_OF_RANGE));
     DataPtr res(first);
     first += step;
-    return std::move(Result(std::move(res)));
+    return RESMOVE(Result(RESMOVE(res)));
 }
 DataPtr IntRange::fastNext() {
     if (step>0 && first >= last) return OUT_OF_RANGE;
     if (step<0 && first <= last) return OUT_OF_RANGE;
     DataPtr res(first);
     first += step;
-    return std::move(res);
+    return RESMOVE(res);
 }
 
 FloatRange::FloatRange(double first, double last, double step) : first(first), last(last), step(step), Iterator() {bbassert(step, "A range iterator with zero step never ends.");}
 FloatRange::~FloatRange() {}
 Result FloatRange::next(BMemory* memory) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
-    if (step>0 && first >= last) return std::move(Result(OUT_OF_RANGE));
-    if (step<0 && first <= last) return std::move(Result(OUT_OF_RANGE));
+    if (step>0 && first >= last) return RESMOVE(Result(OUT_OF_RANGE));
+    if (step<0 && first <= last) return RESMOVE(Result(OUT_OF_RANGE));
     DataPtr res(first);
     first += step;
-    return std::move(Result(std::move(res)));
+    return RESMOVE(Result(RESMOVE(res)));
 }
 DataPtr FloatRange::fastNext() {
     if (step>0 && first >= last) return OUT_OF_RANGE;
     if (step<0 && first <= last) return OUT_OF_RANGE;
     DataPtr res(first);
     first += step;
-    return std::move(res);
+    return RESMOVE(res);
 }
