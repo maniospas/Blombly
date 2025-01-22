@@ -8,6 +8,7 @@ test("Iteration")  {!include "tests/iter"}
 test("Map")        {!include "tests/map"}
 test("Vector")     {!include "tests/vector"}
 test("Overload")   {!include "tests/overload"}
+test("Func call")  {!include "tests/calls"}
 test("Closure")    {!include "tests/closure"}
 test("Clear")      {!include "tests/clear"}
 test("Move ")      {!include "tests/move"}

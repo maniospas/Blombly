@@ -3,4 +3,4 @@ foo(x,y) = {
     return x+y+bias;
 }
 
-print(foo(1,2 :: bias=3));
+assert foo(1,2 :: bias=3) == 6;
