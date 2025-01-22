@@ -452,13 +452,16 @@ Result ExecutionInstance::run(Code* code) {
                 const auto& check = returnedValue.get();
                 bbassert(check.isbool(), "While condition did not evaluate to bool");
                 checkValue = check.unsafe_tobool();
-                RUN_IF_RETURN(check);
+                if (returnSignal) {
+                    Result res(check);
+                    memory.runFinally();
+                    return std::move(res);
+                }
             }
             if(!checkValue) break;
             Result returnedValueFromBody = run(codeBody);
             RUN_IF_RETURN(returnedValueFromBody);
         }
-        result = nullptr;
         continue;
     }
     DO_IF: {

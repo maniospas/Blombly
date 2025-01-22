@@ -50,7 +50,7 @@ x = x+1; // CREATES AN ERROR
 ## Builtins
 
 There are several builtin data types that are directly incorporated in the language.
-Exhaustively, these are `int`, `float`, `bool`, `str`, `list`, `vector`, `map`, `iter`, `code`, `struct`, `file`, `server`, `sqlite`.
+Exhaustively, these are `int`, `float`, `bool`, `str`, `list`, `vector`, `map`, `iter`, `code`, `struct`, `file`, `server`, `sqlite`, `graphics`.
 Here we start with the first four, and split the rest to dedicated pages.
 Some well-known operations are implemented, computed as one might have come to learn from other programming
 languages. Only difference to usual practices the existence of `as` assignments (more details later), and that element access

@@ -1,6 +1,5 @@
-foo(x,y) = {
-    default bias = 0;
-    return x+y+bias;
+i = 0;
+while (i<5) {
+    print(i);
+    i += 1;
 }
-
-print(foo(1,2 :: bias=3));
