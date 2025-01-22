@@ -34,7 +34,7 @@ print(A[range(1,3)]);
 > <span style="color: cyan;">./blombly</span> main.bb
 [100, 2, 3, 4]
 4
-[2, 3, 4]
+[2, 3]
 </pre>
 
 You may initialize lists based on one element like below.
@@ -222,7 +222,7 @@ print(z);
 
 ## Maps
 
-Maps contain match struct or non-error primitive keys to values. 
+Maps associate struct or non-error primitive keys to values. 
 Set their elements or provide an iterable of `(key, value)` pairs,
 that is, a list of two elements. For keys, numbers and strings are considered
 the same based on their value, whereas other data match only specific objects.
