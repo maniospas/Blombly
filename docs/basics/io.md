@@ -8,12 +8,15 @@ functions in [libs](../advanced/libs.md).
 
 ## Permissions
 
-If you run IO operations out-of-the-box, you will likely encounter an error
+If you run IO operations out-of-the-box, you may encounter an error
 like below. This happens because Blombly prioritizes **execution safety** and does 
-not allow you to access system resources unless you intent to do so. 
-By default, the virtual machine only has read access rights for the *bb://libs* (the contents
-of its standard library next to the executable) and working
-directories. It cannot modify anything and cannot read from anywhere else.
+prvents you from accidentally tampering with or exposing
+system resources unless you intent to do so. 
+By default, the virtual machine has read access rights for the *bb://libs* (the contents
+of its standard library next to the executable) and the working
+directory only. The latter is the place from where you *call* the executable, such as the
+the path you have cd-ed in your terminal. Blombly cannot modify anything and cannot read 
+from anywhere else.
 
 <br>
 
@@ -190,7 +193,7 @@ as well as checking whether a non-existing file name exists:
 ```java
 !access "" // read access to all resources (NOT RECOMMENDED)
 
-f = file("README.md");
+f = file("../README.md");
 while(line in f) print(line);
 print("nonexisting filename"|file|bool); // false
 ```
@@ -430,7 +433,6 @@ so everything runs efficiently.
 
 
 ```java
-!access ""
 g = graphics("MyApp", 800, 600);
 
 logo = new {

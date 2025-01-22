@@ -1,4 +1,3 @@
-!access ""
 g = graphics("MyApp", 800, 600);
 
 logo = new {

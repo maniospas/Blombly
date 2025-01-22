@@ -5,6 +5,8 @@
 #include <iostream>
 
 extern BError* OUT_OF_RANGE;
+extern bool isAllowedLocationNoNorm(const std::string& path_);
+extern std::string normalizeFilePath(const std::string& path);
 
 Graphics::Graphics(const std::string& title, int width, int height) : Data(GRAPHICS), window(nullptr), renderer(nullptr) {
     initializeSDL();
@@ -54,7 +56,14 @@ Graphics::~Graphics() {
     destroySDL();
 }
 
-SDL_Texture* Graphics::getTexture(const std::string& path) {
+SDL_Texture* Graphics::getTexture(const std::string& path_) {
+    std::string path = normalizeFilePath(path_);
+    bbassert(isAllowedLocationNoNorm(path),  "Access denied for path while loading texture: " + path +
+        "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
+        "\n       You need to add read permissions to a location containting the prefix with `!access \"location\"`."
+        "\n       Permisions can only be granted this way from the virtual machine's entry point."
+        "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
+
     auto it = textureCache.find(path);
     if (it != textureCache.end()) return it->second;
     SDL_Surface* surface = IMG_Load(path.c_str());
@@ -111,6 +120,15 @@ void Graphics::render() {
             // Render text
             std::string text = static_cast<BString*>(list->contents[0].get())->toString(nullptr);
             std::string fontPath = static_cast<BString*>(list->contents[1].get())->toString(nullptr);
+
+            fontPath = normalizeFilePath(fontPath);
+            bbassert(isAllowedLocationNoNorm(fontPath),  "Access denied for path while loading font: " + fontPath +
+                "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
+                "\n       You need to add read permissions to a location containting the prefix with `!access \"location\"`."
+                "\n       Permisions can only be granted this way from the virtual machine's entry point."
+                "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
+
+
             double fontSize = list->contents[2].isint() ? list->contents[2].unsafe_toint() : list->contents[2].unsafe_tofloat();
             double x = list->contents[3].isint() ? list->contents[3].unsafe_toint() : list->contents[3].unsafe_tofloat();
             double y = list->contents[4].isint() ? list->contents[4].unsafe_toint() : list->contents[4].unsafe_tofloat();

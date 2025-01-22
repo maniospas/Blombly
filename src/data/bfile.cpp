@@ -59,8 +59,7 @@ bool isAllowedLocation(const std::string& path_) {
         || path.find("sftp://", 0)==0
         || path.find("ftps://", 0)==0
         || path.find("vfs://", 0)==0){}
-    else
-        path = fs::weakly_canonical(path).string();
+    else path = fs::weakly_canonical(path).string();
     for (const auto& location : allowedLocations) if(path.size() >= location.size() && path.compare(0, location.size(), location) == 0) return true;
     return false;
 }
@@ -328,7 +327,7 @@ void uploadFtpContent(const std::string& url, const std::string& content, const 
 
 
 BFile::BFile(const std::string& path_) : path(normalizeFilePath(path_)), size(0), Data(FILETYPE), contentsLoaded(false) {
-    bbassert(isAllowedLocationNoNorm(path), "Access denied for path: " + path +
+    bbassert(isAllowedLocationNoNorm(path), "Access denied for file path: " + path +
                                       "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
                                       "\n       You need to add read permissions to a location containting the prefix with `!access \"location\"`."
                                       "\n       Permisions can only be granted this way from the virtual machine's entry point."
@@ -337,7 +336,7 @@ BFile::BFile(const std::string& path_) : path(normalizeFilePath(path_)), size(0)
 
 void BFile::loadContents() {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
-    bbassert(isAllowedLocationNoNorm(path), "Access denied for path: " + path +
+    bbassert(isAllowedLocationNoNorm(path), "Access denied for file path: " + path +
                                       "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
                                       "\n       You need to add read permissions to a location containting the prefix with `!access \"location\"`."
                                       "\n       Permisions can only be granted this way from the virtual machine's entry point."

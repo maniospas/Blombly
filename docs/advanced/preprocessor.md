@@ -67,11 +67,11 @@ print # googlelen
 ## Permissions
 
 Blombly's environment restricts itself with regards to which resources it can access.
-By default, it only access memory, thread creation, the console's input and output,
-and a virtual file system.
-Reads and writes to the actual file system, the internet, computer graphics, or the ability to
-execute external programs, must be expressly allowed with permissions stated in the
-main running file. By *main file* we refer to the one that is passed as an argument
+By default, it only access and modify RAM, threads, the console's input and output,
+and a virtual file system. It can also access the file system of your working directory (only!)
+and cannot modify any file in your system or web resource whatsoever. Doing so must be expressly 
+allowed with permissions stated in the
+main file. By *main file* we refer to the one that is passed as an argument
 to Blombly to compile and run.
 
 <br>

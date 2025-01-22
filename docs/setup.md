@@ -56,7 +56,7 @@ and code blocks start at `BEGIN` or `BEGINFINAL` and end at `END`.
 
 ## Arguments
 
-**threads**
+**--threads**
 
 Set the number of operating system threads that the virtual machine
 is allowed to use with the option `--threads <num>` or `-t <num>`.
@@ -65,7 +65,7 @@ Set to zero threads to compile without executing.
 
 <br>
 
-**norun**
+**--norun**
 
 You may use the `--norun` option as a shorthand for setting threads to zero, and therefore
 not executing any produced **.bbvm* file. Compilation may still run some code for some
@@ -73,7 +73,7 @@ preprocessor instructions.
 
 <br>
 
-**optimize later**
+**--library**
 
 Compilation optimizes the code by removing many unused variables or segments.
 For example, notice that above there are no needless instructions
@@ -98,7 +98,7 @@ library when there is no optimization!
 
 <br>
 
-**strip debugging symbols**
+**--strip**
 
 Avoid generating debugging symbols with the `--strip` or `-s` option.
 This speeds up compilation and optimization and produces a smaller bbvm file - around 
@@ -116,7 +116,7 @@ print # _bb162
 
 <br>
 
-**build sequence**
+**multiple main files**
 
 Provide multiple source files to compile and run in their order of 
 occurrence. Consider those files as steps of a modular build process.
