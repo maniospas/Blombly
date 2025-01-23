@@ -81,6 +81,7 @@ constexpr DATTYPETYPE IS_PTR = static_cast<DATTYPETYPE>(8);
 constexpr DATTYPETYPE IS_FUTURE = static_cast<DATTYPETYPE>(16);
 constexpr DATTYPETYPE IS_PROPERTY_A = static_cast<DATTYPETYPE>(64);
 constexpr DATTYPETYPE IS_PROPERTY_B = static_cast<DATTYPETYPE>(128);
+constexpr DATTYPETYPE IS_FLOAT_OR_INT = static_cast<DATTYPETYPE>(IS_FLOAT | IS_INT);
 
 // Compute negations and combinations at compile-time
 constexpr DATTYPETYPE IS_NOT_FLOAT = static_cast<DATTYPETYPE>(~IS_FLOAT & ~IS_PROPERTY_A & ~IS_PROPERTY_B);
@@ -219,6 +220,7 @@ public:
     inline bool unsafe_tobool() const { return data; }
 
     inline bool isfloat() const { return datatype & IS_FLOAT; }
+    inline bool isfloatorint() const { return datatype & IS_FLOAT_OR_INT; }
     inline bool isint() const { return datatype & IS_INT; }
     inline bool isbool() const { return datatype & IS_BOOL; }
     inline bool isfuture() const { return datatype & IS_FUTURE; }

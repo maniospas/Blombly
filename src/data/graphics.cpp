@@ -51,8 +51,6 @@ Graphics::~Graphics() {
     mouseUpString->removeFromOwner();
     mouseDownString->removeFromOwner();
     mouseMoveString->removeFromOwner();
-    for (BList* list : renderQueue) list->removeFromOwner();
-    TTF_Quit();
     destroySDL();
 }
 
@@ -88,20 +86,22 @@ TTF_Font* Graphics::getFont(const std::string& path, int fontSize) {
         "\n       Permisions can only be granted this way from the virtual machine's entry point."
         "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.");
 
-
     TTF_Font* font = TTF_OpenFont(fontPath.c_str(), fontSize);
     bbassert(font, "Failed to load font: " + fontPath + ", TTF Error: " + TTF_GetError());
     fontCache[key] = font;
     return font;
 }
 
-void Graphics::initializeSDL() {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0 || IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) bberror("Failed to initialize SDL: " + std::string(SDL_GetError()));
-}
+void Graphics::initializeSDL() {if (SDL_Init(SDL_INIT_VIDEO) < 0 || IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) bberror("Failed to initialize SDL: " + std::string(SDL_GetError()));}
 
 void Graphics::destroySDL() {
+    for (BList* list : renderQueue) list->removeFromOwner();
+    renderQueue.clear();
+    fontCache.clear();
+    textureCache.clear();
     if (renderer) SDL_DestroyRenderer(renderer);
     if (window) SDL_DestroyWindow(window);
+    TTF_Quit();
     IMG_Quit();
     SDL_Quit();
 }
@@ -122,10 +122,10 @@ void Graphics::render() {
         if (list->contents[1].existsAndTypeEquals(STRING)) {  // texts have the font path as the second argument
             bbassert(list->contents[0].existsAndTypeEquals(STRING), "First element must be a string (text)");
             //bbassert(list->contents[1]->getType() == STRING, "Second element must be a string (font path)");
-            bbassert(list->contents[2].isfloat() || list->contents[2].isint(), "Third element must be a float or integer (font size)");
-            bbassert(list->contents[3].isfloat() || list->contents[3].isint(), "Third element must be a float or integer (x-coordinate)");
-            bbassert(list->contents[4].isfloat() || list->contents[4].isint(), "Fourth element must be a float or integer (y-coordinate)");
-            bbassert(list->contents[5].isfloat() || list->contents[5].isint(), "Fifth element must be a float or integer (angle)");
+            bbassert(list->contents[2].isfloatorint(), "Third element must be a float or integer (font size)");
+            bbassert(list->contents[3].isfloatorint(), "Third element must be a float or integer (x-coordinate)");
+            bbassert(list->contents[4].isfloatorint(), "Fourth element must be a float or integer (y-coordinate)");
+            bbassert(list->contents[5].isfloatorint(), "Fifth element must be a float or integer (angle)");
 
             // Render text
             std::string text = static_cast<BString*>(list->contents[0].get())->toString(nullptr);
@@ -149,11 +149,11 @@ void Graphics::render() {
         } else {
             // Validate data types for texture rendering
             bbassert(list->contents[0].existsAndTypeEquals(STRING), "First element must be a string (texture path)");
-            bbassert(list->contents[1].isfloat() || list->contents[1].isint(), "Second element must be a float or integer (x-coordinate)");
-            bbassert(list->contents[2].isfloat() || list->contents[2].isint(), "Third element must be a float or integer (y-coordinate)");
-            bbassert(list->contents[3].isfloat() || list->contents[3].isint(), "Fourth element must be a float or integer (width)");
-            bbassert(list->contents[4].isfloat() || list->contents[4].isint(), "Fifth element must be a float or integer (height)");
-            bbassert(list->contents[5].isfloat() || list->contents[5].isint(), "Sixth element must be a float or integer (angle)");
+            bbassert(list->contents[1].isfloatorint(), "Second element must be a float or integer (x-coordinate)");
+            bbassert(list->contents[2].isfloatorint(), "Third element must be a float or integer (y-coordinate)");
+            bbassert(list->contents[3].isfloatorint(), "Fourth element must be a float or integer (width)");
+            bbassert(list->contents[4].isfloatorint(), "Fifth element must be a float or integer (height)");
+            bbassert(list->contents[5].isfloatorint(), "Sixth element must be a float or integer (angle)");
 
             // Render texture
             std::string texturePath = static_cast<BString*>(list->contents[0].get())->toString(nullptr);
@@ -180,7 +180,12 @@ void Graphics::clear() {
 std::string Graphics::toString(BMemory* memory) { return "graphics"; }
 
 
-void Graphics::clear(BMemory* memory) {destroySDL();}
+void Graphics::clear(BMemory* memory) {
+    clear();
+    fontCache.clear();
+    textureCache.clear();
+    destroySDL();
+}
 Result Graphics::push(BMemory* memory, const DataPtr& other) {
     bbassert(other.existsAndTypeEquals(LIST), "Can only push lists to graphics");
     push(static_cast<BList*>(other.get()));
