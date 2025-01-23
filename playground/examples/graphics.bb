@@ -21,9 +21,11 @@ invfps = 1/60;
 previous_frame = time();
 while(events as g|pop) {
     // draw graphics
+    g << 255, 255, 255, 255;
     g << logo.texture();
 
     // show fps
+    if(invfps*120>=1) g << 255, 0, 0, 255 else g << 0, 255, 0, 255;
     fps = (1/invfps)|int|str+" fps";
     g << fps,font,12,800-42,600-20,0;
 

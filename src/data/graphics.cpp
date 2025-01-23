@@ -24,6 +24,7 @@ Graphics::Graphics(const std::string& title, int width, int height) : Data(GRAPH
         destroySDL();
         bberror("Failed to initialize SDL_ttf: " + std::string(TTF_GetError()));
     }
+    color = {255, 255, 255, 255};
     
     typeVariable = variableManager.getId("graphics::type");
     keyVariable = variableManager.getId("graphics::key");
@@ -117,8 +118,43 @@ void Graphics::render() {
 
     for (BList* list : renderQueue) {
         std::lock_guard<std::recursive_mutex> lock(list->memoryLock);
-        bbassert(list->contents.size() == 6, "Can only push lists of 6 elements to graphics. You cannot add or remove elements from those lists afterwards.");
-
+        if(list->contents.size()==4) {
+            bbassert(list->contents[0].isfloatorint(), "First element must be a float or integer (red)");
+            bbassert(list->contents[1].isfloatorint(), "Second element must be a float or integer (green)");
+            bbassert(list->contents[2].isfloatorint(), "Third element must be a float or integer (blue)");
+            bbassert(list->contents[3].isfloatorint(), "Fourth element must be a float or integer (alpha)");
+            unsigned char r = list->contents[0].isint() ? list->contents[0].unsafe_toint() : list->contents[0].unsafe_tofloat();
+            unsigned char g = list->contents[1].isint() ? list->contents[1].unsafe_toint() : list->contents[1].unsafe_tofloat();
+            unsigned char b = list->contents[2].isint() ? list->contents[2].unsafe_toint() : list->contents[2].unsafe_tofloat();
+            unsigned char a = list->contents[3].isint() ? list->contents[3].unsafe_toint() : list->contents[3].unsafe_tofloat();
+            color = {r, g, b, b};
+            continue;
+        }
+        if(list->contents.size()==5) {
+            bbassert(list->contents[0].existsAndTypeEquals(STRING), "First element must be a string (shape type)");
+            bbassert(list->contents[1].isfloatorint(), "First element must be a float or integer (x1)");
+            bbassert(list->contents[2].isfloatorint(), "Second element must be a float or integer (y1)");
+            bbassert(list->contents[3].isfloatorint(), "Third element must be a float or integer (x2)");
+            bbassert(list->contents[4].isfloatorint(), "Fourth element must be a float or integer (y2)");
+            int x1 = list->contents[1].isint() ? list->contents[1].unsafe_toint() : list->contents[1].unsafe_tofloat();
+            int y1 = list->contents[2].isint() ? list->contents[2].unsafe_toint() : list->contents[2].unsafe_tofloat();
+            int x2 = list->contents[3].isint() ? list->contents[3].unsafe_toint() : list->contents[3].unsafe_tofloat();
+            int y2 = list->contents[4].isint() ? list->contents[4].unsafe_toint() : list->contents[4].unsafe_tofloat();
+            std::string shape = list->contents[0]->toString(nullptr);
+            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+            if(shape=="line") SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+            else if(shape=="orect") {
+                SDL_Rect rect = {x1, y1, x2, y2};
+                SDL_RenderDrawRect(renderer, &rect);
+            }
+            else if(shape=="rect") {
+                SDL_Rect rect = {x1, y1, x2, y2};
+                SDL_RenderFillRect(renderer, &rect);
+            }
+            else bberror("Wrong shape provided: "+shape);
+            continue;
+        }
+        bbassert(list->contents.size() == 6, "Can only push lists of 4, 5, or 6 elements to graphics. You cannot add or remove elements from those lists afterwards.");
         if (list->contents[1].existsAndTypeEquals(STRING)) {  // texts have the font path as the second argument
             bbassert(list->contents[0].existsAndTypeEquals(STRING), "First element must be a string (text)");
             //bbassert(list->contents[1]->getType() == STRING, "Second element must be a string (font path)");
@@ -136,14 +172,13 @@ void Graphics::render() {
             double y = list->contents[4].isint() ? list->contents[4].unsafe_toint() : list->contents[4].unsafe_tofloat();
             double angle = list->contents[5].isint() ? list->contents[5].unsafe_toint() : list->contents[5].unsafe_tofloat();
 
-            TTF_Font* font = getFont(fontPath, static_cast<int>(fontSize + 0.5));
-            SDL_Color color = {255, 255, 255, 255};
+            TTF_Font* font = getFont(fontPath, static_cast<int>(fontSize));
             SDL_Surface* textSurface = TTF_RenderText_Solid(font, text.c_str(), color);
             bbassert(textSurface, "Failed to render text: " + text);
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, textSurface);
             SDL_FreeSurface(textSurface);
             bbassert(texture, "Failed to render text: " + text);
-            SDL_Rect dstRect = {static_cast<int>(x + 0.5), static_cast<int>(y + 0.5), textSurface->w, textSurface->h};
+            SDL_Rect dstRect = {static_cast<int>(x), static_cast<int>(y), textSurface->w, textSurface->h};
             SDL_RenderCopyEx(renderer, texture, nullptr, &dstRect, angle, nullptr, SDL_FLIP_NONE);
             SDL_DestroyTexture(texture);
         } else {
@@ -164,7 +199,9 @@ void Graphics::render() {
             double angle = list->contents[5].isint() ? list->contents[5].unsafe_toint() : list->contents[5].unsafe_tofloat();
 
             SDL_Texture* texture = getTexture(texturePath);
-            SDL_Rect dstRect = {static_cast<int>(x + 0.5), static_cast<int>(y + 0.5), static_cast<int>(dx + 0.5), static_cast<int>(dy + 0.5)};
+            SDL_SetTextureColorMod(texture, color.r, color.g, color.b); // Apply color modulation
+            SDL_SetTextureAlphaMod(texture, color.a);
+            SDL_Rect dstRect = {static_cast<int>(x), static_cast<int>(y), static_cast<int>(dx), static_cast<int>(dy)};
             SDL_RenderCopyEx(renderer, texture, nullptr, &dstRect, angle, nullptr, SDL_FLIP_NONE);
         }
     }

@@ -29,6 +29,8 @@ private:
     BString* mouseUpString;
     BString* mouseMoveString;
 
+    SDL_Color color;
+
     tsl::hopscotch_map<std::string, SDL_Texture*> textureCache;
     tsl::hopscotch_map<std::string, TTF_Font*> fontCache;
     SDL_Texture* getTexture(const std::string& path);
