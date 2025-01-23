@@ -79,9 +79,9 @@ Result ExecutionInstance::run(Code* code) {
     int end = code->getOptimizedEnd();
     int i = code->getStart();
 
-    try {
     for(;i<=end;++i) {
     const Command& command = program[i];
+    try {
 
     //std::cout << command.toString() << "\n";
     
@@ -177,6 +177,7 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL((double)(arg0.unsafe_tofloat()+arg1.unsafe_toint()));
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()+arg1.unsafe_tofloat());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->add(&memory, arg1));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
         bberror("There was no implementation for add("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_SUB: {
@@ -187,7 +188,8 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL((double)(arg0.unsafe_tofloat()-arg1.unsafe_toint()));
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()-arg1.unsafe_tofloat());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->sub(&memory, arg1));
-        bberror("There was no implementation for add("+arg0.torepr()+", "+arg1.torepr()+")");
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
+        bberror("There was no implementation for sub("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_MUL: {
         const auto& arg0 = memory.get(command.args[1]);
@@ -197,7 +199,8 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL((double)(arg0.unsafe_tofloat()*arg1.unsafe_toint()));
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()*arg1.unsafe_tofloat());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->mul(&memory, arg1));
-        bberror("There was no implementation for add("+arg0.torepr()+", "+arg1.torepr()+")");
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
+        bberror("There was no implementation for mul("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_DIV: {
         const auto& arg0 = memory.get(command.args[1]);
@@ -207,7 +210,8 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL((double)(arg0.unsafe_tofloat()/arg1.unsafe_toint()));
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()/arg1.unsafe_tofloat());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->div(&memory, arg1));
-        bberror("There was no implementation for add("+arg0.torepr()+", "+arg1.torepr()+")");
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
+        bberror("There was no implementation for div("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_POW: {
         const auto& arg0 = memory.get(command.args[1]);
@@ -217,14 +221,16 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(std::pow(arg0.unsafe_tofloat(), arg1.unsafe_toint()));
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(std::pow(arg0.unsafe_tofloat(), arg1.unsafe_tofloat()));
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->pow(&memory, arg1));
-        bberror("There was no implementation for add("+arg0.torepr()+", "+arg1.torepr()+")");
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
+        bberror("There was no implementation for pow("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_MOD: {
         const auto& arg0 = memory.get(command.args[1]);
         const auto& arg1 = memory.get(command.args[2]);
         if(arg0.isint() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_toint() % arg1.unsafe_toint());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->mod(&memory, arg1));
-        bberror("There was no implementation for add("+arg0.torepr()+", "+arg1.torepr()+")");
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
+        bberror("There was no implementation for mod("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_LT: {
         const auto& arg0 = memory.get(command.args[1]);
@@ -234,7 +240,8 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_tofloat()<arg1.unsafe_toint());
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()<arg1.unsafe_tofloat());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->lt(&memory, arg1));
-        bberror("There was no implementation for add("+arg0.torepr()+", "+arg1.torepr()+")");
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
+        bberror("There was no implementation for lt("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_GT: {
         const auto& arg0 = memory.get(command.args[1]);
@@ -244,7 +251,8 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_tofloat()>arg1.unsafe_toint());
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()>arg1.unsafe_tofloat());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->gt(&memory, arg1));
-        bberror("There was no implementation for add("+arg0.torepr()+", "+arg1.torepr()+")");
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
+        bberror("There was no implementation for gt("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_LE: {
         const auto& arg0 = memory.get(command.args[1]);
@@ -254,7 +262,8 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_tofloat()<=arg1.unsafe_toint());
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()<=arg1.unsafe_tofloat());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->le(&memory, arg1));
-        bberror("There was no implementation for add("+arg0.torepr()+", "+arg1.torepr()+")");
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
+        bberror("There was no implementation for le("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_GE: {
         const auto& arg0 = memory.get(command.args[1]);
@@ -264,7 +273,8 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_tofloat()>=arg1.unsafe_toint());
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()>=arg1.unsafe_tofloat());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->ge(&memory, arg1));
-        bberror("There was no implementation for add("+arg0.torepr()+", "+arg1.torepr()+")");
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
+        bberror("There was no implementation for ge("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_EQ: {
         const auto& arg0 = memory.get(command.args[1]);
@@ -275,7 +285,8 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()==arg1.unsafe_tofloat());
         if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool()==arg1.unsafe_tobool());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->eq(&memory, arg1));
-        bberror("There was no implementation for add("+arg0.torepr()+", "+arg1.torepr()+")");
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
+        bberror("There was no implementation for eq("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_NEQ: {
         const auto& arg0 = memory.get(command.args[1]);
@@ -286,26 +297,30 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isfloat() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_tofloat()!=arg1.unsafe_tofloat());
         if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool()!=arg1.unsafe_tobool());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->neq(&memory, arg1));
-        bberror("There was no implementation for add("+arg0.torepr()+", "+arg1.torepr()+")");
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
+        bberror("There was no implementation for neq("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_AND: {
         const auto& arg0 = memory.get(command.args[1]);
         const auto& arg1 = memory.get(command.args[2]);
         if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool() && arg1.unsafe_tobool());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->opand(&memory, arg1));
-        bberror("There was no implementation for add("+arg0.torepr()+", "+arg1.torepr()+")");
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
+        bberror("There was no implementation for and("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_OR: {
         const auto& arg0 = memory.get(command.args[1]);
         const auto& arg1 = memory.get(command.args[2]);
         if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool() && arg1.unsafe_tobool());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->opor(&memory, arg1));
-        bberror("There was no implementation for add("+arg0.torepr()+", "+arg1.torepr()+")");
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
+        bberror("There was no implementation for or("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_MMUL: {
         const auto& arg0 = memory.get(command.args[1]);
         const auto& arg1 = memory.get(command.args[2]);
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->le(&memory, arg1));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
         bberror("There was no implementation for mmul("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_BUILTIN: {
@@ -316,6 +331,7 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isint()) DISPATCH_RESULT(new Vector(arg0.unsafe_toint()));
         if(arg0.existsAndTypeEquals(VECTOR)) DISPATCH_RESULT(arg0);
         if(arg0.existsAndTypeEquals(LIST)) DISPATCH_RESULT(static_cast<BList*>(arg0.get())->toVector(&memory));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
         bberror("Vectors can only be instantiated from an int size or a list of values convertible to float");
     }
     DO_LOG: {
@@ -354,7 +370,7 @@ Result ExecutionInstance::run(Code* code) {
         printing += "\n";
         std::lock_guard<std::recursive_mutex> lock(printMutex);
         std::cout << printing;
-        result = nullptr;
+        result = DataPtr::NULLP;
         continue;
     }
     DO_READ:{
@@ -388,6 +404,7 @@ Result ExecutionInstance::run(Code* code) {
             memory.pull(static_cast<Struct*>(source.get())->getMemory());
             DISPATCH_RESULT(source);
         }
+        if(source.existsAndTypeEquals(ERRORTYPE)) bberror(source->toString(nullptr));
         bberror("Can only inline a code block or struct");
     }
     DO_TOSTR: {
@@ -396,6 +413,7 @@ Result ExecutionInstance::run(Code* code) {
         if(arg0.isfloat()) DISPATCH_RESULT(new BString(std::to_string(arg0.unsafe_tofloat())));
         if(arg0.isbool()) DISPATCH_RESULT(new BString(arg0.unsafe_tobool()?"true":"false"));
         if(arg0.exists()) DISPATCH_RESULT(new BString(arg0->toString(&memory)));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
         bberror("Internal error: failed to convert to string. This error should never appear.");
     }
     DO_RETURN: {
@@ -418,11 +436,12 @@ Result ExecutionInstance::run(Code* code) {
     }
     DO_EXISTS: {
         const auto& res = memory.getOrNull(command.args[1], true);
+        if(res.isptr() && !res.exists()) DISPATCH_LITERAL(false);
         DISPATCH_RESULT(!res.existsAndTypeEquals(ERRORTYPE));
     }
     DO_SET: {
         const auto& obj = memory.get(command.args[1]);
-        bbassert(obj.existsAndTypeEquals(STRUCT), "Can only set fields in a struct.");
+        if(!obj.existsAndTypeEquals(STRUCT)) bberror(obj.existsAndTypeEquals(ERRORTYPE)?obj->toString(nullptr):"Can only set fields in a struct.");
         auto structObj = static_cast<Struct*>(obj.get());
         std::lock_guard<std::recursive_mutex> lock(structObj->memoryLock);
         auto setValue = memory.getOrNullShallow(command.args[3]);
@@ -434,7 +453,7 @@ Result ExecutionInstance::run(Code* code) {
     }
     DO_SETFINAL: {
         const auto& obj = memory.get(command.args[1]);
-        bbassert(obj.existsAndTypeEquals(STRUCT), "Can only set fields in a struct.");
+        if(!obj.existsAndTypeEquals(STRUCT)) bberror(obj.existsAndTypeEquals(ERRORTYPE)?obj->toString(nullptr):"Can only set fields in a struct.");
         bberror("Cannot set final fields in a struct using field access operators (. or \\). This also ensures that finals can only be set during `new` statements.");
         continue;
     } 
@@ -502,19 +521,22 @@ Result ExecutionInstance::run(Code* code) {
     DO_TRY: {
         memory.detach(memory.parent);
         bool prevReturnSignal = returnSignal;
+        const auto& condition = memory.get(command.args[1]);
+        bbassert(condition.existsAndTypeEquals(CODE), "Can only inline a non-called code block for try condition");
+        auto codeCondition = static_cast<Code*>(condition.get());
         try {
-            const auto& condition = memory.get(command.args[1]);
-            bbassert(condition.existsAndTypeEquals(CODE), "Can only inline a non-called code block for try condition");
-            auto codeCondition = static_cast<Code*>(condition.get());
             Result returnedValue = run(codeCondition);
             memory.detach(memory.parent);
-            if(!returnSignal) result = NO_TRY_INTERCEPT;
+            const auto& ret = returnSignal?returnedValue.get():new BError(std::move(enrichErrorDescription(command, NO_TRY_INTERCEPT->toString(nullptr))));
+            if(!returnSignal) static_cast<BError*>(ret.get())->consume();
             returnSignal = prevReturnSignal;
-            DISPATCH_RESULT(returnedValue.get());
+            DISPATCH_OUTCOME(ret);
         }
         catch (const BBError& e) {
             returnSignal = prevReturnSignal;
-            DISPATCH_RESULT(new BError(std::move(enrichErrorDescription(command, e.what()))));
+            auto ret = new BError(std::move(enrichErrorDescription(command, e.what())));
+            //ret->consume();
+            DISPATCH_RESULT(ret);
         }
     }
     DO_CATCH: {
@@ -526,8 +548,8 @@ Result ExecutionInstance::run(Code* code) {
         auto codeAccept = static_cast<Code*>(accept.get());
         auto codeReject = static_cast<Code*>(reject.get());
         
-        if(condition.existsAndTypeEquals(ERRORTYPE)) { //&& !((BError*)condition)->isConsumed()) {
-            static_cast<BError*>(condition.get())->consume();
+        if(condition.isptr() && (condition==nullptr || condition->getType()==ERRORTYPE)) { //&& !((BError*)condition)->isConsumed()) {
+            if(condition.exists()) static_cast<BError*>(condition.get())->consume();
             if(codeAccept) {
                 Result returnValue = run(codeAccept);
                 RUN_IF_RETURN(returnValue);
@@ -593,7 +615,10 @@ Result ExecutionInstance::run(Code* code) {
         auto list = new BList(n-1);
         for(int j=1;j<n;j++) {
             const DataPtr& element = memory.get(command.args[j]);
-            if(element.existsAndTypeEquals(ERRORTYPE)) bberror("Cannot push an error");
+            if(element.existsAndTypeEquals(ERRORTYPE)) {
+                delete list;
+                bberror(element->toString(nullptr));
+            }
             if(element.exists()) element->addOwner();
             list->contents.push_back(element);
         }
@@ -615,7 +640,7 @@ Result ExecutionInstance::run(Code* code) {
         const auto& arg0 = memory.get(command.args[1]);
         bbassert(arg0.exists(), "Cannot push to this data type: "+arg0.torepr());
         const auto& arg1 = memory.get(command.args[2]);
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror("Cannot push an error");
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
         DISPATCH_OUTCOME(arg0->push(&memory, arg1));
     }
     DO_PUT: {
@@ -623,7 +648,7 @@ Result ExecutionInstance::run(Code* code) {
         bbassert(arg0.exists(), "Cannot put to this data type: "+arg0.torepr());
         const auto& arg1 = memory.get(command.args[2]);
         const auto& arg2 = memory.get(command.args[3]);
-        if(arg2.existsAndTypeEquals(ERRORTYPE)) bberror("Cannot push an error");
+        if(arg2.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
         DISPATCH_OUTCOME(arg0->put(&memory, arg1, arg2));
     }
     DO_TOGRAPHICS: {
@@ -652,7 +677,8 @@ Result ExecutionInstance::run(Code* code) {
     }
     DO_NOT: {
         const auto& arg0 = memory.get(command.args[1]);
-        bbassert(arg0.isptr(), "Did not find builtin operation: len("+arg0.torepr()+")");
+        if(arg0.isbool()) DISPATCH_RESULT(!arg0.unsafe_tobool());
+        bbassert(arg0.isptr(), "Did not find builtin operation: not("+arg0.torepr()+")");
         DISPATCH_OUTCOME(arg0->opnot(&memory));
     }
     DO_LEN: {
@@ -872,8 +898,27 @@ Result ExecutionInstance::run(Code* code) {
         }
     }
 
-    }//end loop
     }//end try 
-    catch (const BBError& e) {handleExecutionError(program[i], e);}
+    catch (const BBError& e) {
+        int carg = command.args[0]; 
+        if(carg==variableManager.noneId || command.operation==RETURN) {
+            result = DataPtr::NULLP;
+            handleExecutionError(program[i], e);
+        }
+        std::string err = enrichErrorDescription(program[i], e.what());
+        BError* berror = new BError(std::move(err));
+        berror->consume();
+        try {
+            result = DataPtr(berror); 
+            memory.set(carg, result); 
+            if(command.operation==RETURN) return RESMOVE(Result(result));
+        }
+        catch (const BBError& e) {
+            result = DataPtr::NULLP;
+            delete berror;
+            handleExecutionError(program[i], e);
+        }
+    }
+    }//end loop
     return RESMOVE(Result(result));
 }

@@ -1,2 +1,3 @@
-it = range(2, 0, -0.5);
-while(i as next(it)) print(i);
+add(float x, float y) => x+y;
+
+print(add(1,"foo"));

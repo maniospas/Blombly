@@ -84,7 +84,7 @@ Result BList::add(BMemory* memory, const DataPtr& other_) {
 
 Result BList::push(BMemory* memory, const DataPtr& other) {
     bbassert(other.islitorexists(), "Cannot push a missing value to a list");
-    if(other.existsAndTypeEquals(ERRORTYPE)) bberror("Cannot push an error to a list");
+    if(other.existsAndTypeEquals(ERRORTYPE)) other->toString(nullptr);
     other.existsAddOwner();
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     contents.emplace_back(other);
@@ -173,7 +173,7 @@ Result BList::put(BMemory* memory, const DataPtr& position, const DataPtr& value
     index += front;
     if (index>=contents.size()) return RESMOVE(Result(OUT_OF_RANGE));
     bbassert(value.islitorexists(), "Cannot set a missing value on a list");
-    if(value.existsAndTypeEquals(ERRORTYPE)) bberror("Cannot set an error on a list");
+    if(value.existsAndTypeEquals(ERRORTYPE)) bberror(value->toString(nullptr));
     DataPtr prev = contents[index];
     contents[index] = value;
     value.existsAddOwner();
@@ -214,4 +214,48 @@ void BList::resizeContents() {
         contents.erase(contents.begin(), contents.begin() + front);
         front = 0;
     }
+}
+
+Result BList::min(BMemory* memory) {
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    if (contents.size() == front) return Result(OUT_OF_RANGE);
+    DataPtr minValue = contents[front];
+    for (int i = front+1; i < contents.size(); ++i) {
+        const auto& arg0 = contents[i];
+        const auto& arg1 = minValue;
+        if(arg0.isint() && arg1.isint()) {if(arg0.unsafe_toint()<arg1.unsafe_toint()) minValue=arg0;continue;}
+        if(arg0.isint() && arg1.isfloat()) {if(arg0.unsafe_toint()<arg1.unsafe_tofloat()) minValue=arg0;continue;}
+        if(arg0.isfloat() && arg1.isint()) {if(arg0.unsafe_tofloat()<arg1.unsafe_toint()) minValue=arg0;continue;}
+        if(arg0.isfloat() && arg1.isfloat()) {if(arg0.unsafe_tofloat()<arg1.unsafe_tofloat()) minValue=arg0;continue;}
+        if(arg0.exists()) {
+            Result comparison_ = arg0->lt(memory, arg1);
+            const auto& comparison = comparison_.get();
+            if(!comparison.isbool()) bberror("The implementation for lt("+arg0.torepr()+", "+arg1.torepr()+") did not return a bool literal");
+            if(comparison.unsafe_tobool()) {minValue=arg0;continue;}
+        }
+        bberror("There was no implementation for lt("+arg0.torepr()+", "+arg1.torepr()+")");
+    }
+    return Result(minValue);
+}
+
+Result BList::max(BMemory* memory) {
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    if (contents.size() == front) return Result(OUT_OF_RANGE);
+    DataPtr maxValue = contents[front];
+    for (int i = front+1; i < contents.size(); ++i) {
+        const auto& arg0 = contents[i];
+        const auto& arg1 = maxValue;
+        if(arg0.isint() && arg1.isint()) {if(arg0.unsafe_toint()>arg1.unsafe_toint()) maxValue=arg0;continue;}
+        if(arg0.isint() && arg1.isfloat()) {if(arg0.unsafe_toint()>arg1.unsafe_tofloat()) maxValue=arg0;continue;}
+        if(arg0.isfloat() && arg1.isint()) {if(arg0.unsafe_tofloat()>arg1.unsafe_toint()) maxValue=arg0;continue;}
+        if(arg0.isfloat() && arg1.isfloat()) {if(arg0.unsafe_tofloat()>arg1.unsafe_tofloat()) maxValue=arg0;continue;}
+        if(arg0.exists()) {
+            Result comparison_ = arg0->gt(memory, arg1);
+            const auto& comparison = comparison_.get();
+            if(!comparison.isbool()) bberror("The implementation for gt("+arg0.torepr()+", "+arg1.torepr()+") did not return a bool literal");
+            if(comparison.unsafe_tobool()) {maxValue=arg0;continue;}
+        }
+        bberror("There was no implementation for lt("+arg0.torepr()+", "+arg1.torepr()+")");
+    }
+    return Result(maxValue);
 }

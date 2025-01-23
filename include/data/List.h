@@ -37,6 +37,8 @@ public:
     int64_t len(BMemory* memory) override;
     Result move(BMemory* memory) override;
     Result iter(BMemory* memory) override;
+    Result min(BMemory* memory) override;
+    Result max(BMemory* memory) override;
 
     friend class Graphics;
 };

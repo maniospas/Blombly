@@ -83,8 +83,8 @@ void BHashMap::fastUnsafePut(const DataPtr& from, const DataPtr& to) {
 Result BHashMap::put(BMemory* memory, const DataPtr& from, const DataPtr& to) {
     bbassert(from.islitorexists(), "Missing key");
     bbassert(to.islitorexists(), "Missing map value");
-    bbassert(!from.existsAndTypeEquals(ERRORTYPE), "Cannot have an error as a map key");
-    bbassert(!to.existsAndTypeEquals(ERRORTYPE), "Cannot have an error as a map value");
+    if(from.existsAndTypeEquals(ERRORTYPE)) bberror(from->toString(nullptr));
+    if(to.existsAndTypeEquals(ERRORTYPE)) bberror(from->toString(nullptr));
 
     size_t keyHash = from.islit()?from.unsafe_toint():from->toHash();
     std::lock_guard<std::recursive_mutex> lock(memoryLock);

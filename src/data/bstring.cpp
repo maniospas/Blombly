@@ -168,7 +168,11 @@ bool BString::toBool(BMemory *memory) {
 
 Result BString::iter(BMemory *memory) {return RESMOVE(Result(new AccessIterator(this, size)));}
 Result BString::add(BMemory *memory, const DataPtr& other) {
-    bbassert(other.existsAndTypeEquals(STRING), "Strings can only be concatenated with other strings");
+    if(!other.existsAndTypeEquals(STRING)) {
+        if(other.existsAndTypeEquals(ERRORTYPE)) return RESMOVE(Result(new BString(toString(nullptr)+other->toString(nullptr))));
+        //if(other.existsAndTypeEquals(ERRORTYPE)) bberror(other->toString(nullptr));
+        bberror("Strings can only be concatenated with strings or errors");
+    }
     return RESMOVE(Result(new BString(toString(nullptr)+static_cast<BString*>(other.get())->toString(nullptr))));
 }
 int64_t BString::len(BMemory *memory) {return size;}

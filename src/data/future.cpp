@@ -61,6 +61,5 @@ Result Future::getResult() const {
     }
     DataPtr ret = result->value.get();
     if(ret.existsAndTypeEquals(FUTURE)) return std::move(static_cast<Future*>(ret.get())->getResult());
-    //std::cout << result->value.get() << "\n";
     return RESMOVE(Result(ret));
 }

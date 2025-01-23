@@ -130,7 +130,6 @@ const DataPtr& BMemory::getShallow(int item) {
     if(idx==end) bberror("Missing value: " + variableManager.getSymbol(item));
     const auto& ret = contents[idx];
     if(ret.existsAndTypeEquals(FUTURE)) [[unlikely]] {
-        //std::cout << "here4\n";
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get());
@@ -379,7 +378,7 @@ void BMemory::await() {
     for (const auto& dat : contents) {
         if (dat.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(dat.get())->isConsumed())  {
             static_cast<BError*>(dat.get())->consume();
-            destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was intercepted with `try` but never handled:\n"+dat->toString(this)+"\n";
+            destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was but never handled:\n"+dat->toString(this)+"\n";
         }
     }
     if(destroyerr.size()) throw BBError(destroyerr.substr(0, destroyerr.size()-1));

@@ -25,17 +25,22 @@ sci = new {
             py = 25;
             width -= 50;
             height -= 50;
+
+            while(plot in this.plots) {
+                if(not minx as min(minx, plot.x|min)) minx = "inf"|float;
+                if(not maxx as max(maxx, plot.x|max)) maxx = "-inf"|float; 
+                if(not miny as min(miny, plot.y|min)) miny = "inf"|float;
+                if(not maxy as max(maxy, plot.y|max)) maxy = "-inf"|float; 
+            }
+
             while(events as canvas|pop) {
                 // draw all plots
                 while(plot in this.plots) {
                     plot:
-                    nx = (x-min(x))/(max(x)-min(x));
-                    ny = (y-min(y))/(max(y)-min(y));
-                    n = x|len;
-                    assert n>=2;
-                    assert y|len == n;
+                    nx = (x-minx)/(maxx-minx);
+                    ny = (y-miny)/(maxy-miny);
                     canvas << color;
-                    while(i in range(n-1)) {
+                    while(i in range(x|len-1)) {
                         x1 = nx[i]*width+px;
                         y1 = height-ny[i]*height+py;
                         x2 = nx[i+1]*width+px;
