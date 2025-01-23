@@ -27,10 +27,10 @@ sci = new {
             height -= 50;
 
             while(plot in this.plots) {
-                if(not minx as min(minx, plot.x|min)) minx = "inf"|float;
-                if(not maxx as max(maxx, plot.x|max)) maxx = "-inf"|float; 
-                if(not miny as min(miny, plot.y|min)) miny = "inf"|float;
-                if(not maxy as max(maxy, plot.y|max)) maxy = "-inf"|float; 
+                default minx = inf  else minx = min(minx, plot.x|min);
+                default maxx = -inf else maxx = max(maxx, plot.x|max); 
+                default miny = inf  else miny = min(miny, plot.y|min);
+                default maxy = -inf else maxy = max(maxy, plot.y|max);
             }
 
             while(events as canvas|pop) {
@@ -40,13 +40,12 @@ sci = new {
                     nx = (x-minx)/(maxx-minx);
                     ny = (y-miny)/(maxy-miny);
                     canvas << color;
-                    while(i in range(x|len-1)) {
-                        x1 = nx[i]*width+px;
-                        y1 = height-ny[i]*height+py;
-                        x2 = nx[i+1]*width+px;
-                        y2 = height-ny[i+1]*height+py;
-                        canvas << "line",x1,y1,x2,y2;
-                    }
+                    while(i in range(x|len-1)) 
+                        canvas << "line",
+                                  nx[i]*width+px,
+                                  height-ny[i]*height+py,
+                                  nx[i+1]*width+px,
+                                  height-ny[i+1]*height+py;
                 }
 
                 // draw axes
