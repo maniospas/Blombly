@@ -314,6 +314,7 @@ Result ExecutionInstance::run(Code* code) {
     DO_TOVECTOR: {
         const auto& arg0 = memory.get(command.args[1]);
         if(arg0.isint()) DISPATCH_RESULT(new Vector(arg0.unsafe_toint()));
+        if(arg0.existsAndTypeEquals(VECTOR)) DISPATCH_RESULT(arg0);
         if(arg0.existsAndTypeEquals(LIST)) DISPATCH_RESULT(static_cast<BList*>(arg0.get())->toVector(&memory));
         bberror("Vectors can only be instantiated from an int size or a list of values convertible to float");
     }

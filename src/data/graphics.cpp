@@ -113,9 +113,10 @@ void Graphics::push(BList* list) {
 }
 
 void Graphics::render() {
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     for (BList* list : renderQueue) {
         std::lock_guard<std::recursive_mutex> lock(list->memoryLock);
         if(list->contents.size()==4) {
@@ -127,7 +128,8 @@ void Graphics::render() {
             unsigned char g = list->contents[1].isint() ? list->contents[1].unsafe_toint() : list->contents[1].unsafe_tofloat();
             unsigned char b = list->contents[2].isint() ? list->contents[2].unsafe_toint() : list->contents[2].unsafe_tofloat();
             unsigned char a = list->contents[3].isint() ? list->contents[3].unsafe_toint() : list->contents[3].unsafe_tofloat();
-            color = {r, g, b, b};
+            color = {r, g, b, a};
+            SDL_SetRenderDrawColor(renderer, r, g, b, a);
             continue;
         }
         if(list->contents.size()==5) {
@@ -141,14 +143,13 @@ void Graphics::render() {
             int x2 = list->contents[3].isint() ? list->contents[3].unsafe_toint() : list->contents[3].unsafe_tofloat();
             int y2 = list->contents[4].isint() ? list->contents[4].unsafe_toint() : list->contents[4].unsafe_tofloat();
             std::string shape = list->contents[0]->toString(nullptr);
-            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
             if(shape=="line") SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
             else if(shape=="orect") {
-                SDL_Rect rect = {x1, y1, x2, y2};
+                SDL_Rect rect = {x1, y1, x2-x1, y2-y1};
                 SDL_RenderDrawRect(renderer, &rect);
             }
             else if(shape=="rect") {
-                SDL_Rect rect = {x1, y1, x2, y2};
+                SDL_Rect rect = {x1, y1, x2-x1, y2-y1};
                 SDL_RenderFillRect(renderer, &rect);
             }
             else bberror("Wrong shape provided: "+shape);
@@ -201,6 +202,7 @@ void Graphics::render() {
             SDL_Texture* texture = getTexture(texturePath);
             SDL_SetTextureColorMod(texture, color.r, color.g, color.b); // Apply color modulation
             SDL_SetTextureAlphaMod(texture, color.a);
+            SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
             SDL_Rect dstRect = {static_cast<int>(x), static_cast<int>(y), static_cast<int>(dx), static_cast<int>(dy)};
             SDL_RenderCopyEx(renderer, texture, nullptr, &dstRect, angle, nullptr, SDL_FLIP_NONE);
         }

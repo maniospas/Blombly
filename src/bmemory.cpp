@@ -290,7 +290,7 @@ void BMemory::unsafeSet(int item, const DataPtr& value) {
 
 void BMemory::directTransfer(int to, int from) {
     int fromidx = find(from);
-    const auto& value = fromidx==end ? (parent?parent->get(from, allowMutables):DataPtr::NULLP) : contents[fromidx];
+    auto value = (fromidx==end || !contents[fromidx].islitorexists()) ? (parent?parent->get(from, allowMutables):DataPtr::NULLP) : contents[fromidx];
 
     int toidx = find(to);
     if(toidx==end) {
