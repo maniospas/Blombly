@@ -100,8 +100,7 @@ Hello world!
 
 Automates several file handling tasks. In addition to those operations,
 filesystem access safety is imposed with the `!access` and `!modify` preprocessor
-directives described
-[here](../basics/io.md). You cannot access any system resources without explicitly
+directives described [here](../basics/io.md). Access any system resources without explicitly
 providing the respective permissions to your program *from your main/running file*.
 For safety, required permissions found in any included files that are not a subset of those
 declared in the main program create an error and ask to be added.
@@ -112,4 +111,22 @@ declared in the main program create an error and ask to be added.
 !modify "libs/download/"
 
 bb.os.transfer("libs/download/html.bb", "https://raw.githubusercontent.com/maniospas/Blombly/refs/heads/main/libs/html.bb");
+```
+
+## bb.sci
+
+Provides a small data science package with plotting functionality over vectors.
+Plotting uses `graphics` under the hood. Here is an example.
+
+```java
+x = list();
+y = list();
+while(i in range(100)){
+    x << i*0.01;
+    y << ((i-50)*0.01)^2;
+}
+canvas = new{bb.sci.Plot:}
+canvas = canvas.plot(x, y :: color=255,0,0,255; title="y=(x-0.5)^2");
+canvas = canvas.plot(x, x :: color=0,255,0,255; title="y=x");
+canvas.show(width=800;height=600);
 ```

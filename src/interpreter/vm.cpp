@@ -117,7 +117,7 @@ int vm(const std::string& fileName, int numThreads) {
         hadError = true;
     }
     if(hadError) {
-        std::cerr << "Docs and bug reports: https://maniospas.github.io/Blombly\n";
+        std::cerr << "Docs and bug reports for the Blombly language: https://maniospas.github.io/Blombly\n";
         return 1;
     }
     return 0;
@@ -172,7 +172,7 @@ int vmFromSourceCode(const std::string& sourceCode, int numThreads) {
         hadError = true;
     }
     if(hadError) {
-        std::cerr << "Docs and bug reports: https://maniospas.github.io/Blombly\n";
+        std::cerr << "Docs and bug reports for the Blombly language: https://maniospas.github.io/Blombly\n";
         return 1;
     }
     return 0;

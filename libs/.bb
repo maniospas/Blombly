@@ -9,4 +9,5 @@ final bb = new {
     !include "bb://libs/monad"
     !include "bb://libs/tests"
     !include "bb://libs/collections"
+    !include "bb://libs/plot"
 }
