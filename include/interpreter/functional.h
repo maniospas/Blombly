@@ -21,9 +21,11 @@ class ExecutionInstance {
     BMemory& memory;
     bool returnSignal;
     bool forceStayInThread;
+    DataPtr arg0, arg1;
 public:
     ExecutionInstance(Code* code, BMemory* memory, bool forceStayInThread): returnSignal(false), memory(*memory), forceStayInThread(forceStayInThread) {}
     Result run(Code* code);
+    Result run(const std::vector<Command>& program, int i, int end);
     void handleExecutionError(const Command& command, const BBError& e);
     inline bool hasReturned() const {return returnSignal;}
 };

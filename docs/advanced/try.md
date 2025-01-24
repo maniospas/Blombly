@@ -3,11 +3,14 @@
 ## As
 
 Computations like converting invalid strings to numbers, or using the `next` operator of iterators,
-return errors as values. These make execution fail if used in computations.
+return errors as values. These make execution fail if used in computations, thus cascading the 
+error up until it reaches the global scope. Most errors found this way do no break execution flow;
+this is what return's for. However, the backwards carscaded error keeps track of the stack trace
+leading up to it.
+
 One way of handling errors is
-the `as` keyword. This performs an assignment without breaking normal code writing 
-upon encountering an error value, but returns a true/false value depending on whether
-an error was found. Below is a simple one-liner that retries
+the `as` keyword. This performs a normal assignment, but also returns a boolean (true/false) 
+value depending on whether an error was retrieved. Below is a simple one-liner that retries
 reading from the console until a number is provided.
 
 ```java
@@ -23,7 +26,20 @@ Give a number: 12
 12
 </pre>
 
+
+## Catch
+
+Catch errors by using the `catch(@expression) @found else @notfound;` pattern.
+This has identical syntax to conditional statements, so you can skip the alternative clause
+and can enclause multiple statements in brackets. It also be
+
+
+
+
 ## Try
+
+!!! warning
+    Information for `try` here may be inaccurate due to redesign of error handling. Above sections have been updated.
 
 The `@result = try{@code}` pattern intercepts errors that indicate
 unsuccessful algorithms, as well as return statements that indicate successful conclusion of

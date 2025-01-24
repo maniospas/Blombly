@@ -18,7 +18,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexec-charset=UTF-8 -finput-charset=UTF-8 -O2 -s")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -fopt-info-vec -fexec-charset=UTF-8 -finput-charset=UTF-8 -O2 -s")  # either -pg for profile or -s to strip symbols. profile obtained with gprof ./build/blombly gmon.out > profile_report.txt
 add_definitions(-DUNICODE -D_UNICODE)
 
 if(MSVC)

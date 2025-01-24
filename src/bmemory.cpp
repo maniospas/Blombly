@@ -8,6 +8,8 @@
 #include "interpreter/functional.h"
 #include <unordered_set>  
 #include <bit>
+#include <xmmintrin.h>
+#include <new>     // For std::align
 
 std::atomic<unsigned long long> countUnrealeasedMemories(0);
 extern VariableManager variableManager;
@@ -22,7 +24,11 @@ void BMemory::verify_noleaks() {
 BMemory::BMemory(BMemory* par, int expectedAssignments, DataPtr thisObject) : parent(par), allowMutables(true), first_item(INT_MAX), hasAtLeastOneFinal(false) {  // we are determined to never use special symbols as the start of our cache index
     ++countUnrealeasedMemories;
     //data.reserve(expectedAssignments);
-    contents.resize(expectedAssignments, DataPtr::NULLP);
+    //contents.resize(expectedAssignments, DataPtr::NULLP);
+    rawContents = (DataPtr*) aligned_alloc(expectedAssignments, sizeof(DataPtr));
+    for(int i=0;i<expectedAssignments;++i) rawContents[i] = DataPtr::NULLP;
+    rawContentsReserved = expectedAssignments;
+    rawContentsSize = expectedAssignments;
     max_cache_size = expectedAssignments; 
 }
 
@@ -45,7 +51,9 @@ void BMemory::release() {
     }
     attached_threads.clear();
 
-    for(const auto& dat : contents) {
+    //for(const auto& dat : contents) {
+    for(int i=0;i<rawContentsSize;++i) {
+        const auto& dat = rawContents[i];
         try {
             if(dat.exists()) {
                 Data* data = dat.get();
@@ -56,52 +64,32 @@ void BMemory::release() {
         catch(const BBError& e) {destroyerr += std::string(e.what())+"\n";}
     }
     data.clear();
-    contents.clear();
+    //contents.clear();
+    if(rawContents) std::free(rawContents);
+    rawContents = nullptr;
+    rawContentsReserved = 0;
+    rawContentsSize = 0;
     max_cache_size = 0;
     if(destroyerr.size())  throw BBError(destroyerr.substr(0, destroyerr.size()-1));
 }
 
 BMemory::~BMemory() {
-    if(data.find(variableManager.thisId)!=data.end()) contents[data[variableManager.thisId]] = DataPtr::NULLP;
+    if(data.find(variableManager.thisId)!=data.end()) rawContents[data[variableManager.thisId]] = DataPtr::NULLP;
     countUnrealeasedMemories--; 
     release();
 }
 
 int BMemory::size() const {return data.size();}
 
-int BMemory::find(int item) const {
-    // have there be a difference everywhere to save one instruction
-    int tentativeidx = item-first_item;
-    // prioritize the more likely comparison given that finds are mostly called after setting the first_item
-    //if(tentativeidx<max_cache_size && tentativeidx>=0) return tentativeidx;  
-    // if we have a cache size up to MAX_INT/2, the following works just fine thanks to overload making all negative values very large
-    if(std::bit_cast<unsigned int>(tentativeidx)<max_cache_size) [[likely]] return tentativeidx;
-    const auto& idx = data.find(item);
-    if(idx==data.end()) return end;
-    return idx->second;
+const DataPtr& BMemory::resolveFuture(int item, const DataPtr& ret) {
+    auto prevRet = static_cast<Future*>(ret.get());
+    auto resVal = prevRet->getResult();
+    unsafeSet(item, resVal.get()); 
+    attached_threads.erase(prevRet);
+    prevRet->removeFromOwner();
+    return get(item); // Recurse to retrieve the updated value
 }
 
-const DataPtr& BMemory::get(int item) { // allowMutable = true
-    int idx = find(item);
-    if(idx==end) {
-        if(parent) return parent->get(item, allowMutables);
-        bberror("Missing value: " + variableManager.getSymbol(item));
-    }
-    const auto& ret = contents[idx];
-    if(ret.existsAndTypeEquals(FUTURE)) [[unlikely]] {
-        auto prevRet = static_cast<Future*>(ret.get());
-        auto resVal = prevRet->getResult();
-        unsafeSet(item, resVal.get()); 
-        attached_threads.erase(prevRet);
-        prevRet->removeFromOwner();
-        return get(item);
-    }
-    if(!ret.islitorexists()) [[unlikely]] {
-        bbassert(parent, "Missing value: " + variableManager.getSymbol(item));
-        return parent->get(item, allowMutables);
-    }
-    return ret;
-}
 
 const DataPtr& BMemory::get(int item, bool allowMutable) {
     int idx = find(item);
@@ -109,7 +97,7 @@ const DataPtr& BMemory::get(int item, bool allowMutable) {
         if(parent) return parent->get(item, allowMutables);
         bberror("Missing value: " + variableManager.getSymbol(item));
     }
-    const auto& ret = contents[idx];
+    const auto& ret = rawContents[idx];
     if(ret.existsAndTypeEquals(FUTURE)) [[unlikely]] {
         Future* prevRet = static_cast<Future*>(ret.get());
         Result resVal = prevRet->getResult();
@@ -128,7 +116,7 @@ const DataPtr& BMemory::get(int item, bool allowMutable) {
 const DataPtr& BMemory::getShallow(int item) {
     int idx = find(item);
     if(idx==end) bberror("Missing value: " + variableManager.getSymbol(item));
-    const auto& ret = contents[idx];
+    const auto& ret = rawContents[idx];
     if(ret.existsAndTypeEquals(FUTURE)) [[unlikely]] {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
@@ -143,14 +131,14 @@ const DataPtr& BMemory::getShallow(int item) {
 const DataPtr& BMemory::getOrNullShallow(int item) {
     int idx = find(item);
     if(idx==end) return DataPtr::NULLP;
-    const auto& ret = contents[idx];
+    const auto& ret = rawContents[idx];
     if (ret.existsAndTypeEquals(FUTURE)) [[unlikely]] {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get());
         attached_threads.erase(prevRet);
         prevRet->removeFromOwner();
-        return contents[idx];
+        return rawContents[idx];
     }
     return ret;
 }
@@ -161,14 +149,14 @@ const DataPtr& BMemory::getOrNull(int item, bool allowMutable) {
         if(parent) return parent->getOrNull(item, allowMutables && allowMutable);
         return DataPtr::NULLP;
     }
-    const auto& ret = contents[idx];
+    const auto& ret = rawContents[idx];
     if (ret.existsAndTypeEquals(FUTURE)) [[unlikely]] {
         auto prevRet = static_cast<Future*>(ret.get());
         auto resVal = prevRet->getResult();
         unsafeSet(item, resVal.get());
         attached_threads.erase(prevRet);
         prevRet->removeFromOwner();
-        return contents[idx];
+        return rawContents[idx];
     }
     if (ret.islitorexists()) [[likely]] {bbassert(allowMutable || ret.isA(), "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));}
     else if (parent) return parent->getOrNull(item, allowMutables && allowMutable);
@@ -178,7 +166,7 @@ const DataPtr& BMemory::getOrNull(int item, bool allowMutable) {
 void BMemory::setToNullIgnoringFinals(int item) { 
     int idx = find(item);
     if(idx==end) return;
-    auto& prev = contents[idx];
+    auto& prev = rawContents[idx];
     if(prev.exists()) {
         Data* prevData = prev.get();
         if(prevData->getType()==ERRORTYPE && !static_cast<BError*>(prevData)->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prevData->toString(this));
@@ -187,29 +175,8 @@ void BMemory::setToNullIgnoringFinals(int item) {
     prev = DataPtr::NULLP;
 }
 
-void BMemory::unsafeSetLiteral(int item, const DataPtr& value) { // when this is called, we are guaranteed that value.exists() == false
-    int idx = find(item);
-    if(idx==end) {
-        if(first_item==INT_MAX && item>=4) {
-            first_item = item;
-            contents[0] = value;
-            contents[0].setAFalse();
-            return;
-        }
-        data[item] = contents.size();
-        contents.push_back(value);
-        contents[contents.size()-1].setAFalse();
-        return;
-    }
-    auto& prev = contents[idx];
-    if(prev.isA()) bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
-    if(prev.exists()) {
-        Data* prevData = prev.get();
-        if(prevData->getType()==ERRORTYPE && !static_cast<BError*>(prevData)->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prevData->toString(this));
-        prevData->removeFromOwner();
-    }
-    prev = value;
-    prev.setAFalse();
+void BMemory::prefetch() const {
+    if(rawContents) _mm_prefetch(rawContents, _MM_HINT_T0);
 }
 
 void BMemory::set(int item, const DataPtr& value) {
@@ -218,16 +185,22 @@ void BMemory::set(int item, const DataPtr& value) {
         value.existsAddOwner();
         if(first_item==INT_MAX && item>=4) {
             first_item = item;
-            contents[0] = value;
-            contents[0].setAFalse();
+            rawContents[0] = value;
+            rawContents[0].setAFalse();
             return;
         }
-        data[item] = contents.size();
-        contents.push_back(value);
-        contents[contents.size()-1].setAFalse();
+        data[item] = rawContentsSize;
+        rawContents[rawContentsSize] = value;
+        rawContents[rawContentsSize].setAFalse();
+        ++rawContentsSize;
+        if(rawContentsSize>=rawContentsReserved) [[unlikely]] {
+            int newRawContentsReserved = rawContentsSize + rawContentsSize>>2; // + 25% growth (right shift is 1/4)
+            rawContents = (DataPtr*)aligned_realloc(rawContents, rawContentsReserved, newRawContentsReserved, sizeof(DataPtr));
+            rawContentsReserved = newRawContentsReserved;
+        }
         return;
     }
-    auto& prev = contents[idx];
+    auto& prev = rawContents[idx];
     if(prev.isA()) bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
     if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
     value.existsAddOwner();
@@ -242,16 +215,22 @@ void BMemory::setFuture(int item, const DataPtr& value) {  // value.exists() == 
         value->addOwner();
         if(first_item==INT_MAX && item>=4) {
             first_item = item;
-            contents[0] = DataPtr(value.get(), IS_FUTURE);
-            contents[0].setAFalse();
+            rawContents[0] = DataPtr(value.get(), IS_FUTURE);
+            rawContents[0].setAFalse();
             return;
         }
-        data[item] = contents.size();
-        contents.push_back(value);
-        contents[contents.size()-1].setAFalse();
+        data[item] = rawContentsSize;
+        rawContents[rawContentsSize] = value;
+        rawContents[rawContentsSize].setAFalse();
+        ++rawContentsSize;
+        if(rawContentsSize>=rawContentsReserved) [[unlikely]] {
+            int newRawContentsReserved = rawContentsSize + rawContentsSize>>2; // + 25% growth (right shift is 1/4)
+            rawContents = (DataPtr*)aligned_realloc(rawContents, rawContentsReserved, newRawContentsReserved, sizeof(DataPtr));
+            rawContentsReserved = newRawContentsReserved;
+        }
         return;
     }
-    auto& prev = contents[idx];
+    auto& prev = rawContents[idx];
     if(prev.isA()) bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
     if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
     value->addOwner();
@@ -266,17 +245,22 @@ void BMemory::unsafeSet(int item, const DataPtr& value) {
         value.existsAddOwner();
         if(first_item==INT_MAX && item>=4) {
             first_item = item;
-            /*if(value.existsAndTypeEquals(FUTURE)) contents[0] = DataPtr(value.get(), IS_FUTURE);
-            else*/ contents[0] = value;
-            contents[0].setAFalse();
+            rawContents[0] = value;
+            rawContents[0].setAFalse();
             return;
         }
-        data[item] = contents.size();
-        contents.push_back(value);
-        contents[contents.size()-1].setAFalse();
+        data[item] = rawContentsSize;
+        rawContents[rawContentsSize] = value;
+        rawContents[rawContentsSize].setAFalse();
+        ++rawContentsSize;
+        if(rawContentsSize>=rawContentsReserved) [[unlikely]] {
+            int newRawContentsReserved = rawContentsSize + rawContentsSize>>2; // + 25% growth (right shift is 1/4)
+            rawContents = (DataPtr*)aligned_realloc(rawContents, rawContentsReserved, newRawContentsReserved, sizeof(DataPtr));
+            rawContentsReserved = newRawContentsReserved;
+        }
         return;
     }
-    DataPtr& prev = contents[idx];
+    DataPtr& prev = rawContents[idx];
     bool prevFinal = prev.isA();
     if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
     value.existsAddOwner();
@@ -289,23 +273,24 @@ void BMemory::unsafeSet(int item, const DataPtr& value) {
 
 void BMemory::directTransfer(int to, int from) {
     int fromidx = find(from);
-    auto value = (fromidx==end || !contents[fromidx].islitorexists()) ? (parent?parent->get(from, allowMutables):DataPtr::NULLP) : contents[fromidx];
+    auto value = (fromidx==end || !rawContents[fromidx].islitorexists()) ? (parent?parent->get(from, allowMutables):DataPtr::NULLP) : rawContents[fromidx];
 
     int toidx = find(to);
     if(toidx==end) {
         value.existsAddOwner();
         if(first_item==INT_MAX && to>=4) {
             first_item = to;
-            contents[0] = value;
-            contents[0].setAFalse();
+            rawContents[0] = value;
+            rawContents[0].setAFalse();
             return;
         }
-        data[to] = contents.size();
-        contents.push_back(value);
-        contents[contents.size()-1].setAFalse();
+        data[to] = rawContentsSize;
+        rawContents[rawContentsSize] = value;
+        ++rawContentsSize;
+
         return;
     }
-    DataPtr& prev = contents[toidx];
+    DataPtr& prev = rawContents[toidx];
     if(prev.isA()) bberror("Cannot overwrite final value: " + variableManager.getSymbol(to));
     //if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
 
@@ -317,9 +302,10 @@ void BMemory::directTransfer(int to, int from) {
 }
 
 void BMemory::setFinal(int item) {
+    await();
     int idx = find(item);
     bbassert(idx!=end, "Missing variable cannot be set to final: "+variableManager.getSymbol(item));
-    DataPtr& value = contents[idx];
+    DataPtr& value = rawContents[idx];
     bbassert(value.islitorexists(), "Missing variable cannot be set to final: "+variableManager.getSymbol(item));
     value.setA(true);
     hasAtLeastOneFinal = true;
@@ -327,7 +313,7 @@ void BMemory::setFinal(int item) {
 
 void BMemory::pull(BMemory* other) {
     for(int idx=0;idx<other->max_cache_size;++idx) {
-        const auto& dat = other->contents[idx];
+        const auto& dat = other->rawContents[idx];
         if (dat.islitorexists()) {
             //this can not be stored in the first cache element anyway
             int item = idx + other->first_item;
@@ -335,14 +321,14 @@ void BMemory::pull(BMemory* other) {
         }
     }
     for(const auto& it : other->data) {
-        const auto& dat = other->contents[it.second];
+        const auto& dat = other->rawContents[it.second];
         if (dat.islitorexists() && it.first!=variableManager.thisId) set(it.first, dat);
     }
 }
 
 void BMemory::replaceMissing(BMemory* other) {
     for(int idx=0;idx<other->max_cache_size;++idx) {
-        const auto& dat = other->contents[idx];
+        const auto& dat = other->rawContents[idx];
         if (dat.islitorexists()) {
             //this can not be stored in the first cache element anyway
             int item = idx + other->first_item;
@@ -350,7 +336,7 @@ void BMemory::replaceMissing(BMemory* other) {
         }
     }
     for(const auto& it : other->data) {
-        const auto& dat = other->contents[it.second];
+        const auto& dat = other->rawContents[it.second];
         if (dat.islitorexists() && !!getOrNullShallow(it.first).islitorexists()) set(it.first, dat);
     }
 }
@@ -375,7 +361,9 @@ void BMemory::await() {
     }
     attached_threads.clear();
 
-    for (const auto& dat : contents) {
+    //for (const auto& dat : contents) {
+    for(int i=0;i<rawContentsSize;++i) {
+        const auto& dat = rawContents[i];
         if (dat.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(dat.get())->isConsumed())  {
             static_cast<BError*>(dat.get())->consume();
             destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was but never handled:\n"+dat->toString(this)+"\n";

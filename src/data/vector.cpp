@@ -88,6 +88,7 @@ Result Vector::add(BMemory* memory, const DataPtr& other) {
         double val = other.isfloat()?other.unsafe_tofloat():other.unsafe_toint();
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
+        #pragma omp simd
         for (int i = 0; i < size; ++i) result->data[i] = data[i] + val;
         return RESMOVE(Result(result));
     }
@@ -96,6 +97,7 @@ Result Vector::add(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock1(memoryLock);
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
+    #pragma omp simd
     for (int i = 0; i < size; ++i) result->data[i] = data[i] + vec->data[i];
     return RESMOVE(Result(result));
 }
@@ -105,6 +107,7 @@ Result Vector::sub(BMemory* memory, const DataPtr& other) {
         double val = other.isfloat()?other.unsafe_tofloat():other.unsafe_toint();
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
+        #pragma omp simd
         for (int i = 0; i < size; ++i) result->data[i] = data[i] - val;
         return RESMOVE(Result(result));
     }
@@ -113,6 +116,7 @@ Result Vector::sub(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock1(memoryLock);
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
+    #pragma omp simd
     for (int i = 0; i < size; ++i) result->data[i] = data[i] - vec->data[i];
     return RESMOVE(Result(result));
 }
@@ -122,6 +126,7 @@ Result Vector::mul(BMemory* memory, const DataPtr& other) {
         double val = other.isfloat()?other.unsafe_tofloat():other.unsafe_toint();
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
+        #pragma omp simd
         for (int i = 0; i < size; ++i) result->data[i] = data[i] * val;
         return RESMOVE(Result(result));
     }
@@ -130,6 +135,7 @@ Result Vector::mul(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock1(memoryLock);
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
+    #pragma omp simd
     for (int i = 0; i < size; ++i) result->data[i] = data[i] * vec->data[i];
     return RESMOVE(Result(result));
 }
@@ -139,6 +145,7 @@ Result Vector::div(BMemory* memory, const DataPtr& other) {
         double val = other.isfloat()?other.unsafe_tofloat():other.unsafe_toint();
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
+        #pragma omp simd
         for (int i = 0; i < size; ++i) result->data[i] = data[i] / val;
         return RESMOVE(Result(result));
     }
@@ -147,6 +154,7 @@ Result Vector::div(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock1(memoryLock);
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
+    #pragma omp simd
     for (int i = 0; i < size; ++i) result->data[i] = data[i] / vec->data[i];
     return RESMOVE(Result(result));
 }
@@ -156,6 +164,7 @@ Result Vector::pow(BMemory* memory, const DataPtr& other) {
         double val = other.isfloat()?other.unsafe_tofloat():other.unsafe_toint();
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
+        #pragma omp simd
         for (int i = 0; i < size; ++i) result->data[i] = std::pow(data[i], val);
         return RESMOVE(Result(result));
     }
@@ -164,6 +173,7 @@ Result Vector::pow(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock1(memoryLock);
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
+    #pragma omp simd
     for (int i = 0; i < size; ++i) result->data[i] = std::pow(data[i], vec->data[i]);
     return RESMOVE(Result(result));
 }
@@ -173,6 +183,7 @@ Result Vector::lt(BMemory* memory, const DataPtr& other) {
         double val = other.isfloat()?other.unsafe_tofloat():other.unsafe_toint();
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
+        #pragma omp simd
         for (int i = 0; i < size; ++i) result->data[i] = data[i] < val;
         return RESMOVE(Result(result));
     }
@@ -181,6 +192,7 @@ Result Vector::lt(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock1(memoryLock);
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
+    #pragma omp simd
     for (int i = 0; i < size; ++i) result->data[i] = data[i] < vec->data[i];
     return RESMOVE(Result(result));
 }
@@ -190,6 +202,7 @@ Result Vector::gt(BMemory* memory, const DataPtr& other) {
         double val = other.isfloat()?other.unsafe_tofloat():other.unsafe_toint();
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
+        #pragma omp simd
         for (int i = 0; i < size; ++i) result->data[i] = data[i] > val;
         return RESMOVE(Result(result));
     }
@@ -198,6 +211,7 @@ Result Vector::gt(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock1(memoryLock);
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
+    #pragma omp simd
     for (int i = 0; i < size; ++i) result->data[i] = data[i] > vec->data[i];
     return RESMOVE(Result(result));
 }
@@ -207,6 +221,7 @@ Result Vector::le(BMemory* memory, const DataPtr& other) {
         double val = other.isfloat()?other.unsafe_tofloat():other.unsafe_toint();
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
+        #pragma omp simd
         for (int i = 0; i < size; ++i) result->data[i] = data[i] <= val;
         return RESMOVE(Result(result));
     }
@@ -215,6 +230,7 @@ Result Vector::le(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock1(memoryLock);
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
+    #pragma omp simd
     for (int i = 0; i < size; ++i) result->data[i] = data[i] <= vec->data[i];
     return RESMOVE(Result(result));
 }
@@ -224,6 +240,7 @@ Result Vector::ge(BMemory* memory, const DataPtr& other) {
         double val = other.isfloat()?other.unsafe_tofloat():other.unsafe_toint();
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
+        #pragma omp simd
         for (int i = 0; i < size; ++i) result->data[i] = data[i] >= val;
         return RESMOVE(Result(result));
     }
@@ -232,6 +249,7 @@ Result Vector::ge(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock1(memoryLock);
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
+    #pragma omp simd
     for (int i = 0; i < size; ++i) result->data[i] = data[i] >= vec->data[i];
     return RESMOVE(Result(result));
 }
@@ -241,6 +259,7 @@ Result Vector::eq(BMemory* memory, const DataPtr& other) {
         double val = other.isfloat()?other.unsafe_tofloat():other.unsafe_toint();
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
+        #pragma omp simd
         for (int i = 0; i < size; ++i) result->data[i] = data[i] == val;
         return RESMOVE(Result(result));
     }
@@ -249,6 +268,7 @@ Result Vector::eq(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock1(memoryLock);
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
+    #pragma omp simd
     for (int i = 0; i < size; ++i) result->data[i] = data[i] == vec->data[i];
     return RESMOVE(Result(result));
 }
@@ -258,6 +278,7 @@ Result Vector::neq(BMemory* memory, const DataPtr& other) {
         double val = other.isfloat()?other.unsafe_tofloat():other.unsafe_toint();
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Vector* result = new Vector(size);
+        #pragma omp simd
         for (int i = 0; i < size; ++i) result->data[i] = data[i] != val;
         return RESMOVE(Result(result));
     }
@@ -266,6 +287,7 @@ Result Vector::neq(BMemory* memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock1(memoryLock);
     std::lock_guard<std::recursive_mutex> lock2(vec->memoryLock);
     Vector* result = new Vector(size);
+    #pragma omp simd
     for (int i = 0; i < size; ++i) result->data[i] = data[i] != vec->data[i];
     return RESMOVE(Result(result));
 }
@@ -296,6 +318,7 @@ Result Vector::max(BMemory* memory) {
 Result Vector::logarithm(BMemory* memory) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     auto* result = new Vector(size);
+    #pragma omp simd
     for (int i = 0; i < size; ++i) result->data[i] = std::log(data[i]);
     return Result(result);
 }

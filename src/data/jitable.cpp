@@ -71,23 +71,23 @@ public:
             Result res = it->next(memory);
             nextValue = res.get();
             
-            memory->set(next, nextValue);
+            //memory->set(next, nextValue);
             returnValue = nextValue.islit() || nextValue.get()!=OUT_OF_RANGE;
-            memory->set(exists, returnValue);
+            //memory->set(exists, returnValue);
             memory->set(as, nextValue); // set last to optimize with set
             return true;
         }
 
         if(nextValue.islit()) {
-            memory->unsafeSetLiteral(next, nextValue); 
+            //memory->unsafeSetLiteral(next, nextValue); 
             memory->unsafeSetLiteral(as, nextValue); 
-            memory->unsafeSetLiteral(exists, true);
+            //memory->unsafeSetLiteral(exists, true);
         }
         else {
             returnValue = nextValue.get()!=OUT_OF_RANGE;
-            memory->set(next, nextValue);
+            //memory->set(next, nextValue);
             memory->set(as, nextValue);
-            memory->unsafeSetLiteral(exists, returnValue);
+            //memory->unsafeSetLiteral(exists, returnValue);
         }
         return true;
     }
