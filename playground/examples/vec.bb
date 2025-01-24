@@ -1,5 +1,5 @@
 
-size = 10000000;
+size = 100000000;
 vector_a = vector(size);
 vector_b = vector(size);
 

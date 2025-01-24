@@ -51,7 +51,7 @@ Result compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
     std::ifstream inputFile(file);
     if (!inputFile.is_open()) {
         bberror("Unable to open file: " + file);
-        return Result(nullptr);
+        return Result(DataPtr::NULLP);
     }
 
     // Organize each line into a new assembly command
@@ -69,7 +69,7 @@ Result compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
     return Result(new Code(program, 0, program->size() - 1, program->size() - 1));
 }
 
-extern std::unordered_map<int, DataPtr> cachedData;
+extern BMemory cachedData;
 
 int vm(const std::string& fileName, int numThreads) {
     Future::setMaxThreads(numThreads);
@@ -108,8 +108,7 @@ int vm(const std::string& fileName, int numThreads) {
             }
             memory.release();
         }
-        for (const auto& [key, data] : cachedData) data->removeFromOwner();
-        cachedData.clear();
+        cachedData.release();
         BMemory::verify_noleaks();
         //std::cout<<"Program completed successfully\n";
     } catch (const BBError& e) {
@@ -163,8 +162,7 @@ int vmFromSourceCode(const std::string& sourceCode, int numThreads) {
             }
             memory.release();
         }
-        for (const auto& [key, data] : cachedData) data->removeFromOwner();
-        cachedData.clear();
+        cachedData.release();
         BMemory::verify_noleaks();
         //std::cout<<"Program completed successfully\n";
     } catch (const BBError& e) {

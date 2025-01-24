@@ -79,6 +79,7 @@ constexpr DATTYPETYPE IS_INT = static_cast<DATTYPETYPE>(2);
 constexpr DATTYPETYPE IS_BOOL = static_cast<DATTYPETYPE>(4);
 constexpr DATTYPETYPE IS_PTR = static_cast<DATTYPETYPE>(8);
 constexpr DATTYPETYPE IS_FUTURE = static_cast<DATTYPETYPE>(16);
+constexpr DATTYPETYPE IS_ERROR = static_cast<DATTYPETYPE>(32);
 constexpr DATTYPETYPE IS_PROPERTY_A = static_cast<DATTYPETYPE>(64);
 constexpr DATTYPETYPE IS_PROPERTY_B = static_cast<DATTYPETYPE>(128);
 constexpr DATTYPETYPE IS_FLOAT_OR_INT = static_cast<DATTYPETYPE>(IS_FLOAT | IS_INT);
@@ -93,6 +94,7 @@ constexpr DATTYPETYPE IS_LIT = static_cast<DATTYPETYPE>(IS_FLOAT | IS_INT | IS_B
 constexpr DATTYPETYPE IS_NOT_PROPERTY_A = static_cast<DATTYPETYPE>(~IS_PROPERTY_A);
 constexpr DATTYPETYPE IS_NOT_PROPERTY_B = static_cast<DATTYPETYPE>(~IS_PROPERTY_B);
 constexpr DATTYPETYPE REMOVE_PROPERTIES = static_cast<DATTYPETYPE>(~(IS_PROPERTY_A | IS_PROPERTY_B));
+constexpr DATTYPETYPE IS_NOT_ERROR = static_cast<DATTYPETYPE>(~IS_ERROR);
 
 
 //#define SAFETYCHECKS
@@ -104,14 +106,17 @@ constexpr DATTYPETYPE REMOVE_PROPERTIES = static_cast<DATTYPETYPE>(~(IS_PROPERTY
  */
 class Data;
 class Future;
+class BError;
 
 struct DataPtr {
 private:
     int64_t data;
     DATTYPETYPE datatype; // second to optimize for alignment
 public:
+    inline bool isset() const {return datatype;}
     DataPtr(double data) noexcept : data(std::bit_cast<int64_t>(data)), datatype(IS_FLOAT) {}
     DataPtr(Data* data) noexcept : data(std::bit_cast<int64_t>(data)), datatype(IS_PTR) {}
+    //DataPtr(BError* data) noexcept : data(std::bit_cast<int64_t>(data)), datatype(IS_PTR|IS_ERROR) {}
     DataPtr(int64_t data) noexcept : data(data), datatype(IS_INT) {}
     DataPtr(int data) noexcept : data(static_cast<int64_t>(data)), datatype(IS_INT) {}
     DataPtr(bool data) noexcept : data(static_cast<int64_t>(data)), datatype(IS_BOOL) {}
@@ -209,7 +214,6 @@ public:
     }
     
     inline bool islit() const {return datatype & IS_LIT;}
-
     inline bool operator==(const DataPtr& other) const {
         if (datatype & IS_NOT_PTR) return false;
         return data==other.data;
@@ -219,6 +223,7 @@ public:
     inline int64_t unsafe_toint() const { return data; }
     inline bool unsafe_tobool() const { return data; }
 
+    inline bool iserror() const { return datatype & IS_ERROR; }
     inline bool isfloat() const { return datatype & IS_FLOAT; }
     inline bool isfloatorint() const { return datatype & IS_FLOAT_OR_INT; }
     inline bool isint() const { return datatype & IS_INT; }

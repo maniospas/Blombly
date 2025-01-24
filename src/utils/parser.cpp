@@ -55,7 +55,7 @@ extern bool isAllowedLocationNoNorm(const std::string& path_);
 extern void preliminarySimpleChecks(std::vector<Command>* program);
 std::string top_level_file;
 
-extern std::unordered_map<int, DataPtr> cachedData;
+extern BMemory cachedData;
 
 std::string singleThreadedVMForComptime(const std::string& code, const std::string& fileName) {
     Future::setMaxThreads(1);
@@ -103,12 +103,10 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
             }
             memory.release();
         }
-        for (const auto& [key, data] : cachedData) data->removeFromOwner();
-        cachedData.clear();
+        cachedData.release();
         BMemory::verify_noleaks();
     } catch (const BBError& e) {
-        for (const auto& [key, data] : cachedData) data->removeFromOwner();
-        cachedData.clear();
+        cachedData.release();
         std::cerr << e.what() << "\033[0m\n";
         hadError = true;
     }

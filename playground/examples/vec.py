@@ -1,10 +1,13 @@
 import numpy as np
 import time
+import gc
+
+gc.collect()
 
 # Create two large vectors with 1e9 elements each
-size = int(1e8)
-vector_a = np.zeros(size)
-vector_b = np.zeros(size)
+size = 100000000
+vector_a = np.zeros(size, dtype=np.float64)
+vector_b = np.zeros(size, dtype=np.float64)
 
 # Measure the time for adding two vectors
 start_time = time.time()

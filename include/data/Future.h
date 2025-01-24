@@ -16,7 +16,7 @@ public:
     std::thread thread;
     Result value;
     BBError* error;
-    ThreadResult():value(nullptr), error(nullptr) {};
+    ThreadResult():value(DataPtr::NULLP), error(nullptr) {};
     ~ThreadResult() = default;
     void start(Code* code, BMemory* newMemory, ThreadResult* futureResult, const Command* command, DataPtr thisObj) {thread = std::thread(threadExecute, code, newMemory, futureResult, command, thisObj);}
 };

@@ -64,15 +64,16 @@ private:
 };
 
 std::string DataPtr::torepr() const {
+    if(datatype & IS_FLOAT) return std::to_string(unsafe_tofloat());
+    if(datatype & IS_INT) return std::to_string(unsafe_toint());
+    if(datatype & IS_BOOL) return unsafe_tobool()?"true":"false";
+    if(datatype & IS_ERROR) return "error";
     if(datatype & IS_PTR) {
         Data* obj = get(); 
         if(!obj) return "missing"; 
         return datatypeName[obj->getType()];
     }//return "Data object at memory address: "+std::to_string(data);
-    if(datatype & IS_FLOAT) return std::to_string(unsafe_tofloat());
-    if(datatype & IS_INT) return std::to_string(unsafe_toint());
-    if(datatype & IS_BOOL) return unsafe_tobool()?"true":"false";
-    return "Corrupted data";
+    return "Corrupted data with internal pointer type: "+std::to_string(datatype);
 }
 
 bool DataPtr::existsAndTypeEquals(Datatype type) const {

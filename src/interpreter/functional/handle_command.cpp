@@ -67,7 +67,7 @@ BMemory cachedData(nullptr, 1024);
 #define DISPATCH_RESULT(expr) {int carg = command.args[0]; result=DataPtr(expr); if(carg!=variableManager.noneId) [[likely]] memory.set(carg, result); continue;}
 #define DISPATCH_OUTCOME(expr) {int carg = command.args[0]; Result res(expr); result=res.get(); if(carg!=variableManager.noneId) [[likely]] memory.set(carg, result); continue;}
 #define DISPATCH_COMPUTED_RESULT {int carg = command.args[0]; if(carg!=variableManager.noneId) [[likely]] memory.set(carg, result); continue;}
-#define RUN_IF_RETURN(expr) {if (returnSignal) [[unlikely]] {Result res(expr);memory.runFinally();return std::move(res);} continue;}
+#define RUN_IF_RETURN(expr) {if (returnSignal) [[unlikely]] {Result res(expr);memory.runFinally();return RESMOVE(res);} continue;}
 
 #define DISPATCH(OPERATION) goto *dispatch_table[OPERATION]
 void initialize_dispatch_table() {}
@@ -85,7 +85,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, int i, int en
     try {
 
     //std::cout << command.toString() << "\n";
-    
+
     /*
     NOT, AND, OR, EQ, NEQ, LE, GE, LT, GT, ADD, SUB, MUL, MMUL, DIV, MOD, LEN, POW, LOG,
     PUSH, POP, NEXT, PUT, AT, SHAPE, TOVECTOR, TOLIST, TOMAP, TOBB_INT, TOBB_FLOAT, TOSTR, TOBB_BOOL, TOFILE,
@@ -491,6 +491,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, int i, int en
     }
     DO_IF: {
         const auto& condition = memory.get(command.args[1]);
+        if(condition.existsAndTypeEquals(ERRORTYPE)) bberror(condition->toString(nullptr));
         bbassert(condition.isbool(), "If condition did not evaluate to bool");
 
         if(condition.unsafe_tobool()) {
@@ -549,11 +550,11 @@ Result ExecutionInstance::run(const std::vector<Command>& program, int i, int en
         const auto& accept = memory.get(command.args[2]);
         const auto& reject = command.nargs>3?memory.get(command.args[3]):DataPtr::NULLP;
         bbassert(accept.existsAndTypeEquals(CODE), "Can only inline a code block for catch acceptance");
-        bbassert(reject==nullptr || reject.existsAndTypeEquals(CODE), "Can only inline a code block for catch rejection");
+        bbassert(reject==DataPtr::NULLP || reject.existsAndTypeEquals(CODE), "Can only inline a code block for catch rejection");
         auto codeAccept = static_cast<Code*>(accept.get());
         auto codeReject = static_cast<Code*>(reject.get());
         
-        if(condition.isptr() && (condition==nullptr || condition->getType()==ERRORTYPE)) { //&& !((BError*)condition)->isConsumed()) {
+        if(condition.isptr() && (condition==DataPtr::NULLP || condition->getType()==ERRORTYPE)) { //&& !((BError*)condition)->isConsumed()) {
             if(condition.exists()) static_cast<BError*>(condition.get())->consume();
             if(codeAccept) {
                 Result returnValue = run(codeAccept);
@@ -785,7 +786,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, int i, int en
         }
         bbassert(depth >= 0, "Cache declaration never ended.");
         auto cache = new Code(&program, i + 1, pos, command_type == END?(pos-1):pos);
-        BMemory cacheMemory(nullptr, 16, nullptr);
+        BMemory cacheMemory(nullptr, 16, DataPtr::NULLP);
         ExecutionInstance cacheExecutor(cache, &cacheMemory, forceStayInThread);
         cacheExecutor.run(cache);
         cacheMemory.await();
@@ -833,7 +834,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, int i, int en
     }
     DO_CALL: {
         // Function or method call
-        const auto& context = command.args[1] == variableManager.noneId ? nullptr : memory.get(command.args[1]);
+        const auto& context = command.args[1] == variableManager.noneId ? DataPtr::NULLP : memory.get(command.args[1]);
         DataPtr called = memory.get(command.args[2]);
         bbassert(called.exists(), "Cannot call a missing value or literal.");
         if(called->getType()!=CODE && called->getType()!=STRUCT) {
@@ -843,7 +844,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, int i, int en
             auto strct = static_cast<Struct*>(called.get());
             auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
             bbassert(val.existsAndTypeEquals(CODE), "Struct was called like a method but has no implemented code for `call`.");
-            //static_cast<Code*>(val)->scheduleForParallelExecution = false; // struct calls are never executed in parallel
+            static_cast<Code*>(val.get())->scheduleForParallelExecution = false; // struct calls are never executed in parallel
             memory.codeOwners[static_cast<Code*>(val.get())] = static_cast<Struct*>(called.get());
             called = (val);
         }

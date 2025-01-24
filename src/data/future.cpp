@@ -49,14 +49,14 @@ Result Future::getResult() const {
         }
     } catch (...) {
         result->error = nullptr;
-        result->value = Result(nullptr);
+        result->value = Result(DataPtr::NULLP);
         --thread_count;
         bberror("Failed to join thread");
     }
     if (result->error) {
         std::string error_message = RESMOVE(result->error->what());
         result->error = nullptr;
-        result->value = Result(nullptr);
+        result->value = Result(DataPtr::NULLP);
         throw BBError(error_message);
     }
     DataPtr ret = result->value.get();

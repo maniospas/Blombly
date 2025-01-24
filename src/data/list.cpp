@@ -178,7 +178,7 @@ Result BList::put(BMemory* memory, const DataPtr& position, const DataPtr& value
     contents[index] = value;
     value.existsAddOwner();
     prev.existsRemoveFromOwner();
-    return RESMOVE(Result(nullptr));
+    return RESMOVE(Result(DataPtr::NULLP));
 }
 
 int64_t BList::len(BMemory* memory) {

@@ -24,7 +24,7 @@ CommandContext::CommandContext(const std::string& source) : source(source) {}
 
 // Command constructor
 Command::Command(const std::string& command, SourceFile* source_, int line_, CommandContext* descriptor_) 
-    : source((source_)), line(line_), descriptor((descriptor_)), value(nullptr) {
+    : source((source_)), line(line_), descriptor((descriptor_)), value(DataPtr::NULLP) {
 
     std::vector<std::string> argNames;
     argNames.reserve(4);

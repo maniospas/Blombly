@@ -9,9 +9,9 @@
 extern BError* OUT_OF_RANGE;
 extern BError* INCOMPATIBLE_SIZES;
 
-Vector::Vector(uint64_t size) : data(new double[size]), size(size), Data(VECTOR) {}
+Vector::Vector(uint64_t size) : size(size), Data(VECTOR) {data = (double*)malloc(size*sizeof(double));}
 Vector::Vector(uint64_t size, bool setToZero) : Vector(size) {if (setToZero) std::fill(data, data + size, 0);}
-Vector::~Vector() {delete[] data;}
+Vector::~Vector() {std::free(data);}
 
 std::string Vector::toString(BMemory* memory){
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
@@ -76,7 +76,7 @@ Result Vector::put(BMemory* memory, const DataPtr& position, const DataPtr& valu
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     if (index < 0 || index >= size) return Result(OUT_OF_RANGE);
     data[index] = val;
-    return Result(nullptr);
+    return Result(DataPtr::NULLP);
 }
 
 int64_t Vector::len(BMemory* memory) {return size;}

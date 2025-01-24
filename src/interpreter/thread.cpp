@@ -22,7 +22,7 @@ void threadExecute(Code* code,
         DataPtr value = returnedValue.get();
         if(!executor.hasReturned()) {
             value = nullptr;
-            returnedValue = Result(nullptr);
+            returnedValue = Result(DataPtr::NULLP);
         }
         result->value = std::move(returnedValue);
 

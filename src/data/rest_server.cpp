@@ -45,7 +45,7 @@ Result RestServer::put(BMemory* callerMemory,const DataPtr& route, const DataPtr
         routeHandlers_[actualRoute] = actualCode;
         actualCode->addOwner();
     }
-    return RESMOVE(Result(nullptr));
+    return RESMOVE(Result(DataPtr::NULLP));
 }
 
 void RestServer::stop() {

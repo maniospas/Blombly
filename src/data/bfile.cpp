@@ -509,7 +509,7 @@ Result BFile::put(BMemory* memory, const DataPtr& position, const DataPtr& value
         timeout = value.unsafe_toint();
     }
     else bberror("Only \"username\", \"password\", or \"timeout\" parameters can be set.");
-    return RESMOVE(Result(nullptr));
+    return RESMOVE(Result(DataPtr::NULLP));
 }
 
 Result BFile::at(BMemory* memory, const DataPtr& position) {

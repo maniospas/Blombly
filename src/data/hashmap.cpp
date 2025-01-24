@@ -95,19 +95,19 @@ Result BHashMap::put(BMemory* memory, const DataPtr& from, const DataPtr& to) {
         kvPair.second = to;            
         to.existsAddOwner();
         prevValue.existsRemoveFromOwner();
-        return RESMOVE(Result(nullptr));
+        return RESMOVE(Result(DataPtr::NULLP));
     }
 
     // If not found, we add a new key-value pair
     entryList.emplace_back(from, to);
     to.existsAddOwner();
     from.existsAddOwner();
-    return RESMOVE(Result(nullptr));
+    return RESMOVE(Result(DataPtr::NULLP));
 }
 
 
 Result BHashMap::at(BMemory* memory, const DataPtr& keyData) {
-    if(keyData==nullptr) bberror("Cannot have a missing value as key");
+    if(keyData==DataPtr::NULLP) bberror("Cannot have a missing value as key");
     {
         size_t keyHash = keyData.islit()?keyData.unsafe_toint():keyData->toHash();
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
@@ -115,7 +115,7 @@ Result BHashMap::at(BMemory* memory, const DataPtr& keyData) {
         if (it != contents.end()) for (const auto& kvPair : it->second) if (kvPair.first->isSame(keyData)) 
             return Result(kvPair.second);
     }
-    if(keyData.islit()) return RESMOVE(Result(nullptr));
+    if(keyData.islit()) return RESMOVE(Result(OUT_OF_RANGE));
     Result iterResult = keyData->iter(memory);
     DataPtr iterator = iterResult.get();
 
