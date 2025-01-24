@@ -50,11 +50,10 @@ public:
     const std::string getSymbol(int id) {return registeredIds[id];}
 };
 
-#define CACHE_SIZE 32
-
 class BMemory {
 private:
-    DataPtr cache[CACHE_SIZE];
+    DataPtr* cache;
+    int cache_size;
     tsl::hopscotch_map<int, DataPtr> data;
     //std::vector<DataPtr> contents;
     void unsafeSet(int item, const DataPtr& value);
@@ -71,7 +70,7 @@ private:
         // prioritize the more likely comparison given that finds are mostly called after setting the first_item
         //if(tentativeidx<max_cache_size && tentativeidx>=0) return tentativeidx;  
         // if we have a cache size up to MAX_INT/2, the following works just fine thanks to overload making all negative values very large
-        if(static_cast<unsigned int>(tentativeidx)>=CACHE_SIZE) return data[item];
+        if(static_cast<unsigned int>(tentativeidx)>=cache_size) return data[item];
         return cache[tentativeidx];
     }
 public:

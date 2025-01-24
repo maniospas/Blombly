@@ -42,7 +42,7 @@ public:
     explicit IntRange(int64_t first, int64_t last, int64_t step);
     ~IntRange();
     Result next(BMemory* memory) override;
-    virtual DataPtr fastNext() override;
+    DataPtr fastNext() override;
     
     int64_t expectedSize() const override {std::lock_guard<std::recursive_mutex> lock(memoryLock);return (last-first)/step;}
     bool isContiguous() const override {return step==1;}
@@ -57,7 +57,7 @@ private:
 public:
     explicit FloatRange(double first, double last, double step);
     ~FloatRange();
-    virtual DataPtr fastNext() override;
+    DataPtr fastNext() override;
     Result next(BMemory* memory) override;
 };
 

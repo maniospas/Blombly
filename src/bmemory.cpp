@@ -23,6 +23,8 @@ void BMemory::verify_noleaks() {
 
 BMemory::BMemory(BMemory* par, int expectedAssignments, DataPtr thisObject) : parent(par), allowMutables(true), first_item(INT_MAX), hasAtLeastOneFinal(false) { 
     ++countUnrealeasedMemories;
+    cache_size = expectedAssignments;
+    cache = new DataPtr[cache_size]();
 }
 
 void BMemory::release() {
@@ -45,7 +47,7 @@ void BMemory::release() {
     attached_threads.clear();
 
     //for(const auto& dat : contents) {
-    for(int i=0;i<CACHE_SIZE;++i) {
+    for(int i=0;i<cache_size;++i) {
         auto& dat = cache[i];
         try {
             if(dat.exists()) {
@@ -69,6 +71,8 @@ void BMemory::release() {
         catch(const BBError& e) {destroyerr += std::string(e.what())+"\n";}
     }
     data.clear();
+    if(cache_size) delete cache;
+    cache_size = 0;
     if(destroyerr.size()) throw BBError(destroyerr.substr(0, destroyerr.size()-1));
 }
 
@@ -215,7 +219,7 @@ void BMemory::setFinal(int item) {
 }
 
 void BMemory::pull(BMemory* other) {
-    for(int idx=0;idx<CACHE_SIZE;++idx) {
+    for(int idx=0;idx<cache_size;++idx) {
         const auto& dat = other->cache[idx];
         if (dat.islitorexists()) {
             //this can not be stored in the first cache element anyway
@@ -230,7 +234,7 @@ void BMemory::pull(BMemory* other) {
 }
 
 void BMemory::replaceMissing(BMemory* other) {
-    for(int idx=0;idx<CACHE_SIZE;++idx) {
+    for(int idx=0;idx<cache_size;++idx) {
         const auto& dat = other->cache[idx];
         if (dat.islitorexists()) {
             //this can not be stored in the first cache element anyway
@@ -264,7 +268,7 @@ void BMemory::await() {
     }
     attached_threads.clear();
 
-    for(int i=0;i<CACHE_SIZE;++i) {
+    for(int i=0;i<cache_size;++i) {
         const auto& dat = cache[i];
         if (dat.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(dat.get())->isConsumed())  {
             static_cast<BError*>(dat.get())->consume();
