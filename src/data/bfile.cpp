@@ -407,7 +407,7 @@ bool BFile::exists() const {
     if (path.find("ftp://", 0) == 0) return true;
     if (path.find("sftp://", 0) == 0) return true;
     if (path.find("ftps://", 0) == 0) return true;
-    if (path.find("vfs://", 0) == 0) virtualFileSystem.find(path) != virtualFileSystem.end();
+    if (path.find("vfs://", 0) == 0) return virtualFileSystem.find(path) != virtualFileSystem.end();
     return fs::exists(path);
 }
 

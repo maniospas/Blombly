@@ -24,8 +24,8 @@ jobs:
               cmake --build ./build --config Release
             package-command: |
               mkdir release
-              cp ./*.exe release/ || echo "No executables found"
-              cp ./*.dll release/ || echo "No DLLs found"
+              cp ./build/*.exe release/ || echo "No executables found"
+              cp ./build/*.dll release/ || echo "No DLLs found"
               cp -r libs/ release/ || echo "No libs directory found"
               # Use PowerShell's Compress-Archive for zipping files on Windows
               powershell Compress-Archive -Path release/* -DestinationPath windows_release.zip

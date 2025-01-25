@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <cctype>
 #include <bitset>
+#include <cstdint>
 
 // Helper function for formatted output similar to Python's float formatting
 std::string __python_like_float_format(double number, const std::string& format) {
