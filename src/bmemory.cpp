@@ -25,6 +25,7 @@ BMemory::BMemory(BMemory* par, int expectedAssignments, DataPtr thisObject) : pa
     ++countUnrealeasedMemories;
     cache_size = expectedAssignments;
     cache = new DataPtr[cache_size]();
+    //for(int i=0;i<cache_size;++i) cache[i] = DataPtr::NULLP;  // TODO: find a way to reduce these operations?
 }
 
 void BMemory::release() {
@@ -219,10 +220,9 @@ void BMemory::setFinal(int item) {
 }
 
 void BMemory::pull(BMemory* other) {
-    for(int idx=0;idx<cache_size;++idx) {
+    for(int idx=0;idx<other->cache_size;++idx) {
         const auto& dat = other->cache[idx];
         if (dat.islitorexists()) {
-            //this can not be stored in the first cache element anyway
             int item = idx + other->first_item;
             set(item, dat);
         }

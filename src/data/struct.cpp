@@ -59,7 +59,7 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory, co
     return Result(value);
 }
 
-Struct::Struct(BMemory* mem) : memory(mem), Data(STRUCT) {}
+Struct::Struct(BMemory* mem) : Data(STRUCT), memory(mem) {}
 Struct::~Struct() {delete memory;}
 BMemory* Struct::getMemory() const {return memory;}
 void Struct::removeFromOwner() {
