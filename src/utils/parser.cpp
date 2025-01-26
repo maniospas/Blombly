@@ -1323,7 +1323,8 @@ public:
             }
 
             size_t arrayaccess = find_last_end(start, end, "[");
-            if (arrayaccess != MISSING) {
+            size_t access = find_last_end(start, end, ".");
+            if (arrayaccess != MISSING && arrayaccess+1>access+1) {
                 size_t arrayend = find_end(arrayaccess + 1, end, "]", true);
                 bbassert(arrayend == end, "Array access `]` ended before expression end.\n"+show_position(arrayend));
                 std::string var = create_temp();
@@ -1334,7 +1335,6 @@ public:
                 return var;
             }
 
-            size_t access = find_last_end(start, end, ".");
             if (access != MISSING) {
                 std::string var = create_temp();
                 auto toret = "get " + var + " " + parse_expression(start, 
