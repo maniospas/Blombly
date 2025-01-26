@@ -20,12 +20,14 @@ jobs:
               .\vcpkg\bootstrap-vcpkg.bat
               .\vcpkg\vcpkg.exe install sdl2 sdl2-image sdl2-ttf
             cmake-command: |
-              cmake -G "MinGW Makefiles" -B ./build
+              cmake -B ./build
               cmake --build ./build --config Release
             package-command: |
               mkdir release
-              cp ./build/*.exe release/ || echo "No executables found"
-              cp ./build/*.dll release/ || echo "No DLLs found"
+              cp ./build/*.exe release/ || echo "No build executables found"
+              cp ./build/*.dll release/ || echo "No build DLLs found"
+              cp ./*.exe release/ || echo "No route executables found"
+              cp ./*.dll release/ || echo "No route DLLs found"
               cp -r libs/ release/ || echo "No libs directory found"
               # Use PowerShell's Compress-Archive for zipping files on Windows
               powershell Compress-Archive -Path release/* -DestinationPath windows_release.zip
