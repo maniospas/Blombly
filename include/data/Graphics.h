@@ -1,6 +1,8 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
+#define SDL_MAIN_HANDLED
+
 #include <string>
 #include <vector>
 #include "tsl/hopscotch_map.h"

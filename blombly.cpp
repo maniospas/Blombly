@@ -16,7 +16,7 @@
 // Experimental cmake build system (other compilers may be up to 1.5x slower than gcc):
 // mkdir build
 // cmake -B ./build
-// FOR LOCAL ENV:  cmake -B ./build -DCMAKE_C_COMPILER=C:/msys64/ucrt64/bin/gcc.exe -DCMAKE_CXX_COMPILER=C:\msys64\ucrt64\bin\gcc.exe
+// FOR LOCAL ENV:  cmake -G "MinGW Makefiles" -B ./build
 // cmake --build ./build --config Release --parallel 8
 
 std::string blombly_executable_path;

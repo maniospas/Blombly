@@ -15,10 +15,10 @@ jobs:
         include:
           # Windows Configuration
           - os: windows-latest
-            triplet: x64-windows
+            triplet: x64-mingw-static
             build-script: |
               .\vcpkg\bootstrap-vcpkg.bat
-              .\vcpkg\vcpkg.exe install sdl2 sdl2-image sdl2-ttf
+              .\vcpkg\vcpkg.exe install sdl2 sdl2-image sdl2-ttf --triplet=${{ matrix.triplet }}
             cmake-command: |
               cmake -G "MinGW Makefiles" -B ./build
               cmake --build ./build --config Release
@@ -61,7 +61,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          ./vcpkg/vcpkg install sqlite3 crow civetweb openssl zlib curl[core,ssl,ssh] --recurse --triplet=${{ matrix.triplet }}
+          ./vcpkg/vcpkg install sqlite3 civetweb openssl zlib curl[core,ssl,ssh] --recurse --triplet=${{ matrix.triplet }}
 
       - name: Configure and build
         run: |
