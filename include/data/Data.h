@@ -93,7 +93,7 @@ void DataPtr::existsRemoveFromOwner() const {
 }
 
 bool DataPtr::isSame(const DataPtr& other) const {
-    if(other.datatype & REMOVE_PROPERTIES!=datatype & REMOVE_PROPERTIES) return false;
+    if((other.datatype & REMOVE_PROPERTIES)!=(datatype & REMOVE_PROPERTIES)) return false;
     if(datatype & IS_NOT_PTR) return data==other.data;
     if(!data) return !other.data;
     return get()->isSame(other);

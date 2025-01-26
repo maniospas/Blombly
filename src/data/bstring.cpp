@@ -71,8 +71,9 @@ Result BString::at(BMemory *memory, const DataPtr& other) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     if(other.isint()) {
         int64_t index = other.unsafe_toint();
-        if (index>=buffer.front()->value.size()) consolidate();
-        if (index < 0 || index >= toString(memory).size()) return RESMOVE(Result(OUT_OF_RANGE));
+        consolidate();
+        int64_t n = (int64_t)toString(memory).size();
+        if (index < 0 || index >= n) return RESMOVE(Result(OUT_OF_RANGE));
         return RESMOVE(Result(new BString(std::string(1, toString(memory)[index]))));
     }
     if(other.existsAndTypeEquals(STRING)) {
@@ -113,7 +114,8 @@ Result BString::at(BMemory *memory, const DataPtr& other) {
         if (iterator->isContiguous()) {
             int64_t start = iterator->getStart();
             int64_t end = iterator->getEnd();
-            if (start < 0 || start >= toString(memory).size() || end < 0 || end > toString(memory).size() || start > end) return RESMOVE(Result(OUT_OF_RANGE));
+            int64_t n = (int64_t)toString(memory).size();
+            if (start < 0 || start >= n || end < 0 || end > n|| start > end) return RESMOVE(Result(OUT_OF_RANGE));
             std::string result = toString(memory).substr(start, end - start);
             return RESMOVE(Result(new BString(std::move(result))));
         } else {
@@ -126,8 +128,8 @@ Result BString::at(BMemory *memory, const DataPtr& other) {
                 DataPtr indexData = nextResult.get();
                 if (indexData == OUT_OF_RANGE) break; 
                 bbassert(indexData.isint(), "String index iterator must contain integers: "+other->toString(memory));
-                int64_t index = indexData.unsafe_toint();
-                if (index < 0 || index >= size) return RESMOVE(Result(OUT_OF_RANGE));
+                size_t index = (size_t)indexData.unsafe_toint();
+                if (index >= size) return RESMOVE(Result(OUT_OF_RANGE));
                 result += front->value[index];
             }
             return RESMOVE(Result(new BString(result)));
@@ -152,8 +154,8 @@ double BString::toFloat(BMemory *memory) {
     consolidate();
     const std::string& v1 = buffer.front()->value;
     char* endptr = nullptr;
-    double ret = std::strtod(toString(memory).c_str(), &endptr);
-    if (endptr == toString(memory).c_str() || *endptr != '\0') bberror("Failed to convert string to float");
+    double ret = std::strtod(v1.c_str(), &endptr);
+    if (endptr == v1.c_str() || *endptr != '\0') bberror("Failed to convert string to float");
     return ret;
 }
 

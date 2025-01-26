@@ -7,7 +7,7 @@ std::string enrichErrorDescription(const Command& command, std::string message) 
     std::string comm = command.toString();
     comm.resize(40, ' ');
     if(command.descriptor) {
-        int idx = command.descriptor->source.find("//");
+        size_t idx = command.descriptor->source.find("//");
         if(idx==std::string::npos || idx>=command.descriptor->source.size()-2)
             message += std::string("\n   \x1B[34m\u2192\033[0m ") + "\x1B[90m" + command.descriptor->source;
         else {

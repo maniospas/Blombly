@@ -53,7 +53,7 @@ public:
 class BMemory {
 private:
     DataPtr* cache;
-    int cache_size;
+    unsigned int cache_size;
     tsl::hopscotch_map<int, DataPtr> data;
     //std::vector<DataPtr> contents;
     void unsafeSet(int item, const DataPtr& value);

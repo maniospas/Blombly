@@ -22,10 +22,10 @@ private:
     RestServer(BMemory* attachedMemory, RestServer* prototype);
     void stop();
     void runServer();
-    BMemory* attachedMemory;
     int port_;
-    static int resultType;
     struct mg_context* context_;
+    BMemory* attachedMemory;
+    static int resultType;
     std::unordered_map<std::string, Data*> routeHandlers_;
     Result executeCodeWithMemory(DataPtr called, BMemory* memory) const;
     static int requestHandler(struct mg_connection* conn, void* cbdata);

@@ -1,14 +1,15 @@
-final Num = {
-    int => this.value;
-    lt(other) => this.value < other.value;
-    str => "num !{this.value}";
-}
-num(x) => new {Num:
-    print(x);
-    value = x;
-    print(value);
-}
+test("concat") {
+    A = "0";
+    A += "1";
+    A += "2";
+    A += "3";
+    A += "4";
+    A += "5";
+    A += "6";
+    A += "7";
+    A += "8";
+    A += "9";
 
-A = 5,2,3,4,1;
-
-print(num(5));
+    assert A=="0123456789";
+    assert A|len==10;
+}

@@ -55,7 +55,6 @@ int main(int argc, char* argv[]) {
 
     int threads = std::thread::hardware_concurrency();
     int default_threads = threads;
-    bool cexecute = false;
     bool minimify = true;
 
     if(threads == 0) threads = 4;

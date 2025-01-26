@@ -25,12 +25,12 @@ void compile(const std::string& source, const std::string& destination);
 void optimize(const std::string& source, const std::string& destination, bool minimify);
 std::vector<Token> tokenize(const std::string& text, const std::string& file);
 
-static void ltrim(std::string &s);
-static void rtrim(std::string &s);
-static void trim(std::string &s);
-static std::string ltrim_copy(std::string s);
-static std::string rtrim_copy(std::string s);
-static std::string trim_copy(std::string s);
+void ltrim(std::string &s);
+void rtrim(std::string &s);
+void trim(std::string &s);
+std::string ltrim_copy(std::string s);
+std::string rtrim_copy(std::string s);
+std::string trim_copy(std::string s);
 
 namespace Terminal {
     void enableVirtualTerminalProcessing();

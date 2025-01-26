@@ -47,7 +47,7 @@ void BMemory::release() {
     attached_threads.clear();
 
     //for(const auto& dat : contents) {
-    for(int i=0;i<cache_size;++i) {
+    for(unsigned int i=0;i<cache_size;++i) {
         auto& dat = cache[i];
         try {
             if(dat.exists()) {
@@ -234,7 +234,7 @@ void BMemory::pull(BMemory* other) {
 }
 
 void BMemory::replaceMissing(BMemory* other) {
-    for(int idx=0;idx<cache_size;++idx) {
+    for(unsigned int idx=0;idx<cache_size;++idx) {
         const auto& dat = other->cache[idx];
         if (dat.islitorexists()) {
             //this can not be stored in the first cache element anyway
@@ -268,7 +268,7 @@ void BMemory::await() {
     }
     attached_threads.clear();
 
-    for(int i=0;i<cache_size;++i) {
+    for(unsigned int i=0;i<cache_size;++i) {
         const auto& dat = cache[i];
         if (dat.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(dat.get())->isConsumed())  {
             static_cast<BError*>(dat.get())->consume();

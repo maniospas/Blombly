@@ -2,10 +2,12 @@
 #define OPTIMIZER_CPP
 
 #include <string>
-#include <iostream>
-#include "stringtrim.cpp"
+#include "utils.h"
 #include "common.h"
 #include <unordered_map> 
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 #define DISABLE {command->enabled = false;++changes;continue;}
 
@@ -24,7 +26,7 @@ public:
         }
         enabled = true;
         std::string accumulate;
-        int pos = 0;
+        size_t pos = 0;
         bool inString = false;
         while(pos<command.size()){
             // strings can only be the last arguments of builtin types
@@ -49,7 +51,7 @@ public:
     std::string toString() {
         if(args.size()==0 || !enabled) return "";
         std::string ret = args[0];
-        for(int i=1;i<args.size();i++) ret = ret + " "+args[i];
+        for(size_t i=1;i<args.size();i++) ret = ret + " "+args[i];
         return ret+"\n";
     }
 };
@@ -70,7 +72,7 @@ std::string optimizeFromCode(const std::string& code, bool minimify) {
     while (std::getline(inputStream, line)) program.push_back(std::make_shared<OptimizerCommand>(line));
 
     // remove all IS (not AS) that follow an assignment that is not AT or GET
-    for(int i=0;i<program.size();i++) {
+    for(size_t i=0;i<program.size();i++) {
         std::shared_ptr<OptimizerCommand> command = program[i];
         if(command->args.size()<3 || command->args[0]!="IS")
             continue;
@@ -87,7 +89,7 @@ std::string optimizeFromCode(const std::string& code, bool minimify) {
     }
 
     // remove outputs from some expressions
-    for(int i=0;i<program.size();i++) {
+    for(size_t i=0;i<program.size();i++) {
         std::shared_ptr<OptimizerCommand> command = program[i];
         if(command->args.size()<2) continue;
         if(command->args[0]=="put" || command->args[0]=="clear" || command->args[0]=="setfinal" || command->args[0]=="set" || command->args[0]=="final") command->args[1] = "#";
@@ -110,7 +112,7 @@ std::string optimizeFromCode(const std::string& code, bool minimify) {
             }
         }
         changes = 0;
-        for (int i=0;i<program.size();++i) {
+        for (size_t i=0;i<program.size();++i) {
             auto& command = program[i];
             if(!command->enabled) continue;
             if(i<program.size()-1 && program[i+1]->args[0]=="END") continue;
