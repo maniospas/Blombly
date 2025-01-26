@@ -95,8 +95,8 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
     DEFER, CLEAR, MOVE, ISCACHED, TOSQLITE, TOGRAPHICS
     */
 
-    // Only use labels-as-values on non-Windows (e.g. Linux)
-    #ifndef _WIN32
+    //Use labels-as-values on non-MSVC (the latter does not support dynamic dispatch)
+    #ifndef _MSC_VER
     static void* dispatch_table[] = {
         &&DO_NOT,
         &&DO_AND,
