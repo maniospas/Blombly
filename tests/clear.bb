@@ -6,8 +6,7 @@ A = new{
 
 assert A.x==1;
 clear(A);
-err = try print(A.x);
-assert try catch(err) return true else return false;
+assert try catch(A.x) return true else return false;
 
 
 // test move
@@ -16,6 +15,5 @@ B = new{
     y = 2;
 }
 C = B|move;
-err = try print(B.x);
-assert try catch(err) return true else return false;
+assert try catch(B.x) return true else return false;
 assert C.x==1;

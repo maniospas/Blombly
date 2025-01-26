@@ -42,7 +42,7 @@ void initializeOperationMapping();
 OperationType getOperationType(const std::string& str);
 std::string getOperationTypeName(OperationType type);
 
-#define DEFAULT_LOCAL_EXPECTATION 32
+#define DEFAULT_LOCAL_EXPECTATION (size_t)32
 #define LOCAL_EXPECTATION_FROM_CODE(code) std::min(1+(code->getEnd() - code->getStart()), DEFAULT_LOCAL_EXPECTATION)
 
 class Data;

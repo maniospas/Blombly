@@ -74,12 +74,11 @@ void initialize_dispatch_table() {}
 
 Result ExecutionInstance::run(Code* code) {
     const auto& program = *code->getProgram();
-    int end = code->getOptimizedEnd();
     memory.prefetch();
     return run(program, code->getStart(), code->getOptimizedEnd());
 }
 
-Result ExecutionInstance::run(const std::vector<Command>& program, int i, int end) {
+Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, size_t end) {
     for(;i<=end;++i) {
     const Command& command = program[i];
     try {
@@ -480,7 +479,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, int i, int en
                 if (returnSignal) [[unlikely]] {
                     Result res(check);
                     memory.runFinally();
-                    return std::move(res);
+                    return RESMOVE(res);
                 }
             }
             if(!checkValue) [[unlikely]] break;
@@ -772,9 +771,9 @@ Result ExecutionInstance::run(const std::vector<Command>& program, int i, int en
         DISPATCH_COMPUTED_RESULT;
     }
     DO_BEGINCACHE: {
-        int pos = i + 1;
+        size_t pos = i + 1;
         int depth = 0;
-        OperationType command_type;
+        OperationType command_type(END);
         while(pos <= program.size()) {
             command_type = program[pos].operation;
             if(command_type == BEGIN || command_type == BEGINFINAL) depth++;
@@ -808,9 +807,9 @@ Result ExecutionInstance::run(const std::vector<Command>& program, int i, int en
             continue;
         }
         // Find the matching END for this block
-        int pos = i + 1;
+        size_t pos = i + 1;
         int depth = 0;
-        OperationType command_type;
+        OperationType command_type(END);
         while(pos <= program.size()) {
             command_type = program[pos].operation;
             if(command_type == BEGIN || command_type == BEGINFINAL) depth++;

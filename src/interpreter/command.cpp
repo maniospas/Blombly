@@ -29,7 +29,7 @@ Command::Command(const std::string& command, SourceFile* source_, int line_, Com
     std::vector<std::string> argNames;
     argNames.reserve(4);
     std::string accumulate;
-    int pos = 0;
+    size_t pos = 0;
     bool inString = false;
     while (pos < command.size()) {
         // strings can only be the last arguments of builtin types

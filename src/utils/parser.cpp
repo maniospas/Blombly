@@ -17,7 +17,7 @@
 #include "utils.h"
 #include "interpreter/functional.h"
 
-constexpr int MISSING = -1;
+constexpr size_t MISSING = -1;
 
 const std::string PARSER_BUILTIN = "BUILTIN";
 const std::string PARSER_BEGIN = "BEGIN";
@@ -125,21 +125,21 @@ private:
     static int tmp_var;
     std::string ret;
     std::string code_block_prepend;
-    int find_end(int start, int end, const std::string& end_string, bool missing_error = false) {
+    size_t find_end(size_t start, size_t end, const std::string& end_string, bool missing_error = false) {
         if(tokens[start].name==end_string) return start;
         if(start>=tokens.size() || start>=end) {
             if(missing_error) bberror("Unexpected end of code.\n"+show_position(tokens.size()-1));
             return MISSING;
         }
         int depth = 0;
-        std::stack<int> last_open;
+        std::stack<size_t> last_open;
         std::stack<std::string> last_open_type;
-        int last_open_value = start;
+        //size_t last_open_value = start;
         last_open.push(start);
-        for (int i = start; i <= end; ++i) {
+        for (size_t i = start; i <= end; ++i) {
             if (depth == 0 && tokens[i].name == end_string) return i;
             if (depth < 0) {
-                int pos = last_open_value;
+                //size_t pos = last_open_value;
                 std::string name = tokens[last_open.top()].name;
                 if(name=="(") bberror("Closing `)` is missing.\n"+show_position(last_open.top()));
                 if(name=="{") bberror("Closing `}` is missing.\n"+show_position(last_open.top()));
@@ -150,11 +150,11 @@ private:
             if (name == "(" || name == "[" || name == "{") {
                     last_open.push(i);
                     last_open_type.push(tokens[i].name);
-                    last_open_value = i;
+                    //last_open_value = i;
                     depth += 1;
                 }
             if (name == ")" || name == "]" || name == "}") {
-                    last_open_value = last_open.top();
+                    //last_open_value = last_open.top();
                     if(last_open_type.size()>=1) {
                         bbassert(name!=")" || last_open_type.top()=="(", "Closing `)` is missing.\n"+show_position(last_open.top()));
                         bbassert(name!="}" || last_open_type.top()=="{", "Closing `}` is missing.\n"+show_position(last_open.top()));
@@ -166,7 +166,7 @@ private:
                 }
         }
         if (missing_error) {
-            int pos = depth<0?start:last_open.top();
+            size_t pos = depth<0?start:last_open.top();
             if(pos>=tokens.size()) bberror("Unexpected end of code.\n"+show_position(tokens.size()-1));
             if(end_string==";") {
                 std::string name = tokens[pos].name;
@@ -180,11 +180,11 @@ private:
         return MISSING;
     }
     
-    int find_last_end(int start, int end, const std::string& end_string, bool missing_error = false) {
+    size_t find_last_end(size_t start, size_t end, const std::string& end_string, bool missing_error = false) {
         int depth = 0;
-        int pos = MISSING;
-        int last_open = end;
-        for (int i = start; i <= end; ++i) {
+        size_t pos = MISSING;
+        size_t last_open = end;
+        for (size_t i = start; i <= end; ++i) {
             if (depth == 0 && tokens[i].name == end_string) pos = i;
             if (tokens[i].name == "(" || tokens[i].name == "[" || tokens[i].name == "{") depth += 1;
             if (depth < 0) bberror("Imbalanced parentheses, brackets, or scopes\n"+show_position(last_open));
@@ -246,13 +246,13 @@ public:
         return show_position(tokens, pos);
     }
 
-    static std::string show_position(const std::vector<Token>& tokens, int pos) {
+    static std::string show_position(const std::vector<Token>& tokens, size_t pos) {
         std::string expr;
-        for(int mac=tokens[pos].line.size()-1;mac>=0;--mac) {
+        for(size_t mac=tokens[pos].line.size()-1;mac>=0;--mac) {
             if(expr.size())
                 expr += "\n";
-            int start = pos;
-            int end = pos;
+            size_t start = pos;
+            size_t end = pos;
             while(start>0 && (tokens[start-1].has(tokens[pos].line[mac], tokens[pos].file[mac]))) 
                 start--;
             while(end<tokens.size()-1 && tokens[end+1].has(tokens[pos].line[mac], tokens[pos].file[mac])) 
@@ -287,7 +287,7 @@ public:
 
             // print error line with position indicator
             expr += "  \x1B[34m\u2192\033[0m   ";
-            for (int i = start; i <= end; i++)
+            for (size_t i = start; i <= end; i++)
                 if (tokens[i].printable) {
                     expr += tokens[i].name;
                     if(i<end-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
@@ -297,10 +297,9 @@ public:
                 }
             expr += " \x1B[90m "+tokens[pos].toString();
             expr += "\n     \x1B[31m ";
-            for (int i = start; i < pos; i++)
+            for (size_t i = start; i < pos; i++)
                 if (tokens[i].printable) {
-                    for(int k=0;k<tokens[i].name.size();++k)
-                        expr += "~";
+                    for(size_t k=0;k<tokens[i].name.size();++k) expr += "~";
                     if(i<end-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
                                 && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
                                  && tokens[i].name!="."&& tokens[i].name!="!")
@@ -321,12 +320,9 @@ public:
         ret += "%"+comm+" //"+tokens[start].file.back()+" line "+std::to_string(tokens[start].line.back())+"\n";
     }
 
-    std::string parse_expression(int start, int end, bool request_block = false, 
-                                 bool ignore_empty = false) {
-            if (ignore_empty && start >= end)
-                return "#";
-            if(end>start+1)
-                breakpoint(start, end);
+    std::string parse_expression(size_t start, size_t end, bool request_block = false, bool ignore_empty = false) {
+            if (ignore_empty && start >= end) return "#";
+            if(end>start+1) breakpoint(start, end);
         //try {
             bool is_final = tokens[start].name == "final";
             bbassert(start <= end || (request_block && 
@@ -403,7 +399,7 @@ public:
                 first_name == "while") {
                 int start_parenthesis = find_end(start, end, "(");
                 int start_if_body = find_end(start_parenthesis + 1, end, ")", true) + 1;
-                int condition_start_in_ret = ret.size();
+                //int condition_start_in_ret = ret.size();
                 std::string condition_text;
                 std::string condition;
                 if(first_name=="while") {
@@ -422,10 +418,8 @@ public:
                         bbassert(condition != "#", first_name + " condition does not evaluate to anything\n"+show_position(start_parenthesis+1));
                         */
                 }
-                int body_end = first_name == "while" ? MISSING : 
-                               find_end(start_if_body, end, "else");
-                if (body_end == MISSING)
-                    body_end = end;
+                size_t body_end = first_name == "while" ? MISSING : find_end(start_if_body, end, "else");
+                if (body_end == MISSING) body_end = end;
                 std::string bodyvar = create_temp();
                 ret += "BEGIN " + bodyvar + "\n";
                 if (body_end==MISSING && find_end(start_if_body, end, "else")!=MISSING) {
@@ -445,7 +439,7 @@ public:
                 ret += "END\n";
                 if (body_end <= end - 1 && tokens[body_end].name == "else") {
                     bbassert(first_name != "while", "`while` expressions cannot have an else branch.\n"+show_position(body_end));
-                    int else_end = end;
+                    size_t else_end = end;
                     if (tokens[body_end + 1].name == "{") {
                         else_end = find_end(body_end + 2, end, "}", true);
                         bbassert(else_end == end, "There is leftover code after closing `}` for else\n"+show_position(else_end));
@@ -489,10 +483,9 @@ public:
                 return var;
             }
 
-            int assignment = find_end(start, end, "=");
-            int asAssignment = find_end(start, end, "as");
-            if ((asAssignment < assignment && asAssignment!=MISSING) || assignment==MISSING)
-                assignment = asAssignment;
+            size_t assignment = find_end(start, end, "=");
+            size_t asAssignment = find_end(start, end, "as");
+            if ((asAssignment < assignment && asAssignment!=MISSING) || assignment==MISSING) assignment = asAssignment;
 
             if (assignment != MISSING) {
                 bool negation = first_name=="not";
@@ -519,14 +512,14 @@ public:
                     // if for whatever reason operations like +as become available (which shouldn't) then don't forget to fix subsequent code
                     bbassert(asAssignment!=assignment, "Pattern `"+tokens[assignment-1].name+"as` is not allowed. Use `"+tokens[assignment-1].name+"=` or write the full self-operation\n"+show_position(assignment));
                 }
-                if(isSelfOperation)
-                    bbassert(assignment-1 != start, "Missing a variable to operate and assign to.\n"+show_position(assignment-1));
+                if(isSelfOperation) bbassert(assignment-1 != start, "Missing a variable to operate and assign to.\n"+show_position(assignment-1));
 
                 std::string returned_value = "#"; // this is set only by start_assigment!=MISSING
-                int start_assignment = find_last_end(start, assignment, ".");
-                int start_entry = find_last_end((start_assignment == MISSING ? start : start_assignment-isSelfOperation) + 1, assignment-isSelfOperation, "[");
-                if (start_entry != MISSING && start_entry > start_assignment) {
-                    int end_entry = find_end(start_entry + 1, assignment-isSelfOperation, "]", true);
+                size_t start_assignment = find_last_end(start, assignment, ".");
+                size_t start_entry = find_last_end((start_assignment == MISSING ? start : start_assignment-isSelfOperation) + 1, assignment-isSelfOperation, "[");
+                
+                if (start_entry != MISSING && start_entry+1 > start_assignment+1) {
+                    size_t end_entry = find_end(start_entry + 1, assignment-isSelfOperation, "]", true);
                     bbassert(end_entry == assignment - 1 - isSelfOperation, "Non-empty expression between last closing `]` and `"+tokens[assignment-isSelfOperation].name+"`.\n"+show_position(end_entry+1));
                     std::string obj = parse_expression(start, start_entry - 1);
                     bbassert(obj != "#", "There is no expression outcome to assign to.\n"+show_position(start));
@@ -559,23 +552,20 @@ public:
                 }
                 if (start_assignment != MISSING) {
                     bbassert(start_assignment >= start + 1-isSelfOperation, "Assignment expression can not start with `.`.\n"+show_position(start));
-                    int parenthesis_start = find_end(start_assignment + 1,  assignment - 1-isSelfOperation, "(");
+                    size_t parenthesis_start = find_end(start_assignment + 1,  assignment - 1-isSelfOperation, "(");
                     std::string obj = parse_expression(start, start_assignment - 1);
                     bbassert(obj != "#", "There is no expression outcome to assign to.\n"+show_position(start)+"\n");
                     returned_value = obj;
                     if (parenthesis_start != MISSING) {
                         code_block_prepend = "";
-                        int parenthesis_end = find_end(parenthesis_start + 1, 
-                                                       assignment - 1-isSelfOperation, ")", 
-                                                       true);
+                        size_t parenthesis_end = find_end(parenthesis_start + 1, assignment - 1-isSelfOperation, ")", true);
                         bbassert(parenthesis_end == assignment - 1-isSelfOperation, 
                                   "There is leftover code after last "
                                   "parenthesis in assignment's left hand side.\n"+show_position(parenthesis_end));
-                        int j = parenthesis_start+1;
+                        size_t j = parenthesis_start+1;
                         while(j<parenthesis_end) {
-                            int next_j = find_end(j+1, parenthesis_end, ",");
-                            if(next_j==MISSING)
-                                next_j = parenthesis_end;
+                            size_t next_j = find_end(j+1, parenthesis_end, ",");
+                            if(next_j==MISSING) next_j = parenthesis_end;
                             bbassert(next_j!=j, "Empty argument.\n"+show_position(j));
                             std::string name = tokens[next_j-1].name;
                             code_block_prepend += "next " + name + " args\n";
@@ -642,7 +632,7 @@ public:
                                         + show_position(next_j-1));
                             }
 
-                            for(int jj=j;jj<next_j-1;++jj) {
+                            for(size_t jj=j;jj<next_j-1;++jj) {
                                 std::string semitype = tokens[jj].name;
                                 if(semitype=="float" || semitype=="int" || semitype=="str" || semitype=="bool" || semitype=="list" || semitype=="vector" || semitype=="iter"
                                     || semitype=="file" || semitype=="clear" || semitype=="move" 
@@ -699,7 +689,7 @@ public:
                     return returned_value;
                 }
 
-                int parenthesis_start = find_end(start + 1, assignment - 1-isSelfOperation, "(");
+                size_t parenthesis_start = find_end(start + 1, assignment - 1-isSelfOperation, "(");
                 bbassert(parenthesis_start == MISSING ? assignment == start + 1+isSelfOperation : parenthesis_start == start + 1+isSelfOperation, 
                           "Cannot understrand what to assign to left from the assignment.\n"+show_position(assignment));
                 if (first_name == "bbvm::int" || first_name == "bbvm::float" || 
@@ -781,17 +771,14 @@ public:
 
 
                     code_block_prepend = "";
-                        int parenthesis_end = find_end(parenthesis_start + 1, 
-                                                       assignment - 1-isSelfOperation, ")", 
-                                                       true);
+                        size_t parenthesis_end = find_end(parenthesis_start + 1, assignment - 1-isSelfOperation, ")", true);
                         bbassert(parenthesis_end == assignment - 1-isSelfOperation, 
                                   "There is leftover code after last "
                                   "parenthesis in assignment's left hand side.\n"+show_position(parenthesis_end));
-                        int j = parenthesis_start+1;
+                        size_t j = parenthesis_start+1;
                         while(j<parenthesis_end) {
-                            int next_j = find_end(j+1, parenthesis_end, ",");
-                            if(next_j==MISSING)
-                                next_j = parenthesis_end;
+                            size_t next_j = find_end(j+1, parenthesis_end, ",");
+                            if(next_j==MISSING) next_j = parenthesis_end;
                             bbassert(next_j!=j, "Empty argument.\n"+show_position(j));
                             std::string name = tokens[next_j-1].name;
                             code_block_prepend += "next " + name + " args\n";
@@ -857,7 +844,7 @@ public:
                                         + show_position(next_j-1));
                             }
 
-                            for(int jj=j;jj<next_j-1;++jj) {
+                            for(size_t jj=j;jj<next_j-1;++jj) {
                                 std::string semitype = tokens[jj].name;
                                 if(semitype=="float" || semitype=="int" || semitype=="str" || semitype=="bool" || semitype=="list" || semitype=="vector" || semitype=="iter"
                                     || semitype=="clear" || semitype=="move" || semitype=="file" 
@@ -951,25 +938,25 @@ public:
 
             if (first_name == "return") {
                 std::string parsed = parse_expression(start + 1, end);
-                bbassert(parsed != "#", "An expression that computes no value  was given to `" + first_name+"`.\n"+show_position(start+1));
+                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`.\n"+show_position(start+1));
                 std::string var = "#";
                 breakpoint(start, end);
                 ret += first_name + " " + var + " " + parsed + "\n";
                 return var;
             }
 
-            int epush = find_last_end(start, end, "<<");
+            size_t epush = find_last_end(start, end, "<<");
             if (epush != MISSING) {
                 std::string var = create_temp();
                 ret += "push " + var + " " + parse_expression(start, epush - 1) + " " + parse_expression(epush + 1, end) + "\n";
                 return var;
             }
 
-            int listgen = find_end(start, end, ",");
+            size_t listgen = find_end(start, end, ",");
             if (listgen != MISSING) {
                 std::string list_vars = parse_expression(start, listgen - 1);
                 while (listgen != MISSING) {
-                    int next = find_end(listgen + 1, end, ",");
+                    size_t next = find_end(listgen + 1, end, ",");
                     if (next == MISSING)
                         list_vars += " " + parse_expression(listgen + 1, end);
                     else
@@ -982,8 +969,8 @@ public:
                 return var;
             }
 
-            int eand = find_last_end(start, end, "and");
-            int eor = find_last_end(start, end, "or");
+            size_t eand = find_last_end(start, end, "and");
+            size_t eor = find_last_end(start, end, "or");
             if (eand != MISSING && eand > eor) {
                 std::string var = create_temp();
                 ret += "and " + var + " " + parse_expression(start, eand - 1) + " " + parse_expression(eand + 1, end) + "\n";
@@ -1001,9 +988,9 @@ public:
                 return temp;
             }
 
-            int eq = find_last_end(start, end, "==");
-            int ne = find_last_end(start, end, "!=");
-            if (eq != MISSING && eq > ne) {
+            size_t eq = find_last_end(start, end, "==");
+            size_t ne = find_last_end(start, end, "!=");
+            if (eq != MISSING && eq+1 > ne+1) {
                 std::string var = create_temp();
                 ret += "eq " + var + " " + parse_expression(start, eq - 1) + " " + parse_expression(eq + 1, end) + "\n";
                 return var;
@@ -1014,21 +1001,21 @@ public:
                 return var;
             }
 
-            int lt = find_last_end(start, end, "<");
-            int gt = find_last_end(start, end, ">");
-            int le = find_last_end(start, end, "<=");
-            int ge = find_last_end(start, end, ">=");
-            if (lt != MISSING && lt > gt && lt > ge && lt > le) {
+            size_t lt = find_last_end(start, end, "<");
+            size_t gt = find_last_end(start, end, ">");
+            size_t le = find_last_end(start, end, "<=");
+            size_t ge = find_last_end(start, end, ">=");
+            if (lt != MISSING && lt+1 > gt+1 && lt+1 > ge+1 && lt+1 > le+1) {
                 std::string var = create_temp();
                 ret += "lt " + var + " " + parse_expression(start, lt - 1) + " " + parse_expression(lt + 1, end) + "\n";
                 return var;
             }
-            if (le != MISSING && le > gt && le > ge) {
+            if (le != MISSING && le+1 > gt+1 && le+1 > ge+1) {
                 std::string var = create_temp();
                 ret += "le " + var + " " + parse_expression(start, le - 1) + " " + parse_expression(le + 1, end) + "\n";
                 return var;
             }
-            if (gt != MISSING && gt > ge) {
+            if (gt != MISSING && gt+1 > ge+1) {
                 std::string var = create_temp();
                 ret += "gt " + var + " " + parse_expression(start, gt - 1) + " " + parse_expression(gt + 1, end) + "\n";
                 return var;
@@ -1039,9 +1026,9 @@ public:
                 return var;
             }
 
-            int add = find_last_end(start, end, "+");
-            int sub = find_last_end(start, end, "-");
-            if (sub != MISSING && sub > add) {
+            size_t add = find_last_end(start, end, "+");
+            size_t sub = find_last_end(start, end, "-");
+            if (sub != MISSING && sub+1 > add+1) {
                 std::string var = create_temp();
                 ret += "sub " + var + " " + parse_expression(start, sub - 1) + " " + parse_expression(sub + 1, end) + "\n";
                 return var;
@@ -1051,9 +1038,9 @@ public:
                 ret += "add " + var + " " + parse_expression(start, add - 1) + " " + parse_expression(add + 1, end) + "\n";
                 return var;
             }
-            int mul = find_last_end(start, end, "*");
-            int div = find_last_end(start, end, "/");
-            if (div != MISSING && div > mul) {
+            size_t mul = find_last_end(start, end, "*");
+            size_t div = find_last_end(start, end, "/");
+            if (div != MISSING && div+1 > mul+1) {
                 std::string var = create_temp();
                 ret += "div " + var + " " + parse_expression(start, div - 1) + " " + parse_expression(div + 1, end) + "\n";
                 return var;
@@ -1063,13 +1050,13 @@ public:
                 ret += "mul " + var + " " + parse_expression(start, mul - 1) + " " + parse_expression(mul + 1, end) + "\n";
                 return var;
             }
-            int mod = find_last_end(start, end, "%");
+            size_t mod = find_last_end(start, end, "%");
             if (mod != MISSING) {
                 std::string var = create_temp();
                 ret += "mod " + var + " " + parse_expression(start, mod - 1) + " " + parse_expression(mod + 1, end) + "\n";
                 return var;
             }
-            int pow = find_last_end(start, end, "^");
+            size_t pow = find_last_end(start, end, "^");
             if (pow != MISSING) {
                 std::string var = create_temp();
                 ret += "pow " + var + " " + parse_expression(start, pow - 1) + " " + parse_expression(pow + 1, end) + "\n";
@@ -1087,7 +1074,7 @@ public:
             if (first_name == "bbvm::range" || first_name=="range") {
                 bbassert(tokens[start + 1].name == "(", "Missing ( just after `" + first_name+"`.\n"+show_position(start+1));
                 bbassert(find_end(start + 2, end, ")") == end, "Leftover code after the last `)` for `" + first_name+"`.\n"+show_position(start+2));
-                int separator = find_end(start + 2, end, ",");
+                size_t separator = find_end(start + 2, end, ",");
                 if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::")
                     first_name = first_name.substr(6);
                 std::string temp = create_temp();
@@ -1097,7 +1084,7 @@ public:
                     ret += toret;
                     return temp;
                 }
-                int separator2 = find_end(separator + 1, end, ",");
+                size_t separator2 = find_end(separator + 1, end, ",");
                 if(separator2==MISSING) {
                     auto toret = first_name + " " + temp + " " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, end - 1) + "\n";
                     breakpoint(start, end);
@@ -1113,7 +1100,7 @@ public:
             if (first_name == "bbvm::push" || first_name=="push") {
                 bbassert(tokens[start + 1].name == "(", "Missing ( just after `" + first_name+"`.\n"+show_position(start+1));
                 bbassert(find_end(start + 2, end, ")") == end, "Leftover code after the last `)` for `" + first_name+"`.\n"+show_position(start+2));
-                int separator = find_end(start + 2, end, ",");
+                size_t separator = find_end(start + 2, end, ",");
                 bbassert(separator != MISSING, "push requires at least two arguments.\n"+show_position(end));
                 if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::") first_name = first_name.substr(6);
                 auto toret = first_name + " # " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, end - 1) + "\n";
@@ -1125,9 +1112,9 @@ public:
             if (first_name == "bbvm::graphics" || first_name=="graphics") {
                 bbassert(tokens[start + 1].name == "(", "Missing ( just after `" + first_name+"`.\n"+show_position(start+1));
                 bbassert(find_end(start + 2, end, ")") == end, "Leftover code after the last `)` for `" + first_name+"`.\n"+show_position(start+2));
-                int separator = find_end(start + 2, end, ",");
+                size_t separator = find_end(start + 2, end, ",");
                 bbassert(separator != MISSING, "graphics require three arguments.\n"+show_position(end));
-                int separator2 = find_end(separator + 2, end, ",");
+                size_t separator2 = find_end(separator + 2, end, ",");
                 bbassert(separator2 != MISSING, "graphics require three arguments.\n"+show_position(end));
                 if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::") first_name = first_name.substr(6);
                 std::string var = create_temp();
@@ -1229,12 +1216,11 @@ public:
             }
 
             
-            int chain = find_last_end(start, end, "|");
+            size_t chain = find_last_end(start, end, "|");
             if (chain!=MISSING) {
                 std::string var = create_temp();
                 std::string callable("");
-                if(end==chain+1)
-                    callable = tokens[chain+1].name;
+                if(end==chain+1) callable = tokens[chain+1].name;
                 if (callable == "int" || callable == "float" || 
                     callable == "str" || callable == "file" || 
                     callable == "bool" ||
@@ -1280,7 +1266,7 @@ public:
                 return var;
             }
 
-            int call = find_last_end(start, end, "(");
+            size_t call = find_last_end(start, end, "(");
             if (call != MISSING && find_end(call + 1, end, ")", true) == end) {
                 if (call == start)  // if it's just a redundant parenthesis
                     return parse_expression(start + 1, end - 1);
@@ -1293,14 +1279,12 @@ public:
                               "\n        any code inside the parethesis to transfer evaluated content to"
                               "\n        the method. This looks like this: `func(x=1;y=2)`\n"
                               +show_position(call+1));
-                int conditional = find_end(call + 1, end, "::"); // call conditional
+                size_t conditional = find_end(call + 1, end, "::"); // call conditional
                 std::string parsed_args;
                 if (conditional == MISSING) {
                     if (find_end(call + 1, end, "=") != MISSING || find_end(call + 1, end, "as") != MISSING)  // if there are equalities, we are on kwarg mode 
                         parsed_args = parse_expression(call + 1, end - 1, true, true);
-                    else if (call + 1 >= end ) {  // if we call with no argument whatsoever
-                        parsed_args = "#";
-                    } 
+                    else if (call + 1 >= end ) parsed_args = "#"; // if we call with no argument whatsoever
                     else if (find_end(call + 1, end, ",") == MISSING && 
                                find_end(call + 1, end, "=") == MISSING && 
                                find_end(call + 1, end, "as") == MISSING && 
@@ -1338,24 +1322,19 @@ public:
                 return var;
             }
 
-            int arrayaccess = find_last_end(start, end, "[");
-            if (arrayaccess != MISSING) {
-                int arrayend = find_end(arrayaccess + 1, end, "]", true);
+            size_t arrayaccess = find_last_end(start, end, "[");
+            size_t access = find_last_end(start, end, ".");
+            if (arrayaccess != MISSING && arrayaccess+1>access+1) {
+                size_t arrayend = find_end(arrayaccess + 1, end, "]", true);
                 bbassert(arrayend == end, "Array access `]` ended before expression end.\n"+show_position(arrayend));
                 std::string var = create_temp();
-                auto toret = "at " + var + " " + parse_expression(start, 
-                                                            arrayaccess - 1) 
-                                                            + " " + 
-                                                            parse_expression(
-                                                            arrayaccess + 1, 
-                                                            arrayend - 1) + 
-                                                            "\n";
+                auto toret = "at " + var + " " + parse_expression(start, arrayaccess - 1) 
+                                         + " " + parse_expression(arrayaccess + 1, arrayend - 1) +  "\n";
                 breakpoint(start, end);
                 ret += toret;
                 return var;
             }
 
-            int access = find_last_end(start, end, ".");
             if (access != MISSING) {
                 std::string var = create_temp();
                 auto toret = "get " + var + " " + parse_expression(start, 
@@ -1380,7 +1359,7 @@ public:
         int statement_start = start;
         //try {
             while (statement_start <= end) {
-                int statement_end = find_end(statement_start + 1, end, ";");//, end - start == tokens.size() - 1 && statement_start<end);
+                size_t statement_end = find_end(statement_start + 1, end, ";");//, end - start == tokens.size() - 1 && statement_start<end);
                 if (statement_end == MISSING) statement_end = end + 1;
                 parse_expression(statement_start, statement_end - 1);
                 statement_start = statement_end + 1;
@@ -1750,7 +1729,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                           "\n   \033[33m!!!\033[0m  Each `!of` (or equivalently `!anon`) declaration can only start after a parenthesis or square bracket."
                           "\n        Here is an example `A = 1,2,3; while(x as next(!of bbvm::iter(A))) {}`.\n"
                           +Parser::show_position(tokens, i));
-                int iend = i+2;
+                size_t iend = i+2;
                 int depth = 1;
                 while(iend<tokens.size()) {
                     if(tokens[iend].name=="(" || tokens[iend].name=="{" || tokens[iend].name=="[")
@@ -1788,19 +1767,15 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
         }
         if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && tokens[i + 1].name == "fail") {
             std::string message;
-            int pos = i+2;
+            size_t pos = i+2;
             std::string involved = Parser::show_position(tokens, i);
             while(pos<tokens.size()) {
-                if(tokens[pos].name==";" || pos==i+3)
-                    break;
-                if(tokens[pos].builtintype==1)
-                    message += tokens[pos].name.substr(1, tokens[pos].name.size()-2) + " ";
-                else
-                    message += tokens[pos].name + " ";
+                if(tokens[pos].name==";" || pos==i+3) break;
+                if(tokens[pos].builtintype==1) message += tokens[pos].name.substr(1, tokens[pos].name.size()-2) + " ";
+                else message += tokens[pos].name + " ";
                 pos++;
                 std::string inv = Parser::show_position(tokens, pos);
-                if(involved.find(inv)==std::string::npos)
-                    involved += "\n"+inv;
+                if(involved.find(inv)==std::string::npos) involved += "\n"+inv;
             }
             replaceAll(message, "\\n", "\n");
             bberror(message+"\n"+involved);
@@ -1847,8 +1822,8 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
         }
 
         else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && tokens[i + 1].name == "spec") {
-            int specNameEnd = MISSING;
-            int specNameStart = MISSING;
+            size_t specNameEnd = MISSING;
+            size_t specNameStart = MISSING;
             if (i > 1) {
                 bbassert(tokens[i - 1].name == "{", 
                           "Unexpected `#spec` encountered."
@@ -1906,8 +1881,8 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                           +Parser::show_position(tokens, i));
             }
             int depth = 1;
-            int position = i + 2;
-            int specend = position;
+            size_t position = i + 2;
+            size_t specend = position;
             while (position < tokens.size() - 1) {
                 position += 1;
                 if (tokens[position].name == "[" || tokens[position].name == 
@@ -1952,7 +1927,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             "\n   \033[33m!!!\033[0m  `!symbol` should be followed by a parenthesis. "
             "\n       The only valid syntax is `!symbol(@tokens)`.\n"
             + Parser::show_position(tokens, i));
-            int pos = i+3;
+            size_t pos = i+3;
             std::string created_string;
             int depth = 1;
             while(pos<tokens.size()) {
@@ -1982,7 +1957,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             "\n   \033[33m!!!\033[0m  `!stringify` should be followed by a parenthesis. "
             "\n       The only valid syntax is `!stringify(@tokens)`.\n"
             + Parser::show_position(tokens, i));
-            int pos = i+3;
+            size_t pos = i+3;
             std::string created_string;
             int depth = 1;
             while(pos<tokens.size()) {
@@ -2038,7 +2013,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
         }
         else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 2 && tokens[i + 1].name == "include") {
             std::string libpath = tokens[i + 2].name;
-            int libpathend = i+2;
+            size_t libpathend = i+2;
             // find what is actually being imported (account for #include !stringify(...) statement)
             if(libpath=="#" || libpath=="!") {
                 bbassert(i<tokens.size()-5 && tokens[i+3].name=="stringify", "Missing `stringify`."
@@ -2290,7 +2265,7 @@ std::string compileFromCode(const std::string& code, const std::string& source) 
     Parser parser(tokens);
     parser.parse(0, tokens.size() - 1);
     std::string compiled = parser.get();
-    return std::move(compiled);
+    return RESMOVE(compiled);
 }
 
 

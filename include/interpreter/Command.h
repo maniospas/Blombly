@@ -26,8 +26,8 @@ public:
     int nargs;
     mutable DataPtr value;
     SourceFile* source;
-    CommandContext* descriptor;
     int line;
+    CommandContext* descriptor;
 
     Command(const std::string& command, SourceFile* source, int line, CommandContext* descriptor);
     std::string toString() const;

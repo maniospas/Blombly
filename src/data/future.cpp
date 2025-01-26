@@ -60,6 +60,6 @@ Result Future::getResult() const {
         throw BBError(error_message);
     }
     DataPtr ret = result->value.get();
-    if(ret.existsAndTypeEquals(FUTURE)) return std::move(static_cast<Future*>(ret.get())->getResult());
+    if(ret.existsAndTypeEquals(FUTURE)) return RESMOVE(static_cast<Future*>(ret.get())->getResult());
     return RESMOVE(Result(ret));
 }

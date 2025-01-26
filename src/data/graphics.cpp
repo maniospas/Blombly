@@ -233,7 +233,6 @@ Result Graphics::push(BMemory* memory, const DataPtr& other) {
 Result Graphics::pop(BMemory* memory) {
     render();
     clear();
-    bool keep_running = true;
     SDL_Event event;
     BList* signals = new BList();
     while (SDL_PollEvent(&event)) {

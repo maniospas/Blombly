@@ -23,8 +23,8 @@ std::vector<std::string> splitRoute(const std::string& route) {
 extern std::recursive_mutex printMutex;
 int RestServer::resultType = variableManager.getId("type");
 
-RestServer::RestServer(BMemory* attachedMemory, int port) : port_(port), context_(nullptr), Data(SERVER), attachedMemory(attachedMemory) {runServer();}
-RestServer::RestServer(BMemory* attachedMemory, RestServer* prototype) : port_(prototype->port_), context_(prototype->context_), Data(SERVER), attachedMemory(attachedMemory) {
+RestServer::RestServer(BMemory* attachedMemory, int port) : Data(SERVER), port_(port), context_(nullptr), attachedMemory(attachedMemory) {runServer();}
+RestServer::RestServer(BMemory* attachedMemory, RestServer* prototype) : Data(SERVER), port_(prototype->port_), context_(prototype->context_), attachedMemory(attachedMemory){
     routeHandlers_ = std::move(prototype->routeHandlers_);
     mg_set_request_handler(context_, "/", requestHandler, (void*)this);
 }
@@ -115,7 +115,7 @@ Result RestServer::executeCodeWithMemory(DataPtr called, BMemory* memory) const 
 
     bbassert(executor.hasReturned(), "Server route handler did not reach a return statement.");
     bbassert(result.exists(), "Server route handler returned no value.");
-    return std::move(returnedValue);   
+    return RESMOVE(returnedValue);   
 
 }
 

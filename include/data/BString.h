@@ -9,10 +9,10 @@
 class BufferedString {
 public:
     std::string value;
-    int start;
-    int size;
+    size_t start;
+    size_t size;
     explicit BufferedString(const std::string& val) : value(val), start(0), size(val.size()) {}
-    explicit BufferedString(const std::string& val, int start, int size) : value(val), start(start), size(size) {
+    explicit BufferedString(const std::string& val, size_t start, size_t size) : value(val), start(start), size(size) {
         bbassert(start>=0, "Internal error: negative start index at BufferedString");
         bbassert(size<=val.size(), "Internal error: out of bounds at BufferedString");
     }
@@ -23,7 +23,7 @@ class BString : public Data {
 private:
     std::vector<std::shared_ptr<BufferedString>> buffer;
     void consolidate();
-    int64_t size;
+    size_t size;
     explicit BString();
     mutable std::recursive_mutex memoryLock; 
 
