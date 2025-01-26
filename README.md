@@ -57,6 +57,7 @@ final Point = {
     }
 }
 
+// structs keep creation vars, inline the code block with `:`
 a = new {Point:x=1;y=2}
 b = new {Point:x=3;y=4}
 

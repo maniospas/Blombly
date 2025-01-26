@@ -517,6 +517,7 @@ public:
                 std::string returned_value = "#"; // this is set only by start_assigment!=MISSING
                 size_t start_assignment = find_last_end(start, assignment, ".");
                 size_t start_entry = find_last_end((start_assignment == MISSING ? start : start_assignment-isSelfOperation) + 1, assignment-isSelfOperation, "[");
+                
                 if (start_entry != MISSING && start_entry+1 > start_assignment+1) {
                     size_t end_entry = find_end(start_entry + 1, assignment-isSelfOperation, "]", true);
                     bbassert(end_entry == assignment - 1 - isSelfOperation, "Non-empty expression between last closing `]` and `"+tokens[assignment-isSelfOperation].name+"`.\n"+show_position(end_entry+1));
@@ -557,9 +558,7 @@ public:
                     returned_value = obj;
                     if (parenthesis_start != MISSING) {
                         code_block_prepend = "";
-                        size_t parenthesis_end = find_end(parenthesis_start + 1, 
-                                                       assignment - 1-isSelfOperation, ")", 
-                                                       true);
+                        size_t parenthesis_end = find_end(parenthesis_start + 1, assignment - 1-isSelfOperation, ")", true);
                         bbassert(parenthesis_end == assignment - 1-isSelfOperation, 
                                   "There is leftover code after last "
                                   "parenthesis in assignment's left hand side.\n"+show_position(parenthesis_end));

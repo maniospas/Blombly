@@ -74,8 +74,7 @@ std::string optimizeFromCode(const std::string& code, bool minimify) {
     // remove all IS (not AS) that follow an assignment that is not AT or GET
     for(size_t i=0;i<program.size();i++) {
         std::shared_ptr<OptimizerCommand> command = program[i];
-        if(command->args.size()<3 || command->args[0]!="IS")
-            continue;
+        if(command->args.size()<3 || command->args[0]!="IS") continue;
         std::string to_replace = command->args[1];
         std::string symbol = command->args[2];
         int declaration = i-1; // for the time being this issue can arise only by adding an IS after an immediate command
@@ -104,7 +103,12 @@ std::string optimizeFromCode(const std::string& code, bool minimify) {
             if(!command->enabled || command->args.size()==0) continue;
             if(command->args[0]=="END" || command->args[0]=="BEGIN" || command->args[0]=="BEGINFINAL" || command->args[0]=="final") continue;
             size_t j = 2;
-            if(command->args[0]=="set") ++j;
+            if(command->args[0]=="set") {
+                const std::string& symbol = command->args[j];
+                if (symbol == "LAST") bberror("Internal error: the LAST keyword has been deprecated");
+                if (symbol != "#")  symbolUsageCount[symbol]++;
+                ++j;
+            }
             for (; j < command->args.size(); ++j) {
                 const std::string& symbol = command->args[j];
                 if (symbol == "LAST") bberror("Internal error: the LAST keyword has been deprecated");
