@@ -95,6 +95,8 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
     DEFER, CLEAR, MOVE, ISCACHED, TOSQLITE, TOGRAPHICS
     */
 
+    // Only use labels-as-values on non-Windows (e.g. Linux)
+    #ifndef _WIN32
     static void* dispatch_table[] = {
         &&DO_NOT,
         &&DO_AND,
@@ -166,9 +168,84 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
         &&DO_TOSQLITE,
         &&DO_TOGRAPHICS
     };
-
-
     DISPATCH(command.operation);
+    #else
+    switch (command.operation) {                                         \
+        case 0:  goto DO_NOT;                                    \
+        case 1:  goto DO_AND;                                    \
+        case 2:  goto DO_OR;                                     \
+        case 3:  goto DO_EQ;                                     \
+        case 4:  goto DO_NEQ;                                    \
+        case 5:  goto DO_LE;                                     \
+        case 6:  goto DO_GE;                                     \
+        case 7:  goto DO_LT;                                     \
+        case 8:  goto DO_GT;                                     \
+        case 9:  goto DO_ADD;                                    \
+        case 10: goto DO_SUB;                                    \
+        case 11: goto DO_MUL;                                    \
+        case 12: goto DO_MMUL;                                   \
+        case 13: goto DO_DIV;                                    \
+        case 14: goto DO_MOD;                                    \
+        case 15: goto DO_LEN;                                    \
+        case 16: goto DO_POW;                                    \
+        case 17: goto DO_LOG;                                    \
+        case 18: goto DO_PUSH;                                   \
+        case 19: goto DO_POP;                                    \
+        case 20: goto DO_NEXT;                                   \
+        case 21: goto DO_PUT;                                    \
+        case 22: goto DO_AT;                                     \
+        case 23: goto DO_SHAPE;                                  \
+        case 24: goto DO_TOVECTOR;                               \
+        case 25: goto DO_TOLIST;                                 \
+        case 26: goto DO_TOMAP;                                  \
+        case 27: goto DO_TOBB_INT;                               \
+        case 28: goto DO_TOBB_FLOAT;                             \
+        case 29: goto DO_TOSTR;                                  \
+        case 30: goto DO_TOBB_BOOL;                              \
+        case 31: goto DO_TOFILE;                                 \
+        case 32: goto DO_SUM;                                    \
+        case 33: goto DO_MAX;                                    \
+        case 34: goto DO_MIN;                                    \
+        case 35: goto DO_BUILTIN;                               \
+        case 36: goto DO_BEGIN;                                  \
+        case 37: goto DO_BEGINFINAL;                             \
+        case 38: goto DO_BEGINCACHE;                             \
+        case 39: goto DO_END;                                    \
+        case 40: goto DO_RETURN;                                 \
+        case 41: goto DO_FINAL;                                  \
+        case 42: goto DO_IS;                                     \
+        case 43: goto DO_CALL;                                   \
+        case 44: goto DO_WHILE;                                  \
+        case 45: goto DO_IF;                                     \
+        case 46: goto DO_NEW;                                    \
+        case 47: goto DO_BB_PRINT;                               \
+        case 48: goto DO_INLINE;                                 \
+        case 49: goto DO_GET;                                    \
+        case 50: goto DO_SET;                                    \
+        case 51: goto DO_SETFINAL;                               \
+        case 52: goto DO_DEFAULT;                                \
+        case 53: goto DO_TIME;                                   \
+        case 54: goto DO_TOITER;                                 \
+        case 55: goto DO_TRY;                                    \
+        case 56: goto DO_CATCH;                                  \
+        case 57: goto DO_FAIL;                                   \
+        case 58: goto DO_EXISTS;                                 \
+        case 59: goto DO_READ;                                   \
+        case 60: goto DO_CREATESERVER;                           \
+        case 61: goto DO_AS;                                     \
+        case 62: goto DO_TORANGE;                                \
+        case 63: goto DO_DEFER;                                  \
+        case 64: goto DO_CLEAR;                                  \
+        case 65: goto DO_MOVE;                                   \
+        case 66: goto DO_ISCACHED;                               \
+        case 67: goto DO_TOSQLITE;                               \
+        case 68: goto DO_TOGRAPHICS;                             \
+        default: throw std::runtime_error("Invalid operation");  \
+    }
+    #endif
+
+
+
     DO_ADD: {
         arg0 = memory.get(command.args[1]);
         arg1 = memory.get(command.args[2]);

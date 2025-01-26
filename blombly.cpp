@@ -3,6 +3,7 @@
 #include <memory>
 #include <thread>
 #include "BMemory.h"
+#include "data/Graphics.h"
 #include "data/Code.h"
 #include "data/Future.h"
 #include "data/BError.h"
@@ -10,13 +11,14 @@
 #include "utils.h"
 #include "interpreter/functional.h"
 
+
 // git clone https://github.com/microsoft/vcpkg.git
 // codespell docs/ -i 3 -w
 
 // Experimental cmake build system (other compilers may be up to 1.5x slower than gcc):
 // mkdir build
 // cmake -B ./build
-// FOR LOCAL ENV:  cmake -G "MinGW Makefiles" -B ./build
+// FOR LOCAL ENV:  cmake -G "MinGW Makefiles" -B ./build -S . -DCMAKE_BUILD_TYPE=Release
 // cmake --build ./build --config Release --parallel 8
 
 std::string blombly_executable_path;

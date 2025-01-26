@@ -15,7 +15,7 @@ jobs:
         include:
           # Windows Configuration
           - os: windows-latest
-            triplet: x64-mingw-static
+            triplet: x64-windows64
             build-script: |
               .\vcpkg\bootstrap-vcpkg.bat
               .\vcpkg\vcpkg.exe install sdl2 sdl2-image sdl2-ttf --triplet=${{ matrix.triplet }}
