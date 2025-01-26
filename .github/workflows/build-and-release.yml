@@ -18,7 +18,7 @@ jobs:
             triplet: x64-windows
             build-script: |
               .\vcpkg\bootstrap-vcpkg.bat
-              .\vcpkg\vcpkg.exe install sdl2 sdl2-image sdl2-ttf --triplet=${{ matrix.triplet }}
+              .\vcpkg\vcpkg.exe install sdl2 sdl2-image sdl2-ttf
             cmake-command: |
               cmake -G "MinGW Makefiles" -B ./build
               cmake --build ./build --config Release
