@@ -78,10 +78,28 @@ Result Struct::put(BMemory* scopeMemory, const DataPtr& position, const DataPtr&
 }
 
 void Struct::clear(BMemory* scopeMemory) {
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
-    BMemory* prevMemory = memory;
-    memory = new BMemory(nullptr, 1);
-    delete prevMemory;
+    DataPtr implementation;
+    {
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
+        implementation = getMemory()->getOrNullShallow(variableManager.getId("clear"));
+    }
+    if(implementation.islitorexists()) {
+        Result res = simpleImplement(variableManager.getId("clear"), scopeMemory);
+        const auto& ret = res.get();
+        if(ret.islitorexists()) {
+            std::lock_guard<std::recursive_mutex> lock(memoryLock);
+            BMemory* prevMemory = memory;
+            memory = new BMemory(nullptr, 1);
+            delete prevMemory;
+            bberror("Struct returned from its `clear` method.");
+        }
+    }
+    else {
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
+        BMemory* prevMemory = memory;
+        memory = new BMemory(nullptr, 1);
+        delete prevMemory;
+    }
 }
 
 int64_t Struct::len(BMemory* scopeMemory) {
@@ -92,6 +110,13 @@ int64_t Struct::len(BMemory* scopeMemory) {
 }
 
 Result Struct::move(BMemory* scopeMemory) {
+    DataPtr implementation;
+    {
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
+        implementation = getMemory()->getOrNullShallow(variableManager.getId("clear"));
+    }
+    if(implementation.islitorexists()) return simpleImplement(variableManager.getId("clear"), scopeMemory);
+
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     BMemory* mem = memory;
     memory = new BMemory(nullptr, 1);
