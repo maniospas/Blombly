@@ -15,8 +15,8 @@
 | `this`           | Refers to the current instance of a class or scope.                                             |
 | `if`             | Introduces a conditional branch, executing code based on a condition.                           |
 | `while`          | Executes a block of code repeatedly while a condition is true.                                  |
-| `try`            | Attempts a block of code that may throw exceptions.                                             |
-| `catch`          | Handles exceptions thrown by a `try` block.                                                     |
+| `try`            | Intercepts returns and unhandled errors.                                                        |
+| `catch`          | Handles errors.                                                                                 |
 | `fail`           | Explicitly triggers an exception or error.                                                      |
 | `return`         | Exits a function or block, optionally providing a value.                                        |
 | `=>`             | Represents a lambda or function shorthand, or maps an input to an output.                       |
@@ -53,4 +53,4 @@
 | `::`              | Separates positional arguments with preampled code execution during function calls.        |
 | `|`               | Applying a single-argument function at the right to the argument at the left.              |
 | `=`               | Assigns a value to a variable.                                                             |
-| `as`              | Assigns a value to a variable while returning a bool on whether it is successful.          |
+| `as`              | Assigns a value to a variable while returning a bool on whether this was error-free.       |
