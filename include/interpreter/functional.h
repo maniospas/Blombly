@@ -22,13 +22,18 @@ class ExecutionInstance {
     bool returnSignal;
     bool forceStayInThread;
     DataPtr arg0, arg1;
+    unsigned int depth;
 public:
-    ExecutionInstance(Code* code, BMemory* memory, bool forceStayInThread): result(DataPtr::NULLP), memory(*memory), returnSignal(false), forceStayInThread(forceStayInThread) {}
+    static unsigned int maxDepth;
+    ExecutionInstance(int depth, Code* code, BMemory* memory, bool forceStayInThread): result(DataPtr::NULLP), memory(*memory), returnSignal(false), forceStayInThread(forceStayInThread), depth(depth+1) {
+        if(depth>=maxDepth) bberror("Maximum call stack depth reached: "+std::to_string(depth)+"\nThis typically indicates a logical error. If not, run with greater --depth.");
+    }
     Result run(Code* code);
     Result run(const std::vector<Command>& program, size_t i, size_t end);
     void handleExecutionError(const Command& command, const BBError& e);
     inline bool hasReturned() const {return returnSignal;}
 };
+
 
 std::string enrichErrorDescription(const Command&, std::string message);
 int vm(const std::string& fileName, int numThreads);

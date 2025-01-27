@@ -3,6 +3,8 @@
 
 #include "interpreter/functional.h"
 
+unsigned int ExecutionInstance::maxDepth = 32;
+
 std::string enrichErrorDescription(const Command& command, std::string message) {
     std::string comm = command.toString();
     comm.resize(40, ' ');

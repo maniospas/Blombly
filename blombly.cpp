@@ -64,6 +64,7 @@ int main(int argc, char* argv[]) {
     for(int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
         if((arg == "--threads" || arg == "-t") && i + 1 < argc) threads = std::stoi(argv[++i]);
+        if((arg == "--depth" || arg == "-d") && i + 1 < argc) ExecutionInstance::maxDepth = std::stoi(argv[++i]);
         else if(arg == "--version" || arg == "-v") {
             std::cout << "Version: blombly 1.19.0\n";
             return 0;
@@ -75,6 +76,7 @@ int main(int argc, char* argv[]) {
             std::cout << "--library         Prevents compilation optimizations\n";
             std::cout << "--strip           Strips away debugging symbols\n";
             std::cout << "--version         Prints the current blombly version\n";
+            std::cout << "--depth <num>     Maximum stack depth\n";
             return 0;
         } 
         else if(arg == "--library" || arg == "-l") minimify = false;

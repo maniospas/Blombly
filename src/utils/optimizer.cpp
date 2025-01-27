@@ -150,6 +150,7 @@ std::string optimizeFromCode(const std::string& code, bool minimify) {
                 || command->args[1]=="clear"
                 || command->args[1]=="push"
                 || command->args[1]=="move"
+                || command->args[1]=="call"
                 ))
                 continue;
             

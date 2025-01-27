@@ -21,7 +21,7 @@ void BMemory::verify_noleaks() {
     bbassert(countUnreleased == 1, "There are " + std::to_string(countUnreleased-1) + " leftover memory contexts leaked");  // the main memory is a global object (needed to sync threads on errors)
 }
 
-BMemory::BMemory(BMemory* par, int expectedAssignments, DataPtr thisObject) : parent(par), allowMutables(true), first_item(INT_MAX), hasAtLeastOneFinal(false) { 
+BMemory::BMemory(unsigned int depth, BMemory* par, int expectedAssignments, DataPtr thisObject) : depth(depth), parent(par), allowMutables(true), first_item(INT_MAX), hasAtLeastOneFinal(false) { 
     ++countUnrealeasedMemories;
     cache_size = expectedAssignments;
     cache = new DataPtr[cache_size]();
@@ -297,7 +297,7 @@ void BMemory::runFinally() {
 
     for(Code* code : tempFinally) {
         try {
-            ExecutionInstance executor(code, this, true); // everything deferred runs after all threads have been synchronized, so stay in thread (last true argument)
+            ExecutionInstance executor(depth, code, this, true); // everything deferred runs after all threads have been synchronized, so stay in thread (last true argument)
             Result returnedValue = executor.run(code);
             bbassert(!executor.hasReturned(), "Cannot return a value from within `defer`");
         }

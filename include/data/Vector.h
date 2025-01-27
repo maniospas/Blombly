@@ -25,9 +25,12 @@ public:
     Result iter(BMemory* memory) override;
     Result add(BMemory* memory, const DataPtr& other) override;
     Result sub(BMemory* memory, const DataPtr& other) override;
+    Result rsub(BMemory* memory, const DataPtr& other) override;
     Result mul(BMemory* memory, const DataPtr& other) override;
     Result div(BMemory* memory, const DataPtr& other) override;
+    Result rdiv(BMemory* memory, const DataPtr& other) override;
     Result pow(BMemory* memory, const DataPtr& other) override;
+    Result rpow(BMemory* memory, const DataPtr& other) override;
     //Result mmul(BMemory* memory, const DataPtr& other) override;
     Result lt(BMemory* memory, const DataPtr& other) override;
     Result le(BMemory* memory, const DataPtr& other) override;

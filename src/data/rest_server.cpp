@@ -91,7 +91,7 @@ Result RestServer::executeCodeWithMemory(DataPtr called, BMemory* memory) const 
     Code* code = static_cast<Code*>(called.get());
 
 
-    BMemory newMemory(memory, LOCAL_EXPECTATION_FROM_CODE(code));
+    BMemory newMemory(memory->getDepth(), memory, LOCAL_EXPECTATION_FROM_CODE(code));
     DataPtr result;
     //newMemory.detach(code->getDeclarationMemory());
     //newMemory.detach(memory);
@@ -107,7 +107,7 @@ Result RestServer::executeCodeWithMemory(DataPtr called, BMemory* memory) const 
     newMemory.allowMutables = false;
     bool forceStayInThread = thisObj.exists(); // overwrite the option
     
-    ExecutionInstance executor(code, &newMemory, forceStayInThread);
+    ExecutionInstance executor(0, code, &newMemory, forceStayInThread);
     Result returnedValue = executor.run(code);
     newMemory.detach(nullptr);
     result = returnedValue.get();
@@ -128,7 +128,7 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
     for (const auto& entry : server->routeHandlers_) {
         std::vector<std::string> registeredRouteParts = splitRoute(entry.first);
         if (routeParts.size() == registeredRouteParts.size()) {
-            BMemory mem(server->attachedMemory, (int)routeParts.size()/2+1);
+            BMemory mem(server->attachedMemory->getDepth(), server->attachedMemory, (int)routeParts.size()/2+1);
             mem.allowMutables = false;
             bool isMatch = true;
             for (size_t i = 0; i < routeParts.size(); ++i) {

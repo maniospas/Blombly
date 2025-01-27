@@ -5,7 +5,7 @@ A = new{
 
 clear(A);
 err = try print(A.x);
-catch(err) {print("caught")}
+catch(err) print("caught");
 
 value = try catch(err) return true else return false;
 print(value);

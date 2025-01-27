@@ -63,7 +63,7 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
     bool hadError = false;
     try {
         {
-            BMemory memory(nullptr, DEFAULT_LOCAL_EXPECTATION);
+            BMemory memory(0, nullptr, DEFAULT_LOCAL_EXPECTATION);
             try {
                 auto program = new std::vector<Command>();
                 auto source = new SourceFile(fileName);
@@ -81,7 +81,7 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
 
                 auto code = new Code(program, 0, program->size() - 1, program->size() - 1);
 
-                ExecutionInstance executor(code, &memory, true);
+                ExecutionInstance executor(0, code, &memory, true);
                 Result returnedValue = executor.run(code);
                 DataPtr ret = returnedValue.get();
                 if (ret.existsAndTypeEquals(FUTURE)) {

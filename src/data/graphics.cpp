@@ -244,7 +244,7 @@ Result Graphics::pop(BMemory* memory) {
             const char* keyName = SDL_GetKeyName(keyPressed);
 
             // Create a new struct for key events
-            BMemory* memory = new BMemory(nullptr, 3);
+            BMemory* memory = new BMemory(0, nullptr, 3);
             Struct* signalStruct = new Struct(memory);
             memory->set(variableManager.thisId, signalStruct);
             signalStruct->getMemory()->set(typeVariable, event.type == SDL_KEYDOWN?keyDownString:keyUpString);
@@ -265,7 +265,7 @@ Result Graphics::pop(BMemory* memory) {
                 default: button = "unknown"; break;
             }
 
-            BMemory* memory = new BMemory(nullptr, 5);
+            BMemory* memory = new BMemory(0, nullptr, 5);
             Struct* signalStruct = new Struct(memory);
             memory->set(variableManager.thisId, signalStruct);
             signalStruct->getMemory()->set(typeVariable, event.type == SDL_MOUSEBUTTONDOWN ? mouseDownString : mouseUpString);
@@ -278,7 +278,7 @@ Result Graphics::pop(BMemory* memory) {
             int x = event.motion.x;
             int y = event.motion.y;
 
-            BMemory* memory = new BMemory(nullptr, 4);
+            BMemory* memory = new BMemory(0, nullptr, 4);
             Struct* signalStruct = new Struct(memory);
             memory->set(variableManager.thisId, signalStruct);
             signalStruct->getMemory()->set(typeVariable, mouseMoveString);

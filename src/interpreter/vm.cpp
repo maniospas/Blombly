@@ -20,8 +20,12 @@ void preliminarySimpleChecks(std::vector<Command>* program) {
     std::unordered_set<int> symbolDefinitions;
     for (const auto& command : *program) {
         if(command.args.size()) symbolDefinitions.insert(command.args[0]);
+        if(command.operation==CALL && command.args.size()>2)  symbolDefinitions.insert(command.args[1]);
+        if(command.operation==SET && command.args.size()>3)  symbolDefinitions.insert(command.args[2]);
         if(command.operation==SET && command.args.size()>2)  symbolDefinitions.insert(command.args[1]);
+        if(command.operation==SET && command.args.size()>3)  symbolDefinitions.insert(command.args[2]);
         if(command.operation==SETFINAL && command.args.size()>2)  symbolDefinitions.insert(command.args[1]);
+        if(command.operation==SETFINAL && command.args.size()>3)  symbolDefinitions.insert(command.args[2]);
     }
     symbolDefinitions.insert(variableManager.getId("graphics::key"));
     symbolDefinitions.insert(variableManager.getId("graphics::type"));
@@ -94,10 +98,10 @@ int vm(const std::string& fileName, int numThreads) {
 
             preliminarySimpleChecks(program);
             
-            BMemory memory(nullptr, DEFAULT_LOCAL_EXPECTATION);
+            BMemory memory(0, nullptr, DEFAULT_LOCAL_EXPECTATION);
             try {
                 auto code = new Code(program, 0, program->size() - 1, program->size() - 1);
-                ExecutionInstance executor(code, &memory, false);
+                ExecutionInstance executor(0, code, &memory, false);
                 Result returnedValue = executor.run(code);
                 bbassert(!executor.hasReturned(), "The virtual machine cannot return a value.");
                 //memory.detach(nullptr);
@@ -132,7 +136,7 @@ int vmFromSourceCode(const std::string& sourceCode, int numThreads) {
         {
             std::string newCode = compileFromCode(sourceCode, "terminal argument");
             newCode = optimizeFromCode(newCode, true); 
-            BMemory memory(nullptr, DEFAULT_LOCAL_EXPECTATION);
+            BMemory memory(0, nullptr, DEFAULT_LOCAL_EXPECTATION);
             try {
                 std::istringstream inputFile(newCode);
 
@@ -150,7 +154,7 @@ int vmFromSourceCode(const std::string& sourceCode, int numThreads) {
 
                 auto code = new Code(program, 0, program->size() - 1, program->size() - 1);
                 if(numThreads) {
-                    ExecutionInstance executor(code, &memory, false);
+                    ExecutionInstance executor(0, code, &memory, false);
                     Result returnedValue = executor.run(code);
                     bbassert(!executor.hasReturned(), "The virtual machine cannot return a value.");
                 }

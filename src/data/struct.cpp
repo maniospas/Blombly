@@ -10,6 +10,7 @@
 Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory) {
     BMemory* mem;
     DataPtr implementation;
+    unsigned int depth = calledMemory->getDepth();
     {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         mem = getMemory();
@@ -22,11 +23,11 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory) {
     BList* args = new BList(0);
 
     Code* code = static_cast<Code*>(implementation.get());
-    BMemory newMemory(calledMemory->getParentWithFinals(), LOCAL_EXPECTATION_FROM_CODE(code));
+    BMemory newMemory(depth, calledMemory->getParentWithFinals(), LOCAL_EXPECTATION_FROM_CODE(code));
     newMemory.unsafeSet(variableManager.thisId, this);
     newMemory.unsafeSet(variableManager.argsId, args);
 
-    ExecutionInstance executor(code, &newMemory, true);
+    ExecutionInstance executor(depth, code, &newMemory, true);
     Result value = executor.run(code);
     newMemory.setToNullIgnoringFinals(variableManager.thisId);
     return Result(value);
@@ -35,6 +36,7 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory) {
 Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory, const DataPtr& other) {
     BMemory* mem;
     DataPtr implementation;
+    unsigned int depth = calledMemory->getDepth();
     {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         mem = getMemory();
@@ -49,11 +51,11 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory, co
     args->contents.emplace_back(other);
 
     Code* code = static_cast<Code*>(implementation.get());
-    BMemory newMemory(calledMemory->getParentWithFinals(), LOCAL_EXPECTATION_FROM_CODE(code));
+    BMemory newMemory(depth, calledMemory->getParentWithFinals(), LOCAL_EXPECTATION_FROM_CODE(code));
     newMemory.unsafeSet(variableManager.thisId, this);
     newMemory.unsafeSet(variableManager.argsId, args);
 
-    ExecutionInstance executor(code, &newMemory, true);
+    ExecutionInstance executor(0, code, &newMemory, true);
     Result value = executor.run(code);
     newMemory.setToNullIgnoringFinals(variableManager.thisId);
     return Result(value);
@@ -79,9 +81,11 @@ Result Struct::put(BMemory* scopeMemory, const DataPtr& position, const DataPtr&
 
 void Struct::clear(BMemory* scopeMemory) {
     DataPtr implementation;
+    unsigned int depth;
     {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         implementation = getMemory()->getOrNullShallow(variableManager.getId("clear"));
+        depth = scopeMemory->getDepth();
     }
     if(implementation.islitorexists()) {
         Result res = simpleImplement(variableManager.getId("clear"), scopeMemory);
@@ -89,7 +93,7 @@ void Struct::clear(BMemory* scopeMemory) {
     else {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         BMemory* prevMemory = memory;
-        memory = new BMemory(nullptr, 1);
+        memory = new BMemory(depth, nullptr, 1);
         delete prevMemory;
     }
 }
@@ -103,15 +107,17 @@ int64_t Struct::len(BMemory* scopeMemory) {
 
 Result Struct::move(BMemory* scopeMemory) {
     DataPtr implementation;
+    unsigned int depth;
     {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         implementation = getMemory()->getOrNullShallow(variableManager.getId("clear"));
+        depth = scopeMemory->getDepth();
     }
     if(implementation.islitorexists()) return simpleImplement(variableManager.getId("clear"), scopeMemory);
 
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     BMemory* mem = memory;
-    memory = new BMemory(nullptr, 1);
+    memory = new BMemory(depth, nullptr, 1);
     memory->unsafeSet(variableManager.thisId, this);
     DataPtr ret = new Struct(mem);
     mem->unsafeSet(variableManager.thisId, ret);
@@ -150,11 +156,15 @@ int64_t Struct::toInt(BMemory* scopeMemory) {
 
 Result Struct::add(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("add"), scopeMemory, other); }
 Result Struct::sub(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("sub"), scopeMemory, other); }
+Result Struct::rsub(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("rsub"), scopeMemory, other); }
 Result Struct::mul(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("mul"), scopeMemory, other); }
 Result Struct::div(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("div"), scopeMemory, other); }
+Result Struct::rdiv(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("rsub"), scopeMemory, other); }
 Result Struct::pow(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("pow"), scopeMemory, other); }
+Result Struct::rpow(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("rpow"), scopeMemory, other); }
 Result Struct::mmul(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("mmul"), scopeMemory, other); }
 Result Struct::mod(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("mod"), scopeMemory, other); }
+Result Struct::rmod(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("rmod"), scopeMemory, other); }
 Result Struct::lt(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("lt"), scopeMemory, other); }
 Result Struct::le(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("le"), scopeMemory, other); }
 Result Struct::gt(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("gt"), scopeMemory, other); }

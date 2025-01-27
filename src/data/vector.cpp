@@ -121,6 +121,18 @@ Result Vector::sub(BMemory* memory, const DataPtr& other) {
     return RESMOVE(Result(result));
 }
 
+Result Vector::rsub(BMemory* memory, const DataPtr& other) {
+    if(other.isfloat() || other.isint()) {
+        double val = other.isfloat()?other.unsafe_tofloat():other.unsafe_toint();
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
+        Vector* result = new Vector(size);
+        #pragma omp simd
+        for (int i = 0; i < size; ++i) result->data[i] =  val-data[i];
+        return RESMOVE(Result(result));
+    }
+    return Data::rdiv(nullptr, other);
+}
+
 Result Vector::mul(BMemory* memory, const DataPtr& other) {
     if(other.isfloat() || other.isint()) {
         double val = other.isfloat()?other.unsafe_tofloat():other.unsafe_toint();
@@ -159,6 +171,18 @@ Result Vector::div(BMemory* memory, const DataPtr& other) {
     return RESMOVE(Result(result));
 }
 
+Result Vector::rdiv(BMemory* memory, const DataPtr& other) {
+    if(other.isfloat() || other.isint()) {
+        double val = other.isfloat()?other.unsafe_tofloat():other.unsafe_toint();
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
+        Vector* result = new Vector(size);
+        #pragma omp simd
+        for (int i = 0; i < size; ++i) result->data[i] = val/data[i];
+        return RESMOVE(Result(result));
+    }
+    return Data::rdiv(nullptr, other);
+}
+
 Result Vector::pow(BMemory* memory, const DataPtr& other) {
     if(other.isfloat() || other.isint()) {
         double val = other.isfloat()?other.unsafe_tofloat():other.unsafe_toint();
@@ -176,6 +200,18 @@ Result Vector::pow(BMemory* memory, const DataPtr& other) {
     #pragma omp simd
     for (int i = 0; i < size; ++i) result->data[i] = std::pow(data[i], vec->data[i]);
     return RESMOVE(Result(result));
+}
+
+Result Vector::rpow(BMemory* memory, const DataPtr& other) {
+    if(other.isfloat() || other.isint()) {
+        double val = other.isfloat()?other.unsafe_tofloat():other.unsafe_toint();
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
+        Vector* result = new Vector(size);
+        #pragma omp simd
+        for (int i = 0; i < size; ++i) result->data[i] =  std::pow(val, data[i]);
+        return RESMOVE(Result(result));
+    }
+    return Data::rdiv(nullptr, other);
 }
 
 Result Vector::lt(BMemory* memory, const DataPtr& other) {

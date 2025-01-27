@@ -73,6 +73,7 @@ private:
         if(static_cast<unsigned int>(tentativeidx)>=cache_size) return data[item];
         return cache[tentativeidx];
     }
+    unsigned int depth;
 public:
     inline BMemory* getParentWithFinals() {
         // this is used to skip intermediate useless memory contexts in get() within function 
@@ -80,6 +81,7 @@ public:
         if(parent) return parent->getParentWithFinals();
         return nullptr;
     }
+    unsigned int getDepth() const {return depth;}
     void release();
     tsl::hopscotch_map<Code*, Struct*> codeOwners;
     BMemory* parent;
@@ -88,7 +90,7 @@ public:
     bool allowMutables;
     void prefetch() const;
 
-    explicit BMemory(BMemory* par, int expectedAssignments, DataPtr thisObject=DataPtr::NULLP);
+    explicit BMemory(unsigned int depth, BMemory* par, int expectedAssignments, DataPtr thisObject=DataPtr::NULLP);
     ~BMemory();
 
     const DataPtr& get(int item) {

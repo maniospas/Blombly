@@ -34,11 +34,15 @@ public:
     virtual int64_t toInt(BMemory* memory) {bberror("Not implemented: int("+std::string(datatypeName[getType()])+")");}
     virtual Result add(BMemory* memory, const DataPtr& other) {bberror("Not implemented: add("+std::string(datatypeName[getType()])+", "+other.torepr()+")");}
     virtual Result sub(BMemory* memory, const DataPtr& other) {bberror("Not implemented: sub("+std::string(datatypeName[getType()])+", "+other.torepr()+")");}
+    virtual Result rsub(BMemory* memory, const DataPtr& other) {bberror("Not implemented: rsub("+std::string(datatypeName[getType()])+", "+other.torepr()+")");}
     virtual Result mul(BMemory* memory, const DataPtr& other) {bberror("Not implemented: mul("+std::string(datatypeName[getType()])+", "+other.torepr()+")");}
     virtual Result div(BMemory* memory, const DataPtr& other) {bberror("Not implemented: div("+std::string(datatypeName[getType()])+", "+other.torepr()+")");}
+    virtual Result rdiv(BMemory* memory, const DataPtr& other) {bberror("Not implemented: rdiv("+std::string(datatypeName[getType()])+", "+other.torepr()+")");}
     virtual Result pow(BMemory* memory, const DataPtr& other) {bberror("Not implemented: pow("+std::string(datatypeName[getType()])+", "+other.torepr()+")");}
+    virtual Result rpow(BMemory* memory, const DataPtr& other) {bberror("Not implemented: rpow("+std::string(datatypeName[getType()])+", "+other.torepr()+")");}
     virtual Result mmul(BMemory* memory, const DataPtr& other) {bberror("Not implemented: mmul("+std::string(datatypeName[getType()])+", "+other.torepr()+")");}
     virtual Result mod(BMemory* memory, const DataPtr& other) {bberror("Not implemented: mod("+std::string(datatypeName[getType()])+", "+other.torepr()+")");}
+    virtual Result rmod(BMemory* memory, const DataPtr& other) {bberror("Not implemented: rmod("+std::string(datatypeName[getType()])+", "+other.torepr()+")");}
     virtual Result lt(BMemory* memory, const DataPtr& other) {bberror("Not implemented: lt("+std::string(datatypeName[getType()])+", "+other.torepr()+")");}
     virtual Result le(BMemory* memory, const DataPtr& other) {bberror("Not implemented: le("+std::string(datatypeName[getType()])+", "+other.torepr()+")");}
     virtual Result gt(BMemory* memory, const DataPtr& other) {bberror("Not implemented: gt("+std::string(datatypeName[getType()])+", "+other.torepr()+")");}

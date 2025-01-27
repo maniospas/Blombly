@@ -4,7 +4,8 @@
 #include "data/Struct.h"
 
 
-void threadExecute(Code* code,
+void threadExecute(unsigned int depth,
+                   Code* code,
                    BMemory* memory,
                    ThreadResult* result,
                    const Command* command,
@@ -17,7 +18,7 @@ void threadExecute(Code* code,
     }
 
     try {
-        ExecutionInstance executor(code, memory, thisObj.exists());
+        ExecutionInstance executor(depth, code, memory, thisObj.exists());
         Result returnedValue = executor.run(code);
         DataPtr value = returnedValue.get();
         if(!executor.hasReturned()) {

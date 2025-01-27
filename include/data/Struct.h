@@ -35,11 +35,15 @@ public:
     int64_t toInt(BMemory* scopeMemory) override;
     Result add(BMemory* scopeMemory, const DataPtr& other) override;
     Result sub(BMemory* scopeMemory, const DataPtr& other) override;
+    Result rsub(BMemory* scopeMemory, const DataPtr& other) override;
     Result mul(BMemory* scopeMemory, const DataPtr& other) override;
     Result div(BMemory* scopeMemory, const DataPtr& other) override;
+    Result rdiv(BMemory* scopeMemory, const DataPtr& other) override;
     Result pow(BMemory* scopeMemory, const DataPtr& other) override;
+    Result rpow(BMemory* scopeMemory, const DataPtr& other) override;
     Result mmul(BMemory* scopeMemory, const DataPtr& other) override;
     Result mod(BMemory* scopeMemory, const DataPtr& other) override;
+    Result rmod(BMemory* scopeMemory, const DataPtr& other) override;
     Result lt(BMemory* scopeMemory, const DataPtr& other) override;
     Result le(BMemory* scopeMemory, const DataPtr& other) override;
     Result gt(BMemory* scopeMemory, const DataPtr& other) override;
