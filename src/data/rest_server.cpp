@@ -182,7 +182,7 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                     mg_printf(conn,
                             "HTTP/1.1 200 OK\r\n"
                             "Content-Type: %s\r\n"
-                            "Content-Length: %llu\r\n"
+                            "Content-Length: %lu\r\n"
                             "\r\n%s",
                             resultTypeData->toString(&mem).c_str(),
                             response.length(), response.c_str());
@@ -203,7 +203,7 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                     mg_printf(conn,
                             "HTTP/1.1 200 OK\r\n"
                             "Content-Type: text/plain\r\n"
-                            "Content-Length: %llu\r\n"
+                            "Content-Length: %lu\r\n"
                             "\r\n%s",
                             response.length(), response.c_str());
                 }

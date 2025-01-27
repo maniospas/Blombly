@@ -17,35 +17,25 @@ Focus on writing algorithms with automated parallelism. Blombly ships with opera
 <br>
 <b> 💡 Simple.</b> There are only a few core commands.
 
+<br>
+<br>
 
-## About
-
-Blombly is opinionated on several characteristics that set it apart from other languages. These change slightly
-how code is written compared to most other languages. The next tip summarizes the cumulative effect of various
-features on reasoning about your code:
-
-!!! tip
-    You can reason about the state of structs only while their methods run;
-    consider all non-final data and called methods of other structs 
-    to be volatile.
-
-
-In detail, closure (visible symbols) comprises the final values of the scope
-where functions and struct methods are executed. There exists syntax to maintain values 
-encountered during definition, but in most scenarios functions adapt to where they run.
-Finally, multiple code blocks are dynamically selected
-and inlined, for example struct creation, to create complex combinations. 
-Thus, structs are typeless and Blombly does not use reflection to enforce logical
+Blombly has a few features that set it apart from other languages. First, it 
+automatically parallelizes functions while allowing you to create side-effects on structs (aka objects).
+Most parallel languages do no offer this option and therefore are not very good at
+object-oriented or in general imperative programming.
+Furthermore, closure (visible symbols) contains the `final`
+variables of the execution scope; you can preserve definition information on callable structs,
+but usually functions adapt to where they run.
+You can also dynamically inline multiple code blocks *at runtime*. This is a key aspect of reusing code
+when creating typeless structs. Finally, Blombly does not use reflection to enforce logical
 consistency checking through a combination of duck typing errors, 
 primitive type conversions errors, and assertions.
 
-<br>
-
-Most importantly, function and method calls are treated as potentially concurrent if they do
-not use each other's outputs. Blombly automatically parallelizes them at runtime
-with a scheduler that never deadlocks, but they might have side effects. 
-To reason about those in certain situations, struct methods that could end up calling each other 
-run in the same thread without concurrent modifications.
+!!! tip 
+    Despite parallel execution, write code similar to what you are used to because: <br>
+    a) The state of structs does not change while their methods run. <br>
+    b) Functions conclude before their returned values are used, and before their calling scope is exited. <br>
 
 
 <style>

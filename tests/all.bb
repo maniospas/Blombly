@@ -1,6 +1,7 @@
 !modify "bb://.cache/"
 !modify "vfs://"
 
+test("Default")    {!include "tests/default"}
 test("String add") {!include "tests/concat"}
 test("List")       {!include "tests/list"}
 test("Range")      {!include "tests/range"}
