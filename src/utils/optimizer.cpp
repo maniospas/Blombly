@@ -103,7 +103,7 @@ std::string optimizeFromCode(const std::string& code, bool minimify) {
             if(!command->enabled || command->args.size()==0) continue;
             if(command->args[0]=="END" || command->args[0]=="BEGIN" || command->args[0]=="BEGINFINAL" || command->args[0]=="final") continue;
             size_t j = 2;
-            if(command->args[0]=="set") {
+            if(command->args[0]=="set" || command->args[0]=="push") {
                 const std::string& symbol = command->args[j];
                 if (symbol == "LAST") bberror("Internal error: the LAST keyword has been deprecated");
                 if (symbol != "#")  symbolUsageCount[symbol]++;
@@ -148,6 +148,8 @@ std::string optimizeFromCode(const std::string& code, bool minimify) {
                 || command->args[1]=="eq"
                 || command->args[1]=="neq"
                 || command->args[1]=="clear"
+                || command->args[1]=="push"
+                || command->args[1]=="move"
                 ))
                 continue;
             
@@ -155,6 +157,7 @@ std::string optimizeFromCode(const std::string& code, bool minimify) {
             if(command->args.size()<=1) continue;
             if(command->args[0]=="final" && command->args.size()>=3 && symbolUsageCount[command->args[2]]==0) DISABLE;
             if(command->args[0]=="set" && command->args.size()>=4 && (symbolUsageCount[command->args[2]]==0 || symbolUsageCount[command->args[3]]==0)) DISABLE;
+            if(command->args[0]=="push" && command->args.size()>=4 && (symbolUsageCount[command->args[2]]==0 || symbolUsageCount[command->args[3]]==0)) DISABLE;
             if(command->args[0]=="BUILTIN" && command->args.size() && symbolUsageCount[command->args[1]]==0) DISABLE;
             if((command->args[0]=="IS" || command->args[0]=="AS" || command->args[0]=="new") && command->args.size() && symbolUsageCount[command->args[1]]==0) DISABLE;
             if(command->args[0]!="BEGIN" && command->args[0]!="BEGINFINAL") continue;

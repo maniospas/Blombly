@@ -57,7 +57,7 @@ final logger = new {
 final memory = new {
     final raii() => new {
         final entries = list();
-        final add(obj) = {
+        final push(obj) = {
             this.entries << obj;
             return obj;
         }

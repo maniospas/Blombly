@@ -20,7 +20,7 @@ public:
     BMemory* getMemory() const;
     void removeFromOwner() override;
 
-    Result push(BMemory* scopeMemory, const DataPtr& other);
+    Result push(BMemory* scopeMemory, const DataPtr& other) override;
     Result pop(BMemory* scopeMemory) override;
     Result next(BMemory* scopeMemory) override;
     Result at(BMemory* scopeMemory, const DataPtr& other);

@@ -75,18 +75,18 @@ Hello world!
 
 
 To properly handle cyclic references in complex applications, create a
-`bb.memory.raii()` struct to pass around as a shared heap space on which to add various structs. 
-Added structs are cleared together with the shared heap. Below is an example where we
-again defer clearing to the end. Adding to the memory is as simple as involving it as the
-left operand of an addition. The addition yields the object being added to the memory.
+`bb.memory.raii()` struct to hold a shared heap space. Push on this various structs
+to be automatically cleared. Below is an example where we
+again defer clearing to the end. The push operation returns the object
+being added in the memory.
 
 ```java
 // main.bb
 memory = bb.memory.raii();
 defer clear(memory);
 
-A = memory+new{message="Hello world!"}
-B = memory+new{A=A} // add at least one object in the memory to break the cyclic reference.
+A = memory<<new{message="Hello world!"}
+B = memory<<new{A=A} // add at least one object in the memory to break the cyclic reference.
 A.B = B;
 print(A.message);
 ```

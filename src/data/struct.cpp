@@ -85,14 +85,6 @@ void Struct::clear(BMemory* scopeMemory) {
     }
     if(implementation.islitorexists()) {
         Result res = simpleImplement(variableManager.getId("clear"), scopeMemory);
-        const auto& ret = res.get();
-        if(ret.islitorexists()) {
-            std::lock_guard<std::recursive_mutex> lock(memoryLock);
-            BMemory* prevMemory = memory;
-            memory = new BMemory(nullptr, 1);
-            delete prevMemory;
-            bberror("Struct returned from its `clear` method.");
-        }
     }
     else {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
