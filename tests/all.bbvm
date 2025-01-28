@@ -510,7 +510,7 @@ eq _bb515 _bb517 _bb516
 eq _bb513 _bb515 _bb514
 %if((args|len ==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 153
 if # _bb513 _bb511
-%catch(try{pos=pos;return})pos=0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 153
+%catch(do{pos=pos;return})pos=0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 153
 BEGIN _bb518
 %pos=0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 153
 BUILTIN pos I0
@@ -521,9 +521,9 @@ BEGIN _bb522
 IS pos pos
 return # #
 END
-%try{pos=pos;return} ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 153
-try _bb520 _bb522
-%catch(try{pos=pos;return})pos=0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 153
+%do{pos=pos;return} ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 153
+do _bb520 _bb522
+%catch(do{pos=pos;return})pos=0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 153
 catch # _bb520 _bb518
 %{..query=this..query;if((args|len ==0)== ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 153
 BEGIN _bb523
@@ -608,8 +608,8 @@ END
 %while(jas next(_bbmacro7))if(query[j]!=  ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 153
 while # _bb549 _bb552
 END
-%try while(jas next(_bbmacro7))if(query[j ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 153
-try different _bb548
+%do while(jas next(_bbmacro7))if(query[j] ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 153
+do different _bb548
 %catch(different)returni ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 153
 BEGIN _bb559
 %returni ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 153
@@ -826,8 +826,8 @@ BUILTIN _bb856 Btrue
 %return true //tests/all.bb line 4
 return # _bb856
 END
-%try{inc(x)={catch(bias)bias=1;returnx+bi //tests/all.bb line 4
-try _bbmacro13 _bb832
+%do{inc(x)={catch(bias)bias=1;returnx+bia //tests/all.bb line 4
+do _bbmacro13 _bb832
 %catch(_bbmacro13)bb.logger.fail("Default //tests/all.bb line 4
 BEGIN _bb857
 %bb.logger.fail("Default"+"\n"+str(_bbmac //tests/all.bb line 4
@@ -930,8 +930,8 @@ BUILTIN _bb899 Btrue
 %return true //tests/all.bb line 5
 return # _bb899
 END
-%try{A="0";A+="1";A+="2";A+="3";A+="4";A+ //tests/all.bb line 5
-try _bbmacro14 _bb875
+%do{A="0";A+="1";A+="2";A+="3";A+="4";A+= //tests/all.bb line 5
+do _bbmacro14 _bb875
 %catch(_bbmacro14)bb.logger.fail("String  //tests/all.bb line 5
 BEGIN _bb900
 %bb.logger.fail("String add"+"\n"+str(_bb //tests/all.bb line 5
@@ -1105,8 +1105,8 @@ BUILTIN _bb975 Btrue
 %return true //tests/all.bb line 6
 return # _bb975
 END
-%try{A=1,2,3,4;if((A[1]==2)== false)fail( //tests/all.bb line 6
-try _bbmacro15 _bb918
+%do{A=1,2,3,4;if((A[1]==2)== false)fail(" //tests/all.bb line 6
+do _bbmacro15 _bb918
 %catch(_bbmacro15)bb.logger.fail("List"+" //tests/all.bb line 6
 BEGIN _bb976
 %bb.logger.fail("List"+"\n"+str(_bbmacro1 //tests/all.bb line 6
@@ -1184,8 +1184,8 @@ BUILTIN _bb1009 Btrue
 %return true //tests/all.bb line 7
 return # _bb1009
 END
-%try{s=0;_bbmacro17=iter(range(10));while //tests/all.bb line 7
-try _bbmacro16 _bb994
+%do{s=0;_bbmacro17=iter(range(10));while( //tests/all.bb line 7
+do _bbmacro16 _bb994
 %catch(_bbmacro16)bb.logger.fail("Range"+ //tests/all.bb line 7
 BEGIN _bb1010
 %bb.logger.fail("Range"+"\n"+str(_bbmacro //tests/all.bb line 7
@@ -1280,8 +1280,8 @@ BUILTIN _bb1050 Btrue
 %return true //tests/all.bb line 8
 return # _bb1050
 END
-%try{A=1,2,3;s=0;_bbmacro19=iter(A);while //tests/all.bb line 8
-try _bbmacro18 _bb1028
+%do{A=1,2,3;s=0;_bbmacro19=iter(A);while( //tests/all.bb line 8
+do _bbmacro18 _bb1028
 %catch(_bbmacro18)bb.logger.fail("Iterati //tests/all.bb line 8
 BEGIN _bb1051
 %bb.logger.fail("Iteration"+"\n"+str(_bbm //tests/all.bb line 8
@@ -1426,8 +1426,8 @@ BUILTIN _bb1117 Btrue
 %return true //tests/all.bb line 9
 return # _bb1117
 END
-%try{A=map();A["test"]=1;if((A["test"]==1 //tests/all.bb line 9
-try _bbmacro20 _bb1069
+%do{A=map();A["test"]=1;if((A["test"]==1) //tests/all.bb line 9
+do _bbmacro20 _bb1069
 %catch(_bbmacro20)bb.logger.fail("Map"+"\ //tests/all.bb line 9
 BEGIN _bb1118
 %bb.logger.fail("Map"+"\n"+str(_bbmacro20 //tests/all.bb line 9
@@ -1941,8 +1941,8 @@ BUILTIN _bb1345 Btrue
 %return true //tests/all.bb line 10
 return # _bb1345
 END
-%try{A=vector(0,1);B=vector(2,3);if((min( //tests/all.bb line 10
-try _bbmacro21 _bb1136
+%do{A=vector(0,1);B=vector(2,3);if((min(B //tests/all.bb line 10
+do _bbmacro21 _bb1136
 %catch(_bbmacro21)bb.logger.fail("Vector" //tests/all.bb line 10
 BEGIN _bb1346
 %bb.logger.fail("Vector"+"\n"+str(_bbmacr //tests/all.bb line 10
@@ -2140,8 +2140,8 @@ BUILTIN _bb1427 Btrue
 %return true //tests/all.bb line 11
 return # _bb1427
 END
-%try{final Num={int={return this.value;}l //tests/all.bb line 11
-try _bbmacro22 _bb1364
+%do{final Num={int={return this.value;}lt //tests/all.bb line 11
+do _bbmacro22 _bb1364
 %catch(_bbmacro22)bb.logger.fail("Overloa //tests/all.bb line 11
 BEGIN _bb1428
 %bb.logger.fail("Overload"+"\n"+str(_bbma //tests/all.bb line 11
@@ -2228,8 +2228,8 @@ BUILTIN _bb1464 Btrue
 %return true //tests/all.bb line 12
 return # _bb1464
 END
-%try{foo(x,y)={catch(bias)bias=0;returnx+ //tests/all.bb line 12
-try _bbmacro25 _bb1446
+%do{foo(x,y)={catch(bias)bias=0;returnx+y //tests/all.bb line 12
+do _bbmacro25 _bb1446
 %catch(_bbmacro25)bb.logger.fail("Func ca //tests/all.bb line 12
 BEGIN _bb1465
 %bb.logger.fail("Func call"+"\n"+str(_bbm //tests/all.bb line 12
@@ -2347,8 +2347,8 @@ BUILTIN _bb1513 Btrue
 %return true //tests/all.bb line 13
 return # _bb1513
 END
-%try{Struct={.x=this.x;x=0;xthis={return  //tests/all.bb line 13
-try _bbmacro26 _bb1483
+%do{Struct={.x=this.x;x=0;xthis={return t //tests/all.bb line 13
+do _bbmacro26 _bb1483
 %catch(_bbmacro26)bb.logger.fail("Closure //tests/all.bb line 13
 BEGIN _bb1514
 %bb.logger.fail("Closure"+"\n"+str(_bbmac //tests/all.bb line 13
@@ -2415,14 +2415,14 @@ eq _bb1540 _bb1542 _bb1541
 if # _bb1540 _bb1538
 %clear(A) ///home/maniospas/Documents/Blombly/tests/clear.bb line 8
 clear # A
-%if((try catch(A.x)return true else retur ///home/maniospas/Documents/Blombly/tests/clear.bb line 9
+%if((do catch(A.x)return true else return ///home/maniospas/Documents/Blombly/tests/clear.bb line 9
 BEGIN _bb1546
 %("Assertion failed") ///home/maniospas/Documents/Blombly/tests/clear.bb line 9
 BUILTIN _bb1547 "Assertion failed"
 %fail("Assertion failed") ///home/maniospas/Documents/Blombly/tests/clear.bb line 9
 fail # _bb1547
 END
-%(try catch(A.x)return true else return f ///home/maniospas/Documents/Blombly/tests/clear.bb line 9
+%(do catch(A.x)return true else return fa ///home/maniospas/Documents/Blombly/tests/clear.bb line 9
 BUILTIN _bb1549 Bfalse
 %catch(A.x)return true else return false ///home/maniospas/Documents/Blombly/tests/clear.bb line 9
 BEGIN _bb1552
@@ -2442,10 +2442,10 @@ get _bb1557 A x
 %catch(A.x)return true else return false ///home/maniospas/Documents/Blombly/tests/clear.bb line 9
 catch # _bb1557 _bb1553 _bb1555
 END
-%try catch(A.x)return true else return fa ///home/maniospas/Documents/Blombly/tests/clear.bb line 9
-try _bb1550 _bb1552
+%do catch(A.x)return true else return fal ///home/maniospas/Documents/Blombly/tests/clear.bb line 9
+do _bb1550 _bb1552
 eq _bb1548 _bb1550 _bb1549
-%if((try catch(A.x)return true else retur ///home/maniospas/Documents/Blombly/tests/clear.bb line 9
+%if((do catch(A.x)return true else return ///home/maniospas/Documents/Blombly/tests/clear.bb line 9
 if # _bb1548 _bb1546
 %{x=1;y=2;} ///home/maniospas/Documents/Blombly/tests/clear.bb line 13
 BEGIN _bb1560
@@ -2459,14 +2459,14 @@ END
 new B _bb1560
 %B|move ///home/maniospas/Documents/Blombly/tests/clear.bb line 17
 move C B
-%if((try catch(B.x)return true else retur ///home/maniospas/Documents/Blombly/tests/clear.bb line 18
+%if((do catch(B.x)return true else return ///home/maniospas/Documents/Blombly/tests/clear.bb line 18
 BEGIN _bb1564
 %("Assertion failed") ///home/maniospas/Documents/Blombly/tests/clear.bb line 18
 BUILTIN _bb1565 "Assertion failed"
 %fail("Assertion failed") ///home/maniospas/Documents/Blombly/tests/clear.bb line 18
 fail # _bb1565
 END
-%(try catch(B.x)return true else return f ///home/maniospas/Documents/Blombly/tests/clear.bb line 18
+%(do catch(B.x)return true else return fa ///home/maniospas/Documents/Blombly/tests/clear.bb line 18
 BUILTIN _bb1567 Bfalse
 %catch(B.x)return true else return false ///home/maniospas/Documents/Blombly/tests/clear.bb line 18
 BEGIN _bb1570
@@ -2486,10 +2486,10 @@ get _bb1575 B x
 %catch(B.x)return true else return false ///home/maniospas/Documents/Blombly/tests/clear.bb line 18
 catch # _bb1575 _bb1571 _bb1573
 END
-%try catch(B.x)return true else return fa ///home/maniospas/Documents/Blombly/tests/clear.bb line 18
-try _bb1568 _bb1570
+%do catch(B.x)return true else return fal ///home/maniospas/Documents/Blombly/tests/clear.bb line 18
+do _bb1568 _bb1570
 eq _bb1566 _bb1568 _bb1567
-%if((try catch(B.x)return true else retur ///home/maniospas/Documents/Blombly/tests/clear.bb line 18
+%if((do catch(B.x)return true else return ///home/maniospas/Documents/Blombly/tests/clear.bb line 18
 if # _bb1566 _bb1564
 %if((C.x==1)== false)fail("Assertion fail ///home/maniospas/Documents/Blombly/tests/clear.bb line 19
 BEGIN _bb1576
@@ -2512,8 +2512,8 @@ BUILTIN _bb1583 Btrue
 %return true //tests/all.bb line 14
 return # _bb1583
 END
-%try{A=new{x=1;y=2;}if((A.x==1)== false)f //tests/all.bb line 14
-try _bbmacro27 _bb1532
+%do{A=new{x=1;y=2;}if((A.x==1)== false)fa //tests/all.bb line 14
+do _bbmacro27 _bb1532
 %catch(_bbmacro27)bb.logger.fail("Clear"+ //tests/all.bb line 14
 BEGIN _bb1584
 %bb.logger.fail("Clear"+"\n"+str(_bbmacro //tests/all.bb line 14
@@ -2626,8 +2626,8 @@ BUILTIN _bb1631 Btrue
 %return true //tests/all.bb line 15
 return # _bb1631
 END
-%try{waslength(moveA)={returnA|len;}A=1,2 //tests/all.bb line 15
-try _bbmacro28 _bb1602
+%do{waslength(moveA)={returnA|len;}A=1,2, //tests/all.bb line 15
+do _bbmacro28 _bb1602
 %catch(_bbmacro28)bb.logger.fail("Move "+ //tests/all.bb line 15
 BEGIN _bb1632
 %bb.logger.fail("Move "+"\n"+str(_bbmacro //tests/all.bb line 15
@@ -2710,8 +2710,8 @@ BUILTIN _bb1670 Btrue
 %return true //tests/all.bb line 16
 return # _bb1670
 END
-%try{A=1,2,3;A=A|bb.collection.toback(4); //tests/all.bb line 16
-try _bbmacro29 _bb1650
+%do{A=1,2,3;A=A|bb.collection.toback(4);i //tests/all.bb line 16
+do _bbmacro29 _bb1650
 %catch(_bbmacro29)bb.logger.fail("Collect //tests/all.bb line 16
 BEGIN _bb1671
 %bb.logger.fail("Collection"+"\n"+str(_bb //tests/all.bb line 16
@@ -2945,8 +2945,8 @@ BUILTIN _bb1773 Btrue
 %return true //tests/all.bb line 17
 return # _bb1773
 END
-%try{A="I like banana!";if((A|bb.string.s //tests/all.bb line 17
-try _bbmacro30 _bb1689
+%do{A="I like banana!";if((A|bb.string.st //tests/all.bb line 17
+do _bbmacro30 _bb1689
 %catch(_bbmacro30)bb.logger.fail("Stringu //tests/all.bb line 17
 BEGIN _bb1774
 %bb.logger.fail("Stringutil"+"\n"+str(_bb //tests/all.bb line 17
@@ -3030,8 +3030,8 @@ END
 %while(ias next(_bbmacro32))accum.add(i) ///home/maniospas/Documents/Blombly/tests/atomicity.bb line 6
 while # _bb1805 _bb1808
 END
-%try while(ias next(_bbmacro32))accum.add ///home/maniospas/Documents/Blombly/tests/atomicity.bb line 6
-try _bb1802 _bb1804
+%do while(ias next(_bbmacro32))accum.add( ///home/maniospas/Documents/Blombly/tests/atomicity.bb line 6
+do _bb1802 _bb1804
 %if((accum.value == 45)== false)fail("Ass ///home/maniospas/Documents/Blombly/tests/atomicity.bb line 7
 BEGIN _bb1812
 %("Assertion failed") ///home/maniospas/Documents/Blombly/tests/atomicity.bb line 7
@@ -3053,8 +3053,8 @@ BUILTIN _bb1819 Btrue
 %return true //tests/all.bb line 18
 return # _bb1819
 END
-%try{final accum=new{value=0;add(x)={this //tests/all.bb line 18
-try _bbmacro31 _bb1792
+%do{final accum=new{value=0;add(x)={this. //tests/all.bb line 18
+do _bbmacro31 _bb1792
 %catch(_bbmacro31)bb.logger.fail("Atomici //tests/all.bb line 18
 BEGIN _bb1820
 %bb.logger.fail("Atomicity"+"\n"+str(_bbm //tests/all.bb line 18
@@ -3232,8 +3232,8 @@ BUILTIN _bb1879 Btrue
 %return true //tests/all.bb line 19
 return # _bb1879
 END
-%try{finalA=new{foo1()={return extern2(B) //tests/all.bb line 19
-try _bbmacro33 _bb1838
+%do{finalA=new{foo1()={return extern2(B); //tests/all.bb line 19
+do _bbmacro33 _bb1838
 %catch(_bbmacro33)bb.logger.fail("No dead //tests/all.bb line 19
 BEGIN _bb1880
 %bb.logger.fail("No deadlock"+"\n"+str(_b //tests/all.bb line 19
@@ -3312,8 +3312,8 @@ BUILTIN _bb1914 Btrue
 %return true //tests/all.bb line 20
 return # _bb1914
 END
-%try{f1="vfs://test.txt"|file;push(f1,"Vi //tests/all.bb line 20
-try _bbmacro34 _bb1898
+%do{f1="vfs://test.txt"|file;push(f1,"Vir //tests/all.bb line 20
+do _bbmacro34 _bb1898
 %catch(_bbmacro34)bb.logger.fail("VFS"+"\ //tests/all.bb line 20
 BEGIN _bb1915
 %bb.logger.fail("VFS"+"\n"+str(_bbmacro34 //tests/all.bb line 20
@@ -3461,8 +3461,8 @@ BUILTIN _bb1994 Btrue
 %return true //tests/all.bb line 21
 return # _bb1994
 END
-%try{db=sqlite("bb://.cache/database.db") //tests/all.bb line 21
-try _bbmacro35 _bb1933
+%do{db=sqlite("bb://.cache/database.db"); //tests/all.bb line 21
+do _bbmacro35 _bb1933
 %catch(_bbmacro35)bb.logger.fail("Databas //tests/all.bb line 21
 BEGIN _bb1995
 %bb.logger.fail("Database"+"\n"+str(_bbma //tests/all.bb line 21

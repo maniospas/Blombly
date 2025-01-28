@@ -66,7 +66,7 @@ sci = new {
 
                 // draw plot legends
                 i = 0;
-                while(plot in this.plots) try {
+                while(plot in this.plots) do {
                     if(plot.title|len==0) return;
                     tx = px+width-200;
                     ty = py+18*i+4;

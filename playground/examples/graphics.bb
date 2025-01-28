@@ -43,6 +43,6 @@ while(events as g|pop) {
     previous_frame = current_frame;
     invfps = invfps*0.99+0.01*dt;
 
-    // update loop (use try for forceful synchronization)
+    // update loop (forceful synchronization)
     logo = logo.update(dt);
 }

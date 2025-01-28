@@ -2,8 +2,8 @@ db = bb.db(":memory:");
 users = db.table("users", "id INTEGER PRIMARY KEY, name TEXT, age INTEGER");
 
 tic = time();
-while(i in range(10000)) try {
-    try end = db.transaction();
+while(i in range(10000)) do {
+    do end = db.transaction();
     defer end();
 
     user = map();

@@ -401,7 +401,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
     DO_OR: {
         arg0 = memory.get(command.args[1]);
         arg1 = memory.get(command.args[2]);
-        if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool() && arg1.unsafe_tobool());
+        if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool() || arg1.unsafe_tobool());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->opor(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->opor(&memory, arg0));
         if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));

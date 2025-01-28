@@ -34,7 +34,7 @@ static const std::string OperationTypeNames[] = {
     "sum", "max", "min",
     "BUILTIN", "BEGIN", "BEGINFINAL", "CACHE", "END", "return", "final", "IS",
     "call", "while", "if", "new", "print", "inline", "get", "set", "setfinal", "default",
-    "time", "iter", "try", "catch", "fail", "exists", "read", "server", "AS", "range",
+    "time", "iter", "do", "catch", "fail", "exists", "read", "server", "AS", "range",
     "defer", "clear", "move", "ISCACHED", "sqlite", "graphics"
 };
 

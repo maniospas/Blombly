@@ -6,7 +6,7 @@ A = new{
 
 assert A.x==1;
 clear(A);
-assert try catch(A.x) return true else return false;
+assert do catch(A.x) return true else return false;
 
 
 // test move
@@ -15,5 +15,5 @@ B = new{
     y = 2;
 }
 C = B|move;
-assert try catch(B.x) return true else return false;
+assert do catch(B.x) return true else return false;
 assert C.x==1;
