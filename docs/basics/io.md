@@ -203,8 +203,7 @@ print("nonexisting filename"|file|bool); // false
 Web resources are read in the same way given the prefixes for the protocols:
 http, https, ftp, sftp, ftps, sftp. The first two of those protocols do not
 support pushing to the resource but the rest do.
-All resource access errors can be intercepted and handled normally
-with Blombly's `try-catch` pattern. 
+All resource access errors can be caught normally, as described [here](../advanced/try.md).
 
 ```java
 // main.bb

@@ -180,7 +180,9 @@ is maintained for subsequent code.
     that `x` can be converted to a float and will be treated thusly from thereon.
 
 !!! tip
-    Use the dash (`|`) notation for function calls of one argument, even if you don't have a semi-type interpretation in mind.
+    For easily readable code, use the dash (`|`) notation for all possible function calls of one argument while keeping at
+    least one pair of parentheses like so: `value = float("number"|read);`
+    This lets the outcome semi-type and the starting variable appear side-by-side, with intermediate preparatory steps following.
 
 
 ## Control flow
@@ -199,8 +201,8 @@ You may omit brackets for single-command segments, but put semicolons only at th
 <br>
 
 Similarly, loops take the form `while (condition) {@code}` and keep executing the code while the condition is `true`. 
-To avoid ambiguity, there are no other ways in the language's core to declare a loop, albeit the `in` keywords allows
-you to iterate through lists and the like. Again, you may omit brackets if only one command runs.
+To avoid ambiguity, there are no other ways in the language's core to declare a loop, albeit the `in` macro is a shorthand
+for looping through iterables, like lists. Again, omit brackets if only one command runs.
 Here is an example with both control flow options.
 
 ```java
@@ -231,7 +233,7 @@ while (i<5) {
 
 Deferring sets code to run later. *The deferred code is always executed*, even
 if errors occur in the interim. Normally, defer occurs just before return statements, including returning from
-`new` scopes that create structs. It is also applied upon entering and exiting `try` blocks.
+`new` scopes that create structs. It is also applied upon entering and exiting `do` blocks.
 In advanced settings, you can clear resources, remove cyclic struct references,
 or completely clear struct contents. Here is a usage example, where we ignore the brackets
 of the deferred code block for simplicity.

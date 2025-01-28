@@ -150,7 +150,7 @@ Hi from the terminal.
 
 Before jumping into actual coding, let us peek at errors that Blombly may create. There are two types. 
 First, syntax errors make the compiler halt.
-Second, lfiogical errors occur at runtime, are intercepted with `try`, and handled with `catch`.
+Second, lfiogical errors occur at runtime, are intercepted with `do`, and handled with `catch`.
 To see what a syntax error looks like, execute the following invalid code.
 We get an error telling us that the + operation for string concatenation has no right-hand side. 
 The compiler shows the exact position of the missing expression within the source code.

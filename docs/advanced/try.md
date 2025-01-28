@@ -12,9 +12,10 @@ stack until they encounter code that handles them - or ignores them.
 <br>
 
 Importantly, *errors do not immediately terminate functions*. Instead,
-they give you an opportunity to handle them. However, they cannot be assigned as struct fields 
-or as list/map entries. On the other hand, operations like converting invalid strings to numbers, 
-or using the `next` operator of iterators can return errors. 
+they give you an opportunity to handle them. Still, for safety, 
+side-effects cannot be errors; you can not set errors as struct fields 
+or as list/map keys or entries. On the other hand, operations like converting 
+invalid strings to numbers, or using the `next` operator of iterators can return errors. 
 
 !!! warning
     **Potential instability:** Future versions of Blombly may change whether
@@ -142,40 +143,43 @@ fail.
 
 
 
-## Try
+## Do-return
 
-The `@result = try{@code}` pattern intercepts errors that cannot be packed into values,
+The `@result = do{@code}` pattern intercepts errors that cannot be packed into values,
 such as `fail` statements. But it also intercepts return statements that indicate successful conclusion of
 computations. When entered and exited, it also waits for parallel function calls evoked in the code to conclude 
-and applies all defer statements. Omit brackets when only one command is tried.
+and applies all defer statements. Omit brackets when only one command is tried. You may also not assign
+the result anywhere.
 
+!!! tip
+    Think of `do` as a function call that affects the scope.
 
 !!! warning
-    **Potential instability:** Future versions of Blombly may make side-effect errors `fail` to be caught with `try`.
+    **Potential instability:** Future versions of Blombly may make side-effect errors `fail` to be caught with `do`.
 
-For example, let the interception mechanism interrupt control flow like this `sgn = try if(x>=0) return 1 else return -1;`.
+For example, let the interception mechanism interrupt control flow like this `sgn = do if(x>=0) return 1 else return -1;`.
 A similar syntax breaks away from loops below. Contrary to errors, 
 returning is lightweight to intercept. 
-You could also prepend `try` to loop bodies to let internal returns skip the rest of the body - 
-this would emulate other languages' *continue* just as the syntax below emulates *break*. 
+You could also prepend `do` to loop bodies to let internal returns skip the rest of the body - 
+this emulates other languages' *continue* just as the syntax below emulates *break*. 
 Blombly does not have extra keywords to enforce only one way of interrupting execution.
 
 <br>
 
-Use `catch` to check on the outcome of trying, where not intercepting any return is also
+Use `catch` to check whether `do` intercepted a non-error ereturn; not intercepting any return is also
 considered an error. An example follows.
 
 ```java
 // main.bb
-start = "start:"|read|int;
-end = "end:  "|read|int;
+start = int("start:"|read);
+end = int("end:  "|read);
 i = 0;
-result = try while (i <= end) {
+result = do while(i <= end) {
     i = i + 3;
-    if (i >= start) return i;
+    if(i >= start) return i;
 }
 print("Finished searching.");
-catch (result) fail("Found nothing: !{result}"); // creates a custom error on-demand
+catch(result) fail("Found nothing: !{result}"); // creates a custom error on-demand
 print("The least multiple of 3 in range [!{start}, !{end}] is: !{result}");
 ```
 
@@ -190,13 +194,14 @@ The least multiple of 3 in range [4, 100] is: 6
 start: 4
 end:   1
 Finished searching. 
-(<span style="color: red;"> ERROR </span>) Found nothing: No error or return statement intercepted with `try`.
+(<span style="color: red;"> ERROR </span>) Found nothing: No error or return statement intercepted with `do`.
    <span style="color: lightblue;">→</span>  fail("Found nothing: "+str(result|str)+"            main.bb line 9
    <span style="color: lightblue;">→</span>  fail("Found nothing: "+str(result|str)+"            main.bb line 9
    <span style="color: lightblue;">→</span>  catch(result)fail("Found nothing: "+str(            main.bb line 9
 </pre>
 
 
-!!! warning
-    The `try` statement synchronizes all concurrency when entered and exited.
-    This slows down automatic parallelization, so do not overuse it.
+!!! info
+    The `do` statement synchronizes all concurrency when entered and exited.
+    This can be handy to forcefully synchronize code segments,
+    but also slows down automatic parallelization so don't overuse it.

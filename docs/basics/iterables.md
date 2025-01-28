@@ -177,7 +177,7 @@ Negative steps are also allowed. Below is a demonstration.
 ```java
 // main.bb
 it = range(2, 0, -0.5);
-while(i as next(it)) print(i);
+while(i as it|next) print(i);
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">

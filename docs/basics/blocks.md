@@ -24,6 +24,10 @@ test:
 Hello world!
 </pre>
 
+!!! info
+    Use the `@value = do @blockname:` pattern to intercept return statements, if those are expected from inlined
+    blocks. This is described [later](../advanced/try.md).
+
 
 ## Functions
 
@@ -86,7 +90,7 @@ print(b);
 
 !!! info
     Blombly is free to run functions in parallel. 
-    Synchronize them by passing the output of one into another, or by enclosing multiple calls in a `try` block.
+    Synchronize them by passing the output of one into another, or by enclosing multiple calls in a `do` block.
     For full instructions on handling concurrency side effects see [here](../material/concurrency.md).
 
 ## Execution closure

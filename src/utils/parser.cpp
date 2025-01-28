@@ -1528,13 +1528,13 @@ void sanitize(std::vector<Token>& tokens) {
 
         /*if ((tokens[i].name == "if" || tokens[i].name == "while") && ((i==0) || 
             (tokens[i - 1].name != ";" && tokens[i - 1].name != "{" && tokens[i - 1].name != "}" && tokens[i - 1].name != "do" && tokens[i - 1].name != "default")))
-            bberror("`"+tokens[i].name+"` statements must be preceded by one of `try`, `default`, '{', '}', or ';'. "
+            bberror("`"+tokens[i].name+"` statements must be preceded by one of `do`, `default`, '{', '}', or ';'. "
                     "\n   \033[33m!!!\033[0m These statements must be preceded by"
-                    "\n       one of the tokens `try`, `default`, '{', '}', or ';'\n"
+                    "\n       one of the tokens `do`, `default`, '{', '}', or ';'\n"
                     + Parser::show_position(tokens, i));*/
         
         /*if (tokens[i].name == "do" && i > 0 && tokens[i - 1].name == "=")
-            bberror("Replace `= try` with `as try`. "
+            bberror("Replace `= do` with `as do`. "
                     "\n   \033[33m!!!\033[0m Try statements may encounter neither exceptions "
                     "\n        nor value returns. As a blanket protection against missing"
                     "\n        value errors other than your error handling, use `as` instead of `=` .\n"

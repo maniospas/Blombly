@@ -58,10 +58,10 @@ print(add(x,y));
 10
 </pre>
 
-As an extension of dependency-based synchronization mechanisms, `try` statements also
+As an extension of dependency-based synchronization mechanisms, `do` statements also
 force all internally executed code to conclude before returning because they need to
 be aware of any errors that have occurred. Below is an adjustment of the first concurrency
-example, where the `try` keyword is prepended to function calls to make them conclude
+example, where the `do` keyword is prepended to function calls to make them conclude
 before moving on. 
 This does not effect error handling, because unhandled errors are reraised at the end
 of the scope even if intercepted.
@@ -69,10 +69,10 @@ of the scope even if intercepted.
 ```java
 // main.bb
 printer(text) = {print(text)}
-try printer("A");
-try printer("B");
-try printer("C");
-try printer("D");
+do printer("A");
+do printer("B");
+do printer("C");
+do printer("D");
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
