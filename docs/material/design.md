@@ -1,17 +1,17 @@
 # Language Design
 
 Here is a summary of Blombly's design and philosophy going forward.
-The main point is that the language should stay simple, with emphasis on easily
+The main point is that the language should stay simple, with emphasis on
 reusing code without wrestling with its definition scope to get closure right.
 
 
 ## Vision
 
 Those interested should be able to read the syntax almost immediately after
-going through the basics; hopefully, one afternoon is enough to
-get into the language. Implementation details
+going through the basics. One afternoon worth of reading
+is enough to start writting code. Implementation details
 are also automated by the virtual machine, and you only need to
-focus on writting algorithms. Finally, the language addresses the most common
+focus on writting algorithms. Finally, the language addresses common
 development needs with a few simple interfaces.
 
 <br>
@@ -21,24 +21,26 @@ and fun to work with for small and mid-sized projects. I hope it's to your likin
 
 ## Opinionated
 
-Blombly is intentionally opinionated on a several principles. Some of these
-optinions ended up stronger than mine, with the goal of creating a consistent
-way of reading and writting code. My mantra is that having fewer options to
-solve the same problems makes it easy to settle in a "proper" implementation
-and I am trying to cull any such duplication - unless it saves a lot of boilerplate
-like with `in` and `catch` that could both be implemented with some long expression
-using `as`.
+Blombly's opinions on certain aspects of development are stronger than mine. This
+is not by accident, but a good way to maintain a consistent
+style and range of solutions. My mantra is that having fewer but easier to find options 
+prevents the creation of divergent ecosystems within the language.
+Conversely, I am trying to cull code duplication, unless it saves a lot of boilerplate.
 So, if you think that the language offers two ways to do the same thing, take 
 a moment to reflect on what the difference might be; these might be substantial.
 
+!!! info
+    An example of time-saving shorthands are `in` and `catch` that are under the 
+    hood applications of needlessly verbose `as` statements.
+
 <br>
 
-For example, if you want to have a counter that you will increase from different
+For example, to have a global counter that increases across different
 function calls, the "proper" way to do it is with the following implementation.
-Adopting the alternative pattern `counter.value += 1` for some public variable
-does not respect the fact that a stable struct state is guaranteed to be preserved
-only while struct methods run (atomocity only during member function execution).
-Furthermore, the value was made private to prevent
+Writtin an expression like `counter.value += 1` is indeed different;
+stable struct state is guaranteed to be preserved (aka structs are atomic)
+only while struct methods run.
+The internal value was made private to prevent
 accidentally using the alternative pattern. You could pass the counter as an 
 argument though, in which case it becomes a question of whether you want this
 argument passing to be a part of your business logic or not.

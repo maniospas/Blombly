@@ -229,7 +229,7 @@ while (i<5) {
 
 ## Defer
 
-Deferring declares code to run later. *The deferred code is always executed*, even
+Deferring sets code to run later. *The deferred code is always executed*, even
 if errors occur in the interim. Normally, defer occurs just before return statements, including returning from
 `new` scopes that create structs. It is also applied upon entering and exiting `try` blocks.
 In advanced settings, you can clear resources, remove cyclic struct references,
