@@ -116,6 +116,17 @@ print # _bb162
 
 <br>
 
+**--depth**
+
+One of Blombly's safety mechanisms is a limitation on stack depth.
+For example, this limits recursive functions from breaking your code. The
+default limit is *42* (the Answer!) but you can set a higher or lower value
+with the option `--depth <num>` or `-d <num>`. Inline execution of code blocks
+-including the conditions and bodies of control flow statements- counts
+towards this number. Do try to keep things simple without using this option.
+
+<br>
+
 **multiple main files**
 
 Provide multiple source files to compile and run in their order of 

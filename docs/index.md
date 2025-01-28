@@ -13,24 +13,21 @@ Instead of copying recipes, code admits [learnable usage patterns](https://www.s
 <b>🚀 Expressive.</b> 
 Focus on writing algorithms with automated parallelism. Blombly ships with operating system and web tools.
 <br>
-<b>🦆 Dynamic.</b> Leverage features like duck typing and dynamic inlining. Syntax is opinionated in favor of [typeless oop](material/typeless.md).
+<b>🦆 Dynamic.</b> Leverage features like duck typing and dynamic inlining. Syntax is opinionated just enough to prevent multiple solutions.
 <br>
-<b> 💡 Simple.</b> There are only a few core commands.
+<b> 💡 Simple.</b> There are only a few core commands and mostly one way to do things. Learn Blombly in an afternoon.
 
 <br>
 <br>
 
-Blombly has a few features that set it apart from other languages. First, it 
-automatically parallelizes functions while allowing you to create side-effects on structs (aka objects).
-Most parallel languages do no offer this option and therefore are not very good at
-object-oriented or in general imperative programming.
-Furthermore, closure (visible symbols) contains the `final`
-variables of the execution scope; you can preserve definition information on callable structs,
-but usually functions adapt to where they run.
-You can also dynamically inline multiple code blocks *at runtime*. This is a key aspect of reusing code
-when creating typeless structs. Finally, Blombly does not use reflection to enforce logical
-consistency checking through a combination of duck typing errors, 
-primitive type conversions errors, and assertions.
+Blombly has a few features that make it unique. First, it 
+automatically parallelizes functions while allowing side-effects on structs
+and imperative programming in general. Furthermore, closure (visible symbols) consists of the `final`
+variables of the execution scope; preserve definition information on callable structs,
+but functions adapt to where they run.
+Also dynamically inline multiple code blocks *at runtime*, for example to reusing code
+when creating typeless structs. Finally, Blombly forgoes reflection to force logical consistency
+through error checking.
 
 !!! tip 
     Despite parallel execution, write code similar to what you are used to because: <br>
