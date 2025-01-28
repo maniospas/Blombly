@@ -116,10 +116,10 @@ So newcommers will never need to learn the standard library to get
 down to coding, and not miss out on anything important.
 
 !!! info
-    Although part of the standard library, this promise does not carry
-    over to shipped macros like  `in` `default` `=>` `assert`.
-    These are not part of the main language only because I am trying to 
-    move as much stuff I can outside the virtual machine to give people 
-    the option to tinker with the language itself if they want to.
-    Such macros are covered extensively in the user guide and can be basically
-    considered part of the language. 
+    Although part of the standard library, the macros
+    `in` `default` `=>` `assert` need to be understood to get coding.
+    However, these are part of the language and are implemented within
+    the standard library only because I am trying to 
+    move as much stuff I can outside the virtual machine to allow
+    tinkering with the language.
+    Such macros are covered extensively in the user guide.
