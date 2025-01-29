@@ -73,23 +73,62 @@ print("!{a} + !{b} = !{c}");
 
 ## Build from source 
 
-Clone this repository and install gcc in your system. Then, follow the steps below, which include installing the vcpkg dependency manager:
+Follow the steps below, which include installing the vcpkg dependency manager.
+Similar processes should work for other platforms too, but I have not tested them - I am actively looking for contributions on this.
 
-```
-# install vcpkg
+
+**Windows**
+
+Get vcpkg and use it to install dependencies. 
+
+``` 
 git clone https://github.com/microsoft/vcpkg.git
 cd vcpkg
-.\bootstrap-vcpkg.bat  # windows bootstraping (./bootstrap-vcpkg.sh for linux)
-./vcpkg install zlib civetweb curl[core,ssl] --recurse 
+.\bootstrap-vcpkg.bat
+.\vcpkg.exe install sdl2 sdl2-image sdl2-ttf sqlite3 civetweb openssl zlib curl[core,ssl,ssh] --recurse
 cd ..
+```
 
-# install asmjit
-git clone https://github.com/asmjit/asmjit.git
+Build the target. Change the number of processors to further speed up compilation; set it to at most to one less than the number of system cores.
 
-# build instructions
-mkdir build
+```
+cmake -B .\build
+cmake --build .\build --config Release  --parallel 7
+```
+
+This will create `blombly.exe` and a bunch of *dll*s needed for its execution.
+
+
+⚠️ I am not good enough with
+cmake to force proper g++/mingw compilation and linking in both dependencies and the main compilation (I would appreciate some help there). So, in Windows with MSVC as the default compiler you will get an implementation with slower dynamic dispatch during execution. This mostly matters if you try
+to do intensive numeric computations without vectors - which you really shouldn't.
+
+
+**Linux**
+
+First install SDL2 separately, because the linux vcpkg installation is not working properly for me.
+
+```
+sudo apt-get install libsdl2-dev
+sudo apt-get install libsdl2-image-dev
+sudo apt-get install libsdl2-ttf-dev
+```
+
+Get vcpkg and use it to install the rest of the dependencies. 
+
+```
+git clone https://github.com/microsoft/vcpkg.git
+cd vcpkg
+./bootstrap-vcpkg.sh
+./vcpkg install sqlite3 civetweb openssl zlib curl[core,ssl,ssh] --recurse
+cd ..
+```
+
+Build the target. Change the number of processors to further speed up compilation; set it to at most to one less than the number of system cores.
+
+```
 cmake -B ./build
-cmake --build ./build --config Release  # rerun this after making changes
+cmake --build ./build --config Release  --parallel 7
 ```
 
 ## Batteries included
