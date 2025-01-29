@@ -151,7 +151,8 @@ and applies all defer statements. Omit brackets when only one command is tried. 
 the result anywhere.
 
 !!! tip
-    Think of `do` as a function call that affects the scope.
+    Think of `do` as a function call that affects the scope. It further synchronizes all concurrency 
+    when entered and exited, which is handy for forcing sequential function calls.
 
 For example, let the interception mechanism interrupt control flow like this `sgn = do if(x>=0) return 1 else return -1;`.
 A similar syntax breaks away from loops below. Contrary to errors, 
@@ -195,9 +196,3 @@ Finished searching.
    <span style="color: lightblue;">→</span>  fail("Found nothing: "+str(result|str)+"            main.bb line 9
    <span style="color: lightblue;">→</span>  catch(result)fail("Found nothing: "+str(            main.bb line 9
 </pre>
-
-
-!!! info
-    The `do` statement synchronizes all concurrency when entered and exited.
-    This can be handy to forcefully synchronize code segments,
-    but also slows down automatic parallelization so don't overuse it.
