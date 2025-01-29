@@ -32,12 +32,87 @@ public:
     static constexpr int argsId = 1;
     static constexpr int noneId = 2;
     static constexpr int callId = 3;
+    static constexpr int structIter = 4;
+    static constexpr int structPush = 5;
+    static constexpr int structPop  = 6;
+    static constexpr int structNext = 7;
+    static constexpr int structAt   = 8;
+    static constexpr int structLen  = 9;
+    static constexpr int structClear= 10;
+    static constexpr int structMove = 11;
+    static constexpr int structStr  = 12;
+    static constexpr int structBool = 13;
+    static constexpr int structInt  = 14;
+    static constexpr int structFloat= 15;
+    static constexpr int structAdd  = 16;
+    static constexpr int structSub  = 17;
+    static constexpr int structRSub = 18;
+    static constexpr int structMul  = 19;
+    static constexpr int structDiv  = 20;
+    static constexpr int structRDiv = 21;
+    static constexpr int structPow  = 22;
+    static constexpr int structRPow = 23;
+    static constexpr int structMod  = 24;
+    static constexpr int structRMod = 25;
+    static constexpr int structMMul = 26;
+    static constexpr int structLT   = 27;
+    static constexpr int structLE   = 28;
+    static constexpr int structGT   = 29;
+    static constexpr int structGE   = 30;
+    static constexpr int structEq   = 31;
+    static constexpr int structNEq  = 32;
+    static constexpr int structAnd  = 33;
+    static constexpr int structOr   = 34;
+    static constexpr int structMin  = 35;
+    static constexpr int structMax  = 36;
+    static constexpr int structSum  = 37;
+    static constexpr int structNot  = 38;
+    static constexpr int structLog  = 39;
+
+    static constexpr int maximumReservedId = 39;
+
 
     VariableManager() {
         getId("this");
         getId("args");
         getId("#");
         getId("call");
+        getId("iter");
+        getId("push");
+        getId("pop");
+        getId("next");
+        getId("at");
+        getId("len");
+        getId("clear");
+        getId("move");
+        getId("str");
+        getId("bool");
+        getId("int");
+        getId("float");
+        getId("add");
+        getId("sub");
+        getId("rsub");
+        getId("mul");
+        getId("div");
+        getId("rdiv");
+        getId("pow");
+        getId("rpow");
+        getId("mod");
+        getId("rmod");
+        getId("mmul");
+        getId("lt");
+        getId("le");
+        getId("gt");
+        getId("ge");
+        getId("eq");
+        getId("neq");
+        getId("and");
+        getId("or");
+        getId("min");
+        getId("max");
+        getId("sum");
+        getId("not");
+        getId("log");
     }
     int getId(const std::string& symbol) {
         if(registeredSymbols.find(symbol) == registeredSymbols.end()) {
@@ -63,7 +138,7 @@ private:
     const DataPtr& resolveFuture(int item, const DataPtr& ret);
     const DataPtr& get(int item, bool allowMutable);
     DataPtr& find(int item) {
-        if(item<4) return data[item];
+        if(item<=variableManager.maximumReservedId) return data[item];
         if(first_item==INT_MAX) [[unlikely]] first_item = item;
         // have there be a difference everywhere to save one instruction
         int tentativeidx = item-first_item;

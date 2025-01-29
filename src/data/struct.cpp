@@ -70,10 +70,10 @@ void Struct::removeFromOwner() {
 }
 
 
-Result Struct::push(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("push"), scopeMemory, other); }
-Result Struct::pop(BMemory* scopeMemory) { return simpleImplement(variableManager.getId("pop"), scopeMemory); }
-Result Struct::next(BMemory* scopeMemory) { return simpleImplement(variableManager.getId("next"), scopeMemory); }
-Result Struct::at(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("at"), scopeMemory, other); }
+Result Struct::push(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structPush, scopeMemory, other); }
+Result Struct::pop(BMemory* scopeMemory) { return simpleImplement(variableManager.structPop, scopeMemory); }
+Result Struct::next(BMemory* scopeMemory) { return simpleImplement(variableManager.structNext, scopeMemory); }
+Result Struct::at(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structAt, scopeMemory, other); }
 
 Result Struct::put(BMemory* scopeMemory, const DataPtr& position, const DataPtr& value) {
     bberror("Not implemented: neq(" + std::string(datatypeName[getType()]) + ", " + position.torepr() + ", " + value.torepr() + ")");
@@ -84,11 +84,11 @@ void Struct::clear(BMemory* scopeMemory) {
     unsigned int depth;
     {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
-        implementation = getMemory()->getOrNullShallow(variableManager.getId("clear"));
+        implementation = getMemory()->getOrNullShallow(variableManager.structClear);
         depth = scopeMemory->getDepth();
     }
     if(implementation.islitorexists()) {
-        Result res = simpleImplement(variableManager.getId("clear"), scopeMemory);
+        Result res = simpleImplement(variableManager.structClear, scopeMemory);
     }
     else {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
@@ -99,7 +99,7 @@ void Struct::clear(BMemory* scopeMemory) {
 }
 
 int64_t Struct::len(BMemory* scopeMemory) {
-    Result res = simpleImplement(variableManager.getId("len"), scopeMemory);
+    Result res = simpleImplement(variableManager.structLen, scopeMemory);
     const auto& ret = res.get();
     bbassert(ret.isint(), "Struct implemented `len` but did not return an int");
     return ret.unsafe_toint();
@@ -110,10 +110,10 @@ Result Struct::move(BMemory* scopeMemory) {
     unsigned int depth;
     {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
-        implementation = getMemory()->getOrNullShallow(variableManager.getId("clear"));
+        implementation = getMemory()->getOrNullShallow(variableManager.structMove);
         depth = scopeMemory->getDepth();
     }
-    if(implementation.islitorexists()) return simpleImplement(variableManager.getId("clear"), scopeMemory);
+    if(implementation.islitorexists()) return simpleImplement(variableManager.structMove, scopeMemory);
 
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     BMemory* mem = memory;
@@ -124,57 +124,57 @@ Result Struct::move(BMemory* scopeMemory) {
     return RESMOVE(Result(ret));
 }
 
-Result Struct::iter(BMemory* scopeMemory) { return simpleImplement(variableManager.getId("iter"), scopeMemory); }
+Result Struct::iter(BMemory* scopeMemory) { return simpleImplement(variableManager.structIter, scopeMemory); }
 
 double Struct::toFloat(BMemory* scopeMemory) {
-    Result res = simpleImplement(variableManager.getId("float"), scopeMemory);
+    Result res = simpleImplement(variableManager.structFloat, scopeMemory);
     const auto& ret = res.get();
     bbassert(ret.isfloat(), "Struct implemented `float` and used it to overload a float cast, but the method did not actually return a float");
     return ret.unsafe_tofloat();
 }
 
 std::string Struct::toString(BMemory* calledMemory) {
-    Result res = simpleImplement(variableManager.getId("str"), calledMemory);
+    Result res = simpleImplement(variableManager.structStr, calledMemory);
     const auto& ret = res.get();
     bbassert(ret.existsAndTypeEquals(STRING), "Struct implemented `str` and used it to overload a string cast, but the method did not actually return a string");
     return ret.get()->toString(nullptr);
 }
 
 bool Struct::toBool(BMemory* scopeMemory) {
-    Result res = simpleImplement(variableManager.getId("bool"), scopeMemory);
+    Result res = simpleImplement(variableManager.structBool, scopeMemory);
     const auto& ret = res.get();
     bbassert(ret.isbool(), "Struct implemented `bool` and used it to overload a bool cast, but the method did not actually return a bool");
     return ret.unsafe_tobool();
 }
 
 int64_t Struct::toInt(BMemory* scopeMemory) {
-    Result res = simpleImplement(variableManager.getId("int"), scopeMemory);
+    Result res = simpleImplement(variableManager.structInt, scopeMemory);
     const auto& ret = res.get();
     bbassert(ret.isint(), "Struct implemented `int` and used it to overload an int cast, but the method did not actually return an int");
     return ret.unsafe_toint();
 }
 
-Result Struct::add(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("add"), scopeMemory, other); }
-Result Struct::sub(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("sub"), scopeMemory, other); }
-Result Struct::rsub(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("rsub"), scopeMemory, other); }
-Result Struct::mul(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("mul"), scopeMemory, other); }
-Result Struct::div(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("div"), scopeMemory, other); }
-Result Struct::rdiv(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("rsub"), scopeMemory, other); }
-Result Struct::pow(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("pow"), scopeMemory, other); }
-Result Struct::rpow(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("rpow"), scopeMemory, other); }
-Result Struct::mmul(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("mmul"), scopeMemory, other); }
-Result Struct::mod(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("mod"), scopeMemory, other); }
-Result Struct::rmod(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("rmod"), scopeMemory, other); }
-Result Struct::lt(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("lt"), scopeMemory, other); }
-Result Struct::le(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("le"), scopeMemory, other); }
-Result Struct::gt(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("gt"), scopeMemory, other); }
-Result Struct::ge(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("ge"), scopeMemory, other); }
-Result Struct::eq(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("eq"), scopeMemory, other); }
-Result Struct::neq(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("neq"), scopeMemory, other); }
-Result Struct::opand(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("and"), scopeMemory, other); }
-Result Struct::opor(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.getId("or"), scopeMemory, other); }
-Result Struct::min(BMemory* scopeMemory) { return simpleImplement(variableManager.getId("min"), scopeMemory); }
-Result Struct::max(BMemory* scopeMemory) { return simpleImplement(variableManager.getId("max"), scopeMemory); }
-Result Struct::logarithm(BMemory* scopeMemory) { return simpleImplement(variableManager.getId("log"), scopeMemory); }
-Result Struct::sum(BMemory* scopeMemory) { return simpleImplement(variableManager.getId("sum"), scopeMemory); }
-Result Struct::opnot(BMemory* scopeMemory) { return simpleImplement(variableManager.getId("not"), scopeMemory); }
+Result Struct::add(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structAdd, scopeMemory, other); }
+Result Struct::sub(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structSub, scopeMemory, other); }
+Result Struct::rsub(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structRSub, scopeMemory, other); }
+Result Struct::mul(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structMul, scopeMemory, other); }
+Result Struct::div(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structDiv, scopeMemory, other); }
+Result Struct::rdiv(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structRDiv, scopeMemory, other); }
+Result Struct::pow(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structPow, scopeMemory, other); }
+Result Struct::rpow(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structRPow, scopeMemory, other); }
+Result Struct::mmul(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structMMul, scopeMemory, other); }
+Result Struct::mod(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structMod, scopeMemory, other); }
+Result Struct::rmod(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structRMod, scopeMemory, other); }
+Result Struct::lt(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structLT, scopeMemory, other); }
+Result Struct::le(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structLE, scopeMemory, other); }
+Result Struct::gt(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structGT, scopeMemory, other); }
+Result Struct::ge(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structGE, scopeMemory, other); }
+Result Struct::eq(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structEq, scopeMemory, other); }
+Result Struct::neq(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structNEq, scopeMemory, other); }
+Result Struct::opand(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structAnd, scopeMemory, other); }
+Result Struct::opor(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structOr, scopeMemory, other); }
+Result Struct::min(BMemory* scopeMemory) { return simpleImplement(variableManager.structMin, scopeMemory); }
+Result Struct::max(BMemory* scopeMemory) { return simpleImplement(variableManager.structMax, scopeMemory); }
+Result Struct::logarithm(BMemory* scopeMemory) { return simpleImplement(variableManager.structLog, scopeMemory); }
+Result Struct::sum(BMemory* scopeMemory) { return simpleImplement(variableManager.structSum, scopeMemory); }
+Result Struct::opnot(BMemory* scopeMemory) { return simpleImplement(variableManager.structNot, scopeMemory); }

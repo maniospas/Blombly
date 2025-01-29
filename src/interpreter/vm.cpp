@@ -31,6 +31,13 @@ void preliminarySimpleChecks(std::vector<Command>* program) {
     symbolDefinitions.insert(variableManager.getId("graphics::type"));
     symbolDefinitions.insert(variableManager.getId("graphics::x"));
     symbolDefinitions.insert(variableManager.getId("graphics::y"));
+    symbolDefinitions.insert(variableManager.getId("server::uri"));
+    symbolDefinitions.insert(variableManager.getId("server::query"));
+    symbolDefinitions.insert(variableManager.getId("server::method"));
+    symbolDefinitions.insert(variableManager.getId("server::http"));
+    symbolDefinitions.insert(variableManager.getId("server::ip"));
+    symbolDefinitions.insert(variableManager.getId("server::ssl"));
+    symbolDefinitions.insert(variableManager.getId("server::content"));
     for (const auto& command : *program) {
         for(int arg : command.args) {
             if(arg==variableManager.thisId || arg==variableManager.noneId || arg==variableManager.argsId) continue;
