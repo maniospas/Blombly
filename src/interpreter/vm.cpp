@@ -127,6 +127,7 @@ int vm(const std::string& fileName, int numThreads) {
                 auto code = new Code(program, 0, program->size() - 1, program->size() - 1);
                 ExecutionInstance executor(0, code, &memory, false);
                 Result returnedValue = executor.run(code);
+                if(returnedValue.get().existsAndTypeEquals(ERRORTYPE)) throw BBError(returnedValue.get()->toString(nullptr));
                 bbassert(!executor.hasReturned(), "The virtual machine cannot return a value.");
                 //memory.detach(nullptr);
             }

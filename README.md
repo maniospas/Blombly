@@ -126,7 +126,7 @@ Development status of planned features:
 - [x] Graphics: Multiple windows, perhaps state-based management 
 - [ ] Sound: SDL
 - [ ] Nameless gather (similar to Python's list comphrehension)
-- [ ] Clarified error handling (progress: currently working but needs more practical clarity)
+- [x] Clarified error handling (progress: errors as values, `fail` on side-effect failure, `do`)
 
 
 
