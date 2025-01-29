@@ -13,6 +13,8 @@
 
 class BBError : public std::runtime_error {public: explicit BBError(const std::string& message) : std::runtime_error(message) {}};
 #define bberror(msg) [[unlikely]] throw BBError("\033[0m(\x1B[31m ERROR \033[0m) " + std::string(msg))
+#define bbcascade(msg1, msg) [[unlikely]] throw BBError(std::string(msg1) + "\n\033[0m(\x1B[31m ERROR \033[0m) " + std::string(msg))
+#define bbcascade1(msg) bberror(msg)
 #define bbassert(expr, msg) if (!(expr)) bberror(msg);
 
 enum Datatype {FUTURE, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE, ERRORTYPE, MAP, SERVER, SQLLITE, GRAPHICS};

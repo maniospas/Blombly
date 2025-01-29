@@ -3,25 +3,24 @@
 ## About
 
 Errors in blombly are special values that can the outcome of any computation. You can identify
-and handle them in your code with the `as` and `catch` statements mentioned below. But it is
-also important to know that you are allowed to ignore errors. This will do nothing in your
-application's "happy path", but unhandled errors will keep causing operation to fail, 
-effectively cascading backwards in your program's call 
+and handle them in your code with the `as` and `catch` statements mentioned below. Ignore this option 
+if you are only interested in your application's "happy path". Unhandled errors will keep causing operations 
+to fail, cascading backwards in your program's call 
 stack until they encounter code that handles them - or ignores them.
 
 <br>
 
-Importantly, *errors do not immediately terminate functions*. Instead,
-they give you an opportunity to handle them. Still, for safety, 
-side-effects cannot be errors; you can not set errors as struct fields 
-or as list/map keys or entries. On the other hand, operations like converting 
-invalid strings to numbers, or using the `next` operator of iterators can return errors. 
+*Most errors do not immediately terminate functions.* 
+This gives you a window to handle them. For example,
+operations like converting invalid strings to numbers, or using the `next` 
+operator of iterators may return errors in certain situations.
+The few cases where functions are immediately terminated comprise attempts at modifying invalid
+data, such as pushing to a non-existing variable, or trying to set error values
+to struct fields, list elements, etc. In those cases,
+errors are directly returned; catch those either at one level higher
+or with the `do` clause shown at the bottom of this page.
 
-!!! warning
-    **Potential instability:** Future versions of Blombly may change whether
-    unhandled errors are ignored (as happens right now) or create a failure 
-    when functions end/return. They may also change how errors involved in 
-    side-effects are handled.
+<br>
 
 Consider the following code in which we provide invalid console inputs.
 The function `add` has float semi-types on its arguments, which means that they will
@@ -153,9 +152,6 @@ the result anywhere.
 
 !!! tip
     Think of `do` as a function call that affects the scope.
-
-!!! warning
-    **Potential instability:** Future versions of Blombly may make side-effect errors `fail` to be caught with `do`.
 
 For example, let the interception mechanism interrupt control flow like this `sgn = do if(x>=0) return 1 else return -1;`.
 A similar syntax breaks away from loops below. Contrary to errors, 

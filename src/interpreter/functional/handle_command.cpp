@@ -532,10 +532,14 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
     }
     DO_SET: {
         const auto& obj = memory.get(command.args[1]);
-        if(!obj.existsAndTypeEquals(STRUCT)) bberror(obj.existsAndTypeEquals(ERRORTYPE)?obj->toString(nullptr):"Can only set fields in a struct.");
+        if(!obj.existsAndTypeEquals(STRUCT)) [[unlikely]] {
+            if(obj.existsAndTypeEquals(ERRORTYPE)) bbcascade(obj->toString(nullptr), "Can only set fields in a struct");
+            bberror("Can only set fields in a struct.");
+        }
         auto structObj = static_cast<Struct*>(obj.get());
         std::lock_guard<std::recursive_mutex> lock(structObj->memoryLock);
         auto setValue = memory.getOrNullShallow(command.args[3]);
+        if(setValue.existsAndTypeEquals(ERRORTYPE)) bbcascade(setValue->toString(nullptr), "Cannot set an error to a struct field");
         if(setValue.existsAndTypeEquals(CODE)) setValue = static_cast<Code*>(setValue.get())->copy();
         auto structMemory = structObj->getMemory();
         structMemory->set(command.args[2], setValue);//structmemory.getOrNullShallow(command.args[2]));
@@ -659,7 +663,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
     }
     DO_FAIL: {
         const auto& result = memory.get(command.args[1]);
-        bberror(std::move(enrichErrorDescription(command, result->toString(&memory))));
+        bberror(std::move(result->toString(&memory)));
         continue;
     }
     DO_DEFER: {
@@ -734,17 +738,17 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
     }
     DO_PUSH: {
         arg0 = memory.get(command.args[1]);
-        bbassert(arg0.exists(), "Cannot push to this data type: "+arg0.torepr());
+        if(!arg0.exists()) bbcascade1("Cannot push to this data type: "+arg0.torepr());
         arg1 = memory.get(command.args[2]);
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bbcascade(arg1->toString(nullptr), "Cannot push an error value to anything");
         DISPATCH_OUTCOME(arg0->push(&memory, arg1));
     }
     DO_PUT: {
         arg0 = memory.get(command.args[1]);
-        bbassert(arg0.exists(), "Cannot put to this data type: "+arg0.torepr());
+        if(!arg0.exists()) bbcascade1("Cannot put to this data type: "+arg0.torepr());
         arg1 = memory.get(command.args[2]);
         const auto& arg2 = memory.get(command.args[3]);
-        if(arg2.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
+        if(arg2.existsAndTypeEquals(ERRORTYPE)) bbcascade(arg1->toString(nullptr), "Cannot set an error value to anything");
         DISPATCH_OUTCOME(arg0->put(&memory, arg1, arg2));
     }
     DO_TOGRAPHICS: {
@@ -997,9 +1001,29 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
     }//end try 
     catch (const BBError& e) {
         int carg = command.args[0]; 
-        if(carg==variableManager.noneId || command.operation==RETURN) {
+        /*if(carg==variableManager.noneId || command.operation==RETURN) {
             result = DataPtr::NULLP;
             handleExecutionError(program[i], e);
+        }*/
+        if(command.operation==SET 
+            || command.operation==SETFINAL 
+            || command.operation==PUT 
+            || command.operation==POP  
+            || command.operation==PUSH 
+            || command.operation==NEXT
+            || command.operation==FAIL
+            || command.operation==MOVE
+            || command.operation==CLEAR
+            || carg==variableManager.noneId 
+            || command.operation==RETURN) {
+            returnSignal = true;
+            std::string err = enrichErrorDescription(program[i], e.what());
+            if(command.operation!=FAIL) err += "\n\033[0m(\033[33m FATAL \033[0m) This kind of error is returned immediately\033[0m";
+            else                        err += "\n\033[0m(\033[33m FATAL \033[0m) This kind of error is returned immediately\033[0m";
+            BError* berror = new BError(std::move(err));
+            berror->consume();
+            result = DataPtr(berror);
+            return RESMOVE(Result(result));
         }
         std::string err = enrichErrorDescription(program[i], e.what());
         BError* berror = new BError(std::move(err));

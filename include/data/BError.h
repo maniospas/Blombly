@@ -19,14 +19,14 @@ public:
     bool isConsumed() const;
     std::string toString(BMemory* memory) override;
 
-    Result push(BMemory* memory, const DataPtr& other) override {throw BBError(this->value);}
-    Result pop(BMemory* memory) override {throw BBError(this->value);}
-    Result next(BMemory* memory) override {throw BBError(this->value);}
+    Result push(BMemory* memory, const DataPtr& other) override {bbcascade1(this->value);}
+    Result pop(BMemory* memory) override {bbcascade1(this->value);}
+    Result next(BMemory* memory) override {bbcascade1(this->value);}
     Result at(BMemory* memory, const DataPtr& other) override {throw BBError(this->value);}
-    Result put(BMemory* memory, const DataPtr& position, const DataPtr& value) override {throw BBError(this->value);}
-    void clear(BMemory* memory) override {throw BBError(this->value);}
+    Result put(BMemory* memory, const DataPtr& position, const DataPtr& value) override {bbcascade1(this->value);}
+    void clear(BMemory* memory) override {bbcascade1(this->value);}
     int64_t len(BMemory* memory) override {throw BBError(this->value);}
-    Result move(BMemory* memory) override {throw BBError(this->value);}
+    Result move(BMemory* memory) override {bbcascade1(this->value);}
     Result iter(BMemory* memory) override {throw BBError(this->value);}
     double toFloat(BMemory* memory) override {throw BBError(this->value);}
     bool toBool(BMemory* memory) override {throw BBError(this->value);}
