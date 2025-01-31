@@ -76,8 +76,8 @@ print("!{a} + !{b} = !{c}");
 Follow the steps below, which include installing the vcpkg dependency manager.
 Similar processes should work for other platforms too, but I have not tested them - I am actively looking for contributions on this.
 
-
-**Windows**
+<details>
+<summary>Windows</summary>
 
 Get vcpkg and use it to install dependencies. 
 
@@ -103,8 +103,10 @@ This will create `blombly.exe` and a bunch of *dll*s needed for its execution.
 cmake to force proper g++/mingw compilation and linking in both dependencies and the main compilation (I would appreciate some help there). So, in Windows with MSVC as the default compiler you will get an implementation with slower dynamic dispatch during execution. This mostly matters if you try
 to do intensive numeric computations without vectors - which you really shouldn't.
 
+</details>
 
-**Linux**
+<details>
+<summary>Linux</summary>
 
 First install SDL2 separately, because the linux vcpkg installation is not working properly for me.
 
@@ -130,6 +132,8 @@ Build the target. Change the number of processors to further speed up compilatio
 cmake -B ./build
 cmake --build ./build --config Release  --parallel 7
 ```
+
+</details>
 
 ## Batteries included
 

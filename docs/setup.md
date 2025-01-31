@@ -4,9 +4,10 @@
 
 Download Blombly's latest [release](https://github.com/maniospas/Blombly/releases/latest). Extract that into a folder
 and add the latter to your filepath to let your operating system know where the main executable is located. Alternatively,
-use the full path to the executable everywhere. Instructions to build the library from source are in the
+use the full path to the executable everywhere. Instructions to build from source are in the
 [GitHub](https://github.com/maniospas/Blombly) page.
-When writing in the language, use a Java keyword highlighter (but not syntax checker).
+When writing in the language, use a Java keyword highlighter (but not syntax checker). For the time being, it is also recommended that you use VSCode as the editor of choice, because you can also ctrl+click on files mentioned in
+error messages to jump to mentioned positions.
 
 ## Hello world!
 
@@ -61,15 +62,14 @@ and code blocks start at `BEGIN` or `BEGINFINAL` and end at `END`.
 Set the number of operating system threads that the virtual machine
 is allowed to use with the option `--threads <num>` or `-t <num>`.
 If you specify nothing, the maximum amount is used. 
-Set to zero threads to compile without executing. 
 
 <br>
 
 **--norun**
 
-You may use the `--norun` option as a shorthand for setting threads to zero, and therefore
-not executing any produced **.bbvm* file. Compilation may still run some code for some
-preprocessor instructions.
+Set to zero threads to compile without executing. 
+You may use the `--norun` option as a shorthand for this. In this case,
+only a **.bbvm* file is produced. Compilation may still run some tasks needed by preprocessor instructions (such as code that runs in comptime).
 
 <br>
 
@@ -103,8 +103,7 @@ library when there is no optimization!
 Avoid generating debugging symbols with the `--strip` or `-s` option.
 This speeds up compilation and optimization and produces a smaller bbvm file - around 
 half the size. For example, below is a compilation outcome
-with stripped away debug info. In this case, any errors contain virtual machine instructions
-instead of a source code stack traces.
+with stripped away debug info. In this case, any errors point to virtual machine instructions instead of a source code stack traces.
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
 > <span style="color: cyan;">./blombly</span> main.bb  --strip
@@ -123,17 +122,18 @@ For example, this limits recursive functions from breaking your code. The
 default limit is *42* (the Answer!) but you can set a higher or lower value
 with the option `--depth <num>` or `-d <num>`. Inline execution of code blocks
 -including the conditions and bodies of control flow statements- counts
-towards this number. Do try to keep things simple without using this option.
+towards this number. Do try to keep things simple by not exceeding the default maximum depth.
 
 <br>
 
 **multiple main files**
 
 Provide multiple source files to compile and run in their order of 
-occurrence. Consider those files as steps of a modular build process.
-Command line arguments apply to all of them, and [IO](basics/io.md) 
-configurations described in the user guide carry over between the steps. 
-Example configurations are resource permissions and the virtual file system.
+occurrence. Consider those files as steps of a modular build process that
+sequentially executes programs in the same virtual machine.
+Command line arguments apply to all of the programs, and [IO](basics/io.md) 
+configurations described in the user guide persist between the steps. 
+Example configurations that are carried over are resource permissions and the virtual file system.
 Directly run short code snippets instead of files in some steps
 by adding them as console arguments enclosed in single quotes. An example follows.
 
@@ -143,14 +143,11 @@ Hello world!
 Hi from the terminal.
 </pre>
 
-!!! tip
-    Think of build process steps as programs running on the same virtual environment.
 
 ## Errors
 
 Before jumping into actual coding, let us peek at errors that Blombly may create. There are two types. 
-First, syntax errors make the compiler halt.
-Second, lfiogical errors occur at runtime, are intercepted with `do`, and handled with `catch`.
+First, syntax errors make the compiler halt. 
 To see what a syntax error looks like, execute the following invalid code.
 We get an error telling us that the + operation for string concatenation has no right-hand side. 
 The compiler shows the exact position of the missing expression within the source code.
@@ -167,6 +164,15 @@ print("Hello"+);  // CREATES AN ERROR
       <span style="color: red;">~~~~~~~~~~~~~~^</span>
 </pre>
 
+
+
+
+Second, logical errors occur at runtime, are intercepted once functions return (or by `do`), and are handled with `catch` or `as`. Details on logical error
+handling can be found [here](advanced/try.md). For now it suffices to know
+that, if left unhandled, they cascade through the call stack until they reach your main progam and appear to you. Compilation contain preliminary checks about common logical errors that would be guaranteed to be encountered at runtime, saving you the hussle of waiting until they are encountered to detect them. One such error is using variables that are never set anywhere (though 
+is cannot know if you use them before setting them - this would be Turing complet and would require unbounded thinking time).
+
+<br>
 
 Look at a logical error by printing a variable that does not exist.
 This is missing during interpretation and comprises a stack trace of compiled code. 
@@ -188,4 +194,4 @@ print(x);  // CREATES AN ERROR
 
 *Logical errors do not point to the exact position in the code but only at the
 expression being parsed. Follow the stack trace to the corresponding files for 
-the full source code.*
+the full source code, for example by ctrl+clicking on it.*
