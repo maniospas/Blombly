@@ -1,6 +1,6 @@
 # The basics
 
-This section covers Blombly commands that are used in writing sequential code. It includes concepts 
+This section covers Blombly commands for writing basic sequential code. It includes concepts 
 that may already be familiar, such as comments, variable handling, builtin datatypes, and flow control. 
 But rarer features are added to the mix, like immutable variables, semi-types, and deferred execution.
 
@@ -27,20 +27,31 @@ Hello world!
 
 Scopes refer to isolated execution contexts. Each program starts from one initial scope, and 
 new ones are entered when creating structs or calling functions.
-Assign values to variables per `@var = @value;`, which also creates the variables if they do not exist already. 
-Subsequent code can normally overwrite variable values. Make them 
-immutable by prepending the `final` keyword to their last assignment. This prevents overwrites by subsequent code
-and exposes the variables to functions spawned in the scope. For now, consider immutability as a code safety feature.
-Here is what invalid overwrites look like.
+Assign values to variables per `@var = @value;`, which also creates the variables if they do not already exist. 
+Subsequent code can normally overwrite those values, but prepend the `final` keyword to their last assignment
+to make them immutable. This prevents overwrites by subsequent code
+and exposes the variables to functions spawned in the scope.
+For now, consider immutability as a code safety feature. 
+Below is what invalidation looks like, but keep in mind that the same symbols can be written anew in new scopes.
 
 ```java
 // main.bb
-final x = 0; 
+final x = 0;
+xinc() = {  //callable code block 
+  print(x); // get x from parent scope
+  x = x+1;  // this is a new scope, so any assignment creates new variables
+  return x;
+}
+
+y = xinc();
+print(y);
 x = x+1; // CREATES AN ERROR
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
 > <span style="color: cyan;">./blombly</span> main.bb --strip
+0
+1
  (<span style="color: red;">ERROR</span>) Cannot overwrite final value: x
     <span style="color: lightblue;">→</span>  add x x _bb2                                      main.bbvm line 4
 </pre>

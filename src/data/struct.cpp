@@ -23,6 +23,9 @@
 #include <stdexcept>
 #include "common.h"
 
+extern std::vector<SymbolWorries> symbolUsage;
+extern std::mutex ownershipMutex;
+
 Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory) {
     BMemory* mem;
     DataPtr implementation;
@@ -35,10 +38,26 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory) {
 
     bbassert(implementation.exists(), "Must define `" + variableManager.getSymbol(implementationCode) + "` for the struct to overload the corresponding operation");
     bbassert(implementation->getType() == CODE, "Struct field `"+variableManager.getSymbol(implementationCode) + "` is not a method and therefore the corresponding operation is not overloaded (even callable structs are not allowed)");
+    Code* code = static_cast<Code*>(implementation.get());
 
+    bool forceAwait(false);
+    {
+        std::lock_guard<std::mutex> lock(ownershipMutex);
+        for(int access : code->requestAccess) {
+            auto& symbol = symbolUsage[access];
+            if(symbol.modification) forceAwait = true;
+            symbol.access++;
+        }
+        for(int access : code->requestModification) {
+            auto& symbol = symbolUsage[access];
+            if(symbol.access || symbol.modification) forceAwait = true;
+            symbol.modification++;
+        }
+    }
+    if(forceAwait) {calledMemory->tempawait();}
+    CodeExiter codeExiter(code);
     BList* args = new BList(0);
 
-    Code* code = static_cast<Code*>(implementation.get());
     BMemory newMemory(depth, calledMemory->getParentWithFinals(), LOCAL_EXPECTATION_FROM_CODE(code));
     newMemory.unsafeSet(variableManager.thisId, this);
     newMemory.unsafeSet(variableManager.argsId, args);
@@ -62,11 +81,28 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory, co
     bbassert(implementation.exists(), "Must define `" + variableManager.getSymbol(implementationCode) + "` for the struct to overload the corresponding operation");
     bbassert(implementation->getType() == CODE, "Struct field `"+variableManager.getSymbol(implementationCode) + "` is not a method and therefore the corresponding operation is not overloaded (even callable structs are not allowed)");
 
+    Code* code = static_cast<Code*>(implementation.get());
+    bool forceAwait(false);
+    {
+        std::lock_guard<std::mutex> lock(ownershipMutex);
+        for(int access : code->requestAccess) {
+            auto& symbol = symbolUsage[access];
+            if(symbol.modification) forceAwait = true;
+            symbol.access++;
+        }
+        for(int access : code->requestModification) {
+            auto& symbol = symbolUsage[access];
+            if(symbol.access || symbol.modification) forceAwait = true;
+            symbol.modification++;
+        }
+    }
+    if(forceAwait) {calledMemory->tempawait();}
+    CodeExiter codeExiter(code);
+
     BList* args = new BList(1);  // will be destroyed alongside the memory
     other.existsAddOwner();
     args->contents.emplace_back(other);
 
-    Code* code = static_cast<Code*>(implementation.get());
     BMemory newMemory(depth, calledMemory->getParentWithFinals(), LOCAL_EXPECTATION_FROM_CODE(code));
     newMemory.unsafeSet(variableManager.thisId, this);
     newMemory.unsafeSet(variableManager.argsId, args);

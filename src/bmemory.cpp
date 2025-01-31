@@ -264,6 +264,18 @@ void BMemory::replaceMissing(BMemory* other) {
     }
 }
 
+
+void BMemory::tempawait() {
+    std::string destroyerr = "";
+    for (const auto& thread : attached_threads) {
+        try {Result res = thread->getResult();}
+        catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
+        thread->removeFromOwner();
+    }
+    attached_threads.clear();
+    if(destroyerr.size()) throw BBError(destroyerr.substr(0, destroyerr.size()-1));
+}
+
 void BMemory::await() {
     //if(attached_threads.size()==0) return; // we don't need to lock because on zero threads we are ok, on >=1 threads we don't care about the number
     std::string destroyerr = "";

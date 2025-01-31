@@ -27,6 +27,23 @@ class BMemory;
 class Command;
 class Jitable;
 
+struct SymbolWorries {
+    int access;
+    int modification;
+    SymbolWorries() {
+        access = 0;
+        modification = 0;
+    }
+    SymbolWorries(const SymbolWorries& other) {
+        access = (int)other.access;
+        modification =(int)other.modification;
+    }
+    SymbolWorries(SymbolWorries&& other) {
+        access = (int)other.access;
+        modification =(int)other.modification;
+    }
+};
+
 class Code : public Data {
 private:
     size_t start, end, premature_end;
@@ -43,6 +60,31 @@ public:
     size_t getEnd() const;
     size_t getOptimizedEnd() const;
     const std::vector<Command>* getProgram() const;
+
+    std::vector<int> requestAccess;
+    std::vector<int> requestModification;
 };
+
+class CodeExiter {
+    Code* code;
+public:
+    CodeExiter(Code* code);
+    CodeExiter(const CodeExiter&) = delete;
+    CodeExiter(CodeExiter&&) = delete;
+    ~CodeExiter();
+};
+
+
+class SymbolEntrantExiter {
+    int symbol;
+    BMemory* memory;
+public:
+    SymbolEntrantExiter(int symbol, BMemory* memory);
+    SymbolEntrantExiter(const SymbolEntrantExiter&) = delete;
+    SymbolEntrantExiter(SymbolEntrantExiter&&) = delete;
+    ~SymbolEntrantExiter();
+};
+
+
 
 #endif // CODE_H

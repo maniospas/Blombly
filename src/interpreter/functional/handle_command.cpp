@@ -39,6 +39,12 @@
 #include "interpreter/thread.h"
 
 extern BError* NO_TRY_INTERCEPT;
+std::chrono::steady_clock::time_point program_start;
+std::vector<SymbolWorries> symbolUsage;
+std::mutex ownershipMutex;
+std::recursive_mutex printMutex;
+std::recursive_mutex compileMutex;
+BMemory cachedData(0, nullptr, 1024);
 
 std::string replaceEscapeSequences(const std::string& input) {
     std::string output;
@@ -72,12 +78,6 @@ std::string replaceEscapeSequences(const std::string& input) {
     }
     return output;
 }
-
-
-std::chrono::steady_clock::time_point program_start;
-std::recursive_mutex printMutex;
-std::recursive_mutex compileMutex;
-BMemory cachedData(0, nullptr, 1024);
 
 #define DISPATCH_LITERAL(expr) {int carg = command.args[0]; result=DataPtr(expr); if(carg!=variableManager.noneId) [[likely]] memory.unsafeSetLiteral(carg, result); continue;}
 #define DISPATCH_RESULT(expr) {int carg = command.args[0]; result=DataPtr(expr); if(carg!=variableManager.noneId) [[likely]] memory.set(carg, result); continue;}
@@ -470,7 +470,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
         if(arg0.exists()) DISPATCH_LITERAL(arg0->toBool(&memory));
         bberror("There was no implementation for int("+arg0.torepr()+")");
     }
-    DO_BB_PRINT:{
+    DO_BB_PRINT:{ 
         const auto& printable = memory.get(command.args[1]);
         std::string printing = printable.exists()?printable->toString(&memory):printable.torepr();
         printing = replaceEscapeSequences(printing);
@@ -959,7 +959,24 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
             called = (val);
         }
         auto code = static_cast<Code*>(called.get());
-        if(forceStayInThread || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
+        bool forceAwait(false);
+        {
+            std::lock_guard<std::mutex> lock(ownershipMutex);
+            for(int access : code->requestAccess) {
+                auto& symbol = symbolUsage[access];
+                if(symbol.modification) forceAwait = true;
+                symbol.access++;
+            }
+            for(int access : code->requestModification) {
+                auto& symbol = symbolUsage[access];
+                if(symbol.access || symbol.modification) forceAwait = true;
+                symbol.modification++;
+            }
+        }
+        if(forceAwait) {memory.tempawait();}
+        bool stayInThread = /*forceStayInThread ||*/ !code->scheduleForParallelExecution || !Future::acceptsThread();
+        if(stayInThread) {
+            CodeExiter codeExiter(code);
             BMemory newMemory(depth, &memory, LOCAL_EXPECTATION_FROM_CODE(code));
             if(context.exists()) {
                 bbassert(context.existsAndTypeEquals(CODE), "Call context must be a code block.");
@@ -971,12 +988,11 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
             auto it = memory.codeOwners.find(code);
             const auto& thisObj = (it != memory.codeOwners.end() ? it->second->getMemory() : &memory)->getOrNull(variableManager.thisId, true);
             if(thisObj.exists()) newMemory.set(variableManager.thisId, thisObj);
-            std::unique_lock<std::recursive_mutex> executorLock;
+            /*std::unique_lock<std::recursive_mutex> executorLock;
             if(thisObj.exists()) {
                 bbassert(thisObj.existsAndTypeEquals(STRUCT), "Internal error: `this` was neither a struct nor missing (in the last case it would have been replaced by the scope)");
-                //if(!forceStayInThread) 
                 executorLock = std::unique_lock<std::recursive_mutex>(static_cast<Struct*>(thisObj.get())->memoryLock);
-            }
+            }*/
             newMemory.parent = memory.getParentWithFinals();  // TODO: detaching may be necessary in multi-threaded settings to prevent parent setting from interfering with gets
             newMemory.allowMutables = false;
             ExecutionInstance executor(depth, code, &newMemory, thisObj.exists());

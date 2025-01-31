@@ -130,6 +130,7 @@ public:
         getId("not");
         getId("log");
     }
+    const int size() {return registeredSymbols.size();}
     int getId(const std::string& symbol) {
         if(registeredSymbols.find(symbol) == registeredSymbols.end()) {
             int id = registeredSymbols.size();
@@ -220,6 +221,7 @@ public:
     void pull(BMemory* other);
     void replaceMissing(BMemory* other);
     void await();
+    void tempawait();
     void detach(BMemory* par);
     void runFinally();
     void addFinally(Code* code);

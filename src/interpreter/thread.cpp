@@ -26,12 +26,13 @@ void threadExecute(unsigned int depth,
                    ThreadResult* result,
                    const Command* command,
                    DataPtr thisObj) {
-
-    std::unique_lock<std::recursive_mutex> executorLock;
+    
+    CodeExiter codeExiter(code);
+    /*std::unique_lock<std::recursive_mutex> executorLock;
     if(thisObj.exists()) {
         bbassert(thisObj->getType()==STRUCT, "Internal error: `this` was neither a struct nor missing (in the last case it would have been replaced by the scope)");
         executorLock = std::unique_lock<std::recursive_mutex>(static_cast<Struct*>(thisObj.get())->memoryLock);
-    }
+    }*/
 
     try {
         ExecutionInstance executor(depth, code, memory, thisObj.exists());
@@ -41,7 +42,7 @@ void threadExecute(unsigned int depth,
             value = nullptr;
             returnedValue = Result(DataPtr::NULLP);
         }
-        result->value = std::move(returnedValue);
+        result->value = RESMOVE(returnedValue);
 
     } 
     catch (const BBError& e) {
