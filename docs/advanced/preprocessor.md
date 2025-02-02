@@ -37,7 +37,7 @@ representation. For example, consider the next code open that opens web page as 
 str, obtains the latter's length, and finally prints the result. Make the whole process run at `!comptime` and 
 look at what the produced intermediate representation looks like: it contains only the precomputed value. 
 This directive accepts any blombly expression, including those that include other comptimes. 
-To avoid removal of the return value due to optimizations run code blocks inside it with `try`.
+To avoid removal of the return value due to optimizations run code blocks inside it with `do`.
 If you do not plan to retrieve a value, just put a code block next to it, or write a single bracketless command.
 
 ```java

@@ -1,6 +1,6 @@
 # The basics
 
-This section covers Blombly commands that are used in writing sequential code. It includes concepts 
+This section covers Blombly commands for writing basic sequential code. It includes concepts 
 that may already be familiar, such as comments, variable handling, builtin datatypes, and flow control. 
 But rarer features are added to the mix, like immutable variables, semi-types, and deferred execution.
 
@@ -27,20 +27,31 @@ Hello world!
 
 Scopes refer to isolated execution contexts. Each program starts from one initial scope, and 
 new ones are entered when creating structs or calling functions.
-Assign values to variables per `@var = @value;`, which also creates the variables if they do not exist already. 
-Subsequent code can normally overwrite variable values. Make them 
-immutable by prepending the `final` keyword to their last assignment. This prevents overwrites by subsequent code
-and exposes the variables to functions spawned in the scope. For now, consider immutability as a code safety feature.
-Here is what invalid overwrites look like.
+Assign values to variables per `@var = @value;`, which also creates the variables if they do not already exist. 
+Subsequent code can normally overwrite those values, but prepend the `final` keyword to their last assignment
+to make them immutable. This prevents overwrites by subsequent code
+and exposes the variables to functions spawned in the scope.
+For now, consider immutability as a code safety feature. 
+Below is what invalidation looks like, but keep in mind that the same symbols can be written anew in new scopes.
 
 ```java
 // main.bb
-final x = 0; 
+final x = 0;
+xinc() = {  //callable code block 
+  print(x); // get x from parent scope
+  x = x+1;  // this is a new scope, so any assignment creates new variables
+  return x;
+}
+
+y = xinc();
+print(y);
 x = x+1; // CREATES AN ERROR
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
 > <span style="color: cyan;">./blombly</span> main.bb --strip
+0
+1
  (<span style="color: red;">ERROR</span>) Cannot overwrite final value: x
     <span style="color: lightblue;">→</span>  add x x _bb2                                      main.bbvm line 4
 </pre>
@@ -180,7 +191,9 @@ is maintained for subsequent code.
     that `x` can be converted to a float and will be treated thusly from thereon.
 
 !!! tip
-    Use the dash (`|`) notation for function calls of one argument, even if you don't have a semi-type interpretation in mind.
+    For easily readable code, use the dash (`|`) notation for all possible function calls of one argument while keeping at
+    least one pair of parentheses like so: `value = float("number"|read);`
+    This lets the outcome semi-type and the starting variable appear side-by-side, with intermediate preparatory steps following.
 
 
 ## Control flow
@@ -199,8 +212,8 @@ You may omit brackets for single-command segments, but put semicolons only at th
 <br>
 
 Similarly, loops take the form `while (condition) {@code}` and keep executing the code while the condition is `true`. 
-To avoid ambiguity, there are no other ways in the language's core to declare a loop, albeit the `in` keywords allows
-you to iterate through lists and the like. Again, you may omit brackets if only one command runs.
+To avoid ambiguity, there are no other ways in the language's core to declare a loop, albeit the `in` macro is a shorthand
+for looping through iterables, like lists. Again, omit brackets if only one command runs.
 Here is an example with both control flow options.
 
 ```java
@@ -229,9 +242,9 @@ while (i<5) {
 
 ## Defer
 
-Deferring declares code to run later. *The deferred code is always executed*, even
+Deferring sets code to run later. *The deferred code is always executed*, even
 if errors occur in the interim. Normally, defer occurs just before return statements, including returning from
-`new` scopes that create structs. It is also applied upon entering and exiting `try` blocks.
+`new` scopes that create structs. It is also applied upon entering and exiting `do` blocks.
 In advanced settings, you can clear resources, remove cyclic struct references,
 or completely clear struct contents. Here is a usage example, where we ignore the brackets
 of the deferred code block for simplicity.

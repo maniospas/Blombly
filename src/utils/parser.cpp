@@ -1,3 +1,19 @@
+/*
+   Copyright 2024 Emmanouil Krasanakis
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
 #ifndef PARSER_CPP
 #define PARSER_CPP
 
@@ -34,7 +50,7 @@ const std::string PARSER_PUT = "put";
 const std::string PARSER_WHILE = "while";
 const std::string PARSER_IF = "if";
 const std::string PARSER_INLINE = "inline";
-const std::string PARSER_TRY = "try";
+const std::string PARSER_TRY = "do";
 const std::string PARSER_DEFAULT = "default";
 const std::string PARSER_NEW = "new";
 const std::string PARSER_PRBB_INT = "print";
@@ -462,8 +478,8 @@ public:
                 return "#";
             }
 
-            if (first_name == "default" || first_name == "defer" || first_name == "try") {
-                std::string var = first_name != "try" ? "#" : create_temp();
+            if (first_name == "default" || first_name == "defer" || first_name == "do") {
+                std::string var = first_name != "do" ? "#" : create_temp();
                 std::string called = create_temp();
                 std::string parsed = parse_expression(start + 1, end, tokens[start + 1].name != "{");
                 if (first_name == "new" && ret.size()>=4 && ret.substr(ret.size() - 4) == "END\n")
@@ -605,7 +621,7 @@ public:
                             }*/
 
                             if (name == "default" || 
-                                name == "try" || name == "new" || 
+                                name == "do" || name == "new" || 
                                 name == "defer" || 
                                 name == "return" || name == "if" || 
                                 name == "else" || name == "while" || 
@@ -731,7 +747,7 @@ public:
                 }*/
 
                 if (first_name == "default" || 
-                    first_name == "try" || first_name == "new" || 
+                    first_name == "do" || first_name == "new" || 
                     first_name == "defer" || 
                     first_name == "return" || first_name == "if" || 
                     first_name == "else" || first_name == "while" || 
@@ -817,7 +833,7 @@ public:
                             }*/
 
                             if (name == "default" || 
-                                name == "try" || name == "new" || 
+                                name == "do" || name == "new" || 
                                 name == "defer" || 
                                 name == "return" || name == "if" || 
                                 name == "else" || name == "while" || 
@@ -971,7 +987,7 @@ public:
 
             size_t eand = find_last_end(start, end, "and");
             size_t eor = find_last_end(start, end, "or");
-            if (eand != MISSING && eand > eor) {
+            if (eand != MISSING && eand+1 > eor+1) {
                 std::string var = create_temp();
                 ret += "and " + var + " " + parse_expression(start, eand - 1) + " " + parse_expression(eand + 1, end) + "\n";
                 return var;
@@ -1527,14 +1543,14 @@ void sanitize(std::vector<Token>& tokens) {
         updatedTokens.push_back(tokens[i]);
 
         /*if ((tokens[i].name == "if" || tokens[i].name == "while") && ((i==0) || 
-            (tokens[i - 1].name != ";" && tokens[i - 1].name != "{" && tokens[i - 1].name != "}" && tokens[i - 1].name != "try" && tokens[i - 1].name != "default")))
-            bberror("`"+tokens[i].name+"` statements must be preceded by one of `try`, `default`, '{', '}', or ';'. "
+            (tokens[i - 1].name != ";" && tokens[i - 1].name != "{" && tokens[i - 1].name != "}" && tokens[i - 1].name != "do" && tokens[i - 1].name != "default")))
+            bberror("`"+tokens[i].name+"` statements must be preceded by one of `do`, `default`, '{', '}', or ';'. "
                     "\n   \033[33m!!!\033[0m These statements must be preceded by"
-                    "\n       one of the tokens `try`, `default`, '{', '}', or ';'\n"
+                    "\n       one of the tokens `do`, `default`, '{', '}', or ';'\n"
                     + Parser::show_position(tokens, i));*/
         
-        /*if (tokens[i].name == "try" && i > 0 && tokens[i - 1].name == "=")
-            bberror("Replace `= try` with `as try`. "
+        /*if (tokens[i].name == "do" && i > 0 && tokens[i - 1].name == "=")
+            bberror("Replace `= do` with `as do`. "
                     "\n   \033[33m!!!\033[0m Try statements may encounter neither exceptions "
                     "\n        nor value returns. As a blanket protection against missing"
                     "\n        value errors other than your error handling, use `as` instead of `=` .\n"

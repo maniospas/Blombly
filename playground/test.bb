@@ -1,11 +1,15 @@
-final A = new{}
+tic = time();
 
-add(float x, float y) = { // converts arguments to floats
-    print("Trying to add: !{x} and !{y}");
-    return 0;
+
+foo = {
+    A = list();
+    while(i in range(1000000)) A << i;
+    return A|len;
 }
-x = "First number:"|read;
-y = "Second number:"|read;
-z = add(x, y);
-catch(z) print("Operation failed");
-print(z);
+
+results = list();
+while(i in range(10)) results << 0;
+while(i in range(10)) results[i] = foo();
+
+print(time()-tic);
+print(results|vector|sum);

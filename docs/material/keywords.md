@@ -15,7 +15,7 @@
 | `this`           | Refers to the current instance of a class or scope.                                             |
 | `if`             | Introduces a conditional branch, executing code based on a condition.                           |
 | `while`          | Executes a block of code repeatedly while a condition is true.                                  |
-| `try`            | Intercepts returns and unhandled errors.                                                        |
+| `do`             | Intercepts returns and unhandled errors.                                                        |
 | `catch`          | Handles errors.                                                                                 |
 | `fail`           | Explicitly triggers an exception or error.                                                      |
 | `return`         | Exits a function or block, optionally providing a value.                                        |

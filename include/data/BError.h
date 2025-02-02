@@ -1,4 +1,19 @@
-// data/BError.h
+/*
+   Copyright 2024 Emmanouil Krasanakis
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
 #ifndef BERROR_H
 #define BERROR_H
 
@@ -19,14 +34,14 @@ public:
     bool isConsumed() const;
     std::string toString(BMemory* memory) override;
 
-    Result push(BMemory* memory, const DataPtr& other) override {throw BBError(this->value);}
-    Result pop(BMemory* memory) override {throw BBError(this->value);}
-    Result next(BMemory* memory) override {throw BBError(this->value);}
+    Result push(BMemory* memory, const DataPtr& other) override {bbcascade1(this->value);}
+    Result pop(BMemory* memory) override {bbcascade1(this->value);}
+    Result next(BMemory* memory) override {bbcascade1(this->value);}
     Result at(BMemory* memory, const DataPtr& other) override {throw BBError(this->value);}
-    Result put(BMemory* memory, const DataPtr& position, const DataPtr& value) override {throw BBError(this->value);}
-    void clear(BMemory* memory) override {throw BBError(this->value);}
+    Result put(BMemory* memory, const DataPtr& position, const DataPtr& value) override {bbcascade1(this->value);}
+    void clear(BMemory* memory) override {bbcascade1(this->value);}
     int64_t len(BMemory* memory) override {throw BBError(this->value);}
-    Result move(BMemory* memory) override {throw BBError(this->value);}
+    Result move(BMemory* memory) override {bbcascade1(this->value);}
     Result iter(BMemory* memory) override {throw BBError(this->value);}
     double toFloat(BMemory* memory) override {throw BBError(this->value);}
     bool toBool(BMemory* memory) override {throw BBError(this->value);}

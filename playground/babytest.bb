@@ -4,8 +4,8 @@ A = new{
 }
 
 clear(A);
-err = try print(A.x);
+err = do print(A.x);
 catch(err) print("caught");
 
-value = try catch(err) return true else return false;
+value = do catch(err) return true else return false;
 print(value);

@@ -1,3 +1,19 @@
+/*
+   Copyright 2024 Emmanouil Krasanakis
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
 #ifndef BCOMMON_H
 #define BCOMMON_H
 
@@ -13,6 +29,8 @@
 
 class BBError : public std::runtime_error {public: explicit BBError(const std::string& message) : std::runtime_error(message) {}};
 #define bberror(msg) [[unlikely]] throw BBError("\033[0m(\x1B[31m ERROR \033[0m) " + std::string(msg))
+#define bbcascade(msg1, msg) [[unlikely]] throw BBError(std::string(msg1) + "\n\033[0m(\x1B[31m ERROR \033[0m) " + std::string(msg))
+#define bbcascade1(msg) bberror(msg)
 #define bbassert(expr, msg) if (!(expr)) bberror(msg);
 
 enum Datatype {FUTURE, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE, ERRORTYPE, MAP, SERVER, SQLLITE, GRAPHICS};
@@ -34,7 +52,7 @@ static const std::string OperationTypeNames[] = {
     "sum", "max", "min",
     "BUILTIN", "BEGIN", "BEGINFINAL", "CACHE", "END", "return", "final", "IS",
     "call", "while", "if", "new", "print", "inline", "get", "set", "setfinal", "default",
-    "time", "iter", "try", "catch", "fail", "exists", "read", "server", "AS", "range",
+    "time", "iter", "do", "catch", "fail", "exists", "read", "server", "AS", "range",
     "defer", "clear", "move", "ISCACHED", "sqlite", "graphics"
 };
 

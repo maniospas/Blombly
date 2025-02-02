@@ -2,25 +2,24 @@
 
 ## About
 
-Errors in blombly are special values that can the outcome of any computation. You can identify
-and handle them in your code with the `as` and `catch` statements mentioned below. But it is
-also important to know that you are allowed to ignore errors. This will do nothing in your
-application's "happy path", but unhandled errors will keep causing operation to fail, 
-effectively cascading backwards in your program's call 
-stack until they encounter code that handles them - or ignores them.
+Errors in blombly are special values that can be found in place of any computation outcome. You can identify
+and handle them in your code with the `as` and `catch` statements mentioned below. Ignore this option 
+if you are only interested in your application's "happy path". Unhandled errors cascade to dependent code,
+including within returned values from functions and methods.
 
 <br>
 
-Importantly, *errors do not immediately terminate functions*. Instead,
-they give you an opportunity to handle them. However, they cannot be assigned as struct fields 
-or as list/map entries. On the other hand, operations like converting invalid strings to numbers, 
-or using the `next` operator of iterators can return errors. 
+*Most errors do not immediately terminate functions.* 
+This gives you a window to handle them. For example,
+operations like converting invalid strings to numbers, or using the `next` 
+operator of iterators may return errors in certain situations that you can handle.
+The few cases where functions are immediately terminated comprise attempts at modifying invalid
+data, such as pushing to a non-existing variable, or trying to set error values
+to struct fields, list elements, etc. In those cases,
+errors are directly returned; catch those either at one level higher
+or with the `do` clause shown at the bottom of this page.
 
-!!! warning
-    **Potential instability:** Future versions of Blombly may change whether
-    unhandled errors are ignored (as happens right now) or create a failure 
-    when functions end/return. They may also change how errors involved in 
-    side-effects are handled.
+<br>
 
 Consider the following code in which we provide invalid console inputs.
 The function `add` has float semi-types on its arguments, which means that they will
@@ -51,13 +50,16 @@ This will always appear.
 Operation failed.
 </pre>
 
+!!! tip
+    The main error handling pattern is to check whether a function returns an error.
+
 
 ## Error handling
 
-One way of handling errors is
-the `as` keyword. This performs a normal assignment, but also returns a boolean (true/false) 
-value depending on whether an error was encountered. Below is a simple one-liner that retries
-reading from the console until a number is provided. 
+One way of handling errors is through
+the `as` keyword. This is similar to assignment with `=`, but also returns a bool that indicates
+whether an error was avoided or encountered (true or false respectively).
+Below is a simple one-liner that retries reading from the console until a number is provided. 
 
 ```java
 // main.bb
@@ -74,10 +76,10 @@ Give a number: 12
 </pre>
 
 
-Catch errors by using the `catch(@expression) @found else @notfound;` pattern.
-This has identical syntax to conditional statements, so you can skip the alternative clause
-and can enclause multiple statements in brackets. Use it to check that specific
-values are not errors. This includes testing for non-missing variables. The snippet
+Catch errors without assigning them eslewhere with the `catch(@expression) {@found} else {@notfound}` 
+pattern. This has identical syntax to conditional statements, so you can skip the brackets or 
+the alternative clause. Use it to check that specific
+values are not errors. This includes testing for non-missing variables. The snippet below
 demonstrates how the `default` statement is implemented by the standard library
 by catching whether the namesake variable would be an error.
 
@@ -99,10 +101,9 @@ print(inc(0 :: bias=2));
 
 ## Failing
 
-You can deliberately create errors using the `fail` keyword, which accepts a string
-as an argument to describe the error. This command causes currently executed functions
-or methods to halt immediately and return the designated error. Below is an example.
-You can also convert an existing error to a string and fail immediately.
+You can deliberately create errors using the `fail` keyword.
+This accepts a string message and causes currently executed functions
+or methods to halt immediately and return an error. Below is an example.
 
 
 ```java
@@ -133,49 +134,49 @@ Number of safe divisions: 2
 </pre>
 
 
-The `assert @condition;` statement is a macro shipped with the language that translates to failing
-upon a condition being encountered without any error message. The macro's implementation is
- `if(@condition) fail(!stringify(@condition));` and you can use it for quick checks that.
+The `assert @condition;` statement is a macro shipped with the language that fails
+when a condition is not met without any error message. The macro's implementation is
+ `if(@condition) fail(!stringify(@condition));` and you can use it for quick checks.
 In practice, create assertions whenever you are trying to prevent operations that 
 would affect hidden state from taking place if computations that folllow them would
 fail.
 
 
 
-## Try
+## Do-return
 
-The `@result = try{@code}` pattern intercepts errors that cannot be packed into values,
-such as `fail` statements. But it also intercepts return statements that indicate successful conclusion of
-computations. When entered and exited, it also waits for parallel function calls evoked in the code to conclude 
-and applies all defer statements. Omit brackets when only one command is tried.
+The `@result = do{@code}` pattern intercepts return statements. We left it for here
+because it also intercepts errors that would cause functions to fail.
+When entered and exited, this pattern also waits for parallel function calls to conclude 
+and applies all defer statements. Omit brackets when only one command is tried. You may also not assign
+the result anywhere.
 
+!!! tip
+    Think of `do` as a function call that affects the scope. It is also handy for forcing sequential function calls.
 
-!!! warning
-    **Potential instability:** Future versions of Blombly may make side-effect errors `fail` to be caught with `try`.
-
-For example, let the interception mechanism interrupt control flow like this `sgn = try if(x>=0) return 1 else return -1;`.
+For example, let the interception mechanism interrupt control flow like this `sgn = do if(x>=0) return 1 else return -1;`.
 A similar syntax breaks away from loops below. Contrary to errors, 
 returning is lightweight to intercept. 
-You could also prepend `try` to loop bodies to let internal returns skip the rest of the body - 
-this would emulate other languages' *continue* just as the syntax below emulates *break*. 
+You could also prepend `do` to loop bodies to let internal returns skip the rest of the body - 
+this emulates other languages' *continue* just as the syntax below emulates *break*. 
 Blombly does not have extra keywords to enforce only one way of interrupting execution.
 
 <br>
 
-Use `catch` to check on the outcome of trying, where not intercepting any return is also
+Use `catch` to check whether `do` intercepted a non-error ereturn; not intercepting any return is also
 considered an error. An example follows.
 
 ```java
 // main.bb
-start = "start:"|read|int;
-end = "end:  "|read|int;
+start = int("start:"|read);
+end = int("end:  "|read);
 i = 0;
-result = try while (i <= end) {
+result = do while(i <= end) {
     i = i + 3;
-    if (i >= start) return i;
+    if(i >= start) return i;
 }
 print("Finished searching.");
-catch (result) fail("Found nothing: !{result}"); // creates a custom error on-demand
+catch(result) fail("Found nothing: !{result}"); // creates a custom error on-demand
 print("The least multiple of 3 in range [!{start}, !{end}] is: !{result}");
 ```
 
@@ -190,13 +191,8 @@ The least multiple of 3 in range [4, 100] is: 6
 start: 4
 end:   1
 Finished searching. 
-(<span style="color: red;"> ERROR </span>) Found nothing: No error or return statement intercepted with `try`.
+(<span style="color: red;"> ERROR </span>) Found nothing: No error or return statement intercepted with `do`.
    <span style="color: lightblue;">→</span>  fail("Found nothing: "+str(result|str)+"            main.bb line 9
    <span style="color: lightblue;">→</span>  fail("Found nothing: "+str(result|str)+"            main.bb line 9
    <span style="color: lightblue;">→</span>  catch(result)fail("Found nothing: "+str(            main.bb line 9
 </pre>
-
-
-!!! warning
-    The `try` statement synchronizes all concurrency when entered and exited.
-    This slows down automatic parallelization, so do not overuse it.

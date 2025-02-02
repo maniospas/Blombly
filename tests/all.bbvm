@@ -1,2200 +1,3655 @@
-BEGIN _bb39
-BEGIN _bb42
+%{final ansi=new{final black="\e[0;30m";f //C:\Users\manio\Desktop\bloblyVM\libs/.bb line 8
+BEGIN _bb40
+%{final black="\e[0;30m";final red="\e[0; //C:\Users\manio\Desktop\bloblyVM\libs\ansi.bb line 1
+BEGIN _bb43
+%final lightred="\e[0;91m" //C:\Users\manio\Desktop\bloblyVM\libs\ansi.bb line 11
 BUILTIN lightred "\e[0;91m"
 final # lightred
+%final lightgreen="\e[0;92m" //C:\Users\manio\Desktop\bloblyVM\libs\ansi.bb line 12
 BUILTIN lightgreen "\e[0;92m"
 final # lightgreen
+%final reset="\e[0m" //C:\Users\manio\Desktop\bloblyVM\libs\ansi.bb line 18
 BUILTIN reset "\e[0m"
 final # reset
 return # this
 END
-new ansi _bb42
+%new{final black="\e[0;30m";final red="\e //C:\Users\manio\Desktop\bloblyVM\libs\ansi.bb line 1
+new ansi _bb43
 final # ansi
-BEGIN _bb62
+%{final toback(element)={return new{.elem //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 1
 BEGIN _bb63
+%{return new{.element=this.element;call(A //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 2
+BEGIN _bb64
 next element args
-BEGIN _bb66
-get _bb67 this element
-IS .element _bb67
-BEGIN _bb68
+%{.element=this.element;call(A)={..elemen //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 2
+BEGIN _bb67
+%this.element //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 2
+get _bb68 this element
+IS .element _bb68
+%{..element=this..element;A..element;retu //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 2
+BEGIN _bb69
 next A args
-get _bb69 this .element
-IS ..element _bb69
-push _bb70 A ..element
+%this..element //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 2
+get _bb70 this .element
+IS ..element _bb70
+%A..element //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 2
+push _bb71 A ..element
+%returnA //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 2
 return # A
 END
-IS call _bb68
+IS call _bb69
 return # this
 END
-new _bb64 _bb66
-return # _bb64
+%new{.element=this.element;call(A)={..ele //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 2
+new _bb65 _bb67
+%return new{.element=this.element;call(A) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 2
+return # _bb65
 END
-IS toback _bb63
+IS toback _bb64
 final # toback
-BEGIN _bb71
+%{return new{.func=this.func;call(A)={..f //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 8
+BEGIN _bb72
 next func args
-BEGIN _bb74
-get _bb75 this func
-IS .func _bb75
-BEGIN _bb76
+%{.func=this.func;call(A)={..func=this..f //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 8
+BEGIN _bb75
+%this.func //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 8
+get _bb76 this func
+IS .func _bb76
+%{..func=this..func;ret=list();_bbmacro0= //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 8
+BEGIN _bb77
 next A args
-get _bb77 this .func
-IS ..func _bb77
+%this..func //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 8
+get _bb78 this .func
+IS ..func _bb78
+%list() //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 8
 list ret
+%iter(A) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 8
 iter _bbmacro0 A
-BEGIN _bb80
-next _bb81 _bbmacro0
-AS x _bb81
-exists _bb82 x
+%while(xas next(_bbmacro0))ret ..func(x) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 8
+BEGIN _bb81
+%next(_bbmacro0) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 8
+next _bb82 _bbmacro0
+AS x _bb82
+exists _bb83 x
 END
-BEGIN _bb83
-BEGIN _bb86
+BEGIN _bb84
+%..func(x) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 8
+BEGIN _bb87
 list args x
 END
-call _bb85 _bb86 ..func
-push _bb84 ret _bb85
+%..func(x) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 8
+call _bb86 _bb87 ..func
+push _bb85 ret _bb86
 END
-while # _bb80 _bb83
+%while(xas next(_bbmacro0))ret ..func(x) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 8
+while # _bb81 _bb84
+%return ret //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 8
 return # ret
 END
-IS call _bb76
+IS call _bb77
 return # this
 END
-new _bb72 _bb74
-return # _bb72
+%new{.func=this.func;call(A)={..func=this //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 8
+new _bb73 _bb75
+%return new{.func=this.func;call(A)={..fu //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 8
+return # _bb73
 END
-IS transform _bb71
+IS transform _bb72
 final # transform
 return # this
 END
-new collection _bb62
+%new{final toback(element)={return new{.e //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 1
+new collection _bb63
 final # collection
-BEGIN _bb87
+%{return new{final connector=sqlite(path) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 17
+BEGIN _bb88
 next path args
 str path path
-BEGIN _bb90
+%{final connector=sqlite(path);final tabl //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 17
+BEGIN _bb91
+%sqlite(path) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 17
 sqlite connector path
+%return this.connector query|str //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 17
 return # this
 END
-new _bb88 _bb90
-return # _bb88
+%new{final connector=sqlite(path);final t //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 17
+new _bb89 _bb91
+%return new{final connector=sqlite(path); //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 17
+return # _bb89
 END
-IS db _bb87
+IS db _bb88
 final # db
-BEGIN _bb203
+%{final ok(str text)={print("[  "+str(bb. //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 50
 BEGIN _bb204
+%{print("[  "+str(bb.ansi.lightgreen)+"ok //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 51
+BEGIN _bb205
 next text args
 str text text
-BUILTIN _bb206 ""
-str _bb208 text
-BUILTIN _bb210 "  ] "
-get _bb213 bb ansi
-get _bb212 _bb213 reset
-str _bb214 _bb212
-BUILTIN _bb216 "ok"
-get _bb219 bb ansi
-get _bb218 _bb219 lightgreen
-str _bb220 _bb218
-BUILTIN _bb221 "[  "
-add _bb217 _bb221 _bb220
-add _bb215 _bb217 _bb216
-add _bb211 _bb215 _bb214
-add _bb209 _bb211 _bb210
-add _bb207 _bb209 _bb208
-add _bb205 _bb207 _bb206
-print # _bb205
+%"[  "+str(bb.ansi.lightgreen)+"ok"+str(b //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 51
+BUILTIN _bb207 ""
+%str(text) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 51
+str _bb209 text
+%"[  "+str(bb.ansi.lightgreen)+"ok"+str(b //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 51
+BUILTIN _bb211 "  ] "
+%bb.ansi //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 51
+get _bb214 bb ansi
+%bb.ansi.reset //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 51
+get _bb213 _bb214 reset
+%str(bb.ansi.reset) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 51
+str _bb215 _bb213
+%"[  "+str(bb.ansi.lightgreen)+"ok" //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 51
+BUILTIN _bb217 "ok"
+%bb.ansi //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 51
+get _bb220 bb ansi
+%bb.ansi.lightgreen //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 51
+get _bb219 _bb220 lightgreen
+%str(bb.ansi.lightgreen) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 51
+str _bb221 _bb219
+BUILTIN _bb222 "[  "
+add _bb218 _bb222 _bb221
+add _bb216 _bb218 _bb217
+add _bb212 _bb216 _bb215
+add _bb210 _bb212 _bb211
+add _bb208 _bb210 _bb209
+add _bb206 _bb208 _bb207
+%print("[  "+str(bb.ansi.lightgreen)+"ok" //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 51
+print # _bb206
 END
-IS ok _bb204
+IS ok _bb205
 final # ok
-BEGIN _bb222
+%{print("[ "+str(bb.ansi.lightred)+"fail" //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 52
+BEGIN _bb223
 next text args
 str text text
-BUILTIN _bb224 ""
-str _bb226 text
-BUILTIN _bb228 " ] "
-get _bb231 bb ansi
-get _bb230 _bb231 reset
-str _bb232 _bb230
-BUILTIN _bb234 "fail"
-get _bb237 bb ansi
-get _bb236 _bb237 lightred
-str _bb238 _bb236
-BUILTIN _bb239 "[ "
-add _bb235 _bb239 _bb238
-add _bb233 _bb235 _bb234
-add _bb229 _bb233 _bb232
-add _bb227 _bb229 _bb228
-add _bb225 _bb227 _bb226
-add _bb223 _bb225 _bb224
-print # _bb223
+%"[ "+str(bb.ansi.lightred)+"fail"+str(bb //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 52
+BUILTIN _bb225 ""
+%str(text) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 52
+str _bb227 text
+%"[ "+str(bb.ansi.lightred)+"fail"+str(bb //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 52
+BUILTIN _bb229 " ] "
+%bb.ansi //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 52
+get _bb232 bb ansi
+%bb.ansi.reset //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 52
+get _bb231 _bb232 reset
+%str(bb.ansi.reset) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 52
+str _bb233 _bb231
+%"[ "+str(bb.ansi.lightred)+"fail" //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 52
+BUILTIN _bb235 "fail"
+%bb.ansi //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 52
+get _bb238 bb ansi
+%bb.ansi.lightred //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 52
+get _bb237 _bb238 lightred
+%str(bb.ansi.lightred) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 52
+str _bb239 _bb237
+BUILTIN _bb240 "[ "
+add _bb236 _bb240 _bb239
+add _bb234 _bb236 _bb235
+add _bb230 _bb234 _bb233
+add _bb228 _bb230 _bb229
+add _bb226 _bb228 _bb227
+add _bb224 _bb226 _bb225
+%print("[ "+str(bb.ansi.lightred)+"fail"+ //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 52
+print # _bb224
 END
-IS fail _bb222
+IS fail _bb223
 final # fail
+%print("[ "+str(bb.ansi.lightcyan)+"info" //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 54
 return # this
 END
-new logger _bb203
+%new{final ok(str text)={print("[  "+str( //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 50
+new logger _bb204
 final # logger
-BEGIN _bb296
+%{final call(str file path)={return path; //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 68
 BEGIN _bb297
+%{return path;} //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 69
+BEGIN _bb298
 next path args
 str path path
 file path path
+%return path //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 69
 return # path
 END
-IS call _bb297
-BEGIN _bb305
+IS call _bb298
+%{ret="";_bbmacro2=iter(path);while(line  //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 71
+BEGIN _bb306
 next path args
 str path path
 file path path
+%ret="" //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 72
 BUILTIN ret ""
+%iter(path) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 73
 iter _bbmacro2 path
-BEGIN _bb308
-next _bb309 _bbmacro2
-AS line _bb309
-exists _bb310 line
+%while(line as next(_bbmacro2)){if(ret|le //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 73
+BEGIN _bb309
+%next(_bbmacro2) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 73
+next _bb310 _bbmacro2
+AS line _bb310
+exists _bb311 line
 END
-BEGIN _bb311
 BEGIN _bb312
-BUILTIN _bb313 "\n"
-add ret ret _bb313
+%if(ret|len|bool)ret+="\n" //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 74
+BEGIN _bb313
+%ret+="\n" //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 74
+BUILTIN _bb314 "\n"
+add ret ret _bb314
 END
-len _bb315 ret
-bool _bb314 _bb315
-if # _bb314 _bb312
+%ret|len //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 74
+len _bb316 ret
+%ret|len|bool //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 74
+bool _bb315 _bb316
+%if(ret|len|bool)ret+="\n" //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 74
+if # _bb315 _bb313
+%ret+=line //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 75
 add ret ret line
 END
-while # _bb308 _bb311
+%while(line as next(_bbmacro2)){if(ret|le //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 73
+while # _bb309 _bb312
+%return ret //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 77
 return # ret
 END
-IS read _bb305
+IS read _bb306
 final # read
+%return true //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 92
 return # this
 END
-new os _bb296
+%new{final call(str file path)={return pa //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 68
+new os _bb297
 final # os
-BEGIN _bb364
+%{final call(str value)={return value;}fi //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 96
 BEGIN _bb365
+%{return value;} //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 98
+BEGIN _bb366
 next value args
 str value value
+%return value //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 98
 return # value
 END
-IS call _bb365
-BEGIN _bb428
+IS call _bb366
+%{return new{.query=this.query;if((args|l //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+BEGIN _bb429
 next query args
 str query query
-BEGIN _bb431
-get _bb432 this query
-IS .query _bb432
-BEGIN _bb433
-BUILTIN _bb434 "Assertion failed"
-fail # _bb434
+%{.query=this.query;if((args|len ==0)== f //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+BEGIN _bb432
+%this.query //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+get _bb433 this query
+IS .query _bb433
+%if((args|len ==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+BEGIN _bb434
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+BUILTIN _bb435 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+fail # _bb435
 END
-BUILTIN _bb436 Bfalse
-BUILTIN _bb438 I0
-len _bb439 args
-eq _bb437 _bb439 _bb438
-eq _bb435 _bb437 _bb436
-if # _bb435 _bb433
-BEGIN _bb440
+%(args|len ==0)== false //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+BUILTIN _bb437 Bfalse
+%args|len ==0 //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+BUILTIN _bb439 I0
+%args|len //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+len _bb440 args
+eq _bb438 _bb440 _bb439
+eq _bb436 _bb438 _bb437
+%if((args|len ==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+if # _bb436 _bb434
+%{..query=this..query;if((args|len ==0)== //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+BEGIN _bb441
 next search args
 str search search
-get _bb441 this .query
-IS ..query _bb441
-BEGIN _bb442
-BUILTIN _bb443 "Assertion failed"
-fail # _bb443
+%this..query //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+get _bb442 this .query
+IS ..query _bb442
+%if((args|len ==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+BEGIN _bb443
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+BUILTIN _bb444 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+fail # _bb444
 END
-BUILTIN _bb445 Bfalse
-BUILTIN _bb447 I0
-len _bb448 args
-eq _bb446 _bb448 _bb447
-eq _bb444 _bb446 _bb445
-if # _bb444 _bb442
+%(args|len ==0)== false //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+BUILTIN _bb446 Bfalse
+%args|len ==0 //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+BUILTIN _bb448 I0
+%args|len //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+len _bb449 args
+eq _bb447 _bb449 _bb448
+eq _bb445 _bb447 _bb446
+%if((args|len ==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+if # _bb445 _bb443
+%query=..query //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
 IS query ..query
+%len(search) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
 len nsearch search
+%len(query) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
 len nquery query
-BEGIN _bb451
-BUILTIN _bb452 Bfalse
-return # _bb452
+%if(nsearch<nquery)return false //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+BEGIN _bb452
+BUILTIN _bb453 Bfalse
+%return false //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+return # _bb453
 END
-lt _bb453 nsearch nquery
-if # _bb453 _bb451
-range _bb454 nquery
-iter _bbmacro4 _bb454
-BEGIN _bb456
-next _bb457 _bbmacro4
-AS i _bb457
-exists _bb458 i
+%nsearch<nquery //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+lt _bb454 nsearch nquery
+%if(nsearch<nquery)return false //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+if # _bb454 _bb452
+%range(nquery) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+range _bb455 nquery
+%iter(range(nquery)) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+iter _bbmacro4 _bb455
+%while(ias next(_bbmacro4))if(query[i]!=  //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+BEGIN _bb457
+%next(_bbmacro4) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+next _bb458 _bbmacro4
+AS i _bb458
+exists _bb459 i
 END
-BEGIN _bb459
 BEGIN _bb460
-BUILTIN _bb461 Bfalse
-return # _bb461
+%if(query[i]!= search[i])return false //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+BEGIN _bb461
+BUILTIN _bb462 Bfalse
+%return false //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+return # _bb462
 END
-at _bb463 search i
-at _bb464 query i
-neq _bb462 _bb464 _bb463
-if # _bb462 _bb460
+%search[i] //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+at _bb464 search i
+%query[i] //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+at _bb465 query i
+neq _bb463 _bb465 _bb464
+%if(query[i]!= search[i])return false //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+if # _bb463 _bb461
 END
-while # _bb456 _bb459
-BUILTIN _bb465 Btrue
-return # _bb465
+%while(ias next(_bbmacro4))if(query[i]!=  //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+while # _bb457 _bb460
+BUILTIN _bb466 Btrue
+%return true //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+return # _bb466
 END
-IS call _bb440
+IS call _bb441
 return # this
 END
-new _bb429 _bb431
-return # _bb429
+%new{.query=this.query;if((args|len ==0)= //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+new _bb430 _bb432
+%return new{.query=this.query;if((args|le //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 129
+return # _bb430
 END
-IS starts _bb428
+IS starts _bb429
 final # starts
-BEGIN _bb466
+%{return new{.query=this.query;if((args|l //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+BEGIN _bb467
 next query args
 str query query
-BEGIN _bb469
-get _bb470 this query
-IS .query _bb470
-BEGIN _bb471
-BUILTIN _bb472 "Assertion failed"
-fail # _bb472
+%{.query=this.query;if((args|len ==0)== f //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+BEGIN _bb470
+%this.query //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+get _bb471 this query
+IS .query _bb471
+%if((args|len ==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+BEGIN _bb472
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+BUILTIN _bb473 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+fail # _bb473
 END
-BUILTIN _bb474 Bfalse
-BUILTIN _bb476 I0
-len _bb477 args
-eq _bb475 _bb477 _bb476
-eq _bb473 _bb475 _bb474
-if # _bb473 _bb471
-BEGIN _bb478
+%(args|len ==0)== false //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+BUILTIN _bb475 Bfalse
+%args|len ==0 //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+BUILTIN _bb477 I0
+%args|len //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+len _bb478 args
+eq _bb476 _bb478 _bb477
+eq _bb474 _bb476 _bb475
+%if((args|len ==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+if # _bb474 _bb472
+%{..query=this..query;if((args|len ==0)== //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+BEGIN _bb479
 next search args
 str search search
-get _bb479 this .query
-IS ..query _bb479
-BEGIN _bb480
-BUILTIN _bb481 "Assertion failed"
-fail # _bb481
+%this..query //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+get _bb480 this .query
+IS ..query _bb480
+%if((args|len ==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+BEGIN _bb481
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+BUILTIN _bb482 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+fail # _bb482
 END
-BUILTIN _bb483 Bfalse
-BUILTIN _bb485 I0
-len _bb486 args
-eq _bb484 _bb486 _bb485
-eq _bb482 _bb484 _bb483
-if # _bb482 _bb480
+%(args|len ==0)== false //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+BUILTIN _bb484 Bfalse
+%args|len ==0 //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+BUILTIN _bb486 I0
+%args|len //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+len _bb487 args
+eq _bb485 _bb487 _bb486
+eq _bb483 _bb485 _bb484
+%if((args|len ==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+if # _bb483 _bb481
+%query=..query //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
 IS query ..query
+%len(search) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
 len nsearch search
+%len(query) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
 len nquery query
-BEGIN _bb489
-BUILTIN _bb490 Bfalse
-return # _bb490
+%if(nsearch<nquery)return false //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+BEGIN _bb490
+BUILTIN _bb491 Bfalse
+%return false //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+return # _bb491
 END
-lt _bb491 nsearch nquery
-if # _bb491 _bb489
-range _bb492 nquery
-iter _bbmacro5 _bb492
-BEGIN _bb494
-next _bb495 _bbmacro5
-AS i _bb495
-exists _bb496 i
+%nsearch<nquery //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+lt _bb492 nsearch nquery
+%if(nsearch<nquery)return false //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+if # _bb492 _bb490
+%range(nquery) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+range _bb493 nquery
+%iter(range(nquery)) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+iter _bbmacro5 _bb493
+%while(ias next(_bbmacro5))if(query[i]!=  //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+BEGIN _bb495
+%next(_bbmacro5) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+next _bb496 _bbmacro5
+AS i _bb496
+exists _bb497 i
 END
-BEGIN _bb497
 BEGIN _bb498
-BUILTIN _bb499 Bfalse
-return # _bb499
+%if(query[i]!= search[nsearch-nquery+i])r //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+BEGIN _bb499
+BUILTIN _bb500 Bfalse
+%return false //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+return # _bb500
 END
-sub _bb503 nsearch nquery
-add _bb502 _bb503 i
-at _bb501 search _bb502
-at _bb504 query i
-neq _bb500 _bb504 _bb501
-if # _bb500 _bb498
+%nsearch-nquery //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+sub _bb504 nsearch nquery
+add _bb503 _bb504 i
+%search[nsearch-nquery+i] //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+at _bb502 search _bb503
+%query[i] //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+at _bb505 query i
+neq _bb501 _bb505 _bb502
+%if(query[i]!= search[nsearch-nquery+i])r //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+if # _bb501 _bb499
 END
-while # _bb494 _bb497
-BUILTIN _bb505 Btrue
-return # _bb505
+%while(ias next(_bbmacro5))if(query[i]!=  //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+while # _bb495 _bb498
+BUILTIN _bb506 Btrue
+%return true //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+return # _bb506
 END
-IS call _bb478
+IS call _bb479
 return # this
 END
-new _bb467 _bb469
-return # _bb467
+%new{.query=this.query;if((args|len ==0)= //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+new _bb468 _bb470
+%return new{.query=this.query;if((args|le //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 141
+return # _bb468
 END
-IS ends _bb466
+IS ends _bb467
 final # ends
-BEGIN _bb506
+%{return new{.query=this.query;if((len(ar //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+BEGIN _bb507
 next query args
 str query query
-BEGIN _bb509
-get _bb510 this query
-IS .query _bb510
-BEGIN _bb511
-BUILTIN _bb512 "Assertion failed"
-fail # _bb512
+%{.query=this.query;if((len(args)==0)== f //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+BEGIN _bb510
+%this.query //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+get _bb511 this query
+IS .query _bb511
+%if((len(args)==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+BEGIN _bb512
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+BUILTIN _bb513 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+fail # _bb513
 END
-BUILTIN _bb514 Bfalse
-BUILTIN _bb516 I0
-len _bb517 args
-eq _bb515 _bb517 _bb516
-eq _bb513 _bb515 _bb514
-if # _bb513 _bb511
-BEGIN _bb518
+%(len(args)==0)== false //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+BUILTIN _bb515 Bfalse
+%len(args)==0 //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+BUILTIN _bb517 I0
+%len(args) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+len _bb518 args
+eq _bb516 _bb518 _bb517
+eq _bb514 _bb516 _bb515
+%if((len(args)==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+if # _bb514 _bb512
+%catch(pos)pos=0else pos=int(pos) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+BEGIN _bb519
+%pos=0 //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
 BUILTIN pos I0
 END
-catch # pos _bb518
-BEGIN _bb520
+BEGIN _bb521
+%int(pos) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+int pos pos
+END
+%catch(pos)pos=0else pos=int(pos) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+catch # pos _bb519 _bb521
+%{..query=this..query;if((len(args)==0)== //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+BEGIN _bb523
 next search args
 str search search
-get _bb521 this .query
-IS ..query _bb521
-BEGIN _bb522
-BUILTIN _bb523 "Assertion failed"
-fail # _bb523
+%this..query //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+get _bb524 this .query
+IS ..query _bb524
+%if((len(args)==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+BEGIN _bb525
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+BUILTIN _bb526 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+fail # _bb526
 END
-BUILTIN _bb525 Bfalse
-BUILTIN _bb527 I0
-len _bb528 args
-eq _bb526 _bb528 _bb527
-eq _bb524 _bb526 _bb525
-if # _bb524 _bb522
+%(len(args)==0)== false //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+BUILTIN _bb528 Bfalse
+%len(args)==0 //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+BUILTIN _bb530 I0
+%len(args) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+len _bb531 args
+eq _bb529 _bb531 _bb530
+eq _bb527 _bb529 _bb528
+%if((len(args)==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+if # _bb527 _bb525
+%query=..query //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
 IS query ..query
-get _bb529 this pos
-IS pos _bb529
+%this.pos //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+get _bb532 this pos
+IS pos _bb532
+%len(search) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
 len nsearch search
+%len(query) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
 len nquery query
-BUILTIN _bb534 I1
-sub _bb535 nsearch nquery
-add _bb533 _bb535 _bb534
-range _bb532 pos _bb533
-iter _bbmacro6 _bb532
-BEGIN _bb537
-next _bb538 _bbmacro6
-AS i _bb538
-exists _bb539 i
-END
+%nsearch-nquery+1 //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+BUILTIN _bb537 I1
+%nsearch-nquery //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+sub _bb538 nsearch nquery
+add _bb536 _bb538 _bb537
+%range(pos,nsearch-nquery+1) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+range _bb535 pos _bb536
+%iter(range(pos,nsearch-nquery+1)) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+iter _bbmacro6 _bb535
+%while(ias next(_bbmacro6)){_bbmacro7=ite //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
 BEGIN _bb540
-range _bb541 nquery
-iter _bbmacro7 _bb541
-BEGIN _bb545
-BEGIN _bb546
-next _bb547 _bbmacro7
-AS j _bb547
-exists _bb548 j
+%next(_bbmacro6) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+next _bb541 _bbmacro6
+AS i _bb541
+exists _bb542 i
 END
+BEGIN _bb543
+%range(nquery) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+range _bb544 nquery
+%iter(range(nquery)) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+iter _bbmacro7 _bb544
+%while(jas next(_bbmacro7))if(query[j]!=  //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+BEGIN _bb548
+%while(jas next(_bbmacro7))if(query[j]!=  //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
 BEGIN _bb549
-BEGIN _bb550
-BUILTIN _bb551 Btrue
-return # _bb551
+%next(_bbmacro7) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+next _bb550 _bbmacro7
+AS j _bb550
+exists _bb551 j
 END
-add _bb554 i j
-at _bb553 search _bb554
-at _bb555 query j
-neq _bb552 _bb555 _bb553
-if # _bb552 _bb550
+BEGIN _bb552
+%if(query[j]!= search[i+j]){return true;} //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+BEGIN _bb553
+BUILTIN _bb554 Btrue
+%return true //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+return # _bb554
 END
-while # _bb546 _bb549
+%i+j //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+add _bb557 i j
+%search[i+j] //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+at _bb556 search _bb557
+%query[j] //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+at _bb558 query j
+neq _bb555 _bb558 _bb556
+%if(query[j]!= search[i+j]){return true;} //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+if # _bb555 _bb553
 END
-try different _bb545
-print # i
-BEGIN _bb556
+%while(jas next(_bbmacro7))if(query[j]!=  //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+while # _bb549 _bb552
+END
+%do while(jas next(_bbmacro7))if(query[j] //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+do different _bb548
+%catch(different)returni //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+BEGIN _bb559
+%returni //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
 return # i
 END
-catch # different _bb556
+%catch(different)returni //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+catch # different _bb559
 END
-while # _bb537 _bb540
+%while(ias next(_bbmacro6)){_bbmacro7=ite //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+while # _bb540 _bb543
+%return nsearch //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
 return # nsearch
 END
-IS call _bb520
+IS call _bb523
 return # this
 END
-new _bb507 _bb509
-return # _bb507
+%new{.query=this.query;if((len(args)==0)= //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+new _bb508 _bb510
+%return new{.query=this.query;if((len(arg //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 153
+return # _bb508
 END
-IS index _bb506
+IS index _bb507
 final # index
-BEGIN _bb557
+%{return new{.query=this.query;if((args|l //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+BEGIN _bb560
 next query args
 str query query
-BEGIN _bb560
-get _bb561 this query
-IS .query _bb561
-BEGIN _bb562
-BUILTIN _bb563 "Assertion failed"
-fail # _bb563
+%{.query=this.query;if((args|len ==0)== f //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+BEGIN _bb563
+%this.query //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+get _bb564 this query
+IS .query _bb564
+%if((args|len ==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+BEGIN _bb565
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+BUILTIN _bb566 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+fail # _bb566
 END
-BUILTIN _bb565 Bfalse
-BUILTIN _bb567 I0
-len _bb568 args
-eq _bb566 _bb568 _bb567
-eq _bb564 _bb566 _bb565
-if # _bb564 _bb562
-BEGIN _bb569
+%(args|len ==0)== false //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+BUILTIN _bb568 Bfalse
+%args|len ==0 //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+BUILTIN _bb570 I0
+%args|len //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+len _bb571 args
+eq _bb569 _bb571 _bb570
+eq _bb567 _bb569 _bb568
+%if((args|len ==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+if # _bb567 _bb565
+%catch(maxsplits)maxsplits=0 //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+BEGIN _bb572
+%maxsplits=0 //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
 BUILTIN maxsplits I0
 END
-catch # maxsplits _bb569
-BEGIN _bb571
+%catch(maxsplits)maxsplits=0 //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+catch # maxsplits _bb572
+%{..query=this..query;query=..query;nsear //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+BEGIN _bb574
 next search args
 str search search
-get _bb572 this .query
-IS ..query _bb572
+%this..query //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+get _bb575 this .query
+IS ..query _bb575
+%query=..query //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
 IS query ..query
+%search|len //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
 len nsearch search
+%query|len //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
 len nquery query
-BEGIN _bb575
-BUILTIN _bb576 "Cannot split on a zero-length string"
-fail # _bb576
+%if(nquery ==0)fail("Cannot split on a ze //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+BEGIN _bb578
+%("Cannot split on a zero-length string") //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+BUILTIN _bb579 "Cannot split on a zero-length string"
+%fail("Cannot split on a zero-length stri //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+fail # _bb579
 END
-BUILTIN _bb578 I0
-eq _bb577 nquery _bb578
-if # _bb577 _bb575
+%nquery ==0 //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+BUILTIN _bb581 I0
+eq _bb580 nquery _bb581
+%if(nquery ==0)fail("Cannot split on a ze //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+if # _bb580 _bb578
+%list() //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
 list ret
+%pos=0 //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
 BUILTIN pos I0
-BEGIN _bb581
-lt _bb582 pos nsearch
+%while(pos<nsearch){prev_pos=pos;pos=sear //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+BEGIN _bb584
+%pos<nsearch //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+lt _bb585 pos nsearch
 END
-BEGIN _bb583
+BEGIN _bb586
+%prev_pos=pos //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
 IS prev_pos pos
-BEGIN _bb585
+%search|bb.string.index(query :: pos=pos) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+BEGIN _bb588
 list args search
 END
-BEGIN _bb588
+%bb.string.index(query :: pos=pos) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+BEGIN _bb591
 list args query
+%pos=pos //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
 IS pos pos
 END
-get _bb590 bb string
-get _bb589 _bb590 index
-call _bb587 _bb588 _bb589
-call _bb584 _bb585 _bb587
-IS pos _bb584
-range _bb592 prev_pos pos
-at _bb591 search _bb592
-IS s _bb591
-push _bb593 ret s
+%bb.string //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+get _bb593 bb string
+%bb.string.index //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+get _bb592 _bb593 index
+%bb.string.index(query :: pos=pos) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+call _bb590 _bb591 _bb592
+%search|bb.string.index(query :: pos=pos) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+call _bb587 _bb588 _bb590
+IS pos _bb587
+%range(prev_pos,pos) //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+range _bb595 prev_pos pos
+%search[range(prev_pos,pos)] //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+at _bb594 search _bb595
+IS s _bb594
+%rets //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+push _bb596 ret s
+%pos+=nquery //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
 add pos pos nquery
 END
-while # _bb581 _bb583
+%while(pos<nsearch){prev_pos=pos;pos=sear //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+while # _bb584 _bb586
+%return ret //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
 return # ret
 END
-IS call _bb571
+IS call _bb574
 return # this
 END
-new _bb558 _bb560
-return # _bb558
+%new{.query=this.query;if((args|len ==0)= //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+new _bb561 _bb563
+%return new{.query=this.query;if((args|le //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 169
+return # _bb561
 END
-IS split _bb557
+IS split _bb560
 final # split
 return # this
 END
-new string _bb364
+%new{final call(str value)={return value; //C:\Users\manio\Desktop\bloblyVM\libs\collections.bb line 96
+new string _bb365
 final # string
+%new{Plot={final plots=list();defer{catch //C:\Users\manio\Desktop\bloblyVM\libs\plot.bb line 1
 return # this
 END
-new bb _bb39
+%new{final ansi=new{final black="\e[0;30m //C:\Users\manio\Desktop\bloblyVM\libs/.bb line 8
+new bb _bb40
 final # bb
-BEGIN _bb829
-BEGIN _bb830
+%{inc(x)={catch(bias)bias=1;returnx+bias; //.\tests\all.bb line 4
+BEGIN _bb832
+%{catch(bias)bias=1;returnx+bias;} //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 1
+BEGIN _bb833
 next x args
-BEGIN _bb831
+%catch(bias)bias=1 //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 2
+BEGIN _bb834
+%bias=1 //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 2
 BUILTIN bias I1
 END
-catch # bias _bb831
-add _bb833 x bias
-return # _bb833
+%catch(bias)bias=1 //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 2
+catch # bias _bb834
+%x+bias //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 3
+add _bb836 x bias
+%returnx+bias //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 3
+return # _bb836
 END
-IS inc _bb830
-BEGIN _bb834
-BUILTIN _bb835 "Assertion failed"
-fail # _bb835
+IS inc _bb833
+%if((inc(0)==1)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 5
+BEGIN _bb837
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 5
+BUILTIN _bb838 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 5
+fail # _bb838
 END
-BUILTIN _bb837 Bfalse
-BUILTIN _bb839 I1
-BEGIN _bb841
-BUILTIN _bb842 I0
-list args _bb842
+%(inc(0)==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 5
+BUILTIN _bb840 Bfalse
+%inc(0)==1 //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 5
+BUILTIN _bb842 I1
+%inc(0) //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 5
+BEGIN _bb844
+BUILTIN _bb845 I0
+list args _bb845
 END
-call _bb840 _bb841 inc
-eq _bb838 _bb840 _bb839
-eq _bb836 _bb838 _bb837
-if # _bb836 _bb834
-BEGIN _bb843
-BUILTIN _bb844 "Assertion failed"
-fail # _bb844
+%inc(0) //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 5
+call _bb843 _bb844 inc
+eq _bb841 _bb843 _bb842
+eq _bb839 _bb841 _bb840
+%if((inc(0)==1)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 5
+if # _bb839 _bb837
+%if((inc(0:: bias=2)==2)== false)fail("As //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 6
+BEGIN _bb846
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 6
+BUILTIN _bb847 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 6
+fail # _bb847
 END
-BUILTIN _bb846 Bfalse
-BUILTIN _bb848 I2
-BEGIN _bb850
-BUILTIN _bb851 I0
-list args _bb851
+%(inc(0:: bias=2)==2)== false //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 6
+BUILTIN _bb849 Bfalse
+%inc(0:: bias=2)==2 //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 6
+BUILTIN _bb851 I2
+%inc(0:: bias=2) //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 6
+BEGIN _bb853
+BUILTIN _bb854 I0
+list args _bb854
+%bias=2 //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 6
 BUILTIN bias I2
 END
-call _bb849 _bb850 inc
-eq _bb847 _bb849 _bb848
-eq _bb845 _bb847 _bb846
-if # _bb845 _bb843
-BUILTIN _bb853 Btrue
-return # _bb853
+%inc(0:: bias=2) //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 6
+call _bb852 _bb853 inc
+eq _bb850 _bb852 _bb851
+eq _bb848 _bb850 _bb849
+%if((inc(0:: bias=2)==2)== false)fail("As //C:\Users\manio\Desktop\bloblyVM\tests\default.bb line 6
+if # _bb848 _bb846
+BUILTIN _bb856 Btrue
+%return true //.\tests\all.bb line 4
+return # _bb856
 END
-try _bbmacro13 _bb829
-BEGIN _bb854
-BEGIN _bb856
-str _bb858 _bbmacro13
-BUILTIN _bb860 "\n"
-BUILTIN _bb861 "Default"
-add _bb859 _bb861 _bb860
-add _bb857 _bb859 _bb858
-list args _bb857
+%do{inc(x)={catch(bias)bias=1;returnx+bia //.\tests\all.bb line 4
+do _bbmacro13 _bb832
+%catch(_bbmacro13)bb.logger.fail("Default //.\tests\all.bb line 4
+BEGIN _bb857
+%bb.logger.fail("Default"+"\n"+str(_bbmac //.\tests\all.bb line 4
+BEGIN _bb859
+%str(_bbmacro13) //.\tests\all.bb line 4
+str _bb861 _bbmacro13
+%"Default"+"\n" //.\tests\all.bb line 4
+BUILTIN _bb863 "\n"
+BUILTIN _bb864 "Default"
+add _bb862 _bb864 _bb863
+add _bb860 _bb862 _bb861
+list args _bb860
 END
-get _bb863 bb logger
-get _bb862 _bb863 fail
-call _bb855 _bb856 _bb862
+%bb.logger //.\tests\all.bb line 4
+get _bb866 bb logger
+%bb.logger.fail //.\tests\all.bb line 4
+get _bb865 _bb866 fail
+%bb.logger.fail("Default"+"\n"+str(_bbmac //.\tests\all.bb line 4
+call _bb858 _bb859 _bb865
 END
-BEGIN _bb864
-BEGIN _bb866
-BUILTIN _bb867 "Default"
-list args _bb867
+BEGIN _bb867
+%bb.logger.ok("Default") //.\tests\all.bb line 4
+BEGIN _bb869
+BUILTIN _bb870 "Default"
+list args _bb870
 END
-get _bb869 bb logger
-get _bb868 _bb869 ok
-call _bb865 _bb866 _bb868
+%bb.logger //.\tests\all.bb line 4
+get _bb872 bb logger
+%bb.logger.ok //.\tests\all.bb line 4
+get _bb871 _bb872 ok
+%bb.logger.ok("Default") //.\tests\all.bb line 4
+call _bb868 _bb869 _bb871
 END
-catch # _bbmacro13 _bb854 _bb864
-BEGIN _bb872
+%catch(_bbmacro13)bb.logger.fail("Default //.\tests\all.bb line 4
+catch # _bbmacro13 _bb857 _bb867
+%{A="0";A+="1";A+="2";A+="3";A+="4";A+="5 //.\tests\all.bb line 5
+BEGIN _bb875
+%A="0" //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 1
 BUILTIN A "0"
-BUILTIN _bb874 "1"
-add A A _bb874
-BUILTIN _bb875 "2"
-add A A _bb875
-BUILTIN _bb876 "3"
-add A A _bb876
-BUILTIN _bb877 "4"
+%A+="1" //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 2
+BUILTIN _bb877 "1"
 add A A _bb877
-BUILTIN _bb878 "5"
+%A+="2" //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 3
+BUILTIN _bb878 "2"
 add A A _bb878
-BUILTIN _bb879 "6"
+%A+="3" //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 4
+BUILTIN _bb879 "3"
 add A A _bb879
-BUILTIN _bb880 "7"
+%A+="4" //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 5
+BUILTIN _bb880 "4"
 add A A _bb880
-BUILTIN _bb881 "8"
+%A+="5" //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 6
+BUILTIN _bb881 "5"
 add A A _bb881
-BUILTIN _bb882 "9"
+%A+="6" //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 7
+BUILTIN _bb882 "6"
 add A A _bb882
-BEGIN _bb883
-BUILTIN _bb884 "Assertion failed"
-fail # _bb884
+%A+="7" //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 8
+BUILTIN _bb883 "7"
+add A A _bb883
+%A+="8" //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 9
+BUILTIN _bb884 "8"
+add A A _bb884
+%A+="9" //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 10
+BUILTIN _bb885 "9"
+add A A _bb885
+%if((A== "0123456789")== false)fail("Asse //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 12
+BEGIN _bb886
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 12
+BUILTIN _bb887 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 12
+fail # _bb887
 END
-BUILTIN _bb886 Bfalse
-BUILTIN _bb888 "0123456789"
-eq _bb887 A _bb888
-eq _bb885 _bb887 _bb886
-if # _bb885 _bb883
-BEGIN _bb889
-BUILTIN _bb890 "Assertion failed"
-fail # _bb890
+%(A== "0123456789")== false //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 12
+BUILTIN _bb889 Bfalse
+%A== "0123456789" //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 12
+BUILTIN _bb891 "0123456789"
+eq _bb890 A _bb891
+eq _bb888 _bb890 _bb889
+%if((A== "0123456789")== false)fail("Asse //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 12
+if # _bb888 _bb886
+%if((A|len == 10)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 13
+BEGIN _bb892
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 13
+BUILTIN _bb893 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 13
+fail # _bb893
 END
-BUILTIN _bb892 Bfalse
-BUILTIN _bb894 I10
-len _bb895 A
-eq _bb893 _bb895 _bb894
-eq _bb891 _bb893 _bb892
-if # _bb891 _bb889
-BUILTIN _bb896 Btrue
-return # _bb896
+%(A|len == 10)== false //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 13
+BUILTIN _bb895 Bfalse
+%A|len == 10 //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 13
+BUILTIN _bb897 I10
+%A|len //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 13
+len _bb898 A
+eq _bb896 _bb898 _bb897
+eq _bb894 _bb896 _bb895
+%if((A|len == 10)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\concat.bb line 13
+if # _bb894 _bb892
+BUILTIN _bb899 Btrue
+%return true //.\tests\all.bb line 5
+return # _bb899
 END
-try _bbmacro14 _bb872
-BEGIN _bb897
-BEGIN _bb899
-str _bb901 _bbmacro14
-BUILTIN _bb903 "\n"
-BUILTIN _bb904 "String add"
-add _bb902 _bb904 _bb903
-add _bb900 _bb902 _bb901
-list args _bb900
+%do{A="0";A+="1";A+="2";A+="3";A+="4";A+= //.\tests\all.bb line 5
+do _bbmacro14 _bb875
+%catch(_bbmacro14)bb.logger.fail("String  //.\tests\all.bb line 5
+BEGIN _bb900
+%bb.logger.fail("String add"+"\n"+str(_bb //.\tests\all.bb line 5
+BEGIN _bb902
+%str(_bbmacro14) //.\tests\all.bb line 5
+str _bb904 _bbmacro14
+%"String add"+"\n" //.\tests\all.bb line 5
+BUILTIN _bb906 "\n"
+BUILTIN _bb907 "String add"
+add _bb905 _bb907 _bb906
+add _bb903 _bb905 _bb904
+list args _bb903
 END
-get _bb906 bb logger
-get _bb905 _bb906 fail
-call _bb898 _bb899 _bb905
+%bb.logger //.\tests\all.bb line 5
+get _bb909 bb logger
+%bb.logger.fail //.\tests\all.bb line 5
+get _bb908 _bb909 fail
+%bb.logger.fail("String add"+"\n"+str(_bb //.\tests\all.bb line 5
+call _bb901 _bb902 _bb908
 END
-BEGIN _bb907
-BEGIN _bb909
-BUILTIN _bb910 "String add"
-list args _bb910
+BEGIN _bb910
+%bb.logger.ok("String add") //.\tests\all.bb line 5
+BEGIN _bb912
+BUILTIN _bb913 "String add"
+list args _bb913
 END
-get _bb912 bb logger
-get _bb911 _bb912 ok
-call _bb908 _bb909 _bb911
+%bb.logger //.\tests\all.bb line 5
+get _bb915 bb logger
+%bb.logger.ok //.\tests\all.bb line 5
+get _bb914 _bb915 ok
+%bb.logger.ok("String add") //.\tests\all.bb line 5
+call _bb911 _bb912 _bb914
 END
-catch # _bbmacro14 _bb897 _bb907
-BEGIN _bb915
-BUILTIN _bb916 I1
-BUILTIN _bb917 I2
-BUILTIN _bb918 I3
-BUILTIN _bb919 I4
-list A _bb916 _bb917 _bb918 _bb919
-BEGIN _bb921
-BUILTIN _bb922 "Assertion failed"
-fail # _bb922
+%catch(_bbmacro14)bb.logger.fail("String  //.\tests\all.bb line 5
+catch # _bbmacro14 _bb900 _bb910
+%{A=1,2,3,4;if((A[1]==2)== false)fail("As //.\tests\all.bb line 6
+BEGIN _bb918
+%1,2,3,4 //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 1
+BUILTIN _bb919 I1
+BUILTIN _bb920 I2
+BUILTIN _bb921 I3
+BUILTIN _bb922 I4
+%1,2,3,4 //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 1
+list A _bb919 _bb920 _bb921 _bb922
+%if((A[1]==2)== false)fail("Assertion fai //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 2
+BEGIN _bb924
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 2
+BUILTIN _bb925 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 2
+fail # _bb925
 END
-BUILTIN _bb924 Bfalse
-BUILTIN _bb926 I2
-BUILTIN _bb928 I1
-at _bb927 A _bb928
-eq _bb925 _bb927 _bb926
-eq _bb923 _bb925 _bb924
-if # _bb923 _bb921
-BEGIN _bb929
-BUILTIN _bb930 "Assertion failed"
-fail # _bb930
+%(A[1]==2)== false //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 2
+BUILTIN _bb927 Bfalse
+%A[1]==2 //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 2
+BUILTIN _bb929 I2
+%A[1] //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 2
+BUILTIN _bb931 I1
+%A[1] //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 2
+at _bb930 A _bb931
+eq _bb928 _bb930 _bb929
+eq _bb926 _bb928 _bb927
+%if((A[1]==2)== false)fail("Assertion fai //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 2
+if # _bb926 _bb924
+%if((A|next ==1)== false)fail("Assertion  //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 3
+BEGIN _bb932
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 3
+BUILTIN _bb933 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 3
+fail # _bb933
 END
-BUILTIN _bb932 Bfalse
-BUILTIN _bb934 I1
-next _bb935 A
-eq _bb933 _bb935 _bb934
-eq _bb931 _bb933 _bb932
-if # _bb931 _bb929
-BEGIN _bb936
-BUILTIN _bb937 "Assertion failed"
-fail # _bb937
+%(A|next ==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 3
+BUILTIN _bb935 Bfalse
+%A|next ==1 //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 3
+BUILTIN _bb937 I1
+%A|next //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 3
+next _bb938 A
+eq _bb936 _bb938 _bb937
+eq _bb934 _bb936 _bb935
+%if((A|next ==1)== false)fail("Assertion  //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 3
+if # _bb934 _bb932
+%if((A|next ==2)== false)fail("Assertion  //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 4
+BEGIN _bb939
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 4
+BUILTIN _bb940 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 4
+fail # _bb940
 END
-BUILTIN _bb939 Bfalse
-BUILTIN _bb941 I2
-next _bb942 A
-eq _bb940 _bb942 _bb941
-eq _bb938 _bb940 _bb939
-if # _bb938 _bb936
-BEGIN _bb943
-BUILTIN _bb944 "Assertion failed"
-fail # _bb944
+%(A|next ==2)== false //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 4
+BUILTIN _bb942 Bfalse
+%A|next ==2 //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 4
+BUILTIN _bb944 I2
+%A|next //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 4
+next _bb945 A
+eq _bb943 _bb945 _bb944
+eq _bb941 _bb943 _bb942
+%if((A|next ==2)== false)fail("Assertion  //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 4
+if # _bb941 _bb939
+%if((A|pop ==4)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 5
+BEGIN _bb946
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 5
+BUILTIN _bb947 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 5
+fail # _bb947
 END
-BUILTIN _bb946 Bfalse
-BUILTIN _bb948 I4
-pop _bb949 A
-eq _bb947 _bb949 _bb948
-eq _bb945 _bb947 _bb946
-if # _bb945 _bb943
-BEGIN _bb950
-BUILTIN _bb951 "Assertion failed"
-fail # _bb951
+%(A|pop ==4)== false //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 5
+BUILTIN _bb949 Bfalse
+%A|pop ==4 //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 5
+BUILTIN _bb951 I4
+%A|pop //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 5
+pop _bb952 A
+eq _bb950 _bb952 _bb951
+eq _bb948 _bb950 _bb949
+%if((A|pop ==4)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 5
+if # _bb948 _bb946
+%if((A|pop ==3)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 6
+BEGIN _bb953
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 6
+BUILTIN _bb954 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 6
+fail # _bb954
 END
-BUILTIN _bb953 Bfalse
-BUILTIN _bb955 I3
-pop _bb956 A
-eq _bb954 _bb956 _bb955
-eq _bb952 _bb954 _bb953
-if # _bb952 _bb950
-BEGIN _bb957
-BUILTIN _bb958 "Assertion failed"
-fail # _bb958
+%(A|pop ==3)== false //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 6
+BUILTIN _bb956 Bfalse
+%A|pop ==3 //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 6
+BUILTIN _bb958 I3
+%A|pop //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 6
+pop _bb959 A
+eq _bb957 _bb959 _bb958
+eq _bb955 _bb957 _bb956
+%if((A|pop ==3)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 6
+if # _bb955 _bb953
+%if((A|len ==0)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 7
+BEGIN _bb960
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 7
+BUILTIN _bb961 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 7
+fail # _bb961
 END
-BUILTIN _bb960 Bfalse
-BUILTIN _bb962 I0
-len _bb963 A
-eq _bb961 _bb963 _bb962
-eq _bb959 _bb961 _bb960
-if # _bb959 _bb957
-BUILTIN _bb964 I5
-push # A _bb964
-BEGIN _bb965
-BUILTIN _bb966 "Assertion failed"
-fail # _bb966
+%(A|len ==0)== false //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 7
+BUILTIN _bb963 Bfalse
+%A|len ==0 //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 7
+BUILTIN _bb965 I0
+%A|len //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 7
+len _bb966 A
+eq _bb964 _bb966 _bb965
+eq _bb962 _bb964 _bb963
+%if((A|len ==0)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 7
+if # _bb962 _bb960
+%push(A,5) //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 8
+BUILTIN _bb967 I5
+%push(A,5) //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 8
+push # A _bb967
+%if((A|pop ==5)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 9
+BEGIN _bb968
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 9
+BUILTIN _bb969 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 9
+fail # _bb969
 END
-BUILTIN _bb968 Bfalse
-BUILTIN _bb970 I5
-pop _bb971 A
-eq _bb969 _bb971 _bb970
-eq _bb967 _bb969 _bb968
-if # _bb967 _bb965
-BUILTIN _bb972 Btrue
-return # _bb972
+%(A|pop ==5)== false //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 9
+BUILTIN _bb971 Bfalse
+%A|pop ==5 //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 9
+BUILTIN _bb973 I5
+%A|pop //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 9
+pop _bb974 A
+eq _bb972 _bb974 _bb973
+eq _bb970 _bb972 _bb971
+%if((A|pop ==5)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\list.bb line 9
+if # _bb970 _bb968
+BUILTIN _bb975 Btrue
+%return true //.\tests\all.bb line 6
+return # _bb975
 END
-try _bbmacro15 _bb915
-BEGIN _bb973
-BEGIN _bb975
-str _bb977 _bbmacro15
-BUILTIN _bb979 "\n"
-BUILTIN _bb980 "List"
-add _bb978 _bb980 _bb979
-add _bb976 _bb978 _bb977
-list args _bb976
+%do{A=1,2,3,4;if((A[1]==2)== false)fail(" //.\tests\all.bb line 6
+do _bbmacro15 _bb918
+%catch(_bbmacro15)bb.logger.fail("List"+" //.\tests\all.bb line 6
+BEGIN _bb976
+%bb.logger.fail("List"+"\n"+str(_bbmacro1 //.\tests\all.bb line 6
+BEGIN _bb978
+%str(_bbmacro15) //.\tests\all.bb line 6
+str _bb980 _bbmacro15
+%"List"+"\n" //.\tests\all.bb line 6
+BUILTIN _bb982 "\n"
+BUILTIN _bb983 "List"
+add _bb981 _bb983 _bb982
+add _bb979 _bb981 _bb980
+list args _bb979
 END
-get _bb982 bb logger
-get _bb981 _bb982 fail
-call _bb974 _bb975 _bb981
+%bb.logger //.\tests\all.bb line 6
+get _bb985 bb logger
+%bb.logger.fail //.\tests\all.bb line 6
+get _bb984 _bb985 fail
+%bb.logger.fail("List"+"\n"+str(_bbmacro1 //.\tests\all.bb line 6
+call _bb977 _bb978 _bb984
 END
-BEGIN _bb983
-BEGIN _bb985
-BUILTIN _bb986 "List"
-list args _bb986
+BEGIN _bb986
+%bb.logger.ok("List") //.\tests\all.bb line 6
+BEGIN _bb988
+BUILTIN _bb989 "List"
+list args _bb989
 END
-get _bb988 bb logger
-get _bb987 _bb988 ok
-call _bb984 _bb985 _bb987
+%bb.logger //.\tests\all.bb line 6
+get _bb991 bb logger
+%bb.logger.ok //.\tests\all.bb line 6
+get _bb990 _bb991 ok
+%bb.logger.ok("List") //.\tests\all.bb line 6
+call _bb987 _bb988 _bb990
 END
-catch # _bbmacro15 _bb973 _bb983
-BEGIN _bb991
+%catch(_bbmacro15)bb.logger.fail("List"+" //.\tests\all.bb line 6
+catch # _bbmacro15 _bb976 _bb986
+%{s=0;_bbmacro17=iter(range(10));while(ia //.\tests\all.bb line 7
+BEGIN _bb994
+%s=0 //C:\Users\manio\Desktop\bloblyVM\tests\range.bb line 1
 BUILTIN s I0
-BUILTIN _bb994 I10
-range _bb993 _bb994
-iter _bbmacro17 _bb993
-BEGIN _bb996
-next _bb997 _bbmacro17
-AS i _bb997
-exists _bb998 i
-END
+%range(10) //C:\Users\manio\Desktop\bloblyVM\tests\range.bb line 2
+BUILTIN _bb997 I10
+%range(10) //C:\Users\manio\Desktop\bloblyVM\tests\range.bb line 2
+range _bb996 _bb997
+%iter(range(10)) //C:\Users\manio\Desktop\bloblyVM\tests\range.bb line 2
+iter _bbmacro17 _bb996
+%while(ias next(_bbmacro17))s+=i //C:\Users\manio\Desktop\bloblyVM\tests\range.bb line 2
 BEGIN _bb999
+%next(_bbmacro17) //C:\Users\manio\Desktop\bloblyVM\tests\range.bb line 2
+next _bb1000 _bbmacro17
+AS i _bb1000
+exists _bb1001 i
+END
+BEGIN _bb1002
+%s+=i //C:\Users\manio\Desktop\bloblyVM\tests\range.bb line 2
 add s s i
 END
-while # _bb996 _bb999
-BEGIN _bb1000
-BUILTIN _bb1001 "Assertion failed"
-fail # _bb1001
+%while(ias next(_bbmacro17))s+=i //C:\Users\manio\Desktop\bloblyVM\tests\range.bb line 2
+while # _bb999 _bb1002
+%if((s== 45)== false)fail("Assertion fail //C:\Users\manio\Desktop\bloblyVM\tests\range.bb line 3
+BEGIN _bb1003
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\range.bb line 3
+BUILTIN _bb1004 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\range.bb line 3
+fail # _bb1004
 END
-BUILTIN _bb1003 Bfalse
-BUILTIN _bb1005 I45
-eq _bb1004 s _bb1005
-eq _bb1002 _bb1004 _bb1003
-if # _bb1002 _bb1000
-BUILTIN _bb1006 Btrue
-return # _bb1006
+%(s== 45)== false //C:\Users\manio\Desktop\bloblyVM\tests\range.bb line 3
+BUILTIN _bb1006 Bfalse
+%s== 45 //C:\Users\manio\Desktop\bloblyVM\tests\range.bb line 3
+BUILTIN _bb1008 I45
+eq _bb1007 s _bb1008
+eq _bb1005 _bb1007 _bb1006
+%if((s== 45)== false)fail("Assertion fail //C:\Users\manio\Desktop\bloblyVM\tests\range.bb line 3
+if # _bb1005 _bb1003
+BUILTIN _bb1009 Btrue
+%return true //.\tests\all.bb line 7
+return # _bb1009
 END
-try _bbmacro16 _bb991
-BEGIN _bb1007
-BEGIN _bb1009
-str _bb1011 _bbmacro16
-BUILTIN _bb1013 "\n"
-BUILTIN _bb1014 "Range"
-add _bb1012 _bb1014 _bb1013
-add _bb1010 _bb1012 _bb1011
-list args _bb1010
+%do{s=0;_bbmacro17=iter(range(10));while( //.\tests\all.bb line 7
+do _bbmacro16 _bb994
+%catch(_bbmacro16)bb.logger.fail("Range"+ //.\tests\all.bb line 7
+BEGIN _bb1010
+%bb.logger.fail("Range"+"\n"+str(_bbmacro //.\tests\all.bb line 7
+BEGIN _bb1012
+%str(_bbmacro16) //.\tests\all.bb line 7
+str _bb1014 _bbmacro16
+%"Range"+"\n" //.\tests\all.bb line 7
+BUILTIN _bb1016 "\n"
+BUILTIN _bb1017 "Range"
+add _bb1015 _bb1017 _bb1016
+add _bb1013 _bb1015 _bb1014
+list args _bb1013
 END
-get _bb1016 bb logger
-get _bb1015 _bb1016 fail
-call _bb1008 _bb1009 _bb1015
+%bb.logger //.\tests\all.bb line 7
+get _bb1019 bb logger
+%bb.logger.fail //.\tests\all.bb line 7
+get _bb1018 _bb1019 fail
+%bb.logger.fail("Range"+"\n"+str(_bbmacro //.\tests\all.bb line 7
+call _bb1011 _bb1012 _bb1018
 END
-BEGIN _bb1017
-BEGIN _bb1019
-BUILTIN _bb1020 "Range"
-list args _bb1020
+BEGIN _bb1020
+%bb.logger.ok("Range") //.\tests\all.bb line 7
+BEGIN _bb1022
+BUILTIN _bb1023 "Range"
+list args _bb1023
 END
-get _bb1022 bb logger
-get _bb1021 _bb1022 ok
-call _bb1018 _bb1019 _bb1021
+%bb.logger //.\tests\all.bb line 7
+get _bb1025 bb logger
+%bb.logger.ok //.\tests\all.bb line 7
+get _bb1024 _bb1025 ok
+%bb.logger.ok("Range") //.\tests\all.bb line 7
+call _bb1021 _bb1022 _bb1024
 END
-catch # _bbmacro16 _bb1007 _bb1017
-BEGIN _bb1025
-BUILTIN _bb1026 I1
-BUILTIN _bb1027 I2
-BUILTIN _bb1028 I3
-list A _bb1026 _bb1027 _bb1028
+%catch(_bbmacro16)bb.logger.fail("Range"+ //.\tests\all.bb line 7
+catch # _bbmacro16 _bb1010 _bb1020
+%{A=1,2,3;s=0;_bbmacro19=iter(A);while(xa //.\tests\all.bb line 8
+BEGIN _bb1028
+%1,2,3 //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 1
+BUILTIN _bb1029 I1
+BUILTIN _bb1030 I2
+BUILTIN _bb1031 I3
+%1,2,3 //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 1
+list A _bb1029 _bb1030 _bb1031
+%s=0 //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 2
 BUILTIN s I0
+%iter(A) //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 3
 iter _bbmacro19 A
-BEGIN _bb1032
-next _bb1033 _bbmacro19
-AS x _bb1033
-exists _bb1034 x
-END
+%while(xas next(_bbmacro19))s+=x //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 3
 BEGIN _bb1035
+%next(_bbmacro19) //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 3
+next _bb1036 _bbmacro19
+AS x _bb1036
+exists _bb1037 x
+END
+BEGIN _bb1038
+%s+=x //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 3
 add s s x
 END
-while # _bb1032 _bb1035
+%while(xas next(_bbmacro19))s+=x //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 3
+while # _bb1035 _bb1038
+%iter(A) //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 5
 iter it A
-BEGIN _bb1037
-next _bb1038 it
-AS x _bb1038
-exists _bb1039 x
-END
+%while(xas bbvm::next(it))s-=x //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 6
 BEGIN _bb1040
+%bbvm::next(it) //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 6
+next _bb1041 it
+AS x _bb1041
+exists _bb1042 x
+END
+BEGIN _bb1043
+%s-=x //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 6
 sub s s x
 END
-while # _bb1037 _bb1040
-BEGIN _bb1041
-BUILTIN _bb1042 "Assertion failed"
-fail # _bb1042
+%while(xas bbvm::next(it))s-=x //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 6
+while # _bb1040 _bb1043
+%if((s==0)== false)fail("Assertion failed //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 8
+BEGIN _bb1044
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 8
+BUILTIN _bb1045 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 8
+fail # _bb1045
 END
-BUILTIN _bb1044 Bfalse
-BUILTIN _bb1046 I0
-eq _bb1045 s _bb1046
-eq _bb1043 _bb1045 _bb1044
-if # _bb1043 _bb1041
-BUILTIN _bb1047 Btrue
-return # _bb1047
+%(s==0)== false //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 8
+BUILTIN _bb1047 Bfalse
+%s==0 //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 8
+BUILTIN _bb1049 I0
+eq _bb1048 s _bb1049
+eq _bb1046 _bb1048 _bb1047
+%if((s==0)== false)fail("Assertion failed //C:\Users\manio\Desktop\bloblyVM\tests\iter.bb line 8
+if # _bb1046 _bb1044
+BUILTIN _bb1050 Btrue
+%return true //.\tests\all.bb line 8
+return # _bb1050
 END
-try _bbmacro18 _bb1025
-BEGIN _bb1048
-BEGIN _bb1050
-str _bb1052 _bbmacro18
-BUILTIN _bb1054 "\n"
-BUILTIN _bb1055 "Iteration"
-add _bb1053 _bb1055 _bb1054
-add _bb1051 _bb1053 _bb1052
-list args _bb1051
+%do{A=1,2,3;s=0;_bbmacro19=iter(A);while( //.\tests\all.bb line 8
+do _bbmacro18 _bb1028
+%catch(_bbmacro18)bb.logger.fail("Iterati //.\tests\all.bb line 8
+BEGIN _bb1051
+%bb.logger.fail("Iteration"+"\n"+str(_bbm //.\tests\all.bb line 8
+BEGIN _bb1053
+%str(_bbmacro18) //.\tests\all.bb line 8
+str _bb1055 _bbmacro18
+%"Iteration"+"\n" //.\tests\all.bb line 8
+BUILTIN _bb1057 "\n"
+BUILTIN _bb1058 "Iteration"
+add _bb1056 _bb1058 _bb1057
+add _bb1054 _bb1056 _bb1055
+list args _bb1054
 END
-get _bb1057 bb logger
-get _bb1056 _bb1057 fail
-call _bb1049 _bb1050 _bb1056
+%bb.logger //.\tests\all.bb line 8
+get _bb1060 bb logger
+%bb.logger.fail //.\tests\all.bb line 8
+get _bb1059 _bb1060 fail
+%bb.logger.fail("Iteration"+"\n"+str(_bbm //.\tests\all.bb line 8
+call _bb1052 _bb1053 _bb1059
 END
-BEGIN _bb1058
-BEGIN _bb1060
-BUILTIN _bb1061 "Iteration"
-list args _bb1061
+BEGIN _bb1061
+%bb.logger.ok("Iteration") //.\tests\all.bb line 8
+BEGIN _bb1063
+BUILTIN _bb1064 "Iteration"
+list args _bb1064
 END
-get _bb1063 bb logger
-get _bb1062 _bb1063 ok
-call _bb1059 _bb1060 _bb1062
+%bb.logger //.\tests\all.bb line 8
+get _bb1066 bb logger
+%bb.logger.ok //.\tests\all.bb line 8
+get _bb1065 _bb1066 ok
+%bb.logger.ok("Iteration") //.\tests\all.bb line 8
+call _bb1062 _bb1063 _bb1065
 END
-catch # _bbmacro18 _bb1048 _bb1058
-BEGIN _bb1066
+%catch(_bbmacro18)bb.logger.fail("Iterati //.\tests\all.bb line 8
+catch # _bbmacro18 _bb1051 _bb1061
+%{A=map();A["test"]=1;if((A["test"]==1)== //.\tests\all.bb line 9
+BEGIN _bb1069
+%map() //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 1
 map A
-BUILTIN _bb1068 I1
-BUILTIN _bb1069 "test"
-put # A _bb1069 _bb1068
-BEGIN _bb1070
-BUILTIN _bb1071 "Assertion failed"
-fail # _bb1071
+%A["test"]=1 //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 2
+BUILTIN _bb1071 I1
+BUILTIN _bb1072 "test"
+put # A _bb1072 _bb1071
+%if((A["test"]==1)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 3
+BEGIN _bb1073
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 3
+BUILTIN _bb1074 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 3
+fail # _bb1074
 END
-BUILTIN _bb1073 Bfalse
-BUILTIN _bb1075 I1
-BUILTIN _bb1077 "test"
-at _bb1076 A _bb1077
-eq _bb1074 _bb1076 _bb1075
-eq _bb1072 _bb1074 _bb1073
-if # _bb1072 _bb1070
+%(A["test"]==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 3
+BUILTIN _bb1076 Bfalse
+%A["test"]==1 //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 3
+BUILTIN _bb1078 I1
+%A["test"] //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 3
+BUILTIN _bb1080 "test"
+%A["test"] //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 3
+at _bb1079 A _bb1080
+eq _bb1077 _bb1079 _bb1078
+eq _bb1075 _bb1077 _bb1076
+%if((A["test"]==1)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 3
+if # _bb1075 _bb1073
+%clear(A) //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 4
 clear # A
-BUILTIN _bb1079 "a"
-BUILTIN _bb1080 I1
-list _bb1081 _bb1079 _bb1080
-BUILTIN _bb1082 "b"
-BUILTIN _bb1083 I2
+%"a",1 //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 7
+BUILTIN _bb1082 "a"
+BUILTIN _bb1083 I1
+%"a",1 //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 7
 list _bb1084 _bb1082 _bb1083
-BUILTIN _bb1085 "c"
-BUILTIN _bb1086 I3
+%"b",2 //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 8
+BUILTIN _bb1085 "b"
+BUILTIN _bb1086 I2
+%"b",2 //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 8
 list _bb1087 _bb1085 _bb1086
-list _bb1088 _bb1081 _bb1084 _bb1087
-map A _bb1088
-BEGIN _bb1090
-BUILTIN _bb1091 "Assertion failed"
-fail # _bb1091
+%"c",3 //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 9
+BUILTIN _bb1088 "c"
+BUILTIN _bb1089 I3
+%"c",3 //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 9
+list _bb1090 _bb1088 _bb1089
+%("a",1),("b",2),("c",3) //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 7
+list _bb1091 _bb1084 _bb1087 _bb1090
+%map(("a",1),("b",2),("c",3)) //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 6
+map A _bb1091
+%if((A["a"]==1)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 10
+BEGIN _bb1093
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 10
+BUILTIN _bb1094 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 10
+fail # _bb1094
 END
-BUILTIN _bb1093 Bfalse
-BUILTIN _bb1095 I1
-BUILTIN _bb1097 "a"
-at _bb1096 A _bb1097
-eq _bb1094 _bb1096 _bb1095
-eq _bb1092 _bb1094 _bb1093
-if # _bb1092 _bb1090
-BEGIN _bb1098
-BUILTIN _bb1099 "Assertion failed"
-fail # _bb1099
+%(A["a"]==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 10
+BUILTIN _bb1096 Bfalse
+%A["a"]==1 //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 10
+BUILTIN _bb1098 I1
+%A["a"] //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 10
+BUILTIN _bb1100 "a"
+%A["a"] //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 10
+at _bb1099 A _bb1100
+eq _bb1097 _bb1099 _bb1098
+eq _bb1095 _bb1097 _bb1096
+%if((A["a"]==1)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 10
+if # _bb1095 _bb1093
+%if((A["b"]==2)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 11
+BEGIN _bb1101
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 11
+BUILTIN _bb1102 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 11
+fail # _bb1102
 END
-BUILTIN _bb1101 Bfalse
-BUILTIN _bb1103 I2
-BUILTIN _bb1105 "b"
-at _bb1104 A _bb1105
-eq _bb1102 _bb1104 _bb1103
-eq _bb1100 _bb1102 _bb1101
-if # _bb1100 _bb1098
-BEGIN _bb1106
-BUILTIN _bb1107 "Assertion failed"
-fail # _bb1107
+%(A["b"]==2)== false //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 11
+BUILTIN _bb1104 Bfalse
+%A["b"]==2 //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 11
+BUILTIN _bb1106 I2
+%A["b"] //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 11
+BUILTIN _bb1108 "b"
+%A["b"] //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 11
+at _bb1107 A _bb1108
+eq _bb1105 _bb1107 _bb1106
+eq _bb1103 _bb1105 _bb1104
+%if((A["b"]==2)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 11
+if # _bb1103 _bb1101
+%if((A["c"]==3)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 12
+BEGIN _bb1109
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 12
+BUILTIN _bb1110 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 12
+fail # _bb1110
 END
-BUILTIN _bb1109 Bfalse
-BUILTIN _bb1111 I3
-BUILTIN _bb1113 "c"
-at _bb1112 A _bb1113
-eq _bb1110 _bb1112 _bb1111
-eq _bb1108 _bb1110 _bb1109
-if # _bb1108 _bb1106
-BUILTIN _bb1114 Btrue
-return # _bb1114
+%(A["c"]==3)== false //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 12
+BUILTIN _bb1112 Bfalse
+%A["c"]==3 //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 12
+BUILTIN _bb1114 I3
+%A["c"] //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 12
+BUILTIN _bb1116 "c"
+%A["c"] //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 12
+at _bb1115 A _bb1116
+eq _bb1113 _bb1115 _bb1114
+eq _bb1111 _bb1113 _bb1112
+%if((A["c"]==3)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\map.bb line 12
+if # _bb1111 _bb1109
+BUILTIN _bb1117 Btrue
+%return true //.\tests\all.bb line 9
+return # _bb1117
 END
-try _bbmacro20 _bb1066
-BEGIN _bb1115
-BEGIN _bb1117
-str _bb1119 _bbmacro20
-BUILTIN _bb1121 "\n"
-BUILTIN _bb1122 "Map"
-add _bb1120 _bb1122 _bb1121
-add _bb1118 _bb1120 _bb1119
-list args _bb1118
+%do{A=map();A["test"]=1;if((A["test"]==1) //.\tests\all.bb line 9
+do _bbmacro20 _bb1069
+%catch(_bbmacro20)bb.logger.fail("Map"+"\ //.\tests\all.bb line 9
+BEGIN _bb1118
+%bb.logger.fail("Map"+"\n"+str(_bbmacro20 //.\tests\all.bb line 9
+BEGIN _bb1120
+%str(_bbmacro20) //.\tests\all.bb line 9
+str _bb1122 _bbmacro20
+%"Map"+"\n" //.\tests\all.bb line 9
+BUILTIN _bb1124 "\n"
+BUILTIN _bb1125 "Map"
+add _bb1123 _bb1125 _bb1124
+add _bb1121 _bb1123 _bb1122
+list args _bb1121
 END
-get _bb1124 bb logger
-get _bb1123 _bb1124 fail
-call _bb1116 _bb1117 _bb1123
+%bb.logger //.\tests\all.bb line 9
+get _bb1127 bb logger
+%bb.logger.fail //.\tests\all.bb line 9
+get _bb1126 _bb1127 fail
+%bb.logger.fail("Map"+"\n"+str(_bbmacro20 //.\tests\all.bb line 9
+call _bb1119 _bb1120 _bb1126
 END
-BEGIN _bb1125
-BEGIN _bb1127
-BUILTIN _bb1128 "Map"
-list args _bb1128
+BEGIN _bb1128
+%bb.logger.ok("Map") //.\tests\all.bb line 9
+BEGIN _bb1130
+BUILTIN _bb1131 "Map"
+list args _bb1131
 END
-get _bb1130 bb logger
-get _bb1129 _bb1130 ok
-call _bb1126 _bb1127 _bb1129
+%bb.logger //.\tests\all.bb line 9
+get _bb1133 bb logger
+%bb.logger.ok //.\tests\all.bb line 9
+get _bb1132 _bb1133 ok
+%bb.logger.ok("Map") //.\tests\all.bb line 9
+call _bb1129 _bb1130 _bb1132
 END
-catch # _bbmacro20 _bb1115 _bb1125
-BEGIN _bb1133
-BUILTIN _bb1134 I0
-BUILTIN _bb1135 I1
-list _bb1136 _bb1134 _bb1135
-vector A _bb1136
-BUILTIN _bb1138 I2
-BUILTIN _bb1139 I3
-list _bb1140 _bb1138 _bb1139
-vector B _bb1140
-BEGIN _bb1142
-BUILTIN _bb1143 "Assertion failed"
-fail # _bb1143
+%catch(_bbmacro20)bb.logger.fail("Map"+"\ //.\tests\all.bb line 9
+catch # _bbmacro20 _bb1118 _bb1128
+%{A=vector(0,1);B=vector(2,3);if((min(B)= //.\tests\all.bb line 10
+BEGIN _bb1136
+%0,1 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 1
+BUILTIN _bb1137 I0
+BUILTIN _bb1138 I1
+%0,1 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 1
+list _bb1139 _bb1137 _bb1138
+%vector(0,1) //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 1
+vector A _bb1139
+%2,3 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 2
+BUILTIN _bb1141 I2
+BUILTIN _bb1142 I3
+%2,3 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 2
+list _bb1143 _bb1141 _bb1142
+%vector(2,3) //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 2
+vector B _bb1143
+%if((min(B)==2)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 4
+BEGIN _bb1145
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 4
+BUILTIN _bb1146 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 4
+fail # _bb1146
 END
-BUILTIN _bb1145 Bfalse
-BUILTIN _bb1147 I2
-min _bb1148 B
-eq _bb1146 _bb1148 _bb1147
-eq _bb1144 _bb1146 _bb1145
-if # _bb1144 _bb1142
-BEGIN _bb1149
-BUILTIN _bb1150 "Assertion failed"
-fail # _bb1150
+%(min(B)==2)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 4
+BUILTIN _bb1148 Bfalse
+%min(B)==2 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 4
+BUILTIN _bb1150 I2
+%min(B) //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 4
+min _bb1151 B
+eq _bb1149 _bb1151 _bb1150
+eq _bb1147 _bb1149 _bb1148
+%if((min(B)==2)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 4
+if # _bb1147 _bb1145
+%if((max(B)==3)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 5
+BEGIN _bb1152
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 5
+BUILTIN _bb1153 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 5
+fail # _bb1153
 END
-BUILTIN _bb1152 Bfalse
-BUILTIN _bb1154 I3
-max _bb1155 B
-eq _bb1153 _bb1155 _bb1154
-eq _bb1151 _bb1153 _bb1152
-if # _bb1151 _bb1149
-BEGIN _bb1156
-BUILTIN _bb1157 "Assertion failed"
-fail # _bb1157
+%(max(B)==3)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 5
+BUILTIN _bb1155 Bfalse
+%max(B)==3 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 5
+BUILTIN _bb1157 I3
+%max(B) //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 5
+max _bb1158 B
+eq _bb1156 _bb1158 _bb1157
+eq _bb1154 _bb1156 _bb1155
+%if((max(B)==3)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 5
+if # _bb1154 _bb1152
+%if((sum(A)==1)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 6
+BEGIN _bb1159
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 6
+BUILTIN _bb1160 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 6
+fail # _bb1160
 END
-BUILTIN _bb1159 Bfalse
-BUILTIN _bb1161 I1
-sum _bb1162 A
-eq _bb1160 _bb1162 _bb1161
-eq _bb1158 _bb1160 _bb1159
-if # _bb1158 _bb1156
-BEGIN _bb1163
-BUILTIN _bb1164 "Assertion failed"
-fail # _bb1164
+%(sum(A)==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 6
+BUILTIN _bb1162 Bfalse
+%sum(A)==1 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 6
+BUILTIN _bb1164 I1
+%sum(A) //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 6
+sum _bb1165 A
+eq _bb1163 _bb1165 _bb1164
+eq _bb1161 _bb1163 _bb1162
+%if((sum(A)==1)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 6
+if # _bb1161 _bb1159
+%if(((A+B)[0]==2)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 7
+BEGIN _bb1166
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 7
+BUILTIN _bb1167 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 7
+fail # _bb1167
 END
-BUILTIN _bb1166 Bfalse
-BUILTIN _bb1168 I2
-BUILTIN _bb1170 I0
-add _bb1171 A B
-at _bb1169 _bb1171 _bb1170
-eq _bb1167 _bb1169 _bb1168
-eq _bb1165 _bb1167 _bb1166
-if # _bb1165 _bb1163
-BEGIN _bb1172
-BUILTIN _bb1173 "Assertion failed"
-fail # _bb1173
+%((A+B)[0]==2)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 7
+BUILTIN _bb1169 Bfalse
+%(A+B)[0]==2 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 7
+BUILTIN _bb1171 I2
+%(A+B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 7
+BUILTIN _bb1173 I0
+%A+B //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 7
+add _bb1174 A B
+%(A+B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 7
+at _bb1172 _bb1174 _bb1173
+eq _bb1170 _bb1172 _bb1171
+eq _bb1168 _bb1170 _bb1169
+%if(((A+B)[0]==2)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 7
+if # _bb1168 _bb1166
+%if(((A+B)[1]==4)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 8
+BEGIN _bb1175
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 8
+BUILTIN _bb1176 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 8
+fail # _bb1176
 END
-BUILTIN _bb1175 Bfalse
-BUILTIN _bb1177 I4
-BUILTIN _bb1179 I1
-add _bb1180 A B
-at _bb1178 _bb1180 _bb1179
-eq _bb1176 _bb1178 _bb1177
-eq _bb1174 _bb1176 _bb1175
-if # _bb1174 _bb1172
-BEGIN _bb1181
-BUILTIN _bb1182 "Assertion failed"
-fail # _bb1182
+%((A+B)[1]==4)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 8
+BUILTIN _bb1178 Bfalse
+%(A+B)[1]==4 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 8
+BUILTIN _bb1180 I4
+%(A+B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 8
+BUILTIN _bb1182 I1
+%A+B //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 8
+add _bb1183 A B
+%(A+B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 8
+at _bb1181 _bb1183 _bb1182
+eq _bb1179 _bb1181 _bb1180
+eq _bb1177 _bb1179 _bb1178
+%if(((A+B)[1]==4)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 8
+if # _bb1177 _bb1175
+%if(((A*B)[0]==0)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 9
+BEGIN _bb1184
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 9
+BUILTIN _bb1185 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 9
+fail # _bb1185
 END
-BUILTIN _bb1184 Bfalse
-BUILTIN _bb1186 I0
-BUILTIN _bb1188 I0
-mul _bb1189 A B
-at _bb1187 _bb1189 _bb1188
-eq _bb1185 _bb1187 _bb1186
-eq _bb1183 _bb1185 _bb1184
-if # _bb1183 _bb1181
-BEGIN _bb1190
-BUILTIN _bb1191 "Assertion failed"
-fail # _bb1191
+%((A*B)[0]==0)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 9
+BUILTIN _bb1187 Bfalse
+%(A*B)[0]==0 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 9
+BUILTIN _bb1189 I0
+%(A*B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 9
+BUILTIN _bb1191 I0
+%A*B //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 9
+mul _bb1192 A B
+%(A*B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 9
+at _bb1190 _bb1192 _bb1191
+eq _bb1188 _bb1190 _bb1189
+eq _bb1186 _bb1188 _bb1187
+%if(((A*B)[0]==0)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 9
+if # _bb1186 _bb1184
+%if(((A*B)[1]==3)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 10
+BEGIN _bb1193
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 10
+BUILTIN _bb1194 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 10
+fail # _bb1194
 END
-BUILTIN _bb1193 Bfalse
-BUILTIN _bb1195 I3
-BUILTIN _bb1197 I1
-mul _bb1198 A B
-at _bb1196 _bb1198 _bb1197
-eq _bb1194 _bb1196 _bb1195
-eq _bb1192 _bb1194 _bb1193
-if # _bb1192 _bb1190
-BEGIN _bb1199
-BUILTIN _bb1200 "Assertion failed"
-fail # _bb1200
+%((A*B)[1]==3)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 10
+BUILTIN _bb1196 Bfalse
+%(A*B)[1]==3 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 10
+BUILTIN _bb1198 I3
+%(A*B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 10
+BUILTIN _bb1200 I1
+%A*B //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 10
+mul _bb1201 A B
+%(A*B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 10
+at _bb1199 _bb1201 _bb1200
+eq _bb1197 _bb1199 _bb1198
+eq _bb1195 _bb1197 _bb1196
+%if(((A*B)[1]==3)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 10
+if # _bb1195 _bb1193
+%if(((A/B)[0]==0)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 11
+BEGIN _bb1202
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 11
+BUILTIN _bb1203 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 11
+fail # _bb1203
 END
-BUILTIN _bb1202 Bfalse
-BUILTIN _bb1204 I0
-BUILTIN _bb1206 I0
-div _bb1207 A B
-at _bb1205 _bb1207 _bb1206
-eq _bb1203 _bb1205 _bb1204
-eq _bb1201 _bb1203 _bb1202
-if # _bb1201 _bb1199
-BEGIN _bb1208
-BUILTIN _bb1209 "Assertion failed"
-fail # _bb1209
+%((A/B)[0]==0)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 11
+BUILTIN _bb1205 Bfalse
+%(A/B)[0]==0 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 11
+BUILTIN _bb1207 I0
+%(A/B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 11
+BUILTIN _bb1209 I0
+%A/B //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 11
+div _bb1210 A B
+%(A/B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 11
+at _bb1208 _bb1210 _bb1209
+eq _bb1206 _bb1208 _bb1207
+eq _bb1204 _bb1206 _bb1205
+%if(((A/B)[0]==0)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 11
+if # _bb1204 _bb1202
+%if(((A/B)[1]==1/3)== false)fail("Asserti //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 12
+BEGIN _bb1211
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 12
+BUILTIN _bb1212 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 12
+fail # _bb1212
 END
-BUILTIN _bb1211 Bfalse
-BUILTIN _bb1214 I3
-BUILTIN _bb1215 I1
-div _bb1213 _bb1215 _bb1214
-BUILTIN _bb1217 I1
-div _bb1218 A B
-at _bb1216 _bb1218 _bb1217
-eq _bb1212 _bb1216 _bb1213
-eq _bb1210 _bb1212 _bb1211
-if # _bb1210 _bb1208
-BEGIN _bb1219
-BUILTIN _bb1220 "Assertion failed"
-fail # _bb1220
+%((A/B)[1]==1/3)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 12
+BUILTIN _bb1214 Bfalse
+%1/3 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 12
+BUILTIN _bb1217 I3
+BUILTIN _bb1218 I1
+div _bb1216 _bb1218 _bb1217
+%(A/B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 12
+BUILTIN _bb1220 I1
+%A/B //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 12
+div _bb1221 A B
+%(A/B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 12
+at _bb1219 _bb1221 _bb1220
+eq _bb1215 _bb1219 _bb1216
+eq _bb1213 _bb1215 _bb1214
+%if(((A/B)[1]==1/3)== false)fail("Asserti //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 12
+if # _bb1213 _bb1211
+%if(((A^B)[0]==0)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 13
+BEGIN _bb1222
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 13
+BUILTIN _bb1223 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 13
+fail # _bb1223
 END
-BUILTIN _bb1222 Bfalse
-BUILTIN _bb1224 I0
-BUILTIN _bb1226 I0
-pow _bb1227 A B
-at _bb1225 _bb1227 _bb1226
-eq _bb1223 _bb1225 _bb1224
-eq _bb1221 _bb1223 _bb1222
-if # _bb1221 _bb1219
-BEGIN _bb1228
-BUILTIN _bb1229 "Assertion failed"
-fail # _bb1229
+%((A^B)[0]==0)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 13
+BUILTIN _bb1225 Bfalse
+%(A^B)[0]==0 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 13
+BUILTIN _bb1227 I0
+%(A^B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 13
+BUILTIN _bb1229 I0
+%A^B //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 13
+pow _bb1230 A B
+%(A^B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 13
+at _bb1228 _bb1230 _bb1229
+eq _bb1226 _bb1228 _bb1227
+eq _bb1224 _bb1226 _bb1225
+%if(((A^B)[0]==0)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 13
+if # _bb1224 _bb1222
+%if(((A^B)[1]==1)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 14
+BEGIN _bb1231
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 14
+BUILTIN _bb1232 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 14
+fail # _bb1232
 END
-BUILTIN _bb1231 Bfalse
-BUILTIN _bb1233 I1
-BUILTIN _bb1235 I1
-pow _bb1236 A B
-at _bb1234 _bb1236 _bb1235
-eq _bb1232 _bb1234 _bb1233
-eq _bb1230 _bb1232 _bb1231
-if # _bb1230 _bb1228
-BEGIN _bb1237
-BUILTIN _bb1238 "Assertion failed"
-fail # _bb1238
+%((A^B)[1]==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 14
+BUILTIN _bb1234 Bfalse
+%(A^B)[1]==1 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 14
+BUILTIN _bb1236 I1
+%(A^B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 14
+BUILTIN _bb1238 I1
+%A^B //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 14
+pow _bb1239 A B
+%(A^B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 14
+at _bb1237 _bb1239 _bb1238
+eq _bb1235 _bb1237 _bb1236
+eq _bb1233 _bb1235 _bb1234
+%if(((A^B)[1]==1)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 14
+if # _bb1233 _bb1231
+%if(((A<B)[0]==1)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 15
+BEGIN _bb1240
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 15
+BUILTIN _bb1241 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 15
+fail # _bb1241
 END
-BUILTIN _bb1240 Bfalse
-BUILTIN _bb1242 I1
-BUILTIN _bb1244 I0
-lt _bb1245 A B
-at _bb1243 _bb1245 _bb1244
-eq _bb1241 _bb1243 _bb1242
-eq _bb1239 _bb1241 _bb1240
-if # _bb1239 _bb1237
-BEGIN _bb1246
-BUILTIN _bb1247 "Assertion failed"
-fail # _bb1247
+%((A<B)[0]==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 15
+BUILTIN _bb1243 Bfalse
+%(A<B)[0]==1 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 15
+BUILTIN _bb1245 I1
+%(A<B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 15
+BUILTIN _bb1247 I0
+%A<B //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 15
+lt _bb1248 A B
+%(A<B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 15
+at _bb1246 _bb1248 _bb1247
+eq _bb1244 _bb1246 _bb1245
+eq _bb1242 _bb1244 _bb1243
+%if(((A<B)[0]==1)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 15
+if # _bb1242 _bb1240
+%if(((A<B)[1]==1)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 16
+BEGIN _bb1249
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 16
+BUILTIN _bb1250 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 16
+fail # _bb1250
 END
-BUILTIN _bb1249 Bfalse
-BUILTIN _bb1251 I1
-BUILTIN _bb1253 I1
-lt _bb1254 A B
-at _bb1252 _bb1254 _bb1253
-eq _bb1250 _bb1252 _bb1251
-eq _bb1248 _bb1250 _bb1249
-if # _bb1248 _bb1246
-BEGIN _bb1255
-BUILTIN _bb1256 "Assertion failed"
-fail # _bb1256
+%((A<B)[1]==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 16
+BUILTIN _bb1252 Bfalse
+%(A<B)[1]==1 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 16
+BUILTIN _bb1254 I1
+%(A<B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 16
+BUILTIN _bb1256 I1
+%A<B //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 16
+lt _bb1257 A B
+%(A<B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 16
+at _bb1255 _bb1257 _bb1256
+eq _bb1253 _bb1255 _bb1254
+eq _bb1251 _bb1253 _bb1252
+%if(((A<B)[1]==1)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 16
+if # _bb1251 _bb1249
+%if(((A>B)[0]==0)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 17
+BEGIN _bb1258
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 17
+BUILTIN _bb1259 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 17
+fail # _bb1259
 END
-BUILTIN _bb1258 Bfalse
-BUILTIN _bb1260 I0
-BUILTIN _bb1262 I0
-gt _bb1263 A B
-at _bb1261 _bb1263 _bb1262
-eq _bb1259 _bb1261 _bb1260
-eq _bb1257 _bb1259 _bb1258
-if # _bb1257 _bb1255
-BEGIN _bb1264
-BUILTIN _bb1265 "Assertion failed"
-fail # _bb1265
+%((A>B)[0]==0)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 17
+BUILTIN _bb1261 Bfalse
+%(A>B)[0]==0 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 17
+BUILTIN _bb1263 I0
+%(A>B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 17
+BUILTIN _bb1265 I0
+%A>B //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 17
+gt _bb1266 A B
+%(A>B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 17
+at _bb1264 _bb1266 _bb1265
+eq _bb1262 _bb1264 _bb1263
+eq _bb1260 _bb1262 _bb1261
+%if(((A>B)[0]==0)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 17
+if # _bb1260 _bb1258
+%if(((A>B)[1]==0)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 18
+BEGIN _bb1267
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 18
+BUILTIN _bb1268 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 18
+fail # _bb1268
 END
-BUILTIN _bb1267 Bfalse
-BUILTIN _bb1269 I0
-BUILTIN _bb1271 I1
-gt _bb1272 A B
-at _bb1270 _bb1272 _bb1271
-eq _bb1268 _bb1270 _bb1269
-eq _bb1266 _bb1268 _bb1267
-if # _bb1266 _bb1264
-BEGIN _bb1273
-BUILTIN _bb1274 "Assertion failed"
-fail # _bb1274
+%((A>B)[1]==0)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 18
+BUILTIN _bb1270 Bfalse
+%(A>B)[1]==0 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 18
+BUILTIN _bb1272 I0
+%(A>B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 18
+BUILTIN _bb1274 I1
+%A>B //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 18
+gt _bb1275 A B
+%(A>B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 18
+at _bb1273 _bb1275 _bb1274
+eq _bb1271 _bb1273 _bb1272
+eq _bb1269 _bb1271 _bb1270
+%if(((A>B)[1]==0)== false)fail("Assertion //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 18
+if # _bb1269 _bb1267
+%if(((A<=B)[0]==1)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 19
+BEGIN _bb1276
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 19
+BUILTIN _bb1277 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 19
+fail # _bb1277
 END
-BUILTIN _bb1276 Bfalse
-BUILTIN _bb1278 I1
-BUILTIN _bb1280 I0
-le _bb1281 A B
-at _bb1279 _bb1281 _bb1280
-eq _bb1277 _bb1279 _bb1278
-eq _bb1275 _bb1277 _bb1276
-if # _bb1275 _bb1273
-BEGIN _bb1282
-BUILTIN _bb1283 "Assertion failed"
-fail # _bb1283
+%((A<=B)[0]==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 19
+BUILTIN _bb1279 Bfalse
+%(A<=B)[0]==1 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 19
+BUILTIN _bb1281 I1
+%(A<=B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 19
+BUILTIN _bb1283 I0
+%A<=B //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 19
+le _bb1284 A B
+%(A<=B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 19
+at _bb1282 _bb1284 _bb1283
+eq _bb1280 _bb1282 _bb1281
+eq _bb1278 _bb1280 _bb1279
+%if(((A<=B)[0]==1)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 19
+if # _bb1278 _bb1276
+%if(((A<=B)[1]==1)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 20
+BEGIN _bb1285
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 20
+BUILTIN _bb1286 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 20
+fail # _bb1286
 END
-BUILTIN _bb1285 Bfalse
-BUILTIN _bb1287 I1
-BUILTIN _bb1289 I1
-le _bb1290 A B
-at _bb1288 _bb1290 _bb1289
-eq _bb1286 _bb1288 _bb1287
-eq _bb1284 _bb1286 _bb1285
-if # _bb1284 _bb1282
-BEGIN _bb1291
-BUILTIN _bb1292 "Assertion failed"
-fail # _bb1292
+%((A<=B)[1]==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 20
+BUILTIN _bb1288 Bfalse
+%(A<=B)[1]==1 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 20
+BUILTIN _bb1290 I1
+%(A<=B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 20
+BUILTIN _bb1292 I1
+%A<=B //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 20
+le _bb1293 A B
+%(A<=B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 20
+at _bb1291 _bb1293 _bb1292
+eq _bb1289 _bb1291 _bb1290
+eq _bb1287 _bb1289 _bb1288
+%if(((A<=B)[1]==1)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 20
+if # _bb1287 _bb1285
+%if(((A>=B)[0]==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 21
+BEGIN _bb1294
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 21
+BUILTIN _bb1295 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 21
+fail # _bb1295
 END
-BUILTIN _bb1294 Bfalse
-BUILTIN _bb1296 I0
-BUILTIN _bb1298 I0
-ge _bb1299 A B
-at _bb1297 _bb1299 _bb1298
-eq _bb1295 _bb1297 _bb1296
-eq _bb1293 _bb1295 _bb1294
-if # _bb1293 _bb1291
-BEGIN _bb1300
-BUILTIN _bb1301 "Assertion failed"
-fail # _bb1301
+%((A>=B)[0]==0)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 21
+BUILTIN _bb1297 Bfalse
+%(A>=B)[0]==0 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 21
+BUILTIN _bb1299 I0
+%(A>=B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 21
+BUILTIN _bb1301 I0
+%A>=B //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 21
+ge _bb1302 A B
+%(A>=B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 21
+at _bb1300 _bb1302 _bb1301
+eq _bb1298 _bb1300 _bb1299
+eq _bb1296 _bb1298 _bb1297
+%if(((A>=B)[0]==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 21
+if # _bb1296 _bb1294
+%if(((A>=B)[1]==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 22
+BEGIN _bb1303
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 22
+BUILTIN _bb1304 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 22
+fail # _bb1304
 END
-BUILTIN _bb1303 Bfalse
-BUILTIN _bb1305 I0
-BUILTIN _bb1307 I1
-ge _bb1308 A B
-at _bb1306 _bb1308 _bb1307
-eq _bb1304 _bb1306 _bb1305
-eq _bb1302 _bb1304 _bb1303
-if # _bb1302 _bb1300
-BEGIN _bb1309
-BUILTIN _bb1310 "Assertion failed"
-fail # _bb1310
+%((A>=B)[1]==0)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 22
+BUILTIN _bb1306 Bfalse
+%(A>=B)[1]==0 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 22
+BUILTIN _bb1308 I0
+%(A>=B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 22
+BUILTIN _bb1310 I1
+%A>=B //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 22
+ge _bb1311 A B
+%(A>=B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 22
+at _bb1309 _bb1311 _bb1310
+eq _bb1307 _bb1309 _bb1308
+eq _bb1305 _bb1307 _bb1306
+%if(((A>=B)[1]==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 22
+if # _bb1305 _bb1303
+%if(((A+3<=B)[0]==0)== false)fail("Assert //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 23
+BEGIN _bb1312
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 23
+BUILTIN _bb1313 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 23
+fail # _bb1313
 END
-BUILTIN _bb1312 Bfalse
-BUILTIN _bb1314 I0
-BUILTIN _bb1316 I0
-BUILTIN _bb1319 I3
-add _bb1318 A _bb1319
-le _bb1317 _bb1318 B
-at _bb1315 _bb1317 _bb1316
-eq _bb1313 _bb1315 _bb1314
-eq _bb1311 _bb1313 _bb1312
-if # _bb1311 _bb1309
-BEGIN _bb1320
-BUILTIN _bb1321 "Assertion failed"
-fail # _bb1321
+%((A+3<=B)[0]==0)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 23
+BUILTIN _bb1315 Bfalse
+%(A+3<=B)[0]==0 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 23
+BUILTIN _bb1317 I0
+%(A+3<=B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 23
+BUILTIN _bb1319 I0
+%A+3 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 23
+BUILTIN _bb1322 I3
+add _bb1321 A _bb1322
+le _bb1320 _bb1321 B
+%(A+3<=B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 23
+at _bb1318 _bb1320 _bb1319
+eq _bb1316 _bb1318 _bb1317
+eq _bb1314 _bb1316 _bb1315
+%if(((A+3<=B)[0]==0)== false)fail("Assert //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 23
+if # _bb1314 _bb1312
+%if(((A+3>=B)[0]==1)== false)fail("Assert //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 24
+BEGIN _bb1323
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 24
+BUILTIN _bb1324 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 24
+fail # _bb1324
 END
-BUILTIN _bb1323 Bfalse
-BUILTIN _bb1325 I1
-BUILTIN _bb1327 I0
-BUILTIN _bb1330 I3
-add _bb1329 A _bb1330
-ge _bb1328 _bb1329 B
-at _bb1326 _bb1328 _bb1327
-eq _bb1324 _bb1326 _bb1325
-eq _bb1322 _bb1324 _bb1323
-if # _bb1322 _bb1320
-BEGIN _bb1331
-BUILTIN _bb1332 "Assertion failed"
-fail # _bb1332
+%((A+3>=B)[0]==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 24
+BUILTIN _bb1326 Bfalse
+%(A+3>=B)[0]==1 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 24
+BUILTIN _bb1328 I1
+%(A+3>=B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 24
+BUILTIN _bb1330 I0
+%A+3 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 24
+BUILTIN _bb1333 I3
+add _bb1332 A _bb1333
+ge _bb1331 _bb1332 B
+%(A+3>=B)[0] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 24
+at _bb1329 _bb1331 _bb1330
+eq _bb1327 _bb1329 _bb1328
+eq _bb1325 _bb1327 _bb1326
+%if(((A+3>=B)[0]==1)== false)fail("Assert //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 24
+if # _bb1325 _bb1323
+%if(((A*3==B)[1]==1)== false)fail("Assert //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 25
+BEGIN _bb1334
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 25
+BUILTIN _bb1335 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 25
+fail # _bb1335
 END
-BUILTIN _bb1334 Bfalse
-BUILTIN _bb1336 I1
-BUILTIN _bb1338 I1
-BUILTIN _bb1341 I3
-mul _bb1340 A _bb1341
-eq _bb1339 _bb1340 B
-at _bb1337 _bb1339 _bb1338
-eq _bb1335 _bb1337 _bb1336
-eq _bb1333 _bb1335 _bb1334
-if # _bb1333 _bb1331
-BUILTIN _bb1342 Btrue
-return # _bb1342
+%((A*3==B)[1]==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 25
+BUILTIN _bb1337 Bfalse
+%(A*3==B)[1]==1 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 25
+BUILTIN _bb1339 I1
+%(A*3==B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 25
+BUILTIN _bb1341 I1
+%A*3 //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 25
+BUILTIN _bb1344 I3
+mul _bb1343 A _bb1344
+eq _bb1342 _bb1343 B
+%(A*3==B)[1] //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 25
+at _bb1340 _bb1342 _bb1341
+eq _bb1338 _bb1340 _bb1339
+eq _bb1336 _bb1338 _bb1337
+%if(((A*3==B)[1]==1)== false)fail("Assert //C:\Users\manio\Desktop\bloblyVM\tests\vector.bb line 25
+if # _bb1336 _bb1334
+BUILTIN _bb1345 Btrue
+%return true //.\tests\all.bb line 10
+return # _bb1345
 END
-try _bbmacro21 _bb1133
-BEGIN _bb1343
-BEGIN _bb1345
-str _bb1347 _bbmacro21
-BUILTIN _bb1349 "\n"
-BUILTIN _bb1350 "Vector"
-add _bb1348 _bb1350 _bb1349
-add _bb1346 _bb1348 _bb1347
-list args _bb1346
+%do{A=vector(0,1);B=vector(2,3);if((min(B //.\tests\all.bb line 10
+do _bbmacro21 _bb1136
+%catch(_bbmacro21)bb.logger.fail("Vector" //.\tests\all.bb line 10
+BEGIN _bb1346
+%bb.logger.fail("Vector"+"\n"+str(_bbmacr //.\tests\all.bb line 10
+BEGIN _bb1348
+%str(_bbmacro21) //.\tests\all.bb line 10
+str _bb1350 _bbmacro21
+%"Vector"+"\n" //.\tests\all.bb line 10
+BUILTIN _bb1352 "\n"
+BUILTIN _bb1353 "Vector"
+add _bb1351 _bb1353 _bb1352
+add _bb1349 _bb1351 _bb1350
+list args _bb1349
 END
-get _bb1352 bb logger
-get _bb1351 _bb1352 fail
-call _bb1344 _bb1345 _bb1351
+%bb.logger //.\tests\all.bb line 10
+get _bb1355 bb logger
+%bb.logger.fail //.\tests\all.bb line 10
+get _bb1354 _bb1355 fail
+%bb.logger.fail("Vector"+"\n"+str(_bbmacr //.\tests\all.bb line 10
+call _bb1347 _bb1348 _bb1354
 END
-BEGIN _bb1353
-BEGIN _bb1355
-BUILTIN _bb1356 "Vector"
-list args _bb1356
+BEGIN _bb1356
+%bb.logger.ok("Vector") //.\tests\all.bb line 10
+BEGIN _bb1358
+BUILTIN _bb1359 "Vector"
+list args _bb1359
 END
-get _bb1358 bb logger
-get _bb1357 _bb1358 ok
-call _bb1354 _bb1355 _bb1357
+%bb.logger //.\tests\all.bb line 10
+get _bb1361 bb logger
+%bb.logger.ok //.\tests\all.bb line 10
+get _bb1360 _bb1361 ok
+%bb.logger.ok("Vector") //.\tests\all.bb line 10
+call _bb1357 _bb1358 _bb1360
 END
-catch # _bbmacro21 _bb1343 _bb1353
-BEGIN _bb1361
-BEGIN _bb1362
-BEGIN _bb1363
-get _bb1364 this value
-return # _bb1364
-END
-IS int _bb1363
+%catch(_bbmacro21)bb.logger.fail("Vector" //.\tests\all.bb line 10
+catch # _bbmacro21 _bb1346 _bb1356
+%{final Num={int={return this.value;}lt(o //.\tests\all.bb line 11
+BEGIN _bb1364
+%{int={return this.value;}lt(other)={retu //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 1
 BEGIN _bb1365
+%{return this.value;} //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 2
+BEGIN _bb1366
+%this.value //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 2
+get _bb1367 this value
+%return this.value //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 2
+return # _bb1367
+END
+IS int _bb1366
+%{return this.value<other.value;} //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 3
+BEGIN _bb1368
 next other args
-get _bb1367 other value
-get _bb1368 this value
-lt _bb1366 _bb1368 _bb1367
-return # _bb1366
+%other.value //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 3
+get _bb1370 other value
+%this.value //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 3
+get _bb1371 this value
+lt _bb1369 _bb1371 _bb1370
+%return this.value<other.value //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 3
+return # _bb1369
 END
-IS lt _bb1365
-BEGIN _bb1369
-BUILTIN _bb1371 ""
-get _bb1373 this value
-str _bb1374 _bb1373
-BUILTIN _bb1375 "num "
-add _bb1372 _bb1375 _bb1374
-add _bb1370 _bb1372 _bb1371
-return # _bb1370
+IS lt _bb1368
+%{return "num "+str(this.value)+"";} //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 4
+BEGIN _bb1372
+%"num "+str(this.value)+"" //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 4
+BUILTIN _bb1374 ""
+%this.value //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 4
+get _bb1376 this value
+%str(this.value) //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 4
+str _bb1377 _bb1376
+BUILTIN _bb1378 "num "
+add _bb1375 _bb1378 _bb1377
+add _bb1373 _bb1375 _bb1374
+%return "num "+str(this.value)+"" //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 4
+return # _bb1373
 END
-IS str _bb1369
+IS str _bb1372
 END
-IS Num _bb1362
+IS Num _bb1365
 final # Num
-BEGIN _bb1376
-next x args
+%{return new{Num:value=x};} //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 6
 BEGIN _bb1379
-inline _bb1380 Num
+next x args
+%{Num:value=x} //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 6
+BEGIN _bb1382
+%Num: //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 6
+inline _bb1383 Num
+%value=x //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 6
 IS value x
 return # this
 END
-new _bb1377 _bb1379
-return # _bb1377
+%new{Num:value=x} //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 6
+new _bb1380 _bb1382
+%return new{Num:value=x} //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 6
+return # _bb1380
 END
-IS num _bb1376
-BUILTIN _bb1381 I5
-BUILTIN _bb1382 I2
-BUILTIN _bb1383 I3
-BUILTIN _bb1384 I4
-BUILTIN _bb1385 I1
-list A _bb1381 _bb1382 _bb1383 _bb1384 _bb1385
-BEGIN _bb1388
+IS num _bb1379
+%5,2,3,4,1 //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 8
+BUILTIN _bb1384 I5
+BUILTIN _bb1385 I2
+BUILTIN _bb1386 I3
+BUILTIN _bb1387 I4
+BUILTIN _bb1388 I1
+%5,2,3,4,1 //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 8
+list A _bb1384 _bb1385 _bb1386 _bb1387 _bb1388
+%A|bb.collection.transform(num) //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 9
+BEGIN _bb1391
 list args A
 END
-BEGIN _bb1391
+%bb.collection.transform(num) //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 9
+BEGIN _bb1394
 list args num
 END
-get _bb1393 bb collection
-get _bb1392 _bb1393 transform
-call _bb1390 _bb1391 _bb1392
-call _bb1387 _bb1388 _bb1390
-IS A _bb1387
+%bb.collection //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 9
+get _bb1396 bb collection
+%bb.collection.transform //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 9
+get _bb1395 _bb1396 transform
+%bb.collection.transform(num) //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 9
+call _bb1393 _bb1394 _bb1395
+%A|bb.collection.transform(num) //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 9
+call _bb1390 _bb1391 _bb1393
+IS A _bb1390
+%A|len //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 12
 len n A
-range _bb1395 n
-iter _bbmacro23 _bb1395
-BEGIN _bb1397
-next _bb1398 _bbmacro23
-AS i _bb1398
-exists _bb1399 i
-END
+%range(n) //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 13
+range _bb1398 n
+%iter(range(n)) //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 13
+iter _bbmacro23 _bb1398
+%while(ias next(_bbmacro23)){_bbmacro24=i //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 13
 BEGIN _bb1400
-BUILTIN _bb1403 I1
-add _bb1402 i _bb1403
-range _bb1401 _bb1402 n
-iter _bbmacro24 _bb1401
-BEGIN _bb1405
-next _bb1406 _bbmacro24
-AS j _bb1406
-exists _bb1407 j
+%next(_bbmacro23) //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 13
+next _bb1401 _bbmacro23
+AS i _bb1401
+exists _bb1402 i
 END
+BEGIN _bb1403
+%i+1 //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 14
+BUILTIN _bb1406 I1
+add _bb1405 i _bb1406
+%range(i+1,n) //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 14
+range _bb1404 _bb1405 n
+%iter(range(i+1,n)) //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 14
+iter _bbmacro24 _bb1404
+%while(jas next(_bbmacro24))if(A[j]<A[i]) //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 14
 BEGIN _bb1408
-BEGIN _bb1409
-at _bb1410 A i
-IS tmp _bb1410
-at _bb1411 A j
-put # A i _bb1411
+%next(_bbmacro24) //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 14
+next _bb1409 _bbmacro24
+AS j _bb1409
+exists _bb1410 j
+END
+BEGIN _bb1411
+%if(A[j]<A[i]){tmp=A[i];A[i]=A[j];A[j]=tm //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 14
+BEGIN _bb1412
+%A[i] //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 15
+at _bb1413 A i
+IS tmp _bb1413
+%A[j] //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 16
+at _bb1414 A j
+put # A i _bb1414
+%A[j]=tmp //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 17
 put # A j tmp
 END
-at _bb1413 A i
-at _bb1414 A j
-lt _bb1412 _bb1414 _bb1413
-if # _bb1412 _bb1409
+%A[i] //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 14
+at _bb1416 A i
+%A[j] //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 14
+at _bb1417 A j
+lt _bb1415 _bb1417 _bb1416
+%if(A[j]<A[i]){tmp=A[i];A[i]=A[j];A[j]=tm //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 14
+if # _bb1415 _bb1412
 END
-while # _bb1405 _bb1408
+%while(jas next(_bbmacro24))if(A[j]<A[i]) //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 14
+while # _bb1408 _bb1411
 END
-while # _bb1397 _bb1400
-BEGIN _bb1415
-BUILTIN _bb1416 "Assertion failed"
-fail # _bb1416
+%while(ias next(_bbmacro23)){_bbmacro24=i //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 13
+while # _bb1400 _bb1403
+%if((A[0]|int ==1)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 20
+BEGIN _bb1418
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 20
+BUILTIN _bb1419 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 20
+fail # _bb1419
 END
-BUILTIN _bb1418 Bfalse
-BUILTIN _bb1420 I1
-BUILTIN _bb1423 I0
-at _bb1422 A _bb1423
-int _bb1421 _bb1422
-eq _bb1419 _bb1421 _bb1420
-eq _bb1417 _bb1419 _bb1418
-if # _bb1417 _bb1415
-BUILTIN _bb1424 Btrue
-return # _bb1424
+%(A[0]|int ==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 20
+BUILTIN _bb1421 Bfalse
+%A[0]|int ==1 //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 20
+BUILTIN _bb1423 I1
+%A[0] //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 20
+BUILTIN _bb1426 I0
+%A[0] //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 20
+at _bb1425 A _bb1426
+%A[0]|int //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 20
+int _bb1424 _bb1425
+eq _bb1422 _bb1424 _bb1423
+eq _bb1420 _bb1422 _bb1421
+%if((A[0]|int ==1)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\tests\overload.bb line 20
+if # _bb1420 _bb1418
+BUILTIN _bb1427 Btrue
+%return true //.\tests\all.bb line 11
+return # _bb1427
 END
-try _bbmacro22 _bb1361
-BEGIN _bb1425
-BEGIN _bb1427
-str _bb1429 _bbmacro22
-BUILTIN _bb1431 "\n"
-BUILTIN _bb1432 "Overload"
-add _bb1430 _bb1432 _bb1431
-add _bb1428 _bb1430 _bb1429
-list args _bb1428
+%do{final Num={int={return this.value;}lt //.\tests\all.bb line 11
+do _bbmacro22 _bb1364
+%catch(_bbmacro22)bb.logger.fail("Overloa //.\tests\all.bb line 11
+BEGIN _bb1428
+%bb.logger.fail("Overload"+"\n"+str(_bbma //.\tests\all.bb line 11
+BEGIN _bb1430
+%str(_bbmacro22) //.\tests\all.bb line 11
+str _bb1432 _bbmacro22
+%"Overload"+"\n" //.\tests\all.bb line 11
+BUILTIN _bb1434 "\n"
+BUILTIN _bb1435 "Overload"
+add _bb1433 _bb1435 _bb1434
+add _bb1431 _bb1433 _bb1432
+list args _bb1431
 END
-get _bb1434 bb logger
-get _bb1433 _bb1434 fail
-call _bb1426 _bb1427 _bb1433
+%bb.logger //.\tests\all.bb line 11
+get _bb1437 bb logger
+%bb.logger.fail //.\tests\all.bb line 11
+get _bb1436 _bb1437 fail
+%bb.logger.fail("Overload"+"\n"+str(_bbma //.\tests\all.bb line 11
+call _bb1429 _bb1430 _bb1436
 END
-BEGIN _bb1435
-BEGIN _bb1437
-BUILTIN _bb1438 "Overload"
-list args _bb1438
+BEGIN _bb1438
+%bb.logger.ok("Overload") //.\tests\all.bb line 11
+BEGIN _bb1440
+BUILTIN _bb1441 "Overload"
+list args _bb1441
 END
-get _bb1440 bb logger
-get _bb1439 _bb1440 ok
-call _bb1436 _bb1437 _bb1439
+%bb.logger //.\tests\all.bb line 11
+get _bb1443 bb logger
+%bb.logger.ok //.\tests\all.bb line 11
+get _bb1442 _bb1443 ok
+%bb.logger.ok("Overload") //.\tests\all.bb line 11
+call _bb1439 _bb1440 _bb1442
 END
-catch # _bbmacro22 _bb1425 _bb1435
-BEGIN _bb1443
-BEGIN _bb1444
+%catch(_bbmacro22)bb.logger.fail("Overloa //.\tests\all.bb line 11
+catch # _bbmacro22 _bb1428 _bb1438
+%{foo(x,y)={catch(bias)bias=0;returnx+y+b //.\tests\all.bb line 12
+BEGIN _bb1446
+%{catch(bias)bias=0;returnx+y+bias;} //C:\Users\manio\Desktop\bloblyVM\tests\calls.bb line 1
+BEGIN _bb1447
 next x args
 next y args
-BEGIN _bb1445
+%catch(bias)bias=0 //C:\Users\manio\Desktop\bloblyVM\tests\calls.bb line 2
+BEGIN _bb1448
+%bias=0 //C:\Users\manio\Desktop\bloblyVM\tests\calls.bb line 2
 BUILTIN bias I0
 END
-catch # bias _bb1445
-add _bb1448 x y
-add _bb1447 _bb1448 bias
-return # _bb1447
+%catch(bias)bias=0 //C:\Users\manio\Desktop\bloblyVM\tests\calls.bb line 2
+catch # bias _bb1448
+%x+y //C:\Users\manio\Desktop\bloblyVM\tests\calls.bb line 3
+add _bb1451 x y
+add _bb1450 _bb1451 bias
+%returnx+y+bias //C:\Users\manio\Desktop\bloblyVM\tests\calls.bb line 3
+return # _bb1450
 END
-IS foo _bb1444
-BEGIN _bb1449
-BUILTIN _bb1450 "Assertion failed"
-fail # _bb1450
+IS foo _bb1447
+%if((foo(1,2:: bias=3)==6)== false)fail(" //C:\Users\manio\Desktop\bloblyVM\tests\calls.bb line 6
+BEGIN _bb1452
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\calls.bb line 6
+BUILTIN _bb1453 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\calls.bb line 6
+fail # _bb1453
 END
-BUILTIN _bb1452 Bfalse
-BUILTIN _bb1454 I6
-BEGIN _bb1456
-BUILTIN _bb1457 I1
-BUILTIN _bb1458 I2
-list args _bb1457 _bb1458
+%(foo(1,2:: bias=3)==6)== false //C:\Users\manio\Desktop\bloblyVM\tests\calls.bb line 6
+BUILTIN _bb1455 Bfalse
+%foo(1,2:: bias=3)==6 //C:\Users\manio\Desktop\bloblyVM\tests\calls.bb line 6
+BUILTIN _bb1457 I6
+%foo(1,2:: bias=3) //C:\Users\manio\Desktop\bloblyVM\tests\calls.bb line 6
+BEGIN _bb1459
+%1,2 //C:\Users\manio\Desktop\bloblyVM\tests\calls.bb line 6
+BUILTIN _bb1460 I1
+BUILTIN _bb1461 I2
+%1,2 //C:\Users\manio\Desktop\bloblyVM\tests\calls.bb line 6
+list args _bb1460 _bb1461
+%bias=3 //C:\Users\manio\Desktop\bloblyVM\tests\calls.bb line 6
 BUILTIN bias I3
 END
-call _bb1455 _bb1456 foo
-eq _bb1453 _bb1455 _bb1454
-eq _bb1451 _bb1453 _bb1452
-if # _bb1451 _bb1449
-BUILTIN _bb1461 Btrue
-return # _bb1461
+%foo(1,2:: bias=3) //C:\Users\manio\Desktop\bloblyVM\tests\calls.bb line 6
+call _bb1458 _bb1459 foo
+eq _bb1456 _bb1458 _bb1457
+eq _bb1454 _bb1456 _bb1455
+%if((foo(1,2:: bias=3)==6)== false)fail(" //C:\Users\manio\Desktop\bloblyVM\tests\calls.bb line 6
+if # _bb1454 _bb1452
+BUILTIN _bb1464 Btrue
+%return true //.\tests\all.bb line 12
+return # _bb1464
 END
-try _bbmacro25 _bb1443
-BEGIN _bb1462
-BEGIN _bb1464
-str _bb1466 _bbmacro25
-BUILTIN _bb1468 "\n"
-BUILTIN _bb1469 "Func call"
-add _bb1467 _bb1469 _bb1468
-add _bb1465 _bb1467 _bb1466
-list args _bb1465
+%do{foo(x,y)={catch(bias)bias=0;returnx+y //.\tests\all.bb line 12
+do _bbmacro25 _bb1446
+%catch(_bbmacro25)bb.logger.fail("Func ca //.\tests\all.bb line 12
+BEGIN _bb1465
+%bb.logger.fail("Func call"+"\n"+str(_bbm //.\tests\all.bb line 12
+BEGIN _bb1467
+%str(_bbmacro25) //.\tests\all.bb line 12
+str _bb1469 _bbmacro25
+%"Func call"+"\n" //.\tests\all.bb line 12
+BUILTIN _bb1471 "\n"
+BUILTIN _bb1472 "Func call"
+add _bb1470 _bb1472 _bb1471
+add _bb1468 _bb1470 _bb1469
+list args _bb1468
 END
-get _bb1471 bb logger
-get _bb1470 _bb1471 fail
-call _bb1463 _bb1464 _bb1470
+%bb.logger //.\tests\all.bb line 12
+get _bb1474 bb logger
+%bb.logger.fail //.\tests\all.bb line 12
+get _bb1473 _bb1474 fail
+%bb.logger.fail("Func call"+"\n"+str(_bbm //.\tests\all.bb line 12
+call _bb1466 _bb1467 _bb1473
 END
-BEGIN _bb1472
-BEGIN _bb1474
-BUILTIN _bb1475 "Func call"
-list args _bb1475
+BEGIN _bb1475
+%bb.logger.ok("Func call") //.\tests\all.bb line 12
+BEGIN _bb1477
+BUILTIN _bb1478 "Func call"
+list args _bb1478
 END
-get _bb1477 bb logger
-get _bb1476 _bb1477 ok
-call _bb1473 _bb1474 _bb1476
+%bb.logger //.\tests\all.bb line 12
+get _bb1480 bb logger
+%bb.logger.ok //.\tests\all.bb line 12
+get _bb1479 _bb1480 ok
+%bb.logger.ok("Func call") //.\tests\all.bb line 12
+call _bb1476 _bb1477 _bb1479
 END
-catch # _bbmacro25 _bb1462 _bb1472
-BEGIN _bb1480
-BEGIN _bb1481
-get _bb1482 this x
-IS .x _bb1482
-BUILTIN x I0
-BEGIN _bb1484
-get _bb1485 this x
-return # _bb1485
-END
-IS xthis _bb1484
+%catch(_bbmacro25)bb.logger.fail("Func ca //.\tests\all.bb line 12
+catch # _bbmacro25 _bb1465 _bb1475
+%{final surface=new{x=0}final surface2=ne //.\tests\all.bb line 13
+BEGIN _bb1483
+%{x=0} //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 1
 BEGIN _bb1486
-get _bb1487 this .x
-IS ..x _bb1487
-return # ..x
-END
-IS xclosure _bb1486
-END
-IS Struct _bb1481
-BUILTIN x I1
-BEGIN _bb1491
-inline _bb1492 Struct
+%x=0 //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 1
+BUILTIN x I0
 return # this
 END
-new struct _bb1491
-BUILTIN x I2
+%new{x=0} //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 1
+new surface _bb1486
+final # surface
+%{y=0} //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 2
+BEGIN _bb1490
+%y=0 //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 2
+BUILTIN y I0
+return # this
+END
+%new{y=0} //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 2
+new surface2 _bb1490
+final # surface2
+%{defer surface2.y=1;a=a|float;b=b|float; //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 3
+BEGIN _bb1492
+next a args
+next b args
+%surface2.y=1 //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 4
 BEGIN _bb1494
-BUILTIN _bb1495 "Assertion failed"
-fail # _bb1495
+%surface2.y=1 //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 4
+BUILTIN _bb1495 I1
+set # surface2 y _bb1495
 END
-BUILTIN _bb1497 Bfalse
-BUILTIN _bb1499 I0
-get _bb1501 struct xthis
-call _bb1500 # _bb1501
-eq _bb1498 _bb1500 _bb1499
-eq _bb1496 _bb1498 _bb1497
-if # _bb1496 _bb1494
-BEGIN _bb1502
-BUILTIN _bb1503 "Assertion failed"
-fail # _bb1503
+%defer surface2.y=1 //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 4
+defer # _bb1494
+%a|float //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 5
+float a a
+%b|float //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 6
+float b b
+%surface.x=b //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 7
+set # surface x b
+BUILTIN _bb1498 I0
+%return0 //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 8
+return # _bb1498
 END
-BUILTIN _bb1505 Bfalse
-BUILTIN _bb1507 I1
-get _bb1509 struct xclosure
-call _bb1508 # _bb1509
+IS add _bb1492
+%add(0,"foo") //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 11
+BEGIN _bb1500
+%0,"foo" //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 11
+BUILTIN _bb1501 I0
+BUILTIN _bb1502 "foo"
+%0,"foo" //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 11
+list args _bb1501 _bb1502
+END
+%add(0,"foo") //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 11
+call _bb1499 _bb1500 add
+IS result _bb1499
+%if((surface.x==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 12
+BEGIN _bb1504
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 12
+BUILTIN _bb1505 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 12
+fail # _bb1505
+END
+%(surface.x==0)== false //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 12
+BUILTIN _bb1507 Bfalse
+%surface.x==0 //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 12
+BUILTIN _bb1509 I0
+%surface.x //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 12
+get _bb1510 surface x
+eq _bb1508 _bb1510 _bb1509
 eq _bb1506 _bb1508 _bb1507
-eq _bb1504 _bb1506 _bb1505
-if # _bb1504 _bb1502
-BUILTIN _bb1510 Btrue
-return # _bb1510
-END
-try _bbmacro26 _bb1480
+%if((surface.x==0)== false)fail("Assertio //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 12
+if # _bb1506 _bb1504
+%if((surface2.y==1)== false)fail("Asserti //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 13
 BEGIN _bb1511
-BEGIN _bb1513
-str _bb1515 _bbmacro26
-BUILTIN _bb1517 "\n"
-BUILTIN _bb1518 "Closure"
-add _bb1516 _bb1518 _bb1517
-add _bb1514 _bb1516 _bb1515
-list args _bb1514
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 13
+BUILTIN _bb1512 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 13
+fail # _bb1512
 END
-get _bb1520 bb logger
-get _bb1519 _bb1520 fail
-call _bb1512 _bb1513 _bb1519
+%(surface2.y==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 13
+BUILTIN _bb1514 Bfalse
+%surface2.y==1 //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 13
+BUILTIN _bb1516 I1
+%surface2.y //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 13
+get _bb1517 surface2 y
+eq _bb1515 _bb1517 _bb1516
+eq _bb1513 _bb1515 _bb1514
+%if((surface2.y==1)== false)fail("Asserti //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 13
+if # _bb1513 _bb1511
+%if((do catch(result)return true else ret //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 14
+BEGIN _bb1518
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 14
+BUILTIN _bb1519 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 14
+fail # _bb1519
 END
-BEGIN _bb1521
-BEGIN _bb1523
-BUILTIN _bb1524 "Closure"
-list args _bb1524
+%(do catch(result)return true else return //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 14
+BUILTIN _bb1521 Bfalse
+%catch(result)return true else return fal //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 14
+BEGIN _bb1524
+%catch(result)return true else return fal //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 14
+BEGIN _bb1525
+BUILTIN _bb1526 Btrue
+%return true //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 14
+return # _bb1526
 END
-get _bb1526 bb logger
-get _bb1525 _bb1526 ok
-call _bb1522 _bb1523 _bb1525
+BEGIN _bb1527
+BUILTIN _bb1528 Bfalse
+%return false //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 14
+return # _bb1528
 END
-catch # _bbmacro26 _bb1511 _bb1521
-BEGIN _bb1529
+%catch(result)return true else return fal //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 14
+catch # result _bb1525 _bb1527
+END
+%do catch(result)return true else return  //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 14
+do _bb1522 _bb1524
+eq _bb1520 _bb1522 _bb1521
+%if((do catch(result)return true else ret //C:\Users\manio\Desktop\bloblyVM\tests\sideerrors.bb line 14
+if # _bb1520 _bb1518
+BUILTIN _bb1529 Btrue
+%return true //.\tests\all.bb line 13
+return # _bb1529
+END
+%do{final surface=new{x=0}final surface2= //.\tests\all.bb line 13
+do _bbmacro26 _bb1483
+%catch(_bbmacro26)bb.logger.fail("Sideerr //.\tests\all.bb line 13
+BEGIN _bb1530
+%bb.logger.fail("Sideerrors"+"\n"+str(_bb //.\tests\all.bb line 13
 BEGIN _bb1532
-BUILTIN x I1
-BUILTIN y I2
-return # this
+%str(_bbmacro26) //.\tests\all.bb line 13
+str _bb1534 _bbmacro26
+%"Sideerrors"+"\n" //.\tests\all.bb line 13
+BUILTIN _bb1536 "\n"
+BUILTIN _bb1537 "Sideerrors"
+add _bb1535 _bb1537 _bb1536
+add _bb1533 _bb1535 _bb1534
+list args _bb1533
 END
-new A _bb1532
-BEGIN _bb1535
-BUILTIN _bb1536 "Assertion failed"
-fail # _bb1536
+%bb.logger //.\tests\all.bb line 13
+get _bb1539 bb logger
+%bb.logger.fail //.\tests\all.bb line 13
+get _bb1538 _bb1539 fail
+%bb.logger.fail("Sideerrors"+"\n"+str(_bb //.\tests\all.bb line 13
+call _bb1531 _bb1532 _bb1538
 END
-BUILTIN _bb1538 Bfalse
-BUILTIN _bb1540 I1
-get _bb1541 A x
-eq _bb1539 _bb1541 _bb1540
-eq _bb1537 _bb1539 _bb1538
-if # _bb1537 _bb1535
-clear # A
-BEGIN _bb1543
-BUILTIN _bb1544 "Assertion failed"
-fail # _bb1544
+BEGIN _bb1540
+%bb.logger.ok("Sideerrors") //.\tests\all.bb line 13
+BEGIN _bb1542
+BUILTIN _bb1543 "Sideerrors"
+list args _bb1543
 END
-BUILTIN _bb1546 Bfalse
+%bb.logger //.\tests\all.bb line 13
+get _bb1545 bb logger
+%bb.logger.ok //.\tests\all.bb line 13
+get _bb1544 _bb1545 ok
+%bb.logger.ok("Sideerrors") //.\tests\all.bb line 13
+call _bb1541 _bb1542 _bb1544
+END
+%catch(_bbmacro26)bb.logger.fail("Sideerr //.\tests\all.bb line 13
+catch # _bbmacro26 _bb1530 _bb1540
+%{Struct={.x=this.x;x=0;xthis={return thi //.\tests\all.bb line 14
+BEGIN _bb1548
+%{.x=this.x;x=0;xthis={return this.x;}xcl //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 1
 BEGIN _bb1549
-BEGIN _bb1550
-BUILTIN _bb1551 Btrue
-return # _bb1551
-END
+%this.x //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 4
+get _bb1550 this x
+IS .x _bb1550
+%x=0 //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 2
+BUILTIN x I0
+%{return this.x;} //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 3
 BEGIN _bb1552
-BUILTIN _bb1553 Bfalse
+%this.x //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 3
+get _bb1553 this x
+%return this.x //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 3
 return # _bb1553
 END
-get _bb1554 A x
-catch # _bb1554 _bb1550 _bb1552
+IS xthis _bb1552
+%{..x=this..x;return ..x;} //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 4
+BEGIN _bb1554
+%this..x //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 4
+get _bb1555 this .x
+IS ..x _bb1555
+%return ..x //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 4
+return # ..x
 END
-try _bb1547 _bb1549
-eq _bb1545 _bb1547 _bb1546
-if # _bb1545 _bb1543
-BEGIN _bb1557
+IS xclosure _bb1554
+END
+IS Struct _bb1549
+%x=1 //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 6
 BUILTIN x I1
+%{Struct:} //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 7
+BEGIN _bb1559
+%Struct: //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 7
+inline _bb1560 Struct
+return # this
+END
+%new{Struct:} //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 7
+new struct _bb1559
+%x=2 //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 8
+BUILTIN x I2
+%if((struct.xthis()==0)== false)fail("Ass //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 10
+BEGIN _bb1562
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 10
+BUILTIN _bb1563 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 10
+fail # _bb1563
+END
+%(struct.xthis()==0)== false //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 10
+BUILTIN _bb1565 Bfalse
+%struct.xthis()==0 //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 10
+BUILTIN _bb1567 I0
+%struct.xthis //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 10
+get _bb1569 struct xthis
+%struct.xthis() //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 10
+call _bb1568 # _bb1569
+eq _bb1566 _bb1568 _bb1567
+eq _bb1564 _bb1566 _bb1565
+%if((struct.xthis()==0)== false)fail("Ass //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 10
+if # _bb1564 _bb1562
+%if((struct.xclosure()==1)== false)fail(" //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 11
+BEGIN _bb1570
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 11
+BUILTIN _bb1571 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 11
+fail # _bb1571
+END
+%(struct.xclosure()==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 11
+BUILTIN _bb1573 Bfalse
+%struct.xclosure()==1 //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 11
+BUILTIN _bb1575 I1
+%struct.xclosure //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 11
+get _bb1577 struct xclosure
+%struct.xclosure() //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 11
+call _bb1576 # _bb1577
+eq _bb1574 _bb1576 _bb1575
+eq _bb1572 _bb1574 _bb1573
+%if((struct.xclosure()==1)== false)fail(" //C:\Users\manio\Desktop\bloblyVM\tests\closure.bb line 11
+if # _bb1572 _bb1570
+BUILTIN _bb1578 Btrue
+%return true //.\tests\all.bb line 14
+return # _bb1578
+END
+%do{Struct={.x=this.x;x=0;xthis={return t //.\tests\all.bb line 14
+do _bbmacro27 _bb1548
+%catch(_bbmacro27)bb.logger.fail("Closure //.\tests\all.bb line 14
+BEGIN _bb1579
+%bb.logger.fail("Closure"+"\n"+str(_bbmac //.\tests\all.bb line 14
+BEGIN _bb1581
+%str(_bbmacro27) //.\tests\all.bb line 14
+str _bb1583 _bbmacro27
+%"Closure"+"\n" //.\tests\all.bb line 14
+BUILTIN _bb1585 "\n"
+BUILTIN _bb1586 "Closure"
+add _bb1584 _bb1586 _bb1585
+add _bb1582 _bb1584 _bb1583
+list args _bb1582
+END
+%bb.logger //.\tests\all.bb line 14
+get _bb1588 bb logger
+%bb.logger.fail //.\tests\all.bb line 14
+get _bb1587 _bb1588 fail
+%bb.logger.fail("Closure"+"\n"+str(_bbmac //.\tests\all.bb line 14
+call _bb1580 _bb1581 _bb1587
+END
+BEGIN _bb1589
+%bb.logger.ok("Closure") //.\tests\all.bb line 14
+BEGIN _bb1591
+BUILTIN _bb1592 "Closure"
+list args _bb1592
+END
+%bb.logger //.\tests\all.bb line 14
+get _bb1594 bb logger
+%bb.logger.ok //.\tests\all.bb line 14
+get _bb1593 _bb1594 ok
+%bb.logger.ok("Closure") //.\tests\all.bb line 14
+call _bb1590 _bb1591 _bb1593
+END
+%catch(_bbmacro27)bb.logger.fail("Closure //.\tests\all.bb line 14
+catch # _bbmacro27 _bb1579 _bb1589
+%{A=new{x=1;y=2;}if((A.x==1)== false)fail //.\tests\all.bb line 15
+BEGIN _bb1597
+%{x=1;y=2;} //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 2
+BEGIN _bb1600
+%x=1 //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 3
+BUILTIN x I1
+%y=2 //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 4
 BUILTIN y I2
 return # this
 END
-new B _bb1557
+%new{x=1;y=2;} //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 2
+new A _bb1600
+%if((A.x==1)== false)fail("Assertion fail //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 7
+BEGIN _bb1603
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 7
+BUILTIN _bb1604 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 7
+fail # _bb1604
+END
+%(A.x==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 7
+BUILTIN _bb1606 Bfalse
+%A.x==1 //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 7
+BUILTIN _bb1608 I1
+%A.x //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 7
+get _bb1609 A x
+eq _bb1607 _bb1609 _bb1608
+eq _bb1605 _bb1607 _bb1606
+%if((A.x==1)== false)fail("Assertion fail //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 7
+if # _bb1605 _bb1603
+%clear(A) //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 8
+clear # A
+%if((do catch(A.x)return true else return //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 9
+BEGIN _bb1611
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 9
+BUILTIN _bb1612 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 9
+fail # _bb1612
+END
+%(do catch(A.x)return true else return fa //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 9
+BUILTIN _bb1614 Bfalse
+%catch(A.x)return true else return false //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 9
+BEGIN _bb1617
+%catch(A.x)return true else return false //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 9
+BEGIN _bb1618
+BUILTIN _bb1619 Btrue
+%return true //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 9
+return # _bb1619
+END
+BEGIN _bb1620
+BUILTIN _bb1621 Bfalse
+%return false //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 9
+return # _bb1621
+END
+%A.x //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 9
+get _bb1622 A x
+%catch(A.x)return true else return false //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 9
+catch # _bb1622 _bb1618 _bb1620
+END
+%do catch(A.x)return true else return fal //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 9
+do _bb1615 _bb1617
+eq _bb1613 _bb1615 _bb1614
+%if((do catch(A.x)return true else return //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 9
+if # _bb1613 _bb1611
+%{x=1;y=2;} //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 13
+BEGIN _bb1625
+%x=1 //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 14
+BUILTIN x I1
+%y=2 //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 15
+BUILTIN y I2
+return # this
+END
+%new{x=1;y=2;} //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 13
+new B _bb1625
+%B|move //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 17
 move C B
-BEGIN _bb1561
-BUILTIN _bb1562 "Assertion failed"
-fail # _bb1562
+%if((do catch(B.x)return true else return //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 18
+BEGIN _bb1629
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 18
+BUILTIN _bb1630 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 18
+fail # _bb1630
 END
-BUILTIN _bb1564 Bfalse
-BEGIN _bb1567
-BEGIN _bb1568
-BUILTIN _bb1569 Btrue
-return # _bb1569
+%(do catch(B.x)return true else return fa //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 18
+BUILTIN _bb1632 Bfalse
+%catch(B.x)return true else return false //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 18
+BEGIN _bb1635
+%catch(B.x)return true else return false //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 18
+BEGIN _bb1636
+BUILTIN _bb1637 Btrue
+%return true //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 18
+return # _bb1637
 END
-BEGIN _bb1570
-BUILTIN _bb1571 Bfalse
-return # _bb1571
+BEGIN _bb1638
+BUILTIN _bb1639 Bfalse
+%return false //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 18
+return # _bb1639
 END
-get _bb1572 B x
-catch # _bb1572 _bb1568 _bb1570
+%B.x //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 18
+get _bb1640 B x
+%catch(B.x)return true else return false //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 18
+catch # _bb1640 _bb1636 _bb1638
 END
-try _bb1565 _bb1567
-eq _bb1563 _bb1565 _bb1564
-if # _bb1563 _bb1561
-BEGIN _bb1573
-BUILTIN _bb1574 "Assertion failed"
-fail # _bb1574
+%do catch(B.x)return true else return fal //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 18
+do _bb1633 _bb1635
+eq _bb1631 _bb1633 _bb1632
+%if((do catch(B.x)return true else return //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 18
+if # _bb1631 _bb1629
+%if((C.x==1)== false)fail("Assertion fail //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 19
+BEGIN _bb1641
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 19
+BUILTIN _bb1642 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 19
+fail # _bb1642
 END
-BUILTIN _bb1576 Bfalse
-BUILTIN _bb1578 I1
-get _bb1579 C x
-eq _bb1577 _bb1579 _bb1578
-eq _bb1575 _bb1577 _bb1576
-if # _bb1575 _bb1573
-BUILTIN _bb1580 Btrue
-return # _bb1580
+%(C.x==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 19
+BUILTIN _bb1644 Bfalse
+%C.x==1 //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 19
+BUILTIN _bb1646 I1
+%C.x //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 19
+get _bb1647 C x
+eq _bb1645 _bb1647 _bb1646
+eq _bb1643 _bb1645 _bb1644
+%if((C.x==1)== false)fail("Assertion fail //C:\Users\manio\Desktop\bloblyVM\tests\clear.bb line 19
+if # _bb1643 _bb1641
+BUILTIN _bb1648 Btrue
+%return true //.\tests\all.bb line 15
+return # _bb1648
 END
-try _bbmacro27 _bb1529
-BEGIN _bb1581
-BEGIN _bb1583
-str _bb1585 _bbmacro27
-BUILTIN _bb1587 "\n"
-BUILTIN _bb1588 "Clear"
-add _bb1586 _bb1588 _bb1587
-add _bb1584 _bb1586 _bb1585
-list args _bb1584
+%do{A=new{x=1;y=2;}if((A.x==1)== false)fa //.\tests\all.bb line 15
+do _bbmacro28 _bb1597
+%catch(_bbmacro28)bb.logger.fail("Clear"+ //.\tests\all.bb line 15
+BEGIN _bb1649
+%bb.logger.fail("Clear"+"\n"+str(_bbmacro //.\tests\all.bb line 15
+BEGIN _bb1651
+%str(_bbmacro28) //.\tests\all.bb line 15
+str _bb1653 _bbmacro28
+%"Clear"+"\n" //.\tests\all.bb line 15
+BUILTIN _bb1655 "\n"
+BUILTIN _bb1656 "Clear"
+add _bb1654 _bb1656 _bb1655
+add _bb1652 _bb1654 _bb1653
+list args _bb1652
 END
-get _bb1590 bb logger
-get _bb1589 _bb1590 fail
-call _bb1582 _bb1583 _bb1589
+%bb.logger //.\tests\all.bb line 15
+get _bb1658 bb logger
+%bb.logger.fail //.\tests\all.bb line 15
+get _bb1657 _bb1658 fail
+%bb.logger.fail("Clear"+"\n"+str(_bbmacro //.\tests\all.bb line 15
+call _bb1650 _bb1651 _bb1657
 END
-BEGIN _bb1591
-BEGIN _bb1593
-BUILTIN _bb1594 "Clear"
-list args _bb1594
+BEGIN _bb1659
+%bb.logger.ok("Clear") //.\tests\all.bb line 15
+BEGIN _bb1661
+BUILTIN _bb1662 "Clear"
+list args _bb1662
 END
-get _bb1596 bb logger
-get _bb1595 _bb1596 ok
-call _bb1592 _bb1593 _bb1595
+%bb.logger //.\tests\all.bb line 15
+get _bb1664 bb logger
+%bb.logger.ok //.\tests\all.bb line 15
+get _bb1663 _bb1664 ok
+%bb.logger.ok("Clear") //.\tests\all.bb line 15
+call _bb1660 _bb1661 _bb1663
 END
-catch # _bbmacro27 _bb1581 _bb1591
-BEGIN _bb1599
-BEGIN _bb1600
+%catch(_bbmacro28)bb.logger.fail("Clear"+ //.\tests\all.bb line 15
+catch # _bbmacro28 _bb1649 _bb1659
+%{waslength(moveA)={returnA|len;}A=1,2,3; //.\tests\all.bb line 16
+BEGIN _bb1667
+%{returnA|len;} //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 1
+BEGIN _bb1668
 next A args
 move A A
-len _bb1601 A
-return # _bb1601
+%A|len //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 1
+len _bb1669 A
+%returnA|len //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 1
+return # _bb1669
 END
-IS waslength _bb1600
-BUILTIN _bb1602 I1
-BUILTIN _bb1603 I2
-BUILTIN _bb1604 I3
-list A _bb1602 _bb1603 _bb1604
-BEGIN _bb1606
-BUILTIN _bb1607 "Assertion failed"
-fail # _bb1607
+IS waslength _bb1668
+%1,2,3 //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 3
+BUILTIN _bb1670 I1
+BUILTIN _bb1671 I2
+BUILTIN _bb1672 I3
+%1,2,3 //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 3
+list A _bb1670 _bb1671 _bb1672
+%if((A|len ==3)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 4
+BEGIN _bb1674
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 4
+BUILTIN _bb1675 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 4
+fail # _bb1675
 END
-BUILTIN _bb1609 Bfalse
-BUILTIN _bb1611 I3
-len _bb1612 A
-eq _bb1610 _bb1612 _bb1611
-eq _bb1608 _bb1610 _bb1609
-if # _bb1608 _bb1606
-BEGIN _bb1613
-BUILTIN _bb1614 "Assertion failed"
-fail # _bb1614
+%(A|len ==3)== false //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 4
+BUILTIN _bb1677 Bfalse
+%A|len ==3 //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 4
+BUILTIN _bb1679 I3
+%A|len //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 4
+len _bb1680 A
+eq _bb1678 _bb1680 _bb1679
+eq _bb1676 _bb1678 _bb1677
+%if((A|len ==3)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 4
+if # _bb1676 _bb1674
+%if((waslength(A)==3)== false)fail("Asser //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 5
+BEGIN _bb1681
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 5
+BUILTIN _bb1682 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 5
+fail # _bb1682
 END
-BUILTIN _bb1616 Bfalse
-BUILTIN _bb1618 I3
-BEGIN _bb1620
-list args A
-END
-call _bb1619 _bb1620 waslength
-eq _bb1617 _bb1619 _bb1618
-eq _bb1615 _bb1617 _bb1616
-if # _bb1615 _bb1613
-BEGIN _bb1621
-BUILTIN _bb1622 "Assertion failed"
-fail # _bb1622
-END
-BUILTIN _bb1624 Bfalse
-BUILTIN _bb1626 I0
-len _bb1627 A
-eq _bb1625 _bb1627 _bb1626
-eq _bb1623 _bb1625 _bb1624
-if # _bb1623 _bb1621
-BUILTIN _bb1628 Btrue
-return # _bb1628
-END
-try _bbmacro28 _bb1599
-BEGIN _bb1629
-BEGIN _bb1631
-str _bb1633 _bbmacro28
-BUILTIN _bb1635 "\n"
-BUILTIN _bb1636 "Move "
-add _bb1634 _bb1636 _bb1635
-add _bb1632 _bb1634 _bb1633
-list args _bb1632
-END
-get _bb1638 bb logger
-get _bb1637 _bb1638 fail
-call _bb1630 _bb1631 _bb1637
-END
-BEGIN _bb1639
-BEGIN _bb1641
-BUILTIN _bb1642 "Move "
-list args _bb1642
-END
-get _bb1644 bb logger
-get _bb1643 _bb1644 ok
-call _bb1640 _bb1641 _bb1643
-END
-catch # _bbmacro28 _bb1629 _bb1639
-BEGIN _bb1647
-BUILTIN _bb1648 I1
-BUILTIN _bb1649 I2
-BUILTIN _bb1650 I3
-list A _bb1648 _bb1649 _bb1650
-BEGIN _bb1653
-list args A
-END
-BEGIN _bb1656
-BUILTIN _bb1657 I4
-list args _bb1657
-END
-get _bb1659 bb collection
-get _bb1658 _bb1659 toback
-call _bb1655 _bb1656 _bb1658
-call _bb1652 _bb1653 _bb1655
-IS A _bb1652
-BEGIN _bb1660
-BUILTIN _bb1661 "Assertion failed"
-fail # _bb1661
-END
-BUILTIN _bb1663 Bfalse
-BUILTIN _bb1665 I4
-pop _bb1666 A
-eq _bb1664 _bb1666 _bb1665
-eq _bb1662 _bb1664 _bb1663
-if # _bb1662 _bb1660
-BUILTIN _bb1667 Btrue
-return # _bb1667
-END
-try _bbmacro29 _bb1647
-BEGIN _bb1668
-BEGIN _bb1670
-str _bb1672 _bbmacro29
-BUILTIN _bb1674 "\n"
-BUILTIN _bb1675 "Collection"
-add _bb1673 _bb1675 _bb1674
-add _bb1671 _bb1673 _bb1672
-list args _bb1671
-END
-get _bb1677 bb logger
-get _bb1676 _bb1677 fail
-call _bb1669 _bb1670 _bb1676
-END
-BEGIN _bb1678
-BEGIN _bb1680
-BUILTIN _bb1681 "Collection"
-list args _bb1681
-END
-get _bb1683 bb logger
-get _bb1682 _bb1683 ok
-call _bb1679 _bb1680 _bb1682
-END
-catch # _bbmacro29 _bb1668 _bb1678
-BEGIN _bb1686
-BUILTIN A "I like banana!"
+%(waslength(A)==3)== false //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 5
+BUILTIN _bb1684 Bfalse
+%waslength(A)==3 //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 5
+BUILTIN _bb1686 I3
+%waslength(A) //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 5
 BEGIN _bb1688
-BUILTIN _bb1689 "Assertion failed"
-fail # _bb1689
-END
-BUILTIN _bb1691 Bfalse
-BEGIN _bb1693
 list args A
 END
-BEGIN _bb1696
-BUILTIN _bb1697 "I like"
-list args _bb1697
+%waslength(A) //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 5
+call _bb1687 _bb1688 waslength
+eq _bb1685 _bb1687 _bb1686
+eq _bb1683 _bb1685 _bb1684
+%if((waslength(A)==3)== false)fail("Asser //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 5
+if # _bb1683 _bb1681
+%if((A|len ==0)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 6
+BEGIN _bb1689
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 6
+BUILTIN _bb1690 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 6
+fail # _bb1690
 END
-get _bb1699 bb string
-get _bb1698 _bb1699 starts
-call _bb1695 _bb1696 _bb1698
-call _bb1692 _bb1693 _bb1695
-eq _bb1690 _bb1692 _bb1691
-if # _bb1690 _bb1688
-BEGIN _bb1700
-BUILTIN _bb1701 "Assertion failed"
-fail # _bb1701
+%(A|len ==0)== false //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 6
+BUILTIN _bb1692 Bfalse
+%A|len ==0 //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 6
+BUILTIN _bb1694 I0
+%A|len //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 6
+len _bb1695 A
+eq _bb1693 _bb1695 _bb1694
+eq _bb1691 _bb1693 _bb1692
+%if((A|len ==0)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\move.bb line 6
+if # _bb1691 _bb1689
+BUILTIN _bb1696 Btrue
+%return true //.\tests\all.bb line 16
+return # _bb1696
 END
-BUILTIN _bb1703 Bfalse
-BEGIN _bb1705
+%do{waslength(moveA)={returnA|len;}A=1,2, //.\tests\all.bb line 16
+do _bbmacro29 _bb1667
+%catch(_bbmacro29)bb.logger.fail("Move "+ //.\tests\all.bb line 16
+BEGIN _bb1697
+%bb.logger.fail("Move "+"\n"+str(_bbmacro //.\tests\all.bb line 16
+BEGIN _bb1699
+%str(_bbmacro29) //.\tests\all.bb line 16
+str _bb1701 _bbmacro29
+%"Move "+"\n" //.\tests\all.bb line 16
+BUILTIN _bb1703 "\n"
+BUILTIN _bb1704 "Move "
+add _bb1702 _bb1704 _bb1703
+add _bb1700 _bb1702 _bb1701
+list args _bb1700
+END
+%bb.logger //.\tests\all.bb line 16
+get _bb1706 bb logger
+%bb.logger.fail //.\tests\all.bb line 16
+get _bb1705 _bb1706 fail
+%bb.logger.fail("Move "+"\n"+str(_bbmacro //.\tests\all.bb line 16
+call _bb1698 _bb1699 _bb1705
+END
+BEGIN _bb1707
+%bb.logger.ok("Move ") //.\tests\all.bb line 16
+BEGIN _bb1709
+BUILTIN _bb1710 "Move "
+list args _bb1710
+END
+%bb.logger //.\tests\all.bb line 16
+get _bb1712 bb logger
+%bb.logger.ok //.\tests\all.bb line 16
+get _bb1711 _bb1712 ok
+%bb.logger.ok("Move ") //.\tests\all.bb line 16
+call _bb1708 _bb1709 _bb1711
+END
+%catch(_bbmacro29)bb.logger.fail("Move "+ //.\tests\all.bb line 16
+catch # _bbmacro29 _bb1697 _bb1707
+%{A=1,2,3;A=A|bb.collection.toback(4);if( //.\tests\all.bb line 17
+BEGIN _bb1715
+%1,2,3 //C:\Users\manio\Desktop\bloblyVM\tests\collection.bb line 1
+BUILTIN _bb1716 I1
+BUILTIN _bb1717 I2
+BUILTIN _bb1718 I3
+%1,2,3 //C:\Users\manio\Desktop\bloblyVM\tests\collection.bb line 1
+list A _bb1716 _bb1717 _bb1718
+%A|bb.collection.toback(4) //C:\Users\manio\Desktop\bloblyVM\tests\collection.bb line 2
+BEGIN _bb1721
 list args A
 END
-BEGIN _bb1708
-BUILTIN _bb1709 "banana!"
-list args _bb1709
+%bb.collection.toback(4) //C:\Users\manio\Desktop\bloblyVM\tests\collection.bb line 2
+BEGIN _bb1724
+BUILTIN _bb1725 I4
+list args _bb1725
 END
-get _bb1711 bb string
-get _bb1710 _bb1711 ends
-call _bb1707 _bb1708 _bb1710
-call _bb1704 _bb1705 _bb1707
-eq _bb1702 _bb1704 _bb1703
-if # _bb1702 _bb1700
-BEGIN _bb1712
-BUILTIN _bb1713 "Assertion failed"
-fail # _bb1713
+%bb.collection //C:\Users\manio\Desktop\bloblyVM\tests\collection.bb line 2
+get _bb1727 bb collection
+%bb.collection.toback //C:\Users\manio\Desktop\bloblyVM\tests\collection.bb line 2
+get _bb1726 _bb1727 toback
+%bb.collection.toback(4) //C:\Users\manio\Desktop\bloblyVM\tests\collection.bb line 2
+call _bb1723 _bb1724 _bb1726
+%A|bb.collection.toback(4) //C:\Users\manio\Desktop\bloblyVM\tests\collection.bb line 2
+call _bb1720 _bb1721 _bb1723
+IS A _bb1720
+%if((A|pop ==4)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\collection.bb line 3
+BEGIN _bb1728
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\collection.bb line 3
+BUILTIN _bb1729 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\collection.bb line 3
+fail # _bb1729
 END
-BUILTIN _bb1715 Bfalse
-BUILTIN _bb1717 Bfalse
-BEGIN _bb1719
-list args A
-END
-BEGIN _bb1722
-BUILTIN _bb1723 "w"
-list args _bb1723
-END
-get _bb1725 bb string
-get _bb1724 _bb1725 ends
-call _bb1721 _bb1722 _bb1724
-call _bb1718 _bb1719 _bb1721
-eq _bb1716 _bb1718 _bb1717
-eq _bb1714 _bb1716 _bb1715
-if # _bb1714 _bb1712
-BEGIN _bb1726
-BUILTIN _bb1727 "Assertion failed"
-fail # _bb1727
-END
-BUILTIN _bb1729 Bfalse
-BUILTIN _bb1731 I2
-BEGIN _bb1733
-list args A
-END
-BEGIN _bb1736
-BUILTIN _bb1737 "like"
-list args _bb1737
-END
-get _bb1739 bb string
-get _bb1738 _bb1739 index
-call _bb1735 _bb1736 _bb1738
-call _bb1732 _bb1733 _bb1735
+%(A|pop ==4)== false //C:\Users\manio\Desktop\bloblyVM\tests\collection.bb line 3
+BUILTIN _bb1731 Bfalse
+%A|pop ==4 //C:\Users\manio\Desktop\bloblyVM\tests\collection.bb line 3
+BUILTIN _bb1733 I4
+%A|pop //C:\Users\manio\Desktop\bloblyVM\tests\collection.bb line 3
+pop _bb1734 A
+eq _bb1732 _bb1734 _bb1733
 eq _bb1730 _bb1732 _bb1731
-eq _bb1728 _bb1730 _bb1729
-if # _bb1728 _bb1726
-BEGIN _bb1740
-BUILTIN _bb1741 "Assertion failed"
-fail # _bb1741
+%if((A|pop ==4)== false)fail("Assertion f //C:\Users\manio\Desktop\bloblyVM\tests\collection.bb line 3
+if # _bb1730 _bb1728
+BUILTIN _bb1735 Btrue
+%return true //.\tests\all.bb line 17
+return # _bb1735
 END
-BUILTIN _bb1743 Bfalse
-BUILTIN _bb1745 I10
-BEGIN _bb1747
+%do{A=1,2,3;A=A|bb.collection.toback(4);i //.\tests\all.bb line 17
+do _bbmacro30 _bb1715
+%catch(_bbmacro30)bb.logger.fail("Collect //.\tests\all.bb line 17
+BEGIN _bb1736
+%bb.logger.fail("Collection"+"\n"+str(_bb //.\tests\all.bb line 17
+BEGIN _bb1738
+%str(_bbmacro30) //.\tests\all.bb line 17
+str _bb1740 _bbmacro30
+%"Collection"+"\n" //.\tests\all.bb line 17
+BUILTIN _bb1742 "\n"
+BUILTIN _bb1743 "Collection"
+add _bb1741 _bb1743 _bb1742
+add _bb1739 _bb1741 _bb1740
+list args _bb1739
+END
+%bb.logger //.\tests\all.bb line 17
+get _bb1745 bb logger
+%bb.logger.fail //.\tests\all.bb line 17
+get _bb1744 _bb1745 fail
+%bb.logger.fail("Collection"+"\n"+str(_bb //.\tests\all.bb line 17
+call _bb1737 _bb1738 _bb1744
+END
+BEGIN _bb1746
+%bb.logger.ok("Collection") //.\tests\all.bb line 17
+BEGIN _bb1748
+BUILTIN _bb1749 "Collection"
+list args _bb1749
+END
+%bb.logger //.\tests\all.bb line 17
+get _bb1751 bb logger
+%bb.logger.ok //.\tests\all.bb line 17
+get _bb1750 _bb1751 ok
+%bb.logger.ok("Collection") //.\tests\all.bb line 17
+call _bb1747 _bb1748 _bb1750
+END
+%catch(_bbmacro30)bb.logger.fail("Collect //.\tests\all.bb line 17
+catch # _bbmacro30 _bb1736 _bb1746
+%{A="I like banana!";if((A|bb.string.star //.\tests\all.bb line 18
+BEGIN _bb1754
+%A="I like banana!" //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 1
+BUILTIN A "I like banana!"
+%if((A|bb.string.starts("I like"))== fals //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 2
+BEGIN _bb1756
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 2
+BUILTIN _bb1757 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 2
+fail # _bb1757
+END
+%(A|bb.string.starts("I like"))== false //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 2
+BUILTIN _bb1759 Bfalse
+%A|bb.string.starts("I like") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 2
+BEGIN _bb1761
 list args A
 END
-BEGIN _bb1750
-BUILTIN _bb1751 "an"
-list args _bb1751
+%bb.string.starts("I like") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 2
+BEGIN _bb1764
+BUILTIN _bb1765 "I like"
+list args _bb1765
+END
+%bb.string //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 2
+get _bb1767 bb string
+%bb.string.starts //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 2
+get _bb1766 _bb1767 starts
+%bb.string.starts("I like") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 2
+call _bb1763 _bb1764 _bb1766
+%A|bb.string.starts("I like") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 2
+call _bb1760 _bb1761 _bb1763
+eq _bb1758 _bb1760 _bb1759
+%if((A|bb.string.starts("I like"))== fals //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 2
+if # _bb1758 _bb1756
+%if((A|bb.string.ends("banana!"))== false //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 3
+BEGIN _bb1768
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 3
+BUILTIN _bb1769 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 3
+fail # _bb1769
+END
+%(A|bb.string.ends("banana!"))== false //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 3
+BUILTIN _bb1771 Bfalse
+%A|bb.string.ends("banana!") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 3
+BEGIN _bb1773
+list args A
+END
+%bb.string.ends("banana!") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 3
+BEGIN _bb1776
+BUILTIN _bb1777 "banana!"
+list args _bb1777
+END
+%bb.string //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 3
+get _bb1779 bb string
+%bb.string.ends //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 3
+get _bb1778 _bb1779 ends
+%bb.string.ends("banana!") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 3
+call _bb1775 _bb1776 _bb1778
+%A|bb.string.ends("banana!") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 3
+call _bb1772 _bb1773 _bb1775
+eq _bb1770 _bb1772 _bb1771
+%if((A|bb.string.ends("banana!"))== false //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 3
+if # _bb1770 _bb1768
+%if((A|bb.string.ends("w")== false)== fal //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 4
+BEGIN _bb1780
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 4
+BUILTIN _bb1781 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 4
+fail # _bb1781
+END
+%(A|bb.string.ends("w")== false)== false //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 4
+BUILTIN _bb1783 Bfalse
+%A|bb.string.ends("w")== false //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 4
+BUILTIN _bb1785 Bfalse
+%A|bb.string.ends("w") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 4
+BEGIN _bb1787
+list args A
+END
+%bb.string.ends("w") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 4
+BEGIN _bb1790
+BUILTIN _bb1791 "w"
+list args _bb1791
+END
+%bb.string //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 4
+get _bb1793 bb string
+%bb.string.ends //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 4
+get _bb1792 _bb1793 ends
+%bb.string.ends("w") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 4
+call _bb1789 _bb1790 _bb1792
+%A|bb.string.ends("w") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 4
+call _bb1786 _bb1787 _bb1789
+eq _bb1784 _bb1786 _bb1785
+eq _bb1782 _bb1784 _bb1783
+%if((A|bb.string.ends("w")== false)== fal //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 4
+if # _bb1782 _bb1780
+%if((A|bb.string.index("like")==2)== fals //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 5
+BEGIN _bb1794
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 5
+BUILTIN _bb1795 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 5
+fail # _bb1795
+END
+%(A|bb.string.index("like")==2)== false //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 5
+BUILTIN _bb1797 Bfalse
+%A|bb.string.index("like")==2 //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 5
+BUILTIN _bb1799 I2
+%A|bb.string.index("like") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 5
+BEGIN _bb1801
+list args A
+END
+%bb.string.index("like") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 5
+BEGIN _bb1804
+BUILTIN _bb1805 "like"
+list args _bb1805
+END
+%bb.string //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 5
+get _bb1807 bb string
+%bb.string.index //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 5
+get _bb1806 _bb1807 index
+%bb.string.index("like") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 5
+call _bb1803 _bb1804 _bb1806
+%A|bb.string.index("like") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 5
+call _bb1800 _bb1801 _bb1803
+eq _bb1798 _bb1800 _bb1799
+eq _bb1796 _bb1798 _bb1797
+%if((A|bb.string.index("like")==2)== fals //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 5
+if # _bb1796 _bb1794
+%if((A|bb.string.index("an" :: pos=9)== 1 //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 6
+BEGIN _bb1808
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 6
+BUILTIN _bb1809 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 6
+fail # _bb1809
+END
+%(A|bb.string.index("an" :: pos=9)== 10)= //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 6
+BUILTIN _bb1811 Bfalse
+%A|bb.string.index("an" :: pos=9)== 10 //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 6
+BUILTIN _bb1813 I10
+%A|bb.string.index("an" :: pos=9) //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 6
+BEGIN _bb1815
+list args A
+END
+%bb.string.index("an" :: pos=9) //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 6
+BEGIN _bb1818
+BUILTIN _bb1819 "an"
+list args _bb1819
+%pos=9 //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 6
 BUILTIN pos I9
 END
-get _bb1754 bb string
-get _bb1753 _bb1754 index
-call _bb1749 _bb1750 _bb1753
-call _bb1746 _bb1747 _bb1749
-eq _bb1744 _bb1746 _bb1745
-eq _bb1742 _bb1744 _bb1743
-if # _bb1742 _bb1740
-BEGIN _bb1755
-BUILTIN _bb1756 "Assertion failed"
-fail # _bb1756
+%bb.string //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 6
+get _bb1822 bb string
+%bb.string.index //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 6
+get _bb1821 _bb1822 index
+%bb.string.index("an" :: pos=9) //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 6
+call _bb1817 _bb1818 _bb1821
+%A|bb.string.index("an" :: pos=9) //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 6
+call _bb1814 _bb1815 _bb1817
+eq _bb1812 _bb1814 _bb1813
+eq _bb1810 _bb1812 _bb1811
+%if((A|bb.string.index("an" :: pos=9)== 1 //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 6
+if # _bb1810 _bb1808
+%if((A|bb.string.split(" ")|len ==3)== fa //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 7
+BEGIN _bb1823
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 7
+BUILTIN _bb1824 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 7
+fail # _bb1824
 END
-BUILTIN _bb1758 Bfalse
-BUILTIN _bb1760 I3
-BEGIN _bb1763
+%(A|bb.string.split(" ")|len ==3)== false //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 7
+BUILTIN _bb1826 Bfalse
+%A|bb.string.split(" ")|len ==3 //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 7
+BUILTIN _bb1828 I3
+%A|bb.string.split(" ") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 7
+BEGIN _bb1831
 list args A
 END
-BEGIN _bb1766
-BUILTIN _bb1767 " "
-list args _bb1767
+%bb.string.split(" ") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 7
+BEGIN _bb1834
+BUILTIN _bb1835 " "
+list args _bb1835
 END
-get _bb1769 bb string
-get _bb1768 _bb1769 split
-call _bb1765 _bb1766 _bb1768
-call _bb1762 _bb1763 _bb1765
-len _bb1761 _bb1762
-eq _bb1759 _bb1761 _bb1760
-eq _bb1757 _bb1759 _bb1758
-if # _bb1757 _bb1755
-BUILTIN _bb1770 Btrue
-return # _bb1770
+%bb.string //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 7
+get _bb1837 bb string
+%bb.string.split //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 7
+get _bb1836 _bb1837 split
+%bb.string.split(" ") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 7
+call _bb1833 _bb1834 _bb1836
+%A|bb.string.split(" ") //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 7
+call _bb1830 _bb1831 _bb1833
+%A|bb.string.split(" ")|len //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 7
+len _bb1829 _bb1830
+eq _bb1827 _bb1829 _bb1828
+eq _bb1825 _bb1827 _bb1826
+%if((A|bb.string.split(" ")|len ==3)== fa //C:\Users\manio\Desktop\bloblyVM\tests\string.bb line 7
+if # _bb1825 _bb1823
+BUILTIN _bb1838 Btrue
+%return true //.\tests\all.bb line 18
+return # _bb1838
 END
-try _bbmacro30 _bb1686
-BEGIN _bb1771
-BEGIN _bb1773
-str _bb1775 _bbmacro30
-BUILTIN _bb1777 "\n"
-BUILTIN _bb1778 "Stringutil"
-add _bb1776 _bb1778 _bb1777
-add _bb1774 _bb1776 _bb1775
-list args _bb1774
+%do{A="I like banana!";if((A|bb.string.st //.\tests\all.bb line 18
+do _bbmacro31 _bb1754
+%catch(_bbmacro31)bb.logger.fail("Stringu //.\tests\all.bb line 18
+BEGIN _bb1839
+%bb.logger.fail("Stringutil"+"\n"+str(_bb //.\tests\all.bb line 18
+BEGIN _bb1841
+%str(_bbmacro31) //.\tests\all.bb line 18
+str _bb1843 _bbmacro31
+%"Stringutil"+"\n" //.\tests\all.bb line 18
+BUILTIN _bb1845 "\n"
+BUILTIN _bb1846 "Stringutil"
+add _bb1844 _bb1846 _bb1845
+add _bb1842 _bb1844 _bb1843
+list args _bb1842
 END
-get _bb1780 bb logger
-get _bb1779 _bb1780 fail
-call _bb1772 _bb1773 _bb1779
+%bb.logger //.\tests\all.bb line 18
+get _bb1848 bb logger
+%bb.logger.fail //.\tests\all.bb line 18
+get _bb1847 _bb1848 fail
+%bb.logger.fail("Stringutil"+"\n"+str(_bb //.\tests\all.bb line 18
+call _bb1840 _bb1841 _bb1847
 END
-BEGIN _bb1781
-BEGIN _bb1783
-BUILTIN _bb1784 "Stringutil"
-list args _bb1784
+BEGIN _bb1849
+%bb.logger.ok("Stringutil") //.\tests\all.bb line 18
+BEGIN _bb1851
+BUILTIN _bb1852 "Stringutil"
+list args _bb1852
 END
-get _bb1786 bb logger
-get _bb1785 _bb1786 ok
-call _bb1782 _bb1783 _bb1785
+%bb.logger //.\tests\all.bb line 18
+get _bb1854 bb logger
+%bb.logger.ok //.\tests\all.bb line 18
+get _bb1853 _bb1854 ok
+%bb.logger.ok("Stringutil") //.\tests\all.bb line 18
+call _bb1850 _bb1851 _bb1853
 END
-catch # _bbmacro30 _bb1771 _bb1781
-BEGIN _bb1789
-BEGIN _bb1792
+%catch(_bbmacro31)bb.logger.fail("Stringu //.\tests\all.bb line 18
+catch # _bbmacro31 _bb1839 _bb1849
+%{final accum=new{value=0;add(x)={this.va //.\tests\all.bb line 19
+BEGIN _bb1857
+%{value=0;add(x)={this.value+=x}} //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 1
+BEGIN _bb1860
+%value=0 //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 2
 BUILTIN value I0
-BEGIN _bb1794
+%{this.value+=x} //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 3
+BEGIN _bb1862
 next x args
-get _bb1795 this value
-add _bb1795 _bb1795 x
-set # this value _bb1795
+%this.value+=x //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 3
+get _bb1863 this value
+add _bb1863 _bb1863 x
+set # this value _bb1863
 END
-IS add _bb1794
+IS add _bb1862
 return # this
 END
-new accum _bb1792
+%new{value=0;add(x)={this.value+=x}} //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 1
+new accum _bb1860
 final # accum
-BUILTIN _bb1797 I10
-range _bb1796 _bb1797
-iter _bbmacro32 _bb1796
-BEGIN _bb1801
-BEGIN _bb1802
-next _bb1803 _bbmacro32
-AS i _bb1803
-exists _bb1804 i
+%range(10) //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 6
+BUILTIN _bb1865 I10
+%range(10) //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 6
+range _bb1864 _bb1865
+%iter(range(10)) //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 6
+iter _bbmacro33 _bb1864
+%while(ias next(_bbmacro33))accum.add(i) //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 6
+BEGIN _bb1869
+%while(ias next(_bbmacro33))accum.add(i) //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 6
+BEGIN _bb1870
+%next(_bbmacro33) //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 6
+next _bb1871 _bbmacro33
+AS i _bb1871
+exists _bb1872 i
 END
-BEGIN _bb1805
-BEGIN _bb1807
+BEGIN _bb1873
+%accum.add(i) //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 6
+BEGIN _bb1875
 list args i
 END
-get _bb1808 accum add
-call _bb1806 _bb1807 _bb1808
+%accum.add //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 6
+get _bb1876 accum add
+%accum.add(i) //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 6
+call _bb1874 _bb1875 _bb1876
 END
-while # _bb1802 _bb1805
+%while(ias next(_bbmacro33))accum.add(i) //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 6
+while # _bb1870 _bb1873
 END
-try _bb1799 _bb1801
-BEGIN _bb1809
-BUILTIN _bb1810 "Assertion failed"
-fail # _bb1810
+%do while(ias next(_bbmacro33))accum.add( //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 6
+do _bb1867 _bb1869
+%if((accum.value == 45)== false)fail("Ass //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 7
+BEGIN _bb1877
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 7
+BUILTIN _bb1878 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 7
+fail # _bb1878
 END
-BUILTIN _bb1812 Bfalse
-BUILTIN _bb1814 I45
-get _bb1815 accum value
-eq _bb1813 _bb1815 _bb1814
-eq _bb1811 _bb1813 _bb1812
-if # _bb1811 _bb1809
-BUILTIN _bb1816 Btrue
-return # _bb1816
+%(accum.value == 45)== false //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 7
+BUILTIN _bb1880 Bfalse
+%accum.value == 45 //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 7
+BUILTIN _bb1882 I45
+%accum.value //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 7
+get _bb1883 accum value
+eq _bb1881 _bb1883 _bb1882
+eq _bb1879 _bb1881 _bb1880
+%if((accum.value == 45)== false)fail("Ass //C:\Users\manio\Desktop\bloblyVM\tests\atomicity.bb line 7
+if # _bb1879 _bb1877
+BUILTIN _bb1884 Btrue
+%return true //.\tests\all.bb line 19
+return # _bb1884
 END
-try _bbmacro31 _bb1789
-BEGIN _bb1817
-BEGIN _bb1819
-str _bb1821 _bbmacro31
-BUILTIN _bb1823 "\n"
-BUILTIN _bb1824 "Atomicity"
-add _bb1822 _bb1824 _bb1823
-add _bb1820 _bb1822 _bb1821
-list args _bb1820
+%do{final accum=new{value=0;add(x)={this. //.\tests\all.bb line 19
+do _bbmacro32 _bb1857
+%catch(_bbmacro32)bb.logger.fail("Atomici //.\tests\all.bb line 19
+BEGIN _bb1885
+%bb.logger.fail("Atomicity"+"\n"+str(_bbm //.\tests\all.bb line 19
+BEGIN _bb1887
+%str(_bbmacro32) //.\tests\all.bb line 19
+str _bb1889 _bbmacro32
+%"Atomicity"+"\n" //.\tests\all.bb line 19
+BUILTIN _bb1891 "\n"
+BUILTIN _bb1892 "Atomicity"
+add _bb1890 _bb1892 _bb1891
+add _bb1888 _bb1890 _bb1889
+list args _bb1888
 END
-get _bb1826 bb logger
-get _bb1825 _bb1826 fail
-call _bb1818 _bb1819 _bb1825
+%bb.logger //.\tests\all.bb line 19
+get _bb1894 bb logger
+%bb.logger.fail //.\tests\all.bb line 19
+get _bb1893 _bb1894 fail
+%bb.logger.fail("Atomicity"+"\n"+str(_bbm //.\tests\all.bb line 19
+call _bb1886 _bb1887 _bb1893
 END
-BEGIN _bb1827
-BEGIN _bb1829
-BUILTIN _bb1830 "Atomicity"
-list args _bb1830
+BEGIN _bb1895
+%bb.logger.ok("Atomicity") //.\tests\all.bb line 19
+BEGIN _bb1897
+BUILTIN _bb1898 "Atomicity"
+list args _bb1898
 END
-get _bb1832 bb logger
-get _bb1831 _bb1832 ok
-call _bb1828 _bb1829 _bb1831
+%bb.logger //.\tests\all.bb line 19
+get _bb1900 bb logger
+%bb.logger.ok //.\tests\all.bb line 19
+get _bb1899 _bb1900 ok
+%bb.logger.ok("Atomicity") //.\tests\all.bb line 19
+call _bb1896 _bb1897 _bb1899
 END
-catch # _bbmacro31 _bb1817 _bb1827
-BEGIN _bb1835
-BEGIN _bb1838
-BEGIN _bb1839
-BEGIN _bb1841
+%catch(_bbmacro32)bb.logger.fail("Atomici //.\tests\all.bb line 19
+catch # _bbmacro32 _bb1885 _bb1895
+%{finalA=new{foo1()={return extern2(B);}f //.\tests\all.bb line 20
+BEGIN _bb1903
+%{foo1()={return extern2(B);}foo2()={retu //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 3
+BEGIN _bb1906
+%{return extern2(B);} //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 4
+BEGIN _bb1907
+%extern2(B) //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 4
+BEGIN _bb1909
 list args B
 END
-call _bb1840 _bb1841 extern2
-return # _bb1840
+%extern2(B) //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 4
+call _bb1908 _bb1909 extern2
+%return extern2(B) //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 4
+return # _bb1908
 END
-IS foo1 _bb1839
-BEGIN _bb1842
-BEGIN _bb1844
+IS foo1 _bb1907
+%{return extern3(this);} //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 5
+BEGIN _bb1910
+%extern3(this) //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 5
+BEGIN _bb1912
 list args this
 END
-call _bb1843 _bb1844 extern3
-return # _bb1843
-END
-IS foo2 _bb1842
-BEGIN _bb1845
-get _bb1847 B foo1
-call _bb1846 # _bb1847
-return # _bb1846
-END
-IS foo3 _bb1845
-return # this
-END
-new A _bb1838
-final # A
-BEGIN _bb1850
-BEGIN _bb1851
-BEGIN _bb1853
-list args A
-END
-call _bb1852 _bb1853 extern2
-return # _bb1852
-END
-IS foo1 _bb1851
-BEGIN _bb1854
-BEGIN _bb1856
-list args this
-END
-call _bb1855 _bb1856 extern3
-return # _bb1855
-END
-IS foo2 _bb1854
-BEGIN _bb1857
-BUILTIN _bb1858 I1
-return # _bb1858
-END
-IS foo3 _bb1857
-return # this
-END
-new B _bb1850
-final # B
-BEGIN _bb1859
-next obj args
-get _bb1861 obj foo1
-call _bb1860 # _bb1861
-return # _bb1860
-END
-IS extern1 _bb1859
-final # extern1
-BEGIN _bb1862
-next obj args
-get _bb1864 obj foo2
-call _bb1863 # _bb1864
-return # _bb1863
-END
-IS extern2 _bb1862
-final # extern2
-BEGIN _bb1865
-next obj args
-get _bb1867 obj foo3
-call _bb1866 # _bb1867
-return # _bb1866
-END
-IS extern3 _bb1865
-final # extern3
-BEGIN _bb1868
-BUILTIN _bb1869 "Assertion failed"
-fail # _bb1869
-END
-BUILTIN _bb1871 Bfalse
-BUILTIN _bb1873 I1
-BEGIN _bb1875
-list args A
-END
-call _bb1874 _bb1875 extern1
-eq _bb1872 _bb1874 _bb1873
-eq _bb1870 _bb1872 _bb1871
-if # _bb1870 _bb1868
-BUILTIN _bb1876 Btrue
-return # _bb1876
-END
-try _bbmacro33 _bb1835
-BEGIN _bb1877
-BEGIN _bb1879
-str _bb1881 _bbmacro33
-BUILTIN _bb1883 "\n"
-BUILTIN _bb1884 "No deadlock"
-add _bb1882 _bb1884 _bb1883
-add _bb1880 _bb1882 _bb1881
-list args _bb1880
-END
-get _bb1886 bb logger
-get _bb1885 _bb1886 fail
-call _bb1878 _bb1879 _bb1885
-END
-BEGIN _bb1887
-BEGIN _bb1889
-BUILTIN _bb1890 "No deadlock"
-list args _bb1890
-END
-get _bb1892 bb logger
-get _bb1891 _bb1892 ok
-call _bb1888 _bb1889 _bb1891
-END
-catch # _bbmacro33 _bb1877 _bb1887
-BEGIN _bb1895
-BUILTIN _bb1897 "vfs://test.txt"
-file f1 _bb1897
-BUILTIN _bb1898 "Virtual data."
-push # f1 _bb1898
-BUILTIN _bb1900 "vfs://test.txt"
-file f2 _bb1900
-BEGIN _bb1901
-BUILTIN _bb1902 "Assertion failed"
-fail # _bb1902
-END
-BUILTIN _bb1904 Bfalse
-BUILTIN _bb1906 "Virtual data."
-BEGIN _bb1908
-list args f2
-END
-get _bb1910 bb os
-get _bb1909 _bb1910 read
-call _bb1907 _bb1908 _bb1909
-eq _bb1905 _bb1907 _bb1906
-eq _bb1903 _bb1905 _bb1904
-if # _bb1903 _bb1901
-BUILTIN _bb1911 Btrue
+%extern3(this) //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 5
+call _bb1911 _bb1912 extern3
+%return extern3(this) //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 5
 return # _bb1911
 END
-try _bbmacro34 _bb1895
-BEGIN _bb1912
-BEGIN _bb1914
-str _bb1916 _bbmacro34
-BUILTIN _bb1918 "\n"
-BUILTIN _bb1919 "VFS"
-add _bb1917 _bb1919 _bb1918
-add _bb1915 _bb1917 _bb1916
-list args _bb1915
+IS foo2 _bb1910
+%{returnB.foo1();} //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 6
+BEGIN _bb1913
+%B.foo1 //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 6
+get _bb1915 B foo1
+%B.foo1() //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 6
+call _bb1914 # _bb1915
+%returnB.foo1() //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 6
+return # _bb1914
 END
-get _bb1921 bb logger
-get _bb1920 _bb1921 fail
-call _bb1913 _bb1914 _bb1920
+IS foo3 _bb1913
+return # this
 END
+%new{foo1()={return extern2(B);}foo2()={r //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 3
+new A _bb1906
+final # A
+%{foo1()={return extern2(A);}foo2()={retu //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 9
+BEGIN _bb1918
+%{return extern2(A);} //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 10
+BEGIN _bb1919
+%extern2(A) //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 10
+BEGIN _bb1921
+list args A
+END
+%extern2(A) //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 10
+call _bb1920 _bb1921 extern2
+%return extern2(A) //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 10
+return # _bb1920
+END
+IS foo1 _bb1919
+%{return extern3(this);} //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 11
 BEGIN _bb1922
+%extern3(this) //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 11
 BEGIN _bb1924
-BUILTIN _bb1925 "VFS"
-list args _bb1925
+list args this
 END
-get _bb1927 bb logger
-get _bb1926 _bb1927 ok
-call _bb1923 _bb1924 _bb1926
+%extern3(this) //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 11
+call _bb1923 _bb1924 extern3
+%return extern3(this) //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 11
+return # _bb1923
 END
-catch # _bbmacro34 _bb1912 _bb1922
+IS foo2 _bb1922
+%{return1;} //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 12
+BEGIN _bb1925
+BUILTIN _bb1926 I1
+%return1 //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 12
+return # _bb1926
+END
+IS foo3 _bb1925
+return # this
+END
+%new{foo1()={return extern2(A);}foo2()={r //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 9
+new B _bb1918
+final # B
+%{return obj.foo1();} //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 15
+BEGIN _bb1927
+next obj args
+%obj.foo1 //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 15
+get _bb1929 obj foo1
+%obj.foo1() //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 15
+call _bb1928 # _bb1929
+%return obj.foo1() //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 15
+return # _bb1928
+END
+IS extern1 _bb1927
+final # extern1
+%{return obj.foo2();} //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 16
 BEGIN _bb1930
-BUILTIN _bb1931 "bb://.cache/database.db"
-sqlite db _bb1931
-BUILTIN _bb1934 "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER);"
-push _bb1933 db _bb1934
-BUILTIN n I10000
-time start
-BUILTIN _bb1938 "BEGIN TRANSACTION;"
-push _bb1937 db _bb1938
-range _bb1939 n
-iter _bbmacro36 _bb1939
-BEGIN _bb1941
-next _bb1942 _bbmacro36
-AS i _bb1942
-exists _bb1943 i
+next obj args
+%obj.foo2 //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 16
+get _bb1932 obj foo2
+%obj.foo2() //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 16
+call _bb1931 # _bb1932
+%return obj.foo2() //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 16
+return # _bb1931
 END
-BEGIN _bb1944
-BUILTIN _bb1947 ");"
-BUILTIN _bb1951 I10
-mod _bb1950 i _bb1951
-BUILTIN _bb1952 I20
-add _bb1949 _bb1952 _bb1950
-str _bb1953 _bb1949
-BUILTIN _bb1955 "', "
-str _bb1957 i
-BUILTIN _bb1958 "INSERT INTO users (name, age) VALUES ('User"
-add _bb1956 _bb1958 _bb1957
-add _bb1954 _bb1956 _bb1955
-add _bb1948 _bb1954 _bb1953
-add _bb1946 _bb1948 _bb1947
-push _bb1945 db _bb1946
-BUILTIN _bb1961 ";"
-str _bb1963 i
-BUILTIN _bb1964 "SELECT * FROM users WHERE id = "
-add _bb1962 _bb1964 _bb1963
-add _bb1960 _bb1962 _bb1961
-push _bb1959 db _bb1960
-BUILTIN _bb1967 ";"
-str _bb1969 i
-BUILTIN _bb1970 "UPDATE users SET age = age + 1 WHERE id = "
-add _bb1968 _bb1970 _bb1969
-add _bb1966 _bb1968 _bb1967
-push _bb1965 db _bb1966
+IS extern2 _bb1930
+final # extern2
+%{return obj.foo3();} //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 17
+BEGIN _bb1933
+next obj args
+%obj.foo3 //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 17
+get _bb1935 obj foo3
+%obj.foo3() //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 17
+call _bb1934 # _bb1935
+%return obj.foo3() //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 17
+return # _bb1934
 END
-while # _bb1941 _bb1944
-BUILTIN _bb1972 "COMMIT;"
-push _bb1971 db _bb1972
-time _bb1974
-sub eta _bb1974 start
-BEGIN _bb1975
-BUILTIN _bb1976 "Assertion failed"
-fail # _bb1976
+IS extern3 _bb1933
+final # extern3
+%if((extern1(A)==1)== false)fail("Asserti //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 19
+BEGIN _bb1936
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 19
+BUILTIN _bb1937 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 19
+fail # _bb1937
 END
-BUILTIN _bb1978 Bfalse
-BUILTIN _bb1980 I1
-lt _bb1979 eta _bb1980
-eq _bb1977 _bb1979 _bb1978
-if # _bb1977 _bb1975
-BEGIN _bb1981
-BUILTIN _bb1982 "Assertion failed"
-fail # _bb1982
+%(extern1(A)==1)== false //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 19
+BUILTIN _bb1939 Bfalse
+%extern1(A)==1 //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 19
+BUILTIN _bb1941 I1
+%extern1(A) //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 19
+BEGIN _bb1943
+list args A
 END
-BUILTIN _bb1984 Bfalse
-BUILTIN _bb1988 "SELECT * FROM users;"
-push _bb1987 db _bb1988
-len _bb1986 _bb1987
-eq _bb1985 n _bb1986
-eq _bb1983 _bb1985 _bb1984
-if # _bb1983 _bb1981
-BUILTIN _bb1990 "DELETE FROM users;"
-push _bb1989 db _bb1990
-BUILTIN _bb1991 Btrue
-return # _bb1991
+%extern1(A) //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 19
+call _bb1942 _bb1943 extern1
+eq _bb1940 _bb1942 _bb1941
+eq _bb1938 _bb1940 _bb1939
+%if((extern1(A)==1)== false)fail("Asserti //C:\Users\manio\Desktop\bloblyVM\tests\nodeadlock.bb line 19
+if # _bb1938 _bb1936
+BUILTIN _bb1944 Btrue
+%return true //.\tests\all.bb line 20
+return # _bb1944
 END
-try _bbmacro35 _bb1930
+%do{finalA=new{foo1()={return extern2(B); //.\tests\all.bb line 20
+do _bbmacro34 _bb1903
+%catch(_bbmacro34)bb.logger.fail("No dead //.\tests\all.bb line 20
+BEGIN _bb1945
+%bb.logger.fail("No deadlock"+"\n"+str(_b //.\tests\all.bb line 20
+BEGIN _bb1947
+%str(_bbmacro34) //.\tests\all.bb line 20
+str _bb1949 _bbmacro34
+%"No deadlock"+"\n" //.\tests\all.bb line 20
+BUILTIN _bb1951 "\n"
+BUILTIN _bb1952 "No deadlock"
+add _bb1950 _bb1952 _bb1951
+add _bb1948 _bb1950 _bb1949
+list args _bb1948
+END
+%bb.logger //.\tests\all.bb line 20
+get _bb1954 bb logger
+%bb.logger.fail //.\tests\all.bb line 20
+get _bb1953 _bb1954 fail
+%bb.logger.fail("No deadlock"+"\n"+str(_b //.\tests\all.bb line 20
+call _bb1946 _bb1947 _bb1953
+END
+BEGIN _bb1955
+%bb.logger.ok("No deadlock") //.\tests\all.bb line 20
+BEGIN _bb1957
+BUILTIN _bb1958 "No deadlock"
+list args _bb1958
+END
+%bb.logger //.\tests\all.bb line 20
+get _bb1960 bb logger
+%bb.logger.ok //.\tests\all.bb line 20
+get _bb1959 _bb1960 ok
+%bb.logger.ok("No deadlock") //.\tests\all.bb line 20
+call _bb1956 _bb1957 _bb1959
+END
+%catch(_bbmacro34)bb.logger.fail("No dead //.\tests\all.bb line 20
+catch # _bbmacro34 _bb1945 _bb1955
+%{f1="vfs://test.txt"|file;push(f1,"Virtu //.\tests\all.bb line 21
+BEGIN _bb1963
+%"vfs://test.txt"|file //C:\Users\manio\Desktop\bloblyVM\tests\vfs.bb line 3
+BUILTIN _bb1965 "vfs://test.txt"
+%"vfs://test.txt"|file //C:\Users\manio\Desktop\bloblyVM\tests\vfs.bb line 3
+file f1 _bb1965
+%push(f1,"Virtual data.") //C:\Users\manio\Desktop\bloblyVM\tests\vfs.bb line 4
+BUILTIN _bb1966 "Virtual data."
+%push(f1,"Virtual data.") //C:\Users\manio\Desktop\bloblyVM\tests\vfs.bb line 4
+push # f1 _bb1966
+%"vfs://test.txt"|file //C:\Users\manio\Desktop\bloblyVM\tests\vfs.bb line 6
+BUILTIN _bb1968 "vfs://test.txt"
+%"vfs://test.txt"|file //C:\Users\manio\Desktop\bloblyVM\tests\vfs.bb line 6
+file f2 _bb1968
+%if((bb.os.read(f2)== "Virtual data.")==  //C:\Users\manio\Desktop\bloblyVM\tests\vfs.bb line 7
+BEGIN _bb1969
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vfs.bb line 7
+BUILTIN _bb1970 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\vfs.bb line 7
+fail # _bb1970
+END
+%(bb.os.read(f2)== "Virtual data.")== fal //C:\Users\manio\Desktop\bloblyVM\tests\vfs.bb line 7
+BUILTIN _bb1972 Bfalse
+%bb.os.read(f2)== "Virtual data." //C:\Users\manio\Desktop\bloblyVM\tests\vfs.bb line 7
+BUILTIN _bb1974 "Virtual data."
+%bb.os.read(f2) //C:\Users\manio\Desktop\bloblyVM\tests\vfs.bb line 7
+BEGIN _bb1976
+list args f2
+END
+%bb.os //C:\Users\manio\Desktop\bloblyVM\tests\vfs.bb line 7
+get _bb1978 bb os
+%bb.os.read //C:\Users\manio\Desktop\bloblyVM\tests\vfs.bb line 7
+get _bb1977 _bb1978 read
+%bb.os.read(f2) //C:\Users\manio\Desktop\bloblyVM\tests\vfs.bb line 7
+call _bb1975 _bb1976 _bb1977
+eq _bb1973 _bb1975 _bb1974
+eq _bb1971 _bb1973 _bb1972
+%if((bb.os.read(f2)== "Virtual data.")==  //C:\Users\manio\Desktop\bloblyVM\tests\vfs.bb line 7
+if # _bb1971 _bb1969
+BUILTIN _bb1979 Btrue
+%return true //.\tests\all.bb line 21
+return # _bb1979
+END
+%do{f1="vfs://test.txt"|file;push(f1,"Vir //.\tests\all.bb line 21
+do _bbmacro35 _bb1963
+%catch(_bbmacro35)bb.logger.fail("VFS"+"\ //.\tests\all.bb line 21
+BEGIN _bb1980
+%bb.logger.fail("VFS"+"\n"+str(_bbmacro35 //.\tests\all.bb line 21
+BEGIN _bb1982
+%str(_bbmacro35) //.\tests\all.bb line 21
+str _bb1984 _bbmacro35
+%"VFS"+"\n" //.\tests\all.bb line 21
+BUILTIN _bb1986 "\n"
+BUILTIN _bb1987 "VFS"
+add _bb1985 _bb1987 _bb1986
+add _bb1983 _bb1985 _bb1984
+list args _bb1983
+END
+%bb.logger //.\tests\all.bb line 21
+get _bb1989 bb logger
+%bb.logger.fail //.\tests\all.bb line 21
+get _bb1988 _bb1989 fail
+%bb.logger.fail("VFS"+"\n"+str(_bbmacro35 //.\tests\all.bb line 21
+call _bb1981 _bb1982 _bb1988
+END
+BEGIN _bb1990
+%bb.logger.ok("VFS") //.\tests\all.bb line 21
 BEGIN _bb1992
-BEGIN _bb1994
-str _bb1996 _bbmacro35
-BUILTIN _bb1998 "\n"
-BUILTIN _bb1999 "Database"
-add _bb1997 _bb1999 _bb1998
-add _bb1995 _bb1997 _bb1996
-list args _bb1995
+BUILTIN _bb1993 "VFS"
+list args _bb1993
 END
-get _bb2001 bb logger
-get _bb2000 _bb2001 fail
-call _bb1993 _bb1994 _bb2000
+%bb.logger //.\tests\all.bb line 21
+get _bb1995 bb logger
+%bb.logger.ok //.\tests\all.bb line 21
+get _bb1994 _bb1995 ok
+%bb.logger.ok("VFS") //.\tests\all.bb line 21
+call _bb1991 _bb1992 _bb1994
 END
-BEGIN _bb2002
-BEGIN _bb2004
-BUILTIN _bb2005 "Database"
-list args _bb2005
+%catch(_bbmacro35)bb.logger.fail("VFS"+"\ //.\tests\all.bb line 21
+catch # _bbmacro35 _bb1980 _bb1990
+%{db=sqlite("bb://.cache/database.db");db //.\tests\all.bb line 22
+BEGIN _bb1998
+%("bb://.cache/database.db") //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 3
+BUILTIN _bb1999 "bb://.cache/database.db"
+%sqlite("bb://.cache/database.db") //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 3
+sqlite db _bb1999
+%db "CREATE TABLE IF NOT EXISTS users (id //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 4
+BUILTIN _bb2002 "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER);"
+push _bb2001 db _bb2002
+%n=10000 //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 6
+BUILTIN n I10000
+%time() //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 7
+time start
+%db "BEGIN TRANSACTION;" //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 9
+BUILTIN _bb2006 "BEGIN TRANSACTION;"
+push _bb2005 db _bb2006
+%range(n) //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 10
+range _bb2007 n
+%iter(range(n)) //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 10
+iter _bbmacro37 _bb2007
+%while(ias next(_bbmacro37)){db "INSERT I //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 10
+BEGIN _bb2009
+%next(_bbmacro37) //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 10
+next _bb2010 _bbmacro37
+AS i _bb2010
+exists _bb2011 i
 END
-get _bb2007 bb logger
-get _bb2006 _bb2007 ok
-call _bb2003 _bb2004 _bb2006
+BEGIN _bb2012
+%"INSERT INTO users (name, age) VALUES (' //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 11
+BUILTIN _bb2015 ");"
+%i%10 //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 11
+BUILTIN _bb2019 I10
+mod _bb2018 i _bb2019
+BUILTIN _bb2020 I20
+add _bb2017 _bb2020 _bb2018
+%str(20+(i%10)) //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 11
+str _bb2021 _bb2017
+%"INSERT INTO users (name, age) VALUES (' //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 11
+BUILTIN _bb2023 "', "
+%str(i) //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 11
+str _bb2025 i
+BUILTIN _bb2026 "INSERT INTO users (name, age) VALUES ('User"
+add _bb2024 _bb2026 _bb2025
+add _bb2022 _bb2024 _bb2023
+add _bb2016 _bb2022 _bb2021
+add _bb2014 _bb2016 _bb2015
+push _bb2013 db _bb2014
+%"SELECT * FROM users WHERE id = "+str(i) //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 12
+BUILTIN _bb2029 ";"
+%str(i) //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 12
+str _bb2031 i
+BUILTIN _bb2032 "SELECT * FROM users WHERE id = "
+add _bb2030 _bb2032 _bb2031
+add _bb2028 _bb2030 _bb2029
+push _bb2027 db _bb2028
+%"UPDATE users SET age = age + 1 WHERE id //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 13
+BUILTIN _bb2035 ";"
+%str(i) //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 13
+str _bb2037 i
+BUILTIN _bb2038 "UPDATE users SET age = age + 1 WHERE id = "
+add _bb2036 _bb2038 _bb2037
+add _bb2034 _bb2036 _bb2035
+push _bb2033 db _bb2034
 END
-catch # _bbmacro35 _bb1992 _bb2002
+%while(ias next(_bbmacro37)){db "INSERT I //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 10
+while # _bb2009 _bb2012
+%db "COMMIT;" //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 15
+BUILTIN _bb2040 "COMMIT;"
+push _bb2039 db _bb2040
+%time() //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 17
+time _bb2042
+sub eta _bb2042 start
+%if((eta<1)== false)fail("Assertion faile //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 18
+BEGIN _bb2043
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 18
+BUILTIN _bb2044 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 18
+fail # _bb2044
+END
+%(eta<1)== false //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 18
+BUILTIN _bb2046 Bfalse
+%eta<1 //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 18
+BUILTIN _bb2048 I1
+lt _bb2047 eta _bb2048
+eq _bb2045 _bb2047 _bb2046
+%if((eta<1)== false)fail("Assertion faile //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 18
+if # _bb2045 _bb2043
+%if((n==(db "SELECT * FROM users;")|len)= //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 19
+BEGIN _bb2049
+%("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 19
+BUILTIN _bb2050 "Assertion failed"
+%fail("Assertion failed") //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 19
+fail # _bb2050
+END
+%(n==(db "SELECT * FROM users;")|len)== f //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 19
+BUILTIN _bb2052 Bfalse
+%db "SELECT * FROM users;" //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 19
+BUILTIN _bb2056 "SELECT * FROM users;"
+push _bb2055 db _bb2056
+%(db "SELECT * FROM users;")|len //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 19
+len _bb2054 _bb2055
+eq _bb2053 n _bb2054
+eq _bb2051 _bb2053 _bb2052
+%if((n==(db "SELECT * FROM users;")|len)= //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 19
+if # _bb2051 _bb2049
+%db "DELETE FROM users;" //C:\Users\manio\Desktop\bloblyVM\tests\database.bb line 20
+BUILTIN _bb2058 "DELETE FROM users;"
+push _bb2057 db _bb2058
+BUILTIN _bb2059 Btrue
+%return true //.\tests\all.bb line 22
+return # _bb2059
+END
+%do{db=sqlite("bb://.cache/database.db"); //.\tests\all.bb line 22
+do _bbmacro36 _bb1998
+%catch(_bbmacro36)bb.logger.fail("Databas //.\tests\all.bb line 22
+BEGIN _bb2060
+%bb.logger.fail("Database"+"\n"+str(_bbma //.\tests\all.bb line 22
+BEGIN _bb2062
+%str(_bbmacro36) //.\tests\all.bb line 22
+str _bb2064 _bbmacro36
+%"Database"+"\n" //.\tests\all.bb line 22
+BUILTIN _bb2066 "\n"
+BUILTIN _bb2067 "Database"
+add _bb2065 _bb2067 _bb2066
+add _bb2063 _bb2065 _bb2064
+list args _bb2063
+END
+%bb.logger //.\tests\all.bb line 22
+get _bb2069 bb logger
+%bb.logger.fail //.\tests\all.bb line 22
+get _bb2068 _bb2069 fail
+%bb.logger.fail("Database"+"\n"+str(_bbma //.\tests\all.bb line 22
+call _bb2061 _bb2062 _bb2068
+END
+BEGIN _bb2070
+%bb.logger.ok("Database") //.\tests\all.bb line 22
+BEGIN _bb2072
+BUILTIN _bb2073 "Database"
+list args _bb2073
+END
+%bb.logger //.\tests\all.bb line 22
+get _bb2075 bb logger
+%bb.logger.ok //.\tests\all.bb line 22
+get _bb2074 _bb2075 ok
+%bb.logger.ok("Database") //.\tests\all.bb line 22
+call _bb2071 _bb2072 _bb2074
+END
+%catch(_bbmacro36)bb.logger.fail("Databas //.\tests\all.bb line 22
+catch # _bbmacro36 _bb2060 _bb2070

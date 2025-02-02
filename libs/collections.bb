@@ -82,7 +82,7 @@ final os = new {
         default cheksum = "";
         checksum |= str;
         if(checksum|len|bool) {
-            dsttext = try return dst|bb.os.read;
+            dsttext = do return dst|bb.os.read;
             catch(dsttext) dsttext = "";
             if(checksum==dsttext["md5"]) return true;
         }
@@ -95,7 +95,7 @@ final os = new {
 
 final string = new {
     // can use bb.string instead of str for typecasting
-    call(str value) => value;
+    final call(str value) => value;
 
     // hash functions exposed from openssl
     final md5(arg) => arg["md5"];
@@ -131,8 +131,8 @@ final string = new {
         call(str search) = {
             assert args|len == 0;
             query = this..query;
-            nsearch = search|len;
-            nquery = query|len;
+            nsearch = len(search);
+            nquery = len(query);
             if(nsearch<nquery) return false;
             while(i in range(nquery)) if(query[i]!=search[i]) return false;
             return true;
@@ -143,24 +143,24 @@ final string = new {
         call(str search) = {
             assert args|len == 0;
             query = this..query;
-            nsearch = search|len;
-            nquery = query|len;
+            nsearch = len(search);
+            nquery = len(query);
             if(nsearch<nquery) return false;
             while(i in range(nquery)) if(query[i]!=search[nsearch-nquery+i]) return false;
             return true;
         }
     }
     final index(str query) => new {
-        assert args|len == 0;
-        default pos = 0;
+        assert len(args) == 0;
+        default pos = 0 else pos = int(pos);
         call(str search) = {
-            assert args|len == 0;
+            assert len(args) == 0;
             query = this..query;
             pos = this.pos;
-            nsearch = search|len;
-            nquery = query|len;
+            nsearch = len(search);
+            nquery = len(query);
             while(i in range(pos, nsearch-nquery+1)) {
-                different = do while(j in range(nquery)) if(query[j]!=search[i+j]) return true;
+                different = do while(j in range(nquery)) if(query[j]!=search[i+j]) {return true;}
                 catch(different) return i;
             } 
             return nsearch;//fail("Index not found");

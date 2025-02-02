@@ -1,3 +1,19 @@
+/*
+   Copyright 2024 Emmanouil Krasanakis
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
 #include <iostream>
 #include "common.h"
 #include <memory>
@@ -23,6 +39,12 @@
 #include "interpreter/thread.h"
 
 extern BError* NO_TRY_INTERCEPT;
+std::chrono::steady_clock::time_point program_start;
+std::vector<SymbolWorries> symbolUsage;
+std::mutex ownershipMutex;
+std::recursive_mutex printMutex;
+std::recursive_mutex compileMutex;
+BMemory cachedData(0, nullptr, 1024);
 
 std::string replaceEscapeSequences(const std::string& input) {
     std::string output;
@@ -56,12 +78,6 @@ std::string replaceEscapeSequences(const std::string& input) {
     }
     return output;
 }
-
-
-std::chrono::steady_clock::time_point program_start;
-std::recursive_mutex printMutex;
-std::recursive_mutex compileMutex;
-BMemory cachedData(0, nullptr, 1024);
 
 #define DISPATCH_LITERAL(expr) {int carg = command.args[0]; result=DataPtr(expr); if(carg!=variableManager.noneId) [[likely]] memory.unsafeSetLiteral(carg, result); continue;}
 #define DISPATCH_RESULT(expr) {int carg = command.args[0]; result=DataPtr(expr); if(carg!=variableManager.noneId) [[likely]] memory.set(carg, result); continue;}
@@ -401,7 +417,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
     DO_OR: {
         arg0 = memory.get(command.args[1]);
         arg1 = memory.get(command.args[2]);
-        if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool() && arg1.unsafe_tobool());
+        if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool() || arg1.unsafe_tobool());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->opor(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->opor(&memory, arg0));
         if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
@@ -454,7 +470,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
         if(arg0.exists()) DISPATCH_LITERAL(arg0->toBool(&memory));
         bberror("There was no implementation for int("+arg0.torepr()+")");
     }
-    DO_BB_PRINT:{
+    DO_BB_PRINT:{ 
         const auto& printable = memory.get(command.args[1]);
         std::string printing = printable.exists()?printable->toString(&memory):printable.torepr();
         printing = replaceEscapeSequences(printing);
@@ -532,10 +548,14 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
     }
     DO_SET: {
         const auto& obj = memory.get(command.args[1]);
-        if(!obj.existsAndTypeEquals(STRUCT)) bberror(obj.existsAndTypeEquals(ERRORTYPE)?obj->toString(nullptr):"Can only set fields in a struct.");
+        if(!obj.existsAndTypeEquals(STRUCT)) [[unlikely]] {
+            if(obj.existsAndTypeEquals(ERRORTYPE)) bbcascade(obj->toString(nullptr), "Can only set fields in a struct");
+            bberror("Can only set fields in a struct.");
+        }
         auto structObj = static_cast<Struct*>(obj.get());
         std::lock_guard<std::recursive_mutex> lock(structObj->memoryLock);
         auto setValue = memory.getOrNullShallow(command.args[3]);
+        if(setValue.existsAndTypeEquals(ERRORTYPE)) bbcascade(setValue->toString(nullptr), "Cannot set an error to a struct field");
         if(setValue.existsAndTypeEquals(CODE)) setValue = static_cast<Code*>(setValue.get())->copy();
         auto structMemory = structObj->getMemory();
         structMemory->set(command.args[2], setValue);//structmemory.getOrNullShallow(command.args[2]));
@@ -565,7 +585,8 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
             if(!jitableCondition || !jitableCondition->runWithBooleanIntent(&memory, checkValue, forceStayInThread)) {
                 Result returnedValue = run(program, codeConditionStart, codeConditiionEnd);
                 const auto& check = returnedValue.get();
-                bbassert(check.isbool(), "While condition did not evaluate to bool");
+                if(check.existsAndTypeEquals(ERRORTYPE)) bberror(check->toString(nullptr));
+                bbassert(check.isbool(), "While condition did not evaluate to bool but to: "+check.torepr());
                 checkValue = check.unsafe_tobool();
                 if (returnSignal) [[unlikely]] {
                     Result res(check);
@@ -582,7 +603,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
     DO_IF: {
         const auto& condition = memory.get(command.args[1]);
         if(condition.existsAndTypeEquals(ERRORTYPE)) bberror(condition->toString(nullptr));
-        bbassert(condition.isbool(), "If condition did not evaluate to bool");
+        bbassert(condition.isbool(), "If condition did not evaluate to bool but to: "+condition.torepr());
 
         if(condition.unsafe_tobool()) {
             const auto& accept = memory.get(command.args[2]);
@@ -659,7 +680,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
     }
     DO_FAIL: {
         const auto& result = memory.get(command.args[1]);
-        bberror(std::move(enrichErrorDescription(command, result->toString(&memory))));
+        bberror(std::move(result->toString(&memory)));
         continue;
     }
     DO_DEFER: {
@@ -734,17 +755,17 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
     }
     DO_PUSH: {
         arg0 = memory.get(command.args[1]);
-        bbassert(arg0.exists(), "Cannot push to this data type: "+arg0.torepr());
+        if(!arg0.exists()) bbcascade1("Cannot push to this data type: "+arg0.torepr());
         arg1 = memory.get(command.args[2]);
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) bbcascade(arg1->toString(nullptr), "Cannot push an error value to anything");
         DISPATCH_OUTCOME(arg0->push(&memory, arg1));
     }
     DO_PUT: {
         arg0 = memory.get(command.args[1]);
-        bbassert(arg0.exists(), "Cannot put to this data type: "+arg0.torepr());
+        if(!arg0.exists()) bbcascade1("Cannot put to this data type: "+arg0.torepr());
         arg1 = memory.get(command.args[2]);
         const auto& arg2 = memory.get(command.args[3]);
-        if(arg2.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
+        if(arg2.existsAndTypeEquals(ERRORTYPE)) bbcascade(arg1->toString(nullptr), "Cannot set an error value to anything");
         DISPATCH_OUTCOME(arg0->put(&memory, arg1, arg2));
     }
     DO_TOGRAPHICS: {
@@ -939,7 +960,24 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
             called = (val);
         }
         auto code = static_cast<Code*>(called.get());
-        if(forceStayInThread || !code->scheduleForParallelExecution || !Future::acceptsThread()) {
+        bool forceAwait(false);
+        {
+            std::lock_guard<std::mutex> lock(ownershipMutex);
+            for(int access : code->requestAccess) {
+                auto& symbol = symbolUsage[access];
+                if(symbol.modification) forceAwait = true;
+                symbol.access++;
+            }
+            for(int access : code->requestModification) {
+                auto& symbol = symbolUsage[access];
+                if(symbol.access || symbol.modification) forceAwait = true;
+                symbol.modification++;
+            }
+        }
+        if(forceAwait) {memory.tempawait();}
+        bool stayInThread = /*forceStayInThread ||*/ !code->scheduleForParallelExecution || !Future::acceptsThread();
+        if(stayInThread) {
+            CodeExiter codeExiter(code);
             BMemory newMemory(depth, &memory, LOCAL_EXPECTATION_FROM_CODE(code));
             if(context.exists()) {
                 bbassert(context.existsAndTypeEquals(CODE), "Call context must be a code block.");
@@ -951,12 +989,11 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
             auto it = memory.codeOwners.find(code);
             const auto& thisObj = (it != memory.codeOwners.end() ? it->second->getMemory() : &memory)->getOrNull(variableManager.thisId, true);
             if(thisObj.exists()) newMemory.set(variableManager.thisId, thisObj);
-            std::unique_lock<std::recursive_mutex> executorLock;
+            /*std::unique_lock<std::recursive_mutex> executorLock;
             if(thisObj.exists()) {
                 bbassert(thisObj.existsAndTypeEquals(STRUCT), "Internal error: `this` was neither a struct nor missing (in the last case it would have been replaced by the scope)");
-                //if(!forceStayInThread) 
                 executorLock = std::unique_lock<std::recursive_mutex>(static_cast<Struct*>(thisObj.get())->memoryLock);
-            }
+            }*/
             newMemory.parent = memory.getParentWithFinals();  // TODO: detaching may be necessary in multi-threaded settings to prevent parent setting from interfering with gets
             newMemory.allowMutables = false;
             ExecutionInstance executor(depth, code, &newMemory, thisObj.exists());
@@ -997,9 +1034,29 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
     }//end try 
     catch (const BBError& e) {
         int carg = command.args[0]; 
-        if(carg==variableManager.noneId || command.operation==RETURN) {
+        /*if(carg==variableManager.noneId || command.operation==RETURN) {
             result = DataPtr::NULLP;
             handleExecutionError(program[i], e);
+        }*/
+        if(command.operation==SET 
+            || command.operation==SETFINAL 
+            || command.operation==PUT 
+            || command.operation==POP  
+            || command.operation==PUSH 
+            || command.operation==NEXT
+            || command.operation==FAIL
+            || command.operation==MOVE
+            || command.operation==CLEAR
+            || carg==variableManager.noneId 
+            || command.operation==RETURN) {
+            returnSignal = true;
+            std::string err = enrichErrorDescription(program[i], e.what());
+            if(command.operation!=FAIL) err += "\n\033[0m(\033[33m FATAL \033[0m) This kind of error is returned immediately\033[0m";
+            else                        err += "\n\033[0m(\033[33m FATAL \033[0m) This kind of error is returned immediately\033[0m";
+            BError* berror = new BError(std::move(err));
+            berror->consume();
+            result = DataPtr(berror);
+            return RESMOVE(Result(result));
         }
         std::string err = enrichErrorDescription(program[i], e.what());
         BError* berror = new BError(std::move(err));
