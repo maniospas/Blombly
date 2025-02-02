@@ -152,7 +152,7 @@ final string = new {
     }
     final index(str query) => new {
         assert args|len == 0;
-        catch(try {pos=pos; return}) pos = 0;
+        default pos = 0;
         call(str search) = {
             assert args|len == 0;
             query = this..query;
@@ -160,7 +160,7 @@ final string = new {
             nsearch = search|len;
             nquery = query|len;
             while(i in range(pos, nsearch-nquery+1)) {
-                different = try while(j in range(nquery)) if(query[j]!=search[i+j]) return true;
+                different = do while(j in range(nquery)) if(query[j]!=search[i+j]) return true;
                 catch(different) return i;
             } 
             return nsearch;//fail("Index not found");

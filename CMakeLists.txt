@@ -108,7 +108,7 @@ if(UNIX AND NOT WIN32) # For Linux and macOS
         message(FATAL_ERROR "SDL2_ttf library not found. Make sure it is installed on the system.")
     endif()
 
-elseif(WIN32) # For Windows using GCC
+elseif(WIN32) # For Windows
     # Find and link SDL2
     find_package(SDL2 CONFIG REQUIRED)
     if(TARGET SDL2::SDL2main AND TARGET SDL2::SDL2)
