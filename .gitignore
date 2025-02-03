@@ -12,3 +12,5 @@ venv/
 /blombly
 .cache
 **/*.bbvm
+blombly-lsp/node_modules
+blombly-lsp/__pycache__
