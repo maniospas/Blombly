@@ -1,3 +1,7 @@
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+sys.stdin.reconfigure(encoding='utf-8')
+
 from utils import *
 from pathlib import Path
 from pygls.server import LanguageServer
@@ -178,4 +182,4 @@ def did_change(ls, params):
 
 
 if __name__ == '__main__':
-    server.start_tcp('0.0.0.0', 2087)
+    server.start_io()
