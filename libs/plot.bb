@@ -1,20 +1,20 @@
 sci = new {
     Plot = {
-        final plots = list();
+        plots = list();
         defer {
             default axes = 255,255,255,255;
             default shade = 255,255,255,32;
             default text = 255,255,255,255;   
         }
 
-        final plot(vector x, vector y) = {
+        plot(vector x, vector y) = {
             default color = this.axes;
             default title = "";
             this.plots << new {x=x;y=y;color=color;title=title}
             return this;
         }
 
-        final show() = {
+        show() = {
             default width = 400;
             default height = 200;
             default title = "Blombly plot";

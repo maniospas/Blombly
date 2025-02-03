@@ -64,7 +64,6 @@ new _bb73 _bb75
 return # _bb73
 END
 IS transform _bb72
-final # transform
 return # this
 END
 new collection _bb63
@@ -481,7 +480,6 @@ new _bb561 _bb563
 return # _bb561
 END
 IS split _bb560
-final # split
 return # this
 END
 new string _bb365

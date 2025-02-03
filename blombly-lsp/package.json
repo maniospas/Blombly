@@ -1,0 +1,37 @@
+{
+    "name": "blombly-lsp",
+    "displayName": "Blomly LSP",
+    "description": "VSCode extension that connects to Blombly's LSP server",
+    "version": "0.0.1",
+    "publisher": "maniospas",
+    "engines": {
+        "vscode": "^1.50.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onLanguage:blombly"
+    ],
+    "repository" : "https://github.com/maniospas/Blombly",
+    "main": "./extension.js",
+    "contributes": {
+        "languages": [
+            {
+                "id": "blombly",
+                "aliases": [
+                    "Blombly"
+                ],
+                "extensions": [
+                    ".bb"
+                ]
+            }
+        ]
+    },
+    "dependencies": {
+        "vscode-languageclient": "^7.0.0"
+    },
+    "devDependencies": {
+        "@vscode/test-electron": "^2.4.1"
+    }
+}

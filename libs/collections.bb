@@ -1,11 +1,11 @@
-final collection = new {
-    final toback(element) => new {
+collection = new {
+    toback(element) => new {
         call(A) = {
             A << this..element;
             return A;
         }
     }
-    final transform(func) => new {
+    transform(func) => new {
         call(A) = {
             ret = list();
             while(x in A) ret << this..func(x);
@@ -14,9 +14,9 @@ final collection = new {
     }
 }
 
-final db(str path) => new {
-    final connector = sqlite(path);
-    final table(str table_name, str signature) = {
+db(str path) => new {
+    connector = sqlite(path);
+    table(str table_name, str signature) = {
         this.connector << "CREATE TABLE IF NOT EXISTS !{table_name} (!{signature});";
         return new {
             insert(entry) = {
@@ -35,40 +35,40 @@ final db(str path) => new {
             }
         }
     }
-    final transaction() = {
+    transaction() = {
         this.connector << "BEGIN TRANSACTION;";
         return new {
             // this is how to end the transaction
-            final connector = this..connector;
+            connector = this..connector;
             call() => this...commit();
         }
     }
-    final commit() => this.connector << "COMMIT;";
-    final run(query) => this.connector << query|str;
+    commit() => this.connector << "COMMIT;";
+    run(query) => this.connector << query|str;
 }
 
-final logger = new {
-    final ok(str text) = {print("[  !{bb.ansi.lightgreen}ok!{bb.ansi.reset}  ] !{text}")}
-    final fail(str text) = {print("[ !{bb.ansi.lightred}fail!{bb.ansi.reset} ] !{text}")}
-    final warn(str text) = {print("[ !{bb.ansi.yellow}warn!{bb.ansi.reset} ] !{text}")}
-    final info(str text) = {print("[ !{bb.ansi.lightcyan}info!{bb.ansi.reset} ] !{text}")}
+logger = new {
+    ok(str text) = {print("[  !{bb.ansi.lightgreen}ok!{bb.ansi.reset}  ] !{text}")}
+    fail(str text) = {print("[ !{bb.ansi.lightred}fail!{bb.ansi.reset} ] !{text}")}
+    warn(str text) = {print("[ !{bb.ansi.yellow}warn!{bb.ansi.reset} ] !{text}")}
+    info(str text) = {print("[ !{bb.ansi.lightcyan}info!{bb.ansi.reset} ] !{text}")}
 }
 
-final memory = new {
-    final raii() => new {
-        final entries = list();
-        final push(obj) = {
+memory = new {
+    raii() => new {
+        entries = list();
+        push(obj) = {
             this.entries << obj;
             return obj;
         }
-        final clear() = {while(obj as this.entries|next) clear(obj)}
+        clear() = {while(obj as this.entries|next) clear(obj)}
     }
 }
 
-final os = new {
-    final call(str file path) => path;
-    final isfile(str path) => bool(file(path)/".")==false;
-    final read(str file path) = {
+os = new {
+    call(str file path) => path;
+    isfile(str path) => bool(file(path)/".")==false;
+    read(str file path) = {
         ret = "";
         while(line in path) {
             if(ret|len|bool) ret += "\n";
@@ -76,9 +76,9 @@ final os = new {
         }
         return ret;
     }
-    final transfer() = {
-        src = from|str|file;
-        dst = to|str|file;
+    transfer() = {
+        src = file(from|str);
+        dst = file(to|str);
         default cheksum = "";
         checksum |= str;
         if(checksum|len|bool) {
@@ -93,28 +93,28 @@ final os = new {
     }
 }
 
-final string = new {
+string = new {
     // can use bb.string instead of str for typecasting
-    final call(str value) => value;
+    call(str value) => value;
 
     // hash functions exposed from openssl
-    final md5(arg) => arg["md5"];
-    final sha1(arg) => arg["sha1"];
-    final sha224(arg) => arg["sha224"];
-    final sha256(arg) => arg["sha256"];
-    final sha384(arg) => arg["sha384"];
-    final sha512(arg) => arg["sha512"];
-    final sha3_224(arg) => arg["sha3_224"];
-    final sha3_256(arg) => arg["sha3_256"];
-    final sha3_384(arg) => arg["sha3_384"];
-    final sha3_512(arg) => arg["sha3_512"];
-    final blake2b(arg) => arg["blake2b"];
-    final blake2s(arg) => arg["blake2s"];
-    final ripemd160(arg) => arg["ripemd160"];
-    final whirlpool(arg) => arg["whirlpool"];
-    final sm3(arg) => arg["sm3"];
+    md5(arg) => arg["md5"];
+    sha1(arg) => arg["sha1"];
+    sha224(arg) => arg["sha224"];
+    sha256(arg) => arg["sha256"];
+    sha384(arg) => arg["sha384"];
+    sha512(arg) => arg["sha512"];
+    sha3_224(arg) => arg["sha3_224"];
+    sha3_256(arg) => arg["sha3_256"];
+    sha3_384(arg) => arg["sha3_384"];
+    sha3_512(arg) => arg["sha3_512"];
+    blake2b(arg) => arg["blake2b"];
+    blake2s(arg) => arg["blake2s"];
+    ripemd160(arg) => arg["ripemd160"];
+    whirlpool(arg) => arg["whirlpool"];
+    sm3(arg) => arg["sm3"];
 
-    final join(str delimiter) => new {
+    join(str delimiter) => new {
         call(strlist) = {
             ret = "";
             while(entry in strlist) {
@@ -126,8 +126,8 @@ final string = new {
     }
     
     // common string manipulation methods
-    final starts(str query) => new {
-        assert args|len == 0;
+    starts(str query) => new {
+        assert len(args) == 0;
         call(str search) = {
             assert args|len == 0;
             query = this..query;
@@ -138,8 +138,8 @@ final string = new {
             return true;
         }
     }
-    final ends(str query) => new {
-        assert args|len == 0;
+    ends(str query) => new {
+        assert len(args) == 0;
         call(str search) = {
             assert args|len == 0;
             query = this..query;
@@ -150,7 +150,7 @@ final string = new {
             return true;
         }
     }
-    final index(str query) => new {
+    index(str query) => new {
         assert len(args) == 0;
         default pos = 0 else pos = int(pos);
         call(str search) = {
@@ -166,13 +166,13 @@ final string = new {
             return nsearch;//fail("Index not found");
         }
     }
-    final split(str query) => new {
+    split(str query) => new {
         assert args|len == 0;
         default maxsplits = 0;
         call(str search) = {
             query = this..query;
-            nsearch = search|len;
-            nquery = query|len;
+            nsearch = len(search);
+            nquery = len(query);
             if(nquery==0) fail("Cannot split on a zero-length string");
             ret = list();
             pos = 0;
