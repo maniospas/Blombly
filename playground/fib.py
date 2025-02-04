@@ -6,6 +6,6 @@ def fib(n):
 import time
 
 tic = time.time()
-result = fib(32)
+result = fib(31)
 print("Result", result)
 print("Time", time.time() - tic)

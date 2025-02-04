@@ -734,7 +734,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
             Result returnedValue = executor.run(code);
             newMemory->detach(nullptr);
             if(returnedValue.get().get()!=thisObj) {
-                if(command.args[0]!=variableManager.noneId) memory.set(command.args[0], result);
+                if(command.args[0]!=variableManager.noneId) memory.set(command.args[0], returnedValue.get());
                 thisObj->removeFromOwner(); // do this after setting
                 continue;
             }
