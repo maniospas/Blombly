@@ -75,7 +75,7 @@ print("../README.md"|file|str|len);
 <span style="color:green;"># compilation without running</span>
 > <span style="color: cyan;">./blombly</span> main.bb  --norun
 <span style="color:green;"># option 1: directly run permission code</span>
-> <span style="color: cyan;">./blombly</span> {!access "../"} main.bbvm
+> <span style="color: cyan;">./blombly</span> '!access "../"' main.bbvm
 <span style="color:green;"># option 2: run permission file</span>
 > <span style="color: cyan;">./blombly</span> permissions.bb main.bbvm
 </pre>

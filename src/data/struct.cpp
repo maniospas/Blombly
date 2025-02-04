@@ -40,7 +40,7 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory) {
     bbassert(implementation->getType() == CODE, "Struct field `"+variableManager.getSymbol(implementationCode) + "` is not a method and therefore the corresponding operation is not overloaded (even callable structs are not allowed)");
     Code* code = static_cast<Code*>(implementation.get());
 
-    bool forceAwait(false);
+    /*bool forceAwait(false);
     {
         std::lock_guard<std::mutex> lock(ownershipMutex);
         for(int access : code->requestAccess) {
@@ -55,7 +55,7 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory) {
         }
     }
     if(forceAwait) {calledMemory->tempawait();}
-    CodeExiter codeExiter(code);
+    CodeExiter codeExiter(code);*/
     BList* args = new BList(0);
 
     BMemory newMemory(depth, calledMemory->getParentWithFinals(), LOCAL_EXPECTATION_FROM_CODE(code));
@@ -82,7 +82,7 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory, co
     bbassert(implementation->getType() == CODE, "Struct field `"+variableManager.getSymbol(implementationCode) + "` is not a method and therefore the corresponding operation is not overloaded (even callable structs are not allowed)");
 
     Code* code = static_cast<Code*>(implementation.get());
-    bool forceAwait(false);
+    /*bool forceAwait(false);
     {
         std::lock_guard<std::mutex> lock(ownershipMutex);
         for(int access : code->requestAccess) {
@@ -97,7 +97,7 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory, co
         }
     }
     if(forceAwait) {calledMemory->tempawait();}
-    CodeExiter codeExiter(code);
+    CodeExiter codeExiter(code);*/
 
     BList* args = new BList(1);  // will be destroyed alongside the memory
     other.existsAddOwner();

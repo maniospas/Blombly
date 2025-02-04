@@ -1,6 +1,8 @@
-final A = list();
+tic = time();
+final fib(n) = {
+    if(n<=1) return 1;
+    return fib(n-1)+fib(n-2);
+}
 
-push2A(value) = {A<<value;}
-while(i in range(10)) push2A(i);
-
-print(A);
+print(fib(31));
+print(time()-tic);

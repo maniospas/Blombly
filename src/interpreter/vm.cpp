@@ -60,6 +60,7 @@ public:
 
 
 
+
 void preliminaryDependencies(std::vector<Command>* program) {
     std::unordered_map<int, std::unordered_set<int>> redirects;
     std::unordered_set<int> symbols;
@@ -99,10 +100,17 @@ void preliminaryDependencies(std::vector<Command>* program) {
     int programSize = program->size();
 
     // compile code blocks while we are at it
-    for(int i=0;i<programSize;++i) {
-        const Command& command = (*program)[i];
-        if(command.operation!=BEGIN && command.operation!=BEGINFINAL && command.operation!=BEGINCACHE) continue;
-        int commandSymbolGroup = mergedSymbols.find(command.args[0])==mergedSymbols.end()?command.args[0]:mergedSymbols[command.args[0]];
+    for(int i=-1;i<programSize;++i) {
+        int commandSymbolGroup;
+        if(i==-1) {
+            i = 0;
+            commandSymbolGroup = variableManager.mainScopeNameId;
+        }
+        else {
+            const Command& command = (*program)[i];
+            if(command.operation!=BEGIN && command.operation!=BEGINFINAL && command.operation!=BEGINCACHE) continue;
+            commandSymbolGroup = mergedSymbols.find(command.args[0])==mergedSymbols.end()?command.args[0]:mergedSymbols[command.args[0]];
+        }
         // find end of code block while checking symbols inside
         size_t pos = i + 1;
         int depth = 0;
@@ -132,6 +140,8 @@ void preliminaryDependencies(std::vector<Command>* program) {
                     if(mergedSymbols.find(variableManager.callId)!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[variableManager.callId]);
                     if(mergedSymbols.find(codeCommand.args[2])!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[codeCommand.args[2]]);
                     else calls[commandSymbolGroup].insert(codeCommand.args[2]);
+                    if(mergedSymbols.find(codeCommand.args[3])!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[codeCommand.args[3]]);
+                    else calls[commandSymbolGroup].insert(codeCommand.args[3]);
                     continue;
                 }
                 if(command_type == WHILE) {
@@ -379,7 +389,19 @@ void preliminaryDependencies(std::vector<Command>* program) {
                     else calls[commandSymbolGroup].insert(variableManager.structMMul);
                     continue;
                 }
-                if(command_type == PUSH && codeCommand.args[0]!=variableManager.argsId) {
+                if(command_type == AT && codeCommand.args[1]!=variableManager.argsId) {
+                    if(mergedSymbols.find(variableManager.structPush)!=mergedSymbols.end()) affects[commandSymbolGroup].insert(mergedSymbols[variableManager.structPush]);
+                    else affects[commandSymbolGroup].insert(variableManager.structPush);
+                    if(mergedSymbols.find(variableManager.structPush)!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[variableManager.structPush]);
+                    else calls[commandSymbolGroup].insert(variableManager.structPush);
+                    // forcefully sync everything
+                    if(mergedSymbols.find(variableManager.synchronizedListModification)!=mergedSymbols.end()) uses[commandSymbolGroup].insert(mergedSymbols[variableManager.synchronizedListModification]);
+                    else uses[commandSymbolGroup].insert(variableManager.synchronizedListModification);
+                    if(mergedSymbols.find(variableManager.synchronizedListModification)!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[variableManager.synchronizedListModification]);
+                    else calls[commandSymbolGroup].insert(variableManager.synchronizedListModification);
+                    continue;
+                }
+                if(command_type == PUSH && codeCommand.args[1]!=variableManager.argsId) {
                     if(mergedSymbols.find(variableManager.structPush)!=mergedSymbols.end()) affects[commandSymbolGroup].insert(mergedSymbols[variableManager.structPush]);
                     else affects[commandSymbolGroup].insert(variableManager.structPush);
                     if(mergedSymbols.find(variableManager.structPush)!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[variableManager.structPush]);
@@ -391,7 +413,7 @@ void preliminaryDependencies(std::vector<Command>* program) {
                     else calls[commandSymbolGroup].insert(variableManager.synchronizedListModification);
                     continue;
                 }
-                if(command_type == POP && codeCommand.args[0]!=variableManager.argsId) {
+                if(command_type == POP && codeCommand.args[1]!=variableManager.argsId) {
                     if(mergedSymbols.find(variableManager.structPop)!=mergedSymbols.end()) affects[commandSymbolGroup].insert(mergedSymbols[variableManager.structPop]);
                     else affects[commandSymbolGroup].insert(variableManager.structPop);
                     if(mergedSymbols.find(variableManager.structPop)!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[variableManager.structPop]);
@@ -403,7 +425,7 @@ void preliminaryDependencies(std::vector<Command>* program) {
                     else calls[commandSymbolGroup].insert(variableManager.synchronizedListModification);
                     continue;
                 }
-                if(command_type == NEXT && codeCommand.args[0]!=variableManager.argsId) {
+                if(command_type == NEXT && codeCommand.args[1]!=variableManager.argsId) {
                     if(mergedSymbols.find(variableManager.structNext)!=mergedSymbols.end()) affects[commandSymbolGroup].insert(mergedSymbols[variableManager.structNext]);
                     else affects[commandSymbolGroup].insert(variableManager.structNext);
                     if(mergedSymbols.find(variableManager.structNext)!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[variableManager.structNext]);
@@ -429,10 +451,10 @@ void preliminaryDependencies(std::vector<Command>* program) {
         bbassert(depth >= 0, "Code block never ended.");
         // create the code block
         auto cache = new Code(program, i + 1, pos, command_type == END?(pos-1):pos);
-        cache->scheduleForParallelExecution = cache->requestModification.size()==0;
+        //cache->scheduleForParallelExecution = cache->requestModification.size()==0;
         cache->addOwner();
         cache->jitable = jit(cache);
-        command.value = cache;
+        if(i!=-1) (*program)[i].value = cache;
     }
 
     // merge everything with dependent blocks
@@ -450,6 +472,8 @@ void preliminaryDependencies(std::vector<Command>* program) {
         }
     }
 
+    std::unordered_set<int> canBeModified;
+
     // allocate to compiled blocks their group's affect and input symbols
     for(int i=0;i<programSize;++i) {
         const Command& command = (*program)[i];
@@ -459,13 +483,31 @@ void preliminaryDependencies(std::vector<Command>* program) {
         cache->requestAccess.reserve(uses[commandSymbolGroup].size());
         cache->requestModification.reserve(affects[commandSymbolGroup].size());
         for(int symbol : uses[commandSymbolGroup]) cache->requestAccess.push_back(symbol);
-        for(int symbol : affects[commandSymbolGroup]) cache->requestModification.push_back(symbol);
+        for(int symbol : affects[commandSymbolGroup]) {
+            cache->requestModification.push_back(symbol);
+            canBeModified.insert(symbol);
+        }
+    }
+    for(int symbol : affects[variableManager.mainScopeNameId]) canBeModified.insert(symbol);
+
+
+    // schedule for paralell execution everything that does not use modifiable struct fields and itself does not modify said fields
+    for(int i=0;i<programSize;++i) {
+        Command& command = (*program)[i];
+        if(command.operation!=BEGIN && command.operation!=BEGINFINAL && command.operation!=BEGINCACHE) continue;
+        int commandSymbolGroup = mergedSymbols.find(command.args[0])==mergedSymbols.end()?command.args[0]:mergedSymbols[command.args[0]];
+        Code* cache = static_cast<Code*>(command.value.get());
+        bool usesAffected(false);
+        for(int symbol : uses[commandSymbolGroup]) if(canBeModified.find(symbol)!=canBeModified.end()) usesAffected = true;
+        cache->scheduleForParallelExecution = !(usesAffected || cache->requestModification.size());
+        
         /*std::cout << variableManager.getSymbol(command.args[0]) << "\n";
         std::cout << cache->toString(nullptr) << "\n";
-        std::cout << "uses struct fields: ";
+        std::cout << "  uses struct fields: ";
         for(int symbol : uses[commandSymbolGroup]) std::cout<<variableManager.getSymbol(symbol)<<" ";
-        std::cout << "\nsets struct fields: ";
+        std::cout << "\n  sets struct fields: ";
         for(int symbol : affects[commandSymbolGroup]) std::cout<<variableManager.getSymbol(symbol)<<" ";
+        if(cache->scheduleForParallelExecution ) std::cout << "\n  Can run in parallel";
         std::cout << "\n";*/
     }
 
@@ -554,6 +596,7 @@ int vm(const std::string& fileName, int numThreads) {
             std::string line;
             int i = 1;
             
+            //program->emplace_back("BEGIN _bbmain", source, 0, new CommandContext("main context start"));
             CommandContext* descriptor = nullptr;
             while (std::getline(inputFile, line)) {
                 if (line[0] != '%') program->emplace_back(line, source, i, descriptor);
@@ -561,6 +604,8 @@ int vm(const std::string& fileName, int numThreads) {
                 ++i;
             }
             inputFile.close();
+            //program->emplace_back("END", source, program->size()-1, new CommandContext("main context end"));
+            //program->emplace_back("call _bbmainresult # _bbmain", source, program->size()-1, new CommandContext("main context run"));
 
             preliminarySimpleChecks(program);
             

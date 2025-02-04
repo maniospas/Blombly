@@ -61,7 +61,7 @@ OperationType getOperationType(const std::string& str);
 std::string getOperationTypeName(OperationType type);
 
 #define DEFAULT_LOCAL_EXPECTATION (size_t)32
-#define LOCAL_EXPECTATION_FROM_CODE(code) std::min(1+(code->getEnd() - code->getStart()), DEFAULT_LOCAL_EXPECTATION)
+#define LOCAL_EXPECTATION_FROM_CODE(codeContext) std::min(1+(codeContext->getEnd() - codeContext->getStart())/2, DEFAULT_LOCAL_EXPECTATION)
 
 class Data;
 class Command;

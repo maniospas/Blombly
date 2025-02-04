@@ -37,7 +37,7 @@ void BMemory::verify_noleaks() {
     bbassert(countUnreleased == 1, "There are " + std::to_string(countUnreleased-1) + " leftover memory contexts leaked");  // the main memory is a global object (needed to sync threads on errors)
 }
 
-BMemory::BMemory(unsigned int depth, BMemory* par, int expectedAssignments, DataPtr thisObject) : depth(depth), parent(par), allowMutables(true), first_item(INT_MAX), hasAtLeastOneFinal(false) { 
+BMemory::BMemory(unsigned int depth, BMemory* par, int expectedAssignments) : depth(depth), parent(par), allowMutables(true), first_item(INT_MAX), hasAtLeastOneFinal(false) { 
     ++countUnrealeasedMemories;
     cache_size = expectedAssignments;
     cache = new DataPtr[cache_size]();

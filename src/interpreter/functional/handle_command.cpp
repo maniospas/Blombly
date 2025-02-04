@@ -917,7 +917,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
         }
         bbassert(depth >= 0, "Cache declaration never ended.");
         auto cache = new Code(&program, i + 1, pos, command_type == END?(pos-1):pos);
-        BMemory cacheMemory(0, nullptr, 16, DataPtr::NULLP);
+        BMemory cacheMemory(0, nullptr, 16);
         ExecutionInstance cacheExecutor(depth, cache, &cacheMemory, forceStayInThread);
         cacheExecutor.run(cache);
         cacheMemory.await();
@@ -927,61 +927,37 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
         continue;
     }
     DO_BEGIN:
-    DO_BEGINFINAL: {
-        // Start a block of code
-        if(command.value.exists()) {
-            auto code = static_cast<Code*>(command.value.get());
-            result = code;
-            int carg = command.args[0];
-            if(carg!=variableManager.noneId) memory.set(carg, result);
-            if (command.operation == BEGINFINAL) memory.setFinal(command.args[0]); // WE NEED TO SET FINALS ONLY AFTER THE VARIABLE IS SET
-            i = code->getEnd();
-            continue;
-        }
-        // Find the matching END for this block
-        size_t pos = i + 1;
-        int depth = 0;
-        OperationType command_type(END);
-        while(pos <= program.size()) {
-            command_type = program[pos].operation;
-            if(command_type == BEGIN || command_type == BEGINFINAL) depth++;
-            if(command_type == END) {
-                if(depth == 0) break;
-                --depth;
-            }
-            ++pos;
-        }
-        bbassert(depth >= 0, "Code block never ended.");
-        auto cache = new Code(&program, i + 1, pos, command_type == END?(pos-1):pos);
-        cache->addOwner();
-        cache->jitable = jit(cache);
-        command.value = cache;
-        result = cache;
-        i = pos;
+    DO_BEGINFINAL: { // cache has already been generated
+        auto code = static_cast<Code*>(command.value.get());
+        result = code;
         int carg = command.args[0];
         if(carg!=variableManager.noneId) memory.set(carg, result);
         if (command.operation == BEGINFINAL) memory.setFinal(command.args[0]); // WE NEED TO SET FINALS ONLY AFTER THE VARIABLE IS SET
+        i = code->getEnd();
         continue;
     }
-     DO_CALL: {
-        // Function or method call
-        const auto& context = command.args[1] == variableManager.noneId ? DataPtr::NULLP : memory.get(command.args[1]);
+    DO_CALL: {
+        // find out what to call
+        const auto context = command.args[1] == variableManager.noneId ? DataPtr::NULLP : memory.get(command.args[1]);
+        bbassert(!context.exists() || context.existsAndTypeEquals(CODE), "Function argument must be packed into a code block");
         DataPtr called = memory.get(command.args[2]);
-        bbassert(called.exists(), "Cannot call a missing value or literal.");
-        if(called->getType()!=CODE && called->getType()!=STRUCT) {
-            bberror("Can only call code or struct");
-        }
-        if(called->getType()==STRUCT) {
+        if(called.existsAndTypeEquals(STRUCT)) {
             auto strct = static_cast<Struct*>(called.get());
             auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
             bbassert(val.existsAndTypeEquals(CODE), "Struct was called like a method but has no implemented code for `call`.");
-            static_cast<Code*>(val.get())->scheduleForParallelExecution = false; // struct calls are never executed in parallel
+            //static_cast<Code*>(val.get())->scheduleForParallelExecution = false; // struct calls are never executed in parallel
             memory.codeOwners[static_cast<Code*>(val.get())] = static_cast<Struct*>(called.get());
             called = (val);
         }
-        auto code = static_cast<Code*>(called.get());
-        bool forceAwait(false);
-        {
+        bbassert(called.existsAndTypeEquals(CODE), "Function call must be a code block");
+        Code* code = static_cast<Code*>(called.get());
+        Code* callCode = context.exists()?static_cast<Code*>(context.get()):nullptr;
+        bool sycnhronizeRun = !code->scheduleForParallelExecution || !Future::acceptsThread();
+
+        //std::cout << code->toString(nullptr) << "\n";
+
+        /*if(code->requestModification.size() && code->requestAccess.size()){
+            bool forceAwait(false);
             std::lock_guard<std::mutex> lock(ownershipMutex);
             for(int access : code->requestAccess) {
                 auto& symbol = symbolUsage[access];
@@ -993,51 +969,46 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
                 if(symbol.access || symbol.modification) forceAwait = true;
                 symbol.modification++;
             }
-        }
-        if(forceAwait) {memory.tempawait();}
-        bool stayInThread = /*forceStayInThread ||*/ !code->scheduleForParallelExecution || !Future::acceptsThread();
-        if(stayInThread) {
-            CodeExiter codeExiter(code);
-            BMemory newMemory(depth, &memory, LOCAL_EXPECTATION_FROM_CODE(code));
-            if(context.exists()) {
-                bbassert(context.existsAndTypeEquals(CODE), "Call context must be a code block.");
-                Code* callCode = static_cast<Code*>(context.get());
+            if(forceAwait) {memory.tempawait();}
+        }*/
+
+        if(sycnhronizeRun) {
+            //CodeExiter codeExiter(code);
+            // run prample
+            BMemory newMemory(depth, &memory, LOCAL_EXPECTATION_FROM_CODE(code)+(callCode?LOCAL_EXPECTATION_FROM_CODE(callCode):0));
+            if(callCode) {
                 ExecutionInstance executor(depth, callCode, &newMemory, forceStayInThread);
+                Result returnedValue = executor.run(callCode);
+                if(executor.hasReturned()) DISPATCH_RESULT(returnedValue.get());
+            }
+            
+            // switch the memory to the new context
+            const auto& it = memory.codeOwners.find(code);
+            const auto& thisObj = (it != memory.codeOwners.end() ? it->second->getMemory() : &memory)->getOrNull(variableManager.thisId, true);
+            bool thisObjExists = thisObj.exists();
+            if(thisObjExists) newMemory.set(variableManager.thisId, thisObj);
+            newMemory.parent = memory.getParentWithFinals();  
+            newMemory.allowMutables = false;
+            
+            // run the called block
+            ExecutionInstance executor(depth, code, &newMemory, thisObjExists);
+            Result returnedValue = executor.run(code);
+            result = returnedValue.get();
+            if(thisObjExists) newMemory.setToNullIgnoringFinals(variableManager.thisId);
+            DISPATCH_COMPUTED_RESULT;
+        }
+        else { 
+            // run preample
+            auto newMemory = new BMemory(depth, &memory, LOCAL_EXPECTATION_FROM_CODE(code)+(callCode?LOCAL_EXPECTATION_FROM_CODE(callCode):0));
+            if(callCode) {
+                ExecutionInstance executor(depth, callCode, newMemory, forceStayInThread);
                 Result returnedValue = executor.run(callCode);
                 if(executor.hasReturned()) DISPATCH_RESULT(returnedValue.get());
             }
             auto it = memory.codeOwners.find(code);
             const auto& thisObj = (it != memory.codeOwners.end() ? it->second->getMemory() : &memory)->getOrNull(variableManager.thisId, true);
-            if(thisObj.exists()) newMemory.set(variableManager.thisId, thisObj);
-            /*std::unique_lock<std::recursive_mutex> executorLock;
-            if(thisObj.exists()) {
-                bbassert(thisObj.existsAndTypeEquals(STRUCT), "Internal error: `this` was neither a struct nor missing (in the last case it would have been replaced by the scope)");
-                executorLock = std::unique_lock<std::recursive_mutex>(static_cast<Struct*>(thisObj.get())->memoryLock);
-            }*/
-            newMemory.parent = memory.getParentWithFinals();  // TODO: detaching may be necessary in multi-threaded settings to prevent parent setting from interfering with gets
-            newMemory.allowMutables = false;
-            ExecutionInstance executor(depth, code, &newMemory, thisObj.exists());
-            Result returnedValue = executor.run(code);
-            result = returnedValue.get();
-            if(thisObj.exists()) newMemory.setToNullIgnoringFinals(variableManager.thisId);
-            DISPATCH_COMPUTED_RESULT;
-        } 
-        else { // 
-            auto newMemory = new BMemory(depth, &memory, LOCAL_EXPECTATION_FROM_CODE(code));
-            if(context.exists()) {
-                bbassert(context.existsAndTypeEquals(CODE), "Call context must be a code block.");
-                ExecutionInstance executor(depth, static_cast<Code*>(context.get()), newMemory, forceStayInThread);
-                Result returnedValue = executor.run(static_cast<Code*>(context.get()));
-                if(executor.hasReturned()) {
-                    result = returnedValue.get();
-                    DISPATCH_COMPUTED_RESULT;
-                }
-            }
-            //newmemory.detach(memory);
-            auto it = memory.codeOwners.find(code);
-            const auto& thisObj = (it != memory.codeOwners.end() ? it->second->getMemory() : &memory)->getOrNull(variableManager.thisId, true);
             if(thisObj.exists()) newMemory->set(variableManager.thisId, thisObj);
-            newMemory->parent = memory.getParentWithFinals(); // TODO: detaching may benecessary in multi-threaded settings to prevent parent setting from interfering with gets
+            newMemory->parent = memory.getParentWithFinals();
             newMemory->allowMutables = false;
             auto futureResult = new ThreadResult();
             auto future = new Future(futureResult);

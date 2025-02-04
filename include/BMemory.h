@@ -87,8 +87,9 @@ public:
 
     static constexpr int consoleId = 40;
     static constexpr int synchronizedListModification = 41;
+    static constexpr int mainScopeNameId = 42;
 
-    static constexpr int maximumReservedId = 42;
+    static constexpr int maximumReservedId = 43;
 
 
     VariableManager() {
@@ -132,7 +133,9 @@ public:
         getId("sum");
         getId("not");
         getId("log");
-        getId("console");
+        getId("_bbconsole");
+        getId("_bbanylist");
+        getId("_bbmain");
     }
     const int size() {return registeredSymbols.size();}
     int getId(const std::string& symbol) {
@@ -171,6 +174,9 @@ private:
     }
     unsigned int depth;
 public:
+    BMemory* parent;
+    tsl::hopscotch_map<Code*, Struct*> codeOwners;
+    tsl::hopscotch_set<Future*> attached_threads;
     inline BMemory* getParentWithFinals() {
         // this is used to skip intermediate useless memory contexts in get() within function 
         if(hasAtLeastOneFinal) return this; 
@@ -179,14 +185,11 @@ public:
     }
     unsigned int getDepth() const {return depth;}
     void release();
-    tsl::hopscotch_map<Code*, Struct*> codeOwners;
-    BMemory* parent;
-    tsl::hopscotch_set<Future*> attached_threads;
 
     bool allowMutables;
     void prefetch() const;
 
-    explicit BMemory(unsigned int depth, BMemory* par, int expectedAssignments, DataPtr thisObject=DataPtr::NULLP);
+    explicit BMemory(unsigned int depth, BMemory* par, int expectedAssignments);
     ~BMemory();
 
     const DataPtr& get(int item) {
