@@ -6,4 +6,5 @@ final fib(n) = {
 }
 
 print(fib(31));
+
 print(time()-tic);

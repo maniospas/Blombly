@@ -954,26 +954,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
         Code* callCode = context.exists()?static_cast<Code*>(context.get()):nullptr;
         bool sycnhronizeRun = !code->scheduleForParallelExecution || !Future::acceptsThread();
 
-        //std::cout << code->toString(nullptr) << "\n";
-
-        /*if(code->requestModification.size() && code->requestAccess.size()){
-            bool forceAwait(false);
-            std::lock_guard<std::mutex> lock(ownershipMutex);
-            for(int access : code->requestAccess) {
-                auto& symbol = symbolUsage[access];
-                if(symbol.modification) forceAwait = true;
-                symbol.access++;
-            }
-            for(int access : code->requestModification) {
-                auto& symbol = symbolUsage[access];
-                if(symbol.access || symbol.modification) forceAwait = true;
-                symbol.modification++;
-            }
-            if(forceAwait) {memory.tempawait();}
-        }*/
-
         if(sycnhronizeRun) {
-            //CodeExiter codeExiter(code);
             // run prample
             BMemory newMemory(depth, &memory, LOCAL_EXPECTATION_FROM_CODE(code)+(callCode?LOCAL_EXPECTATION_FROM_CODE(callCode):0));
             if(callCode) {
