@@ -54,7 +54,7 @@ public:
     Jitable* jitable;
     
     explicit Code(const std::vector<Command>* programAt, size_t startAt, size_t endAt, size_t premature_end);
-    Code* copy() const {Code* ret = new Code(program, start, end, premature_end);ret->jitable=jitable; return ret;}
+    Code* copy() const {Code* ret = new Code(program, start, end, premature_end);ret->jitable=jitable;ret->scheduleForParallelExecution=scheduleForParallelExecution; return ret;}
     std::string toString(BMemory* memory)override;
     size_t getStart() const;
     size_t getEnd() const;
@@ -77,9 +77,8 @@ public:
 
 class SymbolEntrantExiter {
     int symbol;
-    BMemory* memory;
 public:
-    SymbolEntrantExiter(int symbol, BMemory* memory);
+    SymbolEntrantExiter(int symbol);
     SymbolEntrantExiter(const SymbolEntrantExiter&) = delete;
     SymbolEntrantExiter(SymbolEntrantExiter&&) = delete;
     ~SymbolEntrantExiter();

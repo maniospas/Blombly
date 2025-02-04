@@ -5,6 +5,7 @@ final Num = {
 }
 num(x) => new {Num:value=x}
 
+
 A = 5,2,3,4,1;
 A = A|bb.collection.transform(num);
 

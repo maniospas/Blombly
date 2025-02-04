@@ -85,7 +85,10 @@ public:
     static constexpr int structNot  = 38;
     static constexpr int structLog  = 39;
 
-    static constexpr int maximumReservedId = 39;
+    static constexpr int consoleId = 40;
+    static constexpr int synchronizedListModification = 41;
+
+    static constexpr int maximumReservedId = 42;
 
 
     VariableManager() {
@@ -129,6 +132,7 @@ public:
         getId("sum");
         getId("not");
         getId("log");
+        getId("console");
     }
     const int size() {return registeredSymbols.size();}
     int getId(const std::string& symbol) {

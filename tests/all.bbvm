@@ -30,7 +30,6 @@ new _bb65 _bb67
 return # _bb65
 END
 IS toback _bb64
-final # toback
 BEGIN _bb72
 next func args
 BEGIN _bb75
@@ -67,7 +66,6 @@ IS transform _bb72
 return # this
 END
 new collection _bb63
-final # collection
 BEGIN _bb88
 next path args
 str path path
@@ -79,7 +77,6 @@ new _bb89 _bb91
 return # _bb89
 END
 IS db _bb88
-final # db
 BEGIN _bb204
 BEGIN _bb205
 next text args
@@ -104,7 +101,6 @@ add _bb206 _bb208 _bb207
 print # _bb206
 END
 IS ok _bb205
-final # ok
 BEGIN _bb223
 next text args
 str text text
@@ -128,11 +124,9 @@ add _bb224 _bb226 _bb225
 print # _bb224
 END
 IS fail _bb223
-final # fail
 return # this
 END
 new logger _bb204
-final # logger
 BEGIN _bb297
 BEGIN _bb298
 next path args
@@ -166,11 +160,9 @@ while # _bb309 _bb312
 return # ret
 END
 IS read _bb306
-final # read
 return # this
 END
 new os _bb297
-final # os
 BEGIN _bb365
 BEGIN _bb366
 next value args
@@ -246,7 +238,6 @@ new _bb430 _bb432
 return # _bb430
 END
 IS starts _bb429
-final # starts
 BEGIN _bb467
 next query args
 str query query
@@ -317,7 +308,6 @@ new _bb468 _bb470
 return # _bb468
 END
 IS ends _bb467
-final # ends
 BEGIN _bb507
 next query args
 str query query
@@ -409,7 +399,6 @@ new _bb508 _bb510
 return # _bb508
 END
 IS index _bb507
-final # index
 BEGIN _bb560
 next query args
 str query query
@@ -483,7 +472,6 @@ IS split _bb560
 return # this
 END
 new string _bb365
-final # string
 return # this
 END
 new bb _bb40

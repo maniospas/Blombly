@@ -40,24 +40,21 @@ const std::vector<Command>* Code::getProgram() const {return program;}
 
 CodeExiter::CodeExiter(Code* code) : code(code) {}
 CodeExiter::~CodeExiter() {
-    std::lock_guard<std::mutex> lock(ownershipMutex);
-    for(int access : code->requestAccess) {
-        auto& symbol = symbolUsage[access];
-        symbol.access--;
-    }
-    for(int access : code->requestModification) {
-        auto& symbol = symbolUsage[access];
-        symbol.modification--;
+    if(code->requestAccess.size() || code->requestModification.size()) {
+        std::lock_guard<std::mutex> lock(ownershipMutex);
+        for(int access : code->requestAccess) {
+            auto& symbol = symbolUsage[access];
+            symbol.access--;
+        }
+        for(int access : code->requestModification) {
+            auto& symbol = symbolUsage[access];
+            symbol.modification--;
+        }
     }
 }
 
 
-SymbolEntrantExiter::SymbolEntrantExiter(int symbol, BMemory* memory): symbol(symbol), memory(memory) {
-    std::lock_guard<std::mutex> lock(ownershipMutex);
-    auto& symbol_ = symbolUsage[symbol];
-    symbol_.access++;
-    if(symbol_.modification) memory->tempawait();
-}
+SymbolEntrantExiter::SymbolEntrantExiter(int symbol): symbol(symbol) {}
 SymbolEntrantExiter::~SymbolEntrantExiter() {
     std::lock_guard<std::mutex> lock(ownershipMutex);
     auto& symbol_ = symbolUsage[symbol];

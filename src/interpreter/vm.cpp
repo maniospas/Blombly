@@ -172,10 +172,27 @@ void preliminaryDependencies(std::vector<Command>* program) {
                     continue;
                 }
                 if(command_type == BB_PRINT) {
-                    if(mergedSymbols.find(variableManager.structStr)!=mergedSymbols.end()) uses[commandSymbolGroup].insert(mergedSymbols[variableManager.structStr]);
-                    else uses[commandSymbolGroup].insert(variableManager.structStr);
+                    if(mergedSymbols.find(variableManager.structStr)!=mergedSymbols.end()) affects[commandSymbolGroup].insert(mergedSymbols[variableManager.structStr]);
+                    else affects[commandSymbolGroup].insert(variableManager.structStr);
                     if(mergedSymbols.find(variableManager.structStr)!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[variableManager.structStr]);
                     else calls[commandSymbolGroup].insert(variableManager.structStr);
+                    // print modifies the console
+                    if(mergedSymbols.find(variableManager.consoleId)!=mergedSymbols.end()) affects[commandSymbolGroup].insert(mergedSymbols[variableManager.consoleId]);
+                    else affects[commandSymbolGroup].insert(variableManager.consoleId);
+                    if(mergedSymbols.find(variableManager.consoleId)!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[variableManager.consoleId]);
+                    else calls[commandSymbolGroup].insert(variableManager.consoleId);
+                    continue;
+                }
+                if(command_type == READ) {
+                    if(mergedSymbols.find(variableManager.structStr)!=mergedSymbols.end()) affects[commandSymbolGroup].insert(mergedSymbols[variableManager.structStr]);
+                    else affects[commandSymbolGroup].insert(variableManager.structStr);
+                    if(mergedSymbols.find(variableManager.structStr)!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[variableManager.structStr]);
+                    else calls[commandSymbolGroup].insert(variableManager.structStr);
+                    // read modifies the console
+                    if(mergedSymbols.find(variableManager.consoleId)!=mergedSymbols.end()) affects[commandSymbolGroup].insert(mergedSymbols[variableManager.consoleId]);
+                    else affects[commandSymbolGroup].insert(variableManager.consoleId);
+                    if(mergedSymbols.find(variableManager.consoleId)!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[variableManager.consoleId]);
+                    else calls[commandSymbolGroup].insert(variableManager.consoleId);
                     continue;
                 }
                 if(command_type == ADD) {
@@ -362,25 +379,40 @@ void preliminaryDependencies(std::vector<Command>* program) {
                     else calls[commandSymbolGroup].insert(variableManager.structMMul);
                     continue;
                 }
-                if(command_type == PUSH) {
-                    if(mergedSymbols.find(variableManager.structPush)!=mergedSymbols.end()) uses[commandSymbolGroup].insert(mergedSymbols[variableManager.structPush]);
-                    else uses[commandSymbolGroup].insert(variableManager.structPush);
+                if(command_type == PUSH && codeCommand.args[0]!=variableManager.argsId) {
+                    if(mergedSymbols.find(variableManager.structPush)!=mergedSymbols.end()) affects[commandSymbolGroup].insert(mergedSymbols[variableManager.structPush]);
+                    else affects[commandSymbolGroup].insert(variableManager.structPush);
                     if(mergedSymbols.find(variableManager.structPush)!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[variableManager.structPush]);
                     else calls[commandSymbolGroup].insert(variableManager.structPush);
+                    // forcefully sync everything
+                    if(mergedSymbols.find(variableManager.synchronizedListModification)!=mergedSymbols.end()) affects[commandSymbolGroup].insert(mergedSymbols[variableManager.synchronizedListModification]);
+                    else affects[commandSymbolGroup].insert(variableManager.synchronizedListModification);
+                    if(mergedSymbols.find(variableManager.synchronizedListModification)!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[variableManager.synchronizedListModification]);
+                    else calls[commandSymbolGroup].insert(variableManager.synchronizedListModification);
                     continue;
                 }
-                if(command_type == POP) {
-                    if(mergedSymbols.find(variableManager.structPop)!=mergedSymbols.end()) uses[commandSymbolGroup].insert(mergedSymbols[variableManager.structPop]);
-                    else uses[commandSymbolGroup].insert(variableManager.structPop);
+                if(command_type == POP && codeCommand.args[0]!=variableManager.argsId) {
+                    if(mergedSymbols.find(variableManager.structPop)!=mergedSymbols.end()) affects[commandSymbolGroup].insert(mergedSymbols[variableManager.structPop]);
+                    else affects[commandSymbolGroup].insert(variableManager.structPop);
                     if(mergedSymbols.find(variableManager.structPop)!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[variableManager.structPop]);
                     else calls[commandSymbolGroup].insert(variableManager.structPop);
+                    // forcefully sync everything
+                    if(mergedSymbols.find(variableManager.synchronizedListModification)!=mergedSymbols.end()) affects[commandSymbolGroup].insert(mergedSymbols[variableManager.synchronizedListModification]);
+                    else affects[commandSymbolGroup].insert(variableManager.synchronizedListModification);
+                    if(mergedSymbols.find(variableManager.synchronizedListModification)!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[variableManager.synchronizedListModification]);
+                    else calls[commandSymbolGroup].insert(variableManager.synchronizedListModification);
                     continue;
                 }
-                if(command_type == NEXT) {
-                    if(mergedSymbols.find(variableManager.structNext)!=mergedSymbols.end()) uses[commandSymbolGroup].insert(mergedSymbols[variableManager.structNext]);
-                    else uses[commandSymbolGroup].insert(variableManager.structNext);
+                if(command_type == NEXT && codeCommand.args[0]!=variableManager.argsId) {
+                    if(mergedSymbols.find(variableManager.structNext)!=mergedSymbols.end()) affects[commandSymbolGroup].insert(mergedSymbols[variableManager.structNext]);
+                    else affects[commandSymbolGroup].insert(variableManager.structNext);
                     if(mergedSymbols.find(variableManager.structNext)!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[variableManager.structNext]);
                     else calls[commandSymbolGroup].insert(variableManager.structNext);
+                    // forcefully sync everything
+                    if(mergedSymbols.find(variableManager.synchronizedListModification)!=mergedSymbols.end()) affects[commandSymbolGroup].insert(mergedSymbols[variableManager.synchronizedListModification]);
+                    else affects[commandSymbolGroup].insert(variableManager.synchronizedListModification);
+                    if(mergedSymbols.find(variableManager.synchronizedListModification)!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[variableManager.synchronizedListModification]);
+                    else calls[commandSymbolGroup].insert(variableManager.synchronizedListModification);
                     continue;
                 }
                 /*int assignmentPos = 0;
@@ -397,6 +429,7 @@ void preliminaryDependencies(std::vector<Command>* program) {
         bbassert(depth >= 0, "Code block never ended.");
         // create the code block
         auto cache = new Code(program, i + 1, pos, command_type == END?(pos-1):pos);
+        cache->scheduleForParallelExecution = cache->requestModification.size()==0;
         cache->addOwner();
         cache->jitable = jit(cache);
         command.value = cache;

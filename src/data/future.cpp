@@ -24,16 +24,19 @@ std::atomic<int> Future::thread_count = 0;
 
 Future::Future() : result(new ThreadResult()), Data(FUTURE) {
     ++thread_count;
+    //std::cout << "thread created"+std::to_string(thread_count)+"\n";
 }
 
 Future::Future(ThreadResult* result_) : result((result_)), Data(FUTURE) {
     ++thread_count;
+    //std::cout << "thread created"+std::to_string(thread_count)+"\n";
 }
 
 // Future destructor
 Future::~Future() {
     {
         if (result->thread.joinable()) {
+            //std::cout << "thread ended"+std::to_string(thread_count)+"\n";
             result->thread.join();
             --thread_count;
         }
@@ -61,11 +64,13 @@ Result Future::getResult() const {
     try { 
         if (result->thread.joinable()) {
             result->thread.join();
+            //std::cout << "thread ended"+std::to_string(thread_count)+"\n";
             --thread_count;
         }
     } catch (...) {
         result->error = nullptr;
         result->value = Result(DataPtr::NULLP);
+        //std::cout << "thread ended"+std::to_string(thread_count)+"\n";
         --thread_count;
         bberror("Failed to join thread");
     }

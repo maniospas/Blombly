@@ -1,15 +1,6 @@
-tic = time();
+final A = list();
 
+push2A(value) = {A<<value;}
+while(i in range(10)) push2A(i);
 
-foo = {
-    A = list();
-    while(i in range(1000000)) A << i;
-    return A|len;
-}
-
-results = list();
-while(i in range(10)) results << 0;
-while(i in range(10)) results[i] = foo();
-
-print(time()-tic);
-print(results|vector|sum);
+print(A);

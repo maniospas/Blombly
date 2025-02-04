@@ -471,6 +471,16 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
         bberror("There was no implementation for int("+arg0.torepr()+")");
     }
     DO_BB_PRINT:{ 
+        bool forceAwait(false);
+        SymbolEntrantExiter symbolExiter(variableManager.synchronizedListModification);
+        {
+            std::lock_guard<std::mutex> lock(ownershipMutex);
+            auto& symbol = symbolUsage[variableManager.synchronizedListModification];
+            if(symbol.access || symbol.modification) forceAwait = true;
+            symbol.modification++;
+        }
+        if(forceAwait) memory.tempawait();
+
         const auto& printable = memory.get(command.args[1]);
         std::string printing = printable.exists()?printable->toString(&memory):printable.torepr();
         printing = replaceEscapeSequences(printing);
@@ -481,6 +491,16 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
         continue;
     }
     DO_READ:{
+        bool forceAwait(false);
+        SymbolEntrantExiter symbolExiter(variableManager.synchronizedListModification);
+        {
+            std::lock_guard<std::mutex> lock(ownershipMutex);
+            auto& symbol = symbolUsage[variableManager.synchronizedListModification];
+            if(symbol.access || symbol.modification) forceAwait = true;
+            symbol.modification++;
+        }
+        if(forceAwait) memory.tempawait();
+
         std::string printing;
         if(command.nargs>1) {
             DataPtr printable = memory.get(command.args[1]);
@@ -943,7 +963,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
         if (command.operation == BEGINFINAL) memory.setFinal(command.args[0]); // WE NEED TO SET FINALS ONLY AFTER THE VARIABLE IS SET
         continue;
     }
-    DO_CALL: {
+     DO_CALL: {
         // Function or method call
         const auto& context = command.args[1] == variableManager.noneId ? DataPtr::NULLP : memory.get(command.args[1]);
         DataPtr called = memory.get(command.args[2]);
