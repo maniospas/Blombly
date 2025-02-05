@@ -5,6 +5,11 @@ Blombly offers ways to interact with the file system and web resources.
 In addition to the basic operations described here, find supporting 
 functions in [libs](../advanced/libs.md).
 
+!!! warning
+    Never expect IO data to persist: not only could they change externally, 
+    but Blombly may even parallelize the operations (those
+    are still atomic for safety).
+
 
 ## Permissions
 

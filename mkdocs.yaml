@@ -13,7 +13,6 @@
         - 8. Libs: advanced/libs.md
     - Principles:
         - Language Design: material/design.md
-        - Concurrency: material/concurrency.md
         - Typeless OOP: material/typeless.md
         - Style Guide: material/style.md
         - Keywords: material/keywords.md

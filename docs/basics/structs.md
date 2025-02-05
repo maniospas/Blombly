@@ -80,7 +80,7 @@ print(point.norm());
 
 Interrupting struct creation with a return statement changes the yielded value to something else. It is thus equivalent to isolating the scope.
 For example, the following snippet is a valid (though not efficient in terms of asymptotic complexity) method for recursively computing 
-a term of the Fibonacci sequence *without function calls*. Blombly always executes `new` without parallelization.
+a term of the Fibonacci sequence *without function calls*.
 
 ```java
 final fib = {  
@@ -130,56 +130,6 @@ print(point.sum3d());
 The relation between the struct and the method retrieved with the dot notation
 is maintained only within the current scope. But the block may be attached to another struct to serve as its method, or even
 be completely detached from any struct when returned from a function call. 
-
-## Struct locality
-
-Blombly retains struct atomicity while calling methods.
-That is, structs are guaranteed to never be modified while any of their methods run, without
-exhibiting race conditions.
-Furthermore, the language is guaranteed to never experience synchronization deadlocks.
-This is achieved thanks to its freedom to choose which method and function calls run in
-parallel and which in different threads. Below is an example where multiple numbers are
-summed by methods that run in different threads - suggested by the non-sequential print order.
-Note that, if calling order was important, you could enforce it 
-by returning `this` from the method and calling it with the pattern `accum = accum.add(i);`.
-
-
-```java
-accum = new {
-    value = 0;
-    add(x) = {this.value += x; print("added !{x}  sum !{this.value}")}
-}
-
-try while(i in range(10)) accum.add(i); // try synchronizes everything at its end
-print(accum.value);
-```
-
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-> <span style="color: cyan;">./blombly</span> main.bb
-added 1  sum 1 
-added 0  sum 1 
-added 3  sum 4 
-added 2  sum 6 
-added 4  sum 10 
-added 5  sum 15 
-added 7  sum 22 
-added 6  sum 28 
-added 8  sum 36 
-added 9  sum 45 
-45 
-</pre>
-
-!!! info
-    Deadlocks are avoided by making sure that, once struct methods are called, all dependent
-    calls run in the same thread. However, other structs found
-    in the execution closure, in function or method arguments, or in the struct's own
-    fields *can* be modified externally. List and map fields can be modified externally too.
-
-!!! tip 
-    **Reason only about the struct's behavior while its methods run**. 
-    Bring any information from other structs
-    to local variables once if you want persistency.
-
 
 ## Private variables
 
