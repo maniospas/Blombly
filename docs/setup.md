@@ -67,9 +67,10 @@ If you specify nothing, the maximum amount is used.
 
 **--norun**
 
-Set to zero threads to compile without executing. 
-You may use the `--norun` option as a shorthand for this. In this case,
-only a **.bbvm* file is produced. Compilation may still run some tasks needed by preprocessor instructions (such as code that runs in comptime).
+Use the `--norun` option as a shorthand for setting the thread number to zero. 
+In this case, only a **.bbvm* file is produced without being executed. 
+Compilation may still run some tasks triggered by preprocessor instructions 
+(such as code that runs in comptime).
 
 <br>
 
@@ -78,13 +79,14 @@ only a **.bbvm* file is produced. Compilation may still run some tasks needed by
 Compilation optimizes the code by removing many unused variables or segments.
 For example, notice that above there are no needless instructions
 from the standard library *libs/.bb*, despite the latter being
-imported in every program. If your plan to produce bbvm files
-to be used as libraries (to be optimized by programs using them),
+imported in every program. To produce bbvm files
+to be used as libraries (to be optimized by programs using them 
+*in future versions*),
 retain everything with the `--library` or `-l` option. 
 Below is an example that compiles a file without running it while switching
 between applying and not applying optimizations. The `du` linux
-utility is used to show file sizes. Notice the bloat coming from the standard
-library when there is no optimization!
+utility shows file sizes in kilobytes. 
+Notice the bloat coming from the standard library when there is no optimization!
 
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
@@ -103,7 +105,8 @@ library when there is no optimization!
 Avoid generating debugging symbols with the `--strip` or `-s` option.
 This speeds up compilation and optimization and produces a smaller bbvm file - around 
 half the size. For example, below is a compilation outcome
-with stripped away debug info. In this case, any errors point to virtual machine instructions instead of a source code stack traces.
+with stripped away debug info. In this case, any errors point to virtual machine instructions
+instead of a source code stack traces, so they may be a harder to debug.
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
 > <span style="color: cyan;">./blombly</span> main.bb  --strip
@@ -121,19 +124,22 @@ One of Blombly's safety mechanisms is a limitation on stack depth.
 For example, this limits recursive functions from breaking your code. The
 default limit is *42* (the Answer!) but you can set a higher or lower value
 with the option `--depth <num>` or `-d <num>`. Inline execution of code blocks
--including the conditions and bodies of control flow statements- counts
-towards this number. Do try to keep things simple by not exceeding the default maximum depth.
+-including the conditions and bodies of control flow statements- may count
+towards this number unless it is automatically inserted at compile time. 
+Do try to keep things simple by not exceeding the default maximum depth.
 
 <br>
 
 **multiple main files**
 
 Provide multiple source files to compile and run in their order of 
-occurrence. Consider those files as steps of a modular build process that
-sequentially executes programs in the same virtual machine.
+occurrence. Consider those files as steps of a build process that
+executes programs in the same virtual machine one after the other.
 Command line arguments apply to all of the programs, and [IO](basics/io.md) 
-configurations described in the user guide persist between the steps. 
-Example configurations that are carried over are resource permissions and the virtual file system.
+configuration described in the user guide persist between the steps. 
+For example, resource permissions and the virtual file system are carried over, 
+which is also convenient for creating permission files to enable resources for
+the execution of *.bbvm* files in next steps (permissions are *not* embedded in compiled files).
 Directly run short code snippets instead of files in some steps
 by adding them as console arguments enclosed in single quotes. An example follows.
 
@@ -146,9 +152,9 @@ Hi from the terminal.
 
 ## Errors
 
-Before jumping into actual coding, let us peek at errors that Blombly may create. There are two types. 
+Before jumping into coding, let us finally peek at errors that Blombly may create. There are two types. 
 First, syntax errors make the compiler halt. 
-To see what a syntax error looks like, execute the following invalid code.
+To see what they look like, execute the following invalid code.
 We get an error telling us that the + operation for string concatenation has no right-hand side. 
 The compiler shows the exact position of the missing expression within the source code.
 
@@ -165,33 +171,33 @@ print("Hello"+);  // CREATES AN ERROR
 </pre>
 
 
-
-
-Second, logical errors occur at runtime, are intercepted once functions return (or by `do`), and are handled with `catch` or `as`. Details on logical error
+Second, logical errors occur at runtime, are intercepted once functions return (or by `do`), 
+and are handled with `catch` or `as`. Details on logical error
 handling can be found [here](advanced/try.md). For now it suffices to know
-that, if left unhandled, they cascade through the call stack until they reach your main progam and appear to you. Compilation contain preliminary checks about common logical errors that would be guaranteed to be encountered at runtime, saving you the hussle of waiting until they are encountered to detect them. One such error is using variables that are never set anywhere (though 
-is cannot know if you use them before setting them - this would be Turing complet and would require unbounded thinking time).
+that, if left unhandled, runtime errors cascade through the call stack until they reach your main program and appear to you. Compilation contains preliminary checks about common logical errors that would be guaranteed to be encountered at runtime, saving the hussle of detecting them much later. 
+One such error is using variables that are never set anywhere.
 
 <br>
 
-Look at a logical error by printing a variable that does not exist.
-This is missing during interpretation and comprises a stack trace of compiled code. 
-You will see full traces, regardless of which computations are internally delegated to threads.
-Errors like this can be intercepted and handled.
+Look at a logical error by converting an invalid string to a float and trying to add to it.
+This generates an error value that contains a full stack trace from the first issue to the 
+last affected computation. Stack traces show how expressions are viewed by the parser, 
+which may have a slightly different formatting than your code.
+Follow the stack trace to the corresponding file and line for 
+the full source code, for example by ctrl+clicking on it.
+Errors like this can be caught and handled without breaking execution.
 
 
 ```java
 // main.bb
-print(x);  // CREATES AN ERROR
+x = float("foo");  // CREATES AN ERROR
+print(x+1);
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
 > <span style="color: cyan;">./blombly</span> main.bb
-(<span style="color: red;"> ERROR </span>) Missing value: x
-   <span style="color: lightblue;">→</span>  print(x)                                            main.bb line 2
+(<span style="color: red;"> ERROR </span>) Not implemented: float(code)
+   <span style="color: lightblue;">→</span>  float("foo")                                        main.bb line 1
+   <span style="color: lightblue;">→</span>  x+1                                                 main.bb line 1
 </pre>
 
-
-*Logical errors do not point to the exact position in the code but only at the
-expression being parsed. Follow the stack trace to the corresponding files for 
-the full source code, for example by ctrl+clicking on it.*

@@ -13,9 +13,9 @@ Blombly projects [are learnable](https://www.sciencedirect.com/science/article/p
 <b>🚀 Expressive.</b> 
 Focus on writing algorithms with automated parallelism. Blombly ships with operating system and web tools.
 <br>
-<b>🦆 Dynamic.</b> Leverage features like duck typing and dynamic inlining. Syntax is opinionated just enough to prevent multiple solutions.
+<b>🦆 Dynamic.</b> Leverage features like duck typing and dynamic inlining. Syntax is opinionated to prevent multiple solutions.
 <br>
-<b> 💡 Simple.</b> There are only a few core commands and mostly one way to do things. Learn Blombly in an afternoon.
+<b> 💡 Simple.</b> There are only a few core commands; learn Blombly in an afternoon.
 
 <br>
 

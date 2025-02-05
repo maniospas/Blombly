@@ -116,7 +116,7 @@ void preliminaryDependencies(std::vector<Command>* program) {
         int depth = 0;
         OperationType command_type(END);
         std::unordered_set<int> localVariables;
-        while(pos <= programSize) {
+        while(pos < programSize) {
             const Command& codeCommand = (*program)[pos];
             command_type = codeCommand.operation;
             if(command_type == BEGIN || command_type == BEGINFINAL) depth++;
@@ -544,7 +544,6 @@ void preliminarySimpleChecks(std::vector<Command>* program) {
             if(symbolDefinitions.find(arg)==symbolDefinitions.end()) bberror(enrichErrorDescription(command, "Missing symbol (is declared nowhere and would create a runtime error): "+variableManager.getSymbol(arg)));
         }
     }
-
     preliminaryDependencies(program);
 }
 

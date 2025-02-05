@@ -1,10 +1,2 @@
-tic = time();
-
-final fib(n) = {
-    if(n<=1) return 1;
-    return fib(n-1)+fib(n-2);
-}
-
-print(fib(31));
-
-print(time()-tic);
+x = float("foo");  // CREATES AN ERROR
+print(x+1);
