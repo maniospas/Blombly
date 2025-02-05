@@ -124,6 +124,7 @@ def definition(ls, params):
     Look up the token at the given position; if it is a symbol, function, or namespace,
     return all definition locations that were indexed.
     """
+
     doc = ls.workspace.get_text_document(params.text_document.uri)
     lines = doc.source.splitlines()
     line_num = params.position.line
@@ -135,13 +136,14 @@ def definition(ls, params):
         if start <= char_num <= start + len(text):
             token_found = (start, text, ttype)
             break
-    if token_found is None: return None
+    if token_found is None: return []
+    print("found token: "+str(token_found))
 
     token_text = token_found[1]
     token_type = token_found[2]
-    if token_type not in (5, 8, 9): return None
+    if token_type not in (5, 8, 9): return []
     defs = symbol_definitions.get(token_text, [])
-    return defs
+    return defs if defs else []
 
 @server.feature('initialize')
 def on_initialize(ls, params):
