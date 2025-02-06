@@ -247,16 +247,16 @@ password = "password";
 
 // create file from sftp
 sftp = "sftp://eu-central-1.sftpcloud.io/test_file"|file;
-sftp.username = username;
-sftp.password = password; 
-sftp.timeout = 10;
+sftp["username"] = username;
+sftp["password"] = password; 
+sftp["timeout"] = 10;
 sftp << "Transferred data.";
 
 // retrieve file from sftp
 sftp = "sftp://eu-central-1.sftpcloud.io/test_file"|file;
-sftp.username = username;
-sftp.password = password; 
-sftp.timeout = 10;
+sftp["username"] = username;
+sftp["password"] = password; 
+sftp["timeout"] = 10;
 print(ftp|bb.string.join("\n"));
 ```
 

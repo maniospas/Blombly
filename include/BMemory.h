@@ -89,7 +89,7 @@ public:
     static constexpr int synchronizedListModification = 41;
     static constexpr int mainScopeNameId = 42;
 
-    static constexpr int maximumReservedId = 43;
+    static constexpr int maximumReservedId = 42; // needs to be exactly equal to the last value
 
 
     VariableManager() {

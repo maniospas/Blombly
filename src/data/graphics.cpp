@@ -262,7 +262,6 @@ Result Graphics::pop(BMemory* memory) {
             // Create a new struct for key events
             BMemory* memory = new BMemory(0, nullptr, 3);
             Struct* signalStruct = new Struct(memory);
-            memory->set(variableManager.thisId, signalStruct);
             signalStruct->getMemory()->set(typeVariable, event.type == SDL_KEYDOWN?keyDownString:keyUpString);
             signalStruct->getMemory()->set(keyVariable, new BString(keyName));
             
@@ -283,7 +282,6 @@ Result Graphics::pop(BMemory* memory) {
 
             BMemory* memory = new BMemory(0, nullptr, 5);
             Struct* signalStruct = new Struct(memory);
-            memory->set(variableManager.thisId, signalStruct);
             signalStruct->getMemory()->set(typeVariable, event.type == SDL_MOUSEBUTTONDOWN ? mouseDownString : mouseUpString);
             signalStruct->getMemory()->set(keyVariable, new BString(button));
             signalStruct->getMemory()->set(xVariable, static_cast<double>(x));
@@ -296,7 +294,6 @@ Result Graphics::pop(BMemory* memory) {
 
             BMemory* memory = new BMemory(0, nullptr, 4);
             Struct* signalStruct = new Struct(memory);
-            memory->set(variableManager.thisId, signalStruct);
             signalStruct->getMemory()->set(typeVariable, mouseMoveString);
             signalStruct->getMemory()->set(xVariable, static_cast<double>(x));
             signalStruct->getMemory()->set(yVariable, static_cast<double>(y));

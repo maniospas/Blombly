@@ -102,6 +102,7 @@ void preliminaryDependencies(std::vector<Command>* program) {
     // compile code blocks while we are at it
     for(int i=-1;i<programSize;++i) {
         int commandSymbolGroup;
+        int original_i = i;
         if(i==-1) {
             i = 0;
             commandSymbolGroup = variableManager.mainScopeNameId;
@@ -451,10 +452,9 @@ void preliminaryDependencies(std::vector<Command>* program) {
         bbassert(depth >= 0, "Code block never ended.");
         // create the code block
         auto cache = new Code(program, i + 1, pos, command_type == END?(pos-1):pos);
-        //cache->scheduleForParallelExecution = cache->requestModification.size()==0;
         cache->addOwner();
         cache->jitable = jit(cache);
-        if(i!=-1) (*program)[i].value = cache;
+        (*program)[i].value = cache;
     }
 
     // merge everything with dependent blocks
