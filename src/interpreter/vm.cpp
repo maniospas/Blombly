@@ -451,10 +451,13 @@ void preliminaryDependencies(std::vector<Command>* program) {
         }
         bbassert(depth >= 0, "Code block never ended.");
         // create the code block
-        auto cache = new Code(program, i + 1, pos, command_type == END?(pos-1):pos);
-        cache->addOwner();
-        cache->jitable = jit(cache);
-        (*program)[i].value = cache;
+        if(original_i!=-1) {
+            auto cache = new Code(program, i + 1, pos, command_type == END?(pos-1):pos);
+            cache->addOwner();
+            cache->jitable = jit(cache);
+            (*program)[i].value = cache;
+        }
+        else i = -1;
     }
 
     // merge everything with dependent blocks
