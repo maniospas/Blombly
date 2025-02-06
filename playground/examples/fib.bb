@@ -4,7 +4,7 @@ final fib(n) = {
 }
 
 tic = time();
-result = fib(21);
+result = fib(31);
 toc = time();
 print("Result !{result}");
 print("Elapsed !{toc-tic} sec");

@@ -919,14 +919,16 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
             auto strct = static_cast<Struct*>(called.get());
             auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
             bbassert(val.existsAndTypeEquals(CODE), "Struct was called like a method but has no implemented code for `call`.");
-            //static_cast<Code*>(val.get())->scheduleForParallelExecution = false; // struct calls are never executed in parallel
             memory.codeOwners[static_cast<Code*>(val.get())] = static_cast<Struct*>(called.get());
             called = (val);
         }
         bbassert(called.existsAndTypeEquals(CODE), "Function call must be a code block");
         Code* code = static_cast<Code*>(called.get());
         Code* callCode = context.exists()?static_cast<Code*>(context.get()):nullptr;
-        bool sycnhronizeRun = !code->scheduleForParallelExecution || !Future::acceptsThread();
+        bool sycnhronizeRun = lastCall==code || !code->scheduleForParallelExecution || !Future::acceptsThread();
+        
+        if(lastCall==code || !sycnhronizeRun) lastCall = code;
+        else lastCall = nullptr;
 
         if(sycnhronizeRun) {
             // run prample

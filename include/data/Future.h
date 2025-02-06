@@ -41,9 +41,9 @@ public:
 
 class Future : public Data {
 private:
-    static int max_threads;
     ThreadResult* result;
     static std::atomic<int> thread_count;
+    static int max_threads;
 
 public:
     Future();

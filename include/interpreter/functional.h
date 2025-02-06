@@ -33,15 +33,17 @@ extern std::recursive_mutex printMutex;
 extern std::recursive_mutex compileMutex;
 
 class ExecutionInstance {
-    DataPtr result;
     BMemory& memory;
     bool returnSignal;
     bool forceStayInThread;
-    DataPtr arg0, arg1;
+    Code* lastCall;
     unsigned int depth;
+    DataPtr result;
+    DataPtr arg0, arg1;
 public:
     static unsigned int maxDepth;
-    ExecutionInstance(int depth, Code* code, BMemory* memory, bool forceStayInThread): result(DataPtr::NULLP), memory(*memory), returnSignal(false), forceStayInThread(forceStayInThread), depth(depth+1) {
+    ExecutionInstance(int depth, Code* code, BMemory* memory, bool forceStayInThread): 
+        result(DataPtr::NULLP), memory(*memory), returnSignal(false), forceStayInThread(forceStayInThread), depth(depth+1) {
         if(depth>=maxDepth) bberror("Maximum call stack depth reached: "+std::to_string(depth)+"\nThis typically indicates a logical error. If not, run with greater --depth.");
     }
     Result run(Code* code);
