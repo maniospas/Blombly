@@ -36,6 +36,7 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory) {
         implementation = mem->getOrNullShallow(implementationCode);
     }
 
+    //if(implementation.existsAndTypeEquals(ERRORTYPE)) bberror(implementation->toString(nullptr));
     bbassert(implementation.exists(), "Must define `" + variableManager.getSymbol(implementationCode) + "` for the struct to overload the corresponding operation");
     bbassert(implementation->getType() == CODE, "Struct field `"+variableManager.getSymbol(implementationCode) + "` is not a method and therefore the corresponding operation is not overloaded (even callable structs are not allowed)");
     Code* code = static_cast<Code*>(implementation.get());
@@ -64,7 +65,6 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory) {
 
     ExecutionInstance executor(depth, code, &newMemory, true);
     Result value = executor.run(code);
-    newMemory.setToNullIgnoringFinals(variableManager.thisId);
     return Result(value);
 }
 
@@ -109,17 +109,12 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory, co
 
     ExecutionInstance executor(0, code, &newMemory, true);
     Result value = executor.run(code);
-    newMemory.setToNullIgnoringFinals(variableManager.thisId);
     return Result(value);
 }
 
 Struct::Struct(BMemory* mem) : Data(STRUCT), memory(mem) {}
 Struct::~Struct() {delete memory;}
 BMemory* Struct::getMemory() const {return memory;}
-void Struct::removeFromOwner() {
-    int counter = --referenceCounter;
-    if(counter<=1) delete this;
-}
 
 
 Result Struct::push(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structPush, scopeMemory, other); }
@@ -128,7 +123,7 @@ Result Struct::next(BMemory* scopeMemory) { return simpleImplement(variableManag
 Result Struct::at(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structAt, scopeMemory, other); }
 
 Result Struct::put(BMemory* scopeMemory, const DataPtr& position, const DataPtr& value) {
-    bberror("Not implemented: neq(" + std::string(datatypeName[getType()]) + ", " + position.torepr() + ", " + value.torepr() + ")");
+    bberror("Not implemented: put(" + std::string(datatypeName[getType()]) + ", " + position.torepr() + ", " + value.torepr() + ")");
 }
 
 void Struct::clear(BMemory* scopeMemory) {
@@ -139,9 +134,7 @@ void Struct::clear(BMemory* scopeMemory) {
         implementation = getMemory()->getOrNullShallow(variableManager.structClear);
         depth = scopeMemory->getDepth();
     }
-    if(implementation.islitorexists()) {
-        Result res = simpleImplement(variableManager.structClear, scopeMemory);
-    }
+    if(implementation.islitorexists()) simpleImplement(variableManager.structClear, scopeMemory);
     else {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
         BMemory* prevMemory = memory;
@@ -170,9 +163,7 @@ Result Struct::move(BMemory* scopeMemory) {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     BMemory* mem = memory;
     memory = new BMemory(depth, nullptr, 1);
-    memory->unsafeSet(variableManager.thisId, this);
     DataPtr ret = new Struct(mem);
-    mem->unsafeSet(variableManager.thisId, ret);
     return RESMOVE(Result(ret));
 }
 

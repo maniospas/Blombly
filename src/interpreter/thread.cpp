@@ -45,11 +45,10 @@ void threadExecute(unsigned int depth,
         result->value = RESMOVE(returnedValue);
 
     } 
-    catch (const BBError& e) {result->error = new BBError(enrichErrorDescription(*command, e.what()));}
+    catch (const BBError& e) {result->value = Result(new BError(enrichErrorDescription(*command, e.what())));}
     try {
-        memory->detach(nullptr); 
-        memory->setToNullIgnoringFinals(variableManager.thisId);
+        memory->release();
         delete memory;
     } 
-    catch (const BBError& e) {result->error = new BBError(enrichErrorDescription(*command, e.what()));}
+    catch (const BBError& e) {result->value = Result(new BError(enrichErrorDescription(*command, e.what())));}
 }

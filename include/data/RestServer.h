@@ -46,7 +46,7 @@ private:
     Result executeCodeWithMemory(DataPtr called, BMemory* memory) const;
     static int requestHandler(struct mg_connection* conn, void* cbdata);
     std::recursive_mutex serverModification;
-    virtual void removeFromOwner() {
+    void removeFromOwner() override {
         if((--referenceCounter)==0) delete this; 
         else {
             stop();

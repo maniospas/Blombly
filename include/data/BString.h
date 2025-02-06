@@ -42,6 +42,7 @@ private:
     size_t size;
     explicit BString();
     mutable std::recursive_mutex memoryLock; 
+    std::string& toString();
 
 public:
     explicit BString(const std::string& val);

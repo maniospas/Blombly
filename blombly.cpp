@@ -108,14 +108,14 @@ int main(int argc, char* argv[]) {
     for(std::string fileName : instructions) {
         top_level_file = "";
         if(!(fileName.size()>=3 && fileName.substr(fileName.size() - 3, 3) == ".bb")
-            && !(fileName.size()>=3 && fileName.substr(fileName.size() - 3, 3) == ".bb")) {
+            && !(fileName.size()>=3 && fileName.substr(fileName.size() - 5, 5) == ".bbvm")) {
             ret = vmFromSourceCode(fileName, threads);
             if(ret) break;
             continue;
         }
         try {
             bbassert((fileName.size()>=3 && fileName.substr(fileName.size() - 3, 3) == ".bb")
-                        || (fileName.size()>=3 && fileName.substr(fileName.size() - 3, 3) == ".bb"),
+                        || (fileName.size()>=3 && fileName.substr(fileName.size() - 5, 5) == ".bbvm"),
                         "Blombly can only compile and run .bb or .bbvm files, or code enclosed in single quotes '...', but an invalid option was provided: "+fileName)
             if(fileName.size()>=3 && fileName.substr(fileName.size() - 3, 3) == ".bb") {
                 compile(fileName, fileName + "vm");

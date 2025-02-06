@@ -167,7 +167,7 @@ string = new {
         }
     }
     split(str query) => new {
-        assert args|len == 0;
+        assert len(args) == 0;
         default maxsplits = 0;
         call(str search) = {
             query = this..query;

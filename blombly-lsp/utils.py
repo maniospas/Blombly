@@ -10,7 +10,8 @@ keywords = [
     "final", "new", "return", "while", "in", "if", "else",
     "default", "do", "catch", "assert", "as", "fail", "print", "read",
     "float", "bool", "int", "str", "push", "pop", "next", 
-    "false", "true", "sqlite", "graphics", "test", "defer"
+    "false", "true", "sqlite", "graphics", "test", "defer", 
+    "time", "server"
 ]
 
 # Global dictionaries/sets for indexing.

@@ -75,8 +75,14 @@ std::string BString::toString(BMemory* memory){
     return buffer.front()->value;
 }
 
+std::string& BString::toString(){
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    consolidate();
+    return buffer.front()->value;
+}
+
 bool BString::isSame(const DataPtr& other) {
-    if (other.existsAndTypeEquals(STRING)) return toString(nullptr) == static_cast<BString*>(other.get())->toString(nullptr);
+    if (other.existsAndTypeEquals(STRING)) return toString() == static_cast<BString*>(other.get())->toString();
     return false;
 }
 
@@ -88,9 +94,9 @@ Result BString::at(BMemory *memory, const DataPtr& other) {
     if(other.isint()) {
         int64_t index = other.unsafe_toint();
         consolidate();
-        int64_t n = (int64_t)toString(memory).size();
+        int64_t n = (int64_t)toString().size();
         if (index < 0 || index >= n) return RESMOVE(Result(OUT_OF_RANGE));
-        return RESMOVE(Result(new BString(std::string(1, toString(memory)[index]))));
+        return RESMOVE(Result(new BString(std::string(1, toString()[index]))));
     }
     if(other.existsAndTypeEquals(STRING)) {
         std::string v1 = toString(nullptr);
@@ -123,16 +129,16 @@ Result BString::at(BMemory *memory, const DataPtr& other) {
     if(other.exists()) {
         auto res = other->iter(memory);
         DataPtr _iterator = res.get();
-        bbassert(_iterator.existsAndTypeEquals(ITERATOR), "String index is neither an integer nor can be converted to an iterator viat `iter`: "+other->toString(memory));
+        bbassert(_iterator.existsAndTypeEquals(ITERATOR), "String index is neither an integer nor can be converted to an iterator viat `iter`: "+other.torepr());
         Iterator* iterator = static_cast<Iterator*>(_iterator.get());
 
         // Treat contiguous iterators more efficiently
         if (iterator->isContiguous()) {
             int64_t start = iterator->getStart();
             int64_t end = iterator->getEnd();
-            int64_t n = (int64_t)toString(memory).size();
+            int64_t n = (int64_t)toString().size();
             if (start < 0 || start >= n || end < 0 || end > n|| start > end) return RESMOVE(Result(OUT_OF_RANGE));
-            std::string result = toString(memory).substr(start, end - start);
+            std::string result = toString().substr(start, end - start);
             return RESMOVE(Result(new BString(std::move(result))));
         } else {
             // Handle non-contiguous iterators
@@ -143,7 +149,7 @@ Result BString::at(BMemory *memory, const DataPtr& other) {
                 Result nextResult = iterator->next(memory);
                 DataPtr indexData = nextResult.get();
                 if (indexData == OUT_OF_RANGE) break; 
-                bbassert(indexData.isint(), "String index iterator must contain integers: "+other->toString(memory));
+                bbassert(indexData.isint(), "String index iterator must contain integers: "+other.torepr());
                 size_t index = (size_t)indexData.unsafe_toint();
                 if (index >= size) return RESMOVE(Result(OUT_OF_RANGE));
                 result += front->value[index];

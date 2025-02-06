@@ -22,17 +22,12 @@
 int Future::max_threads = 0;
 std::atomic<int> Future::thread_count = 0;
 
-Future::Future() : result(new ThreadResult()), Data(FUTURE) {
-    ++thread_count;
-    //std::cout << "thread created"+std::to_string(thread_count)+"\n";
-}
+void Future::setMaxThreads(int maxThreads_) {max_threads = maxThreads_;}
+bool Future::acceptsThread() {return thread_count < max_threads;}
+std::string Future::toString(BMemory* memory){return "future";}
+Future::Future() : result(new ThreadResult()), Data(FUTURE) {++thread_count;}
+Future::Future(ThreadResult* result_) : result((result_)), Data(FUTURE) {++thread_count;}
 
-Future::Future(ThreadResult* result_) : result((result_)), Data(FUTURE) {
-    ++thread_count;
-    //std::cout << "thread created"+std::to_string(thread_count)+"\n";
-}
-
-// Future destructor
 Future::~Future() {
     {
         if (result->thread.joinable()) {
@@ -44,41 +39,17 @@ Future::~Future() {
     delete result;
 }
 
-// Check if a new thread can be accepted
-bool Future::acceptsThread() {
-    return thread_count < max_threads;
-}
-
-// Set maximum threads
-void Future::setMaxThreads(int maxThreads_) {
-    max_threads = maxThreads_;
-}
-
-// Convert to string representation
-std::string Future::toString(BMemory* memory){
-    return "future";
-}
-
-// Get the result after joining the thread
 Result Future::getResult() const {
     try { 
         if (result->thread.joinable()) {
             result->thread.join();
-            //std::cout << "thread ended"+std::to_string(thread_count)+"\n";
             --thread_count;
         }
-    } catch (...) {
-        result->error = nullptr;
-        result->value = Result(DataPtr::NULLP);
-        //std::cout << "thread ended"+std::to_string(thread_count)+"\n";
+    } 
+    catch (...) {
+        result->value = Result(new BError("Failed to join thread"));
         --thread_count;
-        bberror("Failed to join thread");
-    }
-    if (result->error) {
-        std::string error_message = RESMOVE(result->error->what());
-        result->error = nullptr;
-        result->value = Result(DataPtr::NULLP);
-        throw BBError(error_message);
+        return RESMOVE(Result(result->value.get()));
     }
     DataPtr ret = result->value.get();
     if(ret.existsAndTypeEquals(FUTURE)) return RESMOVE(static_cast<Future*>(ret.get())->getResult());

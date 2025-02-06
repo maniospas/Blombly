@@ -34,7 +34,6 @@ public:
     explicit Struct(BMemory* mem);
     ~Struct();
     BMemory* getMemory() const;
-    void removeFromOwner() override;
 
     Result push(BMemory* scopeMemory, const DataPtr& other) override;
     Result pop(BMemory* scopeMemory) override;

@@ -41,10 +41,10 @@ print(adder(1, 2));
 
 If code blocks comprise only one statement, prefer
 placing everything in one line. In this case, also forgo the
-trailitng semicolon for less symbol clutter.
-Notably, code blocks implemented in one line usually
-just return a value. This brings us to the practice of applying 
-`=>` whenever this happens to reduce the amount of nesting.
+trailing semicolon for less symbol clutter.
+That said, code blocks implemented in one line usually
+just return a value, in which case use 
+`=>` to reduce the amount of nesting.
 Two equivalent examples follow.
 
 ```java
@@ -85,7 +85,6 @@ Do not make variables final unless you want to expose
 them to called blocks (usually, this is also needed
 for recursion). Leaving everything in its default mutable
 state helps set up an extensible environment.
-
 Avoid module conflicts by placing include statements
 within `new` declarations. Here is an example:
 

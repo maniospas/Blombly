@@ -90,8 +90,8 @@ void initialize_dispatch_table() {}
 
 Result ExecutionInstance::run(Code* code) {
     const auto& program = *code->getProgram();
-    memory.prefetch();
-    return run(program, code->getStart(), code->getOptimizedEnd());
+    auto res = run(program, code->getStart(), code->getOptimizedEnd());
+    return res;
 }
 
 Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, size_t end) {
@@ -471,16 +471,6 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
         bberror("There was no implementation for int("+arg0.torepr()+")");
     }
     DO_BB_PRINT:{ 
-        bool forceAwait(false);
-        SymbolEntrantExiter symbolExiter(variableManager.synchronizedListModification);
-        {
-            std::lock_guard<std::mutex> lock(ownershipMutex);
-            auto& symbol = symbolUsage[variableManager.synchronizedListModification];
-            if(symbol.access || symbol.modification) forceAwait = true;
-            symbol.modification++;
-        }
-        if(forceAwait) memory.tempawait();
-
         const auto& printable = memory.get(command.args[1]);
         std::string printing = printable.exists()?printable->toString(&memory):printable.torepr();
         printing = replaceEscapeSequences(printing);
@@ -491,16 +481,6 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
         continue;
     }
     DO_READ:{
-        bool forceAwait(false);
-        SymbolEntrantExiter symbolExiter(variableManager.synchronizedListModification);
-        {
-            std::lock_guard<std::mutex> lock(ownershipMutex);
-            auto& symbol = symbolUsage[variableManager.synchronizedListModification];
-            if(symbol.access || symbol.modification) forceAwait = true;
-            symbol.modification++;
-        }
-        if(forceAwait) memory.tempawait();
-
         std::string printing;
         if(command.nargs>1) {
             DataPtr printable = memory.get(command.args[1]);
@@ -545,7 +525,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
     }
     DO_RETURN: {
         returnSignal = true;
-        DISPATCH_RESULT(command.args[1] == variableManager.noneId ? DataPtr::NULLP : memory.get(command.args[1]));
+        DISPATCH_OUTCOME(command.args[1] == variableManager.noneId ? DataPtr::NULLP : memory.get(command.args[1]));
     }
     DO_ISCACHED: {
         result = cachedData.getOrNullShallow(command.args[1]);
@@ -727,22 +707,16 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
         auto newMemory = new BMemory(depth, &memory, LOCAL_EXPECTATION_FROM_CODE(code));
         auto thisObj = new Struct(newMemory); 
         newMemory->set(variableManager.thisId, thisObj);
-        newMemory->setFinal(variableManager.thisId);
-        result = thisObj;
+        //newMemory->setFinal(variableManager.thisId);
         ExecutionInstance executor(depth, code, newMemory, forceStayInThread);
         try {
             Result returnedValue = executor.run(code);
             newMemory->detach(nullptr);
-            if(returnedValue.get().get()!=thisObj) {
-                if(command.args[0]!=variableManager.noneId) memory.set(command.args[0], returnedValue.get());
-                thisObj->removeFromOwner(); // do this after setting
-                continue;
-            }
-            DISPATCH_COMPUTED_RESULT;
+            newMemory->setToNullIgnoringFinals(variableManager.thisId);
+            DISPATCH_OUTCOME(returnedValue.get());
         }
         catch (const BBError& e) {
             // here we interrupt exceptions thrown during new statements, which would leak the memory being created normally
-            newMemory->setToNullIgnoringFinals(variableManager.thisId);
             handleExecutionError(program[i], e);
         }
         continue;
@@ -965,7 +939,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
             
             // switch the memory to the new context
             const auto& it = memory.codeOwners.find(code);
-            const auto& thisObj = (it != memory.codeOwners.end() ? it->second->getMemory() : &memory)->getOrNull(variableManager.thisId, true);
+            const auto& thisObj = it != memory.codeOwners.end() ? DataPtr(it->second) : memory.getOrNull(variableManager.thisId, true);
             bool thisObjExists = thisObj.exists();
             if(thisObjExists) newMemory.set(variableManager.thisId, thisObj);
             newMemory.parent = memory.getParentWithFinals();  
@@ -975,7 +949,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
             ExecutionInstance executor(depth, code, &newMemory, thisObjExists);
             Result returnedValue = executor.run(code);
             result = returnedValue.get();
-            if(thisObjExists) newMemory.setToNullIgnoringFinals(variableManager.thisId);
+            newMemory.await();
             DISPATCH_COMPUTED_RESULT;
         }
         else { 
@@ -987,14 +961,13 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
                 if(executor.hasReturned()) DISPATCH_RESULT(returnedValue.get());
             }
             auto it = memory.codeOwners.find(code);
-            const auto& thisObj = (it != memory.codeOwners.end() ? it->second->getMemory() : &memory)->getOrNull(variableManager.thisId, true);
+            const auto& thisObj = it != memory.codeOwners.end() ? DataPtr(it->second) : memory.getOrNull(variableManager.thisId, true);
             if(thisObj.exists()) newMemory->set(variableManager.thisId, thisObj);
             newMemory->parent = memory.getParentWithFinals();
             newMemory->allowMutables = false;
             auto futureResult = new ThreadResult();
             auto future = new Future(futureResult);
-            future->addOwner();//the attached_threads are also an owner
-            memory.attached_threads.insert(future);
+            memory.attached_threads.emplace_back(future);
             result = future;
             int carg = command.args[0]; 
             if(carg!=variableManager.noneId) memory.setFuture(carg, result); 

@@ -159,7 +159,7 @@ private:
     std::vector<Code*> finally;
     int first_item;
     bool hasAtLeastOneFinal;
-    const DataPtr& resolveFuture(int item, const DataPtr& ret);
+    void resolveFuture(DataPtr& ret);
     const DataPtr& get(int item, bool allowMutable);
     DataPtr& find(int item) {
         if(item<=variableManager.maximumReservedId) return data[item];
@@ -176,7 +176,7 @@ private:
 public:
     BMemory* parent;
     tsl::hopscotch_map<Code*, Struct*> codeOwners;
-    tsl::hopscotch_set<Future*> attached_threads;
+    std::vector<Result> attached_threads;
     inline BMemory* getParentWithFinals() {
         // this is used to skip intermediate useless memory contexts in get() within function 
         if(hasAtLeastOneFinal) return this; 
@@ -199,7 +199,10 @@ public:
             if (parent) return parent->get(item, allowMutables);
             bberror("Missing value: " + variableManager.getSymbol(item));
         }
-        if(ret->getType()==FUTURE) [[unlikely]] return resolveFuture(item, ret);
+        if(ret->getType()==FUTURE) [[unlikely]] {
+            resolveFuture(ret);
+            return get(item);
+        }
         return ret;
     }
     const DataPtr& getShallow(int item);

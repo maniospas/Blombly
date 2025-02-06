@@ -31,8 +31,7 @@ class ThreadResult {
 public:
     std::thread thread;
     Result value;
-    BBError* error;
-    ThreadResult():value(DataPtr::NULLP), error(nullptr) {};
+    ThreadResult():value(DataPtr::NULLP) {};
     ~ThreadResult() = default;
     void start(unsigned int depth, Code* code, BMemory* newMemory, ThreadResult* futureResult, const Command* command, DataPtr thisObj) {
         thread = std::thread(threadExecute, depth, code, newMemory, futureResult, command, thisObj);
