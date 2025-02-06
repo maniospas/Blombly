@@ -1,17 +1,13 @@
 # Language Design
 
-Here is a summary of Blombly's design and philosophy going forward.
-The main point is that the language should stay simple, with emphasis on
-reusing code without wrestling with its definition scope to get closure right.
-
 
 ## Vision
 
-You should be able to read the syntax almost immediately after
+You should be able to read Blombly's syntax almost immediately after
 going through the basics. One afternoon worth of reading
-is enough to start writting code. Implementation details
+is enough to start writing code. Implementation details
 are also automated by the virtual machine, and you only need to
-focus on writting algorithms. Finally, the language addresses common
+focus on writing algorithms. Finally, the language addresses common
 development needs with a few simple interfaces.
 At heart, I want to create a comprehensive language that is easy to pick up
 and fun to work with for small and mid-sized projects. I hope it's to your liking. 😊
@@ -39,12 +35,14 @@ to implement their own solutions.
     tinkering with the language.
 
 
-## Promises
+## Guidelines
 
 In the spirit of guiding Blombly's evolution, I have selected a couple of points 
 that I promise to respect. I do not consider any of these legally binding,
 so you will at best have to take me at my word that I will enforce them to the
 best of my ability, and according to my intent to make a good language.
+The main point is that the language should stay simple, with emphasis on
+reusing code without wrestling with its definition scope to get closure right.
 
 <br>
 <span style="font-size:1.2em;color:#00ABAB;">1. Implementation details will never be added.</span>

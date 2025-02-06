@@ -1,7 +1,7 @@
 # Typeless OOP
 
 Blombly aims to support object-oriented programming (OOP) patterns,
-where structs created with `new` are essentially objects with attached fields
+where structs created by `new` are essentially objects with attached fields
 and values. At the same time, OOP is simplified to the level
 of not having classes/types.
 
@@ -57,7 +57,10 @@ print("a.b = !{a.dot(b)}");
 
 ## Testing
 
-Something to consider is that
+Blombly offers a simple testing macro that allows you
+to run a unit or integration test one or more times.
+Write code so that its inputs can always be randomized
+by tests.
 
 ```java
 // test.bb

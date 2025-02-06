@@ -927,7 +927,7 @@ Result ExecutionInstance::run(const std::vector<Command>& program, size_t i, siz
         Code* callCode = context.exists()?static_cast<Code*>(context.get()):nullptr;
         bool sycnhronizeRun = lastCall==code || !code->scheduleForParallelExecution || !Future::acceptsThread();
         
-        if(lastCall==code || !sycnhronizeRun) lastCall = code;
+        if(lastCall==code || !sycnhronizeRun) lastCall = code; // an improved version of tail call optimization but for scheduling only
         else lastCall = nullptr;
 
         if(sycnhronizeRun) {
