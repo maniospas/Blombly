@@ -52,7 +52,7 @@
 
     <br>
     <b> ♻️ Reusable.</b>
-    Blombly apis <a href="https://www.sciencedirect.com/science/article/pii/S2352220821000778">are learnable</a>. Functions adapt to where they run.
+    Create <a href="https://www.sciencedirect.com/science/article/pii/S2352220821000778">humanly learnable</a> apis. Functions adapt to where they run.
     <br>
     <b>🚀 Expressive.</b> 
     Focus on writing algorithms with automated parallelism. Blombly ships with operating system and web tools.
@@ -175,8 +175,8 @@
                 y = (x-0.5)^2;
 
                 canvas = new{bb.sci.Plot:} // standard library utility
-                canvas = canvas.plot(x, y :: color=255,0,0,255; title="y=(x-0.5)^2");
-                canvas = canvas.plot(x, x :: color=0,255,0,255; title="y=x");
+                canvas.plot(x, y :: color=255,0,0,255; title="y=(x-0.5)^2");
+                canvas.plot(x, x :: color=0,255,0,255; title="y=x");
                 canvas.show(width=800; height=600);
 
                 ```

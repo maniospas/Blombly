@@ -169,19 +169,16 @@ def on_initialize(ls, params):
     }
     ls.server_capabilities.definition_provider = True 
 
+"""
 @server.feature('textDocument/didChange')
 def did_change(ls, params):
-    """
-    Triggered when a file changes.
-    Update symbols for the modified file only.
-    """
-    uri = params.text_document.uri
-    file_path = Path(uri).resolve() 
+    #uri = params.text_document.uri
+    #file_path = Path(uri).resolve() 
     indexed_symbols.clear()
     indexed_strings.clear()
     symbol_definitions.clear()
     update_indexed_symbols(ls.workspace.root_path if ls.workspace.root_path else ".")
-
+"""
 
 if __name__ == '__main__':
     server.start_io()

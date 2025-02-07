@@ -4,6 +4,14 @@
 !macro {=>{@expr}} as {!fail "`=>{` not allowed just before a code block.\nThis is a common code editing error when enriching\nshorter implementations and thus not allowed."}
 !macro {default @var=} as {catch(@var) @var=}
 
+// define namespaces
+!macro{namespace @name {@generator}} as {
+    !macro {with @name:} as {
+        !local {name @@@symbol;} as {!local{@@@symbol} as {!symbol(@name :: @@@symbol)}}
+        @generator
+    }
+}
+
 // include after core language definitions
 final bb = new {
     !include "bb://libs/ansi"

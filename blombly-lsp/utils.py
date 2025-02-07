@@ -9,10 +9,10 @@ preprocessor = ["!include", "!access", "!modify", "!macro", "!of"]
 keywords = [
     "final", "new", "return", "while", "in", "if", "else",
     "default", "do", "catch", "assert", "as", "fail", "print", "read",
-    "float", "bool", "int", "str", "push", "pop", "next", 
-    "false", "true", "sqlite", "graphics", "test", "defer", 
-    "time", "server"
+    "push", "pop", "next", "false", "true", "sqlite", "graphics", "test", "defer", 
+    "time", "namespace", "with"
 ]
+builtins = ["float", "bool", "int", "str", "server", "vector", "list", "graphics"]
 
 # Global dictionaries/sets for indexing.
 indexed_symbols = {}      # keys: file URIs, values: sets of symbol names.
@@ -20,29 +20,6 @@ indexed_strings = set()   # a set of string literals (including incomplete ones)
 symbol_definitions = {}   # keys: symbol names; values: list of definition locations.
 
 def tokenize_line(line, include_symbols=False):
-    """
-    Tokenize a line character-by-character (without regex).
-
-    Token types:
-      0 = string literal (delimited by double quotes; may be incomplete)
-      1 = number literal (digits, with at most one dot)
-      2 = keyword (if it matches one of `keywords`)
-      3 = macro (preprocessor directive; any token starting with '!')
-      4 = bracket (any of: { } ( ) [ ] < >)
-      5 = symbol (a word that is not a keyword, macro, or operator;
-                  emitted only if include_symbols is True)
-      6 = comment (a line comment starting with //; the rest of the line)
-      7 = operator (e.g. =>, <<, ., |, :, =, and operator words like "and")
-      
-    For semantic highlighting only:
-      8 = function (if a symbol appears in a function definition pattern)
-      9 = namespace (if a symbol is assigned using "new" or appears in a dotted expression)
-      10 = f-expression (an interpolated expression inside a string literal)
-    
-    A word token is a consecutive sequence of letters, digits, underscores, or exclamation marks.
-    
-    Returns a list of tuples: (start_index, token_text, token_type_index)
-    """
     tokens = []
     i = 0
     n = len(line)
@@ -54,18 +31,15 @@ def tokenize_line(line, include_symbols=False):
     while i < n:
         ch = line[i]
         if state == "default":
-            # Check for line comment.
             if ch == '/' and (i + 1) < n and line[i + 1] == '/':
                 tokens.append((i, line[i:], 6))
                 break
 
-            # Check for multi-character operator tokens.
             if i + 1 < n and line[i:i+2] in ('=>', '<<'):
                 tokens.append((i, line[i:i+2], 7))
                 i += 2
                 continue
 
-            # Check for single-character operator tokens (including dot).
             if ch in ".|:= ":
                 if ch in ".|:=":
                     tokens.append((i, ch, 7))
@@ -76,21 +50,18 @@ def tokenize_line(line, include_symbols=False):
                 i += 1
                 continue
 
-            # Brackets.
             if ch in "{}()[]<>":
                 tokens.append((i, ch, 4))
                 i += 1
                 continue
 
-            # String literal start.
             if ch == '"':
                 state = "string"
-                token_start = i  # mark beginning of string literal
+                token_start = i
                 token_value = ch
                 i += 1
                 continue
 
-            # Number literal.
             elif ch.isdigit():
                 state = "number"
                 token_start = i
@@ -99,7 +70,6 @@ def tokenize_line(line, include_symbols=False):
                 i += 1
                 continue
 
-            # Word (or operator word or macro).
             elif ch.isalpha() or ch == '_' or ch == '!':
                 state = "word"
                 token_start = i
@@ -111,30 +81,12 @@ def tokenize_line(line, include_symbols=False):
                 continue
 
         elif state == "string":
-            # In a string literal, check for f-expression marker: "!{"
-            if ch == '!' and (i+1) < n and line[i+1] == '{':
-                if token_value != "":
-                    tokens.append((token_start, token_value, 0))
-                i += 2
-                expr_start = i
-                expr_value = ""
-                while i < n and line[i] != '}':
-                    expr_value += line[i]
-                    i += 1
-                if i < n and line[i] == '}':
-                    i += 1
-                tokens.append((expr_start, expr_value, 10))
-                token_start = i
+            token_value += ch
+            i += 1
+            if ch == '"':
+                tokens.append((token_start, token_value, 0))
+                state = "default"
                 token_value = ""
-                continue
-            else:
-                token_value += ch
-                i += 1
-                if ch == '"':  # string literal completed
-                    tokens.append((token_start, token_value, 0))
-                    state = "default"
-                    token_value = ""
-                    token_start = None
 
         elif state == "number":
             if ch.isdigit():
@@ -148,7 +100,6 @@ def tokenize_line(line, include_symbols=False):
                 tokens.append((token_start, token_value, 1))
                 state = "default"
                 token_value = ""
-                token_start = None
                 dot_used = False
                 continue
 
@@ -157,23 +108,35 @@ def tokenize_line(line, include_symbols=False):
                 token_value += ch
                 i += 1
             else:
-                if   token_value in keywords:       tokens.append((token_start, token_value, 2))
-                elif token_value.startswith('!'):   tokens.append((token_start, token_value, 3))
-                elif token_value in operator_words: tokens.append((token_start, token_value, 7))
-                elif include_symbols:               tokens.append((token_start, token_value, 5))
+                if token_value in keywords:
+                    tokens.append((token_start, token_value, 2))
+                elif token_value.startswith('!'):
+                    tokens.append((token_start, token_value, 3))
+                elif token_value in operator_words:
+                    tokens.append((token_start, token_value, 7))
+                elif token_value in builtins:
+                    tokens.append((token_start, token_value, 8))  # Mark builtins as functions
+                elif include_symbols:
+                    tokens.append((token_start, token_value, 5))
                 state = "default"
                 token_value = ""
-                token_start = None
                 continue
 
     if state == "string": tokens.append((token_start, token_value, 0))
     elif state == "number": tokens.append((token_start, token_value, 1))
     elif state == "word":
-        if token_value in keywords:         tokens.append((token_start, token_value, 2))
-        elif token_value.startswith('!'):   tokens.append((token_start, token_value, 3))
-        elif token_value in operator_words: tokens.append((token_start, token_value, 7))
-        elif include_symbols:               tokens.append((token_start, token_value, 5))
+        if token_value in keywords:
+            tokens.append((token_start, token_value, 2))
+        elif token_value.startswith('!'):
+            tokens.append((token_start, token_value, 3))
+        elif token_value in operator_words:
+            tokens.append((token_start, token_value, 7))
+        elif token_value in builtins:
+            tokens.append((token_start, token_value, 8))
+        elif include_symbols:
+            tokens.append((token_start, token_value, 5))
     return tokens
+
 
 
 def update_indexed_symbols(root):

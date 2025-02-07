@@ -1,8 +1,18 @@
-add(x, y) = {
-    default xscale = 1;
-    default yscale = 1;
-    return x*xscale + y*yscale;
+namespace dims {
+    name x;
+    name y;
 }
-print(add(1,2 :: xscale=2;yscale=2)); // execute all code after :: and 
-final xscale = 10; // all running functions in the scope also see finals
-print(add(1,2));
+
+namespace plot {
+    name x;
+    name y;
+}
+
+with dims: // enable the dims namespace 
+Point = {
+    norm() => (this.x^2+this.y^2)^0.5;
+    str() => "(!{this.x}, !{this.y})";
+}
+
+p = new {Point:x=1;y=2}
+print(p);

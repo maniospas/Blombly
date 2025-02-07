@@ -2191,7 +2191,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                             std::string placeholder = macro->from[j].name;
                             if(macro->from[j].name.size()>=2 && macro->from[j].name[1] == '@') {
                                 // macro defining macros
-                                replacement[placeholder].emplace_back(macro->from[j].name.substr(1), macro->from[j].file, macro->from[j].line, true);
+                                replacement[placeholder].emplace_back(macro->from[j].name, macro->from[j].file, macro->from[j].line, true);
                             }
                             else
                                 while (k < tokens.size() && (depth > 0 || tokens[k].name != ";" 
@@ -2228,8 +2228,10 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                         j = 0;
                         while (j < macro->to.size()) {
                             if (macro->to[j].name[0] == '@' && replacement.find(macro->to[j].name)==replacement.end()) {
-                                //if(macro->to[j].name.size()>1 && macro->to[j].name[1] == '@')
-                                replacement[macro->to[j].name].emplace_back(Parser::create_macro_temp(), macro->to[j].file, macro->to[j].line);//, macro->to[j].printable);
+                                if(macro->to[j].name.size()<=1 || macro->to[j].name[1] != '@')
+                                    replacement[macro->to[j].name].emplace_back(Parser::create_macro_temp(), macro->to[j].file, macro->to[j].line);//, macro->to[j].printable);
+                                else
+                                    replacement[macro->to[j].name].emplace_back(macro->to[j].name.substr(1), macro->to[j].file, macro->to[j].line);
                                 /*else
                                     bberror("Macro symbol `"+macro->to[j].name+"` was not defined."
                                             "\n   \033[33m!!!\033[0m This symbol was not a part of the macro's definition."
@@ -2255,8 +2257,10 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
 
                         if((newTokens[newTokens.size()-1].name==":" || newTokens[newTokens.size()-1].name==";" || newTokens[newTokens.size()-1].name=="}") && i<tokens.size() && tokens[i].name==";")  // must be i, not i+1, and after the erasure
                             tokens.insert(tokens.begin() + i, newTokens.begin(), newTokens.end()-1);
-                        else
-                            tokens.insert(tokens.begin() + i, newTokens.begin(), newTokens.end());
+                        else tokens.insert(tokens.begin() + i, newTokens.begin(), newTokens.end());
+
+                        //for(auto const& token : newTokens) std::cout << token.name << " ";
+                        //std::cout << "\n";
                         i -= 1;
                         macro_found = true;
                         break;
