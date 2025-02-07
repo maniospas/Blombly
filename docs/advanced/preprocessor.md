@@ -134,12 +134,19 @@ print("Hi "+str(name)+".");
 
 ## Namespaces
 
-Namespaces compartmenize the usage of certain variables.
-by prefixing them with `@name::` under the hood while the
-namespace is active so that they can not be used accidentally
-elsewhere. Namespace activations last until the end of of
-the source code file.
-Declare a namespace with the following syntax,
+Namespaces compartmenize the usage of certain variables
+by prefixing them with `@name::` under the hood. For example,
+`main::x` represents variable *x* affected by namespace
+*name*. Struct fields are also considered variables and affected
+by the change.
+So for example you might encounter code like `A.main::x`.
+In all cases keep in mind that `::` is treated as a single
+normal character similar to an underscore. If you re-enter the 
+namespace, you can just write `A.x` instead.
+
+<br>
+
+Declare namespaces with the following syntax,
 where at its end you can also add some code to run upon
 activation. Include any number of variables whose
 subsequent usage is altered.
@@ -153,14 +160,11 @@ namespace @name {
 ```
 
 Similarly to code blocks, declaring a namespace does nothing.
-But you can bring it in the with the syntax `with @name:`. Notice
-the colon at the end, which is intentionally similar to code blocks
+But you can activate it with the syntax `with @name:`. Notice
+the colon at the end, which is intentionally similar to inlining
 to indicate that subsequent code is affected. 
-Refer to a variable affected by a namespace
-either through its full name (e.g., `graphics::x`) or by first activating
-the corresponding namespace. Below is an example of
-using namespaces to differentiate between usage of the same
-variables.
+Below is an example of using namespaces to differentiate semantic 
+usage of the same variables.
 
 ```java
 // main.bb
@@ -173,7 +177,7 @@ namespace main {
     var y;
 }
 
-with dims: // x and y are now dims::x and dims::y 
+with dims: // subsequent x and y are now dims::x and dims::y 
 Point = {
     norm() => (this.x^2+this.y^2)^0.5;
     str() => "(!{this.x}, !{this.y})";
@@ -197,6 +201,11 @@ print(p.main::x);
     Namespace usage is encouraged. They are better than a simple zero cost abstraction (they are
     implemented with macros without any cost) that helps with debugging
     in that thet help the virtual machine better reason about how to parallelize programs.
+
+!!! warning
+    Namespaces are preprocessor instructions and as such ignore scoping; they remain active until
+    the end of file. Future versions will consider ways to close namespaces beyond the end of each
+    file.
 
 ## Macros
 
@@ -268,10 +277,6 @@ The following directives play a supporting role to other language features.
 Make macros valid only for the length of the current source code file by declaring
 them as `!local {@expression} as {@transformation}`. The same rules as above
 hold, where you can interweave local definitions into macros and conversely.
-
-!!! info
-    Namespace variables are also implemented with `!local` under the hood
-    to make sure that namespaces are explicitly re-enabled in different files.
 
 <br>
 

@@ -60,7 +60,8 @@ Result Vector::at(BMemory* memory, const DataPtr& other) {
             int64_t end = iterPtr->getEnd();
             if (start < 0 || end < 0 || start >= size || end > size) return Result(OUT_OF_RANGE);
             auto* resultVec = new Vector(end - start);
-            for (int64_t i = start; i < end; ++i) resultVec->data[i - start] = data[i];
+            if(start==0) for(int64_t i = start; i < end; ++i) resultVec->data[i] = data[i];
+            else for(int64_t i = start; i < end; ++i) resultVec->data[i - start] = data[i];
             return Result(resultVec);
         } 
         else {
