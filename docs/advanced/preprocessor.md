@@ -135,12 +135,11 @@ print("Hi "+str(name)+".");
 ## Namespaces
 
 Namespaces compartmenize the usage of certain variables.
-THis is done adding a prefix `@name::` to their names when the namespace is not active,
-which makes it harder to use by mistake.
-The name is added as a prefix followed by two colons
-to only a set of affected variables following the namespace's activation,
-and until the end of the file.
-To begin with, declare a namespace with the following syntax,
+by prefixing them with `@name::` under the hood while the
+namespace is active so that they can not be used accidentally
+elsewhere. Namespace activations last until the end of of
+the source code file.
+Declare a namespace with the following syntax,
 where at its end you can also add some code to run upon
 activation. Include any number of variables whose
 subsequent usage is altered.
