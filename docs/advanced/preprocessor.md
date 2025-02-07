@@ -8,11 +8,11 @@ and macros that enrich the language's grammar with higher-level expressions.
 
 <br>
 
-**In practical code writing, you will mostly use permissions, dependencies, and perhaps compile time execution.** 
-Macros and other transformations may alter the order in which written code is executed 
-and should be sparingly used - if at all. 
-They are meant to support libraries that inject new coding patterns, like those found in the `libs/.bb` file
-that the compiler includes for support of additional idioms.
+Macros may alter the order in which written code is executed 
+and should be sparingly used - if at all. Therefore, the macro and related direactives are 
+packed into one section in this page. Macros are meant
+to support coding patterns without needing to explicitly code them in
+the virtual machine.
 
 ## !include
 
@@ -112,7 +112,7 @@ print("http://www.google.com/"|file|str|len);
 
 
 !!! warning
-    If you compile/compile and run multiple main files with the same virtual machine, permissions 
+    If you compile or run multiple main files with the same virtual machine, permissions 
     and the virtual file system carry over. This is useful for declarative
     build configurations, but you need to know about it to not arbitrarily
     add stuff from others to your files.
@@ -124,6 +124,80 @@ print("http://www.google.com/"|file|str|len);
 String interpolation is performed by enclosing a part of strings in `!{...}`.
 This splits the string on compile time to calling `str` on the enclosed epxression
 and performing string concatenation with the string segments to the left and right.
+For example, the two print statements in following code segments are identical:
+
+```java
+name = read("what's your name?");
+print("Hi !{name}.");
+print("Hi "+str(name)+".");
+```
+
+## Namespaces
+
+Namespaces compartmenize the usage of certain variables.
+THis is done adding a prefix `@name::` to their names when the namespace is not active,
+which makes it harder to use by mistake.
+The name is added as a prefix followed by two colons
+to only a set of affected variables following the namespace's activation,
+and until the end of the file.
+To begin with, declare a namespace with the following syntax,
+where at its end you can also add some code to run upon
+activation. Include any number of variables whose
+subsequent usage is altered.
+
+```java
+namespace @name {
+    var @v1;
+    var @v2; 
+    ...
+}
+```
+
+Similarly to code blocks, declaring a namespace does nothing.
+But you can bring it in the with the syntax `with @name:`. Notice
+the colon at the end, which is intentionally similar to code blocks
+to indicate that subsequent code is affected. 
+Refer to a variable affected by a namespace
+either through its full name (e.g., `graphics::x`) or by first activating
+the corresponding namespace. Below is an example of
+using namespaces to differentiate between usage of the same
+variables.
+
+```java
+// main.bb
+namespace dims {
+    var x;
+    var y;
+}
+namespace main {
+    var x;
+    var y;
+}
+
+with dims: // x and y are now dims::x and dims::y 
+Point = {
+    norm() => (this.x^2+this.y^2)^0.5;
+    str() => "(!{this.x}, !{this.y})";
+}
+p = new {Point: x=3;y=4}
+
+with main:
+p.x = 0;
+print(p);
+print(p.main::x);
+```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+(3,4)
+0
+</pre>
+
+
+!!! tip
+    Namespace usage is encouraged. They are better than a simple zero cost abstraction (they are
+    implemented with macros without any cost) that helps with debugging
+    in that thet help the virtual machine better reason about how to parallelize programs.
 
 ## Macros
 
@@ -187,6 +261,18 @@ print(next(finder));
 </pre>
 
 The following directives play a supporting role to other language features.
+
+<br>
+
+**!local**
+
+Make macros valid only for the length of the current source code file by declaring
+them as `!local {@expression} as {@transformation}`. The same rules as above
+hold, where you can interweave local definitions into macros and conversely.
+
+!!! info
+    Namespace variables are also implemented with `!local` under the hood
+    to make sure that namespaces are explicitly re-enabled in different files.
 
 <br>
 

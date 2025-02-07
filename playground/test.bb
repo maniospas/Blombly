@@ -1,11 +1,11 @@
 namespace dims {
-    name x;
-    name y;
+    var x;
+    var y;
 }
 
 namespace plot {
-    name x;
-    name y;
+    var x;
+    var y;
 }
 
 with dims: // enable the dims namespace 

@@ -6,8 +6,28 @@ Download Blombly's latest [release](https://github.com/maniospas/Blombly/release
 and add the latter to your filepath to let your operating system know where the main executable is located. Alternatively,
 use the full path to the executable everywhere. Instructions to build from source are in the
 [GitHub](https://github.com/maniospas/Blombly) page.
-When writing in the language, use a Java keyword highlighter (but not syntax checker). For the time being, it is also recommended that you use VSCode as the editor of choice, because you can also ctrl+click on files mentioned in
+When writing in the language, use a Java keyword highlighter (but not syntax checker). For the time being, it is also recommended 
+that you use VSCode as the editor of choice, because you can also ctrl+click on files mentioned in
 error messages to jump to mentioned positions.
+
+<br>
+
+Blombly offers a (still immature) custom language server for better syntax highlighting and code navigation.
+This requires python3 to be available in your system. Install the language server as 
+a VSCode extension by downloading it 
+from [this link](https://github.com/maniospas/Blombly/raw/refs/heads/main/blombly-lsp/blombly-lsp-0.0.1.vsix)
+and running the following instruction in your terminal:
+
+```bash
+code --install-extension blombly-lsp-0.0.1.vsix
+```
+
+!!! warning
+    If highlighting stops, restart it by going to the extensions, opening the Blombly
+    extension, and clicking 
+    *Disable, Restart, and Enable* which appear in succession in the same button.
+    Or you can stick with the aforementioned Java highlighter for the time being.
+
 
 ## Hello world!
 
