@@ -64,7 +64,9 @@ print(result);
 
 ## Immediate return
 
-Blombly comes alongside several [macros](../advanced/preprocessor.md), one of which is `@signature => @expression`. This is a shorthand for code blocks that only return an expression's outcome.
+Blombly comes alongside several [macros](../advanced/preprocessor.md), 
+one of which is `@signature => @expression`. This is a shorthand for code blocks 
+that only return an expression's outcome.
 Below is an example that combines several concepts.
 
 
@@ -87,11 +89,6 @@ print(b);
 4
 -1
 </pre>
-
-!!! info
-    Blombly is free to run functions in parallel. 
-    Synchronize them by passing the output of one into another, or by enclosing multiple calls in a `do` block.
-    For full instructions on handling concurrency side effects see [here](../material/concurrency.md).
 
 ## Execution closure
 
@@ -123,12 +120,11 @@ Running scope
 
 !!! info 
     The property of obtaining values from a surrounding context is broadly called *closure*.
-    Contrary to most interpreted languages, like Python and Javascrip, 
+    Contrary to most interpreted languages, like Python and JavaScript, 
     Blombly aims for efficient memory management
-    and parallelization. It therefore uses the scope at which functions run (*not* where they are
-    defined) as their closure.
-    It further has access only to final variables to retain the ability of automatically
-    running functions in parallel.
+    and parallelization. This is achieved by restricting access only 
+    to the final variables from the scope at which functions run (*not* where they are
+    defined) as closure.
 
 
 
