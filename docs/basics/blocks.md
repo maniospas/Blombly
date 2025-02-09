@@ -1,7 +1,7 @@
 # Code blocks
 
 The main logic compartmentalization mechanism in Blombly are code blocks. These are source code segments that can be treated 
-as functions, used to define various control flows, or called inline. 
+as functions or inlined within running code. 
 Code blocks are enclosed in brackets and assigned to a variable. This only sets the variable and does not execute code yet.
 
 
@@ -25,7 +25,7 @@ Hello world!
 </pre>
 
 !!! info
-    Use the `@value = do @blockname:` pattern to intercept return statements, if those are expected from inlined
+    Use the `@value = do @blockname:` syntax to intercept return statements, if those are expected from inlined
     blocks. This is described [later](../advanced/try.md).
 
 

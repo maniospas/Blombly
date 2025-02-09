@@ -1362,7 +1362,8 @@ public:
                 ret += toret;
                 return var;
             }
-            bberror("Unknown type of command: `"+to_string(start, end)+"`\n"+show_position(start));
+
+        bberror("Unknown type of command: `"+to_string(start, end)+"`\n"+show_position(start));
         /*} catch (const BBError& e) {
             if (tokens[start].line != tokens[end].line)
                 throw e;
@@ -1514,7 +1515,7 @@ void sanitize(std::vector<Token>& tokens) {
             continue;
         }
 
-        if ((tokens[i].name == "#" || tokens[i].name == "!") && ((i >= tokens.size() - 1) || 
+        /*if ((tokens[i].name == "#" || tokens[i].name == "!") && ((i >= tokens.size() - 1) || 
             (tokens[i + 1].name != "include" && tokens[i + 1].name != "local"
              && tokens[i + 1].name != "macro" && tokens[i + 1].name != "stringify" 
              && tokens[i + 1].name != "symbol"
@@ -1539,7 +1540,7 @@ void sanitize(std::vector<Token>& tokens) {
                     "\n        - `!modify @str` grants read and write access to locations starting with the provided string (`!comptime` also gets these rights but cannot add to it)."
                     "\n        - `!fail @message` creates a compile-time failure.\n"
                     + Parser::show_position(tokens, i));
-        }
+        }*/
         updatedTokens.push_back(tokens[i]);
 
         /*if ((tokens[i].name == "if" || tokens[i].name == "while") && ((i==0) || 

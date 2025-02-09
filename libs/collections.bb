@@ -47,6 +47,7 @@ db(str path) => new {
     run(query) => this.connector << query|str;
 }
 
+!with colors:
 logger = new {
     ok(str text) = {print("[  !{bb.ansi.lightgreen}ok!{bb.ansi.reset}  ] !{text}")}
     fail(str text) = {print("[ !{bb.ansi.lightred}fail!{bb.ansi.reset} ] !{text}")}

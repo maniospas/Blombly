@@ -5,8 +5,8 @@
 !macro {default @var=} as {catch(@var) @var=}
 
 // define namespaces
-!macro{namespace @name {@generator}} as {
-    !macro {with @name:} as {
+!macro{!namespace @name {@generator}} as {
+    !macro {!with @name:} as {
         !local {var @@@symbol;} as {!local{@@@symbol} as {!symbol(@name :: @@@symbol)}}
         @generator
     }
