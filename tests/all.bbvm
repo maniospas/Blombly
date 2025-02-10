@@ -19,7 +19,7 @@ final # ansi
 %{toback(element)={return new{.element=th ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 1
 BEGIN _bb63
 %{return new{.element=this.element;call(A ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 2
-BEGIN _bb64
+BEGIN toback
 next element args
 %{.element=this.element;call(A)={..elemen ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 2
 BEGIN _bb67
@@ -27,7 +27,7 @@ BEGIN _bb67
 get _bb68 this element
 IS .element _bb68
 %{..element=this..element;A..element;retu ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 2
-BEGIN _bb69
+BEGIN call
 next A args
 %this..element ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 2
 get _bb70 this .element
@@ -37,7 +37,6 @@ push _bb71 A ..element
 %returnA ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 2
 return # A
 END
-IS call _bb69
 return # this
 END
 %new{.element=this.element;call(A)={..ele ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 2
@@ -45,9 +44,8 @@ new _bb65 _bb67
 %return new{.element=this.element;call(A) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 2
 return # _bb65
 END
-IS toback _bb64
 %{return new{.func=this.func;call(A)={..f ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
-BEGIN _bb72
+BEGIN transform
 next func args
 %{.func=this.func;call(A)={..func=this..f ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
 BEGIN _bb75
@@ -55,7 +53,7 @@ BEGIN _bb75
 get _bb76 this func
 IS .func _bb76
 %{..func=this..func;ret=list();_bbmacro0= ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
-BEGIN _bb77
+BEGIN call
 next A args
 %this..func ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
 get _bb78 this .func
@@ -85,7 +83,6 @@ while # _bb81 _bb84
 %return ret ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
 return # ret
 END
-IS call _bb77
 return # this
 END
 %new{.func=this.func;call(A)={..func=this ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
@@ -93,13 +90,12 @@ new _bb73 _bb75
 %return new{.func=this.func;call(A)={..fu ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
 return # _bb73
 END
-IS transform _bb72
 return # this
 END
 %new{toback(element)={return new{.element ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 1
 new collection _bb63
 %{return new{connector=sqlite(path);table ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 17
-BEGIN _bb88
+BEGIN db
 next path args
 str path path
 %{connector=sqlite(path);table(str table_ ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 17
@@ -114,32 +110,31 @@ new _bb89 _bb91
 %return new{connector=sqlite(path);table( ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 17
 return # _bb89
 END
-IS db _bb88
-%{ok(str text)={print("[  "+str(bb.ansi.c ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 51
+%{ok(str text)={print("[  "+str(bb.ansi.c //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 52
 BEGIN _bb204
-%{print("[  "+str(bb.ansi.colors::lightgr ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 52
-BEGIN _bb205
+%{print("[  "+str(bb.ansi.colors::lightgr //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
+BEGIN ok
 next text args
 str text text
-%"[  "+str(bb.ansi.colors::lightgreen)+"o ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 52
+%"[  "+str(bb.ansi.colors::lightgreen)+"o //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
 BUILTIN _bb207 ""
-%str(text) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 52
+%str(text) //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
 str _bb209 text
-%"[  "+str(bb.ansi.colors::lightgreen)+"o ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 52
+%"[  "+str(bb.ansi.colors::lightgreen)+"o //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
 BUILTIN _bb211 "  ] "
-%bb.ansi ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 52
+%bb.ansi //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
 get _bb214 bb ansi
-%bb.ansi.colors::reset ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 52
+%bb.ansi.colors::reset //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
 get _bb213 _bb214 colors::reset
-%str(bb.ansi.colors::reset) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 52
+%str(bb.ansi.colors::reset) //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
 str _bb215 _bb213
-%"[  "+str(bb.ansi.colors::lightgreen)+"o ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 52
+%"[  "+str(bb.ansi.colors::lightgreen)+"o //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
 BUILTIN _bb217 "ok"
-%bb.ansi ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 52
+%bb.ansi //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
 get _bb220 bb ansi
-%bb.ansi.colors::lightgreen ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 52
+%bb.ansi.colors::lightgreen //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
 get _bb219 _bb220 colors::lightgreen
-%str(bb.ansi.colors::lightgreen) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 52
+%str(bb.ansi.colors::lightgreen) //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
 str _bb221 _bb219
 BUILTIN _bb222 "[  "
 add _bb218 _bb222 _bb221
@@ -148,33 +143,32 @@ add _bb212 _bb216 _bb215
 add _bb210 _bb212 _bb211
 add _bb208 _bb210 _bb209
 add _bb206 _bb208 _bb207
-%print("[  "+str(bb.ansi.colors::lightgre ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 52
+%print("[  "+str(bb.ansi.colors::lightgre //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
 print # _bb206
 END
-IS ok _bb205
-%{print("[ "+str(bb.ansi.colors::lightred ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
-BEGIN _bb223
+%{print("[ "+str(bb.ansi.colors::lightred //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 54
+BEGIN fail
 next text args
 str text text
-%"[ "+str(bb.ansi.colors::lightred)+"fail ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
+%"[ "+str(bb.ansi.colors::lightred)+"fail //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 54
 BUILTIN _bb225 ""
-%str(text) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
+%str(text) //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 54
 str _bb227 text
-%"[ "+str(bb.ansi.colors::lightred)+"fail ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
+%"[ "+str(bb.ansi.colors::lightred)+"fail //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 54
 BUILTIN _bb229 " ] "
-%bb.ansi ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
+%bb.ansi //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 54
 get _bb232 bb ansi
-%bb.ansi.colors::reset ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
+%bb.ansi.colors::reset //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 54
 get _bb231 _bb232 colors::reset
-%str(bb.ansi.colors::reset) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
+%str(bb.ansi.colors::reset) //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 54
 str _bb233 _bb231
-%"[ "+str(bb.ansi.colors::lightred)+"fail ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
+%"[ "+str(bb.ansi.colors::lightred)+"fail //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 54
 BUILTIN _bb235 "fail"
-%bb.ansi ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
+%bb.ansi //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 54
 get _bb238 bb ansi
-%bb.ansi.colors::lightred ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
+%bb.ansi.colors::lightred //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 54
 get _bb237 _bb238 colors::lightred
-%str(bb.ansi.colors::lightred) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
+%str(bb.ansi.colors::lightred) //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 54
 str _bb239 _bb237
 BUILTIN _bb240 "[ "
 add _bb236 _bb240 _bb239
@@ -183,556 +177,544 @@ add _bb230 _bb234 _bb233
 add _bb228 _bb230 _bb229
 add _bb226 _bb228 _bb227
 add _bb224 _bb226 _bb225
-%print("[ "+str(bb.ansi.colors::lightred) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 53
+%print("[ "+str(bb.ansi.colors::lightred) //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 54
 print # _bb224
 END
-IS fail _bb223
-%print("[ "+str(bb.ansi.colors::lightcyan ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 55
+%print("[ "+str(bb.ansi.colors::lightcyan //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 56
 return # this
 END
-%new{ok(str text)={print("[  "+str(bb.ans ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 51
+%new{ok(str text)={print("[  "+str(bb.ans //!include at /home/maniospas/Documents/Blombly/build/libs/collections.bb line 52
 new logger _bb204
-%{call(str file path)={return path;}isfil ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 69
+%{call(str file path)={return path;}isfil ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 71
 BEGIN _bb297
-%{return path;} ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 70
-BEGIN _bb298
+%{return path;} ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 72
+BEGIN call
 next path args
 str path path
 file path path
-%return path ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 70
+%return path ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 72
 return # path
 END
-IS call _bb298
-%{ret="";_bbmacro2=iter(path);while(line  ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 72
-BEGIN _bb306
+%{ret="";_bbmacro2=iter(path);while(line  ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 74
+BEGIN read
 next path args
 str path path
 file path path
-%ret="" ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 73
+%ret="" ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 75
 BUILTIN ret ""
-%iter(path) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 74
+%iter(path) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 76
 iter _bbmacro2 path
-%while(line as next(_bbmacro2)){if(ret|le ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 74
+%while(line as next(_bbmacro2)){if(ret|le ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 76
 BEGIN _bb309
-%next(_bbmacro2) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 74
+%next(_bbmacro2) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 76
 next _bb310 _bbmacro2
 AS line _bb310
 exists _bb311 line
 END
 BEGIN _bb312
-%if(ret|len|bool)ret+="\n" ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 75
+%if(ret|len|bool)ret+="\n" ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 77
 BEGIN _bb313
-%ret+="\n" ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 75
+%ret+="\n" ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 77
 BUILTIN _bb314 "\n"
 add ret ret _bb314
 END
-%ret|len ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 75
+%ret|len ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 77
 len _bb316 ret
-%ret|len|bool ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 75
+%ret|len|bool ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 77
 bool _bb315 _bb316
-%if(ret|len|bool)ret+="\n" ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 75
+%if(ret|len|bool)ret+="\n" ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 77
 if # _bb315 _bb313
-%ret+=line ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 76
+%ret+=line ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 78
 add ret ret line
 END
-%while(line as next(_bbmacro2)){if(ret|le ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 74
+%while(line as next(_bbmacro2)){if(ret|le ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 76
 while # _bb309 _bb312
-%return ret ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 78
+%return ret ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 80
 return # ret
 END
-IS read _bb306
-%return true ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 93
+%return true ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 95
 return # this
 END
-%new{call(str file path)={return path;}is ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 69
+%new{call(str file path)={return path;}is ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 71
 new os _bb297
-%{call(str value)={return value;}md5(arg) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 97
+%{call(str value)={return value;}md5(arg) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 99
 BEGIN _bb365
-%{return value;} ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 99
-BEGIN _bb366
+%{return value;} ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 101
+BEGIN call
 next value args
 str value value
-%return value ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 99
+%return value ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 101
 return # value
 END
-IS call _bb366
-%{return new{.query=this.query;if((len(ar ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
-BEGIN _bb429
+%{return new{.query=this.query;if((len(ar ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
+BEGIN starts
 next query args
 str query query
-%{.query=this.query;if((len(args)==0)== f ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%{.query=this.query;if((len(args)==0)== f ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 BEGIN _bb432
-%this.query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%this.query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 get _bb433 this query
 IS .query _bb433
-%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 BEGIN _bb434
-%("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 BUILTIN _bb435 "Assertion failed"
-%fail("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%fail("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 fail # _bb435
 END
-%(len(args)==0)== false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%(len(args)==0)== false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 BUILTIN _bb437 Bfalse
-%len(args)==0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%len(args)==0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 BUILTIN _bb439 I0
-%len(args) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%len(args) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 len _bb440 args
 eq _bb438 _bb440 _bb439
 eq _bb436 _bb438 _bb437
-%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 if # _bb436 _bb434
-%{..query=this..query;if((args|len ==0)== ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
-BEGIN _bb441
+%{..query=this..query;if((args|len ==0)== ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
+BEGIN call
 next search args
 str search search
-%this..query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%this..query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 get _bb442 this .query
 IS ..query _bb442
-%if((args|len ==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%if((args|len ==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 BEGIN _bb443
-%("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 BUILTIN _bb444 "Assertion failed"
-%fail("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%fail("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 fail # _bb444
 END
-%(args|len ==0)== false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%(args|len ==0)== false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 BUILTIN _bb446 Bfalse
-%args|len ==0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%args|len ==0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 BUILTIN _bb448 I0
-%args|len ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%args|len ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 len _bb449 args
 eq _bb447 _bb449 _bb448
 eq _bb445 _bb447 _bb446
-%if((args|len ==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%if((args|len ==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 if # _bb445 _bb443
-%query=..query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%query=..query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 IS query ..query
-%len(search) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%len(search) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 len nsearch search
-%len(query) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%len(query) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 len nquery query
-%if(nsearch<nquery)return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%if(nsearch<nquery)return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 BEGIN _bb452
 BUILTIN _bb453 Bfalse
-%return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 return # _bb453
 END
-%nsearch<nquery ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%nsearch<nquery ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 lt _bb454 nsearch nquery
-%if(nsearch<nquery)return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%if(nsearch<nquery)return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 if # _bb454 _bb452
-%range(nquery) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%range(nquery) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 range _bb455 nquery
-%iter(range(nquery)) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%iter(range(nquery)) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 iter _bbmacro4 _bb455
-%while(ias next(_bbmacro4))if(query[i]!=  ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%while(ias next(_bbmacro4))if(query[i]!=  ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 BEGIN _bb457
-%next(_bbmacro4) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%next(_bbmacro4) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 next _bb458 _bbmacro4
 AS i _bb458
 exists _bb459 i
 END
 BEGIN _bb460
-%if(query[i]!= search[i])return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%if(query[i]!= search[i])return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 BEGIN _bb461
 BUILTIN _bb462 Bfalse
-%return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 return # _bb462
 END
-%search[i] ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%search[i] ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 at _bb464 search i
-%query[i] ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%query[i] ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 at _bb465 query i
 neq _bb463 _bb465 _bb464
-%if(query[i]!= search[i])return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%if(query[i]!= search[i])return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 if # _bb463 _bb461
 END
-%while(ias next(_bbmacro4))if(query[i]!=  ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%while(ias next(_bbmacro4))if(query[i]!=  ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 while # _bb457 _bb460
 BUILTIN _bb466 Btrue
-%return true ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%return true ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 return # _bb466
 END
-IS call _bb441
 return # this
 END
-%new{.query=this.query;if((len(args)==0)= ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%new{.query=this.query;if((len(args)==0)= ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 new _bb430 _bb432
-%return new{.query=this.query;if((len(arg ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 130
+%return new{.query=this.query;if((len(arg ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 132
 return # _bb430
 END
-IS starts _bb429
-%{return new{.query=this.query;if((len(ar ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
-BEGIN _bb467
+%{return new{.query=this.query;if((len(ar ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
+BEGIN ends
 next query args
 str query query
-%{.query=this.query;if((len(args)==0)== f ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%{.query=this.query;if((len(args)==0)== f ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 BEGIN _bb470
-%this.query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%this.query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 get _bb471 this query
 IS .query _bb471
-%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 BEGIN _bb472
-%("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 BUILTIN _bb473 "Assertion failed"
-%fail("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%fail("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 fail # _bb473
 END
-%(len(args)==0)== false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%(len(args)==0)== false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 BUILTIN _bb475 Bfalse
-%len(args)==0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%len(args)==0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 BUILTIN _bb477 I0
-%len(args) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%len(args) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 len _bb478 args
 eq _bb476 _bb478 _bb477
 eq _bb474 _bb476 _bb475
-%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 if # _bb474 _bb472
-%{..query=this..query;if((args|len ==0)== ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
-BEGIN _bb479
+%{..query=this..query;if((args|len ==0)== ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
+BEGIN call
 next search args
 str search search
-%this..query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%this..query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 get _bb480 this .query
 IS ..query _bb480
-%if((args|len ==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%if((args|len ==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 BEGIN _bb481
-%("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 BUILTIN _bb482 "Assertion failed"
-%fail("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%fail("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 fail # _bb482
 END
-%(args|len ==0)== false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%(args|len ==0)== false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 BUILTIN _bb484 Bfalse
-%args|len ==0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%args|len ==0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 BUILTIN _bb486 I0
-%args|len ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%args|len ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 len _bb487 args
 eq _bb485 _bb487 _bb486
 eq _bb483 _bb485 _bb484
-%if((args|len ==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%if((args|len ==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 if # _bb483 _bb481
-%query=..query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%query=..query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 IS query ..query
-%len(search) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%len(search) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 len nsearch search
-%len(query) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%len(query) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 len nquery query
-%if(nsearch<nquery)return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%if(nsearch<nquery)return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 BEGIN _bb490
 BUILTIN _bb491 Bfalse
-%return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 return # _bb491
 END
-%nsearch<nquery ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%nsearch<nquery ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 lt _bb492 nsearch nquery
-%if(nsearch<nquery)return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%if(nsearch<nquery)return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 if # _bb492 _bb490
-%range(nquery) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%range(nquery) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 range _bb493 nquery
-%iter(range(nquery)) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%iter(range(nquery)) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 iter _bbmacro5 _bb493
-%while(ias next(_bbmacro5))if(query[i]!=  ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%while(ias next(_bbmacro5))if(query[i]!=  ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 BEGIN _bb495
-%next(_bbmacro5) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%next(_bbmacro5) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 next _bb496 _bbmacro5
 AS i _bb496
 exists _bb497 i
 END
 BEGIN _bb498
-%if(query[i]!= search[nsearch-nquery+i])r ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%if(query[i]!= search[nsearch-nquery+i])r ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 BEGIN _bb499
 BUILTIN _bb500 Bfalse
-%return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%return false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 return # _bb500
 END
-%nsearch-nquery ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%nsearch-nquery ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 sub _bb504 nsearch nquery
 add _bb503 _bb504 i
-%search[nsearch-nquery+i] ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%search[nsearch-nquery+i] ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 at _bb502 search _bb503
-%query[i] ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%query[i] ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 at _bb505 query i
 neq _bb501 _bb505 _bb502
-%if(query[i]!= search[nsearch-nquery+i])r ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%if(query[i]!= search[nsearch-nquery+i])r ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 if # _bb501 _bb499
 END
-%while(ias next(_bbmacro5))if(query[i]!=  ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%while(ias next(_bbmacro5))if(query[i]!=  ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 while # _bb495 _bb498
 BUILTIN _bb506 Btrue
-%return true ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%return true ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 return # _bb506
 END
-IS call _bb479
 return # this
 END
-%new{.query=this.query;if((len(args)==0)= ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%new{.query=this.query;if((len(args)==0)= ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 new _bb468 _bb470
-%return new{.query=this.query;if((len(arg ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 142
+%return new{.query=this.query;if((len(arg ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 144
 return # _bb468
 END
-IS ends _bb467
-%{return new{.query=this.query;if((len(ar ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
-BEGIN _bb507
+%{return new{.query=this.query;if((len(ar ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
+BEGIN index
 next query args
 str query query
-%{.query=this.query;if((len(args)==0)== f ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%{.query=this.query;if((len(args)==0)== f ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 BEGIN _bb510
-%this.query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%this.query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 get _bb511 this query
 IS .query _bb511
-%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 BEGIN _bb512
-%("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 BUILTIN _bb513 "Assertion failed"
-%fail("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%fail("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 fail # _bb513
 END
-%(len(args)==0)== false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%(len(args)==0)== false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 BUILTIN _bb515 Bfalse
-%len(args)==0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%len(args)==0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 BUILTIN _bb517 I0
-%len(args) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%len(args) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 len _bb518 args
 eq _bb516 _bb518 _bb517
 eq _bb514 _bb516 _bb515
-%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 if # _bb514 _bb512
-%catch(pos)pos=0else pos=int(pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%catch(pos)pos=0else pos=int(pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 BEGIN _bb519
-%pos=0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%pos=0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 BUILTIN pos I0
 END
 BEGIN _bb521
-%int(pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%int(pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 int pos pos
 END
-%catch(pos)pos=0else pos=int(pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%catch(pos)pos=0else pos=int(pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 catch # pos _bb519 _bb521
-%{..query=this..query;if((len(args)==0)== ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
-BEGIN _bb523
+%{..query=this..query;if((len(args)==0)== ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
+BEGIN call
 next search args
 str search search
-%this..query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%this..query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 get _bb524 this .query
 IS ..query _bb524
-%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 BEGIN _bb525
-%("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 BUILTIN _bb526 "Assertion failed"
-%fail("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%fail("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 fail # _bb526
 END
-%(len(args)==0)== false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%(len(args)==0)== false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 BUILTIN _bb528 Bfalse
-%len(args)==0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%len(args)==0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 BUILTIN _bb530 I0
-%len(args) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%len(args) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 len _bb531 args
 eq _bb529 _bb531 _bb530
 eq _bb527 _bb529 _bb528
-%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 if # _bb527 _bb525
-%query=..query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%query=..query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 IS query ..query
-%this.pos ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%this.pos ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 get _bb532 this pos
 IS pos _bb532
-%len(search) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%len(search) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 len nsearch search
-%len(query) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%len(query) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 len nquery query
-%nsearch-nquery+1 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%nsearch-nquery+1 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 BUILTIN _bb537 I1
-%nsearch-nquery ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%nsearch-nquery ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 sub _bb538 nsearch nquery
 add _bb536 _bb538 _bb537
-%range(pos,nsearch-nquery+1) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%range(pos,nsearch-nquery+1) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 range _bb535 pos _bb536
-%iter(range(pos,nsearch-nquery+1)) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%iter(range(pos,nsearch-nquery+1)) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 iter _bbmacro6 _bb535
-%while(ias next(_bbmacro6)){_bbmacro7=ite ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%while(ias next(_bbmacro6)){_bbmacro7=ite ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 BEGIN _bb540
-%next(_bbmacro6) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%next(_bbmacro6) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 next _bb541 _bbmacro6
 AS i _bb541
 exists _bb542 i
 END
 BEGIN _bb543
-%range(nquery) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%range(nquery) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 range _bb544 nquery
-%iter(range(nquery)) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%iter(range(nquery)) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 iter _bbmacro7 _bb544
-%while(jas next(_bbmacro7))if(query[j]!=  ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%while(jas next(_bbmacro7))if(query[j]!=  ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 BEGIN _bb548
-%while(jas next(_bbmacro7))if(query[j]!=  ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%while(jas next(_bbmacro7))if(query[j]!=  ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 BEGIN _bb549
-%next(_bbmacro7) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%next(_bbmacro7) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 next _bb550 _bbmacro7
 AS j _bb550
 exists _bb551 j
 END
 BEGIN _bb552
-%if(query[j]!= search[i+j]){return true;} ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%if(query[j]!= search[i+j]){return true;} ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 BEGIN _bb553
 BUILTIN _bb554 Btrue
-%return true ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%return true ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 return # _bb554
 END
-%i+j ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%i+j ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 add _bb557 i j
-%search[i+j] ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%search[i+j] ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 at _bb556 search _bb557
-%query[j] ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%query[j] ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 at _bb558 query j
 neq _bb555 _bb558 _bb556
-%if(query[j]!= search[i+j]){return true;} ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%if(query[j]!= search[i+j]){return true;} ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 if # _bb555 _bb553
 END
-%while(jas next(_bbmacro7))if(query[j]!=  ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%while(jas next(_bbmacro7))if(query[j]!=  ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 while # _bb549 _bb552
 END
-%do while(jas next(_bbmacro7))if(query[j] ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%do while(jas next(_bbmacro7))if(query[j] ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 do different _bb548
-%catch(different)returni ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%catch(different)returni ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 BEGIN _bb559
-%returni ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%returni ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 return # i
 END
-%catch(different)returni ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%catch(different)returni ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 catch # different _bb559
 END
-%while(ias next(_bbmacro6)){_bbmacro7=ite ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%while(ias next(_bbmacro6)){_bbmacro7=ite ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 while # _bb540 _bb543
-%return nsearch ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%return nsearch ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 return # nsearch
 END
-IS call _bb523
 return # this
 END
-%new{.query=this.query;if((len(args)==0)= ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%new{.query=this.query;if((len(args)==0)= ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 new _bb508 _bb510
-%return new{.query=this.query;if((len(arg ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 154
+%return new{.query=this.query;if((len(arg ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 156
 return # _bb508
 END
-IS index _bb507
-%{return new{.query=this.query;if((len(ar ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
-BEGIN _bb560
+%{return new{.query=this.query;if((len(ar ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
+BEGIN split
 next query args
 str query query
-%{.query=this.query;if((len(args)==0)== f ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%{.query=this.query;if((len(args)==0)== f ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 BEGIN _bb563
-%this.query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%this.query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 get _bb564 this query
 IS .query _bb564
-%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 BEGIN _bb565
-%("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 BUILTIN _bb566 "Assertion failed"
-%fail("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%fail("Assertion failed") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 fail # _bb566
 END
-%(len(args)==0)== false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%(len(args)==0)== false ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 BUILTIN _bb568 Bfalse
-%len(args)==0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%len(args)==0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 BUILTIN _bb570 I0
-%len(args) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%len(args) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 len _bb571 args
 eq _bb569 _bb571 _bb570
 eq _bb567 _bb569 _bb568
-%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%if((len(args)==0)== false)fail("Assertio ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 if # _bb567 _bb565
-%catch(maxsplits)maxsplits=0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%catch(maxsplits)maxsplits=0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 BEGIN _bb572
-%maxsplits=0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%maxsplits=0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 BUILTIN maxsplits I0
 END
-%catch(maxsplits)maxsplits=0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%catch(maxsplits)maxsplits=0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 catch # maxsplits _bb572
-%{..query=this..query;query=..query;nsear ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
-BEGIN _bb574
+%{..query=this..query;query=..query;nsear ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
+BEGIN call
 next search args
 str search search
-%this..query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%this..query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 get _bb575 this .query
 IS ..query _bb575
-%query=..query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%query=..query ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 IS query ..query
-%len(search) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%len(search) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 len nsearch search
-%len(query) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%len(query) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 len nquery query
-%if(nquery ==0)fail("Cannot split on a ze ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%if(nquery ==0)fail("Cannot split on a ze ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 BEGIN _bb578
-%("Cannot split on a zero-length string") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%("Cannot split on a zero-length string") ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 BUILTIN _bb579 "Cannot split on a zero-length string"
-%fail("Cannot split on a zero-length stri ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%fail("Cannot split on a zero-length stri ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 fail # _bb579
 END
-%nquery ==0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%nquery ==0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 BUILTIN _bb581 I0
 eq _bb580 nquery _bb581
-%if(nquery ==0)fail("Cannot split on a ze ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%if(nquery ==0)fail("Cannot split on a ze ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 if # _bb580 _bb578
-%list() ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%list() ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 list ret
-%pos=0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%pos=0 ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 BUILTIN pos I0
-%while(pos<nsearch){prev_pos=pos;pos=sear ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%while(pos<nsearch){prev_pos=pos;pos=sear ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 BEGIN _bb584
-%pos<nsearch ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%pos<nsearch ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 lt _bb585 pos nsearch
 END
 BEGIN _bb586
-%prev_pos=pos ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%prev_pos=pos ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 IS prev_pos pos
-%search|bb.string.index(query :: pos=pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%search|bb.string.index(query :: pos=pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 BEGIN _bb588
 list args search
 END
-%bb.string.index(query :: pos=pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%bb.string.index(query :: pos=pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 BEGIN _bb591
 list args query
-%pos=pos ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%pos=pos ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 IS pos pos
 END
-%bb.string ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%bb.string ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 get _bb593 bb string
-%bb.string.index ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%bb.string.index ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 get _bb592 _bb593 index
-%bb.string.index(query :: pos=pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%bb.string.index(query :: pos=pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 call _bb590 _bb591 _bb592
-%search|bb.string.index(query :: pos=pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%search|bb.string.index(query :: pos=pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 call _bb587 _bb588 _bb590
 IS pos _bb587
-%range(prev_pos,pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%range(prev_pos,pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 range _bb595 prev_pos pos
-%search[range(prev_pos,pos)] ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%search[range(prev_pos,pos)] ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 at _bb594 search _bb595
 IS s _bb594
-%rets ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%rets ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 push _bb596 ret s
-%pos+=nquery ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%pos+=nquery ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 add pos pos nquery
 END
-%while(pos<nsearch){prev_pos=pos;pos=sear ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%while(pos<nsearch){prev_pos=pos;pos=sear ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 while # _bb584 _bb586
-%return ret ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%return ret ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 return # ret
 END
-IS call _bb574
 return # this
 END
-%new{.query=this.query;if((len(args)==0)= ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%new{.query=this.query;if((len(args)==0)= ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 new _bb561 _bb563
-%return new{.query=this.query;if((len(arg ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 170
+%return new{.query=this.query;if((len(arg ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 return # _bb561
 END
-IS split _bb560
 return # this
 END
-%new{call(str value)={return value;}md5(a ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 97
+%new{call(str value)={return value;}md5(a ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 99
 new string _bb365
 %new{Plot={plots=list();defer{catch(axes) ///home/maniospas/Documents/Blombly/build/libs/plot.bb line 1
 return # this
@@ -743,7 +725,7 @@ final # bb
 %{inc(x)={catch(bias)bias=1;returnx+bias; //tests/all.bb line 4
 BEGIN _bb832
 %{catch(bias)bias=1;returnx+bias;} ///home/maniospas/Documents/Blombly/tests/default.bb line 1
-BEGIN _bb833
+BEGIN inc
 next x args
 %catch(bias)bias=1 ///home/maniospas/Documents/Blombly/tests/default.bb line 2
 BEGIN _bb834
@@ -757,7 +739,6 @@ add _bb836 x bias
 %returnx+bias ///home/maniospas/Documents/Blombly/tests/default.bb line 3
 return # _bb836
 END
-IS inc _bb833
 %if((inc(0)==1)== false)fail("Assertion f ///home/maniospas/Documents/Blombly/tests/default.bb line 5
 BEGIN _bb837
 %("Assertion failed") ///home/maniospas/Documents/Blombly/tests/default.bb line 5
@@ -1963,17 +1944,16 @@ catch # _bbmacro21 _bb1346 _bb1356
 %{final Num={int={return this.value;}lt(o //tests/all.bb line 11
 BEGIN _bb1364
 %{int={return this.value;}lt(other)={retu ///home/maniospas/Documents/Blombly/tests/overload.bb line 1
-BEGIN _bb1365
+BEGIN Num
 %{return this.value;} ///home/maniospas/Documents/Blombly/tests/overload.bb line 2
-BEGIN _bb1366
+BEGIN int
 %this.value ///home/maniospas/Documents/Blombly/tests/overload.bb line 2
 get _bb1367 this value
 %return this.value ///home/maniospas/Documents/Blombly/tests/overload.bb line 2
 return # _bb1367
 END
-IS int _bb1366
 %{return this.value<other.value;} ///home/maniospas/Documents/Blombly/tests/overload.bb line 3
-BEGIN _bb1368
+BEGIN lt
 next other args
 %other.value ///home/maniospas/Documents/Blombly/tests/overload.bb line 3
 get _bb1370 other value
@@ -1983,9 +1963,8 @@ lt _bb1369 _bb1371 _bb1370
 %return this.value<other.value ///home/maniospas/Documents/Blombly/tests/overload.bb line 3
 return # _bb1369
 END
-IS lt _bb1368
 %{return "num "+str(this.value)+"";} ///home/maniospas/Documents/Blombly/tests/overload.bb line 4
-BEGIN _bb1372
+BEGIN str
 %"num "+str(this.value)+"" ///home/maniospas/Documents/Blombly/tests/overload.bb line 4
 BUILTIN _bb1374 ""
 %this.value ///home/maniospas/Documents/Blombly/tests/overload.bb line 4
@@ -1998,12 +1977,10 @@ add _bb1373 _bb1375 _bb1374
 %return "num "+str(this.value)+"" ///home/maniospas/Documents/Blombly/tests/overload.bb line 4
 return # _bb1373
 END
-IS str _bb1372
 END
-IS Num _bb1365
 final # Num
 %{return new{Num:value=x};} ///home/maniospas/Documents/Blombly/tests/overload.bb line 6
-BEGIN _bb1379
+BEGIN num
 next x args
 %{Num:value=x} ///home/maniospas/Documents/Blombly/tests/overload.bb line 6
 BEGIN _bb1382
@@ -2018,7 +1995,6 @@ new _bb1380 _bb1382
 %return new{Num:value=x} ///home/maniospas/Documents/Blombly/tests/overload.bb line 6
 return # _bb1380
 END
-IS num _bb1379
 %5,2,3,4,1 ///home/maniospas/Documents/Blombly/tests/overload.bb line 9
 BUILTIN _bb1384 I5
 BUILTIN _bb1385 I2
@@ -2162,7 +2138,7 @@ catch # _bbmacro22 _bb1428 _bb1438
 %{foo(x,y)={catch(bias)bias=0;returnx+y+b //tests/all.bb line 12
 BEGIN _bb1446
 %{catch(bias)bias=0;returnx+y+bias;} ///home/maniospas/Documents/Blombly/tests/calls.bb line 1
-BEGIN _bb1447
+BEGIN foo
 next x args
 next y args
 %catch(bias)bias=0 ///home/maniospas/Documents/Blombly/tests/calls.bb line 2
@@ -2178,7 +2154,6 @@ add _bb1450 _bb1451 bias
 %returnx+y+bias ///home/maniospas/Documents/Blombly/tests/calls.bb line 3
 return # _bb1450
 END
-IS foo _bb1447
 %if((foo(1,2:: bias=3)==6)== false)fail(" ///home/maniospas/Documents/Blombly/tests/calls.bb line 6
 BEGIN _bb1452
 %("Assertion failed") ///home/maniospas/Documents/Blombly/tests/calls.bb line 6
@@ -2268,7 +2243,7 @@ END
 new surface2 _bb1490
 final # surface2
 %{defer surface2.y=1;a=a|float;b=b|float; ///home/maniospas/Documents/Blombly/tests/sideerrors.bb line 3
-BEGIN _bb1492
+BEGIN add
 next a args
 next b args
 %surface2.y=1 ///home/maniospas/Documents/Blombly/tests/sideerrors.bb line 4
@@ -2289,7 +2264,6 @@ BUILTIN _bb1498 I0
 %return0 ///home/maniospas/Documents/Blombly/tests/sideerrors.bb line 8
 return # _bb1498
 END
-IS add _bb1492
 %add(0,"foo") ///home/maniospas/Documents/Blombly/tests/sideerrors.bb line 11
 BEGIN _bb1500
 %0,"foo" ///home/maniospas/Documents/Blombly/tests/sideerrors.bb line 11
@@ -2409,31 +2383,28 @@ catch # _bbmacro26 _bb1530 _bb1540
 %{Struct={.x=this.x;x=0;xthis={return thi //tests/all.bb line 14
 BEGIN _bb1548
 %{.x=this.x;x=0;xthis={return this.x;}xcl ///home/maniospas/Documents/Blombly/tests/closure.bb line 1
-BEGIN _bb1549
+BEGIN Struct
 %this.x ///home/maniospas/Documents/Blombly/tests/closure.bb line 4
 get _bb1550 this x
 IS .x _bb1550
 %x=0 ///home/maniospas/Documents/Blombly/tests/closure.bb line 2
 BUILTIN x I0
 %{return this.x;} ///home/maniospas/Documents/Blombly/tests/closure.bb line 3
-BEGIN _bb1552
+BEGIN xthis
 %this.x ///home/maniospas/Documents/Blombly/tests/closure.bb line 3
 get _bb1553 this x
 %return this.x ///home/maniospas/Documents/Blombly/tests/closure.bb line 3
 return # _bb1553
 END
-IS xthis _bb1552
 %{..x=this..x;return ..x;} ///home/maniospas/Documents/Blombly/tests/closure.bb line 4
-BEGIN _bb1554
+BEGIN xclosure
 %this..x ///home/maniospas/Documents/Blombly/tests/closure.bb line 4
 get _bb1555 this .x
 IS ..x _bb1555
 %return ..x ///home/maniospas/Documents/Blombly/tests/closure.bb line 4
 return # ..x
 END
-IS xclosure _bb1554
 END
-IS Struct _bb1549
 %x=1 ///home/maniospas/Documents/Blombly/tests/closure.bb line 6
 BUILTIN x I1
 %{Struct:} ///home/maniospas/Documents/Blombly/tests/closure.bb line 7
@@ -2693,7 +2664,7 @@ catch # _bbmacro28 _bb1649 _bb1659
 %{waslength(moveA)={returnA|len;}A=1,2,3; //tests/all.bb line 16
 BEGIN _bb1667
 %{returnA|len;} ///home/maniospas/Documents/Blombly/tests/move.bb line 1
-BEGIN _bb1668
+BEGIN waslength
 next A args
 move A A
 %A|len ///home/maniospas/Documents/Blombly/tests/move.bb line 1
@@ -2701,7 +2672,6 @@ len _bb1669 A
 %returnA|len ///home/maniospas/Documents/Blombly/tests/move.bb line 1
 return # _bb1669
 END
-IS waslength _bb1668
 %1,2,3 ///home/maniospas/Documents/Blombly/tests/move.bb line 3
 BUILTIN _bb1670 I1
 BUILTIN _bb1671 I2
@@ -3130,14 +3100,13 @@ BEGIN _bb1860
 %value=0 ///home/maniospas/Documents/Blombly/tests/atomicity.bb line 2
 BUILTIN value I0
 %{this.value+=x} ///home/maniospas/Documents/Blombly/tests/atomicity.bb line 3
-BEGIN _bb1862
+BEGIN add
 next x args
 %this.value+=x ///home/maniospas/Documents/Blombly/tests/atomicity.bb line 3
 get _bb1863 this value
 add _bb1863 _bb1863 x
 set # this value _bb1863
 END
-IS add _bb1862
 return # this
 END
 %new{value=0;add(x)={this.value+=x}} ///home/maniospas/Documents/Blombly/tests/atomicity.bb line 1
@@ -3231,7 +3200,7 @@ BEGIN _bb1900
 %{foo1()={return extern2(B);}foo2()={retu ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 3
 BEGIN _bb1903
 %{return extern2(B);} ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 4
-BEGIN _bb1904
+BEGIN foo1
 %extern2(B) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 4
 BEGIN _bb1906
 list args B
@@ -3241,9 +3210,8 @@ call _bb1905 _bb1906 extern2
 %return extern2(B) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 4
 return # _bb1905
 END
-IS foo1 _bb1904
 %{return extern3(this);} ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 5
-BEGIN _bb1907
+BEGIN foo2
 %extern3(this) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 5
 BEGIN _bb1909
 list args this
@@ -3253,9 +3221,8 @@ call _bb1908 _bb1909 extern3
 %return extern3(this) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 5
 return # _bb1908
 END
-IS foo2 _bb1907
 %{returnB.foo1();} ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 6
-BEGIN _bb1910
+BEGIN foo3
 %B.foo1 ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 6
 get _bb1912 B foo1
 %B.foo1() ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 6
@@ -3263,7 +3230,6 @@ call _bb1911 # _bb1912
 %returnB.foo1() ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 6
 return # _bb1911
 END
-IS foo3 _bb1910
 return # this
 END
 %new{foo1()={return extern2(B);}foo2()={r ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 3
@@ -3272,7 +3238,7 @@ final # A
 %{foo1()={return extern2(A);}foo2()={retu ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 9
 BEGIN _bb1915
 %{return extern2(A);} ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 10
-BEGIN _bb1916
+BEGIN foo1
 %extern2(A) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 10
 BEGIN _bb1918
 list args A
@@ -3282,9 +3248,8 @@ call _bb1917 _bb1918 extern2
 %return extern2(A) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 10
 return # _bb1917
 END
-IS foo1 _bb1916
 %{return extern3(this);} ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 11
-BEGIN _bb1919
+BEGIN foo2
 %extern3(this) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 11
 BEGIN _bb1921
 list args this
@@ -3294,21 +3259,19 @@ call _bb1920 _bb1921 extern3
 %return extern3(this) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 11
 return # _bb1920
 END
-IS foo2 _bb1919
 %{return1;} ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 12
-BEGIN _bb1922
+BEGIN foo3
 BUILTIN _bb1923 I1
 %return1 ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 12
 return # _bb1923
 END
-IS foo3 _bb1922
 return # this
 END
 %new{foo1()={return extern2(A);}foo2()={r ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 9
 new B _bb1915
 final # B
 %{return obj.foo1();} ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 15
-BEGIN _bb1924
+BEGIN extern1
 next obj args
 %obj.foo1 ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 15
 get _bb1926 obj foo1
@@ -3317,10 +3280,9 @@ call _bb1925 # _bb1926
 %return obj.foo1() ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 15
 return # _bb1925
 END
-IS extern1 _bb1924
 final # extern1
 %{return obj.foo2();} ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 16
-BEGIN _bb1927
+BEGIN extern2
 next obj args
 %obj.foo2 ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 16
 get _bb1929 obj foo2
@@ -3329,10 +3291,9 @@ call _bb1928 # _bb1929
 %return obj.foo2() ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 16
 return # _bb1928
 END
-IS extern2 _bb1927
 final # extern2
 %{return obj.foo3();} ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 17
-BEGIN _bb1930
+BEGIN extern3
 next obj args
 %obj.foo3 ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 17
 get _bb1932 obj foo3
@@ -3341,7 +3302,6 @@ call _bb1931 # _bb1932
 %return obj.foo3() ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 17
 return # _bb1931
 END
-IS extern3 _bb1930
 final # extern3
 %if((extern1(A)==1)== false)fail("Asserti ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 19
 BEGIN _bb1933

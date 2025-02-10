@@ -2072,9 +2072,11 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     }
                     if(depth) tokens[libpathend].file.push_back(here);
                     ++libpathend;
+                    if(libpathend==tokens.size()) bberror("Failed to close !include {"+ Parser::show_position(tokens, i+2));
                 }
+                tokens.erase(tokens.begin()+libpathend);
+                if(libpathend<tokens.size() && tokens[libpathend].name==";") tokens.erase(tokens.begin()+libpathend);
                 i += 2;
-                //tokens.erase(tokens.begin()+libpathend);
                 continue;
             }
             else 
