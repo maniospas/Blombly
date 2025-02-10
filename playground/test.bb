@@ -1,2 +1,4 @@
-!with colors:
-print(bb.ansi.green+"test");
+!include {
+    !with colors:
+    print(bb.ansi.green+"test");
+}

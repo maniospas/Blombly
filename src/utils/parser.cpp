@@ -2061,10 +2061,26 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     
                 }
             }
+            else if(libpath=="{") {
+                int depth = 0;
+                std::string here = "!include at "+tokens[libpathend].file[tokens[libpathend].file.size()-1];
+                while(libpathend<tokens.size()) {
+                    if(tokens[libpathend].name=="{") depth++;
+                    if(tokens[libpathend].name=="}") {
+                        depth--;
+                        if(depth==0) break;
+                    }
+                    if(depth) tokens[libpathend].file.push_back(here);
+                    ++libpathend;
+                }
+                i += 2;
+                //tokens.erase(tokens.begin()+libpathend);
+                continue;
+            }
             else 
                 bbassert(libpath[0] == '"', 
                         "Invalid `!include` syntax."
-                        "\n   \033[33m!!!\033[0m  Include statements should enclose paths in quotations, like this: `#include \"libname\"`.\n" 
+                        "\n   \033[33m!!!\033[0m  Include statements should enclose code snippets or paths in quotations, like this: `!include \"libname\"`.\n" 
                         + Parser::show_position(tokens, i+2));
             bbassert(tokens[libpathend].name != ";", 
                       "Unexpected `;` encountered."

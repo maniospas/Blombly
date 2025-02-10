@@ -22,13 +22,27 @@ Dependencies on other `.bb` files or folders are stated with an include statemen
 !include "libs/html"
 ```
 
-When an include directive is encountered, it inlines the contents of the next path if a suffix `.bb` or `/.bb` is added.
-This happens only if the path has not already been included, which allows for circular inclusions.
+When an include directive is encountered, it tries to see if adding the suffix `.bb` or `/.bb` to the path
+is a valid file and imports that. 
 In the above example, this means that either `libs/html.bb` is included or, 
 if `libs/html` is a folder, `libs/html/.bb` is included. Inclusion paths are checked both relatively to blombly's
-executable and to the main file being compiled.
-Dependencies enable code modularization without loading overheads, as the compilation outcome packs all necessary instructions to run 
+executable and to the working directory from where the main file is being compiled.
+Dependencies enable code modularization without loading overheads, 
+as the compilation outcome packs all necessary instructions to run 
 automously by the interpreter.
+
+<br>
+
+You can also mock the import of a file by replacing the included string with a bracketed code block.
+This does not affect the code running, but compartmentizes preprocessor instructions. It is mostly
+used to prevent namespaces or `!from` macros (whose validity ends at the end of each file) 
+from leaking outside the included code.
+
+```java
+!include {
+    print("This is a mock file");
+}
+```
 
 ## !comptime
 
@@ -152,7 +166,7 @@ activation. Include any number of variables whose
 subsequent usage is altered.
 
 ```java
-namespace @name {
+!namespace @name {
     var @v1;
     var @v2; 
     ...
@@ -160,34 +174,31 @@ namespace @name {
 ```
 
 Similarly to code blocks, declaring a namespace does nothing.
-But you can activate it with the syntax `with @name:`. Notice
-the colon at the end, which is intentionally similar to inlining
+But you can activate it until the end of file per `!with @name:`.
+Notice the colon at the end in the first case, which is intentionally similar to inlining
 to indicate that subsequent code is affected. 
 Below is an example of using namespaces to differentiate semantic 
 usage of the same variables.
 
 ```java
 // main.bb
-namespace dims {
-    var x;
-    var y;
-}
-namespace main {
+!namespace dims {
     var x;
     var y;
 }
 
-with dims: // subsequent x and y are now dims::x and dims::y 
-Point = {
-    norm() => (this.x^2+this.y^2)^0.5;
-    str() => "(!{this.x}, !{this.y})";
+!include { // do not allow the namespace activation leak
+    !with dims: // subsequent x and y are now dims::x and dims::y 
+    Point = {
+        norm() => (this.x^2+this.y^2)^0.5;
+        str() => "(!{this.x}, !{this.y})";
+    }
+    p = new {Point: x=3;y=4}
 }
-p = new {Point: x=3;y=4}
 
-with main:
 p.x = 0;
 print(p);
-print(p.main::x);
+print(p.dims::x);
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
