@@ -98,15 +98,15 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
                 auto code = new Code(program, 0, program->size() - 1, program->size() - 1);
 
                 ExecutionInstance executor(0, code, &memory, true);
-                Result returnedValue = executor.run(code);
+                auto returnedValue = executor.run(code);
                 DataPtr ret = returnedValue.get();
                 if (ret.existsAndTypeEquals(FUTURE)) {
                     auto res2 = static_cast<Future*>(ret.get())->getResult();
                     ret = res2.get();
-                    returnedValue = res2;
+                    returnedValue.result = res2;
                 }
 
-                bbassert(!executor.hasReturned(), "`!comptime` must evaluate to a value but not run a return statement.");
+                bbassert(!returnedValue.returnSignal, "`!comptime` must evaluate to a value but not run a return statement.");
                 //bbassert(ret, "`!comptime` must evaluate to a non-missing value.");
                 if(ret.isbool()) result = ret.unsafe_tobool()?"true":"false";
                 else if (ret.isint() || ret.isfloat()) result = ret.torepr();
@@ -590,7 +590,7 @@ public:
                                 name == "bbvm::str" || name == "bbvm::file" || 
                                 name == "bbvm::bool" ||
                                 name == "bbvm::list" || name == "bbvm::map" || 
-                                name == "bbvm::move" || name == "bbvm::clear" || name == "bbvm::pop" || name == "bbvm::push" || 
+                                name == "bbvm::move" || name == "bbvm::clear" || name == "bbvm::pop" || name == "bbvm::random" || name == "bbvm::push" || 
                                 name == "bbvm::len" || name == "bbvm::next" || 
                                 name == "bbvm::vector" || name == "bbvm::iter" || 
                                 name == "bbvm::add" || name == "bbvm::sub" || 
@@ -712,7 +712,7 @@ public:
                     first_name == "bbvm::str" || first_name == "bbvm::file" || 
                     first_name == "bbvm::bool" ||
                     first_name == "bbvm::list" || first_name == "bbvm::map" || 
-                    first_name == "bbvm::move" || first_name == "bbvm::clear" || first_name == "bbvm::pop" || first_name == "bbvm::push" || 
+                    first_name == "bbvm::move" || first_name == "bbvm::clear" || first_name == "bbvm::random" || first_name == "bbvm::pop" || first_name == "bbvm::push" || 
                     first_name == "bbvm::put" ||
                     first_name == "bbvm::len" || first_name == "bbvm::next" || 
                     first_name == "bbvm::vector" || first_name == "bbvm::iter" || 
@@ -803,7 +803,7 @@ public:
                                 name == "bbvm::str" || name == "bbvm::file" || 
                                 name == "bbvm::bool" ||
                                 name == "bbvm::list" || name == "bbvm::map" || 
-                                name == "bbvm::move" || name == "bbvm::clear" || name == "bbvm::pop" || name == "bbvm::push" || 
+                                name == "bbvm::move" || name == "bbvm::clear" || name == "bbvm::pop" || name == "bbvm::random" || name == "bbvm::push" || 
                                 name == "bbvm::len" || name == "bbvm::next" || 
                                 name == "bbvm::vector" || name == "bbvm::iter" || 
                                 name == "bbvm::add" || name == "bbvm::sub" || 
@@ -1146,7 +1146,7 @@ public:
                 first_name == "bbvm::file" ||  
                 first_name == "bbvm::max" || first_name == "bbvm::min" || 
                 first_name == "bbvm::sum" || 
-                first_name == "bbvm::move" || first_name == "bbvm::clear" || first_name == "bbvm::pop" || 
+                first_name == "bbvm::move" || first_name == "bbvm::clear" || first_name == "bbvm::pop" || first_name == "bbvm::random" || 
                 first_name == "bbvm::file" || first_name == "bbvm::next" || 
                 first_name == "bbvm::list" || first_name == "bbvm::map" || 
                 first_name == "bbvm::server" || first_name == "bbvm::sqlite" || first_name == "bbvm::graphics" || 
@@ -1157,7 +1157,7 @@ public:
                 first_name == "file" ||
                 first_name == "max" || first_name == "min" || 
                 first_name == "sum" || 
-                first_name == "clear" || first_name == "move" || first_name == "pop" || 
+                first_name == "clear" || first_name == "move" || first_name == "pop" || first_name == "random" || 
                 first_name == "file" || first_name == "next" || 
                 first_name == "list" || first_name == "map" || 
                 first_name == "server" || first_name == "sqlite" || first_name == "graphics" || 
@@ -1184,7 +1184,7 @@ public:
                 return var;
             }
 
-            if (first_name == "bbvm::time" || first_name == "bbvm::random" || first_name == "bbvm::server" || first_name == "bbvm::sqlite" || first_name == "bbvm::list") {
+            if (first_name == "bbvm::time" || first_name == "bbvm::server" || first_name == "bbvm::sqlite" || first_name == "bbvm::list") {
                 first_name = first_name.substr(6);
                 bbassert(tokens[start + 1].name == "(", "Missing ( after " + first_name);
                 if (first_name == "list") {
@@ -1201,7 +1201,7 @@ public:
             }
 
 
-            if (first_name == "time" || first_name == "random" || first_name == "server"  || first_name == "sqlite" || first_name == "list") {
+            if (first_name == "time" || first_name == "server"  || first_name == "sqlite" || first_name == "list") {
                 bbassert(tokens[start + 1].name == "(", "Missing ( after " + first_name);
                 if (first_name == "list") {
                     bbassert(tokens[start + 2].name == ")", "`"+first_name + "` accepts no arguments"
@@ -1241,7 +1241,8 @@ public:
                     callable == "str" || callable == "file" || 
                     callable == "bool" ||
                     callable == "list" || callable == "map" || 
-                    callable == "move" || callable == "clear" || callable == "pop" || callable == "push" || 
+                    callable == "move" || callable == "clear" || callable == "pop" 
+                    || callable == "push" || callable == "random" || 
                     callable == "len" || callable == "next" || 
                     callable == "vector" || callable == "iter" || 
                     callable == "add" || callable == "sub" || 
@@ -1253,7 +1254,8 @@ public:
                     callable == "bbvm::str" || callable == "bbvm::file" || 
                     callable == "bbvm::bool" ||
                     callable == "bbvm::list" || callable == "bbvm::map" || 
-                    callable == "bbvm::move" || callable == "bbvm::clear" || callable == "bbvm::pop" || callable == "bbvm::push" || 
+                    callable == "bbvm::move" || callable == "bbvm::clear" || 
+                    callable == "bbvm::pop" || callable == "bbvm::push" || callable == "bbvm::random" || 
                     callable == "bbvm::len" || callable == "bbvm::next" || 
                     callable == "bbvm::vector" || callable == "bbvm::iter" || 
                     callable == "bbvm::add" || callable == "bbvm::sub" || 

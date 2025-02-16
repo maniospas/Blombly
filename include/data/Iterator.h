@@ -21,6 +21,7 @@
 #include <vector>
 #include <mutex>
 #include "data/Data.h"
+#include <random>
 
 
 class Iterator : public Data {
@@ -30,10 +31,21 @@ public:
     std::string toString(BMemory* memory) override;
     virtual int64_t expectedSize() const {return 0;} // this is not a guarantee at all
     virtual bool isContiguous() const {return false;}
-    virtual int64_t getStart() const {bberror("Internal error: thechosen iterator type does not implement `getStart`, which means that `isContiguous` was not checked first.");}
+    virtual int64_t getStart() const {bberror("Internal error: the chosen iterator type does not implement `getStart`, which means that `isContiguous` was not checked first.");}
     virtual int64_t getEnd() const {bberror("Internal error: the chosen iterator type does not implement `getEnd`, which means that `isContiguous` was not checked first.");}
     virtual DataPtr fastNext() {return (Data*)nullptr;} // nullptr signifies to JIT that it needs to fallback to calling next();
     Result iter(BMemory* memory) override {return RESMOVE(Result(this));} // not virtual to not be overriden
+};
+
+
+class RandomGenerator : public Iterator {
+private:
+    std::mt19937 generator;  // Mersenne Twister engine
+    std::uniform_real_distribution<double> distribution;
+public:
+    explicit RandomGenerator(unsigned int seed): generator(seed), distribution(0.0f, 1.0f) {} 
+    ~RandomGenerator() {}
+    Result next(BMemory* memory) override {return Result(DataPtr((double)distribution(generator)));}
 };
 
 

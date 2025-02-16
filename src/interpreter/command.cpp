@@ -41,7 +41,7 @@ CommandContext::CommandContext(const std::string& source) : source(source) {}
 // Command constructor
 Command::Command(const std::string& command, SourceFile* source_, int line_, CommandContext* descriptor_) 
     : source((source_)), line(line_), descriptor((descriptor_)), value(DataPtr::NULLP) {
-
+    args.reserve(4); // small object optimization (also multiple of 2 for good alignment
     std::vector<std::string> argNames;
     argNames.reserve(4);
     std::string accumulate;

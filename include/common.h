@@ -43,7 +43,7 @@ enum OperationType {
     BUILTIN, BEGIN, BEGINFINAL, BEGINCACHE, END, RETURN, FINAL, IS,
     CALL, WHILE, IF, NEW, BB_PRINT, INLINE, GET, SET, SETFINAL, DEFAULT,
     TIME, TOITER, TRY, CATCH, FAIL, EXISTS, READ, CREATESERVER, AS, TORANGE, 
-    DEFER, CLEAR, MOVE, ISCACHED, TOSQLITE, TOGRAPHICS
+    DEFER, CLEAR, MOVE, ISCACHED, TOSQLITE, TOGRAPHICS, RANDOM
 };
 static const std::string OperationTypeNames[] = {
     "not", "and", "or", "eq", "neq", "le", "ge", "lt", "gt", "add", "sub", "mul", "mmul",
@@ -53,7 +53,7 @@ static const std::string OperationTypeNames[] = {
     "BUILTIN", "BEGIN", "BEGINFINAL", "CACHE", "END", "return", "final", "IS",
     "call", "while", "if", "new", "print", "inline", "get", "set", "setfinal", "default",
     "time", "iter", "do", "catch", "fail", "exists", "read", "server", "AS", "range",
-    "defer", "clear", "move", "ISCACHED", "sqlite", "graphics"
+    "defer", "clear", "move", "ISCACHED", "sqlite", "graphics", "random"
 };
 
 void initializeOperationMapping();
@@ -61,7 +61,7 @@ OperationType getOperationType(const std::string& str);
 std::string getOperationTypeName(OperationType type);
 
 #define DEFAULT_LOCAL_EXPECTATION (size_t)32
-#define LOCAL_EXPECTATION_FROM_CODE(codeContext) std::min(1+(codeContext->getEnd() - codeContext->getStart())/3, DEFAULT_LOCAL_EXPECTATION)
+#define LOCAL_EXPECTATION_FROM_CODE(codeContext) std::min(1+(codeContext->getEnd() - codeContext->getStart()), DEFAULT_LOCAL_EXPECTATION)
 
 class Data;
 class Command;
@@ -241,6 +241,9 @@ public:
     inline int64_t unsafe_toint() const { return data; }
     inline bool unsafe_tobool() const { return data; }
 
+
+    inline bool isintint(const DataPtr& other) {return datatype & IS_INT & other.datatype;}
+    inline bool isfloatfloat(const DataPtr& other) {return datatype & IS_FLOAT & other.datatype;}
     inline bool iserror() const { return datatype & IS_ERROR; }
     inline bool isfloat() const { return datatype & IS_FLOAT; }
     inline bool isfloatorint() const { return datatype & IS_FLOAT_OR_INT; }

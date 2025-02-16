@@ -124,15 +124,14 @@ Result RestServer::executeCodeWithMemory(DataPtr called, BMemory* memory) const 
     bool forceStayInThread = thisObj.exists(); // overwrite the option
     
     ExecutionInstance executor(0, code, &newMemory, forceStayInThread);
-    Result returnedValue = executor.run(code);
+    auto returnedValue = executor.run(code);
     newMemory.detach(nullptr);
     result = returnedValue.get();
     if(thisObj.exists()) newMemory.setToNullIgnoringFinals(variableManager.thisId);
 
-    bbassert(executor.hasReturned(), "Server route handler did not reach a return statement.");
+    bbassert(returnedValue.returnSignal, "Server route handler did not reach a return statement.");
     bbassert(result.exists(), "Server route handler returned no value.");
-    return RESMOVE(returnedValue);   
-
+    return Result(returnedValue.get());   
 }
 
 int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {

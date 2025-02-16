@@ -8,11 +8,10 @@ operator_completions = operator_words
 preprocessor = ["!include", "!access", "!modify", "!macro", "!of"]
 keywords = [
     "final", "new", "return", "while", "in", "if", "else",
-    "default", "do", "catch", "assert", "as", "fail", "print", "read",
-    "push", "pop", "next", "false", "true", "sqlite", "graphics", "test", "defer", 
-    "time", "namespace", "with"
+    "default", "do", "catch", "assert", "as", "fail",
+    "false", "true", "test", "defer"
 ]
-builtins = ["float", "bool", "int", "str", "server", "vector", "list", "graphics"]
+builtins = ["float", "bool", "int", "str", "server", "vector", "list", "graphics", "random", "range", "sqlite", "time", "read", "print", "len", "push", "pop", "next"]
 
 # Global dictionaries/sets for indexing.
 indexed_symbols = {}      # keys: file URIs, values: sets of symbol names.

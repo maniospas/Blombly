@@ -64,8 +64,7 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory) {
     newMemory.unsafeSet(variableManager.argsId, args);
 
     ExecutionInstance executor(depth, code, &newMemory, true);
-    Result value = executor.run(code);
-    return Result(value);
+    return executor.run(code).result;
 }
 
 Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory, const DataPtr& other) {
@@ -108,8 +107,7 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory, co
     newMemory.unsafeSet(variableManager.argsId, args);
 
     ExecutionInstance executor(0, code, &newMemory, true);
-    Result value = executor.run(code);
-    return Result(value);
+    return executor.run(code).result;
 }
 
 Struct::Struct(BMemory* mem) : Data(STRUCT), memory(mem) {}

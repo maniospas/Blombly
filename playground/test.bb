@@ -1,25 +1,22 @@
-// main.bb
-!namespace dims {
-    var x;
-    var y;
-}
-!namespace main {
-    var x;
-    var y;
-}
+arr = list();
+rand = random(42);
+while(i in range(10000)) arr << next(rand)*2000-1000;
 
-
-!include { // keep namespace activations in here only
-    !with dims: // subsequent x and y are now dims::x and dims::y 
-    Point = {
-        norm() => (this.x^2+this.y^2)^0.5;
-        str() => "(!{this.x}, !{this.y})";
+bruteForce(a) = {
+    l = len(a);
+    m = 0;
+    while(i in range(l)) {
+        sum = 0;
+        while(j in range(i, l)) {
+            sum += a[j];
+            if(sum > m) m = sum;
+        }
     }
-    p = new {Point: x=3;y=4}
+    return m;
 }
 
-// the scope is the same so we still access p
-!with main:
-p.x = 0;
-print(p);
-print(p.dims::x);
+start = time();
+ret = bruteForce(arr);
+end = time();
+print(end-start);
+print(ret);

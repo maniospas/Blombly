@@ -319,8 +319,8 @@ void BMemory::runFinally() {
     for(Code* code : tempFinally) {
         try {
             ExecutionInstance executor(depth, code, this, true); // everything deferred runs after all threads have been synchronized, so stay in thread (last true argument)
-            Result returnedValue = executor.run(code);
-            bbassert(!executor.hasReturned(), "Cannot return a value from within `defer`");
+            auto returnedValue = executor.run(code);
+            bbassert(!returnedValue.returnSignal, "Cannot return a value from within `defer`");
         }
         catch (const BBError& e) {
             destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error occurred within `defer`:\n";

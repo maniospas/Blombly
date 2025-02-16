@@ -94,6 +94,7 @@
          if(command->args.size()<3 || command->args[0]!="IS") continue;
          std::string to_replace = command->args[1];
          std::string symbol = command->args[2];
+         if(symbol.size() <3 || symbol.substr(0,3)!="_bb") continue;
          int declaration = i-1; // for the time being this issue can arise only by adding an IS after an immediate command
          if(declaration>=0 && program[declaration]->args.size()>1 
              && program[declaration]->args[0]!="IS" 

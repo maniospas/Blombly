@@ -32,24 +32,35 @@ extern std::chrono::steady_clock::time_point program_start;
 extern std::recursive_mutex printMutex;
 extern std::recursive_mutex compileMutex;
 
+struct ExecutionInstanceRunReturn {
+    bool returnSignal;
+    Result result;
+
+    ExecutionInstanceRunReturn() = delete;
+    explicit ExecutionInstanceRunReturn(bool returnSignal, Result result) : returnSignal(returnSignal), result(std::move(result)) {}
+    ExecutionInstanceRunReturn(const ExecutionInstanceRunReturn& other) = delete;
+    ExecutionInstanceRunReturn(ExecutionInstanceRunReturn&& other) noexcept : returnSignal(other.returnSignal), result(std::move(other.result)) {}
+    ExecutionInstanceRunReturn& operator=(const ExecutionInstanceRunReturn& other) { returnSignal = other.returnSignal; result = other.result; return *this; }
+    ExecutionInstanceRunReturn& operator=(ExecutionInstanceRunReturn&& other) noexcept { returnSignal = other.returnSignal; result = std::move(other.result); return *this; }
+    ~ExecutionInstanceRunReturn() = default;
+    inline const DataPtr& get() { return result.get(); }
+};
+
+
 class ExecutionInstance {
     BMemory& memory;
-    bool returnSignal;
     bool forceStayInThread;
-    Code* lastCall;
     unsigned int depth;
     DataPtr result;
-    DataPtr arg0, arg1;
 public:
     static unsigned int maxDepth;
     ExecutionInstance(int depth, Code* code, BMemory* memory, bool forceStayInThread): 
-        result(DataPtr::NULLP), memory(*memory), returnSignal(false), forceStayInThread(forceStayInThread), depth(depth+1) {
+        result(DataPtr::NULLP), memory(*memory),  forceStayInThread(forceStayInThread), depth(depth+1) {
         if(depth>=maxDepth) bberror("Maximum call stack depth reached: "+std::to_string(depth)+"\nThis typically indicates a logical error. If not, run with greater --depth.");
     }
-    Result run(Code* code);
-    Result run(const std::vector<Command>& program, size_t i, size_t end);
+    ExecutionInstanceRunReturn run(Code* code);
+    ExecutionInstanceRunReturn run(const std::vector<Command>& program, size_t i, size_t end);
     void handleExecutionError(const Command& command, const BBError& e);
-    inline bool hasReturned() const {return returnSignal;}
 };
 
 

@@ -23,7 +23,7 @@ int Future::max_threads = 0;
 std::atomic<int> Future::thread_count = 0;
 
 void Future::setMaxThreads(int maxThreads_) {max_threads = maxThreads_;}
-bool Future::acceptsThread() {return thread_count < max_threads;}
+bool Future::acceptsThread() {return thread_count+1 < max_threads;}
 std::string Future::toString(BMemory* memory){return "future";}
 Future::Future() : result(new ThreadResult()), Data(FUTURE) {++thread_count;}
 Future::Future(ThreadResult* result_) : result((result_)), Data(FUTURE) {++thread_count;}
@@ -31,7 +31,6 @@ Future::Future(ThreadResult* result_) : result((result_)), Data(FUTURE) {++threa
 Future::~Future() {
     {
         if (result->thread.joinable()) {
-            //std::cout << "thread ended"+std::to_string(thread_count)+"\n";
             result->thread.join();
             --thread_count;
         }

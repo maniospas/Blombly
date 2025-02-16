@@ -36,13 +36,13 @@ void threadExecute(unsigned int depth,
 
     try {
         ExecutionInstance executor(depth, code, memory, thisObj.exists());
-        Result returnedValue = executor.run(code);
+        auto returnedValue = executor.run(code);
         DataPtr value = returnedValue.get();
-        if(!executor.hasReturned()) {
+        if(!returnedValue.returnSignal) {
             value = nullptr;
-            returnedValue = Result(DataPtr::NULLP);
+            returnedValue.result = Result(DataPtr::NULLP);
         }
-        result->value = RESMOVE(returnedValue);
+        result->value = Result(returnedValue.get());
 
     } 
     catch (const BBError& e) {result->value = Result(new BError(enrichErrorDescription(*command, e.what())));}
