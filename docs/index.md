@@ -15,13 +15,15 @@
         .tabs {
             padding: 3px;
             display: flex;
-            flex-direction: column;
-            border-right: 2px solid #ddd;
+            flex-direction: row;
+            border-bottom: 2px solid #ddd;
+            flex-wrap: wrap; 
         }
         .tab {
             padding: 3px;
+            padding-right: 7px;
+            padding-left: 7px;
             cursor: pointer;
-            border-bottom: 1px solid #ddd;
             transition: background 0.3s;
         }
         .tab:hover, .tab.active {
@@ -33,6 +35,7 @@
             padding: 20px;
             padding-top:0px;
             overflow: auto;
+            width: 100%;
         }
         .tab-content {
             display: none;
@@ -64,7 +67,7 @@
 
     <h2>What it looks like</h2>
     
-    <div style="display: flex;">
+    <div>
         <div class="tabs">
             <div class="tab active" onclick="showTab('simple')">Lists</div>
             <div class="tab" onclick="showTab('adapt')">Functions</div>
@@ -74,7 +77,7 @@
             <div class="tab" onclick="showTab('science')">Science</div>
         </div>
         <div class="content">
-
+    
             <div id="simple" class="tab-content active">
                 
                 ```java
