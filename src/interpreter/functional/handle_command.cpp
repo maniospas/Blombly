@@ -478,15 +478,16 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         arg0 = memory.get(id1);
         if(arg0.existsAndTypeEquals(VECTOR)) DISPATCH_RESULT(arg0);
         if(arg0.existsAndTypeEquals(LIST)) DISPATCH_RESULT(static_cast<BList*>(arg0.get())->toVector(&memory));
+        if(arg0.isint()) bberror("Missing operation: vector(int). Did you mean one of: `vector::zero(int)`, `vector::alloc(int)` or `vector::random(int)`.");
         if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
-        bberror("vector can only be instantiated from an int size or a list of values convertible to float");
+        bberror("Only lists or vectors can be casted to vector.");
     }
     DO_ZEROVECTOR: {
         int id1 = command.args[1];
         arg0 = memory.get(id1);
         if(arg0.isint()) DISPATCH_RESULT(new Vector(arg0.unsafe_toint(), true));
         if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
-        bberror("vector::zero can only have an int size argument");
+        bberror("1vector::zero` can only have an int size argument.");
     }
     DO_RANDVECTOR: {
         bberror("vector::random not implemented yet");
@@ -812,7 +813,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         arg0 = memory.get(id1);
         if(arg0.existsAndTypeEquals(LIST)) DISPATCH_RESULT(arg0);
         if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
-        bberror("`list` can only be casted from another list. Use `list::element` to create a list of single element.");
+        bberror("`list` can only be cast from another list. Use `list::element` to create a list of single element, or explicit parentheses if you want to create a list as a function argument like `foo((1,2))`.");
     }
     DO_TOMAP: {
         int n = command.nargs;
