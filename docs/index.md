@@ -25,7 +25,8 @@
             transition: background 0.3s;
         }
         .tab:hover, .tab.active {
-            background: #ddd;
+            background: #ccc;
+            color: black;
         }
         .content {
             flex-grow: 1;
