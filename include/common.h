@@ -43,7 +43,8 @@ enum OperationType {
     BUILTIN, BEGIN, BEGINFINAL, BEGINCACHE, END, RETURN, FINAL, IS,
     CALL, WHILE, IF, NEW, BB_PRINT, INLINE, GET, SET, SETFINAL, DEFAULT,
     TIME, TOITER, TRY, CATCH, FAIL, EXISTS, READ, CREATESERVER, AS, TORANGE, 
-    DEFER, CLEAR, MOVE, ISCACHED, TOSQLITE, TOGRAPHICS, RANDOM
+    DEFER, CLEAR, MOVE, ISCACHED, TOSQLITE, TOGRAPHICS, RANDOM,
+    RANDVECTOR, ZEROVECTOR, ALLOCVECTOR, LISTELEMENT
 };
 static const std::string OperationTypeNames[] = {
     "not", "and", "or", "eq", "neq", "le", "ge", "lt", "gt", "add", "sub", "mul", "mmul",
@@ -53,7 +54,8 @@ static const std::string OperationTypeNames[] = {
     "BUILTIN", "BEGIN", "BEGINFINAL", "CACHE", "END", "return", "final", "IS",
     "call", "while", "if", "new", "print", "inline", "get", "set", "setfinal", "default",
     "time", "iter", "do", "catch", "fail", "exists", "read", "server", "AS", "range",
-    "defer", "clear", "move", "ISCACHED", "sqlite", "graphics", "random"
+    "defer", "clear", "move", "ISCACHED", "sqlite", "graphics", "random",
+    "vector::random", "vector::zero", "vector::alloc", "list::element"
 };
 
 void initializeOperationMapping();

@@ -183,7 +183,11 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         &&DO_ISCACHED,
         &&DO_TOSQLITE,
         &&DO_TOGRAPHICS,
-        &&DO_RANDOM
+        &&DO_RANDOM,
+        &&DO_RANDVECTOR,
+        &&DO_ZEROVECTOR,
+        &&DO_ALLOCVECTOR,
+        &&DO_LISTELEMENT,
     };
     DISPATCH(command.operation);
     #else
@@ -258,6 +262,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         case 67: goto DO_TOSQLITE;                               \
         case 68: goto DO_TOGRAPHICS;                             \
         case 69: goto DO_RANDOM;                             \
+        case 70; goto DO_RANDVECTOR;                         \
+        case 71: goto DO_ZEROVECTOR;                         \
+        case 72: goto DO_ALLOCVECTOR;                        \
+        case 73: goto DO_LISTELEMENT;                        \
         default: throw std::runtime_error("Invalid operation");  \
     }
     #endif
@@ -468,11 +476,41 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_TOVECTOR: {
         int id1 = command.args[1];
         arg0 = memory.get(id1);
-        if(arg0.isint()) DISPATCH_RESULT(new Vector(arg0.unsafe_toint()));
         if(arg0.existsAndTypeEquals(VECTOR)) DISPATCH_RESULT(arg0);
         if(arg0.existsAndTypeEquals(LIST)) DISPATCH_RESULT(static_cast<BList*>(arg0.get())->toVector(&memory));
         if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
-        bberror("Vectors can only be instantiated from an int size or a list of values convertible to float");
+        bberror("vector can only be instantiated from an int size or a list of values convertible to float");
+    }
+    DO_ZEROVECTOR: {
+        int id1 = command.args[1];
+        arg0 = memory.get(id1);
+        if(arg0.isint()) DISPATCH_RESULT(new Vector(arg0.unsafe_toint(), true));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
+        bberror("vector::zero can only have an int size argument");
+    }
+    DO_RANDVECTOR: {
+        bberror("vector::random not implemented yet");
+    }
+    DO_ALLOCVECTOR: {
+        int id1 = command.args[1];
+        arg0 = memory.get(id1);
+        if(arg0.isint()) DISPATCH_RESULT(new Vector(arg0.unsafe_toint()));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
+        bberror("vector::alloc can only have an int size argument");
+    }
+    DO_LISTELEMENT: {
+        int n = command.nargs;
+        auto list = new BList(n-1);
+        for(int j=1;j<n;j++) {
+            const DataPtr& element = memory.get(command.args[j]);
+            if(element.existsAndTypeEquals(ERRORTYPE)) {
+                delete list;
+                bberror(element->toString(nullptr));
+            }
+            if(element.exists()) element->addOwner();
+            list->contents.push_back(element);
+        }
+        DISPATCH_RESULT(list);
     }
     DO_LOG: {
         int id1 = command.args[1];
@@ -768,18 +806,13 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         continue;
     }
     DO_TOLIST: {
-        int n = command.nargs;
-        auto list = new BList(n-1);
-        for(int j=1;j<n;j++) {
-            const DataPtr& element = memory.get(command.args[j]);
-            if(element.existsAndTypeEquals(ERRORTYPE)) {
-                delete list;
-                bberror(element->toString(nullptr));
-            }
-            if(element.exists()) element->addOwner();
-            list->contents.push_back(element);
-        }
-        DISPATCH_RESULT(list);
+        if(command.args.size()<=1) DISPATCH_RESULT(new BList(0));
+        
+        int id1 = command.args[1];
+        arg0 = memory.get(id1);
+        if(arg0.existsAndTypeEquals(LIST)) DISPATCH_RESULT(arg0);
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
+        bberror("`list` can only be casted from another list. Use `list::element` to create a list of single element.");
     }
     DO_TOMAP: {
         int n = command.nargs;

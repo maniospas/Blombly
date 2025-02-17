@@ -1,4 +1,4 @@
-%{final ansi=new{final colors::black="\e[ ///home/maniospas/Documents/Blombly/build/libs/.bb line 16
+%{final ansi=new{final colors::black="\e[ ///home/maniospas/Documents/Blombly/build/libs/.bb line 27
 BEGIN _bb40
 %{final colors::black="\e[0;30m";final co ///home/maniospas/Documents/Blombly/build/libs/ansi.bb line 22
 BEGIN _bb43
@@ -72,7 +72,7 @@ END
 BEGIN _bb84
 %..func(x) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
 BEGIN _bb87
-list args x
+list::element args x
 END
 %..func(x) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 8
 call _bb86 _bb87 ..func
@@ -673,11 +673,11 @@ BEGIN _bb586
 IS prev_pos pos
 %search|bb.string.index(query :: pos=pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 BEGIN _bb588
-list args search
+list::element args search
 END
 %bb.string.index(query :: pos=pos) ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 BEGIN _bb591
-list args query
+list::element args query
 %pos=pos ///home/maniospas/Documents/Blombly/build/libs/collections.bb line 172
 IS pos pos
 END
@@ -719,7 +719,7 @@ new string _bb365
 %new{Plot={plots=list();defer{catch(axes) ///home/maniospas/Documents/Blombly/build/libs/plot.bb line 1
 return # this
 END
-%new{final ansi=new{final colors::black=" ///home/maniospas/Documents/Blombly/build/libs/.bb line 16
+%new{final ansi=new{final colors::black=" ///home/maniospas/Documents/Blombly/build/libs/.bb line 27
 new bb _bb40
 final # bb
 %{inc(x)={catch(bias)bias=1;returnx+bias; //tests/all.bb line 4
@@ -753,7 +753,7 @@ BUILTIN _bb842 I1
 %inc(0) ///home/maniospas/Documents/Blombly/tests/default.bb line 5
 BEGIN _bb844
 BUILTIN _bb845 I0
-list args _bb845
+list::element args _bb845
 END
 %inc(0) ///home/maniospas/Documents/Blombly/tests/default.bb line 5
 call _bb843 _bb844 inc
@@ -775,7 +775,7 @@ BUILTIN _bb851 I2
 %inc(0:: bias=2) ///home/maniospas/Documents/Blombly/tests/default.bb line 6
 BEGIN _bb853
 BUILTIN _bb854 I0
-list args _bb854
+list::element args _bb854
 %bias=2 ///home/maniospas/Documents/Blombly/tests/default.bb line 6
 BUILTIN bias I2
 END
@@ -802,7 +802,7 @@ BUILTIN _bb863 "\n"
 BUILTIN _bb864 "Default"
 add _bb862 _bb864 _bb863
 add _bb860 _bb862 _bb861
-list args _bb860
+list::element args _bb860
 END
 %bb.logger //tests/all.bb line 4
 get _bb866 bb logger
@@ -815,7 +815,7 @@ BEGIN _bb867
 %bb.logger.ok("Default") //tests/all.bb line 4
 BEGIN _bb869
 BUILTIN _bb870 "Default"
-list args _bb870
+list::element args _bb870
 END
 %bb.logger //tests/all.bb line 4
 get _bb872 bb logger
@@ -906,7 +906,7 @@ BUILTIN _bb906 "\n"
 BUILTIN _bb907 "String add"
 add _bb905 _bb907 _bb906
 add _bb903 _bb905 _bb904
-list args _bb903
+list::element args _bb903
 END
 %bb.logger //tests/all.bb line 5
 get _bb909 bb logger
@@ -919,7 +919,7 @@ BEGIN _bb910
 %bb.logger.ok("String add") //tests/all.bb line 5
 BEGIN _bb912
 BUILTIN _bb913 "String add"
-list args _bb913
+list::element args _bb913
 END
 %bb.logger //tests/all.bb line 5
 get _bb915 bb logger
@@ -938,7 +938,7 @@ BUILTIN _bb920 I2
 BUILTIN _bb921 I3
 BUILTIN _bb922 I4
 %1,2,3,4 ///home/maniospas/Documents/Blombly/tests/list.bb line 1
-list A _bb919 _bb920 _bb921 _bb922
+list::element A _bb919 _bb920 _bb921 _bb922
 %if((A[1]==2)== false)fail("Assertion fai ///home/maniospas/Documents/Blombly/tests/list.bb line 2
 BEGIN _bb924
 %("Assertion failed") ///home/maniospas/Documents/Blombly/tests/list.bb line 2
@@ -1081,7 +1081,7 @@ BUILTIN _bb982 "\n"
 BUILTIN _bb983 "List"
 add _bb981 _bb983 _bb982
 add _bb979 _bb981 _bb980
-list args _bb979
+list::element args _bb979
 END
 %bb.logger //tests/all.bb line 6
 get _bb985 bb logger
@@ -1094,7 +1094,7 @@ BEGIN _bb986
 %bb.logger.ok("List") //tests/all.bb line 6
 BEGIN _bb988
 BUILTIN _bb989 "List"
-list args _bb989
+list::element args _bb989
 END
 %bb.logger //tests/all.bb line 6
 get _bb991 bb logger
@@ -1160,7 +1160,7 @@ BUILTIN _bb1016 "\n"
 BUILTIN _bb1017 "Range"
 add _bb1015 _bb1017 _bb1016
 add _bb1013 _bb1015 _bb1014
-list args _bb1013
+list::element args _bb1013
 END
 %bb.logger //tests/all.bb line 7
 get _bb1019 bb logger
@@ -1173,7 +1173,7 @@ BEGIN _bb1020
 %bb.logger.ok("Range") //tests/all.bb line 7
 BEGIN _bb1022
 BUILTIN _bb1023 "Range"
-list args _bb1023
+list::element args _bb1023
 END
 %bb.logger //tests/all.bb line 7
 get _bb1025 bb logger
@@ -1191,7 +1191,7 @@ BUILTIN _bb1029 I1
 BUILTIN _bb1030 I2
 BUILTIN _bb1031 I3
 %1,2,3 ///home/maniospas/Documents/Blombly/tests/iter.bb line 1
-list A _bb1029 _bb1030 _bb1031
+list::element A _bb1029 _bb1030 _bb1031
 %s=0 ///home/maniospas/Documents/Blombly/tests/iter.bb line 2
 BUILTIN s I0
 %iter(A) ///home/maniospas/Documents/Blombly/tests/iter.bb line 3
@@ -1256,7 +1256,7 @@ BUILTIN _bb1057 "\n"
 BUILTIN _bb1058 "Iteration"
 add _bb1056 _bb1058 _bb1057
 add _bb1054 _bb1056 _bb1055
-list args _bb1054
+list::element args _bb1054
 END
 %bb.logger //tests/all.bb line 8
 get _bb1060 bb logger
@@ -1269,7 +1269,7 @@ BEGIN _bb1061
 %bb.logger.ok("Iteration") //tests/all.bb line 8
 BEGIN _bb1063
 BUILTIN _bb1064 "Iteration"
-list args _bb1064
+list::element args _bb1064
 END
 %bb.logger //tests/all.bb line 8
 get _bb1066 bb logger
@@ -1313,19 +1313,19 @@ clear # A
 BUILTIN _bb1082 "a"
 BUILTIN _bb1083 I1
 %"a",1 ///home/maniospas/Documents/Blombly/tests/map.bb line 7
-list _bb1084 _bb1082 _bb1083
+list::element _bb1084 _bb1082 _bb1083
 %"b",2 ///home/maniospas/Documents/Blombly/tests/map.bb line 8
 BUILTIN _bb1085 "b"
 BUILTIN _bb1086 I2
 %"b",2 ///home/maniospas/Documents/Blombly/tests/map.bb line 8
-list _bb1087 _bb1085 _bb1086
+list::element _bb1087 _bb1085 _bb1086
 %"c",3 ///home/maniospas/Documents/Blombly/tests/map.bb line 9
 BUILTIN _bb1088 "c"
 BUILTIN _bb1089 I3
 %"c",3 ///home/maniospas/Documents/Blombly/tests/map.bb line 9
-list _bb1090 _bb1088 _bb1089
+list::element _bb1090 _bb1088 _bb1089
 %("a",1),("b",2),("c",3) ///home/maniospas/Documents/Blombly/tests/map.bb line 7
-list _bb1091 _bb1084 _bb1087 _bb1090
+list::element _bb1091 _bb1084 _bb1087 _bb1090
 %map(("a",1),("b",2),("c",3)) ///home/maniospas/Documents/Blombly/tests/map.bb line 6
 map A _bb1091
 %if((A["a"]==1)== false)fail("Assertion f ///home/maniospas/Documents/Blombly/tests/map.bb line 10
@@ -1402,7 +1402,7 @@ BUILTIN _bb1124 "\n"
 BUILTIN _bb1125 "Map"
 add _bb1123 _bb1125 _bb1124
 add _bb1121 _bb1123 _bb1122
-list args _bb1121
+list::element args _bb1121
 END
 %bb.logger //tests/all.bb line 9
 get _bb1127 bb logger
@@ -1415,7 +1415,7 @@ BEGIN _bb1128
 %bb.logger.ok("Map") //tests/all.bb line 9
 BEGIN _bb1130
 BUILTIN _bb1131 "Map"
-list args _bb1131
+list::element args _bb1131
 END
 %bb.logger //tests/all.bb line 9
 get _bb1133 bb logger
@@ -1432,14 +1432,14 @@ BEGIN _bb1136
 BUILTIN _bb1137 I0
 BUILTIN _bb1138 I1
 %0,1 ///home/maniospas/Documents/Blombly/tests/vector.bb line 1
-list _bb1139 _bb1137 _bb1138
+list::element _bb1139 _bb1137 _bb1138
 %vector(0,1) ///home/maniospas/Documents/Blombly/tests/vector.bb line 1
 vector A _bb1139
 %2,3 ///home/maniospas/Documents/Blombly/tests/vector.bb line 2
 BUILTIN _bb1141 I2
 BUILTIN _bb1142 I3
 %2,3 ///home/maniospas/Documents/Blombly/tests/vector.bb line 2
-list _bb1143 _bb1141 _bb1142
+list::element _bb1143 _bb1141 _bb1142
 %vector(2,3) ///home/maniospas/Documents/Blombly/tests/vector.bb line 2
 vector B _bb1143
 %if((min(B)==2)== false)fail("Assertion f ///home/maniospas/Documents/Blombly/tests/vector.bb line 4
@@ -1917,7 +1917,7 @@ BUILTIN _bb1352 "\n"
 BUILTIN _bb1353 "Vector"
 add _bb1351 _bb1353 _bb1352
 add _bb1349 _bb1351 _bb1350
-list args _bb1349
+list::element args _bb1349
 END
 %bb.logger //tests/all.bb line 10
 get _bb1355 bb logger
@@ -1930,7 +1930,7 @@ BEGIN _bb1356
 %bb.logger.ok("Vector") //tests/all.bb line 10
 BEGIN _bb1358
 BUILTIN _bb1359 "Vector"
-list args _bb1359
+list::element args _bb1359
 END
 %bb.logger //tests/all.bb line 10
 get _bb1361 bb logger
@@ -2002,14 +2002,14 @@ BUILTIN _bb1386 I3
 BUILTIN _bb1387 I4
 BUILTIN _bb1388 I1
 %5,2,3,4,1 ///home/maniospas/Documents/Blombly/tests/overload.bb line 9
-list A _bb1384 _bb1385 _bb1386 _bb1387 _bb1388
+list::element A _bb1384 _bb1385 _bb1386 _bb1387 _bb1388
 %A|bb.collection.transform(num) ///home/maniospas/Documents/Blombly/tests/overload.bb line 10
 BEGIN _bb1391
-list args A
+list::element args A
 END
 %bb.collection.transform(num) ///home/maniospas/Documents/Blombly/tests/overload.bb line 10
 BEGIN _bb1394
-list args num
+list::element args num
 END
 %bb.collection ///home/maniospas/Documents/Blombly/tests/overload.bb line 10
 get _bb1396 bb collection
@@ -2111,7 +2111,7 @@ BUILTIN _bb1434 "\n"
 BUILTIN _bb1435 "Overload"
 add _bb1433 _bb1435 _bb1434
 add _bb1431 _bb1433 _bb1432
-list args _bb1431
+list::element args _bb1431
 END
 %bb.logger //tests/all.bb line 11
 get _bb1437 bb logger
@@ -2124,7 +2124,7 @@ BEGIN _bb1438
 %bb.logger.ok("Overload") //tests/all.bb line 11
 BEGIN _bb1440
 BUILTIN _bb1441 "Overload"
-list args _bb1441
+list::element args _bb1441
 END
 %bb.logger //tests/all.bb line 11
 get _bb1443 bb logger
@@ -2171,7 +2171,7 @@ BEGIN _bb1459
 BUILTIN _bb1460 I1
 BUILTIN _bb1461 I2
 %1,2 ///home/maniospas/Documents/Blombly/tests/calls.bb line 6
-list args _bb1460 _bb1461
+list::element args _bb1460 _bb1461
 %bias=3 ///home/maniospas/Documents/Blombly/tests/calls.bb line 6
 BUILTIN bias I3
 END
@@ -2198,7 +2198,7 @@ BUILTIN _bb1471 "\n"
 BUILTIN _bb1472 "Func call"
 add _bb1470 _bb1472 _bb1471
 add _bb1468 _bb1470 _bb1469
-list args _bb1468
+list::element args _bb1468
 END
 %bb.logger //tests/all.bb line 12
 get _bb1474 bb logger
@@ -2211,7 +2211,7 @@ BEGIN _bb1475
 %bb.logger.ok("Func call") //tests/all.bb line 12
 BEGIN _bb1477
 BUILTIN _bb1478 "Func call"
-list args _bb1478
+list::element args _bb1478
 END
 %bb.logger //tests/all.bb line 12
 get _bb1480 bb logger
@@ -2270,7 +2270,7 @@ BEGIN _bb1500
 BUILTIN _bb1501 I0
 BUILTIN _bb1502 "foo"
 %0,"foo" ///home/maniospas/Documents/Blombly/tests/sideerrors.bb line 11
-list args _bb1501 _bb1502
+list::element args _bb1501 _bb1502
 END
 %add(0,"foo") ///home/maniospas/Documents/Blombly/tests/sideerrors.bb line 11
 call _bb1499 _bb1500 add
@@ -2356,7 +2356,7 @@ BUILTIN _bb1536 "\n"
 BUILTIN _bb1537 "Sideerrors"
 add _bb1535 _bb1537 _bb1536
 add _bb1533 _bb1535 _bb1534
-list args _bb1533
+list::element args _bb1533
 END
 %bb.logger //tests/all.bb line 13
 get _bb1539 bb logger
@@ -2369,7 +2369,7 @@ BEGIN _bb1540
 %bb.logger.ok("Sideerrors") //tests/all.bb line 13
 BEGIN _bb1542
 BUILTIN _bb1543 "Sideerrors"
-list args _bb1543
+list::element args _bb1543
 END
 %bb.logger //tests/all.bb line 13
 get _bb1545 bb logger
@@ -2472,7 +2472,7 @@ BUILTIN _bb1585 "\n"
 BUILTIN _bb1586 "Closure"
 add _bb1584 _bb1586 _bb1585
 add _bb1582 _bb1584 _bb1583
-list args _bb1582
+list::element args _bb1582
 END
 %bb.logger //tests/all.bb line 14
 get _bb1588 bb logger
@@ -2485,7 +2485,7 @@ BEGIN _bb1589
 %bb.logger.ok("Closure") //tests/all.bb line 14
 BEGIN _bb1591
 BUILTIN _bb1592 "Closure"
-list args _bb1592
+list::element args _bb1592
 END
 %bb.logger //tests/all.bb line 14
 get _bb1594 bb logger
@@ -2637,7 +2637,7 @@ BUILTIN _bb1655 "\n"
 BUILTIN _bb1656 "Clear"
 add _bb1654 _bb1656 _bb1655
 add _bb1652 _bb1654 _bb1653
-list args _bb1652
+list::element args _bb1652
 END
 %bb.logger //tests/all.bb line 15
 get _bb1658 bb logger
@@ -2650,7 +2650,7 @@ BEGIN _bb1659
 %bb.logger.ok("Clear") //tests/all.bb line 15
 BEGIN _bb1661
 BUILTIN _bb1662 "Clear"
-list args _bb1662
+list::element args _bb1662
 END
 %bb.logger //tests/all.bb line 15
 get _bb1664 bb logger
@@ -2677,7 +2677,7 @@ BUILTIN _bb1670 I1
 BUILTIN _bb1671 I2
 BUILTIN _bb1672 I3
 %1,2,3 ///home/maniospas/Documents/Blombly/tests/move.bb line 3
-list A _bb1670 _bb1671 _bb1672
+list::element A _bb1670 _bb1671 _bb1672
 %if((A|len ==3)== false)fail("Assertion f ///home/maniospas/Documents/Blombly/tests/move.bb line 4
 BEGIN _bb1674
 %("Assertion failed") ///home/maniospas/Documents/Blombly/tests/move.bb line 4
@@ -2708,7 +2708,7 @@ BUILTIN _bb1684 Bfalse
 BUILTIN _bb1686 I3
 %waslength(A) ///home/maniospas/Documents/Blombly/tests/move.bb line 5
 BEGIN _bb1688
-list args A
+list::element args A
 END
 %waslength(A) ///home/maniospas/Documents/Blombly/tests/move.bb line 5
 call _bb1687 _bb1688 waslength
@@ -2750,7 +2750,7 @@ BUILTIN _bb1703 "\n"
 BUILTIN _bb1704 "Move "
 add _bb1702 _bb1704 _bb1703
 add _bb1700 _bb1702 _bb1701
-list args _bb1700
+list::element args _bb1700
 END
 %bb.logger //tests/all.bb line 16
 get _bb1706 bb logger
@@ -2763,7 +2763,7 @@ BEGIN _bb1707
 %bb.logger.ok("Move ") //tests/all.bb line 16
 BEGIN _bb1709
 BUILTIN _bb1710 "Move "
-list args _bb1710
+list::element args _bb1710
 END
 %bb.logger //tests/all.bb line 16
 get _bb1712 bb logger
@@ -2781,15 +2781,15 @@ BUILTIN _bb1716 I1
 BUILTIN _bb1717 I2
 BUILTIN _bb1718 I3
 %1,2,3 ///home/maniospas/Documents/Blombly/tests/collection.bb line 1
-list A _bb1716 _bb1717 _bb1718
+list::element A _bb1716 _bb1717 _bb1718
 %A|bb.collection.toback(4) ///home/maniospas/Documents/Blombly/tests/collection.bb line 2
 BEGIN _bb1721
-list args A
+list::element args A
 END
 %bb.collection.toback(4) ///home/maniospas/Documents/Blombly/tests/collection.bb line 2
 BEGIN _bb1724
 BUILTIN _bb1725 I4
-list args _bb1725
+list::element args _bb1725
 END
 %bb.collection ///home/maniospas/Documents/Blombly/tests/collection.bb line 2
 get _bb1727 bb collection
@@ -2834,7 +2834,7 @@ BUILTIN _bb1742 "\n"
 BUILTIN _bb1743 "Collection"
 add _bb1741 _bb1743 _bb1742
 add _bb1739 _bb1741 _bb1740
-list args _bb1739
+list::element args _bb1739
 END
 %bb.logger //tests/all.bb line 17
 get _bb1745 bb logger
@@ -2847,7 +2847,7 @@ BEGIN _bb1746
 %bb.logger.ok("Collection") //tests/all.bb line 17
 BEGIN _bb1748
 BUILTIN _bb1749 "Collection"
-list args _bb1749
+list::element args _bb1749
 END
 %bb.logger //tests/all.bb line 17
 get _bb1751 bb logger
@@ -2873,12 +2873,12 @@ END
 BUILTIN _bb1759 Bfalse
 %A|bb.string.starts("I like") ///home/maniospas/Documents/Blombly/tests/string.bb line 2
 BEGIN _bb1761
-list args A
+list::element args A
 END
 %bb.string.starts("I like") ///home/maniospas/Documents/Blombly/tests/string.bb line 2
 BEGIN _bb1764
 BUILTIN _bb1765 "I like"
-list args _bb1765
+list::element args _bb1765
 END
 %bb.string ///home/maniospas/Documents/Blombly/tests/string.bb line 2
 get _bb1767 bb string
@@ -2902,12 +2902,12 @@ END
 BUILTIN _bb1771 Bfalse
 %A|bb.string.ends("banana!") ///home/maniospas/Documents/Blombly/tests/string.bb line 3
 BEGIN _bb1773
-list args A
+list::element args A
 END
 %bb.string.ends("banana!") ///home/maniospas/Documents/Blombly/tests/string.bb line 3
 BEGIN _bb1776
 BUILTIN _bb1777 "banana!"
-list args _bb1777
+list::element args _bb1777
 END
 %bb.string ///home/maniospas/Documents/Blombly/tests/string.bb line 3
 get _bb1779 bb string
@@ -2933,12 +2933,12 @@ BUILTIN _bb1783 Bfalse
 BUILTIN _bb1785 Bfalse
 %A|bb.string.ends("w") ///home/maniospas/Documents/Blombly/tests/string.bb line 4
 BEGIN _bb1787
-list args A
+list::element args A
 END
 %bb.string.ends("w") ///home/maniospas/Documents/Blombly/tests/string.bb line 4
 BEGIN _bb1790
 BUILTIN _bb1791 "w"
-list args _bb1791
+list::element args _bb1791
 END
 %bb.string ///home/maniospas/Documents/Blombly/tests/string.bb line 4
 get _bb1793 bb string
@@ -2965,12 +2965,12 @@ BUILTIN _bb1797 Bfalse
 BUILTIN _bb1799 I2
 %A|bb.string.index("like") ///home/maniospas/Documents/Blombly/tests/string.bb line 5
 BEGIN _bb1801
-list args A
+list::element args A
 END
 %bb.string.index("like") ///home/maniospas/Documents/Blombly/tests/string.bb line 5
 BEGIN _bb1804
 BUILTIN _bb1805 "like"
-list args _bb1805
+list::element args _bb1805
 END
 %bb.string ///home/maniospas/Documents/Blombly/tests/string.bb line 5
 get _bb1807 bb string
@@ -2997,12 +2997,12 @@ BUILTIN _bb1811 Bfalse
 BUILTIN _bb1813 I10
 %A|bb.string.index("an" :: pos=9) ///home/maniospas/Documents/Blombly/tests/string.bb line 6
 BEGIN _bb1815
-list args A
+list::element args A
 END
 %bb.string.index("an" :: pos=9) ///home/maniospas/Documents/Blombly/tests/string.bb line 6
 BEGIN _bb1818
 BUILTIN _bb1819 "an"
-list args _bb1819
+list::element args _bb1819
 %pos=9 ///home/maniospas/Documents/Blombly/tests/string.bb line 6
 BUILTIN pos I9
 END
@@ -3031,12 +3031,12 @@ BUILTIN _bb1826 Bfalse
 BUILTIN _bb1828 I3
 %A|bb.string.split(" ") ///home/maniospas/Documents/Blombly/tests/string.bb line 7
 BEGIN _bb1831
-list args A
+list::element args A
 END
 %bb.string.split(" ") ///home/maniospas/Documents/Blombly/tests/string.bb line 7
 BEGIN _bb1834
 BUILTIN _bb1835 " "
-list args _bb1835
+list::element args _bb1835
 END
 %bb.string ///home/maniospas/Documents/Blombly/tests/string.bb line 7
 get _bb1837 bb string
@@ -3069,7 +3069,7 @@ BUILTIN _bb1845 "\n"
 BUILTIN _bb1846 "Stringutil"
 add _bb1844 _bb1846 _bb1845
 add _bb1842 _bb1844 _bb1843
-list args _bb1842
+list::element args _bb1842
 END
 %bb.logger //tests/all.bb line 18
 get _bb1848 bb logger
@@ -3082,7 +3082,7 @@ BEGIN _bb1849
 %bb.logger.ok("Stringutil") //tests/all.bb line 18
 BEGIN _bb1851
 BUILTIN _bb1852 "Stringutil"
-list args _bb1852
+list::element args _bb1852
 END
 %bb.logger //tests/all.bb line 18
 get _bb1854 bb logger
@@ -3128,7 +3128,7 @@ END
 BEGIN _bb1870
 %accum.add(i) ///home/maniospas/Documents/Blombly/tests/atomicity.bb line 6
 BEGIN _bb1872
-list args i
+list::element args i
 END
 %accum.add ///home/maniospas/Documents/Blombly/tests/atomicity.bb line 6
 get _bb1873 accum add
@@ -3171,7 +3171,7 @@ BUILTIN _bb1888 "\n"
 BUILTIN _bb1889 "Atomicity"
 add _bb1887 _bb1889 _bb1888
 add _bb1885 _bb1887 _bb1886
-list args _bb1885
+list::element args _bb1885
 END
 %bb.logger //tests/all.bb line 19
 get _bb1891 bb logger
@@ -3184,7 +3184,7 @@ BEGIN _bb1892
 %bb.logger.ok("Atomicity") //tests/all.bb line 19
 BEGIN _bb1894
 BUILTIN _bb1895 "Atomicity"
-list args _bb1895
+list::element args _bb1895
 END
 %bb.logger //tests/all.bb line 19
 get _bb1897 bb logger
@@ -3203,7 +3203,7 @@ BEGIN _bb1903
 BEGIN foo1
 %extern2(B) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 4
 BEGIN _bb1906
-list args B
+list::element args B
 END
 %extern2(B) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 4
 call _bb1905 _bb1906 extern2
@@ -3214,7 +3214,7 @@ END
 BEGIN foo2
 %extern3(this) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 5
 BEGIN _bb1909
-list args this
+list::element args this
 END
 %extern3(this) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 5
 call _bb1908 _bb1909 extern3
@@ -3241,7 +3241,7 @@ BEGIN _bb1915
 BEGIN foo1
 %extern2(A) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 10
 BEGIN _bb1918
-list args A
+list::element args A
 END
 %extern2(A) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 10
 call _bb1917 _bb1918 extern2
@@ -3252,7 +3252,7 @@ END
 BEGIN foo2
 %extern3(this) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 11
 BEGIN _bb1921
-list args this
+list::element args this
 END
 %extern3(this) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 11
 call _bb1920 _bb1921 extern3
@@ -3316,7 +3316,7 @@ BUILTIN _bb1936 Bfalse
 BUILTIN _bb1938 I1
 %extern1(A) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 19
 BEGIN _bb1940
-list args A
+list::element args A
 END
 %extern1(A) ///home/maniospas/Documents/Blombly/tests/nodeadlock.bb line 19
 call _bb1939 _bb1940 extern1
@@ -3341,7 +3341,7 @@ BUILTIN _bb1948 "\n"
 BUILTIN _bb1949 "No deadlock"
 add _bb1947 _bb1949 _bb1948
 add _bb1945 _bb1947 _bb1946
-list args _bb1945
+list::element args _bb1945
 END
 %bb.logger //tests/all.bb line 20
 get _bb1951 bb logger
@@ -3354,7 +3354,7 @@ BEGIN _bb1952
 %bb.logger.ok("No deadlock") //tests/all.bb line 20
 BEGIN _bb1954
 BUILTIN _bb1955 "No deadlock"
-list args _bb1955
+list::element args _bb1955
 END
 %bb.logger //tests/all.bb line 20
 get _bb1957 bb logger
@@ -3392,7 +3392,7 @@ BUILTIN _bb1969 Bfalse
 BUILTIN _bb1971 "Virtual data."
 %bb.os.read(f2) ///home/maniospas/Documents/Blombly/tests/vfs.bb line 7
 BEGIN _bb1973
-list args f2
+list::element args f2
 END
 %bb.os ///home/maniospas/Documents/Blombly/tests/vfs.bb line 7
 get _bb1975 bb os
@@ -3421,7 +3421,7 @@ BUILTIN _bb1983 "\n"
 BUILTIN _bb1984 "VFS"
 add _bb1982 _bb1984 _bb1983
 add _bb1980 _bb1982 _bb1981
-list args _bb1980
+list::element args _bb1980
 END
 %bb.logger //tests/all.bb line 21
 get _bb1986 bb logger
@@ -3434,7 +3434,7 @@ BEGIN _bb1987
 %bb.logger.ok("VFS") //tests/all.bb line 21
 BEGIN _bb1989
 BUILTIN _bb1990 "VFS"
-list args _bb1990
+list::element args _bb1990
 END
 %bb.logger //tests/all.bb line 21
 get _bb1992 bb logger
@@ -3570,7 +3570,7 @@ BUILTIN _bb2063 "\n"
 BUILTIN _bb2064 "Database"
 add _bb2062 _bb2064 _bb2063
 add _bb2060 _bb2062 _bb2061
-list args _bb2060
+list::element args _bb2060
 END
 %bb.logger //tests/all.bb line 22
 get _bb2066 bb logger
@@ -3583,7 +3583,7 @@ BEGIN _bb2067
 %bb.logger.ok("Database") //tests/all.bb line 22
 BEGIN _bb2069
 BUILTIN _bb2070 "Database"
-list args _bb2070
+list::element args _bb2070
 END
 %bb.logger //tests/all.bb line 22
 get _bb2072 bb logger

@@ -7,17 +7,19 @@
 // define namespaces
 !macro {!namespace @name {@generator}} as {
     !macro {!with @name:} as {
-        !local {!var @@@symbol;} as {!local{@@@symbol} as {!symbol(@name :: @@@symbol)}}
-        !local {!var @@@symbol=@@@expression;} as {!local{@@@symbol} as {!symbol(@name :: @@@symbol)} @@@symbol=@@@expression;}
         //!local {!var @@@symbol(@@@arguments)=@@@expression;} as {!local{@@@symbol} as {!symbol(@name :: @@@symbol)} @@@symbol(@@@arguments)=@@@expression;}
+        //!local {!var @@@symbol=@@@expression;} as {!local{@@@symbol} as {!symbol(@name :: @@@symbol)} @@@symbol=@@@expression;}
+        !local {!var @@@symbol;} as {!local{@@@symbol} as {!symbol(@name :: @@@symbol)}}
         @generator
     }
 }
 
 !macro {!nameless {@generator}} as {
-    !include {
-        !namespace @newnamespace {@generator}
-        !with @newnamespace:
+    {
+        !include {
+            !namespace @newnamespace {@generator}
+            !with @newnamespace:
+        }
     }
 }
 

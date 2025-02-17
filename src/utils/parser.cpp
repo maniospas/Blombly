@@ -650,7 +650,11 @@ public:
 
                             for(size_t jj=j;jj<next_j-1;++jj) {
                                 std::string semitype = tokens[jj].name;
-                                if(semitype=="float" || semitype=="int" || semitype=="str" || semitype=="bool" || semitype=="list" || semitype=="vector" || semitype=="iter"
+                                if(semitype=="float" || semitype=="int" || semitype=="str" || semitype=="bool" || semitype=="list" 
+                                    || semitype=="vector" || semitype=="iter"
+                                    || semitype=="vector::zero" || semitype=="vector::random" 
+                                    || semitype=="vector::alloc" || semitype=="list::element"
+                                    || semitype=="_bbmap::reserved" || semitype=="_bbmap::reserved"
                                     || semitype=="file" || semitype=="clear" || semitype=="move" 
                                     || semitype=="bbvm::float" || semitype=="bbvm::int" || semitype=="bbvm::str" || semitype=="bbvm::bool" || semitype=="bbvm::iter"
                                     || semitype=="bbvm::list" || semitype=="bbvm::vector" || semitype=="bbvm::file" || semitype=="bbvm::clear" || semitype=="bbvm::move" )
@@ -659,7 +663,7 @@ public:
                                     std::string args = create_temp();
                                     std::string temp = create_temp();
                                     code_block_prepend += "BEGIN " + args + "\n";
-                                    code_block_prepend += "list "+temp+" "+name+"\n";
+                                    code_block_prepend += "list::element "+temp+" "+name+"\n";
                                     code_block_prepend += "IS args " + temp + "\n";
                                     code_block_prepend += "END\n";
                                     code_block_prepend += "call "+name+" "+args+" "+semitype+"\n";
@@ -862,7 +866,11 @@ public:
 
                             for(size_t jj=j;jj<next_j-1;++jj) {
                                 std::string semitype = tokens[jj].name;
-                                if(semitype=="float" || semitype=="int" || semitype=="str" || semitype=="bool" || semitype=="list" || semitype=="vector" || semitype=="iter"
+                                if(semitype=="float" || semitype=="int" || semitype=="str" || semitype=="bool" || semitype=="list" 
+                                    || semitype=="vector" || semitype=="iter"
+                                    || semitype=="vector::zero" || semitype=="vector::random" 
+                                    || semitype=="vector::alloc" || semitype=="list::element"
+                                    || semitype=="_bbmap::reserved" || semitype=="_bbmap::reserved"
                                     || semitype=="clear" || semitype=="move" || semitype=="file" 
                                     || semitype=="bbvm::float" || semitype=="bbvm::int" || semitype=="bbvm::str" || semitype=="bbvm::bool" || semitype=="bbvm::iter"
                                     || semitype=="bbvm::list" || semitype=="bbvm::vector" || semitype=="bbvm::file"
@@ -872,7 +880,7 @@ public:
                                     std::string args = create_temp();
                                     std::string temp = create_temp();
                                     code_block_prepend += "BEGIN " + args + "\n";
-                                    code_block_prepend += "list "+temp+" "+name+"\n";
+                                    code_block_prepend += "list::element "+temp+" "+name+"\n";
                                     code_block_prepend += "IS args " + temp + "\n";
                                     code_block_prepend += "END\n";
                                     code_block_prepend += "call "+name+" "+args+" "+semitype+"\n";
@@ -981,7 +989,7 @@ public:
                 }
                 breakpoint(start, end);
                 std::string var = create_temp();
-                ret += "list " + var + " " + list_vars + "\n";
+                ret += "list::element " + var + " " + list_vars + "\n";
                 return var;
             }
 
@@ -1161,7 +1169,10 @@ public:
                 first_name == "file" || first_name == "next" || 
                 first_name == "list" || first_name == "map" || 
                 first_name == "server" || first_name == "sqlite" || first_name == "graphics" || 
-                first_name == "vector") {
+                first_name == "vector"
+                || first_name=="vector::zero" || first_name=="vector::random" 
+                || first_name=="vector::alloc" || first_name=="list::element"
+                || first_name=="_bbmap::reserved" || first_name=="_bbmap::reserved") {
                 bbassert(tokens[start + 1].name == "(", "Missing '(' just after '" + first_name+"'.\n"+show_position(start+1));
                 if (start + 1 >= end - 1 && (first_name == "map" || 
                                              first_name == "list")) {
@@ -1244,7 +1255,10 @@ public:
                     callable == "move" || callable == "clear" || callable == "pop" 
                     || callable == "push" || callable == "random" || 
                     callable == "len" || callable == "next" || 
-                    callable == "vector" || callable == "iter" || 
+                    callable == "vector" || callable == "iter" 
+                    || callable=="vector::zero" || callable=="vector::random" 
+                    || callable=="vector::alloc" || callable=="list::element"
+                    || callable=="_bbmap::reserved" || callable=="_bbmap::reserved" ||
                     callable == "add" || callable == "sub" || 
                     callable == "min" || callable == "max" || 
                     callable == "sum" || 
@@ -1274,7 +1288,7 @@ public:
                     std::string parsed_args = create_temp();
                     std::string temp = create_temp();
                     ret += "BEGIN " + parsed_args + "\n";
-                    ret += "list "+temp+" "+parse_expression(start, chain - 1)+"\n";
+                    ret += "list::element "+temp+" "+parse_expression(start, chain - 1)+"\n";
                     ret += "IS args " + temp + "\n";
                     ret += "END\n";
                     auto toret = "call " + var + " " + parsed_args + " " + parse_expression(chain+1, end) + "\n";
@@ -1310,7 +1324,7 @@ public:
                                find_end(call + 1, end, ";") == MISSING) {  // if there is a list of only one element 
                         parsed_args = create_temp();
                         ret += "BEGIN " + parsed_args + "\n";
-                        ret += "list args " + parse_expression(call + 1, end - 1) + "\n";
+                        ret += "list::element args " + parse_expression(call + 1, end - 1) + "\n";
                         ret += "END\n";
                     } 
                     else {
@@ -1323,7 +1337,7 @@ public:
                 else if (find_end(call + 1, end, ",") == MISSING) {
                     parsed_args = create_temp();
                     ret += "BEGIN " + parsed_args + "\n";
-                    ret += "list args " + parse_expression(call + 1, conditional - 1) + "\n";
+                    ret += "list::element args " + parse_expression(call + 1, conditional - 1) + "\n";
                     parse(conditional + 1, end - 1);
                     ret += "END\n";
                 }

@@ -35,15 +35,15 @@ BList::~BList() {
 }
 
 std::string BList::toString(BMemory* memory){
-    std::string result = "";
+    std::string result = "(";
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     int64_t n = contents.size();
     for(int64_t i=front;i<n;++i) {
-        if(result.size()) result += ", ";
+        if(result.size()>1) result += ", ";
         if(contents[i].exists()) result += contents[i]->toString(memory); 
         else result += contents[i].torepr();
     }
-    return result;
+    return result+")";
 }
 
 DataPtr BList::at(int64_t index) const {
