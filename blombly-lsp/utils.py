@@ -11,7 +11,7 @@ keywords = [
     "default", "do", "catch", "assert", "as", "fail",
     "false", "true", "test", "defer"
 ]
-builtins = ["float", "bool", "int", "str", "server", "vector", "list", "graphics", "random", "range", "sqlite", "time", "read", "print", "len", "push", "pop", "next"]
+builtins = ["float", "bool", "int", "str", "server", "vector", "list", "graphics", "random", "range", "sqlite", "time", "read", "print", "len", "push", "pop", "next", "len"]
 
 # Global dictionaries/sets for indexing.
 indexed_symbols = {}      # keys: file URIs, values: sets of symbol names.

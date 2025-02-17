@@ -79,11 +79,11 @@ std::string replaceEscapeSequences(const std::string& input) {
     return output;
 }
 
-#define DISPATCH_LITERAL(expr) {int carg = command.args[0]; result=DataPtr(expr); lastres = carg;  if(carg!=variableManager.noneId) [[likely]] memory.unsafeSetLiteral(carg, result); continue;}
-#define DISPATCH_RESULT(expr) {int carg = command.args[0]; result=DataPtr(expr); lastres = carg;  if(carg!=variableManager.noneId) [[likely]] memory.set(carg, result); continue;}
-#define DISPATCH_OUTCOME(expr) {int carg = command.args[0]; Result res(expr); result=res.get(); lastres = carg; if(carg!=variableManager.noneId) [[likely]] memory.set(carg, result); continue;}
-#define DISPATCH_COMPUTED_RESULT {int carg = command.args[0]; lastres = carg;  if(carg!=variableManager.noneId) [[likely]] memory.set(carg, result); continue;}
-#define RUN_IF_RETURN(expr) {lastres = variableManager.noneId; if (expr.returnSignal) [[unlikely]] {memory.runFinally();return expr;} continue;}
+#define DISPATCH_LITERAL(expr) {int carg = command.args[0]; result=DataPtr(expr); if(carg!=variableManager.noneId) [[likely]] memory.unsafeSetLiteral(carg, result); continue;}
+#define DISPATCH_RESULT(expr) {int carg = command.args[0]; result=DataPtr(expr); if(carg!=variableManager.noneId) [[likely]] memory.set(carg, result); continue;}
+#define DISPATCH_OUTCOME(expr) {int carg = command.args[0]; Result res(expr); result=res.get(); if(carg!=variableManager.noneId) [[likely]] memory.set(carg, result); continue;}
+#define DISPATCH_COMPUTED_RESULT {int carg = command.args[0]; if(carg!=variableManager.noneId) [[likely]] memory.set(carg, result); continue;}
+#define RUN_IF_RETURN(expr) {if (expr.returnSignal) [[unlikely]] {memory.runFinally();return expr;} continue;}
 
 #define DISPATCH(OPERATION) goto *dispatch_table[OPERATION]
 void initialize_dispatch_table() {}
@@ -95,7 +95,6 @@ ExecutionInstanceRunReturn ExecutionInstance::run(Code* code) {
 
 ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& program, size_t i, size_t end) {
     DataPtr arg0, arg1, result;
-    int lastres;
     for(;i<=end;++i) {
     const Command& command = program[i];
     try {
@@ -268,8 +267,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_ADD: {
         int id1 = command.args[1];
         int id2 = command.args[2];
-        arg0 = id1==lastres?result:memory.get(id1);
-        arg1 = id2==lastres?result:memory.get(id2);
+        arg0 = memory.get(id1);
+        arg1 = memory.get(id2);
         if(arg0.isintint(arg1)) DISPATCH_LITERAL(arg0.unsafe_toint()+arg1.unsafe_toint());
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()+arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL((double)(arg0.unsafe_toint()+arg1.unsafe_tofloat()));
@@ -282,8 +281,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_SUB: {
         int id1 = command.args[1];
         int id2 = command.args[2];
-        arg0 = id1==lastres?result:memory.get(id1);
-        arg1 = id2==lastres?result:memory.get(id2);
+        arg0 = memory.get(id1);
+        arg1 = memory.get(id2);
         if(arg0.isintint(arg1)) DISPATCH_LITERAL(arg0.unsafe_toint()-arg1.unsafe_toint());
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()-arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL((double)(arg0.unsafe_toint()-arg1.unsafe_tofloat()));
@@ -296,8 +295,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_MUL: {
         int id1 = command.args[1];
         int id2 = command.args[2];
-        arg0 = id1==lastres?result:memory.get(id1);
-        arg1 = id2==lastres?result:memory.get(id2);
+        arg0 = memory.get(id1);
+        arg1 = memory.get(id2);
         if(arg0.isintint(arg1)) DISPATCH_LITERAL(arg0.unsafe_toint()*arg1.unsafe_toint());
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()*arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL((double)(arg0.unsafe_toint()*arg1.unsafe_tofloat()));
@@ -310,8 +309,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_DIV: {
         int id1 = command.args[1];
         int id2 = command.args[2];
-        arg0 = id1==lastres?result:memory.get(id1);
-        arg1 = id2==lastres?result:memory.get(id2);
+        arg0 = memory.get(id1);
+        arg1 = memory.get(id2);
         if(arg0.isintint(arg1)) DISPATCH_LITERAL(arg0.unsafe_toint()/(double)arg1.unsafe_toint());
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()/arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL((double)(arg0.unsafe_toint()/arg1.unsafe_tofloat()));
@@ -324,8 +323,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_POW: {
         int id1 = command.args[1];
         int id2 = command.args[2];
-        arg0 = id1==lastres?result:memory.get(id1);
-        arg1 = id2==lastres?result:memory.get(id2);
+        arg0 = memory.get(id1);
+        arg1 = memory.get(id2);
         if(arg0.isintint(arg1)) DISPATCH_LITERAL(std::pow(arg0.unsafe_toint(), arg1.unsafe_toint()));
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(std::pow(arg0.unsafe_tofloat(), arg1.unsafe_tofloat()));
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(std::pow(arg0.unsafe_toint(), arg1.unsafe_tofloat()));
@@ -338,8 +337,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_MOD: {
         int id1 = command.args[1];
         int id2 = command.args[2];
-        arg0 = id1==lastres?result:memory.get(id1);
-        arg1 = id2==lastres?result:memory.get(id2);
+        arg0 = memory.get(id1);
+        arg1 = memory.get(id2);
         if(arg0.isintint(arg1)) DISPATCH_LITERAL(arg0.unsafe_toint() % arg1.unsafe_toint());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->mod(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->rmod(&memory, arg0));
@@ -349,8 +348,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_LT: {
         int id1 = command.args[1];
         int id2 = command.args[2];
-        arg0 = id1==lastres?result:memory.get(id1);
-        arg1 = id2==lastres?result:memory.get(id2);
+        arg0 = memory.get(id1);
+        arg1 = memory.get(id2);
         if(arg0.isintint(arg1)) DISPATCH_LITERAL(arg0.unsafe_toint()<arg1.unsafe_toint());
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()<arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_toint()<arg1.unsafe_tofloat());
@@ -363,8 +362,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_GT: {
         int id1 = command.args[1];
         int id2 = command.args[2];
-        arg0 = id1==lastres?result:memory.get(id1);
-        arg1 = id2==lastres?result:memory.get(id2);
+        arg0 = memory.get(id1);
+        arg1 = memory.get(id2);
         if(arg0.isintint(arg1)) DISPATCH_LITERAL(arg0.unsafe_toint()>arg1.unsafe_toint());
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()>arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_toint()>arg1.unsafe_tofloat());
@@ -377,8 +376,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_LE: {
         int id1 = command.args[1];
         int id2 = command.args[2];
-        arg0 = id1==lastres?result:memory.get(id1);
-        arg1 = id2==lastres?result:memory.get(id2);
+        arg0 = memory.get(id1);
+        arg1 = memory.get(id2);
         if(arg0.isintint(arg1)) DISPATCH_LITERAL(arg0.unsafe_toint()<=arg1.unsafe_toint());
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()<=arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_toint()<=arg1.unsafe_tofloat());
@@ -391,8 +390,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_GE: {
         int id1 = command.args[1];
         int id2 = command.args[2];
-        arg0 = id1==lastres?result:memory.get(id1);
-        arg1 = id2==lastres?result:memory.get(id2);
+        arg0 = memory.get(id1);
+        arg1 = memory.get(id2);
         if(arg0.isintint(arg1)) DISPATCH_LITERAL(arg0.unsafe_toint()>=arg1.unsafe_toint());
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()>=arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_toint()>=arg1.unsafe_tofloat());
@@ -405,8 +404,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_EQ: {
         int id1 = command.args[1];
         int id2 = command.args[2];
-        arg0 = id1==lastres?result:memory.get(id1);
-        arg1 = id2==lastres?result:memory.get(id2);
+        arg0 = memory.get(id1);
+        arg1 = memory.get(id2);
         if(arg0.isintint(arg1)) DISPATCH_LITERAL(arg0.unsafe_toint()==arg1.unsafe_toint());
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()==arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_toint()==arg1.unsafe_tofloat());
@@ -420,8 +419,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_NEQ: {
         int id1 = command.args[1];
         int id2 = command.args[2];
-        arg0 = id1==lastres?result:memory.get(id1);
-        arg1 = id2==lastres?result:memory.get(id2);
+        arg0 = memory.get(id1);
+        arg1 = memory.get(id2);
         if(arg0.isintint(arg1)) DISPATCH_LITERAL(arg0.unsafe_toint()!=arg1.unsafe_toint());
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()!=arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_toint()!=arg1.unsafe_tofloat());
@@ -435,8 +434,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_AND: {
         int id1 = command.args[1];
         int id2 = command.args[2];
-        arg0 = id1==lastres?result:memory.get(id1);
-        arg1 = id2==lastres?result:memory.get(id2);
+        arg0 = memory.get(id1);
+        arg1 = memory.get(id2);
         if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool() && arg1.unsafe_tobool());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->opand(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->opand(&memory, arg0));
@@ -446,8 +445,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_OR: {
         int id1 = command.args[1];
         int id2 = command.args[2];
-        arg0 = id1==lastres?result:memory.get(id1);
-        arg1 = id2==lastres?result:memory.get(id2);
+        arg0 = memory.get(id1);
+        arg1 = memory.get(id2);
         if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool() || arg1.unsafe_tobool());
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->opor(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->opor(&memory, arg0));
@@ -457,8 +456,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_MMUL: {
         int id1 = command.args[1];
         int id2 = command.args[2];
-        arg0 = id1==lastres?result:memory.get(id1);
-        arg1 = id2==lastres?result:memory.get(id2);
+        arg0 = memory.get(id1);
+        arg1 = memory.get(id2);
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->mmul(&memory, arg1));
         if(arg1.existsAndTypeEquals(ERRORTYPE)) bberror(arg1->toString(nullptr));
         bberror("There was no implementation for mmul("+arg0.torepr()+", "+arg1.torepr()+")");
@@ -468,7 +467,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }
     DO_TOVECTOR: {
         int id1 = command.args[1];
-        arg0 = id1==lastres?result:memory.get(id1);
+        arg0 = memory.get(id1);
         if(arg0.isint()) DISPATCH_RESULT(new Vector(arg0.unsafe_toint()));
         if(arg0.existsAndTypeEquals(VECTOR)) DISPATCH_RESULT(arg0);
         if(arg0.existsAndTypeEquals(LIST)) DISPATCH_RESULT(static_cast<BList*>(arg0.get())->toVector(&memory));
@@ -477,13 +476,13 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }
     DO_LOG: {
         int id1 = command.args[1];
-        arg0 = id1==lastres?result:memory.get(id1);
+        arg0 = memory.get(id1);
         bbassert(arg0.isptr(), "Did not find builtin operation: log("+arg0.torepr()+")");
         DISPATCH_OUTCOME(arg0->logarithm(&memory));
     }
     DO_TOBB_INT: {
         int id1 = command.args[1];
-        arg0 = id1==lastres?result:memory.get(id1);
+        arg0 = memory.get(id1);
         if(arg0.isint()) DISPATCH_LITERAL((int64_t)arg0.unsafe_toint());
         if(arg0.isfloat()) DISPATCH_LITERAL((int64_t)arg0.unsafe_tofloat());
         if(arg0.isbool()) DISPATCH_LITERAL((int64_t)arg0.unsafe_tobool());
@@ -492,7 +491,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }
     DO_TOBB_FLOAT: {
         int id1 = command.args[1];
-        arg0 = id1==lastres?result:memory.get(id1);
+        arg0 = memory.get(id1);
         if(arg0.isint()) DISPATCH_LITERAL((double)arg0.unsafe_toint());
         if(arg0.isfloat()) DISPATCH_LITERAL((double)arg0.unsafe_tofloat());
         if(arg0.isbool()) DISPATCH_LITERAL((double)arg0.unsafe_tobool());
@@ -501,7 +500,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }
     DO_TOBB_BOOL: {
         int id1 = command.args[1];
-        arg0 = id1==lastres?result:memory.get(id1);
+        arg0 = memory.get(id1);
         if(arg0.isint()) DISPATCH_LITERAL((bool)arg0.unsafe_toint());
         if(arg0.isfloat()) DISPATCH_LITERAL((bool)arg0.unsafe_tofloat());
         if(arg0.isbool()) DISPATCH_LITERAL((bool)arg0.unsafe_tobool());
@@ -510,21 +509,20 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }
     DO_BB_PRINT:{ 
         int id1 = command.args[1];
-        arg0 = id1==lastres?result:memory.get(id1);
+        arg0 = memory.get(id1);
         std::string printing = arg0.exists()?arg0->toString(&memory):arg0.torepr();
         printing = replaceEscapeSequences(printing);
         printing += "\n";
         std::lock_guard<std::recursive_mutex> lock(printMutex);
         std::cout << printing;
         result = DataPtr::NULLP;
-        lastres = variableManager.noneId;
         continue;
     }
     DO_READ:{
         std::string printing;
         if(command.nargs>1) {
             int id1 = command.args[1];
-            arg0 = id1==lastres?result:memory.get(id1);
+            arg0 = memory.get(id1);
             if(arg0.exists()) {
                 std::string out = arg0.exists()?arg0->toString(&memory):arg0.torepr();
                 printing += out+" ";
@@ -557,7 +555,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }
     DO_TOSTR: {
         int id1 = command.args[1];
-        arg0 = id1==lastres?result:memory.get(id1);
+        arg0 = memory.get(id1);
         if(arg0.isint()) DISPATCH_RESULT(new BString(std::to_string(arg0.unsafe_toint())));
         if(arg0.isfloat()) DISPATCH_RESULT(new BString(std::to_string(arg0.unsafe_tofloat())));
         if(arg0.isbool()) DISPATCH_RESULT(new BString(arg0.unsafe_tobool()?"true":"false"));
@@ -589,7 +587,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }
     DO_SET: {
         int id1 = command.args[1];
-        arg0 = id1==lastres?result:memory.get(id1);
+        arg0 = memory.get(id1);
         if(!arg0.existsAndTypeEquals(STRUCT)) [[unlikely]] {
             if(arg0.existsAndTypeEquals(ERRORTYPE)) bbcascade(arg0->toString(nullptr), "Can only set fields in a struct");
             bberror("Can only set fields in a struct.");
@@ -602,12 +600,11 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         auto structMemory = structObj->getMemory();
         structMemory->set(command.args[2], setValue);//structmemory.getOrNullShallow(command.args[2]));
         result = nullptr;
-        lastres = variableManager.noneId;
         continue;
     }
     DO_SETFINAL: {
         int id1 = command.args[1];
-        arg0 = id1==lastres?result:memory.get(id1);
+        arg0 = memory.get(id1);
         if(!arg0.existsAndTypeEquals(STRUCT)) bberror(arg0.existsAndTypeEquals(ERRORTYPE)?arg0->toString(nullptr):"Can only set fields in a struct.");
         bberror("Cannot set final fields in a struct using field access operators (. or \\). This also ensures that finals can only be set during `new` statements.");
         continue;
@@ -615,8 +612,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_WHILE: {
         int id1 = command.args[1];
         int id2 = command.args[2];
-        arg0 = id1==lastres?result:memory.get(id1);
-        arg1 = id2==lastres?result:memory.get(id2);
+        arg0 = memory.get(id1);
+        arg1 = memory.get(id2);
         bbassert(arg1.existsAndTypeEquals(CODE), "While body can only be a code block.");
         bbassert(arg0.existsAndTypeEquals(CODE), "While condition can only be a code block.");
         auto codeBody = static_cast<Code*>(arg1.get());
@@ -653,7 +650,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }
     DO_IF: {
         int id1 = command.args[1];
-        arg0 = id1==lastres?result:memory.get(id1);
+        arg0 = memory.get(id1);
         if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
         bbassert(arg0.isbool(), "If condition did not evaluate to bool but to: "+arg0.torepr());
 
@@ -729,7 +726,6 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }
     DO_FAIL: {
         const auto& result = memory.get(command.args[1]);
-        lastres = variableManager.noneId;
         bberror(std::move(result->toString(&memory)));
         continue;
     }
@@ -953,14 +949,12 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         cacheMemory.await();
         cachedData.pull(&cacheMemory);
         result = nullptr;
-        lastres = command.args[0];
         bbassert(!ret.returnSignal, "Cache declaration cannot return a value");
         continue;
     }
     DO_BEGIN: {
         result = command.value;
         int carg = command.args[0];
-        lastres = carg;
         memory.set(carg, result);
         i = static_cast<Code*>(command.value.get())->getEnd();
         continue;
@@ -968,7 +962,6 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_BEGINFINAL: {
         result = command.value;
         int carg = command.args[0];
-        lastres = carg;
         memory.set(carg, result);
         memory.setFinal(command.args[0]); // WE NEED TO SET FINALS ONLY AFTER THE VARIABLE IS SET
         i = static_cast<Code*>(command.value.get())->getEnd();
@@ -1063,7 +1056,6 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             BError* berror = new BError(std::move(err));
             berror->consume();
             result = DataPtr(berror);
-            lastres = variableManager.noneId;
             return ExecutionInstanceRunReturn(true, Result(result));
         }
         std::string err = enrichErrorDescription(program[i], e.what());
@@ -1076,7 +1068,6 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         }
         catch (const BBError& e) {
             result = DataPtr::NULLP;
-            lastres = variableManager.noneId;
             delete berror;
             handleExecutionError(program[i], e);
         }

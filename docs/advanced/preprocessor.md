@@ -167,8 +167,8 @@ subsequent usage is altered.
 
 ```java
 !namespace @name {
-    var @v1;
-    var @v2; 
+    !var @v1;
+    !var @v2; 
     ...
 }
 ```
@@ -183,14 +183,13 @@ usage of the same variables.
 ```java
 // main.bb
 !namespace dims {
-    var x;
-    var y;
+    !var x;
+    !var y;
 }
 !namespace main {
-    var x;
-    var y;
+    !var x;
+    !var y;
 }
-
 
 !include { // keep the namespace activation compartmenized here
     !with dims: // subsequent x and y are now dims::x and dims::y 

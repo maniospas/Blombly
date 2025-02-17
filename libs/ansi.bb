@@ -1,21 +1,21 @@
 !namespace colors {
-    var black;
-    var red;
-    var green;
-    var yellow;
-    var blue;
-    var purple;
-    var cyan;
-    var white;
-    var lightblack;
-    var lightred;
-    var lightgreen;
-    var lightyellow;
-    var lightblue;
-    var lightpurple;
-    var lightcyan;
-    var lightwhite;
-    var reset;
+    !var black;
+    !var red;
+    !var green;
+    !var yellow;
+    !var blue;
+    !var purple;
+    !var cyan;
+    !var white;
+    !var lightblack;
+    !var lightred;
+    !var lightgreen;
+    !var lightyellow;
+    !var lightblue;
+    !var lightpurple;
+    !var lightcyan;
+    !var lightwhite;
+    !var reset;
 }
 
 !with colors:

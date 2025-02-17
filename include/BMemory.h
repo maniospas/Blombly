@@ -43,6 +43,7 @@ class VariableManager {
 private:
     tsl::hopscotch_map<std::string, int> registeredSymbols;
     tsl::hopscotch_map<int, std::string> registeredIds;
+    tsl::hopscotch_set<int> retainInStruct;
 public:
     static constexpr int thisId = 0;
     static constexpr int argsId = 1;
@@ -147,6 +148,8 @@ public:
         return registeredSymbols[symbol];
     }
     const std::string getSymbol(int id) {return registeredIds[id];}
+    const bool getIdRetain(int symbol) const {return retainInStruct.find(symbol) != retainInStruct.end();}
+    void setIdRetain(int symbol) {retainInStruct.insert(symbol);}
 };
 
 class BMemory {
