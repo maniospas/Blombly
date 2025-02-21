@@ -1049,6 +1049,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             auto returnedValue = executor.run(code);
             result = returnedValue.get();
             newMemory.await();
+            DataPtr args = newMemory.getOrNullShallow(variableManager.argsId);
+            if(args.existsAndTypeEquals(LIST) && static_cast<BList*>(args.get())->len(&newMemory)) bberror("The function was successfully called but there are "+std::to_string(static_cast<BList*>(args.get())->len(&newMemory))+" leftover args");
             DISPATCH_COMPUTED_RESULT;
         }
         else { 

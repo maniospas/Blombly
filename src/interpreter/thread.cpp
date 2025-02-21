@@ -18,6 +18,7 @@
 #include "data/Future.h"
 #include "interpreter/functional.h"
 #include "data/Struct.h"
+#include "data/List.h"
 
 
 void threadExecute(unsigned int depth,
@@ -43,6 +44,11 @@ void threadExecute(unsigned int depth,
             returnedValue.result = Result(DataPtr::NULLP);
         }
         result->value = Result(returnedValue.get());
+        memory->await();
+
+
+        DataPtr args = memory->getOrNullShallow(variableManager.argsId);
+        if(args.existsAndTypeEquals(LIST) && static_cast<BList*>(args.get())->len(memory)) bberror("The function was successfully called but there are "+std::to_string(static_cast<BList*>(args.get())->len(memory))+" leftover args");
 
     } 
     catch (const BBError& e) {result->value = Result(new BError(enrichErrorDescription(*command, e.what())));}

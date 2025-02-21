@@ -42,10 +42,10 @@ Graphics::Graphics(const std::string& title, int width, int height) : Data(GRAPH
     }
     color = {255, 255, 255, 255};
     
-    typeVariable = variableManager.getId("graphics::type");
-    keyVariable = variableManager.getId("graphics::key");
-    xVariable = variableManager.getId("graphics::x");
-    yVariable = variableManager.getId("graphics::y");
+    typeVariable = variableManager.getId("io::type");
+    keyVariable = variableManager.getId("io::key");
+    xVariable = variableManager.getId("io::x");
+    yVariable = variableManager.getId("io::y");
 
     keyUpString = new BString("key::up");
     keyDownString = new BString("key::down");

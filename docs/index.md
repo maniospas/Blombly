@@ -145,9 +145,9 @@
                 dt = 0;
                 prev_t = time();
                 while(events as g|pop) {
-                    while(event in events) if(event.graphics::type=="key::down") {
-                        if(event.graphics::key=="A") logo.angle -= 360*dt;
-                        if(event.graphics::key=="D") logo.angle += 360*dt;
+                    while(event in events) if(event.io::type=="key::down") {
+                        if(event.io::key=="A") logo.angle -= 360*dt;
+                        if(event.io::key=="D") logo.angle += 360*dt;
                     }
                     g << logo.texture();
                     dt = time()-prev_t;

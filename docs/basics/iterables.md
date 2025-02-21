@@ -32,9 +32,9 @@ print(A[range(1,3)]);
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
 > <span style="color: cyan;">./blombly</span> main.bb
-[100, 2, 3, 4]
+(100, 2, 3, 4)
 4
-[2, 3]
+(2, 3)
 </pre>
 
 You may initialize lists based on one element like below.
@@ -103,7 +103,7 @@ print((1,2,3)+(4,5));
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
 > <span style="color: cyan;">./blombly</span> main.bb
-[1,2,3,4,5]
+(1,2,3,4,5)
 </pre>
 
 !!! tip
@@ -161,16 +161,22 @@ Original length 3
 Length after iteration 3
 </pre>
 
-## Ranges
+## Ranges and random
 
 Blombly provides ranges that go through a specified set
 of numbers. Like other iterators, ranges are only consumed once and need to be created anew to be
-repeated. There are four construction patterns for them.
+repeated. There are four construction patterns shown below. You can also
+construct an iterator that produces random numbers ad infinitum per `random(seed)` where the seed 
+is either an int or a float. Those numbers will be in the range `[0,1]`. 
 
-- `range(int end)` creates a range from `0` up to `end-1` and step `1`.
-- `range(int start, int end)` starts from the newly specified number.
-- `range(int start, int end, int step)` is similar, where the step with which values increase is also specified.
-- `range(float start, float end, float step)` also handles real numbers or a mixture of real numbers and integers instead of only integers (there will be an error otherwise)
+| Function Signature                          | Description |
+|---------------------------------------------|-------------|
+| `range(int end)`                            | Creates a range from `0` up to `end-1` with a step of `1`. |
+| `range(int start, int end)`                 | Starts from the specified `start` number and goes up to `end-1`. |
+| `range(int start, int end, int step)`       | Similar to the previous version but allows specifying the step size. |
+| `range(float start, float end, float step)` | Supports real numbers or a mix of real and integer numbers (error otherwise). |
+| `random(seed)` | Generates uniformly random numbers in the range `[0,1]`. |
+
 
 Negative steps are also allowed. Below is a demonstration.
 
@@ -192,7 +198,7 @@ while(i as it|next) print(i);
 ## Vectors
 
 Vectors correspond collections to consecutive float values. They differ from lists
-in that they hold floats and have a fixed size. This known information is leveraged
+in that they hold only floats and have a fixed size. This known information is leveraged
 to provide performant implementations of scientific computations.
 
 <br>
@@ -216,7 +222,26 @@ print(z);
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
 > <span style="color: cyan;">./blombly</span> main.bb
-[1.000000, 2.000000, 5.000000] 
+(1.000000, 2.000000, 5.000000)
+</pre>
+
+
+Convert any iterable to a vector with the above syntax, provided that it contains only floats.
+Initialize vectors of zero elements or -for even faster allocation-
+no set values. This is done like below:
+
+```java
+zeros = vector::zero(1000);
+print(zeros|len, zeros|sum);
+
+unset = vector::alloc(1000); // this has memory garbage
+print(unset|len, unset|sum);
+```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+(1000, 0.000000)
+(1000, 235856725974...)
 </pre>
 
 

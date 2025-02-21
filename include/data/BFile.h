@@ -35,8 +35,8 @@ private:
     std::string username;
     std::string password;
     long timeout = 0;
-    mutable std::recursive_mutex memoryLock;
 public:
+    mutable std::recursive_mutex memoryLock;
     explicit BFile(const std::string& path_);
 
     std::string toString(BMemory* memory)override;

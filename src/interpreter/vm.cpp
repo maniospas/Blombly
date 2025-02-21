@@ -583,10 +583,13 @@ void preliminarySimpleChecks(std::vector<Command>* program) {
         if(command.operation==SETFINAL && command.args.size()>2)  symbolDefinitions.insert(command.args[1]);
         if(command.operation==SETFINAL && command.args.size()>3)  symbolDefinitions.insert(command.args[2]);
     }
-    symbolDefinitions.insert(variableManager.getId("graphics::key"));
-    symbolDefinitions.insert(variableManager.getId("graphics::type"));
-    symbolDefinitions.insert(variableManager.getId("graphics::x"));
-    symbolDefinitions.insert(variableManager.getId("graphics::y"));
+    symbolDefinitions.insert(variableManager.getId("io::key"));
+    symbolDefinitions.insert(variableManager.getId("io::type"));
+    symbolDefinitions.insert(variableManager.getId("io::x"));
+    symbolDefinitions.insert(variableManager.getId("io::y"));
+    symbolDefinitions.insert(variableManager.getId("io::username"));
+    symbolDefinitions.insert(variableManager.getId("io::password"));
+    symbolDefinitions.insert(variableManager.getId("io::timeout"));
     symbolDefinitions.insert(variableManager.getId("server::uri"));
     symbolDefinitions.insert(variableManager.getId("server::query"));
     symbolDefinitions.insert(variableManager.getId("server::method"));

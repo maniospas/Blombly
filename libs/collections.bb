@@ -1,3 +1,7 @@
+!macro {.io::username} as {["username"]}
+!macro {.io::password} as {["password"]}
+!macro {.io::timeout} as {["timeout"]}
+
 collection = new {
     toback(element) => new {
         call(A) = {

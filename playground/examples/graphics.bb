@@ -30,11 +30,11 @@ while(events as g|pop) {
     g << fps,font,12,800-42,600-20,0;
 
     // process events
-    while(event in events) if(event.graphics::type=="key::down") {
-        if(event.graphics::key=="W") logo.speedy -= 1;
-        if(event.graphics::key=="S") logo.speedy += 1;
-        if(event.graphics::key=="A") logo.speedx -= 1;
-        if(event.graphics::key=="D") logo.speedx += 1;
+    while(event in events) if(event.io::type=="key::down") {
+        if(event.io::key=="W") logo.speedy -= 1;
+        if(event.io::key=="S") logo.speedy += 1;
+        if(event.io::key=="A") logo.speedx -= 1;
+        if(event.io::key=="D") logo.speedx += 1;
     }
     
     // update fps

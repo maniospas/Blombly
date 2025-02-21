@@ -232,7 +232,7 @@ Response time: 0.319413 sec
 ## Authentication
 
 For web resources, you can set authentication and timeout parameters
-with element set notation. Once set, these parameters cannot
+with a notation similar to setting struct fields. Once set, these parameters cannot
 be retrieved and do not appear in any error messages.
 Below is an example, in which set username and password with credentials from
 [sftpcloud's](https://sftpcloud.io/tools/free-ftp-server) free SFTP server - create
@@ -242,21 +242,21 @@ a testing server for one hour with just a click and without logging in.
 !modify "sftp://"
 
 // new server for 1 hour at: https://sftpcloud.io/tools/free-ftp-server
-username = "username";
-password = "password";
+username = "myusername";
+password = "mypassword";
 
 // create file from sftp
 sftp = "sftp://eu-central-1.sftpcloud.io/test_file"|file;
-sftp["username"] = username;
-sftp["password"] = password; 
-sftp["timeout"] = 10;
+sftp.io::username = username;
+sftp.io::password = password; 
+sftp.io::timeout = 10;
 sftp << "Transferred data.";
 
 // retrieve file from sftp
 sftp = "sftp://eu-central-1.sftpcloud.io/test_file"|file;
-sftp["username"] = username;
-sftp["password"] = password; 
-sftp["timeout"] = 10;
+sftp.io::username = username;
+sftp.io::password = password; 
+sftp.io::timeout = 10;
 print(ftp|bb.string.join("\n"));
 ```
 
@@ -264,6 +264,12 @@ print(ftp|bb.string.join("\n"));
 > <span style="color: cyan;">./blombly</span> main.bb 
 Transferred data.
 </pre>
+
+!!! info
+    Resources do not accept the struct field set notation but only 
+    map set notation. Field-like notation
+    is made available through standard library macros, for example to 
+    replace `.io::timeout` with `["timeout"]`.
 
 
 
@@ -467,11 +473,11 @@ while(events as g|pop) {
     g << fps,font,12,800-42,600-20,0;
 
     // process events
-    while(event in events) if(event.graphics::type=="key::down") {
-        if(event.graphics::key=="W") logo.speedy -= 1;
-        if(event.graphics::key=="S") logo.speedy += 1;
-        if(event.graphics::key=="A") logo.speedx -= 1;
-        if(event.graphics::key=="D") logo.speedx += 1;
+    while(event in events) if(event.io::type=="key::down") {
+        if(event.io::key=="W") logo.speedy -= 1;
+        if(event.io::key=="S") logo.speedy += 1;
+        if(event.io::key=="A") logo.speedx -= 1;
+        if(event.io::key=="D") logo.speedx += 1;
     }
     
     // update fps

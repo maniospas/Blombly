@@ -6,5 +6,5 @@ bb.sci.vector(it) = {
     return vector(values);
 }
 
-x = bb.sci.vector(random(42));
+x = bb.sci.vector(random(42) :: n=10);
 print(x);
