@@ -45,6 +45,7 @@ std::mutex ownershipMutex;
 std::recursive_mutex printMutex;
 std::recursive_mutex compileMutex;
 BMemory cachedData(0, nullptr, 32);
+extern BError* OUT_OF_RANGE;
 
 std::string replaceEscapeSequences(const std::string& input) {
     std::string output;
@@ -188,6 +189,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         &&DO_ZEROVECTOR,
         &&DO_ALLOCVECTOR,
         &&DO_LISTELEMENT,
+        &&DO_GATHER
     };
     DISPATCH(command.operation);
     #else
@@ -266,6 +268,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         case 71: goto DO_ZEROVECTOR;                         \
         case 72: goto DO_ALLOCVECTOR;                        \
         case 73: goto DO_LISTELEMENT;                        \
+        case 74: goto DO_GATHER;                             \
         default: throw std::runtime_error("Invalid operation");  \
     }
     #endif
@@ -810,6 +813,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             DISPATCH_OUTCOME(returnedValue.get());
         }
         catch (const BBError& e) {
+            thisObj->removeFromOwner();
             // here we interrupt exceptions thrown during new statements, which would leak the memory being created normally
             handleExecutionError(program[i], e);
         }
@@ -822,7 +826,31 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         arg0 = memory.get(id1);
         if(arg0.existsAndTypeEquals(LIST)) DISPATCH_RESULT(arg0);
         if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
-        bberror("`list` can only be cast from another list. Use `list::element` to create a list of single element, or explicit parentheses if you want to create a list as a function argument like `foo((1,2))`.");
+        bberror("`list` can only be cast from another list or be created from no arguments. Use `list::gather` to create a list from an iterator, `list::element` to create a list of single element, or explicit parentheses if you want to create a list as a function argument like `foo((1,2))`.");
+    }
+    DO_GATHER: {
+        int id1 = command.args[1];
+        arg0 = memory.get(id1);
+        if(arg0.existsAndTypeEquals(LIST)) bberror("`list::gather(A)` for list A is not allowed, as this would consume A. Use `list::gather(A|iter)` to copy the list or `A|move` to consume and transfer its contents.");
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
+        if(!arg0.exists()) bberror("`list::gather(A)` is not available for literals A. Maybe you meant to use `list::element(A)` to create a list of one element?");
+        
+        Data* it = static_cast<Data*>(arg0.get());
+        BList* ret = new BList();
+        try {
+            Result next = it->next(&memory);
+            while(next.get().get()!=OUT_OF_RANGE) {
+                if(next.get().existsAndTypeEquals(ERRORTYPE)) bberror(next.get().get()->toString(nullptr));
+                next.get().existsAddOwner();
+                ret->contents.push_back(next.get());
+                next = it->next(&memory);
+            }
+        }
+        catch (const BBError& e) {
+            delete ret;
+            throw e;
+        }
+        DISPATCH_RESULT(ret);
     }
     DO_TOMAP: {
         int n = command.nargs;

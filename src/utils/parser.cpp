@@ -654,7 +654,7 @@ public:
                                     || semitype=="vector" || semitype=="iter"
                                     || semitype=="vector::zero" || semitype=="vector::consume" 
                                     || semitype=="vector::alloc" || semitype=="list::element"
-                                    || semitype=="_bbmap::reserved" || semitype=="_bbmap::reserved"
+                                    || semitype=="list::gather" || semitype=="list::gather"
                                     || semitype=="file" || semitype=="clear" || semitype=="move" 
                                     || semitype=="bbvm::float" || semitype=="bbvm::int" || semitype=="bbvm::str" || semitype=="bbvm::bool" || semitype=="bbvm::iter"
                                     || semitype=="bbvm::list" || semitype=="bbvm::vector" || semitype=="bbvm::file" || semitype=="bbvm::clear" || semitype=="bbvm::move" )
@@ -870,7 +870,7 @@ public:
                                     || semitype=="vector" || semitype=="iter"
                                     || semitype=="vector::zero" || semitype=="vector::consume" 
                                     || semitype=="vector::alloc" || semitype=="list::element"
-                                    || semitype=="_bbmap::reserved" || semitype=="_bbmap::reserved"
+                                    || semitype=="list::gather" || semitype=="list::gather"
                                     || semitype=="clear" || semitype=="move" || semitype=="file" 
                                     || semitype=="bbvm::float" || semitype=="bbvm::int" || semitype=="bbvm::str" || semitype=="bbvm::bool" || semitype=="bbvm::iter"
                                     || semitype=="bbvm::list" || semitype=="bbvm::vector" || semitype=="bbvm::file"
@@ -1172,7 +1172,7 @@ public:
                 first_name == "vector"
                 || first_name=="vector::zero" || first_name=="vector::consume" 
                 || first_name=="vector::alloc" || first_name=="list::element"
-                || first_name=="_bbmap::reserved" || first_name=="_bbmap::reserved") {
+                || first_name=="list::gather" || first_name=="list::gather") {
                 bbassert(tokens[start + 1].name == "(", "Missing '(' just after '" + first_name+"'.\n"+show_position(start+1));
                 if (start + 1 >= end - 1 && (first_name == "map" || 
                                              first_name == "list")) {
@@ -1258,7 +1258,7 @@ public:
                     callable == "vector" || callable == "iter" 
                     || callable=="vector::zero" || callable=="vector::consume" 
                     || callable=="vector::alloc" || callable=="list::element"
-                    || callable=="_bbmap::reserved" || callable=="_bbmap::reserved" ||
+                    || callable=="list::gather" || callable=="list::gather" ||
                     callable == "add" || callable == "sub" || 
                     callable == "min" || callable == "max" || 
                     callable == "sum" || 

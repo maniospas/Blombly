@@ -25,6 +25,7 @@
 
 extern std::vector<SymbolWorries> symbolUsage;
 extern std::mutex ownershipMutex;
+extern BError* OUT_OF_RANGE;
 
 Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory) {
     BMemory* mem;
@@ -116,8 +117,16 @@ BMemory* Struct::getMemory() const {return memory;}
 
 
 Result Struct::push(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structPush, scopeMemory, other); }
-Result Struct::pop(BMemory* scopeMemory) { return simpleImplement(variableManager.structPop, scopeMemory); }
-Result Struct::next(BMemory* scopeMemory) { return simpleImplement(variableManager.structNext, scopeMemory); }
+Result Struct::pop(BMemory* scopeMemory) { 
+    auto ret = simpleImplement(variableManager.structPop, scopeMemory); 
+    if(!ret.get().islitorexists()) return Result(OUT_OF_RANGE);
+    return ret;
+}
+Result Struct::next(BMemory* scopeMemory) { 
+    auto ret = simpleImplement(variableManager.structNext, scopeMemory); 
+    if(!ret.get().islitorexists()) return Result(OUT_OF_RANGE);
+    return ret;
+}
 Result Struct::at(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structAt, scopeMemory, other); }
 
 Result Struct::put(BMemory* scopeMemory, const DataPtr& position, const DataPtr& value) {

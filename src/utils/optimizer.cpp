@@ -188,6 +188,7 @@
                  || command->args[1]=="eq"
                  || command->args[1]=="neq"
                  || command->args[1]=="clear"
+                 || command->args[1]=="next"
                  || command->args[1]=="push"
                  || command->args[1]=="move"
                  || command->args[1]=="call"

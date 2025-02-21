@@ -320,6 +320,7 @@ void BMemory::runFinally() {
         try {
             ExecutionInstance executor(depth, code, this, true); // everything deferred runs after all threads have been synchronized, so stay in thread (last true argument)
             auto returnedValue = executor.run(code);
+            if(returnedValue.get().existsAndTypeEquals(ERRORTYPE)) bberror(returnedValue.get().get()->toString(nullptr));
             bbassert(!returnedValue.returnSignal, "Cannot return a value from within `defer`");
         }
         catch (const BBError& e) {

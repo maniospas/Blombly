@@ -99,8 +99,8 @@ Result BList::add(BMemory* memory, const DataPtr& other_) {
 }
 
 Result BList::push(BMemory* memory, const DataPtr& other) {
+    if(other.existsAndTypeEquals(ERRORTYPE)) bberror(other->toString(nullptr));
     bbassert(other.islitorexists(), "Cannot push a missing value to a list");
-    if(other.existsAndTypeEquals(ERRORTYPE)) other->toString(nullptr);
     other.existsAddOwner();
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     contents.emplace_back(other);

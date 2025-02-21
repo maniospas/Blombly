@@ -23,6 +23,17 @@
     }
 }
 
+!macro {!gather(@value,@operation){@block}} as {
+    new{
+        !include {
+            !local{yield @@symbol;} as {@var @operation @@symbol;}
+            @var=@value; 
+            @block 
+        }
+        return @var;
+    }
+}
+
 // include after core language definitions
 final bb = new {
     !include "bb://libs/ansi"
