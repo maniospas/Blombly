@@ -264,7 +264,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         case 67: goto DO_TOSQLITE;                               \
         case 68: goto DO_TOGRAPHICS;                             \
         case 69: goto DO_RANDOM;                             \
-        case 70; goto DO_RANDVECTOR;                         \
+        case 70: goto DO_RANDVECTOR;                         \
         case 71: goto DO_ZEROVECTOR;                         \
         case 72: goto DO_ALLOCVECTOR;                        \
         case 73: goto DO_LISTELEMENT;                        \

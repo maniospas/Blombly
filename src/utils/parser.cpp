@@ -214,9 +214,7 @@ private:
         return pos;
     }
 public:
-    const std::string& get() const {
-        return ret;
-    }
+    const std::string& get() const {return ret;}
     Parser(const std::vector<Token>& tokens) : tokens(tokens) {}
     std::string create_temp() {
         std::string ret = "_bb" + std::to_string(tmp_var);
@@ -258,9 +256,7 @@ public:
         return expr;
     }
 
-    std::string show_position(int pos) const {
-        return show_position(tokens, pos);
-    }
+    std::string show_position(int pos) const {return show_position(tokens, pos);}
 
     static std::string show_position(const std::vector<Token>& tokens, size_t pos) {
         std::string expr;
@@ -328,11 +324,9 @@ public:
     }
 
     void breakpoint(int start, int end) {
-        if(!debug_info)
-            return;
+        if(!debug_info) return;
         std::string comm = to_string(start, end);
-        if(comm.size()>40)
-            comm.resize(40);
+        if(comm.size()>40) comm.resize(40);
         ret += "%"+comm+" //"+tokens[start].file.back()+" line "+std::to_string(tokens[start].line.back())+"\n";
     }
 
@@ -348,8 +342,7 @@ public:
                       "Expression cannot start with `#`.\n   \033[33m!!!\033[0m "
                       "This symbol is reserved for preprocessor directives "
                       "and should have been eliminated.\n"+show_position(start));
-            if (is_final)
-                start += 1;
+            if (is_final) start += 1;
             bbassert(start <= end, "Empty final expression");
             bbassert(tokens[start].name != "#", 
                       "Expression cannot start with `#`.\n   \033[33m!!!\033[0m "
@@ -462,10 +455,8 @@ public:
                     }
                     std::string endvar = create_temp();
                     ret += "BEGIN " + endvar + "\n";
-                    if (tokens[body_end + 1].name == "{")
-                        parse(body_end + 2, else_end - 1);
-                    else
-                        parse(body_end + 1, else_end);
+                    if (tokens[body_end + 1].name == "{") parse(body_end + 2, else_end - 1);
+                    else parse(body_end + 1, else_end);
                     ret += "END\n";
                     bodyvar += " " + endvar;
                     body_end = else_end;
@@ -2284,9 +2275,8 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                             if (token.name[0] == '@') {
                                 for (const auto& rep_token : replacement[token.name])
                                     newTokens.emplace_back(rep_token.name, tokens[i].file, tokens[i].line, rep_token.file, rep_token.line, rep_token.printable);
-                            } else {
-                                newTokens.emplace_back(token.name, tokens[i].file, tokens[i].line, token.file, token.line, token.printable);
-                            }
+                            } 
+                            else newTokens.emplace_back(token.name, tokens[i].file, tokens[i].line, token.file, token.line, token.printable);
                         }
                         tokens.erase(tokens.begin() + i, tokens.begin() + k);
 
@@ -2302,9 +2292,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     }
                 }
             }
-            if (!macro_found) {
-                updatedTokens.push_back(tokens[i]);
-            }
+            if (!macro_found) updatedTokens.push_back(tokens[i]);
         }
     }
 
