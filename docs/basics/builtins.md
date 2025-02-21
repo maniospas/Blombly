@@ -25,12 +25,12 @@ Hello world!
 
 ## Scopes
 
-Scopes refer to isolated execution contexts. Each program starts from one initial scope, and 
+Scopes refer to isolated execution contexts. Each program starts from a global scope, and 
 new ones are entered when creating structs or calling functions.
-Assign values to variables per `@var = @value;`, which also creates the variables if they do not already exist. 
+Assign values to variables per `@var = @value;`. This also creates the variables if they do not already exist. 
 Subsequent code can normally overwrite those values, but prepend the `final` keyword to their last assignment
 to make them immutable. This prevents overwrites by subsequent code
-and exposes the variables to functions spawned in the scope.
+and exposes the variables to running functions.
 For now, consider immutability as a code safety feature. 
 Below is what invalidation looks like, but keep in mind that the same symbols can be written anew in new scopes.
 
@@ -64,7 +64,7 @@ There are several builtin data types that are directly incorporated in the langu
 Exhaustively, these are `int`, `float`, `bool`, `str`, `list`, `vector`, `map`, `iter`, `code`, `struct`, `file`, `server`, `sqlite`, `graphics`, 
 `error`. Here we start with the first four, and split the rest to dedicated pages.
 Some well-known operations are implemented, computed as one might have come to learn from other programming
-languages. Only difference to usual practices the existence of `as` assignments (more details later), and that element access
+languages. Only differences to usual practices are the existence of `as` assignments (more details later), and that element access
 is overloaded by some data types. For example, format a float to a string of three decimal digits per `x[".3f"]`.
 
 <details>

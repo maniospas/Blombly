@@ -38,30 +38,29 @@ print(A[range(1,3)]);
 </pre>
 
 You may initialize lists based on one element like below.
-This notation in general converts data to lists (and 
-can be overloaded by structs) which means that
-you may have more elements in the parenthesis without 
-issue if you want to write verbose code.
+This notation in general converts data to lists of one element.
+Otherwise, using a list a semit-type forces a conversion from
+other iterables.
 
-For out-of-bounds indexes, an error will be created when 
-trying to set to them, and a missing value is returned when trying
-to access them. 
-This way, they create errors unless the `as` assignment is 
-used to check for validity if list size is unknown.
-Since it is impossible to have missing values within lists,
-returned missing values always correspond to missing
-invalid positions.
+<br>
+
+An error is returned from functions that write on out-of-bounds
+elements, and a missing value error is returned when trying
+to access such elements. 
+Use the `as` assignment to check for validity if list size is unknown,
+as errors are returned from functions that would add errors
+to lists instead of doing so.
 
 ```java
 // main.bb
-A = list(5);
+A = list::element(5);
 print(A);
 A[3] = 0; // CREATES AN ERROR
 ```
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
 > <span style="color: cyan;">./blombly</span> main.bb
-[5] 
+(5) 
 (<span style="color: red;"> ERROR </span>) Out of range
    <span style="color: lightblue;">→</span>  A[3]=0                                              main.bb line 4
 </pre>
