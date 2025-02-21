@@ -8,6 +8,7 @@ test("Range")      {!include "tests/range"}
 test("Iteration")  {!include "tests/iter"}
 test("Map")        {!include "tests/map"}
 test("Vector")     {!include "tests/vector"}
+test("Gather")     {!include "tests/gather"}
 test("Overload")   {!include "tests/overload"}
 test("Func call")  {!include "tests/calls"}
 test("Sideerrors") {!include "tests/sideerrors"}

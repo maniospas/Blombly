@@ -17,8 +17,8 @@
 !macro {!nameless {@generator}} as {
     {
         !include {
-            !namespace @newnamespace {@generator}
-            !with @newnamespace:
+            !local {!var @@symbol;} as {!local{@@symbol} as {!symbol(@name :: @@symbol)}}
+            @generator
         }
     }
 }
@@ -26,7 +26,7 @@
 !macro {!gather(@value,@operation){@block}} as {
     new{
         !include {
-            !local{yield @@symbol;} as {@var @operation @@symbol;}
+            !local{return @@symbol;} as {@var @operation @@symbol;}
             @var=@value; 
             @block 
         }

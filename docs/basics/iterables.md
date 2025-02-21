@@ -65,7 +65,7 @@ A[3] = 0; // CREATES AN ERROR
    <span style="color: lightblue;">→</span>  A[3]=0                                              main.bb line 4
 </pre>
 
-## Len changes
+**Modifying len**
 
 The above examples do not modify lists during execution.
 To extract data while removing them from lists use the `next` and `pop` operators
@@ -91,6 +91,7 @@ while(a as A|next) print(a);
 </pre>
 
 
+**Concatenation**
 
 Cconcatenate lists to leave the originals intact, like below.
 
@@ -139,6 +140,8 @@ while(i as it|next) print(i);
     through is modified, for example by adding, changing, or removing elements. The iterator
     may miss parts of the modifications it has already traversed through.
 
+**in**
+
 The blombly compiler preloads a couple of common [macros](../advanced/preprocessor.md) in `libs/.bb`.
 The important part for iterables is that an `in` operator
 is provided. This preconstructs an iterator from any given data type
@@ -160,7 +163,31 @@ Original length 3
 Length after iteration 3
 </pre>
 
-## Ranges and random
+<br>
+
+**!gather**
+
+A second macro designed for comprehensive iterable manipulation is `!gather(@init, @aggregate) {@body}`. 
+The exclamation mark is treated as a normal character and is purely cosmetic, but
+it lets you know that the macro affects control flow. This macro contains an
+initialization statement, a binary self-modification operator that is applied on
+every new element, and a body whose return statements are modified to signify what
+is gathered. Here is an example of how to filter through an iterable's elements:
+
+
+```java
+A = 1,2,3,4,5,6;
+B = !gather(list(),<<) {while(x in A) if(x%2==0) return x;}
+print(B);
+```
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+(2,4,6)
+</pre>
+
+
+
+## Ranges
 
 Blombly provides ranges that go through a specified set
 of numbers. Like other iterators, ranges are only consumed once and need to be created anew to be
@@ -174,7 +201,7 @@ is either an int or a float. Those numbers will be in the range `[0,1]`.
 | `range(int start, int end)`                 | Starts from the specified `start` number and goes up to `end-1`. |
 | `range(int start, int end, int step)`       | Similar to the previous version but allows specifying the step size. |
 | `range(float start, float end, float step)` | Supports real numbers or a mix of real and integer numbers (error otherwise). |
-| `random(seed)` | Generates uniformly random numbers in the range `[0,1]`. |
+| `random(seed)` | Generates an iterator that yields uniformly random numbers in the range `[0,1]`. |
 
 
 Negative steps are also allowed. Below is a demonstration.
@@ -225,9 +252,12 @@ print(z);
 </pre>
 
 
+**Direct allocation**
+
 Convert any iterable to a vector with the above syntax, provided that it contains only floats.
 Initialize vectors of zero elements or -for even faster allocation-
-no set values. This is done like below:
+no set values. This is done like below. Recall that `::` is treated as a normal name character
+by the language.
 
 ```java
 zeros = vector::zero(1000);
