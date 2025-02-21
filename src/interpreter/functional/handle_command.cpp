@@ -478,7 +478,16 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         arg0 = memory.get(id1);
         if(arg0.existsAndTypeEquals(VECTOR)) DISPATCH_RESULT(arg0);
         if(arg0.existsAndTypeEquals(LIST)) DISPATCH_RESULT(static_cast<BList*>(arg0.get())->toVector(&memory));
-        if(arg0.isint()) bberror("Missing operation: vector(int). Did you mean one of: `vector::zero(int)`, `vector::alloc(int)` or `vector::random(int)`.");
+        /*if(arg0.existsAndTypeEquals(ITERATOR)) {
+            if(command.args.size()>2) {
+                int id2 = command.args[2];
+                arg1 = memory.get(id2);
+                bbassert(arg1.isint(), "vector(iter, int) did not have an int second argument");
+                DISPATCH_RESULT(static_cast<Iterator*>(arg0.get())->toVector(&memory, arg1.unsafe_toint()));
+            }
+            DISPATCH_RESULT(static_cast<Iterator*>(arg0.get())->toVector(&memory));
+        }*/
+        if(arg0.isint()) bberror("Missing operation: vector(int). Did you mean one of: `vector::zero(int)`, `vector::alloc(int)` or `vector(iter, int)`.");
         if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
         bberror("Only lists or vectors can be casted to vector.");
     }
@@ -1085,8 +1094,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             || carg==variableManager.noneId 
             || command.operation==RETURN) {
             std::string err = enrichErrorDescription(program[i], e.what());
-            if(command.operation!=FAIL) err += "\n\033[0m(\033[33m FATAL \033[0m) This kind of error is returned immediately\033[0m";
-            else err += "\n\033[0m(\033[33m FATAL \033[0m) This kind of error is returned immediately\033[0m";
+            if(command.operation!=FAIL) err += "\n    \033[33m !!! \033[0mAt this point, the error is returned instead of having a hidden side-effect\033[0m";
+            else err += "\n    \033[33m !!! \033[0mAt this point, the error is returned instead of having a hidden side-effect\033[0m";
             BError* berror = new BError(std::move(err));
             berror->consume();
             result = DataPtr(berror);

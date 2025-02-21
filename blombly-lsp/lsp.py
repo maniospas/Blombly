@@ -20,7 +20,6 @@ def completions(ls, params):
     current_string_prefix = ""
     string_token_start = None
 
-    #if line_num < len(lines):
     for start, text, ttype in tokenize_line(lines[line_num], include_symbols=True):
         if ttype == 0 and start <= char_num <= start + len(text):
             is_in_string = True

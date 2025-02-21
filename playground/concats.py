@@ -1,7 +1,7 @@
 import time
 tic = time.time()
-text = "I like banana"
-for i in range(300000):
-    result = text.startswith("banana")
-print(result)
+text = ""
+for i in range(100000):
+    text += "abc"
+print(len(text))
 print(time.time() - tic)

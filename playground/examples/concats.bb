@@ -1,9 +1,8 @@
 tic = time();
 
-text = "I like banana";
-applied = bb.string.starts("I like");
-while(i in range(300000)) result = text|applied;
+result = "";
+while(i in range(100000)) result += "abc";
 
-print(result);
+print(result|len, result[result|len-1]);
 
 print(time()-tic);

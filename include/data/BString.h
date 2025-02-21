@@ -22,31 +22,14 @@
 #include "data/Data.h"
 #include <mutex>
 
-class BufferedString {
-public:
-    std::string value;
-    size_t start;
-    size_t size;
-    explicit BufferedString(const std::string& val) : value(val), start(0), size(val.size()) {}
-    explicit BufferedString(const std::string& val, size_t start, size_t size) : value(val), start(start), size(size) {
-        bbassert(start>=0, "Internal error: negative start index at BufferedString");
-        bbassert(size<=val.size(), "Internal error: out of bounds at BufferedString");
-    }
-};
-
 
 class BString : public Data {
 private:
-    std::vector<std::shared_ptr<BufferedString>> buffer;
-    void consolidate();
-    size_t size;
+    std::string contents;
     explicit BString();
-    mutable std::recursive_mutex memoryLock; 
     std::string& toString();
-
 public:
     explicit BString(const std::string& val);
-    
     bool isSame(const DataPtr& other) override;
     Result eq(BMemory *memory, const DataPtr& other) override;
     Result neq(BMemory *memory, const DataPtr& other) override;

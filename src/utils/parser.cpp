@@ -652,7 +652,7 @@ public:
                                 std::string semitype = tokens[jj].name;
                                 if(semitype=="float" || semitype=="int" || semitype=="str" || semitype=="bool" || semitype=="list" 
                                     || semitype=="vector" || semitype=="iter"
-                                    || semitype=="vector::zero" || semitype=="vector::random" 
+                                    || semitype=="vector::zero" || semitype=="vector::consume" 
                                     || semitype=="vector::alloc" || semitype=="list::element"
                                     || semitype=="_bbmap::reserved" || semitype=="_bbmap::reserved"
                                     || semitype=="file" || semitype=="clear" || semitype=="move" 
@@ -868,7 +868,7 @@ public:
                                 std::string semitype = tokens[jj].name;
                                 if(semitype=="float" || semitype=="int" || semitype=="str" || semitype=="bool" || semitype=="list" 
                                     || semitype=="vector" || semitype=="iter"
-                                    || semitype=="vector::zero" || semitype=="vector::random" 
+                                    || semitype=="vector::zero" || semitype=="vector::consume" 
                                     || semitype=="vector::alloc" || semitype=="list::element"
                                     || semitype=="_bbmap::reserved" || semitype=="_bbmap::reserved"
                                     || semitype=="clear" || semitype=="move" || semitype=="file" 
@@ -1170,7 +1170,7 @@ public:
                 first_name == "list" || first_name == "map" || 
                 first_name == "server" || first_name == "sqlite" || first_name == "graphics" || 
                 first_name == "vector"
-                || first_name=="vector::zero" || first_name=="vector::random" 
+                || first_name=="vector::zero" || first_name=="vector::consume" 
                 || first_name=="vector::alloc" || first_name=="list::element"
                 || first_name=="_bbmap::reserved" || first_name=="_bbmap::reserved") {
                 bbassert(tokens[start + 1].name == "(", "Missing '(' just after '" + first_name+"'.\n"+show_position(start+1));
@@ -1256,7 +1256,7 @@ public:
                     || callable == "push" || callable == "random" || 
                     callable == "len" || callable == "next" || 
                     callable == "vector" || callable == "iter" 
-                    || callable=="vector::zero" || callable=="vector::random" 
+                    || callable=="vector::zero" || callable=="vector::consume" 
                     || callable=="vector::alloc" || callable=="list::element"
                     || callable=="_bbmap::reserved" || callable=="_bbmap::reserved" ||
                     callable == "add" || callable == "sub" || 

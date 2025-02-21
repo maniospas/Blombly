@@ -55,7 +55,7 @@ static const std::string OperationTypeNames[] = {
     "call", "while", "if", "new", "print", "inline", "get", "set", "setfinal", "default",
     "time", "iter", "do", "catch", "fail", "exists", "read", "server", "AS", "range",
     "defer", "clear", "move", "ISCACHED", "sqlite", "graphics", "random",
-    "vector::random", "vector::zero", "vector::alloc", "list::element"
+    "vector::consume", "vector::zero", "vector::alloc", "list::element"
 };
 
 void initializeOperationMapping();

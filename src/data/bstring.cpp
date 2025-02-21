@@ -47,38 +47,17 @@ inline std::string calculateHash(const std::string& input, const EVP_MD* (*hash_
     return hex_stream.str();
 }
 
-void BString::consolidate() {
-    if (!(buffer.size() != 1 || buffer.front()->value.size()!=buffer.front()->size)) return;
-    // Reserve a single contiguous string for the entire content.
-    std::string merged;
-    merged.reserve(size);
-    for (const auto& part : buffer) {
-        if(part->size==part->value.size()) {
-            merged += part->value;
-            continue;
-        }
-        const char* start_ptr = part->value.data() + part->start; // Direct pointer access
-        merged.append(start_ptr, part->size); // Efficiently append without intermediate substr
-    }
-    buffer.clear();
-    buffer.push_back(std::make_shared<BufferedString>(std::move(merged)));
-}
 
-
-BString::BString(const std::string& val) : Data(STRING), size(val.size()) {buffer.push_back(std::make_shared<BufferedString>(val));}
-BString::BString() : Data(STRING), size(0) {}
-size_t BString::toHash() const {return std::hash<std::string>{}(buffer.front()->value);}
+BString::BString(const std::string& val) : Data(STRING), contents(val) {}
+BString::BString() : Data(STRING), contents("") {}
+size_t BString::toHash() const {return std::hash<std::string>{}(contents);}
 
 std::string BString::toString(BMemory* memory){
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
-    consolidate();
-    return buffer.front()->value;
+    return contents;
 }
 
 std::string& BString::toString(){
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
-    consolidate();
-    return buffer.front()->value;
+    return contents;
 }
 
 bool BString::isSame(const DataPtr& other) {
@@ -90,13 +69,11 @@ Result BString::eq(BMemory *memory, const DataPtr& other) {return RESMOVE(Result
 Result BString::neq(BMemory *memory, const DataPtr& other) {return RESMOVE(Result(!isSame(other)));}
 
 Result BString::at(BMemory *memory, const DataPtr& other) {
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
     if(other.isint()) {
         int64_t index = other.unsafe_toint();
-        consolidate();
-        int64_t n = (int64_t)toString().size();
+        int64_t n = (int64_t)contents.size();
         if (index < 0 || index >= n) return RESMOVE(Result(OUT_OF_RANGE));
-        return RESMOVE(Result(new BString(std::string(1, toString()[index]))));
+        return RESMOVE(Result(new BString(std::string(1, contents[index]))));
     }
     if(other.existsAndTypeEquals(STRING)) {
         std::string v1 = toString(nullptr);
@@ -133,26 +110,26 @@ Result BString::at(BMemory *memory, const DataPtr& other) {
         Iterator* iterator = static_cast<Iterator*>(_iterator.get());
 
         // Treat contiguous iterators more efficiently
-        if (iterator->isContiguous()) {
+        if(iterator->isContiguous()) {
             int64_t start = iterator->getStart();
             int64_t end = iterator->getEnd();
-            int64_t n = (int64_t)toString().size();
+            int64_t n = (int64_t)contents.size();
             if (start < 0 || start >= n || end < 0 || end > n|| start > end) return RESMOVE(Result(OUT_OF_RANGE));
-            std::string result = toString().substr(start, end - start);
+            std::string result = contents.substr(start, end - start);
             return RESMOVE(Result(new BString(std::move(result))));
-        } else {
+        } 
+        else {
             // Handle non-contiguous iterators
             std::string result;
             result.reserve(iterator->expectedSize());
-            auto front = buffer.front();
-            while (true) {
+            while(true) {
                 Result nextResult = iterator->next(memory);
                 DataPtr indexData = nextResult.get();
                 if (indexData == OUT_OF_RANGE) break; 
                 bbassert(indexData.isint(), "String index iterator must contain integers: "+other.torepr());
                 size_t index = (size_t)indexData.unsafe_toint();
-                if (index >= size) return RESMOVE(Result(OUT_OF_RANGE));
-                result += front->value[index];
+                if (index >= contents.size()) return RESMOVE(Result(OUT_OF_RANGE));
+                result += contents[index];
             }
             return RESMOVE(Result(new BString(result)));
         }
@@ -162,41 +139,57 @@ Result BString::at(BMemory *memory, const DataPtr& other) {
 }
 
 int64_t BString::toInt(BMemory *memory) {
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
-    consolidate();
-    const std::string& v1 = buffer.front()->value;
     char* endptr = nullptr;
-    int64_t ret = std::strtol(v1.c_str(), &endptr, 10);
-    if (endptr == v1.c_str() || *endptr != '\0') bberror("Failed to convert string to int");
+    int64_t ret = std::strtol(contents.c_str(), &endptr, 10);
+    if(endptr == contents.c_str() || *endptr != '\0') bberror("Failed to convert string to int");
     return ret;
 }
 
 double BString::toFloat(BMemory *memory) {
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
-    consolidate();
-    const std::string& v1 = buffer.front()->value;
     char* endptr = nullptr;
-    double ret = std::strtod(v1.c_str(), &endptr);
-    if (endptr == v1.c_str() || *endptr != '\0') bberror("Failed to convert string to float");
+    double ret = std::strtod(contents.c_str(), &endptr);
+    if(endptr == contents.c_str() || *endptr != '\0') bberror("Failed to convert string to float");
     return ret;
 }
 
 bool BString::toBool(BMemory *memory) {
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
-    consolidate();
-    const std::string& v1 = buffer.front()->value;
-    if(v1=="true") return true;
-    if(v1=="false") return false;
+    if(contents=="true") return true;
+    if(contents=="false") return false;
     bberror("Failed to convert string to bool");
 }
 
-Result BString::iter(BMemory *memory) {return RESMOVE(Result(new AccessIterator(this, size)));}
+Result BString::iter(BMemory *memory) {return RESMOVE(Result(new AccessIterator(this, contents.size())));}
 Result BString::add(BMemory *memory, const DataPtr& other) {
     if(!other.existsAndTypeEquals(STRING)) {
         if(other.existsAndTypeEquals(ERRORTYPE)) return RESMOVE(Result(new BString(toString(nullptr)+other->toString(nullptr))));
         //if(other.existsAndTypeEquals(ERRORTYPE)) bberror(other->toString(nullptr));
         bberror("Strings can only be concatenated with strings or errors");
     }
-    return RESMOVE(Result(new BString(toString(nullptr)+static_cast<BString*>(other.get())->toString(nullptr))));
+
+    BString* otherString = static_cast<BString*>(other.get());
+    BString* ret = new BString(toString() + otherString->toString());
+    /*ret->size = size + otherString->size;
+
+    int retDepth;
+    {
+        std::lock_guard<std::recursive_mutex> lock(otherString->memoryLock);
+        retDepth = otherString->depth;
+    }
+    {
+        std::lock_guard<std::recursive_mutex> lock(memoryLock);
+        if(depth<retDepth) depth = retDepth;
+    }
+    if(retDepth>512) {
+        ret->front = ret->toString() + otherString->toString();
+    }
+    else {
+        ret->depth = retDepth+1;
+        ret->concatenated.push_back(this);
+        ret->concatenated.push_back(otherString);
+        ret->addOwner();
+        otherString->addOwner();
+    }*/
+
+    return RESMOVE(Result(ret));
 }
-int64_t BString::len(BMemory *memory) {return size;}
+int64_t BString::len(BMemory *memory) {return contents.size();}
