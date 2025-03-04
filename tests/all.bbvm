@@ -1,4 +1,4 @@
-%{final ansi=new{final colors::black="\e[ ///home/maniospas/Documents/Blombly/build/libs/.bb line 38
+%{final ansi=new{final colors::black="\e[ ///home/maniospas/Documents/Blombly/build/libs/.bb line 39
 BEGIN _bb43
 %{final colors::black="\e[0;30m";final co ///home/maniospas/Documents/Blombly/build/libs/ansi.bb line 22
 BEGIN _bb46
@@ -719,7 +719,7 @@ new string _bb368
 %new{Plot={plots=list();defer{catch(axes) ///home/maniospas/Documents/Blombly/build/libs/plot.bb line 1
 return # this
 END
-%new{final ansi=new{final colors::black=" ///home/maniospas/Documents/Blombly/build/libs/.bb line 38
+%new{final ansi=new{final colors::black=" ///home/maniospas/Documents/Blombly/build/libs/.bb line 39
 new bb _bb43
 final # bb
 %{inc(x)={catch(bias)bias=1;returnx+bias; //tests/all.bb line 4

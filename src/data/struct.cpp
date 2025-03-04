@@ -26,6 +26,7 @@
 extern std::vector<SymbolWorries> symbolUsage;
 extern std::mutex ownershipMutex;
 extern BError* OUT_OF_RANGE;
+extern std::atomic<unsigned long long> countUnrealeasedMemories;
 
 Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory) {
     BMemory* mem;
@@ -109,9 +110,9 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory, co
     return executor.run(code).result;
 }
 
-Struct::Struct() : Data(STRUCT) {}
-Struct::Struct(int defaultSize) : Data(STRUCT) {data.reserve(defaultSize);}
-Struct::~Struct() {releaseMemory();}
+Struct::Struct() : Data(STRUCT) {countUnrealeasedMemories++;}
+Struct::Struct(int defaultSize) : Data(STRUCT) {data.reserve(defaultSize);countUnrealeasedMemories++;}
+Struct::~Struct() {countUnrealeasedMemories--;releaseMemory();}
 
 DataPtr Struct::get(int id) const {
     auto item = data.find(id);

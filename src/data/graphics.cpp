@@ -88,6 +88,7 @@ SDL_Texture* Graphics::getTexture(const std::string& path_) {
     SDL_FreeSurface(surface);
     bbassert(texture, "Failed to create texture: " + path + ", SDL Error: " + SDL_GetError());
     textureCache[path] = texture;
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
     return texture;
 }
 
@@ -109,7 +110,10 @@ TTF_Font* Graphics::getFont(const std::string& path, int fontSize) {
     return font;
 }
 
-void Graphics::initializeSDL() {if (SDL_Init(SDL_INIT_VIDEO) < 0 || IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) bberror("Failed to initialize SDL: " + std::string(SDL_GetError()));}
+void Graphics::initializeSDL() {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0 || IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) bberror("Failed to initialize SDL: " + std::string(SDL_GetError()));
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+}
 
 void Graphics::destroySDL() {
     for (BList* list : renderQueue) list->removeFromOwner();
@@ -130,7 +134,7 @@ void Graphics::push(BList* list) {
 
 void Graphics::render() {
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     for (BList* list : renderQueue) {
@@ -140,16 +144,16 @@ void Graphics::render() {
             bbassert(list->contents[1].isfloatorint(), "Second element must be a float or integer (green)");
             bbassert(list->contents[2].isfloatorint(), "Third element must be a float or integer (blue)");
             bbassert(list->contents[3].isfloatorint(), "Fourth element must be a float or integer (alpha)");
-            unsigned char r = list->contents[0].isint() ? list->contents[0].unsafe_toint() : list->contents[0].unsafe_tofloat();
-            unsigned char g = list->contents[1].isint() ? list->contents[1].unsafe_toint() : list->contents[1].unsafe_tofloat();
-            unsigned char b = list->contents[2].isint() ? list->contents[2].unsafe_toint() : list->contents[2].unsafe_tofloat();
-            unsigned char a = list->contents[3].isint() ? list->contents[3].unsafe_toint() : list->contents[3].unsafe_tofloat();
+            Uint8 r = list->contents[0].isint() ? list->contents[0].unsafe_toint() : list->contents[0].unsafe_tofloat();
+            Uint8 g = list->contents[1].isint() ? list->contents[1].unsafe_toint() : list->contents[1].unsafe_tofloat();
+            Uint8 b = list->contents[2].isint() ? list->contents[2].unsafe_toint() : list->contents[2].unsafe_tofloat();
+            Uint8 a = list->contents[3].isint() ? list->contents[3].unsafe_toint() : list->contents[3].unsafe_tofloat();
             color = {r, g, b, a};
             SDL_SetRenderDrawColor(renderer, r, g, b, a);
             continue;
         }
         if(list->contents.size()==5) {
-            bbassert(list->contents[0].existsAndTypeEquals(STRING), "First element must be a string (shape type)");
+            bbassert(list->contents[0].existsAndTypeEquals(STRING), "First element must be a string (shape type - choose among line, rect, orext)");
             bbassert(list->contents[1].isfloatorint(), "First element must be a float or integer (x1)");
             bbassert(list->contents[2].isfloatorint(), "Second element must be a float or integer (y1)");
             bbassert(list->contents[3].isfloatorint(), "Third element must be a float or integer (x2)");
@@ -161,11 +165,11 @@ void Graphics::render() {
             std::string shape = list->contents[0]->toString(nullptr);
             if(shape=="line") SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
             else if(shape=="orect") {
-                SDL_Rect rect = {x1, y1, x2-x1, y2-y1};
+                SDL_Rect rect = {x1, y1, x2, y2};
                 SDL_RenderDrawRect(renderer, &rect);
             }
             else if(shape=="rect") {
-                SDL_Rect rect = {x1, y1, x2-x1, y2-y1};
+                SDL_Rect rect = {x1, y1, x2, y2};
                 SDL_RenderFillRect(renderer, &rect);
             }
             else bberror("Wrong shape provided: "+shape);
@@ -218,7 +222,6 @@ void Graphics::render() {
             SDL_Texture* texture = getTexture(texturePath);
             SDL_SetTextureColorMod(texture, color.r, color.g, color.b); // Apply color modulation
             SDL_SetTextureAlphaMod(texture, color.a);
-            SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
             SDL_Rect dstRect = {static_cast<int>(x), static_cast<int>(y), static_cast<int>(dx), static_cast<int>(dy)};
             SDL_RenderCopyEx(renderer, texture, nullptr, &dstRect, angle, nullptr, SDL_FLIP_NONE);
         }
@@ -294,8 +297,6 @@ Result Graphics::pop(BMemory* memory) {
             signalStruct->set(typeVariable, mouseMoveString);
             signalStruct->set(xVariable, static_cast<double>(x));
             signalStruct->set(yVariable, static_cast<double>(y));
-
-            // Add the struct to signals
             signalStruct->addOwner();
             signals->contents.push_back(signalStruct);
         }

@@ -144,7 +144,8 @@ public:
             int id = registeredSymbols.size();
             registeredSymbols[symbol] = id;
             registeredIds[id] = symbol;
-            if(symbol.size()>8 && symbol.substr(0, 8)=="_bbmacro") retainInStruct.insert(id);
+            if(id==0) {} // thisid should never be retained
+            else if(symbol.size()>8 && symbol.substr(0, 8)=="_bbmacro") retainInStruct.insert(id);
             else if(symbol.size()<3 || symbol.substr(0, 3)!="_bb") retainInStruct.insert(id);
         }
         return registeredSymbols[symbol];
