@@ -59,8 +59,6 @@ public:
 };
 
 
-
-
 void preliminaryDependencies(std::vector<Command>* program) {
     std::unordered_map<int, std::unordered_set<int>> redirects;
     std::unordered_set<int> symbols;

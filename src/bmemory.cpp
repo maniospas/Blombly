@@ -168,9 +168,6 @@ void BMemory::setToNullIgnoringFinals(int item) {
     prev = DataPtr::NULLP;
 }
 
-void BMemory::prefetch() const {
-}
-
 void BMemory::set(int item, const DataPtr& value) {
     DataPtr& prev = find(item);
     if(prev.isA()) bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
@@ -201,6 +198,30 @@ void BMemory::unsafeSet(int item, const DataPtr& value) {
     /*f(value.existsAndTypeEquals(FUTURE)) prev = DataPtr(value.get(), IS_FUTURE);
     else*/ prev = value;
     prev.setA(prevFinal);
+}
+
+void BMemory::directTransfer(Struct* to) {
+    await();
+
+    for(int idx=0;idx<cache_size;++idx) {
+        auto& dat = cache[idx];
+        if (dat.islitorexists()) {
+            int item = idx + first_item;
+            if(variableManager.getIdRetain(item)) {
+                to->transferNoChecks(item, dat);
+                dat = DataPtr::NULLP;
+            }
+        }
+    }
+    for(auto& it : data) {
+        auto& dat = it.second;
+        if (dat.islitorexists()) {
+            if(variableManager.getIdRetain(it.first)) {
+                to->transferNoChecks(it.first, dat);
+                dat.existsAddOwner();
+            }
+        }
+    }
 }
 
 void BMemory::directTransfer(int to, int from) {

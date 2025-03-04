@@ -1,10 +1,5 @@
-bb.sci.vector(it) = {
-    default n = len(it);
-    it |= iter;
-    values = vector::alloc(n);
-    while(i in range(n)) values[i] = next(it);
-    return vector(values);
+x = 1;
+A = new {
+    value => this..x;
 }
-
-x = bb.sci.vector(random(42) :: n=10);
-print(x);
+print(A.value());

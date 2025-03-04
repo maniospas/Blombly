@@ -162,14 +162,15 @@ Development status of planned features:
 - [ ] FTP server (may be skipped)
 - [ ] SSH
 - [ ] JIT (progress: some preparation of future gcc compilation, not a priority to focus on engine optimizations)
-- [ ] Improve list semi-type semantics
+- [X] Improve list semi-type semantics
 - [ ] Simplify map creation
 - [ ] CUDA vectors
 - [x] Graphics: SDL (progress: implemented but unstable)
 - [x] Graphics: Multiple windows, perhaps state-based management 
 - [ ] Sound: SDL
-- [ ] Nameless gather (similar to Python's list comphrehension)
+- [X] Nameless gather (similar to Python's list comphrehension)
 - [x] Clarified error handling (progress: errors as values, `fail` on side-effect failure, `do`)
+- [ ] **Minimum size structs** (design progress: going to remove use-once variables which will remove all _bb intermediates)
 
 
 

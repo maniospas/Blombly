@@ -260,10 +260,9 @@ Result Graphics::pop(BMemory* memory) {
             const char* keyName = SDL_GetKeyName(keyPressed);
 
             // Create a new struct for key events
-            BMemory* memory = new BMemory(0, nullptr, 3);
-            Struct* signalStruct = new Struct(memory);
-            signalStruct->getMemory()->set(typeVariable, event.type == SDL_KEYDOWN?keyDownString:keyUpString);
-            signalStruct->getMemory()->set(keyVariable, new BString(keyName));
+            Struct* signalStruct = new Struct(2);
+            signalStruct->set(typeVariable, event.type == SDL_KEYDOWN?keyDownString:keyUpString);
+            signalStruct->set(keyVariable, new BString(keyName));
             
             // Add the struct to signals
             signalStruct->addOwner();
@@ -280,23 +279,21 @@ Result Graphics::pop(BMemory* memory) {
                 default: button = "unknown"; break;
             }
 
-            BMemory* memory = new BMemory(0, nullptr, 5);
-            Struct* signalStruct = new Struct(memory);
-            signalStruct->getMemory()->set(typeVariable, event.type == SDL_MOUSEBUTTONDOWN ? mouseDownString : mouseUpString);
-            signalStruct->getMemory()->set(keyVariable, new BString(button));
-            signalStruct->getMemory()->set(xVariable, static_cast<double>(x));
-            signalStruct->getMemory()->set(yVariable, static_cast<double>(y));
+            Struct* signalStruct = new Struct(4);
+            signalStruct->set(typeVariable, event.type == SDL_MOUSEBUTTONDOWN ? mouseDownString : mouseUpString);
+            signalStruct->set(keyVariable, new BString(button));
+            signalStruct->set(xVariable, static_cast<double>(x));
+            signalStruct->set(yVariable, static_cast<double>(y));
             signalStruct->addOwner();
             signals->contents.push_back(signalStruct);
         } else if (event.type == SDL_MOUSEMOTION) {
             int x = event.motion.x;
             int y = event.motion.y;
-
-            BMemory* memory = new BMemory(0, nullptr, 4);
-            Struct* signalStruct = new Struct(memory);
-            signalStruct->getMemory()->set(typeVariable, mouseMoveString);
-            signalStruct->getMemory()->set(xVariable, static_cast<double>(x));
-            signalStruct->getMemory()->set(yVariable, static_cast<double>(y));
+            
+            Struct* signalStruct = new Struct(3);
+            signalStruct->set(typeVariable, mouseMoveString);
+            signalStruct->set(xVariable, static_cast<double>(x));
+            signalStruct->set(yVariable, static_cast<double>(y));
 
             // Add the struct to signals
             signalStruct->addOwner();

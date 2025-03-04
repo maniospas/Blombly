@@ -33,8 +33,7 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory) {
     unsigned int depth = calledMemory->getDepth();
     {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
-        mem = getMemory();
-        implementation = mem->getOrNullShallow(implementationCode);
+        implementation = getOrNull(implementationCode);
     }
 
     //if(implementation.existsAndTypeEquals(ERRORTYPE)) bberror(implementation->toString(nullptr));
@@ -74,8 +73,7 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory, co
     unsigned int depth = calledMemory->getDepth();
     {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
-        mem = getMemory();
-        implementation = mem->getOrNullShallow(implementationCode);
+        implementation = getOrNull(implementationCode);
     }
 
     bbassert(implementation.exists(), "Must define `" + variableManager.getSymbol(implementationCode) + "` for the struct to overload the corresponding operation");
@@ -111,9 +109,52 @@ Result Struct::simpleImplement(int implementationCode, BMemory* calledMemory, co
     return executor.run(code).result;
 }
 
-Struct::Struct(BMemory* mem) : Data(STRUCT), memory(mem) {}
-Struct::~Struct() {delete memory;}
-BMemory* Struct::getMemory() const {return memory;}
+Struct::Struct() : Data(STRUCT) {}
+Struct::Struct(int defaultSize) : Data(STRUCT) {data.reserve(defaultSize);}
+Struct::~Struct() {releaseMemory();}
+
+DataPtr Struct::get(int id) const {
+    auto item = data.find(id);
+    if (item == data.end()) bberror("Cannot find struct field: " + variableManager.getSymbol(id));
+    return item->second;
+}
+
+DataPtr Struct::getOrNull(int id) const {
+    auto item = data.find(id);
+    if (item == data.end()) return DataPtr::NULLP;
+    return item->second;
+}
+
+void Struct::set(int id, const DataPtr& value) {
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    value.existsAddOwner();
+    if(data.find(id)!=data.end()){
+        DataPtr prev = data[id];
+        if(prev.isA()) bberror("Cannot overwrite final struct field: " + variableManager.getSymbol(id));
+        //if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
+        prev.existsRemoveFromOwner();
+    }
+    data[id] = value;
+    data[id].setAFalse();
+}
+
+void Struct::transferNoChecks(int id, const DataPtr& value) {
+    data[id] = value;
+}
+
+void Struct::releaseMemory() {
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    std::string destroyerr;
+    for(const auto& dat_ : data) {
+        auto& dat = dat_.second;
+        try {
+           dat.existsRemoveFromOwner();
+        }
+        catch(const BBError& e) {destroyerr += std::string(e.what())+"\n";}
+    }
+    data.clear();
+    if(destroyerr.size()) throw BBError(destroyerr.substr(0, destroyerr.size()-1));
+}
 
 
 Result Struct::push(BMemory* scopeMemory, const DataPtr& other) { return simpleImplement(variableManager.structPush, scopeMemory, other); }
@@ -138,15 +179,13 @@ void Struct::clear(BMemory* scopeMemory) {
     unsigned int depth;
     {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
-        implementation = getMemory()->getOrNullShallow(variableManager.structClear);
+        implementation = getOrNull(variableManager.structClear);
         depth = scopeMemory->getDepth();
     }
     if(implementation.islitorexists()) simpleImplement(variableManager.structClear, scopeMemory);
     else {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
-        BMemory* prevMemory = memory;
-        memory = new BMemory(depth, nullptr, 1);
-        delete prevMemory;
+        releaseMemory();
     }
 }
 
@@ -162,16 +201,16 @@ Result Struct::move(BMemory* scopeMemory) {
     unsigned int depth;
     {
         std::lock_guard<std::recursive_mutex> lock(memoryLock);
-        implementation = getMemory()->getOrNullShallow(variableManager.structMove);
+        implementation = getOrNull(variableManager.structMove);
         depth = scopeMemory->getDepth();
     }
     if(implementation.islitorexists()) return simpleImplement(variableManager.structMove, scopeMemory);
 
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
-    BMemory* mem = memory;
-    memory = new BMemory(depth, nullptr, 1);
-    DataPtr ret = new Struct(mem);
-    return RESMOVE(Result(ret));
+    Struct* ret = new Struct();
+    ret->data = std::move(data);
+    data = tsl::hopscotch_map<int, DataPtr>();
+    return RESMOVE(Result(DataPtr(ret)));
 }
 
 Result Struct::iter(BMemory* scopeMemory) { return simpleImplement(variableManager.structIter, scopeMemory); }

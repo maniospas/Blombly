@@ -25,15 +25,19 @@
 
 class Struct : public Data {
 private:
-    BMemory* memory;
+    tsl::hopscotch_map<int, DataPtr> data;
     Result simpleImplement(int implementationCode, BMemory* scopeMemory);
     Result simpleImplement(int implementationCode, BMemory* scopeMemory, const DataPtr& other);
-
+    void releaseMemory();
 public:
     mutable std::recursive_mutex memoryLock;
-    explicit Struct(BMemory* mem);
+    explicit Struct();
+    explicit Struct(int defaultSize);
     ~Struct();
-    BMemory* getMemory() const;
+    DataPtr get(int id) const;
+    DataPtr getOrNull(int id) const;
+    void set(int id, const DataPtr& other);
+    void transferNoChecks(int id, const DataPtr& other);
 
     Result push(BMemory* scopeMemory, const DataPtr& other) override;
     Result pop(BMemory* scopeMemory) override;

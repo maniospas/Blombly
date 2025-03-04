@@ -228,6 +228,11 @@ public:
     inline bool isSame(const DataPtr& other) const;
     inline std::string torepr() const;
 
+    inline void clear() {
+        datatype = IS_PTR;
+        data = 0;
+    }
+
     inline bool islitorexists() const {
         if(datatype & IS_PTR) return data; 
         return true;

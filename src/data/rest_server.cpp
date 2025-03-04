@@ -97,7 +97,7 @@ Result RestServer::move(BMemory* callerMemory) {
 Result RestServer::executeCodeWithMemory(DataPtr called, BMemory* memory) const {
     if(called->getType()==STRUCT) {
         auto strct = static_cast<Struct*>(called.get());
-        auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
+        auto val = strct->get(variableManager.callId);
         bbassert(val.existsAndTypeEquals(CODE), "Struct was called like a method but has no implemented code for `call`.");
         //static_cast<Code*>(val)->scheduleForParallelExecution = false; // struct calls are never executed in parallel
         memory->codeOwners[static_cast<Code*>(val.get())] = static_cast<Struct*>(called.get());
@@ -112,7 +112,7 @@ Result RestServer::executeCodeWithMemory(DataPtr called, BMemory* memory) const 
     //newMemory.detach(code->getDeclarationMemory());
     //newMemory.detach(memory);
     auto it = memory->codeOwners.find(code);
-    DataPtr thisObj = (it != memory->codeOwners.end() ? it->second->getMemory() : memory)->getOrNull(variableManager.thisId, true);
+    DataPtr thisObj = (it != memory->codeOwners.end()) ? DataPtr(it->second) : (memory->getOrNull(variableManager.thisId, true));
     if(thisObj.exists()) newMemory.set(variableManager.thisId, thisObj);
     std::unique_lock<std::recursive_mutex> executorLock;
     if(thisObj.exists()) {
@@ -190,7 +190,7 @@ int RestServer::requestHandler(struct mg_connection* conn, void* cbdata) {
                     //DataPtr resultContentData = resultStruct->getMemory()->get(resultContent);
                     //bbassert(resultContentData, "Route returned a struct without a `content` field.");
                     std::string response = result->toString(&mem);
-                    DataPtr resultTypeData = resultStruct->getMemory()->getOrNull(resultType, true);
+                    DataPtr resultTypeData = resultStruct->get(resultType);
                     bbassert(resultTypeData.exists(), "Server route returned a struct without a `type` field (it return nothing).");
                     bbassert(resultTypeData->getType()==Datatype::STRING, "Server route `type` field was not a string (type is not a string).");
 

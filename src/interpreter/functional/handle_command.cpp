@@ -597,10 +597,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             auto returnedValue = run(code);
             RUN_IF_RETURN(returnedValue);
         }
-        if(source.existsAndTypeEquals(STRUCT)) {
+        /*if(source.existsAndTypeEquals(STRUCT)) {
             memory.pull(static_cast<Struct*>(source.get())->getMemory());
             DISPATCH_RESULT(source);
-        }
+        }*/
         if(source.existsAndTypeEquals(ERRORTYPE)) bberror(source->toString(nullptr));
         bberror("Can only inline a code block or struct");
     }
@@ -648,8 +648,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         auto setValue = memory.getOrNullShallow(command.args[3]);
         if(setValue.existsAndTypeEquals(ERRORTYPE)) bbcascade(setValue->toString(nullptr), "Cannot set an error to a struct field");
         if(setValue.existsAndTypeEquals(CODE)) setValue = static_cast<Code*>(setValue.get())->copy();
-        auto structMemory = structObj->getMemory();
-        structMemory->set(command.args[2], setValue);//structmemory.getOrNullShallow(command.args[2]));
+        structObj->set(command.args[2], setValue);//structmemory.getOrNullShallow(command.args[2]));
         result = nullptr;
         continue;
     }
@@ -801,19 +800,17 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         DataPtr source = memory.get(command.args[1]);
         bbassert(source.existsAndTypeEquals(CODE), "Can only call `new` on a code block");
         auto code = static_cast<Code*>(source.get());
-        auto newMemory = new BMemory(depth, &memory, LOCAL_EXPECTATION_FROM_CODE(code));
-        auto thisObj = new Struct(newMemory); 
-        newMemory->set(variableManager.thisId, thisObj);
+        BMemory newMemory(depth, &memory, LOCAL_EXPECTATION_FROM_CODE(code));
+        auto thisObj = new Struct(); 
+        newMemory.set(variableManager.thisId, thisObj);
         //newMemory->setFinal(variableManager.thisId);
-        ExecutionInstance executor(depth, code, newMemory, forceStayInThread);
+        ExecutionInstance executor(depth, code, &newMemory, forceStayInThread);
         try {
             auto returnedValue = executor.run(code);
-            newMemory->detach(nullptr);
-            newMemory->setToNullIgnoringFinals(variableManager.thisId);
+            if(thisObj==returnedValue.get().get()) newMemory.directTransfer(thisObj);
             DISPATCH_OUTCOME(returnedValue.get());
         }
         catch (const BBError& e) {
-            thisObj->removeFromOwner();
             // here we interrupt exceptions thrown during new statements, which would leak the memory being created normally
             handleExecutionError(program[i], e);
         }
@@ -982,19 +979,20 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         bberror("Invalid range arguments: up to three integers are needed or exactly three floats");
     }
     DO_GET: {
-        BMemory* from(nullptr);
         const DataPtr& objFound = memory.getOrNull(command.args[1], true);
         if(!objFound.exists()) {
             bbassert(command.args[1]==variableManager.thisId, "Missing value: " + variableManager.getSymbol(command.args[1]));
-            from = &memory;
-            result = from->get(command.args[2]);
+            result = memory.get(command.args[2]);
         }
         else {
-            bbassert(objFound.existsAndTypeEquals(STRUCT), "Can only get elements from structs, but instead found this: "+objFound->toString(&memory));
+            bbassert(objFound.existsAndTypeEquals(STRUCT), "Can only get fields from structs, but instead found this: "+objFound->toString(&memory));
             auto obj = static_cast<Struct*>(objFound.get());
             std::lock_guard<std::recursive_mutex> lock(obj->memoryLock);
-            from = obj->getMemory();
-            result = from->get(command.args[2]);
+            result = obj->getOrNull(command.args[2]);
+            if(!result.islitorexists()) {
+                bbassert(command.args[1]==variableManager.thisId, "Missing value: " + variableManager.getSymbol(command.args[1]));
+                result = memory.get(command.args[2]);
+            }
             if(result.existsAndTypeEquals(CODE)) memory.codeOwners[static_cast<Code*>(result.get())] = obj;
         }
         DISPATCH_COMPUTED_RESULT;
@@ -1045,7 +1043,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         DataPtr called = memory.get(command.args[2]);
         if(called.existsAndTypeEquals(STRUCT)) {
             auto strct = static_cast<Struct*>(called.get());
-            auto val = strct->getMemory()->getOrNullShallow(variableManager.callId);
+            auto val = strct->get(variableManager.callId);
             bbassert(val.existsAndTypeEquals(CODE), "Struct was called like a method but has no implemented code for `call`.");
             memory.codeOwners[static_cast<Code*>(val.get())] = static_cast<Struct*>(called.get());
             called = (val);
