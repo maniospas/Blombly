@@ -14,17 +14,30 @@ Similarly, avoid spaces around the `|` symbol to make semi-type
 chains feel like one value. Prefer adding a space after commas
 of non-list elements, and after semicolons if multiple statements 
 reside in the same line.
-
 Do not forget to place a parentheses around lists when converting
 them to vectors. Here is an example:
 
 ```java
 // main.bb
-A = (1,2,3)|vector;
+A = vector(1,2,3);
 print(A[2]);
 ```
 
-## Bracketless statements 
+## Semi-types
+
+When you chain transformations try to have at least one but otherwise 
+as few as possible parentheses in each statement. For example, in assignments
+like the following it becomes obvious by reading the beginning of the assignment
+that `n` is going to be a length that is retrieved through a chain of conversions
+starting from the given string.
+
+```java
+// main.bb
+n = len("What's your name?"|read);
+print("Hi person with name length !{n}.");
+```
+
+## Brackets
 
 When declaring code blocks, place the opening bracket in the same
 line as the definition, and indent the following lines. Place the 
@@ -61,8 +74,8 @@ number = "Give a number:"|read|float;
 print("This is a number !{number:fmt}");
 ```
 
-Similarly, prefer using control flow without brackets. If so,
-prefer bracketless statements in the same line as their
+Similarly, prefer using control flow without brackets. When you do
+so, prefer placing bracketless statements in the same line as their
 controlling condition. The language's syntax is curated so
 that only the trailing semicolon will appear in each line.
 Here is an example:
@@ -76,6 +89,19 @@ contains(A, num) = {
 
 A = 1,2,3,4;
 num = 3;
+```
+
+Use the gather macro to adopt a functional way of anonymizing code
+while taking advantage of the control flows of imperative programming.
+Use only *one* gather statement, and place any transformations inside.
+Do not forget that, inside this macro, the current scope is fully visible,
+whereas all yielded values are aggregated. An example follows.
+
+
+```java
+A = 1,2,3,4,5;
+value = !gather(0, +=) {while(i in A) if(i%2==0) yield i^2;}
+print("Sum of squares !{value}");
 ```
 
 

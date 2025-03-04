@@ -76,5 +76,5 @@ may be deprecated before 3.0.0 if they can be merged with other syntax while mai
 
 You do not need to learn the standard library to use Blombly effectively, 
 and it will always be simple enough to implement similar functionality yourself.
-If you are an experienced programmer who and have an easier time writing custom interfaces
+If you are an experienced programmer and have an easier time writing custom interfaces
 than reusing code, you will not miss out on anything essential.

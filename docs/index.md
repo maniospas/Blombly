@@ -56,12 +56,12 @@
 
     <br>
     <b> ♻️ Reusable.</b>
-    Create <a href="https://www.sciencedirect.com/science/article/pii/S2352220821000778">humanly learnable</a> apis. Functions adapt to where they run.
+    Create <a href="https://www.sciencedirect.com/science/article/pii/S2352220821000778">humanly learnable</a> apis. Functions adapt to the scope where they run.
     <br>
     <b>🚀 Expressive.</b> 
-    Focus on writing algorithms with automated parallelism. Blombly ships with operating system and web tools.
+    Focus on writing algorithms with automated parallelism. Blombly ships with operating system, graphics, and web tools.
     <br>
-    <b>🦆 Dynamic.</b> Leverage features like duck typing and dynamic inlining. Syntax is opinionated to prevent multiple solutions.
+    <b>🦆 Dynamic.</b> Leverage features like duck typing and dynamic inlining.
     <br>
     <b> 💡 Simple.</b> There are only a few core commands; learn Blombly in an afternoon.
 

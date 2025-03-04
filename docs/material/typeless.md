@@ -16,6 +16,8 @@ can cast their inputs or outputs to the desired primitive types.
 This way, structs serve as monads that can be converted to
 the base type - or create an error in the process.
 
+<br>
+
 The following example consists of a short demonstration
 of those concepts. In particular it acknowledges
 that -in the whole program- it would make sense for
@@ -46,8 +48,8 @@ final Point2D = {
 
 Coords = {
     default name = "coords";
-    x = "!{name}.x="|read|float;
-    y = "!{name}.y="|read|float;
+    x = float("!{name}.x="|read);
+    y = float("!{name}.y="|read);
 }
 
 a = new {Point2D:name="a";Coords:}
@@ -59,20 +61,34 @@ print("a.b = !{a.dot(b)}");
 
 Blombly offers a simple testing macro that allows you
 to run a unit or integration test one or more times.
+There is also an assert statement as a shorthand for
+checking a condition and failing.
 Write code so that its inputs can always be randomized
-by tests.
+by tests. When it comes to random numbers, use a seeded
+version of distributions to ensure test replicability.
 
 ```java
 // test.bb
 !include "point"
 
 ab_points = {
-    a = new {Point2D:x=random();y=random()}
-    b = new {Point2D:x=random();y=random()}
+    rand = random(42); // seeded random generator
+    a = new {Point2D:x=next(rand);y=next(rand)}
+    b = new {Point2D:x=next(rand);y=next(rand)}
 }
 
-test("dot product", 10) {ab_points:return a.dot(b)}
-test("addition", 10) {ab_points:return a+b}
+final repetitions = 10;
+test("dot product", repetitions) {
+    ab_points:
+    c = a.dot(b);
+    assert c>=-2 and c<=2;
+}
+test("addition", repetitions) {
+    ab_points:
+    c = a+b;
+    assert a.x+b.x == c.x;
+    assert a.y+b.y == c.y;
+}
 ```
 
 ```text

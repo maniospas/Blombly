@@ -4,32 +4,22 @@
 
 Download Blombly's latest [release](https://github.com/maniospas/Blombly/releases/latest). Extract that into a folder
 and add the latter to your filepath to let your operating system know where the main executable is located. 
-
-<br>
-
-Alternatively, use the full path to the executable everywhere. Instructions to build from source are in the
+Alternatively, use the full path to the executable everywhere. 
+Instructions for building from source are in the
 [GitHub](https://github.com/maniospas/Blombly) page.
+
+## Highlighting
+
 When writing in the language, use a Java keyword highlighter (but not syntax checker). For the time being, it is also recommended 
 that you use VSCode as the editor of choice, because you can also ctrl+click on files mentioned in
-error messages to jump to mentioned positions.
-
-## LSP
-
-There is an immature language server for better syntax highlighting and code navigation.
-This requires python3 to be available in your system. Install the language server as 
-a VSCode extension by downloading it 
+error messages to jump to mentioned positions. There is an immature language server available as a VSCode extension.
+This requires python3 to be available in your system. Install it by downloading it 
 from [this link](https://github.com/maniospas/Blombly/raw/refs/heads/main/blombly-lsp/blombly-lsp-0.0.1.vsix)
 and running the following instruction in your terminal:
 
 ```bash
 code --install-extension blombly-lsp-0.0.1.vsix
 ```
-
-!!! warning
-    If highlighting stops, restart it by going to the extensions, opening the Blombly
-    extension (this is the installed LSP), and clicking 
-    *Disable, Restart, and Enable* which appear in succession in the same button.
-    Or you can stick with the aforementioned Java highlighter for the time being.
 
 
 ## Hello world!
@@ -49,11 +39,62 @@ Hello world!
 </pre>
 
 
+There are two types of errors that you may encounter. 
+First, syntax errors make the compiler halt. 
+To see what they look like, execute the following invalid code.
+We get an error telling us that the + operation for string concatenation has no right-hand side. 
+The compiler shows the exact position of the missing expression within the source code.
 
-## VM code
+```java
+// main.bb
+print("Hello"+);  // CREATES AN ERROR
+```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
+> <span style="color: cyan;">./blombly</span> main.bb
+(<span style="color: red;"> ERROR </span>) Empty expression
+   <span style="color: lightblue;">→</span>  print("Hello"+);                                     main.bb line 1
+      <span style="color: red;">~~~~~~~~~~~~~~^</span>
+</pre>
+
+
+Second, logical errors occur at runtime, are intercepted once functions return (or by `do`), 
+and are handled with `catch` or `as`. Details on logical error
+handling can be found [here](advanced/try.md). For now it suffices to know
+that, if left unhandled, runtime errors cascade through the call stack until they reach your main program and appear to you. Compilation contains preliminary checks about common logical errors that would be guaranteed to be encountered at runtime, saving the hussle of detecting them much later. 
+One such error is using variables that are never set anywhere.
+
+<br>
+
+Look at a logical error by converting an invalid string to a float and trying to add to it.
+A full stack trace is obtained from the first issue to the 
+last affected computation. Stack traces reflect how expressions are viewed by the parser, 
+which may look slightly different formatting than your code.
+Follow traces to the corresponding file and line for 
+the full source code, for example by ctrl+clicking on it in the VSCode terminal.
+Logical errors can be caught and handled without breaking execution.
+
+
+```java
+// main.bb
+x = float("foo");  // CREATES AN ERROR
+print(x+1);
+```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
+> <span style="color: cyan;">./blombly</span> main.bb
+(<span style="color: red;"> ERROR </span>) Not implemented: float(code)
+   <span style="color: lightblue;">→</span>  float("foo")                                        main.bb line 1
+   <span style="color: lightblue;">→</span>  x+1                                                 main.bb line 1
+</pre>
+
+
+
+## Virtual Machine
 
 The interpreter first compiles code to the intermediate representation of the
-**BLO**ck ase**MBLY** **V**irtual **M**achine (blomblyVM). 
+**BLO**ck ase**MBLY** **V**irtual **M**achine (blomblyVM). This strives for
+safety and user control over consumed resources with options shown below.
 Virtual machine instructions are stored in files with the *.bbvm* extension,
 which are self-contained by packing all dependencies inside.
 Share them with others to run directly. 
@@ -71,14 +112,15 @@ print # _bb162
 Hello world!
 </pre>
 
-To get a sense for internal commands, lines starting with `%` contain
-debugging info and can be ignored. The rest of the commands are space-separated 
-tuples of virtual machine instructions. The first element is the command name and the
-second a variable to assign to, where `#` indicates
-assignment to nothing. Temporary variables have the `_bb` prefix,
-and code blocks start at `BEGIN` or `BEGINFINAL` and end at `END`.
+!!! info 
+    In internal commands, lines starting with `%` contain
+    debugging info and can be ignored. The rest of the commands are space-separated 
+    tuples of virtual machine instructions. The first element is the command name and the
+    second a variable to assign to, where `#` indicates
+    assignment to nothing. Temporary variables have the `_bb` prefix,
+    and code blocks start at `BEGIN` or `BEGINFINAL` and end at `END`.
 
-## Arguments
+<br>
 
 **--threads**
 
@@ -171,56 +213,3 @@ by adding them as console arguments enclosed in single quotes. An example follow
 Hello world!
 Hi from the terminal.
 </pre>
-
-
-## Errors
-
-Before jumping into coding, let us finally peek at errors that Blombly may create. There are two types. 
-First, syntax errors make the compiler halt. 
-To see what they look like, execute the following invalid code.
-We get an error telling us that the + operation for string concatenation has no right-hand side. 
-The compiler shows the exact position of the missing expression within the source code.
-
-```java
-// main.bb
-print("Hello"+);  // CREATES AN ERROR
-```
-
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
-> <span style="color: cyan;">./blombly</span> main.bb
-(<span style="color: red;"> ERROR </span>) Empty expression
-   <span style="color: lightblue;">→</span>  print("Hello"+);                                     main.bb line 1
-      <span style="color: red;">~~~~~~~~~~~~~~^</span>
-</pre>
-
-
-Second, logical errors occur at runtime, are intercepted once functions return (or by `do`), 
-and are handled with `catch` or `as`. Details on logical error
-handling can be found [here](advanced/try.md). For now it suffices to know
-that, if left unhandled, runtime errors cascade through the call stack until they reach your main program and appear to you. Compilation contains preliminary checks about common logical errors that would be guaranteed to be encountered at runtime, saving the hussle of detecting them much later. 
-One such error is using variables that are never set anywhere.
-
-<br>
-
-Look at a logical error by converting an invalid string to a float and trying to add to it.
-This generates an error value that contains a full stack trace from the first issue to the 
-last affected computation. Stack traces show how expressions are viewed by the parser, 
-which may have a slightly different formatting than your code.
-Follow the stack trace to the corresponding file and line for 
-the full source code, for example by ctrl+clicking on it.
-Errors like this can be caught and handled without breaking execution.
-
-
-```java
-// main.bb
-x = float("foo");  // CREATES AN ERROR
-print(x+1);
-```
-
-<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
-> <span style="color: cyan;">./blombly</span> main.bb
-(<span style="color: red;"> ERROR </span>) Not implemented: float(code)
-   <span style="color: lightblue;">→</span>  float("foo")                                        main.bb line 1
-   <span style="color: lightblue;">→</span>  x+1                                                 main.bb line 1
-</pre>
-

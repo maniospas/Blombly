@@ -23,10 +23,11 @@
     }
 }
 
+!macro {yield} as {!fail "The yield command is only available within !gather brackets, and only in the form of yield @symbol;."}
 !macro {!gather(@value,@operation){@block}} as {
     new{
         !include {
-            !local{return @@symbol;} as {@var @operation @@symbol;}
+            !local{yield @@symbol;} as {@var @operation @@symbol;}
             @var=@value; 
             @block 
         }
