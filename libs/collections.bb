@@ -86,17 +86,19 @@ os = new {
     transfer() = {
         src = file(from|str);
         dst = file(to|str);
-        default cheksum = "";
+        default checksum = "";
         checksum |= str;
         if(checksum|len|bool) {
             dsttext = do return dst|bb.os.read;
             catch(dsttext) dsttext = "";
-            if(checksum==dsttext["md5"]) return true;
+            if((checksum=="*" and dsttext|len|bool) or checksum==dsttext["md5"]) return;
         }
         text = src|bb.os.read;
-        if(checksum|len|bool) if(checksum!=text["md5"]) fail("Mismatching checksum: !{src|str}");
+        target = text["md5"];
+        bb.logger.info("!{target} downloaded from: !{from}");
+        if(checksum|len|bool) if(checksum!="*" and checksum!=target) fail("The retreived checksum did not match the desired one: !{src|str}");
         dst << text;
-        return true;
+        return;
     }
 }
 
@@ -131,7 +133,7 @@ string = new {
             return ret;
         }
     }
-    
+
     // common string manipulation methods
     starts(str query) => new {
         assert len(args) == 0;
@@ -169,7 +171,7 @@ string = new {
             while(i in range(pos, nsearch-nquery+1)) {
                 different = do while(j in range(nquery)) if(query[j]!=search[i+j]) {return true;}
                 catch(different) return i;
-            } 
+            }
             return nsearch;//fail("Index not found");
         }
     }

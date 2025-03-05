@@ -112,7 +112,10 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
                 else if (ret.isint() || ret.isfloat()) result = ret.torepr();
                 else if(!ret.exists()) result = "#";
                 else if (ret->getType() == STRING) result = "\"" + ret->toString(nullptr) + "\"";
-                else bberror("`!comptime` must must evaluate to a float, int, str, or bool.");
+                else {
+                    if (ret->getType() == ERRORTYPE) bberror(ret->toString(nullptr));
+                    bberror("`!comptime` must evaluate to a float, int, str, or bool.");
+                }
             } catch (const BBError& e) {
                 std::cerr << e.what() << "\033[0m\n";
                 hadError = true;

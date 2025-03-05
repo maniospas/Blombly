@@ -133,6 +133,14 @@ void Graphics::push(BList* list) {
     renderQueue.push_back(list);
 }
 
+int Graphics::getTextWidth(const std::string& text, const std::string& fontPath, int fontSize) {
+    TTF_Font* font = getFont(fontPath, fontSize);
+    if (!font) bberror("Failed to load font: " + fontPath);
+    int width, height;
+    if (TTF_SizeText(font, text.c_str(), &width, &height) != 0) bberror("Failed to measure text width: " + std::string(TTF_GetError()));
+    return width;
+}
+
 void Graphics::render() {
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
@@ -247,8 +255,16 @@ void Graphics::clear(BMemory* memory) {
 }
 Result Graphics::push(BMemory* memory, const DataPtr& other) {
     bbassert(other.existsAndTypeEquals(LIST), "Can only push lists to graphics");
-    push(static_cast<BList*>(other.get()));
-    return RESMOVE(Result(this));
+    BList* list = static_cast<BList*>(other.get());
+    std::lock_guard<std::recursive_mutex> lock(list->memoryLock);
+    if(list->contents.size()==3) {
+        bbassert(list->contents[2].isfloatorint(), "Third element must be a float or integer (font size)");
+        return RESMOVE(Result(DataPtr(getTextWidth(list->contents[0]->toString(memory),list->contents[1]->toString(memory),
+        list->contents[2].isfloat()?list->contents[2].unsafe_tofloat():list->contents[2].unsafe_toint()
+        ))));
+    }
+    push(list);
+    return RESMOVE(Result(this)); 
 }
 Result Graphics::pop(BMemory* memory) {
     render();

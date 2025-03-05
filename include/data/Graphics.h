@@ -56,6 +56,7 @@ private:
     void push(BList* list);
     void render();
     void clear();
+    int getTextWidth(const std::string& text, const std::string& fontPath, int fontSize);
 public:
     explicit Graphics(const std::string& title, int width, int height);
     ~Graphics();
