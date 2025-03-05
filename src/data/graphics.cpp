@@ -74,7 +74,6 @@ Graphics::~Graphics() {
 SDL_Texture* Graphics::getTexture(const std::string& path_) {
     auto it = textureCache.find(path_);
     if (it != textureCache.end()) return it->second;
-
     std::string path = normalizeFilePath(path_);
     bbassert(isAllowedLocationNoNorm(path),  "Access denied for path while loading texture: " + path +
         "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
@@ -87,7 +86,7 @@ SDL_Texture* Graphics::getTexture(const std::string& path_) {
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
     bbassert(texture, "Failed to create texture: " + path + ", SDL Error: " + SDL_GetError());
-    textureCache[path] = texture;
+    textureCache[path_] = texture;
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
     return texture;
 }
@@ -116,10 +115,12 @@ void Graphics::initializeSDL() {
 }
 
 void Graphics::destroySDL() {
+    for (auto& pair : textureCache) SDL_DestroyTexture(pair.second);
     for (BList* list : renderQueue) list->removeFromOwner();
+    for (auto& pair : fontCache) TTF_CloseFont(pair.second);
     renderQueue.clear();
-    fontCache.clear();
     textureCache.clear();
+    fontCache.clear();
     if (renderer) SDL_DestroyRenderer(renderer);
     if (window) SDL_DestroyWindow(window);
     TTF_Quit();
