@@ -203,7 +203,7 @@ void Graphics::render() {
             double angle = list->contents[5].isint() ? list->contents[5].unsafe_toint() : list->contents[5].unsafe_tofloat();
 
             TTF_Font* font = getFont(fontPath, static_cast<int>(fontSize));
-            SDL_Surface* textSurface = TTF_RenderText_Solid(font, text.c_str(), color);
+            SDL_Surface* textSurface = TTF_RenderText_Blended(font, text.c_str(), color);
             bbassert(textSurface, "Failed to render text: " + text);
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, textSurface);
             SDL_FreeSurface(textSurface);
