@@ -645,7 +645,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         }
         auto structObj = static_cast<Struct*>(arg0.get());
         std::lock_guard<std::recursive_mutex> lock(structObj->memoryLock);
-        auto setValue = memory.getOrNullShallow(command.args[3]);
+        auto setValue = memory.get(command.args[3]);
         if(setValue.existsAndTypeEquals(ERRORTYPE)) bbcascade(setValue->toString(nullptr), "Cannot set an error to a struct field");
         if(setValue.existsAndTypeEquals(CODE)) setValue = static_cast<Code*>(setValue.get())->copy();
         structObj->set(command.args[2], setValue);//structmemory.getOrNullShallow(command.args[2]));
@@ -1048,7 +1048,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             memory.codeOwners[static_cast<Code*>(val.get())] = static_cast<Struct*>(called.get());
             called = (val);
         }
-        bbassert(called.existsAndTypeEquals(CODE), "Function call must be a code block");
+        if(called.existsAndTypeEquals(ERRORTYPE)) bberror(called->toString(nullptr));
+        bbassert(called.existsAndTypeEquals(CODE), "Calling a function with non-codeblock type: "+called.torepr());
         Code* code = static_cast<Code*>(called.get());
         Code* callCode = context.exists()?static_cast<Code*>(context.get()):nullptr;
         bool sycnhronizeRun = !code->scheduleForParallelExecution || !Future::acceptsThread();

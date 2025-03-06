@@ -2,6 +2,14 @@
 !macro {.io::password} as {["password"]}
 !macro {.io::timeout} as {["timeout"]}
 
+//!macro {.io::color(@args)} as {<<list(@args)}
+//!macro {.io::texture(@args)} as {<<list(@args)}
+//!macro {.io::text(@args)} as {<<list(@args)}
+//!macro {.io::line(@args)} as {<<list("line",@args)}
+//!macro {.io::rect(@args)} as {<<list("rect",@args)}
+//!macro {.io::orect(@args)} as {<<list("orect",@args)}
+//!macro {.io::width(@args)} as {<<list(@args)}
+
 collection = new {
     toback(element) => new {
         call(A) = {
