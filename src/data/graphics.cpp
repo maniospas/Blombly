@@ -23,6 +23,7 @@
 extern BError* OUT_OF_RANGE;
 extern bool isAllowedLocationNoNorm(const std::string& path_);
 extern std::string normalizeFilePath(const std::string& path);
+bool vsync = false;
 
 Graphics::Graphics(const std::string& title, int width, int height) : Data(GRAPHICS), window(nullptr), renderer(nullptr) {
     initializeSDL();
@@ -31,8 +32,10 @@ Graphics::Graphics(const std::string& title, int width, int height) : Data(GRAPH
         destroySDL();
         bberror("Failed to create SDL window: " + std::string(SDL_GetError()));
     }
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (!renderer) {
+    if(vsync) renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    else renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if(!renderer) renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    if(!renderer) {
         destroySDL();
         bberror("Failed to create SDL renderer: " + std::string(SDL_GetError()));
     }

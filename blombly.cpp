@@ -46,6 +46,7 @@ BError* INCOMPATIBLE_SIZES = new BError("Incompatible sizes in operation");
 BError* NO_TRY_INTERCEPT = new BError("No error or return statement intercepted with `do`.");
 extern void clearAllowedLocations();
 extern void initialize_dispatch_table();
+extern bool vsync;
 
 std::string get_executable_directory(const std::string& argv0) {
     #ifdef _WIN32
@@ -98,6 +99,7 @@ int main(int argc, char* argv[]) {
         } 
         else if(arg == "--library" || arg == "-l") minimify = false;
         else if(arg == "--strip" || arg == "-s") debug_info = false;
+        else if(arg == "--vsync") vsync = true;
         else if(arg == "--norun") threads = 0;
         else instructions.push_back(arg);
     }
