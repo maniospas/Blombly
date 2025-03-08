@@ -141,11 +141,10 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
 
     for (int i = 0; i < text.size(); ++i) {
         char c = text[i];
+        if (c == '\r') continue; 
         if (inComment) {
-            if (c != '\n')
-                continue;
-            else
-                inComment = false;
+            if (c != '\n') continue;
+            else inComment = false;
         }
         if (c == '/' && i < text.size() - 1 && text[i + 1] == '/' && !inString) {
             wordStream.str("");  // Clear the stream
@@ -153,12 +152,9 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file) {
             continue;
         }
 
-        if (braceMode && c == '{')
-            bberror("Cannot open a bracket `{` within a string f-expression: " + wordStream.str());
-        if (braceMode && c == ';')
-            bberror("Cannot use a semicolon `;` within a string f-expression: " + wordStream.str());
-        if (braceMode && c == ':' && !(text[i-1]==':' || (text[i+1]==':' && i+1<text.size())))
-            bberror("Cannot use a colon `:` within a string f-expression: " + wordStream.str());
+        if (braceMode && c == '{') bberror("Cannot open a bracket `{` within a string f-expression: " + wordStream.str());
+        if (braceMode && c == ';') bberror("Cannot use a semicolon `;` within a string f-expression: " + wordStream.str());
+        if (braceMode && c == ':' && !(text[i-1]==':' || (text[i+1]==':' && i+1<text.size()))) bberror("Cannot use a colon `:` within a string f-expression: " + wordStream.str());
 
         if (braceMode && c == '}') {
             if (wordStream.str().size())

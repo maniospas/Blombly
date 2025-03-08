@@ -1052,7 +1052,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         bbassert(called.existsAndTypeEquals(CODE), "Calling a function with non-codeblock type: "+called.torepr());
         Code* code = static_cast<Code*>(called.get());
         Code* callCode = context.exists()?static_cast<Code*>(context.get()):nullptr;
-        bool sycnhronizeRun = !code->scheduleForParallelExecution || !Future::acceptsThread();
+        bool sycnhronizeRun = true;//!code->scheduleForParallelExecution || !Future::acceptsThread();
 
         if(sycnhronizeRun) {
             // run prample

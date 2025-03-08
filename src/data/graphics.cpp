@@ -187,7 +187,7 @@ void Graphics::render() {
             else bberror("Wrong shape provided: "+shape);
             continue;
         }
-        bbassert(list->contents.size() == 6, "Can only push lists of 4, 5, or 6 elements to graphics. You cannot add or remove elements from those lists afterwards.");
+        bbassert(list->contents.size() == 6, "Can only push lists of 3, 4, 5, or 6 elements to graphics. You cannot add or remove elements from those lists afterwards.");
         if (list->contents[1].existsAndTypeEquals(STRING)) {  // texts have the font path as the second argument
             bbassert(list->contents[0].existsAndTypeEquals(STRING), "First element must be a string (text)");
             //bbassert(list->contents[1]->getType() == STRING, "Second element must be a string (font path)");
@@ -209,9 +209,9 @@ void Graphics::render() {
             SDL_Surface* textSurface = TTF_RenderText_Blended(font, text.c_str(), color);
             bbassert(textSurface, "Failed to render text: " + text);
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, textSurface);
+            SDL_Rect dstRect = {static_cast<int>(x), static_cast<int>(y), textSurface->w, textSurface->h};
             SDL_FreeSurface(textSurface);
             bbassert(texture, "Failed to render text: " + text);
-            SDL_Rect dstRect = {static_cast<int>(x), static_cast<int>(y), textSurface->w, textSurface->h};
             SDL_RenderCopyEx(renderer, texture, nullptr, &dstRect, angle, nullptr, SDL_FLIP_NONE);
             SDL_DestroyTexture(texture);
         } else {
@@ -276,6 +276,7 @@ Result Graphics::pop(BMemory* memory) {
     BList* signals = new BList();
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
+            delete signals;
             destroySDL();
             return RESMOVE(Result(OUT_OF_RANGE));
         } else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
