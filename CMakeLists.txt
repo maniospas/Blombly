@@ -109,15 +109,12 @@ if(UNIX AND NOT WIN32) # For Linux and macOS
     endif()
 
 elseif(WIN32) # For Windows
-    # Find and link SDL2
     find_package(SDL2 CONFIG REQUIRED)
-    if(TARGET SDL2::SDL2main AND TARGET SDL2::SDL2)
-        target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2main SDL2::SDL2)
-    elseif(TARGET SDL2::SDL2-static)
-        target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2-static)
-    else()
-        message(FATAL_ERROR "SDL2 library not found. Ensure SDL2 is properly installed and accessible.")
-    endif()
+    target_link_libraries(main
+        PRIVATE
+        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+        $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+    )
 
     find_package(SDL2_image CONFIG REQUIRED)
     target_link_libraries(main PRIVATE $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
