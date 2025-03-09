@@ -119,25 +119,11 @@ elseif(WIN32) # For Windows
         message(FATAL_ERROR "SDL2 library not found. Ensure SDL2 is properly installed and accessible.")
     endif()
 
-    # Find and link SDL2_image
     find_package(SDL2_image CONFIG REQUIRED)
-    if(TARGET SDL2_image::SDL2_image)
-        target_link_libraries(${PROJECT_NAME} PRIVATE SDL2_image::SDL2_image)
-    elseif(TARGET SDL2_image::SDL2_image-static)
-        target_link_libraries(${PROJECT_NAME} PRIVATE SDL2_image::SDL2_image-static)
-    else()
-        message(FATAL_ERROR "SDL2_image library not found. Ensure SDL2_image is properly installed and accessible.")
-    endif()
-
-    # Find and link SDL2_ttf
+    target_link_libraries(main PRIVATE $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
     find_package(SDL2_ttf CONFIG REQUIRED)
-    if(TARGET SDL2_ttf::SDL2_ttf)
-        target_link_libraries(${PROJECT_NAME} PRIVATE SDL2_ttf::SDL2_ttf)
-    elseif(TARGET SDL2_ttf::SDL2_ttf-static)
-        target_link_libraries(${PROJECT_NAME} PRIVATE SDL2_ttf::SDL2_ttf-static)
-    else()
-        message(FATAL_ERROR "SDL2_ttf library not found. Ensure SDL2_ttf is properly installed and accessible.")
-    endif()
+    target_link_libraries(main PRIVATE $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>)
+
 endif()
 
 # Specify where to place the final executable
