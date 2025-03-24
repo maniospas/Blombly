@@ -163,7 +163,7 @@ Result BString::add(BMemory *memory, const DataPtr& other) {
     if(!other.existsAndTypeEquals(STRING)) {
         if(other.existsAndTypeEquals(ERRORTYPE)) return RESMOVE(Result(new BString(toString(nullptr)+other->toString(nullptr))));
         //if(other.existsAndTypeEquals(ERRORTYPE)) bberror(other->toString(nullptr));
-        bberror("Strings can only be concatenated with strings or errors");
+        bberror("Strings can only be concatenated with strings");
     }
 
     BString* otherString = static_cast<BString*>(other.get());

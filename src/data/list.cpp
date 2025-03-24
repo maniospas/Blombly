@@ -36,7 +36,7 @@ BList::~BList() {
 
 std::string BList::toString(BMemory* memory){
     std::string result = "(";
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    // std::lock_guard<std::recursive_mutex> lock(memoryLock);
     int64_t n = contents.size();
     for(int64_t i=front;i<n;++i) {
         if(result.size()>1) result += ", ";
@@ -48,10 +48,10 @@ std::string BList::toString(BMemory* memory){
 
 DataPtr BList::at(int64_t index) const {
     if (index < 0) return OUT_OF_RANGE;
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    // std::lock_guard<std::recursive_mutex> lock(memoryLock);
     index += front;
     if (index>=contents.size()) return OUT_OF_RANGE;
-    auto res = contents.at(index);
+    auto res = contents[index];
     return res;
 }
 
@@ -59,7 +59,7 @@ Vector* BList::toVector(BMemory* memory) const {
     int64_t n = contents.size();
     Vector* vec = new Vector(n, false);
     double* rawret = vec->data;
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    // std::lock_guard<std::recursive_mutex> lock(memoryLock);
     try {
         for (int64_t i = front; i < n; ++i) {
             const DataPtr& content = contents[i];
@@ -74,7 +74,7 @@ Vector* BList::toVector(BMemory* memory) const {
 
 BHashMap* BList::toMap() const {
     BHashMap* map = new BHashMap();
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    // std::lock_guard<std::recursive_mutex> lock(memoryLock);
     int64_t n = contents.size();
     for (int64_t i = front; i < n; ++i) {
         const DataPtr& content = contents[i];
@@ -89,7 +89,7 @@ BHashMap* BList::toMap() const {
 Result BList::add(BMemory* memory, const DataPtr& other_) {
     if(!other_.existsAndTypeEquals(LIST)) return Data::add(memory, other_);
     BList* other = static_cast<BList*>(other_.get());
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    // std::lock_guard<std::recursive_mutex> lock(memoryLock);
     std::lock_guard<std::recursive_mutex> otherLock(other->memoryLock);
     BList* ret = new BList(contents.size()+other->contents.size());
     ret->contents.insert(ret->contents.end(), contents.begin(), contents.end());
@@ -102,13 +102,13 @@ Result BList::push(BMemory* memory, const DataPtr& other) {
     if(other.existsAndTypeEquals(ERRORTYPE)) bberror(other->toString(nullptr));
     bbassert(other.islitorexists(), "Cannot push a missing value to a list");
     other.existsAddOwner();
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    // std::lock_guard<std::recursive_mutex> lock(memoryLock);
     contents.emplace_back(other);
     return RESMOVE(Result(this));
 }
 
 Result BList::pop(BMemory* memory) {
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    // std::lock_guard<std::recursive_mutex> lock(memoryLock);
     if (contents.empty()) return RESMOVE(Result(OUT_OF_RANGE));
     const auto& element = contents.back();
     auto ret = Result(element);
@@ -118,7 +118,7 @@ Result BList::pop(BMemory* memory) {
 }
 
 Result BList::next(BMemory* memory) {
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    // std::lock_guard<std::recursive_mutex> lock(memoryLock);
     if (front >= contents.size()) return RESMOVE(Result(OUT_OF_RANGE));
     const auto& element = contents[front];
     auto ret = Result(element);
@@ -134,12 +134,12 @@ Result BList::at(BMemory* memory, const DataPtr& other) {
         if (index < 0) return RESMOVE(Result(OUT_OF_RANGE));
         index += front;
         if (index>=contents.size()) return RESMOVE(Result(OUT_OF_RANGE));
-        std::lock_guard<std::recursive_mutex> lock(memoryLock);
+        // std::lock_guard<std::recursive_mutex> lock(memoryLock);
         const DataPtr& res = contents[index];
         return RESMOVE(Result(res));
     } 
     if (other.existsAndTypeEquals(STRUCT) || other.existsAndTypeEquals(LIST) || other.existsAndTypeEquals(ITERATOR)) {
-        std::lock_guard<std::recursive_mutex> lock(memoryLock);
+        // std::lock_guard<std::recursive_mutex> lock(memoryLock);
         Result iter = other->iter(memory);
         const auto& iterator = iter.get();
         bbassert(iterator.existsAndTypeEquals(ITERATOR), "Can only find list indexes based on an iterable object, but a non-iterable struct was provided.");
@@ -185,7 +185,7 @@ Result BList::put(BMemory* memory, const DataPtr& position, const DataPtr& value
     bbassert(position.isint(), "Can only set at integer list indices");
     int64_t index = position.unsafe_toint();
     if (index < 0) return RESMOVE(Result(OUT_OF_RANGE));
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    // std::lock_guard<std::recursive_mutex> lock(memoryLock);
     index += front;
     if (index>=contents.size()) return RESMOVE(Result(OUT_OF_RANGE));
     bbassert(value.islitorexists(), "Cannot set a missing value on a list");
@@ -198,17 +198,17 @@ Result BList::put(BMemory* memory, const DataPtr& position, const DataPtr& value
 }
 
 int64_t BList::len(BMemory* memory) {
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    // std::lock_guard<std::recursive_mutex> lock(memoryLock);
     return contents.size()-front;
 }
 
 Result BList::iter(BMemory* memory) {
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    // std::lock_guard<std::recursive_mutex> lock(memoryLock);
     return RESMOVE(Result(new AccessIterator(this, contents.size()-front)));
 }
 
 void BList::clear(BMemory* memory)  {
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    // std::lock_guard<std::recursive_mutex> lock(memoryLock);
     int64_t n = contents.size();
     for(int64_t i=front;i<n;++i) contents[i].existsRemoveFromOwner();
     contents = std::vector<DataPtr>();
@@ -217,7 +217,7 @@ void BList::clear(BMemory* memory)  {
 
 Result BList::move(BMemory* memory) {
     BList* ret = new BList();
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    // std::lock_guard<std::recursive_mutex> lock(memoryLock);
     ret->front = front;
     ret->contents = std::move(contents);
     contents.clear();
@@ -233,7 +233,7 @@ void BList::resizeContents() {
 }
 
 Result BList::min(BMemory* memory) {
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    // std::lock_guard<std::recursive_mutex> lock(memoryLock);
     if (contents.size() == front) return Result(OUT_OF_RANGE);
     DataPtr minValue = contents[front];
     for (int i = front+1; i < contents.size(); ++i) {
@@ -255,7 +255,7 @@ Result BList::min(BMemory* memory) {
 }
 
 Result BList::max(BMemory* memory) {
-    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    // std::lock_guard<std::recursive_mutex> lock(memoryLock);
     if (contents.size() == front) return Result(OUT_OF_RANGE);
     DataPtr maxValue = contents[front];
     for (int i = front+1; i < contents.size(); ++i) {

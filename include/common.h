@@ -220,6 +220,12 @@ public:
         if(datatype & IS_NOT_PTR) return false; //exists is always a check for pointers
         return data;
     }
+    
+    inline bool notexists() const {
+        if(datatype & IS_PTR) return !data; //exists is always a check for pointers
+        return false;
+    }
+
 
 
     inline bool existsAndTypeEquals(Datatype type) const;
@@ -236,6 +242,11 @@ public:
     inline bool islitorexists() const {
         if(datatype & IS_PTR) return data; 
         return true;
+    }
+
+    inline bool notislitorexists() const {
+        if(datatype & IS_PTR) return !data; 
+        return false;
     }
     
     inline bool islit() const {return datatype & IS_LIT;}

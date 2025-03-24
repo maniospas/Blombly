@@ -65,25 +65,5 @@ public:
     std::vector<int> requestModification;
 };
 
-class CodeExiter {
-    Code* code;
-public:
-    CodeExiter(Code* code);
-    CodeExiter(const CodeExiter&) = delete;
-    CodeExiter(CodeExiter&&) = delete;
-    ~CodeExiter();
-};
-
-
-class SymbolEntrantExiter {
-    int symbol;
-public:
-    SymbolEntrantExiter(int symbol);
-    SymbolEntrantExiter(const SymbolEntrantExiter&) = delete;
-    SymbolEntrantExiter(SymbolEntrantExiter&&) = delete;
-    ~SymbolEntrantExiter();
-};
-
-
 
 #endif // CODE_H

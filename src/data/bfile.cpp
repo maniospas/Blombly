@@ -14,8 +14,6 @@
    limitations under the License.
  */
 
-
-
 #include "data/BFile.h"
 #include "data/BString.h"
 #include "data/Iterator.h"

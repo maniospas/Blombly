@@ -14,7 +14,6 @@
    limitations under the License.
  */
 
-
 #include "data/Code.h"
 #include "common.h"
 #include "BMemory.h"
@@ -36,27 +35,3 @@ size_t Code::getStart() const {return start;}
 size_t Code::getEnd() const {return end;}
 size_t Code::getOptimizedEnd() const {return premature_end;}
 const std::vector<Command>* Code::getProgram() const {return program;}
-
-
-CodeExiter::CodeExiter(Code* code) : code(code) {}
-CodeExiter::~CodeExiter() {
-    if(code->requestAccess.size() || code->requestModification.size()) {
-        std::lock_guard<std::mutex> lock(ownershipMutex);
-        for(int access : code->requestAccess) {
-            auto& symbol = symbolUsage[access];
-            symbol.access--;
-        }
-        for(int access : code->requestModification) {
-            auto& symbol = symbolUsage[access];
-            symbol.modification--;
-        }
-    }
-}
-
-
-SymbolEntrantExiter::SymbolEntrantExiter(int symbol): symbol(symbol) {}
-SymbolEntrantExiter::~SymbolEntrantExiter() {
-    std::lock_guard<std::mutex> lock(ownershipMutex);
-    auto& symbol_ = symbolUsage[symbol];
-    symbol_.access--;
-}

@@ -1120,6 +1120,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             || command.operation==FAIL
             || command.operation==MOVE
             || command.operation==CLEAR
+            || command.operation==FINAL
             || carg==variableManager.noneId 
             || command.operation==RETURN) {
             std::string err = enrichErrorDescription(program[i], e.what());
