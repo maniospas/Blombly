@@ -65,7 +65,15 @@ Exhaustively, these are `int`, `float`, `bool`, `str`, `list`, `vector`, `map`, 
 `error`. Here we start with the first four, and split the rest to dedicated pages.
 Some well-known operations are implemented, computed as one might have come to learn from other programming
 languages. Only differences to usual practices are the existence of `as` assignments (more details later), and that element access
-is overloaded by some data types. For example, format a float to a string of three decimal digits per `x[".3f"]`.
+is overloaded by some data types. 
+
+<br>
+
+For example, format a float to a string of three decimal digits per `x[".3f"]`. Time can be obtained as a float number of second
+from the start of the system's clock epoch with the `time()` command. This is computed by counting the time elapsed from the start
+of the program and adding that to the wall clock time retrieved at the start of the program. If system time changes while a program
+is running, you need to restart it; this ensures that time differences can be obtained and are monotonically increasing. Below is a
+list of numeric formats (applicable to both ints and floats by implicitly converting between the two)
 
 <details>
   <summary>Operations</summary>
@@ -128,6 +136,96 @@ is overloaded by some data types. For example, format a float to a string of thr
 </details>
 
 
+<details>
+  <summary>Number to string formatting (through examples)</summary>
+  <table>
+    <thead>
+      <tr>
+        <th>Visual category</th>
+        <th>Operation</th>
+        <th>Example</th>
+        <th>DEscription</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td rowspan="4">Integer</td>
+          <td><code>"d"</code></td>
+          <td><code>42["d"] → "42"</code></td>
+          <td>Decimal (default integer)</td>
+        </tr>
+        <tr>
+          <td><code>"x"</code></td>
+          <td><code>255["x"] → "ff"</code></td>
+          <td>Hexadecimal (lowercase)</td>
+        </tr>
+        <tr>
+          <td><code>"X"</code></td>
+          <td><code>255["X"] → "FF"</code></td>
+          <td>Hexadecimal (uppercase)</td>
+        </tr>
+        <tr>
+          <td><code>"b"</code></td>
+          <td><code>5["b"] → "101"</code></td>
+          <td>Binary format</td>
+        </tr>
+        <tr>
+          <td rowspan="6">Float</td>
+          <td><code>".2f"</code></td>
+          <td><code>3.14159[".2f"] → "3.14"</code></td>
+          <td>Fixed-point with 2 decimals</td>
+        </tr>
+        <tr>
+          <td><code>"2.1f"</code></td>
+          <td><code>2.718["2.1f"] → "2.7"</code></td>
+          <td>Fixed-point with 1 decimal</td>
+        </tr>
+        <tr>
+          <td><code>".2F"</code></td>
+          <td><code>3.14159[".2F"] → "3.14"</code></td>
+          <td>Same as <code>f</code></td>
+        </tr>
+        <tr>
+          <td><code>".2e"</code></td>
+          <td><code>1234.5678[".2e"] → "1.23e+03"</code></td>
+          <td>Scientific notation (lowercase e)</td>
+        </tr>
+        <tr>
+          <td><code>".2E"</code></td>
+          <td><code>1234.5678[".2E"] → "1.23E+03"</code></td>
+          <td>Scientific notation (uppercase E)</td>
+        </tr>
+        <tr>
+          <td><code>".6g"</code></td>
+          <td><code>3.1415926535[".6g"] → "3.14159"</code></td>
+          <td>General format</td>
+        </tr>
+        <tr>
+          <td rowspan="4">Date/time</td>
+          <td><code>"%Y-%m-%d"</code></td>
+          <td><code>number["%Y-%m-%d"] → "2025-03-25"</code></td>
+          <td>ISO date format</td>
+        </tr>
+        <tr>
+          <td><code>"%d %b %Y"</code></td>
+          <td><code>number["%d %b %Y"] → "25 Mar 2025"</code></td>
+          <td>Day, abbreviated month, year</td>
+        </tr>
+        <tr>
+          <td><code>"%I:%M %p"</code></td>
+          <td><code>number["%I:%M %p"] → "09:15 AM"</code></td>
+          <td>12-hour clock with AM/PM</td>
+        </tr>
+        <tr>
+          <td><code>"%Y-%m-%d %H:%M:%S"</code></td>
+          <td><code>number["%Y-%m-%d %H:%M:%S"] → "2025-03-25 09:15:00"</code></td>
+          <td>Full datetime format (24-hour)</td>
+        </tr>
+    </tbody>
+  </table>
+</details>
+
+
 
 Blombly also supports string interpolation as syntactic sugar: expressions enclosed in the pattern
 `!{...}` within string literals are replaced at compile time with their evaluation and converted to `str`. 
@@ -156,9 +254,10 @@ Is it positive? true
 Blombly offers the notation `@value|@func` as the simpler equivalent of
 calling a function of one argument `@func(@value)`
 while avoiding excessive parentheses. 
-This has lower priority than all other symbols because the goal is
-to convert specific values. Below is an example that declares your
-own string formatting function and applies it
+This has lower priority than all other symbols and operations other than
+member or item access; the goal is
+to convert specific values. In the example below, declare your
+own string formatting function and apply it
 after converting a string to a float number.
 
 ```java

@@ -7,4 +7,4 @@ while(i in range(1000000))
     s += i;
 
 print(time()-tic);
-print(-100000000000000000["%Y-%m-%d %H:%M:%S"]);
+print(tic["%Y-%m-%d %H:%M:%S"]);
