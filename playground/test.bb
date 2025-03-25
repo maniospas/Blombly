@@ -1,18 +1,10 @@
-final method1() = {
-    print("method1");
-    this.method = method2;
-    this.method();
-}
-final method2() = {
-    print("method2");
-    this.method = method3;
-    this.method();
-}
-final method3() = {
-    print("method3");
-}
+tic = time();
 
-A = new {
-    method = method1;
-}
-A.method();
+print(tic);
+
+s = 0;
+while(i in range(1000000))
+    s += i;
+
+print(time()-tic);
+print(-100000000000000000["%Y-%m-%d %H:%M:%S"]);

@@ -132,6 +132,7 @@ int main(int argc, char* argv[]) {
         
         if(threads) {
             program_start = std::chrono::steady_clock::now();
+            wallclock_start = std::chrono::duration<double>(std::chrono::system_clock::now().time_since_epoch()).count();
             ret = vm(fileName, threads);
         }
         if(ret) break;

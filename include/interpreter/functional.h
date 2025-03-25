@@ -29,6 +29,7 @@
 #include "Result.h"
 
 extern std::chrono::steady_clock::time_point program_start;
+extern double wallclock_start;
 extern std::recursive_mutex printMutex;
 extern std::recursive_mutex compileMutex;
 

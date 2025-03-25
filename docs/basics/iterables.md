@@ -232,7 +232,7 @@ to provide performant implementations of scientific computations.
 Perform element-by-element arithmetic operations on them for fast scientific computations. Treat them
 as lists of values whose elements can not be inserted or modified - only set. Element default
 values are zeros.
-Vectors can be created either from their number of zero elements or from a list of numbers.
+Vectors can be created either directly, or be converted from a list of numbers.
 They also support sub-indexing from iterables yielding integer identifiers. This is especially fast
 when ranges are provided, as in the following example.
 

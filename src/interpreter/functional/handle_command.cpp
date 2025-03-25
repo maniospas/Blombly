@@ -40,6 +40,7 @@
 
 extern BError* NO_TRY_INTERCEPT;
 std::chrono::steady_clock::time_point program_start;
+double wallclock_start;
 std::vector<SymbolWorries> symbolUsage;
 std::mutex ownershipMutex;
 std::recursive_mutex printMutex;
@@ -858,7 +859,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         DISPATCH_RESULT(static_cast<BList*>(arg0.get())->toMap());
     }
     DO_TIME: {
-        result = DataPtr(static_cast<double>(std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now()-program_start).count()));
+        result = DataPtr(wallclock_start+static_cast<double>(std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now()-program_start).count()));
         DISPATCH_COMPUTED_RESULT;
     }
     DO_RANDOM: {
