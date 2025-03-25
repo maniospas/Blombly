@@ -4,9 +4,13 @@
 
 | Keyword/Operator | Description                                                                                     |
 |------------------|-------------------------------------------------------------------------------------------------|
-| `!import`        | Imports external code or modules into the current scope.                                        |
+| `!include`       | Imports code or files into the current scope.                                                   |
 | `!access`        | Grants access to specific resources or properties.                                              |
 | `!modify`        | Allows modification of a resource or property.                                                  |
+| `!macro`         | Declares a macro that affects all subsequent code.                                              |
+| `!local`         | Declares a macro that stays in effect until end of file (or until end of include brackets).     |
+| `!gather`        | Initializes a value and defines an aggregation operation for it.                                |
+| `yield`          | Aggregates a value to the anonymous value; only usable within `gather`.                         |
 | `final`          | Marks a value or variable as immutable; cannot be reassigned.                                   |
 | `default`        | Specifies fallback values.                                                                      |
 | `:`              | Performs inline execution of its preceding code block/function.                                 |
@@ -16,8 +20,8 @@
 | `if`             | Introduces a conditional branch, executing code based on a condition.                           |
 | `while`          | Executes a block of code repeatedly while a condition is true.                                  |
 | `do`             | Intercepts returns and unhandled errors.                                                        |
-| `catch`          | Handles errors.                                                                                 |
-| `fail`           | Explicitly triggers an exception or error.                                                      |
+| `catch`          | Handles errors like an `if` statement. There is no other struct reflection mechanism.           |
+| `fail`           | Explicitly triggers an error.                                                                   |
 | `return`         | Exits a function or block, optionally providing a value.                                        |
 | `=>`             | Represents a lambda or function shorthand, or maps an input to an output.                       |
 | `defer`          | Schedules a block of code to run at the end of the current scope (e.g., cleanup actions).       |

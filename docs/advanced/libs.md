@@ -6,8 +6,22 @@ with many helper functions. Here we exhaustively describe available functionalit
 
 ## bb.ansi
 
-Contains several ansi color codes that you can use to colorize strings:
+Contains several ansi color codes under the `colors` namespace that you can use to colorize strings:
 `black`, `lightblack`, `red`, `lightred`, `green`, `lightgreen`, `yellow`, `lightyello`, `blue`, `lightblue`, `purple`, `lightpurple`, `cyan`, `lightcyan`, `white`, `lightwhite`, `reset`.
+
+Here is an example, where the namespace is enabled to access variable names:
+
+```java
+// main.bb
+with colors:
+print(bb.ansi.cyan+" INFO "+bb.ansi.reset+"This is a message.");
+```
+
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px; overflow-x: auto;">
+> <span style="color: cyan;">./blombly</span> main.bb
+> <span style="color: cyan;">INFO</span> This is a message.
+</pre>
 
 ## bb.collection
 
@@ -28,7 +42,9 @@ print(A);
 
 ## bb.logger
 
-Provides a standardized logging interface for messages.
+Provides a standardized logging interface for messages. It implements the methods `bb.ansi.log.fail(text)`,
+`bb.ansi.log.info(text)`, `bb.ansi.log.warn(text)`, `bb.ansi.log.ok(text)`, which use ANSI to help colorize
+message. 
 
 ## bb.memory
 

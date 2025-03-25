@@ -175,8 +175,8 @@ subsequent usage is altered.
 
 Similarly to code blocks, declaring a namespace does nothing.
 But you can activate it until the end of file per `!with @name:`.
-Notice the colon at the end in the first case, which is intentionally similar to inlining
-to indicate that subsequent code is affected. 
+Notice the colon at the end in the first case, which is intentionally similar to 
+inlining to indicate that subsequent code is affected. 
 Below is an example of using namespaces to differentiate semantic 
 usage of the same variables.
 
@@ -219,10 +219,6 @@ print(p.dims::x);
     implemented with macros without any cost) that helps with debugging
     in that thet help the virtual machine better reason about how to parallelize programs.
 
-!!! warning
-    Namespaces are preprocessor instructions and as such ignore scoping; they remain active until
-    the end of file. Future versions will consider ways to close namespaces beyond the end of each
-    file.
 
 ## Macros
 

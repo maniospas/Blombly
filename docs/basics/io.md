@@ -14,22 +14,23 @@ functions in [libs](../advanced/libs.md).
 ## Permissions
 
 If you run IO operations out-of-the-box, you may encounter an error
-like below. This happens because Blombly prioritizes **execution safety** and does 
-prvents you from accidentally tampering with or exposing
-system resources unless you intent to do so. 
-By default, the virtual machine has read access rights for the *bb://libs* (the contents
+like below. This happens because Blombly prioritizes **execution safety** and 
+prevents tampering with or exposing
+system resources without explicitly stating this intent. 
+By default, the virtual machine has read access rights for *bb://libs* (the contents
 of its standard library next to the executable) and the working
-directory only. The latter is the place from where you *call* the executable, such as the
-the path you have cd-ed in your terminal. Blombly cannot modify anything and cannot read 
-from anywhere else.
+directory. The latter is the place from where you *call* the executable, such as the
+the path you have cd-ed in your terminal. 
 
 <br>
 
+Without permissions, Blombly cannot modify anything and cannot read  from anywhere else.
 This ensures that the one running the virtual machine is always in control of effects
-on their machine. For example, this limits 
+on their device. For example, this limits 
 [preprocessor](../advanced/preprocessor.md) directives in included files from escaping
 from the intended build system. Normal safety features from your operating system also 
-apply externally, but this is how Blombly ensures that its programs are as safe as they can get.
+apply externally, but this is how the language ensures that its programs are as safe as 
+they can get.
 
 ```java
 // main.bb

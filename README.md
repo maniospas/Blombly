@@ -170,7 +170,7 @@ Development status of planned features:
 - [ ] Sound: SDL
 - [X] Nameless gather (similar to Python's list comphrehension)
 - [x] Clarified error handling (progress: errors as values, `fail` on side-effect failure, `do`)
-- [ ] **Minimum size structs** (design progress: going to remove use-once variables which will remove all _bb intermediates)
+- [X] Minimum size structs (removed _bb intermediates)
 - [ ] Fast error handling
 - [ ] Re-enable threading for the final computational model
 

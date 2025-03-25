@@ -2,7 +2,9 @@
 
 Here is a style guide that works well with Blombly's principles 
 of simplicity and easy comprehension. 
-**This style is optional but highly encouraged.**
+
+!!! tip
+    This style is optional but highly encouraged.
 
 
 ## Spacing
@@ -61,7 +63,7 @@ just return a value, in which case use
 Two equivalent examples follow.
 
 ```java
-// main.bb (without applyign =>, which is not preferred)
+// main.bb (without applying =>, which is not preferred)
 fmt(x) = {return x[".3f"]}
 number = "Give a number:"|read|float;
 print("This is a number !{number:fmt}");
@@ -75,7 +77,7 @@ print("This is a number !{number:fmt}");
 ```
 
 Similarly, prefer using control flow without brackets. When you do
-so, prefer placing bracketless statements in the same line as their
+so, place bracketless statements in the same line as their
 controlling condition. The language's syntax is curated so
 that only the trailing semicolon will appear in each line.
 Here is an example:
@@ -119,8 +121,9 @@ final html = new {!include "libs/html"}
 print(html.html); // this will tell you that this is a code block
 ```
 
-**Prefer !local instead of !macro to redefine macros for
-only one file.** In general, macros should be avoided
-for anything that is not injecting metaprogramming patterns.
+!!! tip
+    Use !local instead of !macro to redefine macros for
+    only one file. In general, macros should be avoided
+    for anything that is not injecting metaprogramming patterns.
 
 

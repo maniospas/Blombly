@@ -44,7 +44,7 @@ catch(z) print("Operation failed");
 > <span style="color: cyan;">./blombly</span> main.bb
 First number: 1
 Second number: foo
-Trying to add: 1.000000 and (<span style="color: red;"> ERROR </span>) Failed to convert string to float
+(<span style="color: red;"> ERROR </span>) Failed to convert string to float
    <span style="color: lightblue;">→</span>  {print("Trying to add: "+str(x)+" and "+            main.bb line 1
 This will always appear.
 Operation failed.
@@ -152,8 +152,8 @@ and applies all defer statements. Omit brackets when only one command is tried. 
 the result anywhere.
 
 !!! tip
-    Think of `do` as a function call that affects the scope. It is also handy for forcing sequential function calls.
-
+    Think of `do` as a function call that affects the scope. 
+    
 For example, let the interception mechanism interrupt control flow like this `sgn = do if(x>=0) return 1 else return -1;`.
 A similar syntax breaks away from loops below. Contrary to errors, 
 returning is lightweight to intercept. 
