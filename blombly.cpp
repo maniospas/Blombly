@@ -19,6 +19,7 @@
 #include <fstream>
 #include <memory>
 #include <thread>
+#include <chrono>
 #include "BMemory.h"
 #include "data/Graphics.h"
 #include "data/Code.h"
@@ -47,6 +48,8 @@ BError* NO_TRY_INTERCEPT = new BError("No error or return statement intercepted 
 extern void clearAllowedLocations();
 extern void initialize_dispatch_table();
 extern bool vsync;
+extern double wallclock_start;
+
 
 std::string get_executable_directory(const std::string& argv0) {
     #ifdef _WIN32
