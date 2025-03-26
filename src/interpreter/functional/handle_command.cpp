@@ -1108,10 +1108,15 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }//end try 
     catch (const BBError& e) {
         int carg = command.args[0]; 
-        /*if(carg==variableManager.noneId || command.operation==RETURN) {
-            result = DataPtr::NULLP;
-            handleExecutionError(program[i], e);
-        }*/
+        if(carg==variableManager.noneId) {
+            std::string err = enrichErrorDescription(program[i], e.what());
+            err += "\n    \033[33m !!! \033[0mAt this point, the error is returned because it is"
+                   "\n         not assigned to a variable and would have been ignored otherwise.\033[0m";
+            BError* berror = new BError(std::move(err));
+            berror->consume();
+            result = DataPtr(berror);
+            return ExecutionInstanceRunReturn(true, Result(result));
+        }
         if(command.operation==SET 
             || command.operation==SETFINAL 
             || command.operation==PUT 
@@ -1125,8 +1130,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             || carg==variableManager.noneId 
             || command.operation==RETURN) {
             std::string err = enrichErrorDescription(program[i], e.what());
-            if(command.operation!=FAIL) err += "\n    \033[33m !!! \033[0mAt this point, the error is returned instead of having a hidden side-effect\033[0m";
-            else err += "\n    \033[33m !!! \033[0mAt this point, the error is returned instead of having a hidden side-effect\033[0m";
+            err += "\n    \033[33m !!! \033[0mAt this point, the error is returned instead of having a hidden side-effect.\033[0m";
             BError* berror = new BError(std::move(err));
             berror->consume();
             result = DataPtr(berror);

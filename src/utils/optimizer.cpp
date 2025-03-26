@@ -162,6 +162,7 @@
  
              //if(command->args.size()>=2 && command->args[1].size() && command->args[1][0]=='\\')  // operators are still valid
              //    continue;
+             
              if(command->args.size()>=2 && (command->args[1]=="put"
                  || command->args[1]=="at" 
                  || command->args[1]=="call" 
@@ -190,12 +191,16 @@
                  || command->args[1]=="next"
                  || command->args[1]=="push"
                  || command->args[1]=="move"
-                 || command->args[1]=="call"
-                 ))
+                 )) {
                  continue;
-             
+             }
              if(command->args.size() && command->args[0]=="exists" && symbolUsageCount[command->args[1]]==0) DISABLE;
              if(command->args.size()<=1) continue;
+             if(command->args[0]=="call" && command->args.size()>=3 && symbolUsageCount[command->args[1]]==0) {
+                //it's pretty important to remove unused call outputs because this lets us identify return errors
+                command->args[1]="#"; 
+                continue;
+             } 
              if(command->args[0]=="final" && command->args.size()>=3 && symbolUsageCount[command->args[2]]==0) DISABLE;
              if(command->args[0]=="set" && command->args.size()>=4 && (symbolUsageCount[command->args[2]]==0 || symbolUsageCount[command->args[3]]==0)) DISABLE;
              if(command->args[0]=="push" && command->args.size()>=4 && (symbolUsageCount[command->args[2]]==0 || symbolUsageCount[command->args[3]]==0)) DISABLE;
