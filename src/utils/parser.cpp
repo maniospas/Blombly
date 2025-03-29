@@ -106,7 +106,7 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
                     returnedValue.result = res2;
                 }
 
-                bbassert(!returnedValue.returnSignal, "`!comptime` must evaluate to a value but not run a return statement.");
+                bbassertexplain(!returnedValue.returnSignal, "Unexpected return statement.", "`!comptime` must evaluate to a value but not run a return statement.", "");
                 //bbassert(ret, "`!comptime` must evaluate to a non-missing value.");
                 if(ret.isbool()) result = ret.unsafe_tobool()?"true":"false";
                 else if (ret.isint() || ret.isfloat()) result = ret.torepr();
@@ -114,7 +114,7 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
                 else if (ret->getType() == STRING) result = "\"" + ret->toString(nullptr) + "\"";
                 else {
                     if (ret->getType() == ERRORTYPE) bberror(ret->toString(nullptr));
-                    bberror("`!comptime` must evaluate to a float, int, str, or bool.");
+                    bberrorexplain("Unexpected compilation outcome.", "`!comptime` must evaluate to a float, int, str, or bool.", "");
                 }
             } catch (const BBError& e) {
                 std::cerr << e.what() << "\033[0m\n";
@@ -175,9 +175,9 @@ private:
             if (name == ")" || name == "]" || name == "}") {
                     //last_open_value = last_open.top();
                     if(last_open_type.size()>=1) {
-                        bbassert(name!=")" || last_open_type.top()=="(", "Closing `)` is missing.\n"+show_position(last_open.top()));
-                        bbassert(name!="}" || last_open_type.top()=="{", "Closing `}` is missing.\n"+show_position(last_open.top()));
-                        bbassert(name!="]" || last_open_type.top()=="[", "Closing `]` is missing.\n"+show_position(last_open.top()));
+                        bbassertexplain(name!=")" || last_open_type.top()=="(", "Closing `)` is missing.", "", show_position(last_open.top()));
+                        bbassertexplain(name!="}" || last_open_type.top()=="{", "Closing `}` is missing.", "", show_position(last_open.top()));
+                        bbassertexplain(name!="]" || last_open_type.top()=="[", "Closing `]` is missing.", "", show_position(last_open.top()));
                         last_open.pop();
                         last_open_type.pop();
                     }
@@ -189,12 +189,12 @@ private:
             if(pos>=tokens.size()) bberror("Unexpected end of code.\n"+show_position(tokens.size()-1));
             if(end_string==";") {
                 std::string name = tokens[pos].name;
-                if(name=="(") bberror("Closing `)` is missing.\n"+show_position(pos));
-                if(name=="{") bberror("Closing `}` is missing.\n"+show_position(pos));
-                if(name=="[") bberror("Closing `]` is missing.\n"+show_position(pos));
-                bberror("Closing `" + end_string + "` is missing.\n"+show_position(start));
+                if(name=="(") bberrorexplain("Closing `)` is missing.", "", show_position(pos));
+                if(name=="{") bberrorexplain("Closing `}` is missing.", "", show_position(pos));
+                if(name=="[") bberrorexplain("Closing `]` is missing.", "", show_position(pos));
+                bberrorexplain("Closing `" + end_string + "` is missing.", "", show_position(start));
             }
-            else bberror("Closing `" + end_string + "` is missing.\n"+show_position(pos));
+            else bberrorexplain("Closing `" + end_string + "` is missing.", "", show_position(pos));
         }
         return MISSING;
     }
@@ -206,14 +206,14 @@ private:
         for (size_t i = start; i <= end; ++i) {
             if (depth == 0 && tokens[i].name == end_string) pos = i;
             if (tokens[i].name == "(" || tokens[i].name == "[" || tokens[i].name == "{") depth += 1;
-            if (depth < 0) bberror("Imbalanced parentheses, brackets, or scopes\n"+show_position(last_open));
+            if (depth < 0) bberrorexplain("Imbalanced parentheses, brackets, or scopes", "", show_position(last_open));
             if (tokens[i].name == ")" || tokens[i].name == "]" || 
                 tokens[i].name == "}") {
                 if(depth==0) last_open = i;
                 depth -= 1;
             }
         }
-        if (missing_error && pos == MISSING)  bberror("Closing " + end_string + " is missing\n"+show_position(last_open));
+        if (missing_error && pos == MISSING) bberrorexplain("Closing " + end_string + " is missing", "", show_position(last_open));
         return pos;
     }
 public:
@@ -237,10 +237,12 @@ public:
         for (int i = start; i <= end; i++) {
             if (!tokens[i].printable) 
                 continue;
-            if(prev.size()>1 && tokens[i].name.size()>1)
-                expr += " ";
             prev = tokens[i].name;
             expr += prev;
+            if(i<tokens.size()-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
+                        && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
+                            && tokens[i].name!="."&& tokens[i].name!="!")
+                expr += " ";
         }
         return expr;
     }
@@ -251,10 +253,12 @@ public:
         for (int i = start; i <= end; i++) {
             if (!tokens[i].printable) 
                 continue;
-            if(prev.size()>1 && tokens[i].name.size()>1)
-                expr += " ";
             prev = tokens[i].name;
             expr += prev;
+            if(i<tokens.size()-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
+                        && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
+                            && tokens[i].name!="."&& tokens[i].name!="!")
+                expr += " ";
         }
         return expr;
     }
@@ -302,24 +306,22 @@ public:
 
             // print error line with position indicator
             expr += "  \x1B[34m\u2192\033[0m   ";
-            for (size_t i = start; i <= end; i++)
-                if (tokens[i].printable) {
-                    expr += tokens[i].name;
-                    if(i<end-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
-                                && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
-                                 && tokens[i].name!="."&& tokens[i].name!="!")
-                        expr += " ";
-                }
+            for (size_t i = start; i <= end; i++) if (tokens[i].printable) {
+                expr += tokens[i].name;
+                if(i<tokens.size()-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
+                            && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
+                                && tokens[i].name!="."&& tokens[i].name!="!")
+                    expr += " ";
+            }
             expr += " \x1B[90m "+tokens[pos].toString();
             expr += "\n     \x1B[31m ";
-            for (size_t i = start; i < pos; i++)
-                if (tokens[i].printable) {
-                    for(size_t k=0;k<tokens[i].name.size();++k) expr += "~";
-                    if(i<end-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
-                                && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
-                                 && tokens[i].name!="."&& tokens[i].name!="!")
-                        expr += "~";
-                }
+            for (size_t i = start; i < pos; i++) if (tokens[i].printable) {
+                for(size_t k=0;k<tokens[i].name.size();++k) expr += "~";
+                if(i<tokens.size()-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
+                            && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
+                            && tokens[i].name!="."&& tokens[i].name!="!")
+                    expr += "~";
+            }
             expr += "^";
             break; // TODO: decide whether to show full replacement stack (also uncomment to debug)
         }
@@ -338,28 +340,26 @@ public:
             if(end>start+1) breakpoint(start, end);
         //try {
             bool is_final = tokens[start].name == "final";
-            bbassert(start <= end || (request_block && 
-                      code_block_prepend.size()), 
-                      "Empty expression.\n"+show_position(start));
-            bbassert(tokens[start].name != "#", 
-                      "Expression cannot start with `#`.\n   \033[33m!!!\033[0m "
-                      "This symbol is reserved for preprocessor directives "
-                      "and should have been eliminated.\n"+show_position(start));
+            bbassertexplain(start <= end || (request_block && code_block_prepend.size()), 
+                      "Expecting value.", "There is nothing to compute here.",
+                      show_position(start));
+            bbassertexplain(tokens[start].name != "#", 
+                      "Unexpected symbol.",
+                      "Expression cannot start with `#`. This symbol is reserved for preprocessor directives. This issue often occurs when there an erroneous macro resolution.", 
+                      show_position(start));
             if (is_final) start += 1;
-            bbassert(start <= end, "Empty final expression");
-            bbassert(tokens[start].name != "#", 
-                      "Expression cannot start with `#`.\n   \033[33m!!!\033[0m "
-                      "This symbol is reserved for preprocessor directives "
-                      "and should have been eliminated.\n"+show_position(start));
+            bbassertexplain(start <= end, "Empty final expression", "", show_position(start));
+            bbassertexplain(tokens[start].name != "#", 
+                      "Unexpected symbol.",
+                      "Expression cannot start with `#`. This symbol is reserved for preprocessor directives. This issue often occurs when there an erroneous macro resolution.", 
+                      show_position(start));
 
             std::string first_name = tokens[start].name;
             if (start == end) {
-                bbassert(code_block_prepend.size() == 0, 
-                          "Can only set positional arguments for code blocks."
-                          "\n   \033[33m!!!\033[0m Positional arguments were "
-                          "declared on an assignment's left-hand-side\n       "
-                          "but the right-hand-side is not an explicit code "
-                          "block declaration.\n"+show_position(start));
+                bbassertexplain(code_block_prepend.size() == 0, 
+                          "Unexpected positional arguments.",
+                          "Positional arguments were declared on an assignment's left-hand-side, but the right-hand-side is not an explicit code block declaration.",
+                          show_position(start));
                 if(tokens[start].name=="return") {
                     ret += "return # #\n";
                     return "#";
@@ -377,9 +377,7 @@ public:
             }
 
             if (first_name == "{" && find_end(start + 1, end, "}", true) == end) {
-                bbassert(!is_final, 
-                          "Code block declarations cannot be final (only "
-                          "variables holding the blocks can be final)\n"+show_position(start-1));
+                bbassertexplain(!is_final, "Expecting variable.", "Code block declarations cannot be final. Only variables holding the blocks can be final.", show_position(start-1));
                 std::string requested_var = create_temp();
                 ret += "BEGIN " + requested_var + "\n";
                 ret += code_block_prepend;
@@ -389,7 +387,7 @@ public:
                 return requested_var;
             }
             if (first_name == "(" && find_end(start + 1, end, ")", true) == end) {
-                bbassert(!is_final, "Final is only an acceptable qualifier for variables (not parenthesis outcomes)");
+                bbassertexplain(!is_final, "Expecting variable.", "`final` is only an acceptable qualifier for variables, but here the outcome of a parenthesis was set to final.", show_position(start));
                 return parse_expression(start+1, end-1, request_block, ignore_empty);
             }
 
@@ -402,10 +400,10 @@ public:
                 ret += "END\n";
                 return requested_var;
             }
-            bbassert(code_block_prepend.size() == 0, 
-                      "Positional arguments were declared on an assignment's "
-                      "left-hand-side but the right-hand-side did not evaluate "
-                      "to a code block\n"+show_position(start));
+            bbassertexplain(code_block_prepend.size() == 0, 
+                      "Unexpected positional arguments.",
+                      "Positional arguments were declared on an assignment's left-hand-side but the right-hand-side did not evaluate to a code block.",
+                      show_position(start));
 
             if (first_name == "if" || first_name == "catch" || 
                 first_name == "while") {
@@ -435,11 +433,10 @@ public:
                 std::string bodyvar = create_temp();
                 ret += "BEGIN " + bodyvar + "\n";
                 if (body_end==MISSING && find_end(start_if_body, end, "else")!=MISSING) {
-                    bbassert(first_name != "while", "`while` expressions cannot have an else branch.\n"+show_position(body_end));
+                    bbassertexplain(first_name != "while", "Invalid syntax.", "`while` expressions cannot have an else branch.", show_position(body_end));
                 }
                 if (tokens[start_if_body].name == "{") {
-                    bbassert(find_end(start_if_body + 1, body_end, "}", true) == body_end || tokens[body_end].name=="else", 
-                    "There is leftover code after closing `}`\n"+show_position(body_end));
+                    bbassertexplain(find_end(start_if_body + 1, body_end, "}", true) == body_end || tokens[body_end].name=="else", "Invalid syntax.", "There is leftover code after closing `}`.", show_position(body_end));
                     parse(start_if_body + 1, body_end - 1);
                 } else if (tokens[body_end].name == "else") {
                     parse(start_if_body, body_end - 1);
@@ -450,11 +447,11 @@ public:
                     ret += condition_text;
                 ret += "END\n";
                 if (body_end <= end - 1 && tokens[body_end].name == "else") {
-                    bbassert(first_name != "while", "`while` expressions cannot have an else branch.\n"+show_position(body_end));
+                    bbassertexplain(first_name != "while", "Invalid syntax.", "`while` expressions cannot have an else branch.", show_position(body_end));
                     size_t else_end = end;
                     if (tokens[body_end + 1].name == "{") {
                         else_end = find_end(body_end + 2, end, "}", true);
-                        bbassert(else_end == end, "There is leftover code after closing `}` for else\n"+show_position(else_end));
+                        bbassertexplain(else_end == end, "Invalid syntax.", "There is leftover code after closing `}` for else", show_position(else_end));
                     }
                     std::string endvar = create_temp();
                     ret += "BEGIN " + endvar + "\n";
@@ -464,7 +461,7 @@ public:
                     bodyvar += " " + endvar;
                     body_end = else_end;
                 }
-                bbassert(body_end == end, "`"+first_name + "` statement body terminated before end of expression.\n"+show_position(body_end));
+                bbassertexplain(body_end == end, "Invalid syntax.", "`"+first_name + "` statement body terminated before end of expression.", show_position(body_end));
                 if(first_name!="while") // parse condition last to take advantage of blomblyvm hotpaths
                     condition = parse_expression(start + 1, start_if_body - 1);
                 breakpoint(start, end);
@@ -478,7 +475,7 @@ public:
                 std::string parsed = parse_expression(start + 1, end, tokens[start + 1].name != "{");
                 if (first_name == "new" && ret.size()>=4 && ret.substr(ret.size() - 4) == "END\n")
                     ret = ret.substr(0, ret.size() - 4) + "return # this\nEND\n";
-                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`\n"+show_position(start+1));
+                bbassertexplain(parsed != "#", "Expecting value.", "An expression that computes no value was given to `" + first_name+"`.", show_position(start+1));
                 breakpoint(start, end);
                 ret += first_name + " " + var + " " + parsed + "\n";
                 return var;
@@ -486,7 +483,7 @@ public:
 
             if (first_name == "return") {
                 std::string parsed = parse_expression(start + 1, end);
-                bbassert(parsed != "#", "An expression that computes no value  was given to `" + first_name+"`.\n"+show_position(start+1));
+                bbassertexplain(parsed != "#", "Expecting value.", "An expression that computes no value was given to `" + first_name+"`.", show_position(start+1));
                 std::string var = "#";
                 breakpoint(start, end);
                 ret += first_name + " " + var + " " + parsed + "\n";
@@ -500,11 +497,11 @@ public:
             if (assignment != MISSING) {
                 bool negation = first_name=="not";
                 if(negation) {
-                    bbassert(asAssignment==assignment, "Keyword `not` can precede an `as` but not a `=` assignment (the latter does not return).");
+                    bbassertexplain(asAssignment==assignment, "Unexpected symbol.", "Keyword `not` can precede an `as` but not a `=` assignment, as the latter does not return.", show_position(start));
                     start += 1;
                     first_name = tokens[start].name;
                 }
-                bbassert(assignment != start, "Missing a variable to assign to.\n"+show_position(assignment));
+                bbassertexplain(assignment != start, "Expecting variable.", "Missing a variable to assign to.", show_position(assignment));
                 int isSelfOperation = 0;
                 if(assignment && 
                     (  tokens[assignment-1].name=="+" 
@@ -520,9 +517,9 @@ public:
                     )) {
                     isSelfOperation = 1; 
                     // if for whatever reason operations like +as become available (which shouldn't) then don't forget to fix subsequent code
-                    bbassert(asAssignment!=assignment, "Pattern `"+tokens[assignment-1].name+"as` is not allowed. Use `"+tokens[assignment-1].name+"=` or write the full self-operation\n"+show_position(assignment));
+                    bbassertexplain(asAssignment!=assignment, "Invalid syntax.", "Pattern `"+tokens[assignment-1].name+"as` is not allowed. Use `"+tokens[assignment-1].name+"=` or write the full self-operation.", show_position(assignment));
                 }
-                if(isSelfOperation) bbassert(assignment-1 != start, "Missing a variable to operate and assign to.\n"+show_position(assignment-1));
+                if(isSelfOperation) bbassertexplain(assignment-1 != start, "Expecting variable.", "Missing a variable to operate and assign to.", show_position(assignment-1));
 
                 std::string returned_value = "#"; // this is set only by start_assigment!=MISSING
                 size_t start_assignment = find_last_end(start, assignment, ".");
@@ -530,10 +527,10 @@ public:
                 
                 if (start_entry != MISSING && start_entry+1 > start_assignment+1) {
                     size_t end_entry = find_end(start_entry + 1, assignment-isSelfOperation, "]", true);
-                    bbassert(end_entry == assignment - 1 - isSelfOperation, "Non-empty expression between last closing `]` and `"+tokens[assignment-isSelfOperation].name+"`.\n"+show_position(end_entry+1));
+                    bbassertexplain(end_entry == assignment - 1 - isSelfOperation, "Invalid syntax.", "Non-empty expression between last closing `]` and `"+tokens[assignment-isSelfOperation].name+"`.", show_position(end_entry+1));
                     std::string obj = parse_expression(start, start_entry - 1);
-                    bbassert(obj != "#", "There is no expression outcome to assign to.\n"+show_position(start));
-                    bbassert(!is_final, "Entries cannot be set to final.\n"+show_position(start-1));
+                    bbassertexplain(obj != "#", "Invalid syntax.", "There is no expression outcome to assign to.", show_position(start));
+                    bbassertexplain(!is_final, "Unexpected symbol.", "Entries cannot be set to final.", show_position(start-1));
 
                     if (isSelfOperation) {
                         std::string entry = parse_expression(start_entry + 1, end_entry - 1);
@@ -553,7 +550,7 @@ public:
                     }
                     else ret += "put # " + obj + " " + parse_expression(start_entry + 1, end_entry - 1) + " " + parse_expression(assignment + 1, end) + "\n";
                     if (asAssignment==assignment) {
-                        bberror("`as` cannot be used for setting values outside of the current scope. Use only `=` and catch on failure. This prevents leaking missing values."); // proper integration is to have "asset" and "assetfinal" keywords, but I changed my mind: this is unsafe behavior
+                        bberrorexplain("Unexpected symbol.", "`as` cannot be used for setting values outside of the current scope. Use `=` and catch on failure instead. This prevents leaking missing values.", show_position(assignment)); // proper integration is to have "asset" and "assetfinal" keywords, but I changed my mind: this is unsafe behavior
                         std::string temp = create_temp();
                         ret += "exists " + temp + " " + first_name + "\n";
                         return temp;
@@ -561,17 +558,15 @@ public:
                     return "#";
                 }
                 if (start_assignment != MISSING) {
-                    bbassert(start_assignment >= start + 1-isSelfOperation, "Assignment expression can not start with `.`.\n"+show_position(start));
+                    bbassertexplain(start_assignment >= start + 1-isSelfOperation, "Invalid symbol.", "Assignment expression can not start with `.`.", show_position(start));
                     size_t parenthesis_start = find_end(start_assignment + 1,  assignment - 1-isSelfOperation, "(");
                     std::string obj = parse_expression(start, start_assignment - 1);
-                    bbassert(obj != "#", "There is no expression outcome to assign to.\n"+show_position(start)+"\n");
+                    bbassertexplain(obj != "#", "No result found..", "There is no expression outcome to assign to.", show_position(start));
                     returned_value = obj;
                     if (parenthesis_start != MISSING) {
                         code_block_prepend = "";
                         size_t parenthesis_end = find_end(parenthesis_start + 1, assignment - 1-isSelfOperation, ")", true);
-                        bbassert(parenthesis_end == assignment - 1-isSelfOperation, 
-                                  "There is leftover code after last "
-                                  "parenthesis in assignment's left hand side.\n"+show_position(parenthesis_end));
+                        bbassertexplain(parenthesis_end == assignment - 1-isSelfOperation, "Incomplete expression.", "There is leftover code after last parenthesis in assignment's left hand side.", show_position(parenthesis_end));
                         size_t j = parenthesis_start+1;
                         while(j<parenthesis_end) {
                             size_t next_j = find_end(j+1, parenthesis_end, ",");
@@ -694,7 +689,7 @@ public:
                                     + parse_expression(start_assignment + 1, parenthesis_start - 1) + " " 
                                     + parse_expression(assignment + 1, end) + "\n";
                     if (asAssignment==assignment) {
-                        bberror("`as` cannot be used for setting values outside of the current scope. Use only `=` and catch on failure. This prevents leaking missing values."); // proper integration is to have "asset" and "assetfinal" keywords, but I changed my mind: this is unsafe behavior
+                        bberrorexplain("Unexpected symbol.", "`as` cannot be used for setting values outside of the current scope. Use only `=` and catch on failure. This prevents leaking missing values.", show_position(assignment)); // proper integration is to have "asset" and "assetfinal" keywords, but I changed my mind: this is unsafe behavior
                         std::string temp = create_temp();
                         ret += "exists " + temp + " " + first_name + "\n";
                         //bbassert(returned_value=="#", "Cannot set struct fields with `A.x as y`. Use `A.x = y` instread. To ignore errors instead use `if(y as y) A.x=y;` \n"+show_position(assignment));
@@ -704,8 +699,8 @@ public:
                 }
 
                 size_t parenthesis_start = find_end(start + 1, assignment - 1-isSelfOperation, "(");
-                bbassert(parenthesis_start == MISSING ? assignment == start + 1+isSelfOperation : parenthesis_start == start + 1+isSelfOperation, 
-                          "Cannot understrand what to assign to left from the assignment.\n"+show_position(assignment));
+                bbassertexplain(parenthesis_start == MISSING ? assignment == start + 1+isSelfOperation : parenthesis_start == start + 1+isSelfOperation, 
+                          "Expecting variable.", "Cannot understrand what to assign to. You can only assign to variables, struct fields, or elements", show_position(assignment));
                 if (first_name == "bbvm::int" || first_name == "bbvm::float" || 
                     first_name == "bbvm::str" || first_name == "bbvm::file" || 
                     first_name == "bbvm::bool" ||
@@ -719,7 +714,7 @@ public:
                     first_name == "bbvm::sum" || 
                     first_name == "bbvm::call" || first_name == "bbvm::range" || 
                     first_name == "bbvm::print" || first_name == "bbvm::read") {
-                    bberror("Cannot assign to bbvm implementation `" + first_name + "`.\n"+show_position(start));
+                    bberrorexplain("Unexpected symbol.", "Cannot assign to bbvm implementation `" + first_name + "`.", show_position(start));
                 }
                 /*if (first_name == "int" || first_name == "float" || 
                     first_name == "str" || first_name == "file" || 
@@ -767,9 +762,9 @@ public:
                     first_name == "]" || first_name == "." || 
                     first_name == "," || first_name == ":" || 
                     first_name == ";" || first_name == "#") {
-                    bberror("Cannot assign to blombly keyword `" + first_name + "`."+
-                            "\n   \033[33m!!!\033[0m For safety, all keywords are considered final.\n"
-                            + show_position(start));
+                    bberrorexplain("Unexpected symbol.", 
+                            "Cannot assign to blombly keyword `" + first_name + "`. For safety, all keywords are considered final.",
+                            show_position(start));
                 }
 
                 if (parenthesis_start != MISSING) {
@@ -786,14 +781,15 @@ public:
 
                     code_block_prepend = "";
                         size_t parenthesis_end = find_end(parenthesis_start + 1, assignment - 1-isSelfOperation, ")", true);
-                        bbassert(parenthesis_end == assignment - 1-isSelfOperation, 
-                                  "There is leftover code after last "
-                                  "parenthesis in assignment's left hand side.\n"+show_position(parenthesis_end));
+                        bbassertexplain(parenthesis_end == assignment - 1-isSelfOperation, 
+                                  "Invalid syntax.",
+                                  "There is leftover code after last parenthesis in assignment's left hand side.",
+                                  show_position(parenthesis_end));
                         size_t j = parenthesis_start+1;
                         while(j<parenthesis_end) {
                             size_t next_j = find_end(j+1, parenthesis_end, ",");
                             if(next_j==MISSING) next_j = parenthesis_end;
-                            bbassert(next_j!=j, "Empty argument.\n"+show_position(j));
+                            bbassertexplain(next_j!=j, "Empty argument.\n", "", show_position(j));
                             std::string name = tokens[next_j-1].name;
                             code_block_prepend += "next " + name + " args\n";
 
@@ -809,7 +805,7 @@ public:
                                 name == "bbvm::sum" || 
                                 name == "bbvm::call" || name == "bbvm::range" || 
                                 name == "bbvm::print" || name == "bbvm::read") {
-                                bberror("Cannot have bbvm implementation as argument `" + name + "`.\n"+show_position(next_j-1));
+                                bberrorexplain("Unexpected symbol..", "Cannot have bbvm implementation as argument `" + name + "`.", show_position(next_j-1));
                             }
                             /*if (name == "int" || name == "float" || 
                                 name == "str" || name == "file" || 
@@ -853,9 +849,9 @@ public:
                                 name == "]" || name == "." || 
                                 name == "," || name == ":" || 
                                 name == ";" || name == "#") {
-                                bberror("Cannot have blombly keyword `" + name + "` as argument."+
-                                        "\n   \033[33m!!!\033[0m For safety, all keywords are considered final.\n"
-                                        + show_position(next_j-1));
+                                bberrorexplain("Unexpected symbol.",
+                                        "Cannot have blombly keyword `" + name + "` as argument. For safety, all keywords are considered final.",
+                                        show_position(next_j-1));
                             }
 
                             for(size_t jj=j;jj<next_j-1;++jj) {
@@ -886,7 +882,7 @@ public:
                 }
 
                 if(isSelfOperation) {
-                    bbassert(asAssignment!=assignment, "Cannot have a self-operation to. This error should never occur as there is a previous assert. (This is just future-proofing.)");
+                    bbassertexplain(asAssignment!=assignment, "Invalid syntax.", "Cannot have a self-operation for an assinment. This error should never occur as there is a previous assert. This is just future-proofing.", show_position(start));
                     if(tokens[assignment-1].name=="+") ret += "add "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
                     else if(tokens[assignment-1].name=="-") ret += "sub "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
                     else if(tokens[assignment-1].name=="*") ret += "mul "+first_name+" "+first_name+" "+parse_expression(assignment + 1, end) + "\n";
@@ -901,9 +897,9 @@ public:
                 else ret += (asAssignment == assignment?"AS ":"IS ") + first_name + " " + parse_expression(assignment + 1, end) + "\n";
                 
                 if (is_final) {
-                    bbassert(first_name.size() < 3 || first_name.substr(0, 3) != "_bb", 
-                              "_bb variables cannot be made final\n"
-                              "   \033[33m!!!\033[0m This is an internal or macro issue.\n"+show_position(start));
+                    bbassertexplain(first_name.size() < 3 || first_name.substr(0, 3) != "_bb", 
+                              "Invalid macro.",
+                              "_bb variables cannot be made final. This indicates an improper macro implementation.", show_position(start));
                     ret += "final # " + first_name + "\n";
                 }
                 if (asAssignment != MISSING) {
@@ -919,18 +915,16 @@ public:
                 return "#";
             }
 
-            bbassert(!is_final, "Only assignments to variables can be final\n" + show_position(start));
-            bbassert(tokens[start].name != "#", 
-                      "Expression cannot start with `#` here."
-                      "\n   \033[33m!!!\033[0m To avoid code smells, you can set metadata"
-                      "\n        with `@property = value;` or `final @property = value;`"
-                      "\n        only before any other block commands and only"
-                      "\n        and immediately assigning a block. Metadata are not inlined.\n"
-                      + show_position(start));
+            bbassertexplain(!is_final, "Expecting variable.", "Only assignments to variables can be final.", show_position(start));
+            bbassertexplain(tokens[start].name != "#" && tokens[start].name != "!", 
+                      "Syntax error.",
+                      "Expression cannot start with `"+tokens[start].name +"` here. To avoid code smells, you can set metadata with `@property = value;` or `final @property = value;`"
+                      "only before any other block commands and only and immediately assigning a block. Metadata are not inlined.",
+                      show_position(start));
             
             if (first_name == "bbvm::print" || first_name == "print") {
                 std::string parsed = parse_expression(start + 1, end);
-                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`.\n"+show_position(start+1));
+                bbassertexplain(parsed != "#", "Expecting value.", "An expression that computes no value was given to `" + first_name+"`.", show_position(start+1));
                 std::string var = "#";
                 breakpoint(start, end);
                 ret += "print " + var + " " + parsed + "\n";
@@ -947,7 +941,7 @@ public:
             
             if (first_name == "fail" || first_name == "bbvm::fail") {
                 std::string parsed = parse_expression(start + 1, end);
-                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`.\n"+show_position(tokens, start+1));
+                bbassertexplain(parsed != "#", "Expecting value.", "An expression that computes no value was given to `" + first_name+"`.", show_position(tokens, start+1));
                 std::string var = "#";
                 breakpoint(start, end);
                 ret += "fail " + var + " " + parsed + "\n";
@@ -956,7 +950,7 @@ public:
 
             if (first_name == "return") {
                 std::string parsed = parse_expression(start + 1, end);
-                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`.\n"+show_position(start+1));
+                bbassertexplain(parsed != "#", "Expecting value.", "An expression that computes no value was given to `" + first_name+"`.", show_position(start+1));
                 std::string var = "#";
                 breakpoint(start, end);
                 ret += first_name + " " + var + " " + parsed + "\n";
@@ -1090,11 +1084,10 @@ public:
             }
 
             if (first_name == "bbvm::range" || first_name=="range") {
-                bbassert(tokens[start + 1].name == "(", "Missing ( just after `" + first_name+"`.\n"+show_position(start+1));
-                bbassert(find_end(start + 2, end, ")") == end, "Leftover code after the last `)` for `" + first_name+"`.\n"+show_position(start+2));
+                bbassertexplain(tokens[start + 1].name == "(", "Invalid syntax.", "Missing ( just after `" + first_name+"`.", show_position(start+1));
+                bbassertexplain(find_end(start + 2, end, ")") == end, "Invalid syntax.", "Leftover code after the last `)` for `" + first_name+"`.", show_position(start+2));
                 size_t separator = find_end(start + 2, end, ",");
-                if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::")
-                    first_name = first_name.substr(6);
+                if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::") first_name = first_name.substr(6);
                 std::string temp = create_temp();
                 if(separator==MISSING) {
                     auto toret = first_name + " " + temp + " " + parse_expression(start + 2, end - 1) + "\n";
@@ -1116,10 +1109,10 @@ public:
             }
 
             if (first_name == "bbvm::push" || first_name=="push") {
-                bbassert(tokens[start + 1].name == "(", "Missing ( just after `" + first_name+"`.\n"+show_position(start+1));
-                bbassert(find_end(start + 2, end, ")") == end, "Leftover code after the last `)` for `" + first_name+"`.\n"+show_position(start+2));
+                bbassertexplain(tokens[start + 1].name == "(", "Invalid syntax.", "Missing ( just after `" + first_name+"`.", show_position(start+1));
+                bbassertexplain(find_end(start + 2, end, ")") == end, "Invalid syntax.", "Leftover code after the last `)` for `" + first_name+"`.", show_position(start+2));
                 size_t separator = find_end(start + 2, end, ",");
-                bbassert(separator != MISSING, "push requires at least two arguments.\n"+show_position(end));
+                bbassertexplain(separator != MISSING, "Invalid syntax.", "push requires at least two arguments.", show_position(end));
                 if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::") first_name = first_name.substr(6);
                 auto toret = first_name + " # " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, end - 1) + "\n";
                 breakpoint(start, end);
@@ -1128,12 +1121,12 @@ public:
             }
 
             if (first_name == "bbvm::graphics" || first_name=="graphics") {
-                bbassert(tokens[start + 1].name == "(", "Missing ( just after `" + first_name+"`.\n"+show_position(start+1));
-                bbassert(find_end(start + 2, end, ")") == end, "Leftover code after the last `)` for `" + first_name+"`.\n"+show_position(start+2));
+                bbassertexplain(tokens[start + 1].name == "(", "Invalid syntax.", "Missing ( just after `" + first_name+"`.", show_position(start+1));
+                bbassertexplain(find_end(start + 2, end, ")") == end, "Invalid syntax.", "Leftover code after the last `)` for `" + first_name+"`.", show_position(start+2));
                 size_t separator = find_end(start + 2, end, ",");
-                bbassert(separator != MISSING, "graphics require three arguments.\n"+show_position(end));
+                bbassertexplain(separator != MISSING, "Invalid syntax.", "graphics require three arguments.", show_position(end));
                 size_t separator2 = find_end(separator + 2, end, ",");
-                bbassert(separator2 != MISSING, "graphics require three arguments.\n"+show_position(end));
+                bbassertexplain(separator2 != MISSING, "Invalid syntax.", "graphics require three arguments.", show_position(end));
                 if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::") first_name = first_name.substr(6);
                 std::string var = create_temp();
                 auto toret = first_name + " " + var + " " + parse_expression(start + 2, separator - 1) + " " + parse_expression(separator + 1, separator2 - 1) + " " + parse_expression(separator2 + 1, end - 1) + "\n";
@@ -1167,7 +1160,7 @@ public:
                 || first_name=="vector::zero" || first_name=="vector::consume" 
                 || first_name=="vector::alloc" || first_name=="list::element"
                 || first_name=="list::gather" || first_name=="list::gather") {
-                bbassert(tokens[start + 1].name == "(", "Missing '(' just after '" + first_name+"'.\n"+show_position(start+1));
+                bbassertexplain(tokens[start + 1].name == "(", "Invalid syntax.", "Missing '(' just after '" + first_name+"'.", show_position(start+1));
                 if (start + 1 >= end - 1 && (first_name == "map" || 
                                              first_name == "list")) {
                     std::string var = create_temp();
@@ -1179,7 +1172,7 @@ public:
                     return var;
                 }
                 std::string parsed = parse_expression(start + 1, end);
-                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name + "`.\n"+show_position(start+1));
+                bbassertexplain(parsed != "#", "Invalid syntax.", "An expression that computes no value was given to `" + first_name + "`.", show_position(start+1));
                 std::string var = create_temp();
                 if(first_name.size()>=6 && first_name.substr(0, 6)=="bbvm::")
                     first_name = first_name.substr(6);
@@ -1191,14 +1184,19 @@ public:
 
             if (first_name == "bbvm::time" || first_name == "bbvm::server" || first_name == "bbvm::sqlite" || first_name == "bbvm::list") {
                 first_name = first_name.substr(6);
-                bbassert(tokens[start + 1].name == "(", "Missing ( after " + first_name);
+                bbassertexplain(tokens[start + 1].name == "(", "Invalid syntax", "Missing ( after " + first_name, show_position(start));
                 if (first_name == "list") {
-                    bbassert(tokens[start + 2].name == ")", "`"+first_name + "` accepts no arguments"
-                              "\n   \033[33m!!!\033[0m Create lists of more arguments by pushing elements to"
-                              "\n        an empty list, or by separating values by commas like this: `l=1,2,3;`.\n"
-                              +show_position(start+2));
-                } else {
-                    bbassert(tokens[start + 2].name == ")", "`"+first_name +"` accepts no arguments.\n"+show_position(start+2));
+                    bbassertexplain(tokens[start + 2].name == ")", 
+                              "Unexpected arguments.", 
+                              "`"+first_name + "` accepts no arguments. Create lists of more arguments by pushing elements to "
+                              "an empty list, or by separating values by commas like this: `l=1,2,3;`.",
+                              show_position(start+2));
+                }
+                 else {
+                    bbassertexplain(tokens[start + 2].name == ")", 
+                        "Unexpected arguments.", 
+                        "`"+first_name +"` accepts no arguments.",
+                        show_position(start+2));
                 }
                 std::string var = create_temp();
                 ret += first_name + " " + var + "\n";
@@ -1209,12 +1207,16 @@ public:
             if (first_name == "time" || first_name == "server"  || first_name == "sqlite" || first_name == "list") {
                 bbassert(tokens[start + 1].name == "(", "Missing ( after " + first_name);
                 if (first_name == "list") {
-                    bbassert(tokens[start + 2].name == ")", "`"+first_name + "` accepts no arguments"
-                              "\n   \033[33m!!!\033[0m Create lists of more arguments by pushing elements to"
-                              "\n        an empty list, or by separating values by commas like this: `l=1,2,3;`.\n"
-                              +show_position(start+2));
+                    bbassertexplain(tokens[start + 2].name == ")",
+                              "Unexpected arguments.",
+                              "`"+first_name + "` accepts no arguments. Create lists of more arguments "
+                              "by pushing elements to an empty list, or by separating values by commas like this: `l=1,2,3;`.",
+                              show_position(start+2));
                 } else {
-                    bbassert(tokens[start + 2].name == ")", "`"+first_name +"` accepts no arguments.\n"+show_position(start+2));
+                    bbassertexplain(tokens[start + 2].name == ")",
+                             "Unexpected arguments.",
+                             "`"+first_name +"` accepts no arguments.",
+                             show_position(start+2));
                 }
                 std::string var = create_temp();
                 ret += first_name + " " + var + "\n";
@@ -1227,9 +1229,8 @@ public:
                 std::string parsed = parse_expression(start + 1, end, 
                                                       tokens[start + 1].name 
                                                       != "{");
-                if (first_name == "new" && ret.substr(ret.size() - 4) == "END\n")
-                    ret = ret.substr(0, ret.size() - 4) + "return # this\nEND\n";
-                bbassert(parsed != "#", "An expression that computes no value was given to `" + first_name+"`\n"+show_position(start+1));
+                if (first_name == "new" && ret.substr(ret.size() - 4) == "END\n") ret = ret.substr(0, ret.size() - 4) + "return # this\nEND\n";
+                bbassertexplain(parsed != "#", "Expecting value.", "An expression that computes no value was given to `" + first_name+"`.", show_position(start+1));
                 auto toret = first_name + " " + var + " " + parsed + "\n";
                 breakpoint(start, end);
                 ret += toret;
@@ -1298,13 +1299,11 @@ public:
                     return parse_expression(start + 1, end - 1);
                 std::string var = create_temp();
                 if (tokens[call + 1].name == "{")
-                    bbassert(find_end(call + 1, end, "}", true) != end - 1,  
-                              "Unexpected code block."
-                              "\n   \033[33m!!!\033[0m Cannot directly enclose brackets inside a method"
-                              "\n        call's parenthesis to avoid code smells. Instead, you can place"
-                              "\n        any code inside the parethesis to transfer evaluated content to"
-                              "\n        the method. This looks like this: `func(x=1;y=2)`\n"
-                              +show_position(call+1));
+                    bbassertexplain(find_end(call + 1, end, "}", true) != end - 1,  
+                              "Unexpected code block.",
+                              "Cannot directly enclose brackets inside a method call's parenthesis to avoid code smells. Instead, you can place "
+                              "any code inside the parethesis to transfer evaluated content to the method. This looks like this: `func(x=1;y=2)`.",
+                              show_position(call+1));
                 size_t conditional = find_end(call + 1, end, "::"); // call conditional
                 std::string parsed_args;
                 if (conditional == MISSING) {
@@ -1352,7 +1351,7 @@ public:
             size_t access = find_last_end(start, end, ".");
             if (arrayaccess != MISSING && arrayaccess+1>access+1) {
                 size_t arrayend = find_end(arrayaccess + 1, end, "]", true);
-                bbassert(arrayend == end, "Array access `]` ended before expression end.\n"+show_position(arrayend));
+                bbassertexplain(arrayend == end, "Invalid syntax.", "Array access `]` ended before expression end.", show_position(arrayend));
                 std::string var = create_temp();
                 auto toret = "at " + var + " " + parse_expression(start, arrayaccess - 1) 
                                          + " " + parse_expression(arrayaccess + 1, arrayend - 1) +  "\n";
@@ -1373,7 +1372,7 @@ public:
                 return var;
             }
 
-        bberror("Unknown type of command: `"+to_string(start, end)+"`\n"+show_position(start));
+        bberrorexplain("Invalid syntax.", "Did you forget the closing `;`? ~ This issue occurs because the next invalid statement could not be understood: `"+to_string(start, end)+"`.", show_position(start));
         /*} catch (const BBError& e) {
             if (tokens[start].line != tokens[end].line)
                 throw e;
@@ -1414,10 +1413,9 @@ void sanitize(std::vector<Token>& tokens) {
         if (tokens[i].name == "\\") bberror("A stray `\\` was encountered.\n" + Parser::show_position(tokens, i));
 
         if (tokens[i].name.size() >= 3 && tokens[i].name.substr(0, 3) == "_bb")
-            bberror("Variable name `" + tokens[i].name + "` cannot start with _bb."
-                    "\n   \033[33m!!!\033[0m Names starting with this prefix are reserved"
-                    "\n        for VM local temporaries created by the compiler.\n"
-                     + Parser::show_position(tokens, i));
+            bberrorexplain("Unexpected symbol.", "Variable name `" + tokens[i].name + "` cannot start with _bb. "
+                    "Names starting with this prefix are reserved for VM local temporaries created by the compiler.",
+                    Parser::show_position(tokens, i));
         
         if ((tokens[i].name=="=" || tokens[i].name=="as") && i 
             && (tokens[i-1].name=="|")) { // "this is handled here, other operations by the same parse, allow |as for this specifically"
@@ -1428,10 +1426,10 @@ void sanitize(std::vector<Token>& tokens) {
                 start -= 1;
                 if(tokens[start].name=="(" || tokens[start].name=="{")// || tokens[start].name=="[") 
                     break;
-                bbassert(tokens[start].name!="}", "For safety, you cannot use `"+tokens[i-1].name+ tokens[i].name +"` when the left-hand-side contains a bracket `}`. Please resort to var = expression assignment.\n"+Parser::show_position(tokens, i));
-                bbassert(tokens[start].name!=")", "For safety, you cannot use `"+tokens[i-1].name+ tokens[i].name +"` when the left-hand-side contains a parenthesis `)`. Please resort to var = expression assignment.\n"+Parser::show_position(tokens, i));
+                bbassertexplain(tokens[start].name!="}", "Unexpected symbol.", "For safety, you cannot use `"+tokens[i-1].name+ tokens[i].name +"` when the left-hand-side contains a bracket `}`. Please resort to var = expression assignment.", Parser::show_position(tokens, i));
+                bbassertexplain(tokens[start].name!=")", "Unexpected symbol.", "For safety, you cannot use `"+tokens[i-1].name+ tokens[i].name +"` when the left-hand-side contains a parenthesis `)`. Please resort to var = expression assignment.", Parser::show_position(tokens, i));
                 //bbassert(tokens[start].name!="]", "For safety, you cannot use `"+tokens[i-1].name+ tokens[i].name +"` when the left-hand-side contains a parenthesis `]`. Please resort to var = expression assignment.\n"+Parser::show_position(tokens, i));
-                bbassert(tokens[start].name!="=", "Previous code has not been balanced and there is a `=` before `"+tokens[i-1].name+ tokens[i].name +"`\n"+Parser::show_position(tokens, i));
+                bbassertexplain(tokens[start].name!="=", "Unexpected symbol.", "Previous code has not been balanced and there is a `=` before `"+tokens[i-1].name+ tokens[i].name +"`.", Parser::show_position(tokens, i));
             }
             //if(start==-1 || tokens[start].name==";" || tokens[start].name=="{")
                 start += 1;
@@ -1568,45 +1566,42 @@ void sanitize(std::vector<Token>& tokens) {
                     + Parser::show_position(tokens, i-1));*/
 
         if (tokens[i].name == "else" && i > 0 && tokens[i - 1].name == ";")
-            bberror("`else` cannot be the next statement after `;`. "
-                    "\n   \033[33m!!!\033[0m You may have failed to close brackets"
-                    "\n        or are using a bracketless if, which should not have `;`"
-                    "\n        after its first statement. \n"
-                    + Parser::show_position(tokens, i));
+            bberrorexplain("Unexpected symbol.", 
+                    "`else` cannot be the next statement after `;`. You may have failed to close brackets "
+                    "or are using a bracketless if, which should not have `;` after its first statement.",
+                    Parser::show_position(tokens, i));
                     
         if (tokens[i].name == ")" && i > 0 && tokens[i - 1].name == ";")
-            bberror("The pattern ';)' is not allowed. "
-                    "\n   \033[33m!!!\033[0m This error appears so that expressions inside parentheses"
-                    "\n        remain as consise as possible while keeping only one viable syntax.\n"
-                    + Parser::show_position(tokens, i-1));
+            bberrorexplain("Unexpected symbol.",
+                    "The pattern ';)' is not allowed. This error appears so that expressions inside parentheses "
+                    "remain as consise as possible while keeping only one viable syntax.",
+                    Parser::show_position(tokens, i-1));
 
         if ((tokens[i].name == "while" || tokens[i].name == "if" || 
              tokens[i].name == "catch") && i < tokens.size() - 1 && 
              tokens[i + 1].name != "(")
-            bberror("Invalid `"+tokens[i].name+"` syntax."
-                    "\n   \033[33m!!!\033[0m `(` should always follow `" + tokens[i].name + "` but " + tokens[i + 1].name + " encountered.\n" 
-                    + Parser::show_position(tokens, i+1));
+            bberrorexplain("Unexpected symbol.",
+                    "`(` should always follow `" + tokens[i].name + "` but " + tokens[i + 1].name + " weas encountered.",
+                    Parser::show_position(tokens, i+1));
         if ((tokens[i].name == "new") && i < tokens.size() - 1 && tokens[i + 1].name != "{")
-            bberror("Invalid `"+tokens[i].name+"` syntax."
-                    "\n   \033[33m!!!\033[0m `{` should always follow `" + tokens[i].name + "` but `" + tokens[i + 1].name + "` encountered."
-                    "\n        Since nitializing a struct based on a code block variable and no arguments"
-                    "\n        is a code smell, explicitly inline the block this: `" + tokens[i].name + " {block:}`.\n" 
-                    + Parser::show_position(tokens, i+1));
+            bberrorexplain("Unexpected symbol.",
+                    "`{` should always follow `" + tokens[i].name + "` but `" + tokens[i + 1].name + "` was encountered. "
+                    "Since nitializing a struct based on a code block variable and no arguments "
+                    "is a code smell, explicitly inline the block this: `" + tokens[i].name + " {block:}`.",
+                    Parser::show_position(tokens, i+1));
 
         if (tokens[i].name == "}") {
             if (i >= tokens.size() - 1)
                 updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
             else if (tokens[i + 1].name == ";")
-                bberror("The syntax `};` is invalid."
-                        "\n   \033[33m!!!\033[0m Both symbols terminate expressions."
-                        "\n       Use only } instead.\n" 
-                        + Parser::show_position(tokens, i));
+                bberrorexplain("Unexpected symbol.",
+                        "The syntax `};` is invalid. Both symbols terminate expressions. Use only `}`.", 
+                        Parser::show_position(tokens, i));
             else if (tokens[i + 1].name == ":")
-                bberror("The syntax `}:` is invalid."
-                        "\n   \033[33m!!!\033[0m  Inlining a just-declared code block"
-                        "\n       is equivalent to running its code immediately."
-                        "\n       Maybe you did not mean to add brackets?\n" 
-                        + Parser::show_position(tokens, i));
+                bberrorexplain("Unexpected symbol.", 
+                        "The syntax `}:` is invalid. Inlining a just-declared code block is equivalent to running its code immediately. "
+                        "Maybe you did not mean to add brackets?", 
+                        Parser::show_position(tokens, i));
             else if (tokens[i + 1].name != "." && tokens[i + 1].name != ")" && 
                      tokens[i + 1].name != "," && tokens[i + 1].name != "+" && 
                      tokens[i + 1].name != "-" && tokens[i + 1].name != "*" && 
@@ -1617,7 +1612,7 @@ void sanitize(std::vector<Token>& tokens) {
             if (i >= tokens.size() - 1)
                 updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
             else if (tokens[i + 1].name == ";")
-                bberror(":; is an invalid syntax. Use only `:`.\n" + Parser::show_position(tokens, i));
+                bberrorexplain("Unexpected symbol.", ":; is an invalid syntax. Use only `:`.", Parser::show_position(tokens, i));
             else
                 updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
         }
@@ -1648,10 +1643,9 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     "\n       before the current commend. Here is an example `A = 1,2,3; while(x as next(#of bbvm::iter(A))) {}`.\n"
                     + Parser::show_position(tokens, i));*/
         if(tokens[i].name == "." && i<tokens.size()-1 && tokens[i+1].name==".") {
-            bberror("`Unexpected `..`. "
-                    "\n   \033[33m!!!\033[0m More than one fullstop can only follow `this` to indicate values"
-                    "\n       obtained from its declration closure.\n"
-                    + Parser::show_position(tokens, i));
+            bberrorexplain("Unexpected symbol.", 
+                "More than one fullstop can only follow `this` to indicate values obtained from its declration closure.", 
+                Parser::show_position(tokens, i));
         }
         
         if (tokens[i].name == "this" && i<tokens.size()-2 && tokens[i+1].name=="." && tokens[i+2].name==".") {
@@ -1663,7 +1657,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     if(tokens[i].name==".") ++countWedges; else break;
                     ++i;
                 }
-                bbassert(i<tokens.size(), "Runaway `.` at end of file.\n"+Parser::show_position(tokens, i));
+                bbassertexplain(i<tokens.size(), "Invalid syntax.", "Runaway `.` encountered at the end of file.", Parser::show_position(tokens, i));
                 int pos = updatedTokens.size();
                 bool alreadyDone = false;
                 std::string closureName = tokens[i].name;
@@ -1677,11 +1671,12 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 while(true) {
                     if(updatedTokens[pos].name=="}") depth++;
                     if(updatedTokens[pos].name=="{") {if(depth>0)depth--; else hasProgressed=false;}
-                    bbassert(pos>=0, 
-                            "Closure of `this` specified by a number of `.` that is higher than the actual code recursion."
-                            "\n   \033[33m!!!\033[0m  Each `.` declaration can only correspond to structs being created with `new` statements or block declarations."
-                            "\n        Here is an example `value=1; a = new{float=>this..value} print(a|float);`.\n"
-                            +Parser::show_position(tokens, originali));
+                    bbassertexplain(pos>=0, 
+                            "Too many closure escapes.",
+                            "Closure of `this` specified by a number of `.` that is higher than the actual code recursion. "
+                            "Each `.` declaration can only correspond to structs being created with `new` statements or block declarations. "
+                            "Here is an example `value=1; a = new{float=>this..value} print(a|float);`.",
+                            Parser::show_position(tokens, originali));
                     if(depth!=0 || hasProgressed) {
                         --pos;
                         continue;
@@ -1751,11 +1746,12 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             //std::cout<<Parser::to_string(updatedTokens, 0, updatedTokens.size())<<"\n";
         }
         else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && (tokens[i + 1].name == "of" || tokens[i + 1].name == "anon")) {
-                bbassert(tokens[i - 1].name == "(" || tokens[i - 1].name == "[", 
-                          "Unexpected `!of` encountered after `"+tokens[i - 1].name +"`."
-                          "\n   \033[33m!!!\033[0m  Each `!of` (or equivalently `!anon`) declaration can only start after a parenthesis or square bracket."
-                          "\n        Here is an example `A = 1,2,3; while(x as next(!of bbvm::iter(A))) {}`.\n"
-                          +Parser::show_position(tokens, i));
+                bbassertexplain(tokens[i - 1].name == "(" || tokens[i - 1].name == "[", 
+                          "Unexpected symbol.",
+                          "Unexpected `!of` encountered after `"+tokens[i - 1].name +"`. "
+                          "Each `!of` (or equivalently `!anon`) declaration can only start after a parenthesis or square bracket. "
+                          "Here is an example `A = 1,2,3; while(x as next(!of bbvm::iter(A))) {}`.",
+                          Parser::show_position(tokens, i));
                 size_t iend = i+2;
                 int depth = 1;
                 while(iend<tokens.size()) {
@@ -1767,7 +1763,11 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                         break;
                     iend += 1;
                 }
-                bbassert(iend<tokens.size() && (tokens[iend].name==")" || tokens[iend].name=="]"), tokens[i - 1].name == "("?"`(!of @code)` or `(!anon @code)` statement was never closed with a right symbol.":"`[!of @code]` or `(!anon @code)` statement was never closed with a right symbol.");
+                bbassertexplain(iend<tokens.size() && (tokens[iend].name==")" || tokens[iend].name=="]"), 
+                    "Invalid syntax.",
+                    tokens[i - 1].name == "("?"`(!of @code)` or `(!anon @code)` statement was never closed with a right symbol.":"`[!of @code]` or `(!anon @code)` statement was never closed with a right symbol.",
+                    Parser::show_position(tokens, i-1)
+                );
                 int position = updatedTokens.size();
                 //depth = 0;
                 while(position>0)  {
@@ -1812,13 +1812,14 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             std::string libpath = tokens[i+2].name;    
             std::string source = libpath.substr(1, libpath.size() - 2);
             if(top_level_file!=tokens[i].file.back()) {
-                bbassert(isAllowedLocation(source), "Unexpected `!access` for new permissions"
-                                            "\n  \033[33m!!!\033[0m This preprocessor directive creates permissions only if encountered at the top-level (aka main)"
-                                            "\n      file being parsed. Permissions then passed on to all `!include` and `!comptime` directives, like the one that has"
-                                            "\n      just been interrupted. Here, you cannot add new permissions that are not already present."
-                                            "\n  \033[33m!!!\033[0m The permissions being requested can be added your main file at an earlier stage after"
-                                            "\n      reviewing them. Add either a generalization or the following: `!access "+ tokens[i+2].name+"`"
-                                            "\n      Beware that permissions are transferred to your main application if not further modified.\n"+Parser::show_position(tokens, i));
+                bbassertexplain(isAllowedLocation(source), "Unexpected `!access` for new permissions.",
+                                            "This preprocessor directive creates permissions only if encountered at the top-level (aka main) "
+                                            "file being parsed. Permissions then passed on to all `!include` and `!comptime` directives, like the one that has "
+                                            "just been interrupted. Here, you cannot add new permissions that are not already present. "
+                                            "The permissions being requested can be added your main file at an earlier stage after "
+                                            "reviewing them. Add either a generalization or the following: `!access "+ tokens[i+2].name+"` "
+                                            "Beware that permissions are transferred to your main application if not further modified.",
+                                            Parser::show_position(tokens, i));
 
             }
             else {
@@ -1832,13 +1833,14 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             std::string libpath = tokens[i+2].name;    
             std::string source = libpath.substr(1, libpath.size() - 2);
             if(top_level_file!=tokens[i].file.back()) {
-                bbassert(isAllowedWriteLocation(source), "Unexpected `!modify` for new permissions"
-                                            "\n  \033[33m!!!\033[0m This preprocessor directive creates permissions only if generated at the top-level (aka main)"
-                                            "\n      file being parsed. It is then passed on to all `!include` and `!comptime` directives, like the one that has"
-                                            "\n      just been interrupted. Here, you cannot add new permissions that are not already present."
-                                            "\n  \033[33m!!!\033[0m The permissions being requested can be added your main file at an earlier stage after"
-                                            "\n      reviewing them. Add either a generalization or the following: `!modify "+tokens[i+2].name+"`"
-                                            "\n      Beware that permissions are transferred to your main application if not further modified.\n"+Parser::show_position(tokens, i));
+                bbassertexplain(isAllowedWriteLocation(source), "Unexpected `!modify` for new permissions.",
+                                            "This preprocessor directive creates permissions only if generated at the top-level (aka main) "
+                                            "file being parsed. It is then passed on to all `!include` and `!comptime` directives, like the one that has "
+                                            "just been interrupted. Here, you cannot add new permissions that are not already present. "
+                                            "The permissions being requested can be added your main file at an earlier stage after "
+                                            "reviewing them. Add either a generalization or the following: `!modify "+tokens[i+2].name+"` "
+                                            "Beware that permissions are transferred to your main application if not further modified.",
+                                            Parser::show_position(tokens, i));
 
             }
             else {
@@ -1852,16 +1854,14 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             size_t specNameEnd = MISSING;
             size_t specNameStart = MISSING;
             if (i > 1) {
-                bbassert(tokens[i - 1].name == "{", 
-                          "Unexpected `#spec` encountered."
-                          "\n   \033[33m!!!\033[0m  Each `#spec` declaration can only reside in named code blocks."
-                          "\n        These refer to code blocks being declared and assigned to at least one variable.\n"
-                          +Parser::show_position(tokens, i));
-                bbassert(tokens[i - 2].name == "=" || tokens[i - 2].name == "as", 
-                          "Invalid `#spec` syntax."
-                          "\n   \033[33m!!!\033[0m  Each `#spec` declaration can only reside in named code blocks."
-                          "\n        These refer to code blocks being declared and assigned to at least one variable.\n"
-                          +Parser::show_position(tokens, i));
+                bbassertexplain(tokens[i - 1].name == "{", 
+                          "Unexpected symbol.",
+                          "Each `#spec` declaration can only reside in named code blocks. These refer to code blocks being declared and assigned to at least one variable.",
+                          Parser::show_position(tokens, i));
+                bbassertexplain(tokens[i - 2].name == "=" || tokens[i - 2].name == "as", 
+                          "Invalid syntax.",
+                          "Each `#spec` declaration can only reside in named code blocks. These refer to code blocks being declared and assigned to at least one variable.",
+                          Parser::show_position(tokens, i));
                 int position = i - 1;
                 int depth = 0;
                 while (position > 0) {
@@ -1877,11 +1877,10 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     if (depth == 0)
                         break;
                 }
-                bbassert(depth == 0, 
-                          "Unexpected `#spec` encountered."
-                          "\n   \033[33m!!!\033[0m  Each `#spec` declaration can only reside in named code blocks."
-                          "\n        These refer to code blocks being declared and assigned to at least one variable.\n"
-                          +Parser::show_position(tokens, i));
+                bbassertexplain(depth == 0, 
+                          "Unexpected symbol.",
+                          "Each `#spec` declaration can only reside in named code blocks. These refer to code blocks being declared and assigned to at least one variable.",
+                          Parser::show_position(tokens, i));
                 specNameEnd = position - 1;
                 specNameStart = specNameEnd;
                 depth = 0;
@@ -1901,11 +1900,10 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     specNameStart -= 1;
                 }
                 specNameStart += 1;
-                bbassert(depth >= 0, 
-                          "Unexpected `#spec` encountered."
-                          "\n   \033[33m!!!\033[0m  Each `#spec` declaration can only reside in named code blocks."
-                          "\n        These refer to code blocks being declared and assigned to at least one variable.\n"
-                          +Parser::show_position(tokens, i));
+                bbassertexplain(depth >= 0, 
+                          "Unexpected symbol.",
+                          "Each `#spec` declaration can only reside in named code blocks. These refer to code blocks being declared and assigned to at least one variable.",
+                          Parser::show_position(tokens, i));
             }
             int depth = 1;
             size_t position = i + 2;
@@ -1926,18 +1924,17 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     break;
                 }
             }
-            bbassert(specNameEnd < tokens.size(), 
-                        "Unexpected `#spec` encountered."
-                          "\n   \033[33m!!!\033[0m  Each `#spec` declaration can only reside in named code blocks."
-                          "\n        These refer to code blocks being declared and assigned to at least one variable.\n"
-                        +Parser::show_position(tokens, i));
-            bbassert(depth == 0, "Imbalanced parantheses or brackets.\n" + Parser::show_position(tokens, i));
+            bbassertexplain(specNameEnd < tokens.size(), 
+                        "Unexpected symbol.",
+                        "Each `#spec` declaration can only reside in named code blocks. These refer to code blocks being declared and assigned to at least one variable.",
+                        Parser::show_position(tokens, i));
+            bbassertexplain(depth == 0, "Invalid syntax.", "Imbalanced parantheses or brackets.", Parser::show_position(tokens, i));
 
 
             std::vector<Token> newTokens;
             newTokens.emplace_back("final", tokens[i].file, tokens[i].line, false);
             if (specNameEnd == MISSING || specNameEnd < specNameStart) {
-                bberror("`#spec` cannot be declared here.\n" + Parser::show_position(tokens, i));
+                bberrorexplain("Unexpected symbol.", "`#spec` cannot be declared here.", Parser::show_position(tokens, i));
             } 
             else {
                 //std::cout<<Parser::to_string(tokens, specNameStart, specNameStart + 1)<<"."<<Parser::to_string(tokens, i + 2, specend)<<"\n";
@@ -1950,10 +1947,9 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             tokens.erase(tokens.begin() + i, tokens.begin() + specend + 1);
             i -= 1;
         }  else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 2 && tokens[i + 1].name == "symbol") {
-            bbassert(tokens[i+2].name=="(", "Missing `(`."
-            "\n   \033[33m!!!\033[0m  `!symbol` should be followed by a parenthesis. "
-            "\n       The only valid syntax is `!symbol(@tokens)`.\n"
-            + Parser::show_position(tokens, i));
+            bbassertexplain(tokens[i+2].name=="(", "Unexpected symbol.",
+                "The symbol `!symbol` should be followed by `(`. The only valid syntax is `!symbol(@tokens)`.",
+                Parser::show_position(tokens, i));
             size_t pos = i+3;
             std::string created_string;
             int depth = 1;
@@ -1970,9 +1966,9 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     created_string += tokens[pos].name;
                 ++pos;
             }
-            bbassert(depth==0, "Missing `)`."
-                                "\n   \033[33m!!!\033[0m  `!symbol(@tokens)` parenthesis was never closed.\n"
-                                + Parser::show_position(tokens, i));
+            bbassertexplain(depth==0, "Syntax error.", 
+                "`!symbol(@tokens)` parenthesis was never closed.",
+                Parser::show_position(tokens, i));
             //updatedTokens.emplace_back(created_string, tokens[i].file, tokens[i].line, false);
             //i = pos;
             tokens.erase(tokens.begin()+i, tokens.begin()+pos+1); // +1 to remove the closing parenthesis
@@ -1980,10 +1976,9 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             i = i-1;
         }
         else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 2 && tokens[i + 1].name == "stringify") {
-            bbassert(tokens[i+2].name=="(", "Missing `(`."
-            "\n   \033[33m!!!\033[0m  `!stringify` should be followed by a parenthesis. "
-            "\n       The only valid syntax is `!stringify(@tokens)`.\n"
-            + Parser::show_position(tokens, i));
+            bbassertexplain(tokens[i+2].name=="(", "Unexpected symbol.",
+                "!stringify` should be followed by a parenthesis. The only valid syntax is `!stringify(@tokens)`.",
+                Parser::show_position(tokens, i));
             size_t pos = i+3;
             std::string created_string;
             int depth = 1;
@@ -2003,9 +1998,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 ++pos;
             }
             created_string = "\""+created_string+"\"";
-            bbassert(depth==0, "Missing `)`."
-                                "\n   \033[33m!!!\033[0m  `!stringify(@tokens)` parenthesis was never closed.\n"
-                                + Parser::show_position(tokens, i));
+            bbassertexplain(depth==0, "Invalid syntax.", "`!stringify(@tokens)` parenthesis was never closed.", Parser::show_position(tokens, i));
             //updatedTokens.emplace_back("\""+created_string+"\"", tokens[i].file, tokens[i].line, false);
             //i = pos;
             tokens.erase(tokens.begin()+i, tokens.begin()+pos+1); // +1 to remove the closing parenthesis
@@ -2029,8 +2022,8 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 newCode += tokens[i].name+" ";
                 ++i;
             }
-            bbassert(i<tokens.size(), "`!comptime` never ended (it reached the end of file)\n" + Parser::show_position(tokens, starti));
-            bbassert(newCode.size()>1, "!`comptime` encloses an empty expression\n" + Parser::show_position(tokens, starti));
+            bbassertexplain(i<tokens.size(), "Invalid syntax.", "`!comptime` never ended (it reached the end of file)", Parser::show_position(tokens, starti));
+            bbassertexplain(newCode.size()>1, "Expecting value.", "!`comptime` encloses an empty expression.", Parser::show_position(tokens, starti));
             if(newCode[newCode.size()-2]!='}') newCode += ";";  // skip trailing space with -2 instead of -1
             newCode = compileFromCode(newCode, "!comptime in "+first_source);
             newCode = optimizeFromCode(newCode, true); // always minify at comptime
@@ -2043,14 +2036,12 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             size_t libpathend = i+2;
             // find what is actually being imported (account for #include !stringify(...) statement)
             if(libpath=="#" || libpath=="!") {
-                bbassert(i<tokens.size()-5 && tokens[i+3].name=="stringify", "Missing `stringify`."
-                    "\n   \033[33m!!!\033[0m  `!include` should be followed by either a string, `!stringify`, or `!comptime`. "
-                    "\n       but another preprocessor isntruction follows `#`.\n"
-                    + Parser::show_position(tokens, i));
-                bbassert(tokens[i+4].name=="(", "Missing `(`."
-                    "\n   \033[33m!!!\033[0m  `!"+tokens[i+3].name+"` should be followed by a parenthesis. "
-                    "\n       The only valid syntax is `!include !stringify(@tokens)` or !include !comptime(@expression)`.\n"
-                + Parser::show_position(tokens, i));
+                bbassertexplain(i<tokens.size()-5 && tokens[i+3].name=="stringify", "Unexpected symbol.", 
+                    "`!include` should be followed by either a string, `!stringify`, or `!comptime`. but another preprocessor isntruction follows.",
+                    Parser::show_position(tokens, i));
+                bbassertexplain(tokens[i+4].name=="(", "Unexpected symbol.",
+                    "`"+libpath+tokens[i+3].name+"` should be followed by a parenthesis. The only valid syntax is `!include !stringify(@tokens)` or !include !comptime(@expression)`.",
+                    Parser::show_position(tokens, i));
                 if(tokens[i+3].name=="stringify") {
                     libpathend = i+5;
                     libpath = "\"";
@@ -2090,14 +2081,14 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 continue;
             }
             else 
-                bbassert(libpath[0] == '"', 
-                        "Invalid `!include` syntax."
-                        "\n   \033[33m!!!\033[0m  Include statements should enclose code snippets or paths in quotations, like this: `!include \"libname\"`.\n" 
-                        + Parser::show_position(tokens, i+2));
-            bbassert(tokens[libpathend].name != ";", 
-                      "Unexpected `;` encountered."
-                      "\n   \033[33m!!!\033[0m  Include statements cannot be followed by `;`.\n" 
-                      + Parser::show_position(tokens, libpathend));
+                bbassertexplain(libpath[0] == '"', 
+                        "Invalid syntax.",
+                        "Include statements should enclose code snippets or paths in quotations, like this: `!include \"libname\"`.", 
+                        Parser::show_position(tokens, i+2));
+            bbassertexplain(tokens[libpathend].name != ";", 
+                      "Unexpected stmbol.",
+                      " Include statements cannot be followed by `;`.", 
+                      Parser::show_position(tokens, libpathend));
 
             // actually handle the import
             std::string source = libpath.substr(1, libpath.size() - 2);
@@ -2114,12 +2105,12 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 continue;
             }
 
-            bbassert(isAllowedLocationNoNorm(source), "Access denied for path: " + source +
-                                      "\n   \033[33m!!!\033[0m This is a safety measure imposed by Blombly."
-                                      "\n       You need to add read permissions to a location containting the prefix with `!access \"location\"`."
-                                      "\n       Permisions can only be granted this way from the virtual machine's entry point."
-                                      "\n       They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.\n"
-                                      + Parser::show_position(tokens, libpathend));
+            bbassertexplain(isAllowedLocationNoNorm(source), "Access denied for path: " + source,
+                                      "This is a safety measure imposed by Blombly. "
+                                      "You need to add read permissions to a location containting the prefix with `!access \"location\"`."
+                                      "Permisions can only be granted this way from the virtual machine's entry point. "
+                                      "They transfer to all subsequent running code as well as to all following `!comptime` preprocessing.",
+                                      Parser::show_position(tokens, libpathend));
 
             std::ifstream inputFile(source);
             /*std::ifstream inputFile(source);
@@ -2133,9 +2124,9 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             }*/
 
             if (!inputFile.is_open()) 
-                bberror("Unable to open file: " + source +
-                        "\n   \033[33m!!!\033[0m  This issue makes it impossible to complete the include statement.\n"
-                        + Parser::show_position(tokens, i));
+                bberrorexplain("Unable to open file: " + source,
+                        "This issue makes it impossible to complete the include statement.",
+                        Parser::show_position(tokens, i));
 
             std::string code = "";
             std::string line;
@@ -2155,17 +2146,17 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             i -= 1;
         } else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 4 && 
                    (tokens[i + 1].name == "macro" || tokens[i + 1].name == "local")) {
-            bbassert(tokens[i + 2].name == "{", "Your macro here should follow the pattern `#"+tokens[i + 1].name+" {@expression} as {@implementation}`.\n"+Parser::show_position(tokens, i));
+            bbassertexplain(tokens[i + 2].name == "{", "Invalid macro.", "Your macro here should follow the pattern `#"+tokens[i + 1].name+" {@expression} as {@implementation}`.", Parser::show_position(tokens, i));
             int macro_start = i + 2;
             int macro_end = macro_start;
             int depth = 1;
             int decl_end = macro_start;
             for (size_t pos = macro_start+1; pos < tokens.size(); ++pos) {
                 if ((tokens[pos].name == "=" || tokens[pos].name == "as") && depth == 0) {
-                    bbassert(tokens[pos].name != "=", "`=` was used instead of `as`.\n   \033[33m!!!\033[0m  Your macro here should follow the pattern `#"+tokens[i + 1].name+" {@expression} as {@implementation}'.\n"+Parser::show_position(tokens, pos));
-                    bbassert(decl_end == macro_start, "Macro definition cannot have a second equality symbol.\n   \033[33m!!!\033[0m  Your macro here should follow the pattern `#"+tokens[i + 1].name+" {@expression} as {@implementation}'.\n"+Parser::show_position(tokens, pos));
-                    bbassert(tokens[pos - 2].name == "}" && pos < tokens.size() - 1 && tokens[pos + 1].name == "{", 
-                             "Missing `{`.\n   \033[33m!!!\033[0m  Your macro here should follow the pattern `#"+tokens[i + 1].name+" {@expression} as {@implementation}'.\n"+Parser::show_position(tokens, pos));
+                    bbassertexplain(tokens[pos].name != "=", "Unexpected symbol.", "`=` was used instead of `as`. Your macro here should follow the pattern `#"+tokens[i + 1].name+" {@expression} as {@implementation}'.", Parser::show_position(tokens, pos));
+                    bbassertexplain(decl_end == macro_start, "Unexpected symbol", "Macro definition cannot have a second equality symbol. Your macro here should follow the pattern `#"+tokens[i + 1].name+" {@expression} as {@implementation}'.", Parser::show_position(tokens, pos));
+                    bbassertexplain(tokens[pos - 2].name == "}" && pos < tokens.size() - 1 && tokens[pos + 1].name == "{", 
+                            "Invalid syntax", "Missing `{`. Your macro here should follow the pattern `#"+tokens[i + 1].name+" {@expression} as {@implementation}'.", Parser::show_position(tokens, pos));
                     decl_end = pos;
                 } else if (tokens[pos].name == ";" && depth == 0 && decl_end!=macro_start) {
                     macro_end = pos;
@@ -2173,7 +2164,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 } else if (tokens[pos].name == "(" || tokens[pos].name == "[" || 
                            tokens[pos].name == "{") {
                     if(decl_end==macro_start)
-                        bbassert(depth!=0, "Missing `as` after macro `@expression` was closed.\n   \033[33m!!!\033[0m  Your macro here  should follow the pattern `#"+tokens[i + 1].name+"{@expression} as {@implementation}'.\n"+Parser::show_position(tokens, pos));
+                        bbassertexplain(depth!=0, "Unexpected symbol.", "Missing `as` after macro `@expression` was closed. Your macro here  should follow the pattern `#"+tokens[i + 1].name+"{@expression} as {@implementation}'.", Parser::show_position(tokens, pos));
                     depth += 1;
                 }
                 else if (tokens[pos].name == ")" || tokens[pos].name == "]" || 
@@ -2181,13 +2172,12 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                     depth -= 1;
                 }
                 if (depth > 2 && macro_start == decl_end)
-                    bberror("Cannot nest parentheses or brackets in the expression part of macro definitions.\n" + Parser::show_position(tokens, macro_start));
-                bbassert(depth >= 0, "Parentheses or brackets closed prematurely at macro definition.\n" + Parser::show_position(tokens, macro_start));
+                    bberrorexplain("INvalid syntax.", "Cannot nest parentheses or brackets in the expression part of macro definitions.", Parser::show_position(tokens, macro_start));
+                bbassertexplain(depth >= 0, "Invalid syntax.", "Parentheses or brackets closed prematurely at macro definition.", Parser::show_position(tokens, macro_start));
             }
-            bbassert(depth == 0, "Imbalanced parentheses or brackets at #"+tokens[i + 1].name+" definition.\n" + Parser::show_position(tokens, macro_start));
-            bbassert(macro_end != macro_start, "Macro was never closed.\n" + Parser::show_position(tokens, macro_start));
-            bbassert(decl_end != macro_start, "Your macro here should follow the pattern `#"+tokens[i + 1].name+" {@expression} as {@implementation}`. \n"
-                      + Parser::show_position(tokens, macro_start));
+            bbassertexplain(depth == 0, "Invalid syntax.", "Imbalanced parentheses or brackets at #"+tokens[i + 1].name+" definition.", Parser::show_position(tokens, macro_start));
+            bbassertexplain(macro_end != macro_start, "Invalid syntax.", "Macro was never closed.", Parser::show_position(tokens, macro_start));
+            bbassertexplain(decl_end != macro_start, "Invalid syntax.", "Your macro here should follow the pattern `#"+tokens[i + 1].name+" {@expression} as {@implementation}`.", Parser::show_position(tokens, macro_start));
             std::shared_ptr<Macro> macro = std::make_shared<Macro>();
             for (int pos = macro_start + 1; pos < decl_end - 2; ++pos) {
                 //std::cout << tokens[pos].name << "\n";
@@ -2195,8 +2185,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             }
             for (int pos = decl_end + 2; pos < macro_end - 1; ++pos) 
                 macro->to.emplace_back(tokens[pos].name, macro->from[0].file, macro->from[0].line, tokens[pos].file, tokens[pos].line, tokens[pos].printable);
-            bbassert(macro->from[0].name[0] != '@', "The first token of a "+tokens[i + 1].name+"'s @expression cannot be a variable starting with @.\n   \033[33m!!!\033[0m  This restriction facilitates unambiguous parsing.\n"
-                      + Parser::show_position(tokens, macro_start));
+            bbassertexplain(macro->from[0].name[0] != '@', "Unexpected symbol.", "The first token of a "+tokens[i + 1].name+"'s @expression cannot be a variable starting with @.\n   \033[33m!!!\033[0m  This restriction facilitates unambiguous parsing.", Parser::show_position(tokens, macro_start));
             macros.insert(macros.begin(), macro);
             if(tokens[i + 1].name == "local")
                 macro->tied_to_file = tokens[i].file[tokens[i].file.size()-1];

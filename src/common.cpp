@@ -20,6 +20,34 @@
 #include <iostream>
 
 
+void bberrorexplain(const std::string& msg, const std::string& explanation, const std::string& postfix) {
+    std::string ret = "\033[0m(\x1B[31m ERROR \033[0m) " + msg;
+    if(explanation.size()) {
+        int line_length = 0;
+        std::string word;
+        std::istringstream iss(explanation);
+        ret += "\n  \033[33m!!!\033[0m ";
+        while (iss >> word) { 
+            if(word=="~") {
+                line_length = 0;
+                ret += "\n      ";
+                continue;
+            }
+            int word_length = word.size();
+            if(line_length+word_length>72) {
+                line_length = 0;
+                ret += "\n      ";
+            }
+            ret += word+" ";
+            line_length += word_length+1;
+        }
+    }
+    if(postfix.size())
+        ret += "\n"+postfix;
+    throw BBError(ret);
+}
+
+
 VariableManager variableManager; // .lastId will always be 0 (currently it is disabled)
 std::unordered_map<std::string, OperationType> toOperationTypeMap;
 void initializeOperationMapping() {

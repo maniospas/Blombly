@@ -991,7 +991,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             std::lock_guard<std::recursive_mutex> lock(obj->memoryLock);
             result = obj->getOrNull(command.args[2]);
             if(!result.islitorexists()) {
-                bbassert(command.args[1]==variableManager.thisId, "Missing value: " + variableManager.getSymbol(command.args[1]));
+                bbassert(command.args[1]==variableManager.thisId, "Missing value: " + variableManager.getSymbol(command.args[2])+" in existing object "+variableManager.getSymbol(command.args[1]));
                 result = memory.get(command.args[2]);
             }
             if(result.existsAndTypeEquals(CODE)) memory.codeOwners[static_cast<Code*>(result.get())] = obj;
