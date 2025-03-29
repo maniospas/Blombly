@@ -598,7 +598,9 @@ void preliminarySimpleChecks(std::vector<Command>* program) {
     for (const auto& command : *program) {
         for(int arg : command.args) {
             if(arg==variableManager.thisId || arg==variableManager.noneId || arg==variableManager.argsId) continue;
-            if(symbolDefinitions.find(arg)==symbolDefinitions.end()) bberrorexplain(enrichErrorDescription(command, "Missing symbol: "+variableManager.getSymbol(arg)), "There is no setting this variable at any place that would be visible here. This is a precautionary check to avoid common runtime errors.", "");
+            if(symbolDefinitions.find(arg)==symbolDefinitions.end()) bberrorexplain("Missing symbol: "+variableManager.getSymbol(arg), 
+                "This symbol will never be visible from here with a value already set elsewhere (e.g., in a final parent block or through a struct or inlined code block). This is a precautionary check to avoid common runtime errors.", 
+                getStackFrame(command));
         }
     }
     preliminaryDependencies(program);

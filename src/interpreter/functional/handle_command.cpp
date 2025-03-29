@@ -603,7 +603,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             DISPATCH_RESULT(source);
         }*/
         if(source.existsAndTypeEquals(ERRORTYPE)) bberror(source->toString(nullptr));
-        bberror("Can only inline a code block or struct");
+        bberrorexplain("Unexpected value: "+arg0.torepr(), "Only code blocks or structs can be inlined.", "");
     }
     DO_TOSTR: {
         int id1 = command.args[1];
@@ -613,14 +613,14 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(arg0.isbool()) DISPATCH_RESULT(new BString(arg0.unsafe_tobool()?"true":"false"));
         if(arg0.exists()) DISPATCH_RESULT(new BString(arg0->toString(&memory)));
         if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
-        bberror("Internal error: failed to convert to string. This error should never appear.");
+        bberrorexplain("Unexpected value: "+arg0.torepr(), "This value cannot be converted to string. However, this message can appear only due to an internal error..", "");
     }
     DO_RETURN: {
         return ExecutionInstanceRunReturn(true, Result(command.args[1] == variableManager.noneId ? DataPtr::NULLP : memory.get(command.args[1])));
     }
     DO_ISCACHED: {
         result = cachedData.getOrNullShallow(command.args[1]);
-        bbassert(result.islitorexists(), "Missing cache value (typically cached due to optimization):" + variableManager.getSymbol(command.args[1]));
+        bbassertexplain(result.islitorexists(), "Missing cache value:" + variableManager.getSymbol(command.args[1]), "Cache values are created by blombly's optimization. This message can appear only due to an internal error.", "");
         DISPATCH_COMPUTED_RESULT;
     }
     DO_IS: {
@@ -665,8 +665,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         int id2 = command.args[2];
         arg0 = memory.get(id1);
         arg1 = memory.get(id2);
-        bbassert(arg1.existsAndTypeEquals(CODE), "While body can only be a code block.");
-        bbassert(arg0.existsAndTypeEquals(CODE), "While condition can only be a code block.");
+        bbassertexplain(arg1.existsAndTypeEquals(CODE), "Unexpected value: "+arg1.torepr(), "While body can only be a code block.", "");
+        bbassertexplain(arg0.existsAndTypeEquals(CODE), "Unexpected value: "+arg0.torepr(), "While condition can only be a code block.", "");
         auto codeBody = static_cast<Code*>(arg1.get());
         auto codeCondition = static_cast<Code*>(arg0.get());
         Jitable* jitableCondition = codeCondition->jitable;
@@ -681,7 +681,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
                 auto returnedValue = run(program, codeConditionStart, codeConditiionEnd);
                 const auto& check = returnedValue.get();
                 if(check.existsAndTypeEquals(ERRORTYPE)) bberror(check->toString(nullptr));
-                bbassert(check.isbool(), "While condition did not evaluate to bool but to: "+check.torepr());
+                bbassertexplain(check.isbool(), "Unexpected value: "+arg0.torepr(), "While condition can only evaluate to bool.", "");
                 checkValue = check.unsafe_tobool();
                 if (returnedValue.returnSignal) [[unlikely]] {
                     memory.runFinally();
@@ -703,7 +703,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         int id1 = command.args[1];
         arg0 = memory.get(id1);
         if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
-        bbassert(arg0.isbool(), "If condition did not evaluate to bool but to: "+arg0.torepr());
+        bbassertexplain(arg0.isbool(), "Unexpected value: "+arg0.torepr(), "If condition can only evaluate to bool.", "");
 
         if(arg0.unsafe_tobool()) {
             const auto& accept = memory.get(command.args[2]);
@@ -712,7 +712,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
                 auto returnedValue = run(program, code->getStart(), code->getOptimizedEnd());
                 RUN_IF_RETURN(returnedValue);
             }
-            else bberror("Can only run `if` body");// DISPATCH_RESULT(accept);
+            else bberrorexplain("Unexpected value: "+accept.torepr(), "If body can only be a code block. Did you mean to return from it?", "");
         } 
         else if(command.nargs>3) {
             const auto& reject = memory.get(command.args[3]);
@@ -721,13 +721,13 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
                 auto returnedValue = run(program, code->getStart(), code->getOptimizedEnd());
                 RUN_IF_RETURN(returnedValue);
             }
-            else bberror("Can only run `else` body");
+            else bberrorexplain("Unexpected value: "+reject.torepr(), "Else body can only be a code block. Did you mean to return from it?", "");
         }
         continue;
     }
     DO_CREATESERVER: {
         const auto& port = memory.get(command.args[1]);
-        bbassert(port.isint(), "The server's port must be an integer.");
+        bbassertexplain(port.isint(), "Unexpected value: "+port.torepr(), "The server's port can only be an integer.", "");
         auto res = new RestServer(&memory, port.unsafe_toint());
         DISPATCH_RESULT(res);
     }
@@ -738,7 +738,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_TRY: {
         memory.detach(memory.parent);
         const auto& condition = memory.get(command.args[1]);
-        bbassert(condition.existsAndTypeEquals(CODE), "Can only inline a non-called code block for try condition");
+        bbassertexplain(condition.existsAndTypeEquals(CODE), "Unexpected value: "+condition.torepr(), "Can only inline a non-called code block for try condition", "");
         auto codeCondition = static_cast<Code*>(condition.get());
         try {
             auto returnedValue = run(codeCondition);
@@ -757,8 +757,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         const auto& condition = memory.getOrNull(command.args[1], true); //(command.knownLocal[1]?memory.getOrNullShallow(command.args[1]):memory.getOrNull(command.args[1], true)); //memory.get(command.args[1]);
         const auto& accept = memory.get(command.args[2]);
         const auto& reject = command.nargs>3?memory.get(command.args[3]):DataPtr::NULLP;
-        bbassert(accept.existsAndTypeEquals(CODE), "Can only inline a code block for catch acceptance");
-        bbassert(reject==DataPtr::NULLP || reject.existsAndTypeEquals(CODE), "Can only inline a code block for catch rejection");
+        bbassertexplain(accept.existsAndTypeEquals(CODE), "Unexpected value: "+accept.torepr(), "Can only inline a code block for catch acceptance.", "");
+        bbassertexplain(reject==DataPtr::NULLP || reject.existsAndTypeEquals(CODE), "Unexpected value: "+reject.torepr(), "Can only inline a code block for catch else.", "");
         auto codeAccept = static_cast<Code*>(accept.get());
         auto codeReject = static_cast<Code*>(reject.get());
         
@@ -782,24 +782,24 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }
     DO_DEFER: {
         const auto& source = memory.get(command.args[1]);
-        bbassert(source.existsAndTypeEquals(CODE), "Defer can only inline a code block");
+        bbassertexplain(source.existsAndTypeEquals(CODE), "Unexpected value: "+source.torepr(), "Defer can only inline a code block.", "");
         memory.addFinally(static_cast<Code*>(source.get()));
         continue;
     }
     DO_DEFAULT: {
         const auto& source = memory.get(command.args[1]);
-        bbassert(source.existsAndTypeEquals(CODE), "Can only call `default` on a code block");
+        bbassertexplain(source.existsAndTypeEquals(CODE), "Unexpected value: "+source.torepr(), "Can only call `default` on a code block.", "");
         auto code = static_cast<Code*>(source.get());
         BMemory newMemory(depth, &memory, LOCAL_EXPECTATION_FROM_CODE(code));
         ExecutionInstance executor(depth, code, &newMemory, forceStayInThread);
         auto returnedValue = executor.run(code);
-        if(returnedValue.returnSignal)  bberror("Cannot return from within a `default` statement");
+        if(returnedValue.returnSignal)  bberrorexplain("Unexpected command.", "Cannot return from within a `default` statement", "");
         memory.replaceMissing(&newMemory);
         continue;
     }
     DO_NEW: {
         DataPtr source = memory.get(command.args[1]);
-        bbassert(source.existsAndTypeEquals(CODE), "Can only call `new` on a code block");
+        bbassertexplain(source.existsAndTypeEquals(CODE), "Unexpected value: "+source.torepr(), "Can only create a new struct from a code block.", "");
         auto code = static_cast<Code*>(source.get());
         BMemory newMemory(depth, &memory, LOCAL_EXPECTATION_FROM_CODE(code));
         auto thisObj = new Struct(); 
@@ -824,14 +824,14 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         arg0 = memory.get(id1);
         if(arg0.existsAndTypeEquals(LIST)) DISPATCH_RESULT(arg0);
         if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
-        bberror("`list` can only be cast from another list or be created from no arguments. Use `list::gather` to create a list from an iterator, `list::element` to create a list of single element, or explicit parentheses if you want to create a list as a function argument like `foo((1,2))`.");
+        bberrorexplain("Unexpected number of arguments.", "`list` can only be cast from another list or be created from no arguments. Use `list::gather` to create a list from an iterator, `list::element` to create a list of single element, or explicit parentheses if you want to create a list as a function argument like `foo((1,2))`.", "");
     }
     DO_GATHER: {
         int id1 = command.args[1];
         arg0 = memory.get(id1);
-        if(arg0.existsAndTypeEquals(LIST)) bberror("`list::gather(A)` for list A is not allowed, as this would consume A. Use `list::gather(A|iter)` to copy the list or `A|move` to consume and transfer its contents.");
+        if(arg0.existsAndTypeEquals(LIST)) bberrorexplain("Unexpected argument.", "`list::gather(A)` for list A is not allowed, as this would pop all elements A by calling `next` internally; this would be a hidden state modification. Use `list::gather(A|iter)` to copy the list or `A|move` to consume and transfer its contents.", "");
         if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
-        if(!arg0.exists()) bberror("`list::gather(A)` is not available for literals A. Maybe you meant to use `list::element(A)` to create a list of one element?");
+        if(!arg0.exists()) bberrorexplain("Unexpected number of arguments.", "`list::gather(A)` is not available for literals A. Maybe you meant to use `list::element(A)` to create a list of one element?", "");
         
         Data* it = static_cast<Data*>(arg0.get());
         BList* ret = new BList();
@@ -855,7 +855,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(n==1) DISPATCH_RESULT(new BHashMap());
         arg0 = memory.get(command.args[1]);
         if(arg0.existsAndTypeEquals(MAP)) DISPATCH_RESULT(arg0);
-        bbassert(arg0.existsAndTypeEquals(LIST), "Not implemented: map("+arg0.torepr()+")");
+        bbassertexplain(arg0.existsAndTypeEquals(LIST), "Unexpected value: "+arg0.torepr(), "Maps can only be created from no arguments or from lists of (key, value) pairs.", "");
         DISPATCH_RESULT(static_cast<BList*>(arg0.get())->toMap());
     }
     DO_TIME: {
@@ -863,9 +863,9 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         DISPATCH_COMPUTED_RESULT;
     }
     DO_RANDOM: {
-        bbassert(command.nargs>=0, "Random requires at least one argument");
+        bbassertexplain(command.nargs>=0, "Expecting argument.", "Random requires at least one argument to serve as seed, such as the output of `time()`. There is no default to make sure that replicable tests can be created.", "");
         arg0 = memory.get(command.args[1]);
-        bbassert(arg0.isfloat() || arg0.isint(), "`random` requires an int or float argument (e.g., the output of `time()`)");
+        bbassertexplain(arg0.isfloat() || arg0.isint(), "Unexpected value: "+arg0.torepr(), "Random requires an int or float argument that serves as seed, such as the output of `time()`.", "");
         DISPATCH_RESULT(new RandomGenerator(arg0.isint()?(unsigned int)arg0.unsafe_toint():(unsigned int)arg0.unsafe_tofloat()));  // cast instead of byte cast to maintain expected behavior
     }
     DO_PUSH: {
@@ -885,11 +885,11 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }
     DO_TOGRAPHICS: {
         arg0 = memory.get(command.args[1]);
-        bbassert(arg0.existsAndTypeEquals(STRING), "Can only create graphics from string paths");
+        bbassertexplain(arg0.existsAndTypeEquals(STRING), "Unexpected value: "+arg0.torepr(), "Can only create graphics from string window names as the first argument.", "");
         arg1 = memory.get(command.args[2]);
-        bbassert(arg1.isint(), "Second graphics argument should be an int");
+        bbassertexplain(arg1.isint(), "Unexpected value: "+arg1.torepr(), "Second graphics argument is the window width and should be an int.", "");
         const auto& arg2 = memory.get(command.args[3]);
-        bbassert(arg2.isint(), "Second graphics argument should be an int");
+        bbassertexplain(arg2.isint(), "Unexpected value: "+arg2.torepr(), "Second graphics argument is the window height and should be an int.", "");
         DISPATCH_RESULT(new Graphics(static_cast<BString*>(arg0.get())->toString(nullptr), arg1.unsafe_toint(), arg2.unsafe_toint()));
     }
     DO_AT: {
@@ -954,13 +954,15 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_TOFILE: {
         arg0 = memory.get(command.args[1]);
         if(arg0.existsAndTypeEquals(FILETYPE)) DISPATCH_RESULT(arg0);
-        bbassert(arg0.existsAndTypeEquals(STRING), "Can only create files from string paths");
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
+        bbassertexplain(arg0.existsAndTypeEquals(STRING), "Unexpected value: "+arg0.torepr(), "Can only create files from string paths.", "");
         DISPATCH_RESULT(new BFile(static_cast<BString*>(arg0.get())->toString(nullptr)));
     }
     DO_TOSQLITE: {
         arg0 = memory.get(command.args[1]);
         if(arg0.existsAndTypeEquals(SQLLITE)) DISPATCH_RESULT(arg0);
-        bbassert(arg0.existsAndTypeEquals(STRING), "Can only create databases from string paths");
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
+        bbassertexplain(arg0.existsAndTypeEquals(STRING), "Unexpected value: "+arg0.torepr(), "Can only create databases from string paths.", "");
         DISPATCH_RESULT(new Database(static_cast<BString*>(arg0.get())->toString(nullptr)));
     }
     DO_TOITER: {
@@ -969,7 +971,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         DISPATCH_OUTCOME(arg0->iter(&memory));
     }
     DO_TORANGE: {
-        bbassert(command.nargs>=0, "Range requires at least one argument");
+        bbassertexplain(command.nargs>=0, "Expecting arguments.", "Range requires at least one argument.", "");
         arg0 = memory.get(command.args[1]);
         if(command.nargs<=2 && arg0.isint()) DISPATCH_RESULT(new IntRange(0, arg0.unsafe_toint(), 1));
         arg1 = memory.get(command.args[2]);
@@ -977,7 +979,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         const auto& arg2 = memory.get(command.args[3]);
         if(command.nargs<=4 && arg0.isintint(arg1) && arg2.isint()) DISPATCH_RESULT(new IntRange(arg0.unsafe_toint(), arg1.unsafe_toint(), arg2.unsafe_toint()));
         if(command.nargs<=4 && arg0.isfloatfloat(arg1) && arg2.isfloat()) DISPATCH_RESULT(new IntRange(arg0.unsafe_tofloat(), arg1.unsafe_tofloat(), arg2.unsafe_tofloat()));
-        bberror("Invalid range arguments: up to three integers are needed or exactly three floats");
+        bberrorexplain("Unexpected arguments.", "Range can take as arguments up to three integers or exactly three floats.", "");
     }
     DO_GET: {
         const DataPtr& objFound = memory.getOrNull(command.args[1], true);
@@ -986,12 +988,12 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             result = memory.get(command.args[2]);
         }
         else {
-            bbassert(objFound.existsAndTypeEquals(STRUCT), "Can only get fields from structs, but instead found this: "+objFound->toString(&memory));
+            bbassertexplain(objFound.existsAndTypeEquals(STRUCT), "Unexpected value: "+objFound->toString(&memory), "Can only get fields from structs, but instead found this value.", "");
             auto obj = static_cast<Struct*>(objFound.get());
             std::lock_guard<std::recursive_mutex> lock(obj->memoryLock);
             result = obj->getOrNull(command.args[2]);
             if(!result.islitorexists()) {
-                bbassert(command.args[1]==variableManager.thisId, "Missing value: " + variableManager.getSymbol(command.args[2])+" in existing object "+variableManager.getSymbol(command.args[1]));
+                bbassertexplain(command.args[1]==variableManager.thisId, "Missing field: " + variableManager.getSymbol(command.args[2]), "The struct "+variableManager.getSymbol(command.args[1])+" does exist, but does not contain the field in question.", "");
                 result = memory.get(command.args[2]);
             }
             if(result.existsAndTypeEquals(CODE)) memory.codeOwners[static_cast<Code*>(result.get())] = obj;
@@ -1011,7 +1013,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             }
             pos++;
         }
-        bbassert(depth >= 0, "Cache declaration never ended.");
+        bbassertexplain(depth >= 0, "Syntax error.", "Cache declaration never ended. These declarations are typically created from the optimizer. This error should not normally appear.", "");
         auto cache = new Code(&program, i + 1, pos, command_type == END?(pos-1):pos);
         BMemory cacheMemory(0, nullptr, 16);
         ExecutionInstance cacheExecutor(depth, cache, &cacheMemory, forceStayInThread);
@@ -1019,7 +1021,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         cacheMemory.await();
         cachedData.pull(&cacheMemory);
         result = nullptr;
-        bbassert(!ret.returnSignal, "Cache declaration cannot return a value");
+        bbassertexplain(!ret.returnSignal, "Unexpected return.", "Cache declaration cannot return a value. These declarations are typically created from the optimizer. This error should not normally appear.", "");
         continue;
     }
     DO_BEGIN: {
@@ -1040,7 +1042,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_CALL: {
         // find out what to call
         const auto context = command.args[1] == variableManager.noneId ? DataPtr::NULLP : memory.get(command.args[1]);
-        bbassert(!context.exists() || context.existsAndTypeEquals(CODE), "Function argument must be packed into a code block");
+        bbassert(!context.exists() || context.existsAndTypeEquals(CODE), "Function arguments must be packed into a code block");
         DataPtr called = memory.get(command.args[2]);
         if(called.existsAndTypeEquals(STRUCT)) {
             auto strct = static_cast<Struct*>(called.get());
@@ -1110,8 +1112,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         int carg = command.args[0]; 
         if(carg==variableManager.noneId) {
             std::string err = enrichErrorDescription(program[i], e.what());
-            err += "\n    \033[33m !!! \033[0mAt this point, the error is returned because it is"
-                   "\n         not assigned to a variable and would have been ignored otherwise.\033[0m";
+            err += "\n \033[33m !!! \033[0mAt this point, the error is returned because it is not assigned to"
+                   "\n      a variable and would have been ignored otherwise.\033[0m";
             BError* berror = new BError(std::move(err));
             berror->consume();
             result = DataPtr(berror);
@@ -1130,7 +1132,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             || carg==variableManager.noneId 
             || command.operation==RETURN) {
             std::string err = enrichErrorDescription(program[i], e.what());
-            err += "\n    \033[33m !!! \033[0mAt this point, the error is returned instead of having a hidden side-effect.\033[0m";
+            err += "\n \033[33m !!! \033[0mAt this point, the error is returned instead of having a hidden side-effect.\033[0m";
             BError* berror = new BError(std::move(err));
             berror->consume();
             result = DataPtr(berror);

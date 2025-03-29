@@ -57,7 +57,7 @@ public:
     static unsigned int maxDepth;
     ExecutionInstance(int depth, Code* code, BMemory* memory, bool forceStayInThread): 
         result(DataPtr::NULLP), memory(*memory),  forceStayInThread(forceStayInThread), depth(depth+1) {
-        if(depth>=maxDepth) bberror("Maximum call stack depth reached: "+std::to_string(depth)+"\nThis typically indicates a logical error. If not, run with greater --depth.");
+        if(depth>=maxDepth) bberrorexplain("Maximum call stack depth reached: "+std::to_string(depth), "The call stack includes inline redirections of control flow. Reaching maximal depth typically indicates a logical error, such as unbounded recursion. If you are sure your code is correct, run blombly with greater --depth.", "");
     }
     ExecutionInstanceRunReturn run(Code* code);
     ExecutionInstanceRunReturn run(const std::vector<Command>& program, size_t i, size_t end);
@@ -66,6 +66,7 @@ public:
 
 
 std::string enrichErrorDescription(const Command&, std::string message);
+std::string getStackFrame(const Command& command);
 int vm(const std::string& fileName, int numThreads);
 int vmFromSourceCode(const std::string& sourceCode, int numThreads);
 std::string __python_like_float_format(double number, const std::string& format);
