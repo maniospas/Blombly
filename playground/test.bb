@@ -1,9 +1,5 @@
-final foo() => foo();
-final A = new{}
-
-add(x,y) = {
-    A.x = foo();
-    return x+y;
+A => new{
+    call() => "test"
 }
 
-print(add(1,2));
+print(A()());

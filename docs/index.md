@@ -59,7 +59,7 @@
     Create <a href="https://www.sciencedirect.com/science/article/pii/S2352220821000778">humanly learnable</a> apis. Functions adapt to the scope where they run.
     <br>
     <b>🚀 Expressive.</b> 
-    Focus on writing algorithms with automated parallelism. Blombly ships with operating system, graphics, and web tools.
+    Focus on writing algorithms and leave implementation details to the virtual machine. Blombly ships with operating system, graphics, and web tools.
     <br>
     <b>🦆 Dynamic.</b> Leverage features like duck typing and dynamic inlining.
     <br>
@@ -87,11 +87,11 @@
                 while(i in A) sum += i;
                 print("First: !{A[0]}");
                 print("Sum: !{sum}");
+
+                // | calls functions of one argument
                 print("Len: !{A|len}");
                 ```
 
-                <small>Find common operations. Control flow is imperative,
-                but | passes values through functions of one argument.</small>
             </div>
             <div id="adapt" class="tab-content">
 
@@ -101,36 +101,33 @@
                     default yscale = 1;
                     return x*xscale + y*yscale;
                 }
-                add = adder;
+                add = adder; // code as value
+
+                // acess finals of running scope
                 final xscale = 10;
                 print(add(1,2));
+
+                // move values after :: to the function
                 print(add(1,2 :: xscale=2;yscale=2));
                 ```
 
-                <small>Create functions as runnable code blocks.
-                These do not capture state because only structs are allowed to.
-                Final variables are immutable and visible 
-                from functions running in each scope. 
-                Start a new scope after :: and it is transferred to the
-                running function.</small>
             </div>
             <div id="inline" class="tab-content">
 
                 ```java
                 Point = {
+                    // => translates to = {return ...}
                     norm() => (this.x^2+this.y^2)^0.5;
                     str() => "(!{this.x},!{this.y})";
                 }
+
+                // inline code with :
                 p = new{Point:x=1;y=2}
                 print(p.norm());
+
+                // overloaded str operation
                 print(p);
                 ```
-
-                <small>Inline code with : to make complicate functions
-                or create typeless objects. 
-                The symbol => is equivalent to directly returning. 
-                Overload operations like addition and string conversion.
-                </small>
             </div>
             <div id="graphics" class="tab-content">
                 ```java
@@ -154,20 +151,19 @@
                     prev_t = time();
                 }
                 ```
+
             </div>
             <div id="filesystem" class="tab-content">
             
                 ```java
+                // set access permissions
                 !access "https://" 
-                // use some help from the standard library
-                response = "https://www.google.com"|file|bb.string.join("\n"); 
-                print("Len: !{response|len}");
+
+                path = "https://www.google.com";
+                contents = path|file|bb.string.join("\n"); 
+                print("Len: !{contents|len}");
                 ```
 
-                <small>Access and modify perfomissions must be declared in the main file;
-                the correspond to URI prefixes.
-                The file system, a virtual file system, and web resources have the same interface.
-                </small>
             </div>
 
             <div id="science" class="tab-content">
@@ -182,7 +178,6 @@
                 canvas.plot(x, y :: color=255,0,0,255; title="y=(x-0.5)^2");
                 canvas.plot(x, x :: color=0,255,0,255; title="y=x");
                 canvas.show(width=800; height=600);
-
                 ```
             </div>
         </div>

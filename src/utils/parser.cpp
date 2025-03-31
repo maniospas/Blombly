@@ -1372,7 +1372,9 @@ public:
                 return var;
             }
 
-        bberrorexplain("Invalid syntax.", "Did you forget the closing `;`? ~ This issue occurs because the next invalid statement could not be understood: `"+to_string(start, end)+"`.", show_position(start));
+        
+        if(tokens[start].name=="(") bberrorexplain("Invalid syntax.", "Malformed parenthesis or function call.", show_position(start));
+        bberrorexplain("Invalid syntax.", "Did you forget the closing `;` here? ~ This issue occurs because the next invalid statement could not be understood: `"+to_string(start, end)+"`.", show_position(start));
         /*} catch (const BBError& e) {
             if (tokens[start].line != tokens[end].line)
                 throw e;
@@ -1549,6 +1551,7 @@ void sanitize(std::vector<Token>& tokens) {
                     "\n        - `!fail @message` creates a compile-time failure.\n"
                     + Parser::show_position(tokens, i));
         }*/
+
         updatedTokens.push_back(tokens[i]);
 
         /*if ((tokens[i].name == "if" || tokens[i].name == "while") && ((i==0) || 
@@ -1577,44 +1580,34 @@ void sanitize(std::vector<Token>& tokens) {
                     "remain as consise as possible while keeping only one viable syntax.",
                     Parser::show_position(tokens, i-1));
 
-        if ((tokens[i].name == "while" || tokens[i].name == "if" || 
+        if((tokens[i].name == "while" || tokens[i].name == "if" || 
              tokens[i].name == "catch") && i < tokens.size() - 1 && 
              tokens[i + 1].name != "(")
-            bberrorexplain("Unexpected symbol.",
-                    "`(` should always follow `" + tokens[i].name + "` but " + tokens[i + 1].name + " weas encountered.",
-                    Parser::show_position(tokens, i+1));
-        if ((tokens[i].name == "new") && i < tokens.size() - 1 && tokens[i + 1].name != "{")
+            bberrorexplain("Unexpected symbol.", "`(` should always follow `" + tokens[i].name + "` but " + tokens[i + 1].name + " was encountered.", Parser::show_position(tokens, i+1));
+        if((tokens[i].name == "new") && i < tokens.size() - 1 && tokens[i + 1].name != "{")
             bberrorexplain("Unexpected symbol.",
                     "`{` should always follow `" + tokens[i].name + "` but `" + tokens[i + 1].name + "` was encountered. "
                     "Since nitializing a struct based on a code block variable and no arguments "
                     "is a code smell, explicitly inline the block this: `" + tokens[i].name + " {block:}`.",
                     Parser::show_position(tokens, i+1));
 
-        if (tokens[i].name == "}") {
-            if (i >= tokens.size() - 1)
-                updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
-            else if (tokens[i + 1].name == ";")
-                bberrorexplain("Unexpected symbol.",
-                        "The syntax `};` is invalid. Both symbols terminate expressions. Use only `}`.", 
-                        Parser::show_position(tokens, i));
-            else if (tokens[i + 1].name == ":")
-                bberrorexplain("Unexpected symbol.", 
-                        "The syntax `}:` is invalid. Inlining a just-declared code block is equivalent to running its code immediately. "
-                        "Maybe you did not mean to add brackets?", 
-                        Parser::show_position(tokens, i));
-            else if (tokens[i + 1].name != "." && tokens[i + 1].name != ")" && 
+        if(tokens[i].name == "}") {
+            if(i >= tokens.size() - 1) updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
+            else if(tokens[i + 1].name == ";") bberrorexplain("Unexpected symbol.", "The syntax `};` is invalid. Both symbols terminate expressions. Use only `}`.", Parser::show_position(tokens, i));
+            else if(tokens[i + 1].name == ":") bberrorexplain("Unexpected symbol.", "The syntax `}:` is invalid. Inlining a just-declared code block is equivalent to running its code immediately. Maybe you did not mean to add brackets?", Parser::show_position(tokens, i));
+            else if(tokens[i + 1].name != "." && tokens[i + 1].name != ")" && 
                      tokens[i + 1].name != "," && tokens[i + 1].name != "+" && 
                      tokens[i + 1].name != "-" && tokens[i + 1].name != "*" && 
                      tokens[i + 1].name != "/" && tokens[i + 1].name != "^" && 
-                     tokens[i + 1].name != "%" && tokens[i + 1].name != "else")// && tokens[i + 1].name != "|")
+                     tokens[i + 1].name != "<<" && tokens[i + 1].name != "<" && tokens[i + 1].name != ">" && 
+                     tokens[i + 1].name != "==" && tokens[i + 1].name != "!=" && tokens[i + 1].name != "<=" && tokens[i + 1].name != ">=" &&   
+                     tokens[i + 1].name != "%" && tokens[i + 1].name != "else" && tokens[i + 1].name != "|" && tokens[i + 1].name != "(" && tokens[i + 1].name != "[")
                 updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
-        } else if (tokens[i].name == ":") {
-            if (i >= tokens.size() - 1)
-                updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
-            else if (tokens[i + 1].name == ";")
-                bberrorexplain("Unexpected symbol.", ":; is an invalid syntax. Use only `:`.", Parser::show_position(tokens, i));
-            else
-                updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
+        } 
+        else if(tokens[i].name == ":") {
+            if (i >= tokens.size() - 1) updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
+            else if (tokens[i + 1].name == ";") bberrorexplain("Unexpected symbol.", ":; is an invalid syntax. Use only `:`.", Parser::show_position(tokens, i));
+            else updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
         }
     }
     tokens = (updatedTokens);
@@ -1946,7 +1939,8 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             tokens.insert(tokens.begin() + position, newTokens.begin(), newTokens.end());
             tokens.erase(tokens.begin() + i, tokens.begin() + specend + 1);
             i -= 1;
-        }  else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 2 && tokens[i + 1].name == "symbol") {
+        } 
+        else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 2 && tokens[i + 1].name == "symbol") {
             bbassertexplain(tokens[i+2].name=="(", "Unexpected symbol.",
                 "The symbol `!symbol` should be followed by `(`. The only valid syntax is `!symbol(@tokens)`.",
                 Parser::show_position(tokens, i));
@@ -2144,7 +2138,8 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             tokens.insert(tokens.begin() + i, newTokens.begin(), newTokens.end());
 
             i -= 1;
-        } else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 4 && 
+        } 
+        else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 4 && 
                    (tokens[i + 1].name == "macro" || tokens[i + 1].name == "local")) {
             bbassertexplain(tokens[i + 2].name == "{", "Invalid macro.", "Your macro here should follow the pattern `#"+tokens[i + 1].name+" {@expression} as {@implementation}`.", Parser::show_position(tokens, i));
             int macro_start = i + 2;
@@ -2161,18 +2156,14 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 } else if (tokens[pos].name == ";" && depth == 0 && decl_end!=macro_start) {
                     macro_end = pos;
                     break;
-                } else if (tokens[pos].name == "(" || tokens[pos].name == "[" || 
-                           tokens[pos].name == "{") {
-                    if(decl_end==macro_start)
-                        bbassertexplain(depth!=0, "Unexpected symbol.", "Missing `as` after macro `@expression` was closed. Your macro here  should follow the pattern `#"+tokens[i + 1].name+"{@expression} as {@implementation}'.", Parser::show_position(tokens, pos));
+                } else if (tokens[pos].name == "(" || tokens[pos].name == "[" || tokens[pos].name == "{") {
+                    if(decl_end==macro_start) bbassertexplain(depth!=0, "Unexpected symbol.", "Missing `as` after macro `@expression` was closed. Your macro here  should follow the pattern `#"+tokens[i + 1].name+"{@expression} as {@implementation}'.", Parser::show_position(tokens, pos));
                     depth += 1;
                 }
-                else if (tokens[pos].name == ")" || tokens[pos].name == "]" || 
-                         tokens[pos].name == "}") {
+                else if (tokens[pos].name == ")" || tokens[pos].name == "]" || tokens[pos].name == "}") {
                     depth -= 1;
                 }
-                if (depth > 2 && macro_start == decl_end)
-                    bberrorexplain("INvalid syntax.", "Cannot nest parentheses or brackets in the expression part of macro definitions.", Parser::show_position(tokens, macro_start));
+                if (depth > 2 && macro_start == decl_end) bberrorexplain("Invalid syntax.", "Cannot nest parentheses or brackets in the expression part of macro definitions.", Parser::show_position(tokens, macro_start));
                 bbassertexplain(depth >= 0, "Invalid syntax.", "Parentheses or brackets closed prematurely at macro definition.", Parser::show_position(tokens, macro_start));
             }
             bbassertexplain(depth == 0, "Invalid syntax.", "Imbalanced parentheses or brackets at #"+tokens[i + 1].name+" definition.", Parser::show_position(tokens, macro_start));
@@ -2187,8 +2178,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 macro->to.emplace_back(tokens[pos].name, macro->from[0].file, macro->from[0].line, tokens[pos].file, tokens[pos].line, tokens[pos].printable);
             bbassertexplain(macro->from[0].name[0] != '@', "Unexpected symbol.", "The first token of a "+tokens[i + 1].name+"'s @expression cannot be a variable starting with @.\n   \033[33m!!!\033[0m  This restriction facilitates unambiguous parsing.", Parser::show_position(tokens, macro_start));
             macros.insert(macros.begin(), macro);
-            if(tokens[i + 1].name == "local")
-                macro->tied_to_file = tokens[i].file[tokens[i].file.size()-1];
+            if(tokens[i + 1].name == "local") macro->tied_to_file = tokens[i].file[tokens[i].file.size()-1];
             i = macro_end;
         } 
         else {
@@ -2216,16 +2206,14 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                                     || tokens[k].name != "}" || tokens[k].name != "]" 
                                     || tokens[k].name != ")") && (j == macro->from.size() - 1 
                                     || (tokens[k].name != macro->from[j + 1].name || depth > 0))) {
-                                    if (tokens[k].name == "(" || tokens[k].name == "[" || 
-                                        tokens[k].name == "{") {
+                                    if (tokens[k].name == "(" || tokens[k].name == "[" || tokens[k].name == "{") {
                                         depth += 1;
-                                    } else if (tokens[k].name == ")" || tokens[k].name == "]" || 
-                                            tokens[k].name == "}") {
+                                    } else if (tokens[k].name == ")" || tokens[k].name == "]" || tokens[k].name == "}") {
                                         depth -= 1;
+                                        if(depth<0) break;
                                     }
-                                    if(depth<0) {
-                                        break; // break off
-                                    }
+                                    if(depth<0) break;
+                                    if(depth==0 && tokens[k].name == ";" && j>=macro->from.size()-1) break;
                                     replacement[placeholder].push_back(tokens[k]);
                                     k++;
                                     /*if(depth==0) {
@@ -2233,10 +2221,12 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                                     }*/
                                 }
                             j++;
-                        } else if (macro->from[j].name != tokens[k].name) {
+                        } 
+                        else if (macro->from[j].name != tokens[k].name) {
                             match = false;
                             break;
-                        } else {
+                        } 
+                        else {
                             j++;
                             k++;
                         }
