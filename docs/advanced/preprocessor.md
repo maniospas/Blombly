@@ -16,24 +16,39 @@ the virtual machine.
 
 ## !include
 
-Dependencies on other `.bb` files or folders are stated with an include statement that looks like so:
-
-```java
-!include "libs/html"
-```
-
+Dependencies on `.bb` files or folders are stated with an include statement that looks like below.
 When an include directive is encountered, it tries to see if adding the suffix `.bb` or `/.bb` to the path
 is a valid file and imports that. 
 In the above example, this means that either `libs/html.bb` is included or, 
 if `libs/html` is a folder, `libs/html/.bb` is included. Inclusion paths are checked both relatively to blombly's
 executable and to the working directory from where the main file is being compiled.
-Dependencies enable code modularization without loading overheads, 
-as the compilation outcome packs all necessary instructions to run 
-automously by the interpreter.
 
 <br>
 
-You can also mock the import of a file by replacing the included string with a bracketed code block.
+Dependencies enable code modularization without loading overheads, 
+as the compilation outcome packs all necessary instructions to run 
+automously by the interpreter. Circular includes are automatically 
+detected and create error messages.
+
+```java
+!include "libpath"
+```
+
+!!! tip
+    Prefer placing all includes in your main file.
+
+Prevent shadowing by other includes by either marking variables as final or including into objects like below.
+In general, don't worry about using the same file multiple times too much; the impact on intermediate representations
+is minimized by moving most code to a common cache.
+
+```java
+final lib = new{!include "libpath"}
+lib.run();
+``` 
+
+<br>
+
+You can also mock the inclusion of a file by replacing the included string with a bracketed code block.
 This does not affect the code running, but compartmentizes preprocessor instructions. It is mostly
 used to prevent namespaces or `!from` macros (whose validity ends at the end of each file) 
 from leaking outside the included code.

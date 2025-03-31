@@ -7,9 +7,11 @@
 // define namespaces
 !macro {!namespace @name {@generator}} as {
     !macro {!with @name:} as {
-        //!local {!var @@@symbol(@@@arguments)=@@@expression;} as {!local{@@@symbol} as {!symbol(@name :: @@@symbol)} @@@symbol(@@@arguments)=@@@expression;}
-        //!local {!var @@@symbol=@@@expression;} as {!local{@@@symbol} as {!symbol(@name :: @@@symbol)} @@@symbol=@@@expression;}
         !local {!var @@@symbol;} as {!local{@@@symbol} as {!symbol(@name :: @@@symbol)}}
+        !local {!var @@@symbol = @@@expr} as {
+            !local{@@@symbol} as {!symbol(@name :: @@@symbol)}
+            @@@symbol = @@@expr;
+        }
         @generator
     }
 }
@@ -38,6 +40,7 @@
 // include after core language definitions
 final bb = new {
     !include "bb://libs/ansi"
+    !include "bb://libs/logger"
     !include "bb://libs/monad"
     !include "bb://libs/tests"
     !include "bb://libs/collections"

@@ -1,5 +1,5 @@
-A => new{
-    call() => "test"
-}
+!include "playground/testinclude"
+!include "playground/testinclude"
 
-print(A()());
+add = create_adder(inc=1);
+print(add(1,2));

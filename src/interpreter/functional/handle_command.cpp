@@ -619,7 +619,11 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         return ExecutionInstanceRunReturn(true, Result(command.args[1] == variableManager.noneId ? DataPtr::NULLP : memory.get(command.args[1])));
     }
     DO_ISCACHED: {
+        if(command.value.islitorexists()) {
+            DISPATCH_RESULT(command.value);
+        }
         result = cachedData.getOrNullShallow(command.args[1]);
+        command.value = result.get();
         bbassertexplain(result.islitorexists(), "Missing cache value:" + variableManager.getSymbol(command.args[1]), "Cache values are created by blombly's optimization. This message can appear only due to an internal error.", "");
         DISPATCH_COMPUTED_RESULT;
     }

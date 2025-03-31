@@ -39,7 +39,7 @@ public:
 
 void compile(const std::string& source, const std::string& destination);
 void optimize(const std::string& source, const std::string& destination, bool minimify);
-std::vector<Token> tokenize(const std::string& text, const std::string& file);
+std::vector<Token> tokenize(const std::string& text, const std::string& file, bool injectStandardLibrary=false);
 
 void ltrim(std::string &s);
 void rtrim(std::string &s);

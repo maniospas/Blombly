@@ -225,9 +225,9 @@
  
  
      //export the program
-     std::string result;
+     std::string result("");
      int n = program.size();
-     std::string towrite;
+     std::string towrite("");
      for (int i = 0; i < n; i++) {
          if (program[i]->enabled && !towrite.empty()) {
              result += towrite + "\n";
@@ -237,6 +237,101 @@
          else result += program[i]->toString();
      }
  
+ 
+     return RESMOVE(result);
+ }
+
+
+ std::string blockToCodeWithoutFirst(const std::vector<std::shared_ptr<OptimizerCommand>>& program, int& pos, bool includeComments, const std::string prefix) {
+    // we will be skippint the first line
+    int depth = 1;
+    std::string towrite("");
+    std::string result("");
+    int n = program.size();
+    std::unordered_map<std::string, std::string> anonymize; // will anonymize only _bb prefixes
+    for (int i = pos+1; i < n; i++) {
+        for(int j=1;j<program[i]->args.size();++j) {
+            if(program[i]->args[j].size()>=3 
+                && program[i]->args[j].substr(0, 3)=="_bb" 
+                && (program[i]->args[j].size()<=8 || program[i]->args[j].substr(0, 8)!="_bbcache")) {
+                auto& arg = program[i]->args[j];
+                auto [it, inserted] = anonymize.try_emplace(arg, prefix + std::to_string(anonymize.size()));
+                arg = it->second;
+            }
+        }
+        program[i]->enabled = true;
+        if(!towrite.empty()) {
+            result += towrite + "\n";
+            towrite.clear();
+        }
+        if(!program[i]->info.empty()) {
+            if(includeComments) towrite = program[i]->info;
+        }
+        else result += program[i]->toString();
+        program[i]->enabled = false;
+        if(program[i]->args.size()==0) continue;
+        if(program[i]->args[0]=="BEGIN") depth++;
+        if(program[i]->args[0]=="END") {
+            depth--;
+            pos = i;
+            if(depth==0) return RESMOVE(result);
+        }
+    }
+    bberror("Imbalanced code blocks in bbvm file");
+ }
+
+
+ std::string removeCacheDuplicates(std::unordered_map<std::string, int> &programToCacheIndex,  int& cacheIndex, const std::string& code, int& diff) {
+    std::istringstream inputStream(code);
+    std::vector<std::shared_ptr<OptimizerCommand>> program;
+    std::string line;
+    while (std::getline(inputStream, line)) program.push_back(std::make_shared<OptimizerCommand>(line));
+
+    std::string cachePreample("");
+    int pos = 0;
+    while(pos<program.size()) {
+        // the following prevents both _bbcache and intermediate inlines starting with _bb (e.g., used in while loops or expanded from macros)
+        if(program[pos]->args.size()!=0 && program[pos]->args[0]=="BEGIN" && program[pos]->enabled 
+                && (program[pos]->args[1].size()<=3 || program[pos]->args[1].substr(0, 3)!="_bb") ) { 
+            diff++;
+            int i = pos;
+            // The following anonymization prefix loses only a little bit of inference power 
+            // that enables speedups (when very different methods have the same name and use different arguments)
+            // but enables going through the code in linear time.
+            // Therefore, an expected base case of repeatedly going through removeCacheDuplicates until
+            // convergence is O(n log n). The worst case O(n^2) is completely unrealistic as it requires
+            // both a negligible fraction of business logic in each function and each one to only declare
+            // one other function inside. 
+            //
+            // Example of worst case (note: no arguments because we'd lose the worst case): 
+            // `foo = {return {return {return {return {return 0}}}}}`
+            std::string repr = blockToCodeWithoutFirst(program, pos, false, "_bb_"+program[pos]->args[1]); 
+            if(programToCacheIndex.find(repr)==programToCacheIndex.end()) {
+                pos = i;
+                programToCacheIndex[repr] = cacheIndex;
+                cachePreample += "BEGIN _bbcache"+std::to_string(cacheIndex)+"\n";
+                cachePreample += blockToCodeWithoutFirst(program, pos, true, "_bb_"+program[i]->args[1]);
+                cacheIndex++;
+            }
+            program[i]->args[0] = "ISCACHED";
+            program[i]->args.push_back("_bbcache"+std::to_string(programToCacheIndex[repr]));
+        }
+        ++pos;
+    }
+
+    if(cachePreample.size()) cachePreample = "CACHE\n"+cachePreample+"END\n";
+     //export the program
+     std::string result(std::move(cachePreample));
+     int n = program.size();
+     std::string towrite("");
+     for (int i = 0; i < n; i++) {
+         if (program[i]->enabled && !towrite.empty()) {
+             result += towrite + "\n";
+             towrite.clear();
+         }
+         if (!program[i]->info.empty()) towrite = program[i]->info;
+         else result += program[i]->toString();
+     }
  
      return RESMOVE(result);
  }
@@ -251,7 +346,13 @@
      inputFile.close();
  
      std::string optimized = optimizeFromCode(code, minimify);
-     //optimized = cacheDuplicates(optimized);
+     int diff = minimify?-1:0;
+     std::unordered_map<std::string, int> codeBlockToCacheIndex;
+     int cacheIndex = 0;
+     while(diff) {
+        diff = 0;
+        optimized = removeCacheDuplicates(codeBlockToCacheIndex, cacheIndex, optimized, diff);
+     }
  
      std::ofstream outputFile(destination);
      bbassert(outputFile.is_open(), "Unable to write to file: " + destination);

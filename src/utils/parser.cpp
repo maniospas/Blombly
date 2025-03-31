@@ -1382,6 +1382,7 @@ public:
             linestr.resize(40, ' ');
             throw BBError(e.what() + ("\n   \x1B[34m\u2192\033[0m " + linestr + " \t\x1B[90m " +tokens[start].toString()+": "+to_string(start,end));
         }*/
+       return "";
     }
     void parse(int start, int end) {
         int statement_start = start;
@@ -1624,9 +1625,10 @@ public:
 void macros(std::vector<Token>& tokens, const std::string& first_source) {
     std::vector<Token> updatedTokens;
     std::vector<std::shared_ptr<Macro>> macros;
-    std::unordered_set<std::string> previousImports;
-    previousImports.insert(first_source);
-
+    std::unordered_set<std::string> doNotAllowOtherImports;
+    std::unordered_map<std::string, std::string> previousImports;
+    previousImports[first_source] = "main file: "+first_source;
+    int inclusionDepth = 0;
     for (size_t i = 0; i < tokens.size(); ++i) {
         /*if ((tokens[i].name == "iter" || tokens[i].name == "bbvm::iter") && i>0 && tokens[i-1].name != "as" && tokens[i-1].name != "=" && tokens[i-1].name != ",")
             bberror("`"+tokens[i].name+"` statements must be preceded by one of `=`, `as`, or ','. "
@@ -1640,7 +1642,9 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 "More than one fullstop can only follow `this` to indicate values obtained from its declration closure.", 
                 Parser::show_position(tokens, i));
         }
-        
+        if(tokens[i].name == "{") inclusionDepth++;
+        if(tokens[i].name == "}") inclusionDepth--;
+        if(inclusionDepth<0) bberrorexplain("Unexpected symbol.", "Imbalanced bracket closes here.", Parser::show_position(tokens, i));
         if (tokens[i].name == "this" && i<tokens.size()-2 && tokens[i+1].name=="." && tokens[i+2].name==".") {
                 ++i; // skip this
                 int originali = i;
@@ -1662,14 +1666,19 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 bool hasProgressed = false;
                 int depth = 0;
                 while(true) {
-                    if(updatedTokens[pos].name=="}") depth++;
-                    if(updatedTokens[pos].name=="{") {if(depth>0)depth--; else hasProgressed=false;}
                     bbassertexplain(pos>=0, 
                             "Too many closure escapes.",
-                            "Closure of `this` specified by a number of `.` that is higher than the actual code recursion. "
-                            "Each `.` declaration can only correspond to structs being created with `new` statements or block declarations. "
-                            "Here is an example `value=1; a = new{float=>this..value} print(a|float);`.",
+                            "You tried to compute a closure of `this` by following it with a number of fots `.`. "
+                            "Each of those dots escapes one closure, but their total number is higher than the maximal closure "
+                            "nesting that would be possible. ~ ~ "
+                            "Each closure can only correspond to structs being created with `new` statements or code blocks. "
+                            "Here is an example `value=1; a = new{float=>this..value} print(a|float);`. ~ ~ "
+                            "A common mistake that makes this error appear is thinking that functions can capture closure. "
+                            "They do not. When they appear to do so, they are actually struct methods or functions defined "
+                            "within struct methods, in which case closure values are stored in the struct. ~ ",
                             Parser::show_position(tokens, originali));
+                    if(updatedTokens[pos].name=="}") depth++;
+                    if(updatedTokens[pos].name=="{") {if(depth>0)depth--; else hasProgressed=false;}
                     if(depth!=0 || hasProgressed) {
                         --pos;
                         continue;
@@ -1689,40 +1698,22 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                             alreadyDone = true;
                         }
                         
-                    if(updatedTokens[pos].name=="{" && (updatedTokens[pos-1].name=="new" 
+                    if(updatedTokens[pos].name=="{" && (pos==0 || updatedTokens[pos-1].name=="new" 
                             || updatedTokens[pos-1].name=="=" 
                             || updatedTokens[pos-1].name=="return"
                             || updatedTokens[pos-1].name=="as")) {
                         //bool isClassDefinition = false;
-                        bbassert(hasProgressed || !prevInMethod || updatedTokens[pos-1].name=="new", "Attempted to obtain a closure from within a closure.\n"
-                                                    +Parser::show_position(tokens, i)
+                        bbassert(hasProgressed || !prevInMethod || pos==0 || updatedTokens[pos-1].name=="new", "Attempted to obtain a closure from within a closure.\n"
+                                                    +Parser::show_position(tokens, originali)
                                                     +"\nHere is where there was an attempt to obtain the closure::\n"+Parser::show_position(updatedTokens, prevInMethod)
                                                     +"\nHere is the parent from which the closure would be obtained (it's not a struct declaration):\n"+Parser::show_position(updatedTokens, pos));
                         if(!alreadyDone) { 
-                            /*if(updatedTokens[pos-1].name!="new" && !prevInMethod) {
-                                updatedTokens.emplace(updatedTokens.begin()+pos+1, closureName, tokens[i].file, tokens[i].line, true);
-                                updatedTokens.emplace(updatedTokens.begin()+pos+2, "=", tokens[i].file, tokens[i].line, true);
-                                updatedTokens.emplace(updatedTokens.begin()+pos+3, "this", tokens[i].file, tokens[i].line, true);
-                                updatedTokens.emplace(updatedTokens.begin()+pos+4, ".", tokens[i].file, tokens[i].line, true);
-                                updatedTokens.emplace(updatedTokens.begin()+pos+5, nextName, tokens[i].file, tokens[i].line, true);
-                                updatedTokens.emplace(updatedTokens.begin()+pos+6, ";", tokens[i].file, tokens[i].line, true);
-                            }
-                            else*/ {
-                                //if(tokens[i].name=="this" && countWedges==1) {
-                                //    nextName = "."+nextName;
-                                //    ++countWedges;
-                                //}
-                                /*updatedTokens.emplace(updatedTokens.begin()+pos+1, closureName, tokens[i].file, tokens[i].line, true);
-                                updatedTokens.emplace(updatedTokens.begin()+pos+2, "=", tokens[i].file, tokens[i].line, true);
-                                updatedTokens.emplace(updatedTokens.begin()+pos+3, nextName, tokens[i].file, tokens[i].line, true);
-                                updatedTokens.emplace(updatedTokens.begin()+pos+4, ";", tokens[i].file, tokens[i].line, true);*/
-                                updatedTokens.emplace(updatedTokens.begin()+pos+1, closureName, tokens[i].file, tokens[i].line, true);
-                                updatedTokens.emplace(updatedTokens.begin()+pos+2, "=", tokens[i].file, tokens[i].line, true);
-                                updatedTokens.emplace(updatedTokens.begin()+pos+3, "this", tokens[i].file, tokens[i].line, true);
-                                updatedTokens.emplace(updatedTokens.begin()+pos+4, ".", tokens[i].file, tokens[i].line, true);
-                                updatedTokens.emplace(updatedTokens.begin()+pos+5, nextName, tokens[i].file, tokens[i].line, true);
-                                updatedTokens.emplace(updatedTokens.begin()+pos+6, ";", tokens[i].file, tokens[i].line, true);
-                            }
+                            updatedTokens.emplace(updatedTokens.begin()+pos+1, closureName, tokens[i].file, tokens[i].line, true);
+                            updatedTokens.emplace(updatedTokens.begin()+pos+2, "=", tokens[i].file, tokens[i].line, true);
+                            updatedTokens.emplace(updatedTokens.begin()+pos+3, "this", tokens[i].file, tokens[i].line, true);
+                            updatedTokens.emplace(updatedTokens.begin()+pos+4, ".", tokens[i].file, tokens[i].line, true);
+                            updatedTokens.emplace(updatedTokens.begin()+pos+5, nextName, tokens[i].file, tokens[i].line, true);
+                            updatedTokens.emplace(updatedTokens.begin()+pos+6, ";", tokens[i].file, tokens[i].line, true);
                         }
                         // if(updatedTokens[pos-1].name!="new") prevInMethod = pos; else prevInMethod = 0;
                         closureName = nextName;
@@ -2031,7 +2022,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             // find what is actually being imported (account for #include !stringify(...) statement)
             if(libpath=="#" || libpath=="!") {
                 bbassertexplain(i<tokens.size()-5 && tokens[i+3].name=="stringify", "Unexpected symbol.", 
-                    "`!include` should be followed by either a string, `!stringify`, or `!comptime`. but another preprocessor isntruction follows.",
+                    "`!include` should be followed by either a string, `!stringify`, or `!comptime`. but another preprocessor instruction follows.",
                     Parser::show_position(tokens, i));
                 bbassertexplain(tokens[i+4].name=="(", "Unexpected symbol.",
                     "`"+libpath+tokens[i+3].name+"` should be followed by a parenthesis. The only valid syntax is `!include !stringify(@tokens)` or !include !comptime(@expression)`.",
@@ -2074,30 +2065,24 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 i += 2;
                 continue;
             }
-            else 
-                bbassertexplain(libpath[0] == '"', 
-                        "Invalid syntax.",
-                        "Include statements should enclose code snippets or paths in quotations, like this: `!include \"libname\"`.", 
-                        Parser::show_position(tokens, i+2));
-            bbassertexplain(tokens[libpathend].name != ";", 
-                      "Unexpected stmbol.",
-                      " Include statements cannot be followed by `;`.", 
-                      Parser::show_position(tokens, libpathend));
+            else bbassertexplain(libpath[0] == '"', "Unexpected symbol", "Was expecting. `\"` or `{`. Include statements should enclose code snippets or paths in quotations, like this: `!include \"libname\"`.", Parser::show_position(tokens, i+2));
+            bbassertexplain(tokens[libpathend].name != ";", "Unexpected symbol.", " Include statements cannot be followed by `;`.", Parser::show_position(tokens, libpathend));
 
             // actually handle the import
             std::string source = libpath.substr(1, libpath.size() - 2);
             std::error_code ec;
             source = normalizeFilePath(source);
-            if(std::filesystem::is_directory(source, ec))
-                source = source+"/.bb";
-            else 
-                source += ".bb";
-
+            if(std::filesystem::is_directory(source, ec)) source = source+"/.bb";
+            else source += ".bb";
+            
+            /*if (previousImports.find(source) != previousImports.end() && (inclusionDepth!=0 || doNotAllowOtherImports.find(source) != doNotAllowOtherImports.end())) {
+                bberrorexplain("Too complicated include: "+source, "You are including this file multiple times, but this is allowed only if all its `!include` statements reside in the top scope, without being enclosed in any brackets. In that case, only the first include takes place.",  Parser::show_position(tokens, libpathend)+"\n"+previousImports.find(source)->second);
+            }
             if (previousImports.find(source) != previousImports.end()) {
                 tokens.erase(tokens.begin() + i, tokens.begin() + libpathend + 1);
                 i -= 1;
                 continue;
-            }
+            }*/
 
             bbassertexplain(isAllowedLocationNoNorm(source), "Access denied for path: " + source,
                                       "This is a safety measure imposed by Blombly. "
@@ -2131,8 +2116,9 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
 
             std::vector<Token> newTokens = tokenize(code, source);
             sanitize(newTokens);
-
-            previousImports.insert(source);
+            
+            previousImports[source] = Parser::show_position(tokens, libpathend);
+            if(inclusionDepth) doNotAllowOtherImports.insert(source);
 
             tokens.erase(tokens.begin() + i, tokens.begin() + libpathend+1);
             tokens.insert(tokens.begin() + i, newTokens.begin(), newTokens.end());
@@ -2202,17 +2188,18 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                                 replacement[placeholder].emplace_back(macro->from[j].name, macro->from[j].file, macro->from[j].line, true);
                             }
                             else
-                                while (k < tokens.size() && (depth > 0 || tokens[k].name != ";" 
-                                    || tokens[k].name != "}" || tokens[k].name != "]" 
-                                    || tokens[k].name != ")") && (j == macro->from.size() - 1 
-                                    || (tokens[k].name != macro->from[j + 1].name || depth > 0))) {
+                                while (k < tokens.size() 
+                                    && (depth > 0 || tokens[k].name != ";" || tokens[k].name != "}" || tokens[k].name != "]" || tokens[k].name != ")") 
+                                    && (j == macro->from.size() - 1  || tokens[k].name != macro->from[j + 1].name || depth > 0)) {
                                     if (tokens[k].name == "(" || tokens[k].name == "[" || tokens[k].name == "{") {
                                         depth += 1;
-                                    } else if (tokens[k].name == ")" || tokens[k].name == "]" || tokens[k].name == "}") {
+                                    }
+                                    else if (tokens[k].name == ")" || tokens[k].name == "]" || tokens[k].name == "}") {
                                         depth -= 1;
                                         if(depth<0) break;
                                     }
                                     if(depth<0) break;
+                                    if(depth==0 && j<macro->from.size()-1 && macro->from[j+1].name[0]!='@' && tokens[k].name==macro->from[j+1].name) break;
                                     if(depth==0 && tokens[k].name == ";" && j>=macro->from.size()-1) break;
                                     replacement[placeholder].push_back(tokens[k]);
                                     k++;
@@ -2284,7 +2271,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
 
 std::string compileFromCode(const std::string& code, const std::string& source) {
     if(top_level_file.empty()) top_level_file = source;
-    std::vector<Token> tokens = tokenize(code, source);
+    std::vector<Token> tokens = tokenize(code, source, true);
     sanitize(tokens);
     macros(tokens, source);
     Parser parser(tokens);
