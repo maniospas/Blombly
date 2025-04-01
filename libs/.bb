@@ -8,10 +8,10 @@
 !macro {!namespace @name {@generator}} as {
     !macro {!with @name:} as {
         !local {!var @@@symbol;} as {!local{@@@symbol} as {!symbol(@name :: @@@symbol)}}
-        !local {!var @@@symbol = @@@expr} as {
-            !local{@@@symbol} as {!symbol(@name :: @@@symbol)}
-            @@@symbol = @@@expr;
-        }
+        //!local {!var @@@symbol = @@@expr} as {
+        //    !local{@@@symbol} as {!symbol(@name :: @@@symbol)}
+        //    @@@symbol = @@@expr;
+        //}
         @generator
     }
 }
@@ -29,7 +29,7 @@
 !macro {!gather(@value,@operation){@block}} as {
     new{
         !include {
-            !local{yield @@symbol;} as {@var @operation @@symbol;}
+            !local{yield @@symbol} as {@var @operation @@symbol;}
             @var=@value; 
             @block 
         }

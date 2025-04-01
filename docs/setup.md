@@ -72,12 +72,25 @@ The interpreter compiles code to the intermediate representation of the
 safety and user control over consumed resources. Its instructions are stored 
 in files with the *.bbvm* extension; these are self-contained by packing all 
 dependencies inside. Share them with others to run directly. 
+
+<br>
+
+Those files are normally compressed with zlib, but you can save them in human
+readable form with the `--text` option; they can be executed normally regardless
+on whether they are compressed or or not.
 Below are example contents of such a file, where lines starting with `%` contain
 debugging info and can be ignored. The rest of the file contains space-separated 
 tuples of virtual machine instructions. The first element is the command name and the
 second a variable to assign to, where `#` indicates
 assignment to nothing. Temporary variables have the `_bb` prefix,
 and code blocks start at `BEGIN` or `BEGINFINAL` and end at `END`.
+
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb  --text
+Hello world!
+> <span style="color: cyan;">cat</span> main.bbvm
+</pre>
 
 ```java
 %("Hello world!") //main.bb line 1
@@ -118,7 +131,7 @@ Compilation may still run some tasks triggered by preprocessor instructions
 **--library**
 
 Compilation optimizes the code by removing many unused variables or segments.
-For example, notice that above there are no needless instructions
+For example, notice that so far there have been no needless instructions
 from the standard library *libs/.bb*, despite the latter being
 imported in every program. To produce bbvm files
 to be used as libraries (to be optimized by programs using them 
@@ -126,17 +139,17 @@ to be used as libraries (to be optimized by programs using them
 retain everything with the `--library` or `-l` option. 
 Below is an example that compiles a file without running it while switching
 between applying and not applying optimizations. The `du` linux
-utility shows file sizes in kilobytes. 
+utility shows file sizes, here set to bytes. 
 Notice the bloat coming from the standard library when there is no optimization!
 
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
 > <span style="color: cyan;">./blombly</span> main.bb  --norun
-> <span style="color: cyan;">du</span>  -sh main.bbvm
-4.0K    main.bbvm
+> <span style="color: cyan;">du</span>  -b main.bbvm
+92      main.bbvm
 > <span style="color: cyan;">./blombly</span> main.bb  --norun --library
-> <span style="color: cyan;">du</span>  -sh main.bbvm
-48K     main.bbvm
+> <span style="color: cyan;">du</span>  -b main.bbvm
+10866   main.bbvm
 </pre>
 
 <br>
@@ -148,9 +161,27 @@ This speeds up compilation and optimization and produces a smaller bbvm file - a
 half the size. For example, below is a compilation outcome
 with stripped away debug info. In this case, any errors point to virtual machine instructions
 instead of a source code stack traces, so they may be a harder to debug.
+If the *bbvm* file is compressed, you won't be able to meaningfully delve into
+its code either.
 
 <pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
-> <span style="color: cyan;">./blombly</span> main.bb  --strip
+> <span style="color: cyan;">./blombly</span> main.bb  --norun --library --strip
+> <span style="color: cyan;">du</span>  -b main.bbvm
+5875    main.bbvm
+</pre>
+
+<br>
+
+
+**--text**
+
+Normally, compiled *bbvm* files are compressed using zlib; this typically reduces their
+size to a fourth of what it would normally be. Use the `--text` option
+if you want them to be saved as pure text containing intermediate representations. 
+The virtual machine can read both compressed and text versions interchangeably.
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb  --strip --text
 Hello world!
 > <span style="color: cyan;">cat</span> main.bbvm
 BUILTIN _bb162 "Hello world!"

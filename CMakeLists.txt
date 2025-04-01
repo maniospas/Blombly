@@ -123,6 +123,10 @@ elseif(WIN32) # For Windows
 
 endif()
 
+find_package(xxHash CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE xxHash::xxhash)
+
+
 # Specify where to place the final executable
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}"

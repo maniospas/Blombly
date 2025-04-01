@@ -38,7 +38,8 @@ public:
 
 
 void compile(const std::string& source, const std::string& destination);
-void optimize(const std::string& source, const std::string& destination, bool minimify);
+void optimize(const std::string& source, const std::string& destination, bool minimify, bool compress);
+std::string read_decompressed(const std::string& source);
 std::vector<Token> tokenize(const std::string& text, const std::string& file, bool injectStandardLibrary=false);
 
 void ltrim(std::string &s);

@@ -79,6 +79,7 @@ int main(int argc, char* argv[]) {
     int threads = std::thread::hardware_concurrency();
     int default_threads = threads;
     bool minimify = true;
+    bool compress = true;
 
     if(threads == 0) threads = 4;
     std::vector<std::string> instructions;
@@ -97,11 +98,13 @@ int main(int argc, char* argv[]) {
             std::cout << "--library         Prevents compilation optimizations\n";
             std::cout << "--strip           Strips away debugging symbols\n";
             std::cout << "--version         Prints the current blombly version\n";
+            std::cout << "--text            Forces the produced bbvm files to look like text\n";
             std::cout << "--depth <num>     Maximum stack depth\n";
             return 0;
         } 
         else if(arg == "--library" || arg == "-l") minimify = false;
         else if(arg == "--strip" || arg == "-s") debug_info = false;
+        else if(arg == "--text") compress = false;
         else if(arg == "--vsync") vsync = true;
         else if(arg == "--norun") threads = 0;
         else instructions.push_back(arg);
@@ -124,7 +127,7 @@ int main(int argc, char* argv[]) {
                         "Blombly can only compile and run .bb or .bbvm files, or code enclosed in single quotes '...', but an invalid option was provided: "+fileName)
             if(fileName.size()>=3 && fileName.substr(fileName.size() - 3, 3) == ".bb") {
                 compile(fileName, fileName + "vm");
-                optimize(fileName + "vm", fileName + "vm", minimify);
+                optimize(fileName + "vm", fileName + "vm", minimify, compress);
                 fileName = fileName + "vm";
             }
         }

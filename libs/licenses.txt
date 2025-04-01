@@ -15,7 +15,6 @@ limitations under the License.
 
 ------------------------------------------------------------------------------------
 
-
 xxHash Library
 Copyright (c) 2012-2021 Yann Collet
 All rights reserved.

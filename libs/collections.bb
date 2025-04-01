@@ -2,14 +2,6 @@
 !macro {.io::password} as {["password"]}
 !macro {.io::timeout} as {["timeout"]}
 
-//!macro {.io::color(@args)} as {<<list(@args)}
-//!macro {.io::texture(@args)} as {<<list(@args)}
-//!macro {.io::text(@args)} as {<<list(@args)}
-//!macro {.io::line(@args)} as {<<list("line",@args)}
-//!macro {.io::rect(@args)} as {<<list("rect",@args)}
-//!macro {.io::orect(@args)} as {<<list("orect",@args)}
-//!macro {.io::width(@args)} as {<<list(@args)}
-
 collection = new {
     toback(element) => new {
         call(A) = {
@@ -57,16 +49,6 @@ db(str path) => new {
     }
     commit() => this.connector << "COMMIT;";
     run(query) => this.connector << query|str;
-}
-
-!include {
-    !with colors:
-    logger = new {
-        ok(str text) = {print("[  !{bb.ansi.lightgreen}ok!{bb.ansi.reset}  ] !{text}")}
-        fail(str text) = {print("[ !{bb.ansi.lightred}fail!{bb.ansi.reset} ] !{text}")}
-        warn(str text) = {print("[ !{bb.ansi.yellow}warn!{bb.ansi.reset} ] !{text}")}
-        info(str text) = {print("[ !{bb.ansi.lightcyan}info!{bb.ansi.reset} ] !{text}")}
-    }
 }
 
 memory = new {
@@ -177,7 +159,7 @@ string = new {
             nsearch = len(search);
             nquery = len(query);
             while(i in range(pos, nsearch-nquery+1)) {
-                different = do while(j in range(nquery)) if(query[j]!=search[i+j]) {return true;}
+                different = do while(j in range(nquery)) if(query[j]!=search[i+j]) return true;
                 catch(different) return i;
             }
             return nsearch;//fail("Index not found");

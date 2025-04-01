@@ -15,16 +15,24 @@
  */
 
 
- #ifndef OPTIMIZER_CPP
- #define OPTIMIZER_CPP
- 
- #include <string>
- #include "utils.h"
- #include "common.h"
- #include <unordered_map> 
- #include <iostream>
- #include <fstream>
- #include <sstream>
+#ifndef OPTIMIZER_CPP
+#define OPTIMIZER_CPP
+
+#include <string>
+#include "utils.h"
+#include "common.h"
+#include <unordered_map> 
+#include <iostream>
+#include <fstream>
+#include <sstream>
+//#define XXH_NO_XXH3
+//#define XXH_NO_LONG_LONG
+#define XXH_NO_STREAM
+#include "xxhash.h"
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <cstdint>
  
  #define DISABLE {command->enabled = false;++changes;continue;}
  
@@ -82,6 +90,7 @@
  }
  
  std::string optimizeFromCode(const std::string& code, bool minimify) {
+     // there's little meaning to also creatint a cache, so we won't do it
      std::istringstream inputStream(code);
      std::vector<std::shared_ptr<OptimizerCommand>> program;
      std::string line;
@@ -242,6 +251,57 @@
  }
 
 
+
+ 
+ std::string cleanSymbols(const std::string& code) {
+    std::istringstream inputStream(code);
+    std::vector<std::shared_ptr<OptimizerCommand>> program;
+    std::string line;
+    while (std::getline(inputStream, line)) program.push_back(std::make_shared<OptimizerCommand>(line));
+    std::unordered_map<std::string, std::string> symbols;
+    
+    int n = program.size();
+    for (int i = 0; i < n; i++) {
+        for(int j=1;j<program[i]->args.size();++j) {
+            std::string& arg = program[i]->args[j];
+            if(arg.size()>=3 && arg.substr(0,3)=="_bb") {
+                if(arg.size()>=8 && arg.substr(0, 8)=="_bbmacro") {
+                    if(symbols.find(arg)==symbols.end()) symbols[arg] = "_bbmacro"+std::to_string(symbols.size());
+                    arg = symbols[arg];
+                }
+                else {
+                    if(symbols.find(arg)==symbols.end()) symbols[arg] = "_bb"+std::to_string(symbols.size());
+                    arg = symbols[arg];
+                }
+            }
+        }
+    }
+
+
+     //export the program
+     std::string result("");
+     std::string towrite("");
+     for (int i = 0; i < n; i++) {
+         if (program[i]->enabled && !towrite.empty()) {
+             result += towrite + "\n";
+             towrite.clear();
+         }
+         if (!program[i]->info.empty()) towrite = program[i]->info;
+         else result += program[i]->toString();
+     }
+ 
+ 
+     return RESMOVE(result);
+
+ }
+
+
+ std::string int64_to_string(int64_t value) {
+    std::string result(8, '\0'); // Create a string with 8 null characters
+    std::memcpy(&result[0], &value, 8); // Copy raw bytes of int64_t into string
+    return result;
+}
+
  std::string blockToCodeWithoutFirst(const std::vector<std::shared_ptr<OptimizerCommand>>& program, int& pos, bool includeComments, const std::string prefix) {
     // we will be skippint the first line
     int depth = 1;
@@ -250,14 +310,45 @@
     int n = program.size();
     std::unordered_map<std::string, std::string> anonymize; // will anonymize only _bb prefixes
     for (int i = pos+1; i < n; i++) {
-        for(int j=1;j<program[i]->args.size();++j) {
+        if(program[i]->args.size()>=2) {
+            auto& arg = program[i]->args[1];
+            if(arg.size()>=3 && arg.substr(0, 3)=="_bb" 
+                && (arg.size()<8 || arg.substr(0, 8)!="_bbcache")
+                && (arg.size()<7 || arg.substr(0, 7)!="_bbpass")) {
+                //std::string matched_to = prefix + std::to_string(anonymize.size());
+                std::string matched_to = program[i]->args[0]; 
+                for(int j=2;j<program[i]->args.size();++j) {
+                    auto& arg = program[i]->args[j];
+                    const auto& it = anonymize.find(arg);
+                    if(it!=anonymize.end()) matched_to += " "+it->second;
+                    else matched_to += " "+arg;
+                }
+                XXH128_hash_t hashval = XXH3_128bits(matched_to.c_str(), matched_to.size());
+                std::stringstream ss;
+                ss << std::hex
+                << std::setw(16) << std::setfill('0') << hashval.high64
+                << std::setw(16) << std::setfill('0') << hashval.low64;
+                std::string hex_str = ss.str();
+                
+                matched_to = "_bbpass" + hex_str + std::to_string(anonymize.size());
+
+                auto [it, inserted] = anonymize.try_emplace(arg, matched_to);
+                arg = it->second;
+            }
+        }
+
+        for(int j=2;j<program[i]->args.size();++j) {
+            auto& arg = program[i]->args[j];
+            const auto& it = anonymize.find(arg);
+            if(it!=anonymize.end()) arg = it->second;
+            /*int j = 0;
             if(program[i]->args[j].size()>=3 
                 && program[i]->args[j].substr(0, 3)=="_bb" 
                 && (program[i]->args[j].size()<=8 || program[i]->args[j].substr(0, 8)!="_bbcache")) {
                 auto& arg = program[i]->args[j];
                 auto [it, inserted] = anonymize.try_emplace(arg, prefix + std::to_string(anonymize.size()));
                 arg = it->second;
-            }
+            }*/
         }
         program[i]->enabled = true;
         if(!towrite.empty()) {
@@ -281,7 +372,7 @@
  }
 
 
- std::string removeCacheDuplicates(std::unordered_map<std::string, int> &programToCacheIndex,  int& cacheIndex, const std::string& code, int& diff) {
+std::string removeCacheDuplicates(std::unordered_map<std::string, int> &programToCacheIndex,  int& cacheIndex, const std::string& code, int& diff, int repetition) {
     std::istringstream inputStream(code);
     std::vector<std::shared_ptr<OptimizerCommand>> program;
     std::string line;
@@ -292,7 +383,7 @@
     while(pos<program.size()) {
         // the following prevents both _bbcache and intermediate inlines starting with _bb (e.g., used in while loops or expanded from macros)
         if(program[pos]->args.size()!=0 && program[pos]->args[0]=="BEGIN" && program[pos]->enabled 
-                && (program[pos]->args[1].size()<=3 || program[pos]->args[1].substr(0, 3)!="_bb") ) { 
+                && (program[pos]->args[1].size()<8 || program[pos]->args[1].substr(0, 8)!="_bbcache") ) { 
             diff++;
             int i = pos;
             // The following anonymization prefix loses only a little bit of inference power 
@@ -305,12 +396,15 @@
             //
             // Example of worst case (note: no arguments because we'd lose the worst case): 
             // `foo = {return {return {return {return {return 0}}}}}`
-            std::string repr = blockToCodeWithoutFirst(program, pos, false, "_bb_"+program[pos]->args[1]); 
+            std::string prefix;
+            if(program[pos]->args[1].size()>=3 && program[pos]->args[1].substr(0, 3)=="_bb") prefix = "_bbpass"+std::to_string(repetition)+"_anon";
+            else prefix = "_bb_"+program[pos]->args[1];
+            std::string repr = blockToCodeWithoutFirst(program, pos, false, prefix); 
             if(programToCacheIndex.find(repr)==programToCacheIndex.end()) {
                 pos = i;
                 programToCacheIndex[repr] = cacheIndex;
                 cachePreample += "BEGIN _bbcache"+std::to_string(cacheIndex)+"\n";
-                cachePreample += blockToCodeWithoutFirst(program, pos, true, "_bb_"+program[i]->args[1]);
+                cachePreample += blockToCodeWithoutFirst(program, pos, true, prefix);
                 cacheIndex++;
             }
             program[i]->args[0] = "ISCACHED";
@@ -335,29 +429,76 @@
  
      return RESMOVE(result);
  }
+#include <zlib.h>
+ void write_compressed(const std::string& destination, const std::string& data) {
+    // Allocate a buffer for compressed data
+    uLong sourceLen = data.size();
+    uLong destLen = compressBound(sourceLen);
+    std::vector<Bytef> compressed(destLen);
+
+    // Compress the data
+    int res = compress(compressed.data(), &destLen, reinterpret_cast<const Bytef*>(data.data()), sourceLen);
+    if (res != Z_OK) {
+        throw std::runtime_error("Compression failed");
+    }
+
+    // Write compressed data to file
+    std::ofstream outputFile(destination, std::ios::binary);
+    if (!outputFile.is_open()) {
+        throw std::runtime_error("Unable to write to file: " + destination);
+    }
+    outputFile.write(reinterpret_cast<char*>(&sourceLen), sizeof(sourceLen));
+    outputFile.write(reinterpret_cast<char*>(compressed.data()), destLen);
+    outputFile.close();
+}
+
+std::string read_decompressed(const std::string& source) {
+    std::ifstream inputFile(source, std::ios::binary);
+    if (!inputFile.is_open()) throw std::runtime_error("Unable to read from file: " + source);
+
+    uLong originalSize = 0;
+    inputFile.read(reinterpret_cast<char*>(&originalSize), sizeof(originalSize));
+    if (inputFile.gcount() != sizeof(originalSize)) throw std::runtime_error("Failed to read original size header.");
+
+    std::vector<Bytef> compressedData((std::istreambuf_iterator<char>(inputFile)), std::istreambuf_iterator<char>());
+    inputFile.close();
+
+    std::vector<char> decompressed(originalSize);
+    int res = uncompress(reinterpret_cast<Bytef*>(decompressed.data()), &originalSize, compressedData.data(), compressedData.size());
+    if (res != Z_OK) throw std::runtime_error("Decompression failed");
+
+    return std::string(decompressed.data(), originalSize);
+}
+
  
- 
- void optimize(const std::string& source, const std::string& destination, bool minimify) {
-     std::ifstream inputFile(source);
-     bbassert(inputFile.is_open(), "Unable to open file: " + source);
-     std::string code = "";
-     std::string line;
-     while (std::getline(inputFile, line)) code += line + "\n";
-     inputFile.close();
- 
-     std::string optimized = optimizeFromCode(code, minimify);
-     int diff = minimify?-1:0;
-     std::unordered_map<std::string, int> codeBlockToCacheIndex;
-     int cacheIndex = 0;
-     while(diff) {
+void optimize(const std::string& source, const std::string& destination, bool minimify, bool compress) {
+    std::ifstream inputFile(source);
+    bbassert(inputFile.is_open(), "Unable to open file: " + source);
+    std::string code = "";
+    std::string line;
+    while (std::getline(inputFile, line)) code += line + "\n";
+    inputFile.close();
+
+    std::string optimized = optimizeFromCode(code, minimify);
+    int diff = minimify?-1:0;
+    std::unordered_map<std::string, int> codeBlockToCacheIndex;
+    int cacheIndex = 0;
+    int repetition = 0;
+    while(diff) {
         diff = 0;
-        optimized = removeCacheDuplicates(codeBlockToCacheIndex, cacheIndex, optimized, diff);
-     }
- 
-     std::ofstream outputFile(destination);
-     bbassert(outputFile.is_open(), "Unable to write to file: " + destination);
-     outputFile << optimized;
-     outputFile.close();
- }
+        optimized = removeCacheDuplicates(codeBlockToCacheIndex, cacheIndex, optimized, diff, repetition);
+        repetition++;
+    }
+    optimized = cleanSymbols(optimized);
+
+    if(compress) {
+        write_compressed(destination, optimized);
+        return;
+    }
+    std::ofstream outputFile(destination);
+    bbassert(outputFile.is_open(), "Unable to write to file: " + destination);
+    outputFile << optimized;
+    outputFile.close();
+}
  
 #endif

@@ -614,7 +614,7 @@ Result compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
     std::string file = fileName;
     if (fileName.substr(fileName.size() - 3, 3) == ".bb") {
         compile(fileName, fileName + "vm");
-        optimize(fileName + "vm", fileName + "vm", true); // always minify
+        optimize(fileName + "vm", fileName + "vm", true, true); // always minify and compress
         file = fileName + "vm";
     }
 
@@ -646,8 +646,17 @@ int vm(const std::string& fileName, int numThreads) {
     bool hadError = false;
     try {
         {
-            std::ifstream inputFile(fileName);
-            bbassert(inputFile.is_open(), "Unable to open file: " + fileName);
+            std::unique_ptr<std::istream> inputFile;
+
+            try {
+                std::string contents = read_decompressed(fileName);
+                inputFile = std::make_unique<std::stringstream>(contents);
+            } 
+            catch (...) {
+                std::unique_ptr<std::ifstream> input = std::make_unique<std::ifstream>(fileName);
+                bbassert(input->is_open(), "Unable to open file: " + fileName);
+                inputFile = std::move(input);
+            }
 
             auto program = new std::vector<Command>();
             auto source = new SourceFile(fileName);
@@ -656,12 +665,11 @@ int vm(const std::string& fileName, int numThreads) {
             
             //program->emplace_back("BEGIN _bbmain", source, 0, new CommandContext("main context start"));
             CommandContext* descriptor = nullptr;
-            while (std::getline(inputFile, line)) {
+            while (std::getline(*inputFile, line)) {
                 if (line[0] != '%') program->emplace_back(line, source, i, descriptor);
                 else descriptor = new CommandContext(line.substr(1));
                 ++i;
             }
-            inputFile.close();
             //program->emplace_back("END", source, program->size()-1, new CommandContext("main context end"));
             //program->emplace_back("call _bbmainresult # _bbmain", source, program->size()-1, new CommandContext("main context run"));
 

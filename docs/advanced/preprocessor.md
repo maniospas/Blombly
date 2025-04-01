@@ -25,30 +25,25 @@ executable and to the working directory from where the main file is being compil
 
 <br>
 
-Dependencies enable code modularization without loading overheads, 
-as the compilation outcome packs all necessary instructions to run 
-automously by the interpreter. Circular includes are automatically 
-detected and create error messages.
+Dependencies enable code modularization without loading overheads; 
+the compilation outcome packs all necessary instructions to run 
+automously by the interpreter. Circular includes create error messages.
 
 ```java
 !include "libpath"
 ```
 
-!!! tip
-    Prefer placing all includes in your main file.
-
-Prevent shadowing by other includes by either marking variables as final or including into objects like below.
-In general, don't worry about using the same file multiple times too much; the impact on intermediate representations
-is minimized by moving most code to a common cache.
+Prevent symbol shadowing by either marking variables as final or including into objects like below.
+In general, don't worry about including the same file -or library for that matter- multiple times; the impact on
+the size of intermediate representations in *.bbvm* files
+is minimized by moving most code to a common cache. 
 
 ```java
 final lib = new{!include "libpath"}
 lib.run();
 ``` 
 
-<br>
-
-You can also mock the inclusion of a file by replacing the included string with a bracketed code block.
+Mock the inclusion of a file by replacing the included string with a bracketed code block.
 This does not affect the code running, but compartmentizes preprocessor instructions. It is mostly
 used to prevent namespaces or `!from` macros (whose validity ends at the end of each file) 
 from leaking outside the included code.
