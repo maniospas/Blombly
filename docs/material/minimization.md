@@ -1,13 +1,17 @@
 # Minimization
 
-In this article, I will deconstruct Blombly's code minimization tricks.
+<i>by Emmanouil Krasanakis - 2025/4/1</i>
+
+<br>
+
+In this article, I will deconstruct Blombly's freshly-completed code minimization tricks.
 I found these fun to think about and simple to implement. So maybe they can serve as 
 inspiration during the development of other languages too.
 
 ## Introduction
 
 Code minimization is a pivotal aspect of Blombly because it supports a
-conventient mantra about reusing code:
+convenient mantra about reusing code:
 
 !!! tip
     Include whatever, don't worry about bloat.
@@ -16,7 +20,7 @@ For example, the virtual machine defaults to including the whole standard
 library to all programs for ease of development. 
 But you will at most see only relevant parts (or none of them)
 in the compiled intermediate representations.
-So how does the compiler achieve this? Let's start with the
+How does the compiler achieve this? Let's start with the
 example below and see how far we can get. 
 
 
@@ -55,17 +59,17 @@ But you *cannot* get a list of fields while programs are running. This is an
 opinionated feature for preventing dynamic workarounds to static
 typechecking. In my experience with dynamic languages, 
 reflection is a recipe for ... spaghetti ... code. 🍝 😛
-
-<br>
-
 If you want to prepare for different variable types, 
 statically typed languages is what you are looking for. And if you want
 to have key-value pairs, dictionaries work just fine.
+
+<br>
+
 On the other hand, lack of reflection means that we are free to remove unused struct fields. 
-For example, some reused code may define complicated
-data, but if we are not using all features we don't need to keep everything at runtime. 
-See this in the following example, where computing the sums of `norm2d` takes up 2/3rds of the memory 
-than comparing those sums for `norm3d` because there is no need to keep track of the `z` coordinate of points. 
+For instance, reused code may define a broad range of features, but it better to only keep those 
+that are actually used. 
+In the following example, computing the sums of `norm2d` takes up 2/3rds of the memory 
+compared to summs of `norm3d` because there is no need to keep track of the `z` coordinate of points. 
 Relevant for here, this optimization also means smaller intermediate representations, for example
 by not including the implementation for one of the norms.
 
@@ -83,7 +87,7 @@ the compiler runs an inference engine based on transitive usage properties.
 That is, if a variable with name `A` uses a variable with name `x`, 
 then the name `x` will be considered "in use"
 as long as the name `A` is also in use. At the end of the usage chain, 
-function returns, and values outputted to the console, files, graphics, 
+function returns, and values printed to the console, files, graphics, 
 the web, databases, etc are considered in use.
 
 ## Symbol removal
@@ -98,18 +102,18 @@ count for the last two symbols.
 
 In a related note, functions like `numadd(x,y) => x+y;`
 are translated during parsing to simple code block declarations like this
-`numadd = {x = next(args); y=next(args); return x+y}` (code blocks do no run
+`numadd = {x = next(args); y=next(args); return x+y}` (code blocks do not run
 on declarations - they are called as functions or inlined as pure code).
 So, even functions/methods and struct creation code are but simple assignments.
-Minimization is therefore just a matter of prunning unused symbol names.
+Minimization is therefore just a matter of pruning unused symbol names.
 Not all useless *variables* will be removed, because the same
 symbols may be repeated throughout many scopes. But at least we get
 rid of large chunks of code without losing dynamism.
 
 <br>
 
-Repeat the above until there is nothing to remove anymore. This typically 
-runs in amoritzed time *O(n log n)*. In practice,
+Repeat the above until nothing is removed anymore. This typically 
+runs in amortized time *O(n log n)*. In practice,
 several minimizations repetitions across hierarchical
 data structures lead to only a few redundant stuff slipping through. 
 Everything is applied directly on the intermediate
@@ -149,7 +153,7 @@ the algorithm is pretty scalable.
 
 ## Definition cache
 
-To further minimize the procuded code, another inference engine identifies duplicate 
+To further minimize the produced code, another inference engine identifies duplicate 
 code blocks and creates shared definitions among them. These are loaded at the beginning
 of programs in a symbol cache and can be retrieved by scopes without having to go through
 chains of parent scopes. This retrieval is even faster than normal because there is no
@@ -158,14 +162,14 @@ need to check for waiting threads.
 <br>
 
 To identify equivalent code blocks in the simplest case,
-named variables are considered the same only if the have the same name. This 
+named variables are considered the same only if they have the same name. This 
 restriction is applied because code blocks could be inlined within function calls 
 or struct creation. Future implementations can seek to infer blocks that will 
 never be inlined and let those anonymize some internal variables.
 
 <br>
 
-In addition to fixed variables, thought, 
+In addition to fixed variables, though, 
 parsing also creates intermediate ones. For example, the expression 
 `return x+y` is normally compiled to the following instructions. The first
 argument is the returned value of each operation, with *#* indicating no
@@ -225,7 +229,7 @@ To get a taste of what caching is all about, the underlying implementation is co
 to what ends up being created.
 The important part is that common code segments are abstracted away. This may look more complicated
 when we are looking at Blombly code, but it's already tens of *bbvm* instructions less when implemented.
-Importantly, it scales well if we had much duplicattion, as is the case when the same files are imported
+Importantly, it scales well if we had much duplication, as is the case when the same files are imported
 multiple times throughout a project.
 We iterate the cache generation process until convergence, starting from a cache 
 of larger code blocks/functions and moving internally. Similarly to previous analysis,
@@ -241,7 +245,7 @@ cache2 = {
 cache0 = {numadd=cache2} // bbvm instructions also pack returning the object here
 cache1 = {arguments=1,2} // for safety, the compiler does not allow us to set to the name `args`
 
-// `new cache0` is what is being compiled in bbvm instructions
+// `new cache0` is the underlying bbvm instruction (calling new on a code block)
 // but that pattern is disabled in the main language to prevent anti-patterns
 A = new {cache0:} 
 B = new {cache0:}
@@ -263,7 +267,7 @@ END
 ```
 
 !!! info
-    Optimization perfrorms a preliminary pass that compresses some parsing outcomes, 
+    Optimization performs a preliminary pass that compresses some parsing outcomes, 
     such as substituting macro symbols that are matched to variables instead of
     holding whole expression outcomes.
 

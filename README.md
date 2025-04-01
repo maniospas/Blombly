@@ -85,7 +85,7 @@ Get vcpkg and use it to install dependencies.
 git clone https://github.com/microsoft/vcpkg.git
 cd vcpkg
 .\bootstrap-vcpkg.bat
-.\vcpkg.exe install sdl2 sdl2-image sdl2-ttf sqlite3 civetweb openssl zlib curl[core,ssl,ssh] --recurse
+.\vcpkg.exe install sdl2 sdl2-image sdl2-ttf sqlite3 civetweb openssl zlib curl[core,ssl,ssh] xxhash --recurse
 cd ..
 ```
 
@@ -122,7 +122,7 @@ Get vcpkg and use it to install the rest of the dependencies.
 git clone https://github.com/microsoft/vcpkg.git
 cd vcpkg
 ./bootstrap-vcpkg.sh
-./vcpkg install sqlite3 civetweb openssl zlib curl[core,ssl,ssh] --recurse
+./vcpkg install sqlite3 civetweb openssl zlib curl[core,ssl,ssh] xxhash --recurse
 cd ..
 ```
 
