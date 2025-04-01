@@ -96,7 +96,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(Code* code) {
 }
 
 ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& program, size_t i, size_t end) {
-    DataPtr arg0, arg1, result;
+    DataPtr arg0, arg1;
     for(;i<=end;++i) {
     const Command& command = program[i];
     try {

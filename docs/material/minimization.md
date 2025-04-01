@@ -60,7 +60,7 @@ Of course, as in all dynamic languages, you can access struct fields like
 But you *cannot* get a list of fields while programs are running. This is an
 opinionated feature for preventing dynamic workarounds to static
 typechecking. In my experience with dynamic languages, 
-reflection is a recipe for ... spaghetti ... code. 🍝 😛
+reflection is a recipe ... for spaghetti ... code. 🍝 😛
 If you want to prepare for different variable types, 
 statically typed languages is what you are looking for. And if you want
 to have key-value pairs, dictionaries work just fine.
@@ -68,10 +68,10 @@ to have key-value pairs, dictionaries work just fine.
 <br>
 
 On the other hand, lack of reflection means that we are free to remove unused struct fields. 
-For instance, reused code may define a broad range of features, but it better to only keep those 
+For instance, reused code may define a broad range of features, but it's better to only keep those 
 that are actually used. 
 In the following example, computing the sums of `norm2d` takes up 2/3rds of the memory 
-compared to summs of `norm3d` because there is no need to keep track of the `z` coordinate of points. 
+compared to sums of `norm3d` because there is no need to keep track of the `z` coordinate of points. 
 Relevant for here, this optimization also means smaller intermediate representations, for example
 by not including the implementation for one of the norms.
 
@@ -116,9 +116,9 @@ rid of large chunks of code without losing dynamism.
 
 Repeat the above until nothing is removed anymore. This typically 
 runs in amortized time *O(n log n)*. In practice,
-several minimizations repetitions across hierarchical
+several repetitions applied on hierarchical
 data structures lead to only a few redundant stuff slipping through. 
-Everything is applied directly on the intermediate
+The process described so far modifies directly the intermediate
 representations, but to avoid looking at a ton of instructions let's say 
 that it would be equivalent to write the following snippet. 
 
