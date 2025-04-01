@@ -6,7 +6,9 @@
 
 In this article, I will deconstruct Blombly's freshly-completed code minimization tricks.
 I found these fun to think about and simple to implement. So maybe they can serve as 
-inspiration during the development of other languages too.
+inspiration during the development of other languages too. Output representations are
+also compressed with zlib, but the improvements described here will let executables
+remain small even in the face of many dependencies.
 
 ## Introduction
 
