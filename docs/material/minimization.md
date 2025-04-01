@@ -197,7 +197,7 @@ over isomorphism checks that would need to compare implementations pairwise.
 In the variable representation, XXH3 is a fast 128-bit hash function from the
 [xxhash](https://github.com/Cyan4973/xxHash) library applied on the rest of the
 first instruction setting the variable.
-The hash is converted to hex format but not to 8 chars because we need
+The hash is converted to hex format but not to 16 chars because we need
 it to remain printable for debugging. Finally, the local counter resets at the 
 start of each code block. Variables starting with *_bbpass* and those indicating 
 code blocks already added to the cache are not further anonymized with this scheme.
