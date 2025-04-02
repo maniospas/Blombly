@@ -43,25 +43,26 @@ final Point = {
     class that does not have reflection.";
 
     str() = {
-        // struct field access and f-string
+        // struct fields and f-string
         x = this.x;
         y = this.y;
         return "(!{x}, !{y})";
     }
 
     add(other) => new { // `=> ..` is `= {return ...}`
-        Point: // inlines the code block
-        // get values from the definition's immediate closure (this..)
+        Point: // `:` inlines the block
+        // get values from closure (this..)
         x = this..x+other.x; 
         y = this..y+other.y;
     }
 }
 
-// structs keep creation vars, inline the code block with `:`
+// structs keep creation vars, 
+// `:` inlines the block
 a = new {Point:x=1;y=2}
 b = new {Point:x=3;y=4}
 
-// we defined `add`and `str`, which overload operations
+// `add`and `str` overload operations
 c = a+b; 
 print("!{a} + !{b} = !{c}"); 
 ```
