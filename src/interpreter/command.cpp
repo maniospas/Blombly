@@ -73,7 +73,9 @@ Command::Command(const std::string& command, SourceFile* source_, int line_, Com
 
     if (operation == BUILTIN) {
         nargs -= 1;
+        bbassert(argNames.size()>=3, "There is no second argument provided to the `BUILTIN`");
         std::string raw = argNames[2];
+        bbassert(raw.size()>=1, "There is no second argument provided to the `BUILTIN`");
         if (raw[0] == '"') {
             raw = raw.substr(1, raw.size() - 2);
             replaceAll(raw, "\\n", "\n");
