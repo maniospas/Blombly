@@ -571,6 +571,91 @@ void preliminaryDependencies(std::vector<Command>* program) {
 
 
 void preliminarySimpleChecks(std::vector<Command>* program) {
+    // the following is a sanity check to prevent external bbvm code from being invalid
+    for (const auto& command : *program) {
+        auto op =command.operation;
+        auto size = command.args.size();
+        if(size==0 && op!=END && op!=BEGINCACHE) bberrorexplain("Invalid bbvm code.", "Expecting a first output argument (even if that is `#`)", getStackFrame(command));
+
+        if(op==NOT) bbassertexplain(size==2, "Invalid bbvm code.", "`not` accepts exactly one argument", getStackFrame(command));
+        if(op==AND) bbassertexplain(size==3, "Invalid bbvm code.", "`and` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==OR) bbassertexplain(size==3, "Invalid bbvm code.", "`or` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==EQ) bbassertexplain(size==3, "Invalid bbvm code.", "`eq` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==NEQ) bbassertexplain(size==3, "Invalid bbvm code.", "`neq` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==LE) bbassertexplain(size==3, "Invalid bbvm code.", "`le` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==GE) bbassertexplain(size==3, "Invalid bbvm code.", "`ge` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==LT) bbassertexplain(size==3, "Invalid bbvm code.", "`lt` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==GT) bbassertexplain(size==3, "Invalid bbvm code.", "`gt` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==ADD) bbassertexplain(size==3, "Invalid bbvm code.", "`add` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==SUB) bbassertexplain(size==3, "Invalid bbvm code.", "`sub` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==MUL) bbassertexplain(size==3, "Invalid bbvm code.", "`mul` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==MMUL) bbassertexplain(size==3, "Invalid bbvm code.", "`mul` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==MUL) bbassertexplain(size==3, "Invalid bbvm code.", "`mul` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==MMUL) bbassertexplain(size==3, "Invalid bbvm code.", "`mmul` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==DIV) bbassertexplain(size==3, "Invalid bbvm code.", "`div` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==LEN) bbassertexplain(size==2, "Invalid bbvm code.", "`len` accepts exactly 1 argument", getStackFrame(command));
+        if(op==POW) bbassertexplain(size==3, "Invalid bbvm code.", "`pow` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==LOG) bbassertexplain(size==3, "Invalid bbvm code.", "`log` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==PUSH) bbassertexplain(size==3, "Invalid bbvm code.", "`push` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==POP) bbassertexplain(size==2, "Invalid bbvm code.", "`pop` accepts exactly 1 argument", getStackFrame(command));
+        if(op==NEXT) bbassertexplain(size==2, "Invalid bbvm code.", "`next` accepts exactly 1 argument", getStackFrame(command));
+        if(op==PUT) bbassertexplain(size==4, "Invalid bbvm code.", "`put` accepts exactly 3 arguments", getStackFrame(command));
+        if(op==AT) bbassertexplain(size==3, "Invalid bbvm code.", "`at` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==SHAPE) bbassertexplain(size==3, "Invalid bbvm code.", "`shape` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==TOVECTOR) bbassertexplain(size==2, "Invalid bbvm code.", "`vector` accepts exactly 1 argument", getStackFrame(command));
+        if(op==TOLIST) bbassertexplain(size==2 || size==1, "Invalid bbvm code.", "`list` accepts 1 or no arguments", getStackFrame(command));
+        if(op==TOMAP) bbassertexplain(size==2 || size==1, "Invalid bbvm code.", "`map` accepts 1 or no arguments", getStackFrame(command));
+        if(op==TOBB_INT) bbassertexplain(size==2, "Invalid bbvm code.", "`int` accepts exactly 1 argument", getStackFrame(command));
+        if(op==TOBB_FLOAT) bbassertexplain(size==2, "Invalid bbvm code.", "`float` accepts exactly 1 argument", getStackFrame(command));
+        if(op==TOSTR) bbassertexplain(size==2, "Invalid bbvm code.", "`str` accepts exactly 1 argument", getStackFrame(command));
+        if(op==TOBB_BOOL) bbassertexplain(size==2, "Invalid bbvm code.", "`bool` accepts exactly 1 argument", getStackFrame(command));
+        if(op==TOFILE) bbassertexplain(size==2, "Invalid bbvm code.", "`file` accepts exactly 1 argument", getStackFrame(command));
+        if(op==SUM) bbassertexplain(size==2, "Invalid bbvm code.", "`sum` accepts exactly 1 argument", getStackFrame(command));
+        if(op==MAX) bbassertexplain(size==2, "Invalid bbvm code.", "`max` accepts exactly 1 argument", getStackFrame(command));
+        if(op==MIN) bbassertexplain(size==2, "Invalid bbvm code.", "`min` accepts exactly 1 argument", getStackFrame(command));
+        if(op==BUILTIN) bbassertexplain(size==1, "Invalid bbvm code.", "`BUILTIN` accepts exactly 1 argument", getStackFrame(command));
+        if(op==BEGIN) bbassertexplain(size==1, "Invalid bbvm code.", "`BEGIN` accepts no argument", getStackFrame(command));
+        if(op==BEGINFINAL) bbassertexplain(size==1, "Invalid bbvm code.", "`BEGINFINAL` accepts no argument", getStackFrame(command));
+        if(op==BEGINCACHE) bbassertexplain(size==0, "Invalid bbvm code.", "`CACHE` accepts no argument and, by exception, assigns to no value", getStackFrame(command));
+        if(op==END) bbassertexplain(size==0, "Invalid bbvm code.", "`END` accepts no argument and, by exception, assigns to no value", getStackFrame(command));
+        if(op==RETURN) bbassertexplain(size==2, "Invalid bbvm code.", "`return` accepts exactly 1 argument", getStackFrame(command));
+        if(op==FINAL) bbassertexplain(size==2, "Invalid bbvm code.", "`final` accepts exactly 1 argument", getStackFrame(command));
+        if(op==IS) bbassertexplain(size==2, "Invalid bbvm code.", "`IS` accepts exactly 1 argument", getStackFrame(command));
+        if(op==CALL) bbassertexplain(size==3, "Invalid bbvm code.", "`call` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==WHILE) bbassertexplain(size==3, "Invalid bbvm code.", "`while` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==IF) bbassertexplain(size==4 || size==3, "Invalid bbvm code.", "`if` accepts 2 or 3 arguments", getStackFrame(command));
+        if(op==NEW) bbassertexplain(size==2, "Invalid bbvm code.", "`new` accepts exactly 1 argument", getStackFrame(command));
+        if(op==BB_PRINT) bbassertexplain(size==2, "Invalid bbvm code.", "`print` accepts exactly 1 argument", getStackFrame(command));
+        if(op==INLINE) bbassertexplain(size==2, "Invalid bbvm code.", "`inline` accepts exactly 1 argument", getStackFrame(command));
+        if(op==GET) bbassertexplain(size==3, "Invalid bbvm code.", "`get` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==SET) bbassertexplain(size==4, "Invalid bbvm code.", "`set` accepts exactly 3 arguments", getStackFrame(command));
+        if(op==SETFINAL) bbassertexplain(size==4, "Invalid bbvm code.", "`setfinal` accepts exactly 3 arguments", getStackFrame(command));
+        if(op==DEFAULT) bbassertexplain(size==2, "Invalid bbvm code.", "`default` accepts exactly 1 argument", getStackFrame(command));
+        if(op==TIME) bbassertexplain(size==1, "Invalid bbvm code.", "`default` accepts no arguments", getStackFrame(command));
+        if(op==TOITER) bbassertexplain(size==2, "Invalid bbvm code.", "`iter` accepts exactly 1 argument", getStackFrame(command));
+        if(op==TRY) bbassertexplain(size==2, "Invalid bbvm code.", "`try` accepts exactly 1 argument", getStackFrame(command));
+        if(op==CATCH) bbassertexplain(size==4 || size==3, "Invalid bbvm code.", "`catch` accepts 2 or 3 arguments", getStackFrame(command));
+        if(op==FAIL) bbassertexplain(size==2, "Invalid bbvm code.", "`fail` accepts exactly 1 argument", getStackFrame(command));
+        if(op==EXISTS) bbassertexplain(size==2, "Invalid bbvm code.", "`exists` accepts exactly 1 argument", getStackFrame(command));
+        if(op==READ) bbassertexplain(size==2, "Invalid bbvm code.", "`read` accepts exactly 1 argument", getStackFrame(command));
+        if(op==CREATESERVER) bbassertexplain(size==3, "Invalid bbvm code.", "`server` accepts exactly 2 arguments", getStackFrame(command));
+        if(op==AS) bbassertexplain(size==2, "Invalid bbvm code.", "`as` accepts exactly 1 argument", getStackFrame(command));
+        if(op==TORANGE) bbassertexplain(size>=2 && size<=4, "Invalid bbvm code.", "`range` accepts 1 to 3 arguments", getStackFrame(command));
+        if(op==DEFER) bbassertexplain(size==2, "Invalid bbvm code.", "`defer` accepts exactly 1 argument", getStackFrame(command));
+        if(op==CLEAR) bbassertexplain(size==2, "Invalid bbvm code.", "`clear` accepts exactly 1 argument", getStackFrame(command));
+        if(op==MOVE) bbassertexplain(size==2, "Invalid bbvm code.", "`move` accepts exactly 1 argument", getStackFrame(command));
+        if(op==ISCACHED) bbassertexplain(size==2, "Invalid bbvm code.", "`ISCACHED` accepts exactly 1 argument", getStackFrame(command));
+        if(op==TOSQLITE) bbassertexplain(size==2, "Invalid bbvm code.", "`sqllite` accepts exactly 1 argument", getStackFrame(command));
+        if(op==TOGRAPHICS) bbassertexplain(size==4, "Invalid bbvm code.", "`graphics` accepts exactly 3 arguments", getStackFrame(command));
+        if(op==RANDOM) bbassertexplain(size==4, "Invalid bbvm code.", "`random` accepts exactly 1 argument", getStackFrame(command));
+        if(op==RANDVECTOR) bbassertexplain(size==2, "Invalid bbvm code.", "`vector::consume` accepts exactly 1 argument", getStackFrame(command));
+        if(op==ZEROVECTOR) bbassertexplain(size==2, "Invalid bbvm code.", "`vector::zero` accepts exactly 1 argument", getStackFrame(command));
+        if(op==ALLOCVECTOR) bbassertexplain(size==2, "Invalid bbvm code.", "`vector::alloc` accepts exactly 1 argument", getStackFrame(command));
+        if(op==LISTELEMENT) bbassertexplain(size>=2, "Invalid bbvm code.", "`list::element` accepts at least 1 argument", getStackFrame(command));
+        if(op==LISTGATHER) bbassertexplain(size>=2, "Invalid bbvm code.", "`list::gather` accepts at least 1 argument", getStackFrame(command));
+    }
+
+
     std::unordered_set<int> symbolDefinitions;
     for (const auto& command : *program) {
         if(command.args.size()) symbolDefinitions.insert(command.args[0]);

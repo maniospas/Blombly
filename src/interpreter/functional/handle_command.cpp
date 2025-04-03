@@ -503,7 +503,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         bberror("1vector::zero` can only have an int size argument.");
     }
     DO_RANDVECTOR: {
-        bberror("vector::random not implemented yet");
+        bberror("vector::consume not implemented yet");
     }
     DO_ALLOCVECTOR: {
         int id1 = command.args[1];
