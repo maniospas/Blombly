@@ -918,8 +918,7 @@ public:
             bbassertexplain(!is_final, "Expecting variable.", "Only assignments to variables can be final.", show_position(start));
             bbassertexplain(tokens[start].name != "#" && tokens[start].name != "!", 
                       "Syntax error.",
-                      "Expression cannot start with `"+tokens[start].name +"` here. To avoid code smells, you can set metadata with `@property = value;` or `final @property = value;`"
-                      "only before any other block commands and only and immediately assigning a block. Metadata are not inlined.",
+                      "Expression cannot start with `"+tokens[start].name +"` here. This is likely an erroneous macro.",
                       show_position(start));
             
             if (first_name == "bbvm::print" || first_name == "print") {
@@ -1643,9 +1642,11 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 Parser::show_position(tokens, i));
         }
         if(tokens[i].name == "{") inclusionDepth++;
-        if(tokens[i].name == "}") inclusionDepth--;
-        if(inclusionDepth<0) bberrorexplain("Unexpected symbol.", "Imbalanced bracket closes here.", Parser::show_position(tokens, i));
-        if (tokens[i].name == "this" && i<tokens.size()-2 && tokens[i+1].name=="." && tokens[i+2].name==".") {
+        if(tokens[i].name == "}") {
+            inclusionDepth--;
+            if(inclusionDepth<0) bberrorexplain("Unexpected symbol.", "Imbalanced bracket closes here.", Parser::show_position(tokens, i));
+        }
+        if(tokens[i].name == "this" && i<tokens.size()-2 && tokens[i+1].name=="." && tokens[i+2].name==".") {
                 ++i; // skip this
                 int originali = i;
                 int countWedges = 1;
@@ -1729,7 +1730,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             ++i;
             //std::cout<<Parser::to_string(updatedTokens, 0, updatedTokens.size())<<"\n";
         }
-        else if ((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && (tokens[i + 1].name == "of" || tokens[i + 1].name == "anon")) {
+        else if((tokens[i].name == "#" || tokens[i].name == "!") && i < tokens.size() - 3 && (tokens[i + 1].name == "of" || tokens[i + 1].name == "anon")) {
                 bbassertexplain(tokens[i - 1].name == "(" || tokens[i - 1].name == "[", 
                           "Unexpected symbol.",
                           "Unexpected `!of` encountered after `"+tokens[i - 1].name +"`. "
@@ -1791,7 +1792,7 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             replaceAll(message, "\\n", "\n");
             bberror(message+"\n"+involved);
         }
-        else if ((tokens[i].name == "#" || tokens[i].name == "!") && (i < tokens.size()-3) && tokens[i+1].name=="access") {
+        else if ((tokens[i].name == "#" || tokens[i].name == "!") && (i < tokens.size()-2) && tokens[i+1].name=="access") {
             bbassert(tokens[i+2].builtintype==1, "`!access` should always be followed by a string\n"+Parser::show_position(tokens, i+2));
             std::string libpath = tokens[i+2].name;    
             std::string source = libpath.substr(1, libpath.size() - 2);

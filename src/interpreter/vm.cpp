@@ -805,7 +805,9 @@ int vmFromSourceCode(const std::string& sourceCode, int numThreads) {
     try {
         {
             std::string newCode = compileFromCode(sourceCode, "terminal argument");
+            if(!newCode.size()) return 0;
             newCode = optimizeFromCode(newCode, true); 
+            if(!newCode.size()) return 0;
             BMemory memory(0, nullptr, DEFAULT_LOCAL_EXPECTATION);
             try {
                 std::istringstream inputFile(newCode);
