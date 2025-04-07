@@ -595,7 +595,7 @@ void preliminarySimpleChecks(std::vector<Command>* program) {
         if(op==DIV) bbassertexplain(size==3, "Invalid bbvm instruction: "+command.toString(), "`div` accepts exactly 2 arguments after the return value", getStackFrame(command));
         if(op==LEN) bbassertexplain(size==2, "Invalid bbvm instruction: "+command.toString(), "`len` accepts exactly 1 argument after the return value", getStackFrame(command));
         if(op==POW) bbassertexplain(size==3, "Invalid bbvm instruction: "+command.toString(), "`pow` accepts exactly 2 arguments after the return value", getStackFrame(command));
-        if(op==LOG) bbassertexplain(size==3, "Invalid bbvm instruction: "+command.toString(), "`log` accepts exactly 2 arguments after the return value", getStackFrame(command));
+        if(op==LOG) bbassertexplain(size==2, "Invalid bbvm instruction: "+command.toString(), "`log` accepts exactly 1 argument after the return value", getStackFrame(command));
         if(op==PUSH) bbassertexplain(size==3, "Invalid bbvm instruction: "+command.toString(), "`push` accepts exactly 2 arguments after the return value", getStackFrame(command));
         if(op==POP) bbassertexplain(size==2, "Invalid bbvm instruction: "+command.toString(), "`pop` accepts exactly 1 argument after the return value", getStackFrame(command));
         if(op==NEXT) bbassertexplain(size==2, "Invalid bbvm instruction: "+command.toString(), "`next` accepts exactly 1 argument after the return value", getStackFrame(command));
@@ -727,6 +727,8 @@ Result compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
         ++i;
     }
     inputFile.close();
+    // the following ensure smooth close-up even if the program is terminated through logically a non-assigned call
+    program->emplace_back("BUILTIN _bbdonothing I0", source, i, nullptr);
     preliminarySimpleChecks(program);
 
     return Result(new Code(program, 0, program->size() - 1, program->size() - 1));
@@ -762,9 +764,12 @@ int vm(const std::string& fileName, int numThreads) {
                 else descriptor = new CommandContext(line.substr(1));
                 ++i;
             }
+
             //program->emplace_back("END", source, program->size()-1, new CommandContext("main context end"));
             //program->emplace_back("call _bbmainresult # _bbmain", source, program->size()-1, new CommandContext("main context run"));
 
+            // the following ensure smooth close-up even if the program is terminated through logically a non-assigned call
+            program->emplace_back("BUILTIN _bbdonothing I0", source, i, descriptor);
             preliminarySimpleChecks(program);
             
             BMemory memory(0, nullptr, DEFAULT_LOCAL_EXPECTATION);
@@ -806,7 +811,7 @@ int vmFromSourceCode(const std::string& sourceCode, int numThreads) {
         {
             std::string newCode = compileFromCode(sourceCode, "terminal argument");
             if(!newCode.size()) return 0;
-            newCode = optimizeFromCode(newCode, true); 
+            newCode = optimizeFromCode(newCode, true);
             if(!newCode.size()) return 0;
             BMemory memory(0, nullptr, DEFAULT_LOCAL_EXPECTATION);
             try {
@@ -823,11 +828,15 @@ int vmFromSourceCode(const std::string& sourceCode, int numThreads) {
                     else descriptor = new CommandContext(line.substr(1));
                     ++i;
                 }
+                // the following ensure smooth close-up even if the program is terminated through logically a non-assigned call
+                program->emplace_back("BUILTIN _bbdonothing I0", source, i, descriptor);
+                preliminarySimpleChecks(program);
 
                 auto code = new Code(program, 0, program->size() - 1, program->size() - 1);
                 if(numThreads) {
                     ExecutionInstance executor(0, code, &memory, false);
                     auto returnedValue = executor.run(code);
+                    if(returnedValue.get().existsAndTypeEquals(ERRORTYPE)) throw BBError(returnedValue.get()->toString(nullptr));
                     bbassert(!returnedValue.returnSignal, "The virtual machine cannot return a value.");
                 }
                 //memory.detach(nullptr);

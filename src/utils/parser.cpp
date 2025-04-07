@@ -647,7 +647,7 @@ public:
 
                             if (name == "bbvm::int" || name == "bbvm::float" || 
                                 name == "bbvm::str" || name == "bbvm::file" || 
-                                name == "bbvm::bool" ||
+                                name == "bbvm::bool" || name == "bbvm::log" ||
                                 name == "bbvm::list" || name == "bbvm::map" || 
                                 name == "bbvm::move" || name == "bbvm::clear" || name == "bbvm::pop" || name == "bbvm::random" || name == "bbvm::push" || 
                                 name == "bbvm::len" || name == "bbvm::next" || 
@@ -709,13 +709,13 @@ public:
 
                             for(size_t jj=j;jj<next_j-1;++jj) {
                                 std::string semitype = tokens[jj].name;
-                                if(semitype=="float" || semitype=="int" || semitype=="str" || semitype=="bool" || semitype=="list" 
+                                if(semitype=="float" || semitype=="int" || semitype=="str" || semitype=="bool" || semitype=="log" || semitype=="list" 
                                     || semitype=="vector" || semitype=="iter"
                                     || semitype=="vector::zero" || semitype=="vector::consume" 
                                     || semitype=="vector::alloc" || semitype=="list::element"
                                     || semitype=="list::gather" || semitype=="list::gather"
                                     || semitype=="file" || semitype=="clear" || semitype=="move" 
-                                    || semitype=="bbvm::float" || semitype=="bbvm::int" || semitype=="bbvm::str" || semitype=="bbvm::bool" || semitype=="bbvm::iter"
+                                    || semitype=="bbvm::float" || semitype=="bbvm::int" || semitype=="bbvm::str" || semitype=="bbvm::log" || semitype=="bbvm::bool" || semitype=="bbvm::iter"
                                     || semitype=="bbvm::list" || semitype=="bbvm::vector" || semitype=="bbvm::file" || semitype=="bbvm::clear" || semitype=="bbvm::move" )
                                     code_block_prepend += semitype+" "+name+" "+name+"\n";
                                 else {
@@ -773,7 +773,7 @@ public:
                           "Expecting variable.", "Cannot understrand what to assign to. You can only assign to variables, struct fields, or elements", show_position(assignment, start, end));
                 if (first_name == "bbvm::int" || first_name == "bbvm::float" || 
                     first_name == "bbvm::str" || first_name == "bbvm::file" || 
-                    first_name == "bbvm::bool" ||
+                    first_name == "bbvm::bool" || first_name == "bbvm::log" ||
                     first_name == "bbvm::list" || first_name == "bbvm::map" || 
                     first_name == "bbvm::move" || first_name == "bbvm::clear" || first_name == "bbvm::random" || first_name == "bbvm::pop" || first_name == "bbvm::push" || 
                     first_name == "bbvm::put" ||
@@ -865,7 +865,7 @@ public:
 
                             if (name == "bbvm::int" || name == "bbvm::float" || 
                                 name == "bbvm::str" || name == "bbvm::file" || 
-                                name == "bbvm::bool" ||
+                                name == "bbvm::bool" || name == "bbvm::log" ||
                                 name == "bbvm::list" || name == "bbvm::map" || 
                                 name == "bbvm::move" || name == "bbvm::clear" || name == "bbvm::pop" || name == "bbvm::random" || name == "bbvm::push" || 
                                 name == "bbvm::len" || name == "bbvm::next" || 
@@ -926,13 +926,14 @@ public:
 
                             for(size_t jj=j;jj<next_j-1;++jj) {
                                 std::string semitype = tokens[jj].name;
-                                if(semitype=="float" || semitype=="int" || semitype=="str" || semitype=="bool" || semitype=="list" 
+                                if(semitype=="float" || semitype=="int" || semitype=="str" || semitype=="bool" || semitype=="log" || semitype=="list" 
                                     || semitype=="vector" || semitype=="iter"
                                     || semitype=="vector::zero" || semitype=="vector::consume" 
                                     || semitype=="vector::alloc" || semitype=="list::element"
                                     || semitype=="list::gather" || semitype=="list::gather"
                                     || semitype=="clear" || semitype=="move" || semitype=="file" 
-                                    || semitype=="bbvm::float" || semitype=="bbvm::int" || semitype=="bbvm::str" || semitype=="bbvm::bool" || semitype=="bbvm::iter"
+                                    || semitype=="bbvm::float" || semitype=="bbvm::int" || semitype=="bbvm::str" 
+                                    || semitype=="bbvm::bool" || semitype=="bbvm::log" || semitype=="bbvm::iter"
                                     || semitype=="bbvm::list" || semitype=="bbvm::vector" || semitype=="bbvm::file"
                                     || semitype=="bbvm::clear" || semitype=="bbvm::move" )
                                     code_block_prepend += semitype+" "+name+" "+name+"\n";
@@ -1206,7 +1207,7 @@ public:
 
             if (first_name == "bbvm::len" || first_name == "bbvm::iter" || 
                 first_name == "bbvm::int" || first_name == "bbvm::float" || 
-                first_name == "bbvm::str" || first_name == "bbvm::bool" ||
+                first_name == "bbvm::str" || first_name == "bbvm::bool" || first_name == "bbvm::log" ||
                 first_name == "bbvm::file" ||  
                 first_name == "bbvm::max" || first_name == "bbvm::min" || 
                 first_name == "bbvm::sum" || 
@@ -1217,7 +1218,7 @@ public:
                 first_name == "bbvm::vector" ||
                 first_name == "len" || first_name == "iter" || 
                 first_name == "int" || first_name == "float" || 
-                first_name == "str" || first_name == "bool" || 
+                first_name == "str" || first_name == "bool" || first_name == "log" || 
                 first_name == "file" ||
                 first_name == "max" || first_name == "min" || 
                 first_name == "sum" || 
@@ -1314,7 +1315,7 @@ public:
                 if(end==chain+1) callable = tokens[chain+1].name;
                 if (callable == "int" || callable == "float" || 
                     callable == "str" || callable == "file" || 
-                    callable == "bool" ||
+                    callable == "bool" || callable == "log" ||
                     callable == "list" || callable == "map" || 
                     callable == "move" || callable == "clear" || callable == "pop" 
                     || callable == "push" || callable == "random" || 
@@ -1330,7 +1331,7 @@ public:
                     callable == "print" || callable == "read" ||
                     callable == "bbvm::int" || callable == "bbvm::float" || 
                     callable == "bbvm::str" || callable == "bbvm::file" || 
-                    callable == "bbvm::bool" ||
+                    callable == "bbvm::bool" || callable == "bbvm::log" ||
                     callable == "bbvm::list" || callable == "bbvm::map" || 
                     callable == "bbvm::move" || callable == "bbvm::clear" || 
                     callable == "bbvm::pop" || callable == "bbvm::push" || callable == "bbvm::random" || 
@@ -1373,7 +1374,7 @@ public:
                               "Cannot directly enclose brackets inside a method call's parenthesis to avoid code smells. Instead, you can place "
                               "any code inside the parethesis to transfer evaluated content to the method. This looks like this: `func(x=1;y=2)`.",
                               show_position(call+1));
-                size_t conditional = find_end(call + 1, end, "::"); // call conditional
+                size_t conditional = find_end(call + 1, end, "::"); // call conditional    
                 std::string parsed_args;
                 if (conditional == MISSING) {
                     if (find_end(call + 1, end, "=") != MISSING || find_end(call + 1, end, "as") != MISSING)  // if there are equalities, we are on kwarg mode 

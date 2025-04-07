@@ -27,10 +27,22 @@ print("Hello !{name}."); // string interpolation with !{...}
 Run `./blombly main.bb`, where the executable and main files can be any path, and check that everything is working properly. 
 Do not move the executable without the packaged `libs/` directory and (in Windows) accompanying *.dll* libraries.
 
+## Use as a calculator
+
+```bash
+./blombly 'print(2^20)'
+1048576
+./build/blombly 'print("LICENSE.txt"|bb.os.read)'
+Blombly
+Copyright 2024 Emmanouil Krasanakis
+...
+```
+
 ## A small example
 
 ```java
-// main.bb (this is a line comment, strings used for multi-line comments)
+// main.bb (this is a line comment,
+// use strings for multi-line comments)
 
 "Below we define a code block (it does not run yet).
 It is made immutable with `final` for visibility from 
@@ -49,11 +61,25 @@ final Point = {
         return "(!{x}, !{y})";
     }
 
-    add(other) => new { // `=> ..` is `= {return ...}`
-        Point: // `:` inlines the block
-        // get values from closure (this..)
+    // `=> ..` is `= {return ...}`
+    add(other) => new { 
+        // `:` inline the block
+        Point:
+        // get values from closure 
+        // (extra dot in this)
         x = this..x+other.x; 
         y = this..y+other.y;
+    }
+
+    norm() = {
+        // set defaults if values not found
+        default p=2;
+        default toabs=true;
+        x = this.x;
+        y = this.y;
+        if(toabs and x<0) x = 0-x;
+        if(toabs and y<0) y = 0-y;
+        return (x^p+y^p)^(1/p);
     }
 }
 
@@ -62,14 +88,17 @@ final Point = {
 a = new {Point:x=1;y=2}
 b = new {Point:x=3;y=4}
 
-// `add`and `str` overload operations
+// `add`and `str` overloads
 c = a+b; 
 print("!{a} + !{b} = !{c}"); 
+// inject values in functions
+print(c.norm(p=1;toabs=true));
 ```
 
 ```text
 > ./blombly main.bb
 (1, 2) + (3, 4) = (4, 6) 
+10
 ```
 
 ## Build from source 
@@ -101,8 +130,9 @@ This will create `blombly.exe` and a bunch of *dll*s needed for its execution.
 
 
 ⚠️ I am not good enough with
-cmake to force proper g++/mingw compilation and linking in both dependencies and the main compilation (I would appreciate some help there). So, in Windows with MSVC as the default compiler you will get an implementation with slower dynamic dispatch during execution. This mostly matters if you try
-to do intensive numeric computations without vectors - which you really shouldn't.
+cmake to force proper g++/mingw compilation and linking in both dependencies and the main compilation. 
+So, in Windows with MSVC as the default compiler you will get an implementation with slower dynamic dispatch during execution.
+This mostly matters if you try to do intensive numeric computations without vectors - which you really shouldn't.
 
 </details>
 

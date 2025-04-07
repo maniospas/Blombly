@@ -37,6 +37,7 @@
 #include "interpreter/Command.h"
 #include "interpreter/functional.h"
 #include "interpreter/thread.h"
+#include "math.h"
 
 extern BError* NO_TRY_INTERCEPT;
 std::chrono::steady_clock::time_point program_start;
@@ -89,6 +90,12 @@ std::string replaceEscapeSequences(const std::string& input) {
 
 #define DISPATCH(OPERATION) goto *dispatch_table[OPERATION]
 void initialize_dispatch_table() {}
+
+void ExecutionInstance::runNoReturn(Code* code) {
+    const auto& program = *code->getProgram();
+    auto returnedValue = run(program, code->getStart(), code->getOptimizedEnd());
+    bbassert(!returnedValue.returnSignal, "The virtual machine cannot return a value.");
+}
 
 ExecutionInstanceRunReturn ExecutionInstance::run(Code* code) {
     const auto& program = *code->getProgram();
@@ -337,7 +344,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         int id2 = command.args[2];
         arg0 = memory.get(id1);
         arg1 = memory.get(id2);
-        if(arg0.isintint(arg1)) DISPATCH_LITERAL(std::pow(arg0.unsafe_toint(), arg1.unsafe_toint()));
+        if(arg0.isintint(arg1)) DISPATCH_LITERAL((int64_t)std::pow(arg0.unsafe_toint(), arg1.unsafe_toint()));
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(std::pow(arg0.unsafe_tofloat(), arg1.unsafe_tofloat()));
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(std::pow(arg0.unsafe_toint(), arg1.unsafe_tofloat()));
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(std::pow(arg0.unsafe_tofloat(), arg1.unsafe_toint()));
@@ -529,6 +536,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_LOG: {
         int id1 = command.args[1];
         arg0 = memory.get(id1);
+        if(arg0.isint())DISPATCH_LITERAL(log(arg0.unsafe_toint()));
+        if(arg0.isfloat())DISPATCH_LITERAL(log(arg0.unsafe_tofloat()));
         bbassert(arg0.isptr(), "Did not find builtin operation: log("+arg0.torepr()+")");
         DISPATCH_OUTCOME(arg0->logarithm(&memory));
     }
@@ -613,7 +622,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(arg0.isbool()) DISPATCH_RESULT(new BString(arg0.unsafe_tobool()?"true":"false"));
         if(arg0.exists()) DISPATCH_RESULT(new BString(arg0->toString(&memory)));
         if(arg0.existsAndTypeEquals(ERRORTYPE)) bberror(arg0->toString(nullptr));
-        bberrorexplain("Unexpected value: "+arg0.torepr(), "This value cannot be converted to string. However, this message can appear only due to an internal error..", "");
+        bberrorexplain("Unexpected value: "+arg0.torepr(), "This value cannot be converted to string. However, this message can appear only due to an internal error.", "");
     }
     DO_RETURN: {
         return ExecutionInstanceRunReturn(true, Result(command.args[1] == variableManager.noneId ? DataPtr::NULLP : memory.get(command.args[1])));

@@ -59,6 +59,7 @@ public:
         result(DataPtr::NULLP), memory(*memory),  forceStayInThread(forceStayInThread), depth(depth+1) {
         if(depth>=maxDepth) bberrorexplain("Maximum call stack depth reached: "+std::to_string(depth), "The call stack includes inline redirections of control flow. Reaching maximal depth typically indicates a logical error, such as unbounded recursion. If you are sure your code is correct, run blombly with greater --depth.", "");
     }
+    void runNoReturn(Code* code);
     ExecutionInstanceRunReturn run(Code* code);
     ExecutionInstanceRunReturn run(const std::vector<Command>& program, size_t i, size_t end);
     void handleExecutionError(const Command& command, const BBError& e);

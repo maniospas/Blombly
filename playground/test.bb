@@ -1,0 +1,1 @@
+bb.os.read("LICENSE.txt")
