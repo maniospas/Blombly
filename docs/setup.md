@@ -133,10 +133,11 @@ Compilation may still run some tasks triggered by preprocessor instructions
 Compilation optimizes the code by removing many unused variables or segments.
 For example, notice that so far there have been no needless instructions
 from the standard library *libs/.bb*, despite the latter being
-imported in every program. To produce bbvm files
-to be used as libraries (to be optimized by programs using them 
-*in future versions*),
-retain everything with the `--library` or `-l` option. 
+imported in every program. Produce bbvm files
+to be used as libraries (these can be included and optimized by programs using them),
+retain everything with the `--library` or `-l` option. Accompany this
+with `--norun` to prevent running library code and creating errors from unset
+variables.
 Below is an example that compiles a file without running it while switching
 between applying and not applying optimizations. The `du` linux
 utility shows file sizes, here set to bytes. 

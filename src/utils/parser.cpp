@@ -1495,23 +1495,15 @@ void sanitize(std::vector<Token>& tokens) {
             last_open.pop();
             last_open_type.pop();
         }
-
-        if (tokens[i].name == "\\") bberror("A stray `\\` was encountered.\n" + Parser::show_position(tokens, i));
-
-        if (tokens[i].name.size() >= 3 && tokens[i].name.substr(0, 3) == "_bb")
-            bberrorexplain("Unexpected symbol.", "Variable name `" + tokens[i].name + "` cannot start with _bb. "
-                    "Names starting with this prefix are reserved for VM local temporaries created by the compiler or macros. This check ensures that you cannot mess with the compiler's validity.",
-                    Parser::show_position(tokens, i));
+        if (tokens[i].name == "\\") bberrorexplain("Unexpected symbol.", "A stray `\\` was encountered.", Parser::show_position(tokens, i));
+        if (tokens[i].name.size() >= 3 && tokens[i].name.substr(0, 3) == "_bb") bberrorexplain("Unexpected symbol.", "Variable name `" + tokens[i].name + "` cannot start with _bb. Names starting with this prefix are reserved for VM local temporaries created by the compiler or macros. This check ensures that you cannot mess with the compiler's validity.", Parser::show_position(tokens, i));
         
-        if ((tokens[i].name=="=" || tokens[i].name=="as") && i 
-            && (tokens[i-1].name=="|")) { // "this is handled here, other operations by the same parse, allow |as for this specifically"
+        if ((tokens[i].name=="=" || tokens[i].name=="as") && i && (tokens[i-1].name=="|")) { // "this is handled here, other operations by the same parse, allow |as for this specifically"
             int start = i-2;
             while(start>=0) {
-                if(tokens[start].name=="final" || tokens[start].name==";")
-                    break;
+                if(tokens[start].name=="final" || tokens[start].name==";") break;
                 start -= 1;
-                if(tokens[start].name=="(" || tokens[start].name=="{")// || tokens[start].name=="[") 
-                    break;
+                if(tokens[start].name=="(" || tokens[start].name=="{")  break;
                 bbassertexplain(tokens[start].name!="}", "Unexpected symbol.", "For safety, you cannot use `"+tokens[i-1].name+ tokens[i].name +"` when the left-hand-side contains a bracket `}`. Please resort to var = expression assignment.", Parser::show_position(tokens, i));
                 bbassertexplain(tokens[start].name!=")", "Unexpected symbol.", "For safety, you cannot use `"+tokens[i-1].name+ tokens[i].name +"` when the left-hand-side contains a parenthesis `)`. Please resort to var = expression assignment.", Parser::show_position(tokens, i));
                 //bbassert(tokens[start].name!="]", "For safety, you cannot use `"+tokens[i-1].name+ tokens[i].name +"` when the left-hand-side contains a parenthesis `]`. Please resort to var = expression assignment.\n"+Parser::show_position(tokens, i));
@@ -1536,7 +1528,6 @@ void sanitize(std::vector<Token>& tokens) {
             i += 1;
             continue;
         }
-
 
         if (tokens[i].name=="-" && (i==0 || (tokens[i-1].name=="=" || tokens[i-1].name=="as" || tokens[i-1].name=="{" ||  tokens[i-1].name=="[" || tokens[i-1].name=="(" || tokens[i-1].name==",")) 
             && i < tokens.size() - 1 && (tokens[i + 1].builtintype == 3 || tokens[i + 1].builtintype == 4)) {

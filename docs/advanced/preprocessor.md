@@ -1,14 +1,16 @@
 # Preprocessing
 
-Blombly's preprocessor can understand several directives that transform the source code before compilation into `.bbvm` files. 
-These directives are made distinct by prepending them with a `!` symbol.
+Blombly's preprocessor can understand several directives that transform the source code. These apply before
+compilation into `.bbvm` files, *and are not carried there*. 
+Preprocessor directives are made distinct by prepending them with a `!` symbol. Some intrusive standard library
+macros also use this symbol.
 Five main types of preprocessing are available: dependencies that make a source code file include another's code, 
 expressions to be evaluated at compile time, permissions to read and write system resources, string interpolation,
 and macros that enrich the language's grammar with higher-level expressions.
 
 <br>
 
-Macros may alter the order in which written code is executed 
+Of the above, macros may alter the order in which written code is executed 
 and should be sparingly used - if at all. Therefore, the macro and related direactives are 
 packed into one section in this page. Macros are meant
 to support coding patterns without needing to explicitly code them in
@@ -19,7 +21,7 @@ the virtual machine.
 Dependencies on `.bb` files or folders are stated with an include statement that looks like below.
 When an include directive is encountered, it tries to see if adding the suffix `.bb` or `/.bb` to the path
 is a valid file and imports that. 
-In the above example, this means that either `libs/html.bb` is included or, 
+In the example below, either `libs/html.bb` is included or, 
 if `libs/html` is a folder, `libs/html/.bb` is included. Inclusion paths are checked both relatively to blombly's
 executable and to the working directory from where the main file is being compiled.
 
@@ -34,9 +36,9 @@ automously by the interpreter. Circular includes create error messages.
 ```
 
 Prevent symbol shadowing by either marking variables as final or including into objects like below.
-In general, don't worry about including the same file -or library for that matter- multiple times; the impact on
-the size of intermediate representations in *.bbvm* files
-is minimized by moving most code to a common cache. 
+In general, do not worry about including the same file -or library for that matter- multiple times; the impact on
+the size of intermediate representations in the created *.bbvm* files
+is minimized by moving most code to a common cache.
 
 ```java
 final lib = new{!include "libpath"}
@@ -53,6 +55,16 @@ from leaking outside the included code.
     print("This is a mock file");
 }
 ```
+
+Finally, if you have already created a *.bbvm* file, you can inline
+its compilation outcome by giving a path to it, extension included, like below.
+Typically, you would create those files with the `--library` option to preserve
+all source code and let optimization prune away stuff only during the inclusion.
+
+```java
+!include "libpath.bbvm"
+```
+
 
 ## !comptime
 
