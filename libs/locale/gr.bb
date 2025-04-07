@@ -1,3 +1,5 @@
+// Greek: manual translation
+
 !macro{διάνυσμα::μηδενικών} as {vector::zero}
 !macro{διάνυσμα} as {vector}
 !macro{λίστα} as {list}
@@ -36,7 +38,12 @@
 !macro{!μακροεντολή{@expr} ως {@impl}} as {!macro{@expr} as {@impl}}
 !macro{!τοπικά{@expr} ως {@impl}} as {!local{@expr} as {@impl}}
 !macro{!από} as {!of}
+!macro{!κειμενοποίησε} as {!stringify}
+!macro{!σύμβολο} as {!symbol}
+!macro{!προμεταγλώττιση} as {!comptime}
 !macro{αυτό} as {this}
+!macro{χρόνος} as {time}
+!macro{τυχαίος} as {random}
 
 // standard library
 !macro{!ονόματα} as {!namespace}
@@ -51,6 +58,7 @@
 !macro{νέο{@block}} as {new{@block}}
 !macro{γλώσσα} as {bb}
 !macro{λειτουργικό} as {os}
+!macro{μετάφερε} as {transfer}
 !macro{κείμενο} as {string}
 !macro{ένωσε} as {join}
 !macro{ξεκινάει} as {starts}
@@ -65,6 +73,21 @@
 !macro{επόβαλε} as {commit}
 !macro{συναλλαγή} as {transaction}
 !macro{εκτέλεσε} as {run}
+
+!macro{επιστήμη} as {sci}
+!macro{γρήφημα} as {plot}
+!macro{γραφήματα} as {plots}
+!macro{Γρήφημα} as {Plot}
+!macro{εμφάνισε} as {show}
+!macro{πλάτος} as {width}
+!macro{ύψος} as {height}
+!macro{γωνία} as {angle}
+!macro{χρώμα} as {color}
+!macro{τίτλος} as {title}
+!macro{γραμματοσειρά} as {font}
+!macro{άξονες} as {axes}
+!macro{σκίαση} as {shade}
+!macro{κείμενο} as {text}
 
 !macro{δείξε} as {logger}
 !macro{οκ} as {ok}

@@ -133,7 +133,7 @@
                 dt = 0;
                 prev_t = time();
                 while(events as g|pop) {
-                    // treat :: as one charcater, like an underscore
+                    // treat :: as one character, like an underscore
                     while(e in events) if(e.io::type=="key::down") {
                         if(e.io::key=="A") logo.angle -= 360*dt;
                         if(e.io::key=="D") logo.angle += 360*dt;

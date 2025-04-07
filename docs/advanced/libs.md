@@ -25,7 +25,7 @@ print(bb.ansi.cyan+" INFO "+bb.ansi.reset+"This is a message.");
 
 ## bb.collection
 
-Contains helper methods for list and map manipulation using the semi-type notation. 
+Contains helper methods for list and map manipulation using the currying notation. 
 Here is how to push to a list (or struct with the corresponding overloaded operation):
 
 ```java

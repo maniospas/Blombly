@@ -45,7 +45,6 @@ Do not move the executable without the packaged `libs/` directory and (in Window
 # the standard library is there too
 ./blombly 'bb.string.md5("this is a string")'
 b37e16c620c055cf8207b999e3270e9b
-...
 ```
 
 ## A small example
@@ -203,7 +202,7 @@ Development status of planned features:
 - [ ] FTP server (may be skipped)
 - [ ] SSH
 - [ ] JIT (progress: some preparation for future gcc compilation, not a priority to focus on engine optimizations)
-- [X] Improve list semi-type semantics
+- [X] Improve list currying semantics
 - [X] Simplify map creation
 - [ ] CUDA vectors
 - [x] Graphics: SDL (progress: implemented but unstable)

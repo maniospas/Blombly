@@ -5,7 +5,7 @@ where structs created by `new` are essentially objects with attached fields
 and values. At the same time, OOP is simplified to the level
 of not having classes/types.
 
-## Semi-typing
+## Currying types
 
 The main supposition is that struct "types"
 are checked implicitly during execution by not creating errors.
