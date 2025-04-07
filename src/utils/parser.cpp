@@ -2140,7 +2140,15 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             source = normalizeFilePath(source);
             if(std::filesystem::is_directory(source, ec)) source = source+"/.bb";
             else source += ".bb";
-            
+
+            for(int ii=0;ii<tokens[i].file.size()-1;++ii) if(tokens[i].file[ii]==source) {
+                std::string circular("");
+                for(int j=0;j<tokens[i].file.size()-1;++j) {
+                    circular += "  \x1B[34m\u2192\033[0m   \x1B[90m" + tokens[i].file[j] + " line "+std::to_string(tokens[i].line[j])+"\n";
+                }
+                bberrorexplain("Circular include.", "Your includes can only have a hierarchical structure, but the following chain loops back to the first one.", circular+Parser::show_position(tokens, libpathend));
+            }
+
             /*if (previousImports.find(source) != previousImports.end() && (inclusionDepth!=0 || doNotAllowOtherImports.find(source) != doNotAllowOtherImports.end())) {
                 bberrorexplain("Too complicated include: "+source, "You are including this file multiple times, but this is allowed only if all its `!include` statements reside in the top scope, without being enclosed in any brackets. In that case, only the first include takes place.",  Parser::show_position(tokens, libpathend)+"\n"+previousImports.find(source)->second);
             }
@@ -2181,6 +2189,10 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             inputFile.close();
 
             std::vector<Token> newTokens = tokenize(code, source);
+            for(auto& token : newTokens) {
+                token.file.insert(token.file.begin(), tokens[i].file.begin(), tokens[i].file.end());
+                token.line.insert(token.line.begin(), tokens[i].line.begin(), tokens[i].line.end());
+            }
             sanitize(newTokens);
             
             previousImports[source] = Parser::show_position(tokens, libpathend);
@@ -2335,7 +2347,8 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
 }
 
 
-std::string compileFromCode(const std::string& code, const std::string& source) {
+std::string compileFromCode(const std::string& code, const std::string& source_) {
+    std::string source = normalizeFilePath(source_);
     if(top_level_file.empty()) top_level_file = source;
     std::vector<Token> tokens = tokenize(code, source, true);
     sanitize(tokens);
