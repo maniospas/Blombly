@@ -55,18 +55,7 @@
     </p>
 
     <br>
-    <b> ♻️ Reusable.</b>
-    Create <a href="https://www.sciencedirect.com/science/article/pii/S2352220821000778">humanly learnable</a> apis. Functions adapt to the scope where they run.
-    <br>
-    <b>🚀 Expressive.</b> 
-    Focus on writing algorithms and leave implementation details to the virtual machine. Blombly ships with operating system, graphics, and web tools.
-    <br>
-    <b>🦆 Dynamic.</b> Leverage features like duck typing and dynamic inlining.
-    <br>
-    <b> 💡 Simple.</b> There are only a few core commands; learn Blombly in an afternoon.
 
-    <h2>What it looks like</h2>
-    
     <div>
         <div class="tabs">
             <div class="tab active" onclick="showTab('simple')">Lists</div>
@@ -75,6 +64,7 @@
             <div class="tab" onclick="showTab('filesystem')">Resources</div>
             <div class="tab" onclick="showTab('graphics')">Graphics</div>
             <div class="tab" onclick="showTab('science')">Science</div>
+            <div class="tab" onclick="showTab('utility')">Terminal</div>
         </div>
         <div class="content">
     
@@ -136,17 +126,19 @@
                     x = 350;
                     y = 250;
                     angle = 0;
-                    texture() => "docs/blombly.png",this.x,this.y,100,100,this.angle;
+                    path = "docs/blombly.png";
+                    img() => this.path,this.x,this.y,100,100,this.angle;
                 }
 
                 dt = 0;
                 prev_t = time();
                 while(events as g|pop) {
-                    while(event in events) if(event.io::type=="key::down") {
-                        if(event.io::key=="A") logo.angle -= 360*dt;
-                        if(event.io::key=="D") logo.angle += 360*dt;
+                    // treat :: as one charcater, like an underscore
+                    while(e in events) if(e.io::type=="key::down") {
+                        if(e.io::key=="A") logo.angle -= 360*dt;
+                        if(e.io::key=="D") logo.angle += 360*dt;
                     }
-                    g << logo.texture();
+                    g << logo.img();
                     dt = time()-prev_t;
                     prev_t = time();
                 }
@@ -156,11 +148,12 @@
             <div id="filesystem" class="tab-content">
             
                 ```java
-                // set access permissions
+                // control permissions
                 !access "https://" 
+                f = file("https://www.google.com");
 
-                path = "https://www.google.com";
-                contents = path|file|bb.string.join("\n"); 
+                // from the standard library
+                contents = f|bb.string.join("\n"); 
                 print("Len: !{contents|len}");
                 ```
 
@@ -169,18 +162,42 @@
             <div id="science" class="tab-content">
             
                 ```java
-                x = list();
-                while(i in range(100)) x << i*0.01;
+                // apply x = x<<i*0.01 across several i
+                x = !gather(list(), <<){while(i in range(100)) yield i*0.01;}
+                
                 x |= vector; // shorthand for x = vector(x);
                 y = (x-0.5)^2;
 
-                canvas = new{bb.sci.Plot:} // standard library utility
+                canvas = new{bb.sci.Plot:} // from the standard library
                 canvas.plot(x, y :: color=255,0,0,255; title="y=(x-0.5)^2");
                 canvas.plot(x, x :: color=0,255,0,255; title="y=x");
                 canvas.show(width=800; height=600);
                 ```
             </div>
+
+
+            <div id="utility" class="tab-content">
+            
+                ```bash
+                # prints if no semicolons
+                ./blombly 'log(3)+1'
+                2.098612
+                ```
+
+                ```bash
+                # directly run code
+                ./blombly 'n=10; fmt(x)=>x[".3f"]; print(fmt(2.5^n))'
+                9536.743
+                ```
+
+                ```bash
+                # the standard library is there too
+                ./blombly 'bb.string.md5("this is a string")'
+                b37e16c620c055cf8207b999e3270e9b
+                ```
+            </div>
         </div>
+    </div>
     </div>
 
     <script>

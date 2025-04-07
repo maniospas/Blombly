@@ -43,9 +43,8 @@ Do not move the executable without the packaged `libs/` directory and (in Window
 
 ```bash
 # the standard library is there too
-./blombly '"LICENSE.txt"|bb.os.read'
-Blombly
-Copyright 2024 Emmanouil Krasanakis
+./blombly 'bb.string.md5("this is a string")'
+b37e16c620c055cf8207b999e3270e9b
 ...
 ```
 

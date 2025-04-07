@@ -12,7 +12,7 @@ of simplicity and easy comprehension.
 Prefer placing spaces before and after lone `as`, `new`, and `=` symbols, to
 cleanly separate what is being defined. It is better to avoid 
 addiditional spaces around parentheses, curly, and square brackets.
-Similarly, avoid spaces around the `|` symbol to make semi-type
+Similarly, avoid spaces around the `|` symbol to make currying
 chains feel like one value. Prefer adding a space after commas
 of non-list elements, and after semicolons if multiple statements 
 reside in the same line.
@@ -25,13 +25,14 @@ A = vector(1,2,3);
 print(A[2]);
 ```
 
-## Semi-types
+## Currying
 
 When you chain transformations try to have at least one but otherwise 
 as few as possible parentheses in each statement. For example, in assignments
-like the following it becomes obvious by reading the beginning of the assignment
+like the following, it becomes obvious by reading the beginning of the assignment
 that `n` is going to be a length that is retrieved through a chain of conversions
-starting from the given string.
+starting from the given string. This suggestion is ideal for writting expressive
+one-liners with the bulk of the information at the beggining.
 
 ```java
 // main.bb

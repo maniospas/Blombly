@@ -22,7 +22,7 @@ or with the `do` clause shown at the bottom of this page.
 <br>
 
 Consider the following code in which we provide invalid console inputs.
-The function `add` has float semi-types on its arguments, which means that they will
+The function `add` has float on its arguments, which means that they will
 be subjected to the conversion `x|=float;y|=float;`. This is injected during compilation.
 As already mentioned, an error that occurs upon this conversion does not halt the function's 
 execution. Blombly is well-behaved in such scenarios, computing what it can.

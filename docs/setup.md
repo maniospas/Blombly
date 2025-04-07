@@ -11,7 +11,7 @@ If you prefer building from source, follow the instructions on the
 <br>
 
 For better development experience, use a Java keyword highlighter but not syntax checker. 
-Use VSCode as an editor because it lets you ctrl+click on
+VSCode is a good editor because it lets you ctrl+click on
 error messages to navigate through the code. A preliminary language server is also available as a VSCode extension
 in [this link](https://github.com/maniospas/Blombly/raw/refs/heads/main/blombly-lsp/blombly-lsp-0.0.1.vsix).
 Install *python3* and then the extension with the following instruction:
@@ -44,8 +44,8 @@ Syntax errors require code fixing, but logic errors can be intercepted
 during runtime by functions returns and `do` statements. Details on how to handle 
 them are found [here](advanced/try.md). For now it suffices to know
 that, if left unhandled, they  cascade through the call stack until they reach your main program and appear to you. 
-Look at a logical error by converting an invalid string to a float and trying to add to it.
-A full stack trace is obtained from the first issue to the 
+Below is a logical error that arises when converting an invalid string to a float and trying to add to it;
+a full stack trace is obtained from the first issue to the 
 last affected computation. Stack traces reflect how expressions are understood by the parser, 
 and may have a slightly different formatting than your code.
 

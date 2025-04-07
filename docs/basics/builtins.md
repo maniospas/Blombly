@@ -2,7 +2,7 @@
 
 This section covers Blombly commands for writing basic sequential code. It includes concepts 
 that may already be familiar, such as comments, variable handling, builtin datatypes, and flow control. 
-But rarer features are added to the mix, like immutable variables, semi-types, and deferred execution.
+But rarer features are added to the mix, like immutable variables, currying, and deferred execution.
 
 ## Comments
 
@@ -249,9 +249,9 @@ Is it positive? true
 
 
 
-## Semi-types
+## Currying
 
-Blombly offers the notation `@value|@func` as the simpler equivalent of
+Blombly offers the currying notation `@value|@func` as the simpler equivalent of
 calling a function of one argument `@func(@value)`
 while avoiding excessive parentheses. 
 This has lower priority than all other symbols and operations other than
@@ -276,10 +276,8 @@ print("1.2345"|float|fmt);
 Similarly to numeric operations, the expression `variable |= func;` reassigns to a variable. 
 In this case, however, the leftwise function is applied first, enabling the pattern
 `variable |= func1|func2|...;`.
-We call the modelled property that is common across function outputs
-a *semi-type* given that it is semantically guaranteed for subsequent code.
-It brings strong typing conventions by ensuring that a desired state
-is maintained for subsequent code. 
+The modelled property is considered to semantically hold true for subsequent code,
+bringing strong typing conventions.
 
 
 !!! info
@@ -292,7 +290,7 @@ is maintained for subsequent code.
 !!! tip
     For easily readable code, use the dash (`|`) notation for all possible function calls of one argument while keeping at
     least one pair of parentheses like so: `value = float("number"|read);`
-    This lets the outcome semi-type and the starting variable appear side-by-side, with intermediate preparatory steps following.
+    This lets the outcome's type and the starting variable appear side-by-side, with intermediate transformation steps following.
 
 
 ## Control flow
