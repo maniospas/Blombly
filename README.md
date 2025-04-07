@@ -32,13 +32,13 @@ Do not move the executable without the packaged `libs/` directory and (in Window
 ```bash
 # prints if no semicolons
 ./blombly 'log(3)+1'
-1048576
+2.098612
 ```
 
 ```bash
 # directly run code
-./blombly 'n=100; print(2^n)'
-1048576
+./blombly 'n=10; fmt(x)=>x[".3f"]; print(fmt(2.5^n))'
+9536.743
 ```
 
 ```bash

@@ -344,7 +344,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         int id2 = command.args[2];
         arg0 = memory.get(id1);
         arg1 = memory.get(id2);
-        if(arg0.isintint(arg1)) DISPATCH_LITERAL((int64_t)std::pow(arg0.unsafe_toint(), arg1.unsafe_toint()));
+        if(arg0.isintint(arg1)) DISPATCH_LITERAL(std::pow(arg0.unsafe_toint(), arg1.unsafe_toint()));
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(std::pow(arg0.unsafe_tofloat(), arg1.unsafe_tofloat()));
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(std::pow(arg0.unsafe_toint(), arg1.unsafe_tofloat()));
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(std::pow(arg0.unsafe_tofloat(), arg1.unsafe_toint()));
