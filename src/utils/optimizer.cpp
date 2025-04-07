@@ -469,7 +469,6 @@ std::string read_decompressed(const std::string& source) {
 
     return std::string(decompressed.data(), originalSize);
 }
-
  
 void optimize(const std::string& source, const std::string& destination, bool minimify, bool compress) {
     std::ifstream inputFile(source);

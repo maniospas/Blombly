@@ -158,11 +158,12 @@ private:
         for (size_t i = start; i <= end; ++i) {
             if (depth == 0 && tokens[i].name == end_string) return i;
             if (depth < 0) {
+                if(last_open.size()>1) last_open.pop();
                 //size_t pos = last_open_value;
-                std::string name = tokens[last_open.top()].name;
-                if(name=="(") bberror("Closing `)` is missing.\n"+show_position(last_open.top()));
-                if(name=="{") bberror("Closing `}` is missing.\n"+show_position(last_open.top()));
-                if(name=="[") bberror("Closing `]` is missing.\n"+show_position(last_open.top()));
+                std::string name = tokens[last_open.top()].name; 
+                if(name=="(") bberrorexplain("Imbalanced parenthesis or brackets.", "Closing `)` is missing.", show_position(last_open.top()));
+                if(name=="{") bberrorexplain("Imbalanced parenthesis or brackets.", "Closing `}` is missing.", show_position(last_open.top()));
+                if(name=="[") bberrorexplain("Imbalanced parenthesis or brackets.", "Closing `]` is missing.", show_position(last_open.top()));
                 bberror("Did not find ending `"+end_string+"`.\n"+show_position(start));
             }
             std::string name = tokens[i].name;
@@ -175,9 +176,9 @@ private:
             if (name == ")" || name == "]" || name == "}") {
                     //last_open_value = last_open.top();
                     if(last_open_type.size()>=1) {
-                        bbassertexplain(name!=")" || last_open_type.top()=="(", "Closing `)` is missing.", "", show_position(last_open.top()));
-                        bbassertexplain(name!="}" || last_open_type.top()=="{", "Closing `}` is missing.", "", show_position(last_open.top()));
-                        bbassertexplain(name!="]" || last_open_type.top()=="[", "Closing `]` is missing.", "", show_position(last_open.top()));
+                        bbassertexplain(name!=")" || last_open_type.top()=="(", "Imbalanced parenthesis or brackets.", "Closing `)` is missing.", show_position(last_open.top()));
+                        bbassertexplain(name!="}" || last_open_type.top()=="{", "Imbalanced parenthesis or brackets.", "Closing `}` is missing.", show_position(last_open.top()));
+                        bbassertexplain(name!="]" || last_open_type.top()=="[", "Imbalanced parenthesis or brackets.", "Closing `]` is missing.", show_position(last_open.top()));
                         last_open.pop();
                         last_open_type.pop();
                     }
@@ -271,14 +272,11 @@ public:
     static std::string show_position(const std::vector<Token>& tokens, size_t pos) {
         std::string expr;
         for(size_t mac=tokens[pos].line.size()-1;mac>=0;--mac) {
-            if(expr.size())
-                expr += "\n";
+            if(expr.size()) expr += "\n";
             size_t start = pos;
             size_t end = pos;
-            while(start>0 && (tokens[start-1].has(tokens[pos].line[mac], tokens[pos].file[mac]))) 
-                start--;
-            while(end<tokens.size()-1 && tokens[end+1].has(tokens[pos].line[mac], tokens[pos].file[mac])) 
-                end++;
+            while(start>0 && (tokens[start-1].has(tokens[pos].line[mac], tokens[pos].file[mac]))) start--;
+            while(end<tokens.size()-1 && tokens[end+1].has(tokens[pos].line[mac], tokens[pos].file[mac])) end++;
 
             // print previous lines
             /*int prev_start = start;
@@ -313,7 +311,10 @@ public:
                 expr += tokens[i].name;
                 if(i<tokens.size()-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
                             && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
-                                && tokens[i].name!="."&& tokens[i].name!="!")
+                                && tokens[i].name!="."&& tokens[i].name!="!"
+                                && tokens[i].name!="<"&& tokens[i].name!=">"&& tokens[i].name!="-"&& tokens[i].name!="+" && tokens[i].name!="*"&& tokens[i].name!="/"&& tokens[i].name!="^"&& tokens[i].name!=">="&& tokens[i].name!="<="&& tokens[i].name!="=="
+                                && tokens[i+1].name!="<"&& tokens[i+1].name!=">"&& tokens[i+1].name!="-"&& tokens[i+1].name!="+" && tokens[i+1].name!="*"&& tokens[i+1].name!="/"&& tokens[i].name!="^"&& tokens[i+1].name!=">="&& tokens[i+1].name!="<="&& tokens[i+1].name!="=="
+                            )
                     expr += " ";
             }
             expr += " \x1B[90m "+tokens[pos].toString();
@@ -322,13 +323,18 @@ public:
                 for(size_t k=0;k<tokens[i].name.size();++k) expr += "~";
                 if(i<tokens.size()-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
                             && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
-                            && tokens[i].name!="."&& tokens[i].name!="!")
+                                && tokens[i].name!="."&& tokens[i].name!="!"
+                                && tokens[i].name!="<"&& tokens[i].name!=">"&& tokens[i].name!="-"&& tokens[i].name!="+" && tokens[i].name!="*"&& tokens[i].name!="/"&& tokens[i].name!="^"&& tokens[i].name!=">="&& tokens[i].name!="<="&& tokens[i].name!="=="
+                                && tokens[i+1].name!="<"&& tokens[i+1].name!=">"&& tokens[i+1].name!="-"&& tokens[i+1].name!="+" && tokens[i+1].name!="*"&& tokens[i+1].name!="/"&& tokens[i].name!="^"&& tokens[i+1].name!=">="&& tokens[i+1].name!="<="&& tokens[i+1].name!="=="
+                            )
                     expr += "~";
             }
             expr += "^";
             break; // TODO: decide whether to show full replacement stack (also uncomment to debug)
         }
-        return expr;
+        std::string circular("");
+        for(int j=0;j<tokens[pos].file.size()-1;++j) circular += "  \x1B[34m\u2192\033[0m   !include \x1B[35m\u2193\u2193\u2193                            \x1B[90m" + tokens[pos].file[j] + " line "+std::to_string(tokens[pos].line[j])+"\n";
+        return circular+expr;
     }
 
     static std::string show_position(const std::vector<Token>& tokens, size_t pos, size_t start, size_t end) {
@@ -339,13 +345,17 @@ public:
             while(start>0 && (tokens[start-1].has(tokens[start].line[mac], tokens[start].file[mac]))) start--;
             while(end<tokens.size()-1 && tokens[end+1].has(tokens[end].line[mac], tokens[end].file[mac])) end++;
 
+            
             // print error line with position indicator
             expr += "  \x1B[34m\u2192\033[0m   ";
             for (size_t i = start; i <= end; i++) if (tokens[i].printable) {
                 expr += tokens[i].name;
                 if(i<tokens.size()-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
                             && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
-                                && tokens[i].name!="."&& tokens[i].name!="!")
+                                && tokens[i].name!="."&& tokens[i].name!="!"
+                                && tokens[i].name!="<"&& tokens[i].name!=">"&& tokens[i].name!="-"&& tokens[i].name!="+" && tokens[i].name!="*"&& tokens[i].name!="/"&& tokens[i].name!="^"&& tokens[i].name!=">="&& tokens[i].name!="<="&& tokens[i].name!="=="
+                                && tokens[i+1].name!="<"&& tokens[i+1].name!=">"&& tokens[i+1].name!="-"&& tokens[i+1].name!="+" && tokens[i+1].name!="*"&& tokens[i+1].name!="/"&& tokens[i].name!="^"&& tokens[i+1].name!=">="&& tokens[i+1].name!="<="&& tokens[i+1].name!="=="
+                            )
                     expr += " ";
             }
             expr += " \x1B[90m "+tokens[pos].toString();
@@ -354,13 +364,18 @@ public:
                 for(size_t k=0;k<tokens[i].name.size();++k) expr += "~";
                 if(i<tokens.size()-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
                             && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
-                            && tokens[i].name!="."&& tokens[i].name!="!")
+                                && tokens[i].name!="."&& tokens[i].name!="!"
+                                && tokens[i].name!="<"&& tokens[i].name!=">"&& tokens[i].name!="-"&& tokens[i].name!="+" && tokens[i].name!="*"&& tokens[i].name!="/"&& tokens[i].name!="^"&& tokens[i].name!=">="&& tokens[i].name!="<="&& tokens[i].name!="=="
+                                && tokens[i+1].name!="<"&& tokens[i+1].name!=">"&& tokens[i+1].name!="-"&& tokens[i+1].name!="+" && tokens[i+1].name!="*"&& tokens[i+1].name!="/"&& tokens[i].name!="^"&& tokens[i+1].name!=">="&& tokens[i+1].name!="<="&& tokens[i+1].name!="=="
+                            )
                     expr += "~";
             }
             expr += "^";
             break; // TODO: decide whether to show full replacement stack (also uncomment to debug)
         }
-        return expr;
+        std::string circular("");
+        for(int j=0;j<tokens[pos].file.size()-1;++j) circular += "  \x1B[34m\u2192\033[0m   !include \x1B[35m\u2193\u2193\u2193                            \x1B[90m" + tokens[pos].file[j] + " line "+std::to_string(tokens[pos].line[j])+"\n";
+        return circular+expr;
     }
 
     void breakpoint(int start, int end) {
@@ -1462,16 +1477,30 @@ int Parser::tmp_var = 0;
 
 void sanitize(std::vector<Token>& tokens) {
     std::vector<Token> updatedTokens;
+    std::stack<size_t> last_open;
+    std::stack<std::string> last_open_type;
     for (size_t i = 0; i < tokens.size(); ++i) {
         /*if (tokens[i].name == "{" && i>0 && tokens[i-1].name!="=" && tokens[i-1].name!="as" && tokens[i-1].name!=")") {
             updatedTokens.emplace_back("=", tokens[i].file, tokens[i].line, false);
         }*/
+        if(tokens[i].name == "{" || tokens[i].name == "(" || tokens[i].name == "[") {
+            last_open.push(i);
+            last_open_type.push(tokens[i].name);
+        }
+        if(tokens[i].name == "}" || tokens[i].name == ")" || tokens[i].name == "]") {
+            if(!last_open.size()) bberrorexplain("Unexpected symbol.", "Imbalanced parenthesis or bracket closes here.", Parser::show_position(tokens, i));
+            if(last_open_type.top()=="{") bbassertexplain(tokens[i].name=="}", "Unexpected symbol.", "Never closed this parenthesis or bracket. This check is performed before applying macros to ensure that code is well-formed.", Parser::show_position(tokens, last_open.top()));
+            if(last_open_type.top()=="(") bbassertexplain(tokens[i].name==")", "Unexpected symbol.", "Never closed this parenthesis or bracket. This check is performed before applying macros to ensure that code is well-formed.", Parser::show_position(tokens, last_open.top()));
+            if(last_open_type.top()=="[") bbassertexplain(tokens[i].name=="]", "Unexpected symbol.", "Never closed this parenthesis or bracket. This check is performed before applying macros to ensure that code is well-formed.", Parser::show_position(tokens, last_open.top()));
+            last_open.pop();
+            last_open_type.pop();
+        }
 
         if (tokens[i].name == "\\") bberror("A stray `\\` was encountered.\n" + Parser::show_position(tokens, i));
 
         if (tokens[i].name.size() >= 3 && tokens[i].name.substr(0, 3) == "_bb")
             bberrorexplain("Unexpected symbol.", "Variable name `" + tokens[i].name + "` cannot start with _bb. "
-                    "Names starting with this prefix are reserved for VM local temporaries created by the compiler.",
+                    "Names starting with this prefix are reserved for VM local temporaries created by the compiler or macros. This check ensures that you cannot mess with the compiler's validity.",
                     Parser::show_position(tokens, i));
         
         if ((tokens[i].name=="=" || tokens[i].name=="as") && i 
@@ -1665,6 +1694,10 @@ void sanitize(std::vector<Token>& tokens) {
             else updatedTokens.emplace_back(";", tokens[i].file, tokens[i].line, false);
         }
     }
+
+    if(last_open.size()) bberrorexplain("Unexpected symbol.", "Never closed this parenthesis or bracket. This check is performed before applying macros to ensure that code is well-formed.", Parser::show_position(tokens, last_open.top()));
+            
+
     tokens = (updatedTokens);
 }
 
@@ -1795,12 +1828,9 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 size_t iend = i+2;
                 int depth = 1;
                 while(iend<tokens.size()) {
-                    if(tokens[iend].name=="(" || tokens[iend].name=="{" || tokens[iend].name=="[")
-                        depth += 1;
-                    if(tokens[iend].name==")" || tokens[iend].name=="}" || tokens[iend].name=="]")
-                        depth -= 1;
-                    if(depth==0)
-                        break;
+                    if(tokens[iend].name=="(" || tokens[iend].name=="{" || tokens[iend].name=="[") depth += 1;
+                    if(tokens[iend].name==")" || tokens[iend].name=="}" || tokens[iend].name=="]") depth -= 1;
+                    if(depth==0) break;
                     iend += 1;
                 }
                 bbassertexplain(iend<tokens.size() && (tokens[iend].name==")" || tokens[iend].name=="]"), 
@@ -2143,10 +2173,10 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
 
             for(int ii=0;ii<tokens[i].file.size()-1;++ii) if(tokens[i].file[ii]==source) {
                 std::string circular("");
-                for(int j=0;j<tokens[i].file.size()-1;++j) {
-                    circular += "  \x1B[34m\u2192\033[0m   \x1B[90m" + tokens[i].file[j] + " line "+std::to_string(tokens[i].line[j])+"\n";
-                }
-                bberrorexplain("Circular include.", "Your includes can only have a hierarchical structure, but the following chain loops back to the first one.", circular+Parser::show_position(tokens, libpathend));
+                /*for(int j=0;j<tokens[i].file.size()-1;++j) {
+                    circular += "  \x1B[34m\u2192\033[0m   !include [no longer available]          \x1B[90m" + tokens[i].file[j] + " line "+std::to_string(tokens[i].line[j])+"\n";
+                }*/
+                bberrorexplain("Circular include.", "Includes can only have a hierarchical structure, but the following chain of dependencies loops back to a previous one.", circular+Parser::show_position(tokens, libpathend));
             }
 
             /*if (previousImports.find(source) != previousImports.end() && (inclusionDepth!=0 || doNotAllowOtherImports.find(source) != doNotAllowOtherImports.end())) {
@@ -2301,10 +2331,8 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                         j = 0;
                         while (j < macro->to.size()) {
                             if (macro->to[j].name[0] == '@' && replacement.find(macro->to[j].name)==replacement.end()) {
-                                if(macro->to[j].name.size()<=1 || macro->to[j].name[1] != '@')
-                                    replacement[macro->to[j].name].emplace_back(Parser::create_macro_temp(), macro->to[j].file, macro->to[j].line);//, macro->to[j].printable);
-                                else
-                                    replacement[macro->to[j].name].emplace_back(macro->to[j].name.substr(1), macro->to[j].file, macro->to[j].line);
+                                if(macro->to[j].name.size()<=1 || macro->to[j].name[1] != '@') replacement[macro->to[j].name].emplace_back(Parser::create_macro_temp(), macro->to[j].file, macro->to[j].line);//, macro->to[j].printable);
+                                else replacement[macro->to[j].name].emplace_back(macro->to[j].name.substr(1), macro->to[j].file, macro->to[j].line);
                                 /*else
                                     bberror("Macro symbol `"+macro->to[j].name+"` was not defined."
                                             "\n   \033[33m!!!\033[0m This symbol was not a part of the macro's definition."
@@ -2321,9 +2349,9 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                         for (const auto& token : macro->to) {
                             if (token.name[0] == '@') {
                                 for (const auto& rep_token : replacement[token.name])
-                                    newTokens.emplace_back(rep_token.name, tokens[i].file, tokens[i].line, rep_token.file, rep_token.line, rep_token.printable);
+                                    newTokens.emplace_back(rep_token.name, tokens[i].file, tokens[i].line, rep_token.printable);
                             } 
-                            else newTokens.emplace_back(token.name, tokens[i].file, tokens[i].line, token.file, token.line, token.printable);
+                            else newTokens.emplace_back(token.name, tokens[i].file, tokens[i].line, token.printable);
                         }
                         tokens.erase(tokens.begin() + i, tokens.begin() + k);
 

@@ -130,9 +130,9 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file, bo
     int line = 1;
     std::vector<Token> ret;
     if(injectStandardLibrary) {
-        ret.emplace_back("!", "automatically injected by the vm", 0, true);
-        ret.emplace_back("include", "automatically injected by the vm", 0, true);
-        ret.emplace_back("\"bb://libs\"", "automatically injected by the vm", 0, true);
+        ret.emplace_back("!", "standard library automatically included by the vm", 0, true);
+        ret.emplace_back("include", "standard library automatically included by the vm", 0, true);
+        ret.emplace_back("\"bb://libs\"", "standard library automatically included by the vm", 0, true);
     }
     bool inComment = false;
     bool inString = false;
