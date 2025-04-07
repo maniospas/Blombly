@@ -36,7 +36,9 @@ public:
     std::string toString() const;
 };
 
-
+ 
+std::string read_decompressed(const std::string& source);
+std::string cleanSymbols(const std::string& code, int& uniqueSymbolCounter);
 void compile(const std::string& source, const std::string& destination);
 void optimize(const std::string& source, const std::string& destination, bool minimify, bool compress);
 std::string read_decompressed(const std::string& source);

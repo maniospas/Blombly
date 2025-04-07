@@ -263,7 +263,10 @@ public:
         return expr;
     }
 
-    std::string show_position(int pos) const {return show_position(tokens, pos);}
+    std::string show_position(size_t pos) const {return show_position(tokens, pos);}
+    std::string show_position(size_t pos, size_t start, size_t end) const {
+        return show_position(tokens, pos, start, end);
+    }
 
     static std::string show_position(const std::vector<Token>& tokens, size_t pos) {
         std::string expr;
@@ -328,6 +331,38 @@ public:
         return expr;
     }
 
+    static std::string show_position(const std::vector<Token>& tokens, size_t pos, size_t start, size_t end) {
+        std::string expr;
+        for(size_t mac=tokens[pos].line.size()-1;mac>=0;--mac) {
+            if(expr.size())
+                expr += "\n";
+            while(start>0 && (tokens[start-1].has(tokens[start].line[mac], tokens[start].file[mac]))) start--;
+            while(end<tokens.size()-1 && tokens[end+1].has(tokens[end].line[mac], tokens[end].file[mac])) end++;
+
+            // print error line with position indicator
+            expr += "  \x1B[34m\u2192\033[0m   ";
+            for (size_t i = start; i <= end; i++) if (tokens[i].printable) {
+                expr += tokens[i].name;
+                if(i<tokens.size()-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
+                            && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
+                                && tokens[i].name!="."&& tokens[i].name!="!")
+                    expr += " ";
+            }
+            expr += " \x1B[90m "+tokens[pos].toString();
+            expr += "\n     \x1B[31m ";
+            for (size_t i = start; i < pos; i++) if (tokens[i].printable) {
+                for(size_t k=0;k<tokens[i].name.size();++k) expr += "~";
+                if(i<tokens.size()-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
+                            && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
+                            && tokens[i].name!="."&& tokens[i].name!="!")
+                    expr += "~";
+            }
+            expr += "^";
+            break; // TODO: decide whether to show full replacement stack (also uncomment to debug)
+        }
+        return expr;
+    }
+
     void breakpoint(int start, int end) {
         if(!debug_info) return;
         std::string comm = to_string(start, end);
@@ -336,8 +371,28 @@ public:
     }
 
     std::string parse_expression(size_t start, size_t end, bool request_block = false, bool ignore_empty = false) {
-            if (ignore_empty && start >= end) return "#";
-            if(end>start+1) breakpoint(start, end);
+        if(start<tokens.size()-2 && tokens[start].name=="!include") {
+            // leftover includes from macros can only be .bbvm includes
+            bbassert(start==end-1, "`!include` leaked to next statement\n"+Parser::to_string(start, end));
+            bbassert(tokens[start+1].builtintype==1, "`!include` should always be followed by a string\n"+Parser::show_position(tokens, start+2));
+            std::string fileName = tokens[start+1].name;
+            fileName = fileName.substr(1, fileName.size() - 2);
+            std::unique_ptr<std::istream> inputFile;
+            std::string code;
+            try {code = read_decompressed(fileName);} 
+            catch (...) {
+                std::ifstream input(fileName, std::ios::in | std::ios::binary);
+                bbassertexplain(input.is_open(), "Unable to open file: " + fileName, "Imported files with the explicit .bbvm extension are directly inserted as in the compiled code as if they have been autonomously compiled. They should be the outcome of compiling with the --library option, often accompanied by --norun.", show_position(start+2));
+                input.seekg(0, std::ios::end);
+                code.resize(static_cast<size_t>(input.tellg()));
+                input.seekg(0, std::ios::beg);
+                input.read(&code[0], static_cast<std::streamsize>(code.size()));
+            }
+            ret += cleanSymbols(code, tmp_var);
+            return "#";
+        }
+        if (ignore_empty && start >= end) return "#";
+        if(end>start+1) breakpoint(start, end);
         //try {
             bool is_final = tokens[start].name == "final";
             bbassertexplain(start <= end || (request_block && code_block_prepend.size()), 
@@ -700,7 +755,7 @@ public:
 
                 size_t parenthesis_start = find_end(start + 1, assignment - 1-isSelfOperation, "(");
                 bbassertexplain(parenthesis_start == MISSING ? assignment == start + 1+isSelfOperation : parenthesis_start == start + 1+isSelfOperation, 
-                          "Expecting variable.", "Cannot understrand what to assign to. You can only assign to variables, struct fields, or elements", show_position(assignment));
+                          "Expecting variable.", "Cannot understrand what to assign to. You can only assign to variables, struct fields, or elements", show_position(assignment, start, end));
                 if (first_name == "bbvm::int" || first_name == "bbvm::float" || 
                     first_name == "bbvm::str" || first_name == "bbvm::file" || 
                     first_name == "bbvm::bool" ||
@@ -2068,9 +2123,19 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
             }
             else bbassertexplain(libpath[0] == '"', "Unexpected symbol", "Was expecting. `\"` or `{`. Include statements should enclose code snippets or paths in quotations, like this: `!include \"libname\"`.", Parser::show_position(tokens, i+2));
             bbassertexplain(tokens[libpathend].name != ";", "Unexpected symbol.", " Include statements cannot be followed by `;`.", Parser::show_position(tokens, libpathend));
-
-            // actually handle the import
+            
+            // delegate .bbvm includes for later, because they need to inject bbvm instructions directly and not as something to be parsed
             std::string source = libpath.substr(1, libpath.size() - 2);
+            if (source.size() >= 5 && source.substr(source.size() - 5) == ".bbvm") {
+                auto rep_token = tokens[i];
+                tokens.erase(tokens.begin() + i, tokens.begin() + libpathend+1);
+                updatedTokens.emplace_back("!include", rep_token.file, rep_token.line, rep_token.printable);
+                updatedTokens.emplace_back("\""+source+"\"", rep_token.file, rep_token.line, rep_token.printable);
+                updatedTokens.emplace_back(";", rep_token.file, rep_token.line, false);
+                i -= 1;
+                continue;
+            }
+            // actually handle the include
             std::error_code ec;
             source = normalizeFilePath(source);
             if(std::filesystem::is_directory(source, ec)) source = source+"/.bb";

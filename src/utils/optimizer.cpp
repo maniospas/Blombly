@@ -253,7 +253,7 @@
 
 
  
- std::string cleanSymbols(const std::string& code) {
+ std::string cleanSymbols(const std::string& code, int& uniqueSymbolCounter) {
     std::istringstream inputStream(code);
     std::vector<std::shared_ptr<OptimizerCommand>> program;
     std::string line;
@@ -266,11 +266,11 @@
             std::string& arg = program[i]->args[j];
             if(arg.size()>=3 && arg.substr(0,3)=="_bb") {
                 if(arg.size()>=8 && arg.substr(0, 8)=="_bbmacro") {
-                    if(symbols.find(arg)==symbols.end()) symbols[arg] = "_bbmacro"+std::to_string(symbols.size());
+                    if(symbols.find(arg)==symbols.end()) symbols[arg] = "_bbmacro"+std::to_string(symbols.size()+uniqueSymbolCounter);
                     arg = symbols[arg];
                 }
                 else {
-                    if(symbols.find(arg)==symbols.end()) symbols[arg] = "_bb"+std::to_string(symbols.size());
+                    if(symbols.find(arg)==symbols.end()) symbols[arg] = "_bb"+std::to_string(symbols.size()+uniqueSymbolCounter);
                     arg = symbols[arg];
                 }
             }
@@ -489,7 +489,8 @@ void optimize(const std::string& source, const std::string& destination, bool mi
         optimized = removeCacheDuplicates(codeBlockToCacheIndex, cacheIndex, optimized, diff, repetition);
         repetition++;
     }
-    optimized = cleanSymbols(optimized);
+    int uniqueSymbolCounter = 0;
+    optimized = cleanSymbols(optimized, uniqueSymbolCounter);
 
     if(compress) {
         write_compressed(destination, optimized);
