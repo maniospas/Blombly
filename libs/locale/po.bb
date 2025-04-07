@@ -1,4 +1,7 @@
-// Polish: produced with GPT4.0
+// Polish
+// Contributors: 
+//  - GPT4.0
+//  - Emmanouil Krasanakis (maniospas) - editing
 
 !macro{wektor::zero} as {vector::zero}
 !macro{wektor} as {vector}

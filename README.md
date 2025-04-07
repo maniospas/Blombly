@@ -110,6 +110,22 @@ print(c.norm(p=1;toabs=true));
 10
 ```
 
+## Code in your language
+
+Experimentally, you can try to code in your language. This feature is not complete. Furthermore, its current development is LLM-aided because I'm just one STEM person that tries to help with accessibility of a side-project. Currently, error messages and standard library traces remain in English, but this will change going forward.
+
+```java
+!include "bb://libs/locale/gr"  // coding in Greek
+
+// maxval = int("Give an integer"|read);
+// while(x in range(0,maxval)) if(x%2==0) print("!{x} is even");
+μέγιστος = ακέραιος("Δώσε έναν ακέραιο"|διάβασε);
+όσο(χ σε διάστημα(0,μέγιστος)) αν(χ%2==0) εκτύπωσε("!{χ} είναι άρτιος");
+```
+
+🌎🌍🌏 **Looking for localization contributors.** I am looking for contributions that verify and edit the existing LLM localization files, which in this repository can be found `libs/locale/`, as well as potentially provide support for more languages. Localization is just a set of macros that replace several established symbols, and as a general rule should have one word per command. If you use an LLM to aid you (see existing files), please indicate so. In general create a pull request and add yourself as a contributor in the corresponding file. Reminder that contributions to this repository are distributed under the Apache 2.0 license.
+
+
 ## Build from source 
 
 Follow the steps below, which include installing the vcpkg dependency manager.
@@ -214,7 +230,7 @@ Development status of planned features:
 - [ ] Fast error handling
 - [ ] Re-enable threading for the final computational model
 - [X] Elegant include system (automatic removal of duplicate code that allows re-includes, include bbvm files, proper include tracing)
-
+- [ ] Process attachment and external code execution (enables CLI/debugging)
 
 
 ## Credits 

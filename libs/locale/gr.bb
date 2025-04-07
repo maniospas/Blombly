@@ -1,4 +1,6 @@
-// Greek: manual translation
+// Greek
+// Contributors: 
+//  - Emmanouil Krasanakis (maniospas)
 
 !macro{διάνυσμα::μηδενικών} as {vector::zero}
 !macro{διάνυσμα} as {vector}

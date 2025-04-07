@@ -1,4 +1,7 @@
-// Brazilian: produced with GPT4.0
+// Brazilian
+// Contributors: 
+//  - GPT4.0
+//  - Emmanouil Krasanakis (maniospas) - editing
 
 !macro{vetor::zero} as {vector::zero}
 !macro{vetor} as {vector}

@@ -1,4 +1,7 @@
-// French: produced with GPT4.0
+// French
+// Contributors: 
+//  - GPT4.0
+//  - Emmanouil Krasanakis (maniospas) - editing
 
 !macro{vecteur::zéro} as {vector::zero}
 !macro{vecteur} as {vector}

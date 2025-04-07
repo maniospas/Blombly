@@ -1,4 +1,7 @@
-// German: produced with GPT4.0
+// German
+// Contributors: 
+//  - GPT4.0
+//  - Emmanouil Krasanakis (maniospas) - editing
 
 !macro{vektor::nullen} as {vector::zero}  // adjusted to ot confuse with typical programming null
 !macro{vektor} as {vector}

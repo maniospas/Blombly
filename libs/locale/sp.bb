@@ -1,4 +1,7 @@
-// Spanish: produced with GPT4.0
+// Spanish
+// Contributors: 
+//  - GPT4.0
+//  - Emmanouil Krasanakis (maniospas) - editing
 
 !macro{vector::cero} as {vector::zero}
 !macro{vector} as {vector}

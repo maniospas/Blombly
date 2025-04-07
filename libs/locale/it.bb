@@ -1,4 +1,7 @@
-// Italian: produced with GPT4.0
+// Italian
+// Contributors: 
+//  - GPT4.0
+//  - Emmanouil Krasanakis (maniospas) - editing
 
 !macro{vettore::zero} as {vector::zero}
 !macro{vettore} as {vector}
