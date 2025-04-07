@@ -27,12 +27,23 @@ print("Hello !{name}."); // string interpolation with !{...}
 Run `./blombly main.bb`, where the executable and main files can be any path, and check that everything is working properly. 
 Do not move the executable without the packaged `libs/` directory and (in Windows) accompanying *.dll* libraries.
 
-## Use as a calculator
+## Terminal scripts
 
 ```bash
-./blombly 'print(2^20)'
+# prints if no semicolons
+./blombly 'log(3)+1'
 1048576
-./build/blombly 'print("LICENSE.txt"|bb.os.read)'
+```
+
+```bash
+# directly run code
+./blombly 'n=100; print(2^n)'
+1048576
+```
+
+```bash
+# the standard library is there too
+./blombly '"LICENSE.txt"|bb.os.read'
 Blombly
 Copyright 2024 Emmanouil Krasanakis
 ...

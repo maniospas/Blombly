@@ -115,17 +115,23 @@ int main(int argc, char* argv[]) {
     int ret = 0;
     for(std::string fileName : instructions) {
         top_level_file = "";
-        if(!(fileName.size()>=3 && fileName.substr(fileName.size() - 3, 3) == ".bb")
-            && !(fileName.size()>=3 && fileName.substr(fileName.size() - 5, 5) == ".bbvm")) {
+        if(!(fileName.size()>=3 && fileName.substr(fileName.size() - 3) == ".bb")
+            && !(fileName.size()>=5 && fileName.substr(fileName.size() - 5) == ".bbvm")) {
+            bool hasChar = false;
+            for(auto c : fileName) if(c==';' || c=='!') {
+                hasChar = true;
+                break;
+            }
+            if(!hasChar) fileName = "print("+fileName+");";
             ret = vmFromSourceCode(fileName, threads);
             if(ret) break;
             continue;
         }
         try {
-            bbassert((fileName.size()>=3 && fileName.substr(fileName.size() - 3, 3) == ".bb")
-                        || (fileName.size()>=3 && fileName.substr(fileName.size() - 5, 5) == ".bbvm"),
+            bbassert((fileName.size()>=3 && fileName.substr(fileName.size() - 3) == ".bb")
+                        || (fileName.size()>=5 && fileName.substr(fileName.size() - 5) == ".bbvm"),
                         "Blombly can only compile and run .bb or .bbvm files, or code enclosed in single quotes '...', but an invalid option was provided: "+fileName)
-            if(fileName.size()>=3 && fileName.substr(fileName.size() - 3, 3) == ".bb") {
+            if(fileName.size()>=3 && fileName.substr(fileName.size() - 3) == ".bb") {
                 compile(fileName, fileName + "vm");
                 optimize(fileName + "vm", fileName + "vm", minimify, compress);
                 fileName = fileName + "vm";
