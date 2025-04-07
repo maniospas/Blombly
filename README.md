@@ -174,7 +174,7 @@ Development status of planned features:
 - [X] Minimum size structs (removed _bb intermediates)
 - [ ] Fast error handling
 - [ ] Re-enable threading for the final computational model
-- [ ] Elegant include system (progress: automatic identification of duplicate code that allows re-includes, include bbvm files, still need to fix circular imports and to remove duplicates scope assignments from ISCACHE)
+- [X] Elegant include system (automatic removal of duplicate code that allows re-includes, include bbvm files, proper include tracing)
 
 
 
