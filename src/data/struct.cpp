@@ -193,6 +193,7 @@ void Struct::clear(BMemory* scopeMemory) {
 int64_t Struct::len(BMemory* scopeMemory) {
     Result res = simpleImplement(variableManager.structLen, scopeMemory);
     const auto& ret = res.get();
+    if(ret.existsAndTypeEquals(ERRORTYPE)) throw BBError(ret->toString(nullptr));
     bbassert(ret.isint(), "Struct implemented `len` but did not return an int");
     return ret.unsafe_toint();
 }
@@ -219,6 +220,7 @@ Result Struct::iter(BMemory* scopeMemory) { return simpleImplement(variableManag
 double Struct::toFloat(BMemory* scopeMemory) {
     Result res = simpleImplement(variableManager.structFloat, scopeMemory);
     const auto& ret = res.get();
+    if(ret.existsAndTypeEquals(ERRORTYPE)) throw BBError(ret->toString(nullptr));
     bbassert(ret.isfloat(), "Struct implemented `float` and used it to overload a float cast, but the method did not actually return a float");
     return ret.unsafe_tofloat();
 }
@@ -226,6 +228,7 @@ double Struct::toFloat(BMemory* scopeMemory) {
 std::string Struct::toString(BMemory* calledMemory) {
     Result res = simpleImplement(variableManager.structStr, calledMemory);
     const auto& ret = res.get();
+    if(ret.existsAndTypeEquals(ERRORTYPE)) throw BBError(ret->toString(nullptr));
     bbassert(ret.existsAndTypeEquals(STRING), "Struct implemented `str` and used it to overload a string cast, but the method did not actually return a string");
     return ret.get()->toString(nullptr);
 }
@@ -233,6 +236,7 @@ std::string Struct::toString(BMemory* calledMemory) {
 bool Struct::toBool(BMemory* scopeMemory) {
     Result res = simpleImplement(variableManager.structBool, scopeMemory);
     const auto& ret = res.get();
+    if(ret.existsAndTypeEquals(ERRORTYPE)) throw BBError(ret->toString(nullptr));
     bbassert(ret.isbool(), "Struct implemented `bool` and used it to overload a bool cast, but the method did not actually return a bool");
     return ret.unsafe_tobool();
 }
@@ -240,6 +244,7 @@ bool Struct::toBool(BMemory* scopeMemory) {
 int64_t Struct::toInt(BMemory* scopeMemory) {
     Result res = simpleImplement(variableManager.structInt, scopeMemory);
     const auto& ret = res.get();
+    if(ret.existsAndTypeEquals(ERRORTYPE)) throw BBError(ret->toString(nullptr));
     bbassert(ret.isint(), "Struct implemented `int` and used it to overload an int cast, but the method did not actually return an int");
     return ret.unsafe_toint();
 }

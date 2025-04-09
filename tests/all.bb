@@ -22,3 +22,4 @@ test("Atomicity")  {!include "tests/atomicity"}
 test("No deadlock"){!include "tests/nodeadlock"}
 test("VFS")        {!include "tests/vfs"}
 test("Database")   {!include "tests/database"}
+test("RAII")       {!include "tests/raii"}

@@ -48,7 +48,7 @@ void threadExecute(unsigned int depth,
 
 
         DataPtr args = memory->getOrNullShallow(variableManager.argsId);
-        if(args.existsAndTypeEquals(LIST) && static_cast<BList*>(args.get())->len(memory)) bberror("The function was successfully called but there are "+std::to_string(static_cast<BList*>(args.get())->len(memory))+" leftover args");
+        if(args.existsAndTypeEquals(LIST) && static_cast<BList*>(args.get())->len(memory)) bberrorexplain("Too many arguments.", "The function was successfully called but there are "+std::to_string(static_cast<BList*>(args.get())->len(memory))+" leftover args", "");
 
     } 
     catch (const BBError& e) {result->value = Result(new BError(enrichErrorDescription(*command, e.what())));}

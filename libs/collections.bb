@@ -126,7 +126,6 @@ string = new {
 
     // common string manipulation methods
     starts(str query) => new {
-        assert len(args) == 0;
         call(str search) = {
             assert args|len == 0;
             query = this..query;
@@ -138,7 +137,6 @@ string = new {
         }
     }
     ends(str query) => new {
-        assert len(args) == 0;
         call(str search) = {
             assert args|len == 0;
             query = this..query;
@@ -150,7 +148,6 @@ string = new {
         }
     }
     index(str query) => new {
-        assert len(args) == 0;
         default pos = 0 else pos = int(pos);
         call(str search) = {
             assert len(args) == 0;
