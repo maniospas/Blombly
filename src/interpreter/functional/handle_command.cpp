@@ -817,6 +817,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }
     DO_FAIL: {
         const auto& result = memory.get(command.args[1]);
+        if(result.existsAndTypeEquals(ERRORTYPE)) throw BBError(result->toString(&memory));
         bberror(std::move(result->toString(&memory)));
         continue;
     }
@@ -1158,8 +1159,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         int carg = command.args[0]; 
         if(command.operation==IS) {
             BError* berror = new BError(std::move(err));
-            berror->consume();
-            memory.consumeAllErrors();
+            //memory.consumeAllErrors();
             result = DataPtr(berror); 
             return ExecutionInstanceRunReturn(true, Result(result));
         }
@@ -1170,7 +1170,6 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             err += "\n \033[33m !!! \033[0mAt this point, the error is returned because it is not assigned to"
                    "\n      a variable and would have been ignored otherwise.\033[0m";
             BError* berror = new BError(std::move(err));
-            berror->consume();
             memory.consumeAllErrors();
             result = DataPtr(berror);
             return ExecutionInstanceRunReturn(true, Result(result));
@@ -1194,11 +1193,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             || command.operation==MOVE
             || command.operation==CLEAR
             || command.operation==FINAL
-            || command.operation==BB_PRINT) {
-            err += "\n \033[33m !!! \033[0mAt this point, the error is returned instead of having a hidden side-effect.";
+            || command.operation==BB_PRINT
+            || command.operation==READ) {
             BError* berror = new BError(std::move(err));
             result = DataPtr(berror);
-            memory.set(carg, berror); 
             memory.consumeAllErrors();
             return ExecutionInstanceRunReturn(true, Result(result));
         }
@@ -1206,7 +1204,6 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         try {
             result = DataPtr(berror); 
             if(command.operation==RETURN) {
-                berror->consume();
                 memory.consumeAllErrors();
                 return ExecutionInstanceRunReturn(true, Result(result));
             }
