@@ -199,16 +199,9 @@ public:
 
     const DataPtr& get(int item) {
         DataPtr& ret = find(item);
-        if(ret.islit()) return ret; // this is a hot path for numbers
-        if(!ret.exists()) {
-            if (parent) return parent->get(item, allowMutables);
-            bberror("Missing value: " + variableManager.getSymbol(item));
-        }
-        if(ret->getType()==FUTURE) [[unlikely]] {
-            resolveFuture(ret);
-            return get(item);
-        }
-        return ret;
+        if(ret.islitorexists()) return ret;
+        if(parent) return parent->get(item, allowMutables);
+        bberror("Missing value: " + variableManager.getSymbol(item));
     }
     const DataPtr& getShallow(int item);
     const DataPtr& getOrNull(int item, bool allowMutable);
@@ -217,6 +210,7 @@ public:
     void directTransfer(int to, int from);
     void set(int item, const DataPtr& value);
     void setFuture(int item, const DataPtr& value);
+    void consumeAllErrors();
 
     void unsafeSetLiteral(int item, const DataPtr& value) {
         auto& prev = find(item);

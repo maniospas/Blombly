@@ -27,6 +27,20 @@
 #include <xmmintrin.h>
 #include <new>     // For std::align
 
+
+std::string indentNewlines(const std::string& input) {
+    std::string output("  \033[34m|\033[0m");
+    output.reserve(input.size() * 3/2);
+    
+    for (size_t i = 0; i < input.size(); ++i) {
+        output += input[i];
+        if (input[i] == '\n' && i + 1 != input.size()) { // Avoid adding at the very end
+            output += "  \033[34m|\033[0m";
+        }
+    }
+    return output;
+}
+
 std::atomic<unsigned long long> countUnrealeasedMemories(0);
 extern VariableManager variableManager;
 
@@ -129,29 +143,16 @@ const DataPtr& BMemory::get(int item, bool allowMutable) {
 
 const DataPtr& BMemory::getShallow(int item) {
     auto& ret = find(item);
-    if(ret.existsAndTypeEquals(FUTURE)) [[unlikely]] {
-        resolveFuture(ret);
-        return getShallow(item);
-    }
-    if(!ret.islitorexists()) bberror("Missing value: " + variableManager.getSymbol(item));
-    return ret;
+    if(ret.islitorexists()) return ret;
+    bberror("Missing value: " + variableManager.getSymbol(item));
 }
 
 const DataPtr& BMemory::getOrNullShallow(int item) {
-    auto& ret = find(item);
-    if (ret.existsAndTypeEquals(FUTURE)) [[unlikely]] {
-        resolveFuture(ret);
-        return getOrNullShallow(item);
-    }
-    return ret;
+    return find(item);
 }
 
 const DataPtr& BMemory::getOrNull(int item, bool allowMutable) {
     auto& ret = find(item);
-    if (ret.existsAndTypeEquals(FUTURE)) [[unlikely]] {
-        resolveFuture(ret);
-        return getOrNull(item, allowMutable);
-    }
     if (ret.islitorexists()) [[likely]] {bbassert(allowMutable || ret.isA(), "Mutable symbol cannot be accessed from a nested block: " + variableManager.getSymbol(item));}
     else if (parent) return parent->getOrNull(item, allowMutables && allowMutable);
     return ret;
@@ -171,7 +172,11 @@ void BMemory::setToNullIgnoringFinals(int item) {
 void BMemory::set(int item, const DataPtr& value) {
     DataPtr& prev = find(item);
     if(prev.isA()) bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
-    //if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
+    if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) 
+        throw BBError(
+                static_cast<BError*>(prev.get())->consume()->toString(this)+
+                "\n \033[33m !!! \033[0mAt this point, the error is returned because it was never caught"
+                "\n      but was going to be hidden due to overwriting it with a new value\n      by the next instruction in the trace.");
     value.existsAddOwner();
     prev.existsRemoveFromOwner();
     prev = value;
@@ -181,7 +186,11 @@ void BMemory::set(int item, const DataPtr& value) {
 void BMemory::setFuture(int item, const DataPtr& value) {  // value.exists() == true always considering that this will be a valid future objhect
     auto& prev = find(item);
     if(prev.isA()) bberror("Cannot overwrite final value: " + variableManager.getSymbol(item));
-    //if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
+    if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) 
+        throw BBError(
+                static_cast<BError*>(prev.get())->consume()->toString(this)+
+                "\n \033[33m !!! \033[0mAt this point, the error is returned because it was never caught"
+                "\n      but was going to be hidden due to overwriting it with a new value\n      by the next instruction in the trace.");
     value->addOwner();
     prev.existsRemoveFromOwner();
     prev = DataPtr(value); //std::move(DataPtr(value.get(), IS_FUTURE));
@@ -191,7 +200,11 @@ void BMemory::setFuture(int item, const DataPtr& value) {  // value.exists() == 
 void BMemory::unsafeSet(int item, const DataPtr& value) {
     auto& prev = find(item);
     bool prevFinal = prev.isA();
-    //if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
+    if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) 
+        throw BBError(
+                static_cast<BError*>(prev.get())->consume()->toString(this)+
+                "\n \033[33m !!! \033[0mAt this point, the error is returned because it was never caught"
+                "\n      but was going to be hidden due to overwriting it with a new value\n      by the next instruction in the trace.");
     value.existsAddOwner();
     prev.existsRemoveFromOwner();
 
@@ -228,7 +241,11 @@ void BMemory::directTransfer(int to, int from) {
     const auto& value = get(from);
     auto& prev = find(to);
     if(prev.isA()) bberror("Cannot overwrite final value: " + variableManager.getSymbol(to));
-    //if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) bberror("Trying to overwrite an unhandled error:\n"+prev->toString(this));
+    if(prev.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(prev.get())->isConsumed()) 
+        throw BBError(
+                static_cast<BError*>(prev.get())->consume()->toString(this)+
+                "\n \033[33m !!! \033[0mAt this point, the error is returned because it was never caught"
+                "\n      but was going to be hidden due to overwriting it with a new value\n      by the next instruction in the trace.");
     
     value.existsAddOwner();
     /*if(prev.exists()) {
@@ -281,32 +298,69 @@ void BMemory::replaceMissing(BMemory* other) {
 
 void BMemory::tempawait() {
     std::string destroyerr = "";
+    int counterr = 0;
     for (const auto& thread_ : attached_threads) {
         Future* thread = static_cast<Future*>(thread_.get().get());
         try {thread->getResult();}
-        catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
+        catch (const BBError& e) {
+            destroyerr += "\n";
+            destroyerr += e.what();
+            counterr++;
+        }
     }
     attached_threads.clear();
-    if(destroyerr.size()) throw BBError(destroyerr.substr(0, destroyerr.size()-1));
+    if(destroyerr.size()) throw BBError(counterr==1?destroyerr.substr(1):indentNewlines(destroyerr.substr(1)));
+}
+
+
+void BMemory::consumeAllErrors() {
+    for (const auto& thread_ : attached_threads) {
+        Future* thread = static_cast<Future*>(thread_.get().get());
+        try {thread->getResult();}
+        catch (const BBError& e) {}
+    }
+    attached_threads.clear();
+
+    for(unsigned int i=0;i<cache_size;++i) {
+        const auto& dat = cache[i];
+        if (dat.existsAndTypeEquals(ERRORTYPE)) static_cast<BError*>(dat.get())->consume();
+    }
+    for (const auto& dat_ : data) {
+        const auto& dat = dat_.second;
+        if (dat.existsAndTypeEquals(ERRORTYPE))  static_cast<BError*>(dat.get())->consume();
+    }
 }
 
 void BMemory::await() {
     //if(attached_threads.size()==0) return; // we don't need to lock because on zero threads we are ok, on >=1 threads we don't care about the number
     std::string destroyerr = "";
+    int counterr = 0;
     for (const auto& thread_ : attached_threads) {
         Future* thread = static_cast<Future*>(thread_.get().get());
         try {thread->getResult();}
-        catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
+        catch (const BBError& e) {
+            destroyerr += "\n";
+            destroyerr += e.what();
+            counterr++;
+        }
     }
     attached_threads.clear();
 
     try {runFinally();}
-    catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
+    catch (const BBError& e) {
+        destroyerr += "\n";
+        destroyerr += e.what();
+        counterr++;
+    }
 
     for (const auto& thread_ : attached_threads) {
         Future* thread = static_cast<Future*>(thread_.get().get());
         try {thread->getResult();}
-        catch (const BBError& e) {destroyerr += std::string(e.what())+"\n";}
+        catch (const BBError& e) {
+            destroyerr += "\n";
+            destroyerr += e.what();
+            counterr++;
+        }
     }
     attached_threads.clear();
 
@@ -314,17 +368,19 @@ void BMemory::await() {
         const auto& dat = cache[i];
         if (dat.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(dat.get())->isConsumed())  {
             static_cast<BError*>(dat.get())->consume();
-            destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was but never handled:\n"+dat->toString(this)+"\n";
+            destroyerr += "\n"+dat->toString(this);
+            counterr++;
         }
     }
     for (const auto& dat_ : data) {
         const auto& dat = dat_.second;
         if (dat.existsAndTypeEquals(ERRORTYPE) && !static_cast<BError*>(dat.get())->isConsumed())  {
             static_cast<BError*>(dat.get())->consume();
-            destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was but never handled:\n"+dat->toString(this)+"\n";
+            destroyerr += "\n"+dat->toString(this);
+            counterr++;
         }
     }
-    if(destroyerr.size()) throw BBError(destroyerr.substr(0, destroyerr.size()-1));
+    if(destroyerr.size()) throw BBError(counterr==1?destroyerr.substr(1):indentNewlines(destroyerr.substr(1)));
 }
 
 void BMemory::detach(BMemory* par) {

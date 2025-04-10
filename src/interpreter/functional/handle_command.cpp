@@ -282,7 +282,6 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     #endif
 
 
-
     DO_ADD: {
         int id1 = command.args[1];
         int id2 = command.args[2];
@@ -292,9 +291,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()+arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL((double)(arg0.unsafe_toint()+arg1.unsafe_tofloat()));
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL((double)(arg0.unsafe_tofloat()+arg1.unsafe_toint()));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->add(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->add(&memory, arg0));
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg1->toString(nullptr));
         bberror("There was no implementation for add("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_SUB: {
@@ -306,9 +306,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()-arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL((double)(arg0.unsafe_toint()-arg1.unsafe_tofloat()));
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL((double)(arg0.unsafe_tofloat()-arg1.unsafe_toint()));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->sub(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->rsub(&memory, arg0));
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg1->toString(nullptr));
         bberror("There was no implementation for sub("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_MUL: {
@@ -320,9 +321,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()*arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL((double)(arg0.unsafe_toint()*arg1.unsafe_tofloat()));
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL((double)(arg0.unsafe_tofloat()*arg1.unsafe_toint()));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->mul(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->mul(&memory, arg0));
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg1->toString(nullptr));
         bberror("There was no implementation for mul("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_DIV: {
@@ -334,9 +336,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()/arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL((double)(arg0.unsafe_toint()/arg1.unsafe_tofloat()));
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL((double)(arg0.unsafe_tofloat()/arg1.unsafe_toint()));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->div(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->rdiv(&memory, arg0));
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg1->toString(nullptr));
         bberror("There was no implementation for div("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_POW: {
@@ -348,9 +351,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(std::pow(arg0.unsafe_tofloat(), arg1.unsafe_tofloat()));
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(std::pow(arg0.unsafe_toint(), arg1.unsafe_tofloat()));
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(std::pow(arg0.unsafe_tofloat(), arg1.unsafe_toint()));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->pow(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->rpow(&memory, arg0));
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg1->toString(nullptr));
         bberror("There was no implementation for pow("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_MOD: {
@@ -359,9 +363,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         arg0 = memory.get(id1);
         arg1 = memory.get(id2);
         if(arg0.isintint(arg1)) DISPATCH_LITERAL(arg0.unsafe_toint() % arg1.unsafe_toint());
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->mod(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->rmod(&memory, arg0));
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg1->toString(nullptr));
         bberror("There was no implementation for mod("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_LT: {
@@ -373,9 +378,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()<arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_toint()<arg1.unsafe_tofloat());
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_tofloat()<arg1.unsafe_toint());
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->lt(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->ge(&memory, arg0));
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg1->toString(nullptr));
         bberror("There was no implementation for lt("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_GT: {
@@ -387,9 +393,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()>arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_toint()>arg1.unsafe_tofloat());
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_tofloat()>arg1.unsafe_toint());
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->gt(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->le(&memory, arg0));
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg1->toString(nullptr));
         bberror("There was no implementation for gt("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_LE: {
@@ -401,9 +408,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()<=arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_toint()<=arg1.unsafe_tofloat());
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_tofloat()<=arg1.unsafe_toint());
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->le(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->gt(&memory, arg0));
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg1->toString(nullptr));
         bberror("There was no implementation for le("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_GE: {
@@ -415,9 +423,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(arg0.isfloatfloat(arg1)) DISPATCH_LITERAL(arg0.unsafe_tofloat()>=arg1.unsafe_tofloat());
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_toint()>=arg1.unsafe_tofloat());
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_tofloat()>=arg1.unsafe_toint());
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->ge(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->lt(&memory, arg0));
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg1->toString(nullptr));
         bberror("There was no implementation for ge("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_EQ: {
@@ -430,9 +439,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_toint()==arg1.unsafe_tofloat());
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_tofloat()==arg1.unsafe_toint());
         if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool()==arg1.unsafe_tobool());
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->eq(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->neq(&memory, arg0));
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg1->toString(nullptr));
         bberror("There was no implementation for eq("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_NEQ: {
@@ -445,9 +455,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(arg0.isint() && arg1.isfloat()) DISPATCH_LITERAL(arg0.unsafe_toint()!=arg1.unsafe_tofloat());
         if(arg0.isfloat() && arg1.isint()) DISPATCH_LITERAL(arg0.unsafe_tofloat()!=arg1.unsafe_toint());
         if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool()!=arg1.unsafe_tobool());
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->neq(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->eq(&memory, arg0));
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg1->toString(nullptr));
         bberror("There was no implementation for neq("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_AND: {
@@ -456,9 +467,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         arg0 = memory.get(id1);
         arg1 = memory.get(id2);
         if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool() && arg1.unsafe_tobool());
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->opand(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->opand(&memory, arg0));
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg1->toString(nullptr));
         bberror("There was no implementation for and("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_OR: {
@@ -467,9 +479,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         arg0 = memory.get(id1);
         arg1 = memory.get(id2);
         if(arg0.isbool() && arg1.isbool()) DISPATCH_LITERAL(arg0.unsafe_tobool() || arg1.unsafe_tobool());
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->opor(&memory, arg1));
         if(arg1.exists()) DISPATCH_OUTCOME(arg1->opor(&memory, arg0));
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg1->toString(nullptr));
         bberror("There was no implementation for or("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_MMUL: {
@@ -477,8 +490,9 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         int id2 = command.args[2];
         arg0 = memory.get(id1);
         arg1 = memory.get(id2);
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->mmul(&memory, arg1));
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg1->toString(nullptr));
         bberror("There was no implementation for mmul("+arg0.torepr()+", "+arg1.torepr()+")");
     }
     DO_BUILTIN: {
@@ -499,14 +513,14 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             DISPATCH_RESULT(static_cast<Iterator*>(arg0.get())->toVector(&memory));
         }*/
         if(arg0.isint()) bberror("Missing operation: vector(int). Did you mean one of: `vector::zero(int)`, `vector::alloc(int)` or `vector(iter, int)`.");
-        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg0->toString(nullptr));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bberror("Only lists or vectors can be casted to vector.");
     }
     DO_ZEROVECTOR: {
         int id1 = command.args[1];
         arg0 = memory.get(id1);
         if(arg0.isint()) DISPATCH_RESULT(new Vector(arg0.unsafe_toint(), true));
-        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg0->toString(nullptr));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bberror("1vector::zero` can only have an int size argument.");
     }
     DO_RANDVECTOR: {
@@ -516,7 +530,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         int id1 = command.args[1];
         arg0 = memory.get(id1);
         if(arg0.isint()) DISPATCH_RESULT(new Vector(arg0.unsafe_toint()));
-        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg0->toString(nullptr));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bberror("vector::alloc can only have an int size argument");
     }
     DO_LISTELEMENT: {
@@ -526,7 +540,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             const DataPtr& element = memory.get(command.args[j]);
             if(element.existsAndTypeEquals(ERRORTYPE)) {
                 delete list;
-                bberror(element->toString(nullptr));
+                throw BBError(static_cast<BError*>(element.get())->consume()->toString(nullptr));
             }
             if(element.exists()) element->addOwner();
             list->contents.push_back(element);
@@ -538,6 +552,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         arg0 = memory.get(id1);
         if(arg0.isint())DISPATCH_LITERAL(log(arg0.unsafe_toint()));
         if(arg0.isfloat())DISPATCH_LITERAL(log(arg0.unsafe_tofloat()));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bbassert(arg0.isptr(), "Did not find builtin operation: log("+arg0.torepr()+")");
         DISPATCH_OUTCOME(arg0->logarithm(&memory));
     }
@@ -547,6 +562,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(arg0.isint()) DISPATCH_LITERAL((int64_t)arg0.unsafe_toint());
         if(arg0.isfloat()) DISPATCH_LITERAL((int64_t)arg0.unsafe_tofloat());
         if(arg0.isbool()) DISPATCH_LITERAL((int64_t)arg0.unsafe_tobool());
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_LITERAL(arg0->toInt(&memory));
         bberror("There was no implementation for int("+arg0.torepr()+")");
     }
@@ -556,6 +572,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(arg0.isint()) DISPATCH_LITERAL((double)arg0.unsafe_toint());
         if(arg0.isfloat()) DISPATCH_LITERAL((double)arg0.unsafe_tofloat());
         if(arg0.isbool()) DISPATCH_LITERAL((double)arg0.unsafe_tobool());
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_LITERAL(arg0->toFloat(&memory));
         bberror("There was no implementation for int("+arg0.torepr()+")");
     }
@@ -565,13 +582,14 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(arg0.isint()) DISPATCH_LITERAL((bool)arg0.unsafe_toint());
         if(arg0.isfloat()) DISPATCH_LITERAL((bool)arg0.unsafe_tofloat());
         if(arg0.isbool()) DISPATCH_LITERAL((bool)arg0.unsafe_tobool());
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_LITERAL(arg0->toBool(&memory));
         bberror("There was no implementation for int("+arg0.torepr()+")");
     }
     DO_BB_PRINT:{ 
         int id1 = command.args[1];
         arg0 = memory.get(id1);
-        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg0->toString(nullptr));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         std::string printing = arg0.exists()?arg0->toString(&memory):arg0.torepr();
         printing = replaceEscapeSequences(printing);
         printing += "\n";
@@ -585,7 +603,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(command.nargs>1) {
             int id1 = command.args[1];
             arg0 = memory.get(id1);
-            if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg0->toString(nullptr));
+            if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
             if(arg0.islitorexists()) {
                 std::string out = arg0.exists()?arg0->toString(&memory):arg0.torepr();
                 printing += out+" ";
@@ -613,7 +631,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             memory.pull(static_cast<Struct*>(source.get())->getMemory());
             DISPATCH_RESULT(source);
         }*/
-        if(source.existsAndTypeEquals(ERRORTYPE)) throw BBError(source->toString(nullptr));
+        if(source.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(source.get())->consume()->toString(nullptr));
         bberrorexplain("Unexpected value: "+arg0.torepr(), "Only code blocks or structs can be inlined.", "");
     }
     DO_TOSTR: {
@@ -622,12 +640,14 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(arg0.isint()) DISPATCH_RESULT(new BString(std::to_string(arg0.unsafe_toint())));
         if(arg0.isfloat()) DISPATCH_RESULT(new BString(std::to_string(arg0.unsafe_tofloat())));
         if(arg0.isbool()) DISPATCH_RESULT(new BString(arg0.unsafe_tobool()?"true":"false"));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         if(arg0.exists()) DISPATCH_RESULT(new BString(arg0->toString(&memory)));
-        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg0->toString(nullptr));
         bberrorexplain("Unexpected value: "+arg0.torepr(), "This value cannot be converted to string. However, this message can appear only due to an internal error.", "");
     }
     DO_RETURN: {
-        return ExecutionInstanceRunReturn(true, Result(command.args[1] == variableManager.noneId ? DataPtr::NULLP : memory.get(command.args[1])));
+        arg0 = command.args[1] == variableManager.noneId ? DataPtr::NULLP : memory.get(command.args[1]);
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
+        return ExecutionInstanceRunReturn(true, Result(arg0));
     }
     DO_ISCACHED: {
         if(command.value.islitorexists()) {
@@ -656,13 +676,12 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         int id1 = command.args[1];
         arg0 = memory.get(id1);
         if(!arg0.existsAndTypeEquals(STRUCT)) [[unlikely]] {
-            if(arg0.existsAndTypeEquals(ERRORTYPE)) bbcascade(arg0->toString(nullptr), "Can only set fields in a struct");
-            bberror("Can only set fields in a struct.");
+            if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         }
         auto structObj = static_cast<Struct*>(arg0.get());
         std::lock_guard<std::recursive_mutex> lock(structObj->memoryLock);
         auto setValue = memory.get(command.args[3]);
-        if(setValue.existsAndTypeEquals(ERRORTYPE)) bbcascade(setValue->toString(nullptr), "Cannot set an error to a struct field");
+        if(setValue.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(setValue.get())->consume()->toString(nullptr));
         if(setValue.existsAndTypeEquals(CODE)) setValue = static_cast<Code*>(setValue.get())->copy();
         structObj->set(command.args[2], setValue);//structmemory.getOrNullShallow(command.args[2]));
         result = nullptr;
@@ -680,8 +699,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         int id2 = command.args[2];
         arg0 = memory.get(id1);
         arg1 = memory.get(id2);
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg1->toString(nullptr));
-        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg0->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bbassertexplain(arg1.existsAndTypeEquals(CODE), "Unexpected value: "+arg1.torepr(), "While body can only be a code block.", "");
         bbassertexplain(arg0.existsAndTypeEquals(CODE), "Unexpected value: "+arg0.torepr(), "While condition can only be a code block.", "");
         auto codeBody = static_cast<Code*>(arg1.get());
@@ -719,11 +738,12 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_IF: {
         int id1 = command.args[1];
         arg0 = memory.get(id1);
-        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg0->toString(nullptr));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bbassertexplain(arg0.isbool(), "Unexpected value: "+arg0.torepr(), "If condition can only evaluate to bool.", "");
 
         if(arg0.unsafe_tobool()) {
             const auto& accept = memory.get(command.args[2]);
+            if(accept.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(accept.get())->consume()->toString(nullptr));
             if(accept.existsAndTypeEquals(CODE)) {
                 Code* code = static_cast<Code*>(accept.get());
                 auto returnedValue = run(program, code->getStart(), code->getOptimizedEnd());
@@ -733,6 +753,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         } 
         else if(command.nargs>3) {
             const auto& reject = memory.get(command.args[3]);
+            if(reject.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(reject.get())->consume()->toString(nullptr));
             if (reject.existsAndTypeEquals(CODE)) {
                 Code* code = static_cast<Code*>(reject.get());
                 auto returnedValue = run(program, code->getStart(), code->getOptimizedEnd());
@@ -744,7 +765,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }
     DO_CREATESERVER: {
         const auto& port = memory.get(command.args[1]);
-        if(port.existsAndTypeEquals(ERRORTYPE)) throw BBError(port->toString(nullptr));
+        if(port.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(port.get())->consume()->toString(nullptr));
         bbassertexplain(port.isint(), "Unexpected value: "+port.torepr(), "The server's port can only be an integer.", "");
         auto res = new RestServer(&memory, port.unsafe_toint());
         DISPATCH_RESULT(res);
@@ -754,16 +775,14 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         continue;
     }
     DO_TRY: {
-        memory.detach(memory.parent);
         const auto& condition = memory.get(command.args[1]);
-        if(condition.existsAndTypeEquals(ERRORTYPE)) throw BBError(condition->toString(nullptr));
+        if(condition.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(condition.get())->consume()->toString(nullptr));
         bbassertexplain(condition.existsAndTypeEquals(CODE), "Unexpected value: "+condition.torepr(), "Can only inline a non-called code block for try condition", "");
         auto codeCondition = static_cast<Code*>(condition.get());
         try {
             auto returnedValue = run(codeCondition);
-            memory.detach(memory.parent);
             const auto& ret = returnedValue.returnSignal?returnedValue.get():new BError(std::move(enrichErrorDescription(command, NO_TRY_INTERCEPT->toString(nullptr))));
-            if(!returnedValue.returnSignal) static_cast<BError*>(ret.get())->consume();
+            //if(ret.existsAndTypeEquals(ERRORTYPE)) static_cast<BError*>(ret.get())->consume();
             DISPATCH_OUTCOME(ret);
         }
         catch (const BBError& e) {
@@ -776,8 +795,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         const auto& condition = memory.getOrNull(command.args[1], true); //(command.knownLocal[1]?memory.getOrNullShallow(command.args[1]):memory.getOrNull(command.args[1], true)); //memory.get(command.args[1]);
         const auto& accept = memory.get(command.args[2]);
         const auto& reject = command.nargs>3?memory.get(command.args[3]):DataPtr::NULLP;
-        if(accept.existsAndTypeEquals(ERRORTYPE)) throw BBError(accept->toString(nullptr));
-        if(reject.existsAndTypeEquals(ERRORTYPE)) throw BBError(reject->toString(nullptr));
+        if(accept.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(accept.get())->consume()->toString(nullptr));
+        if(reject.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(reject.get())->consume()->toString(nullptr));
         bbassertexplain(accept.existsAndTypeEquals(CODE), "Unexpected value: "+accept.torepr(), "Can only inline a code block for catch acceptance.", "");
         bbassertexplain(reject==DataPtr::NULLP || reject.existsAndTypeEquals(CODE), "Unexpected value: "+reject.torepr(), "Can only inline a code block for catch else.", "");
         auto codeAccept = static_cast<Code*>(accept.get());
@@ -803,14 +822,14 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }
     DO_DEFER: {
         const auto& source = memory.get(command.args[1]);
-        if(source.existsAndTypeEquals(ERRORTYPE)) throw BBError(source->toString(nullptr));
+        if(source.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(source.get())->consume()->toString(nullptr));
         bbassertexplain(source.existsAndTypeEquals(CODE), "Unexpected value: "+source.torepr(), "Defer can only inline a code block.", "");
         memory.addFinally(static_cast<Code*>(source.get()));
         continue;
     }
     DO_DEFAULT: {
         const auto& source = memory.get(command.args[1]);
-        if(source.existsAndTypeEquals(ERRORTYPE)) throw BBError(source->toString(nullptr));
+        if(source.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(source.get())->consume()->toString(nullptr));
         bbassertexplain(source.existsAndTypeEquals(CODE), "Unexpected value: "+source.torepr(), "Can only call `default` on a code block.", "");
         auto code = static_cast<Code*>(source.get());
         BMemory newMemory(depth, &memory, LOCAL_EXPECTATION_FROM_CODE(code));
@@ -822,7 +841,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }
     DO_NEW: {
         DataPtr source = memory.get(command.args[1]);
-        if(source.existsAndTypeEquals(ERRORTYPE)) throw BBError(source->toString(nullptr));
+        if(source.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(source.get())->consume()->toString(nullptr));
         bbassertexplain(source.existsAndTypeEquals(CODE), "Unexpected value: "+source.torepr(), "Can only create a new struct from a code block.", "");
         auto code = static_cast<Code*>(source.get());
         BMemory newMemory(depth, &memory, LOCAL_EXPECTATION_FROM_CODE(code));
@@ -847,24 +866,25 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         int id1 = command.args[1];
         arg0 = memory.get(id1);
         if(arg0.existsAndTypeEquals(LIST)) DISPATCH_RESULT(arg0);
-        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg0->toString(nullptr));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bberrorexplain("Unexpected number of arguments.", "`list` can only be cast from another list or be created from no arguments. Use `list::gather` to create a list from an iterator, `list::element` to create a list of single element, or explicit parentheses if you want to create a list as a function argument like `foo((1,2))`.", "");
     }
     DO_GATHER: {
         int id1 = command.args[1];
         arg0 = memory.get(id1);
         if(arg0.existsAndTypeEquals(LIST)) bberrorexplain("Unexpected argument.", "`list::gather(A)` for list A is not allowed, as this would pop all elements A by calling `next` internally; this would be a hidden state modification. Use `list::gather(A|iter)` to copy the list or `A|move` to consume and transfer its contents.", "");
-        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg0->toString(nullptr));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         if(!arg0.exists()) bberrorexplain("Unexpected number of arguments.", "`list::gather(A)` is not available for literals A. Maybe you meant to use `list::element(A)` to create a list of one element?", "");
         
         Data* it = static_cast<Data*>(arg0.get());
         BList* ret = new BList();
         try {
             Result next = it->next(&memory);
-            while(next.get().get()!=OUT_OF_RANGE) {
-                if(next.get().existsAndTypeEquals(ERRORTYPE)) throw BBError(next.get().get()->toString(nullptr));
+            arg1 = next.get();
+            while(arg1.get()!=OUT_OF_RANGE) {
+                if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
                 next.get().existsAddOwner();
-                ret->contents.push_back(next.get());
+                ret->contents.push_back(arg1);
                 next = it->next(&memory);
             }
         }
@@ -879,7 +899,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         if(n==1) DISPATCH_RESULT(new BHashMap());
         arg0 = memory.get(command.args[1]);
         if(arg0.existsAndTypeEquals(MAP)) DISPATCH_RESULT(arg0);
-        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg0->toString(nullptr));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bbassertexplain(arg0.existsAndTypeEquals(LIST), "Unexpected value: "+arg0.torepr(), "Maps can only be created from no arguments or from lists of (key, value) pairs.", "");
         DISPATCH_RESULT(static_cast<BList*>(arg0.get())->toMap());
     }
@@ -890,7 +910,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_RANDOM: {
         bbassertexplain(command.nargs>=0, "Expecting argument.", "Random requires at least one argument to serve as seed, such as the output of `time()`. There is no default to make sure that replicable tests can be created.", "");
         arg0 = memory.get(command.args[1]);
-        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg0->toString(nullptr));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bbassertexplain(arg0.isfloat() || arg0.isint(), "Unexpected value: "+arg0.torepr(), "Random requires an int or float argument that serves as seed, such as the output of `time()`.", "");
         DISPATCH_RESULT(new RandomGenerator(arg0.isint()?(unsigned int)arg0.unsafe_toint():(unsigned int)arg0.unsafe_tofloat()));  // cast instead of byte cast to maintain expected behavior
     }
@@ -898,26 +918,28 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         arg0 = memory.get(command.args[1]);
         if(!arg0.exists()) bbcascade1("Cannot push to this data type: "+arg0.torepr());
         arg1 = memory.get(command.args[2]);
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) bbcascade(arg1->toString(nullptr), "Cannot push an error value to anything");
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         DISPATCH_OUTCOME(arg0->push(&memory, arg1));
     }
     DO_PUT: {
         arg0 = memory.get(command.args[1]);
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         if(!arg0.exists()) bbcascade1("Cannot put to this data type: "+arg0.torepr());
         arg1 = memory.get(command.args[2]);
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         const auto& arg2 = memory.get(command.args[3]);
-        if(arg2.existsAndTypeEquals(ERRORTYPE)) bbcascade(arg1->toString(nullptr), "Cannot set an error value to anything");
+        if(arg2.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg2.get())->consume()->toString(nullptr));
         DISPATCH_OUTCOME(arg0->put(&memory, arg1, arg2));
     }
     DO_TOGRAPHICS: {
         arg0 = memory.get(command.args[1]);
-        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg0->toString(nullptr));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bbassertexplain(arg0.existsAndTypeEquals(STRING), "Unexpected value: "+arg0.torepr(), "Can only create graphics from string window names as the first argument.", "");
-        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg1->toString(nullptr));
         arg1 = memory.get(command.args[2]);
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         bbassertexplain(arg1.isint(), "Unexpected value: "+arg1.torepr(), "Second graphics argument is the window width and should be an int.", "");
         const auto& arg2 = memory.get(command.args[3]);
-        if(arg2.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg2->toString(nullptr));
+        if(arg2.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg2.get())->consume()->toString(nullptr));
         bbassertexplain(arg2.isint(), "Unexpected value: "+arg2.torepr(), "Second graphics argument is the window height and should be an int.", "");
         DISPATCH_RESULT(new Graphics(static_cast<BString*>(arg0.get())->toString(nullptr), arg1.unsafe_toint(), arg2.unsafe_toint()));
     }
@@ -925,6 +947,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         arg0 = memory.get(command.args[1]);
         arg1 = memory.get(command.args[2]);
         if(arg0.exists()) DISPATCH_OUTCOME(arg0->at(&memory, arg1));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         if(arg1.existsAndTypeEquals(STRING)) {
             if(arg0.isfloat()) DISPATCH_RESULT(new BString(__python_like_float_format(arg0.unsafe_tofloat(), arg1->toString(&memory))));
             if(arg0.isint()) DISPATCH_RESULT(new BString(__python_like_int_format(arg0.unsafe_toint(), arg1->toString(&memory))));
@@ -933,48 +957,57 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }
     DO_SUM: {
         arg0 = memory.get(command.args[1]);
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bbassert(arg0.isptr(), "Did not find builtin operation: sum("+arg0.torepr()+")");
         DISPATCH_OUTCOME(arg0->sum(&memory));
     }
     DO_NOT: {
         arg0 = memory.get(command.args[1]);
         if(arg0.isbool()) DISPATCH_RESULT(!arg0.unsafe_tobool());
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bbassert(arg0.isptr(), "Did not find builtin operation: not("+arg0.torepr()+")");
         DISPATCH_OUTCOME(arg0->opnot(&memory));
     }
     DO_LEN: {
         arg0 = memory.get(command.args[1]);
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bbassert(arg0.isptr(), "Did not find builtin operation: len("+arg0.torepr()+")");
         DISPATCH_RESULT(arg0->len(&memory));
     }
     DO_MAX: {
         arg0 = memory.get(command.args[1]);
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bbassert(arg0.isptr(), "Did not find builtin operation: max("+arg0.torepr()+")");
         DISPATCH_OUTCOME(arg0->max(&memory));
     }
     DO_MIN: {
         arg0 = memory.get(command.args[1]);
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bbassert(arg0.isptr(), "Did not find builtin operation: min("+arg0.torepr()+")");
         DISPATCH_OUTCOME(arg0->min(&memory));
     }
     DO_POP: {
         arg0 = memory.get(command.args[1]);
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bbassert(arg0.isptr(), "Did not find builtin operation: len("+arg0.torepr()+")");
         DISPATCH_OUTCOME(arg0->pop(&memory));
     }
     DO_NEXT: {
         arg0 = memory.get(command.args[1]);
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bbassert(arg0.isptr(), "Did not find builtin operation: next("+arg0.torepr()+")");
         DISPATCH_OUTCOME(arg0->next(&memory));
     }
     DO_MOVE: {
         arg0 = memory.get(command.args[1]);
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         if(arg0.islit()) DISPATCH_RESULT(arg0);
         bbassert(arg0.exists(), "Did not find builtin operation: clear("+arg0.torepr()+")");
         DISPATCH_OUTCOME(arg0->move(&memory));
     }
     DO_CLEAR: {
         arg0 = memory.get(command.args[1]);
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bbassert(arg0.exists(), "Did not find builtin operation: clear("+arg0.torepr()+")");
         arg0->clear(&memory);
         continue;
@@ -983,29 +1016,33 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_TOFILE: {
         arg0 = memory.get(command.args[1]);
         if(arg0.existsAndTypeEquals(FILETYPE)) DISPATCH_RESULT(arg0);
-        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg0->toString(nullptr));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bbassertexplain(arg0.existsAndTypeEquals(STRING), "Unexpected value: "+arg0.torepr(), "Can only create files from string paths.", "");
         DISPATCH_RESULT(new BFile(static_cast<BString*>(arg0.get())->toString(nullptr)));
     }
     DO_TOSQLITE: {
         arg0 = memory.get(command.args[1]);
         if(arg0.existsAndTypeEquals(SQLLITE)) DISPATCH_RESULT(arg0);
-        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(arg0->toString(nullptr));
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bbassertexplain(arg0.existsAndTypeEquals(STRING), "Unexpected value: "+arg0.torepr(), "Can only create databases from string paths.", "");
         DISPATCH_RESULT(new Database(static_cast<BString*>(arg0.get())->toString(nullptr)));
     }
     DO_TOITER: {
         arg0 = memory.get(command.args[1]);
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         bbassert(arg0.exists(), "Did not find builtin operation: iter("+arg0.torepr()+")");
         DISPATCH_OUTCOME(arg0->iter(&memory));
     }
     DO_TORANGE: {
         bbassertexplain(command.nargs>=0, "Expecting arguments.", "Range requires at least one argument.", "");
         arg0 = memory.get(command.args[1]);
+        if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         if(command.nargs<=2 && arg0.isint()) DISPATCH_RESULT(new IntRange(0, arg0.unsafe_toint(), 1));
         arg1 = memory.get(command.args[2]);
+        if(arg1.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg1.get())->consume()->toString(nullptr));
         if(command.nargs<=3 && arg0.isintint(arg1)) DISPATCH_RESULT(new IntRange(arg0.unsafe_toint(), arg1.unsafe_toint(), 1));
         const auto& arg2 = memory.get(command.args[3]);
+        if(arg2.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg2.get())->consume()->toString(nullptr));
         if(command.nargs<=4 && arg0.isintint(arg1) && arg2.isint()) DISPATCH_RESULT(new IntRange(arg0.unsafe_toint(), arg1.unsafe_toint(), arg2.unsafe_toint()));
         if(command.nargs<=4 && arg0.isfloatfloat(arg1) && arg2.isfloat()) DISPATCH_RESULT(new IntRange(arg0.unsafe_tofloat(), arg1.unsafe_tofloat(), arg2.unsafe_tofloat()));
         bberrorexplain("Unexpected arguments.", "Range can take as arguments up to three integers or exactly three floats.", "");
@@ -1017,7 +1054,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             result = memory.get(command.args[2]);
         }
         else {
-            if(objFound.existsAndTypeEquals(ERRORTYPE)) throw BBError(objFound->toString(nullptr));
+            if(objFound.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(objFound.get())->consume()->toString(nullptr));
             bbassertexplain(objFound.existsAndTypeEquals(STRUCT), "Unexpected value: "+objFound->toString(&memory), "Can only get fields from structs, but instead found this value.", "");
             auto obj = static_cast<Struct*>(objFound.get());
             std::lock_guard<std::recursive_mutex> lock(obj->memoryLock);
@@ -1072,83 +1109,81 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     DO_CALL: {
         // find out what to call
         const auto context = command.args[1] == variableManager.noneId ? DataPtr::NULLP : memory.get(command.args[1]);
+        if(context.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(context.get())->consume()->toString(nullptr));
         bbassert(!context.exists() || context.existsAndTypeEquals(CODE), "Function arguments must be packed into a code block");
         DataPtr called = memory.get(command.args[2]);
         if(called.existsAndTypeEquals(STRUCT)) {
             auto strct = static_cast<Struct*>(called.get());
             auto val = strct->get(variableManager.callId);
+            if(val.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(val.get())->consume()->toString(nullptr));
             bbassert(val.existsAndTypeEquals(CODE), "Struct was called like a method but has no implemented code for `call`.");
             memory.codeOwners[static_cast<Code*>(val.get())] = static_cast<Struct*>(called.get());
             called = (val);
         }
-        if(called.existsAndTypeEquals(ERRORTYPE)) throw BBError(called->toString(nullptr));
+        if(called.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(called.get())->consume()->toString(nullptr));
         bbassert(called.existsAndTypeEquals(CODE), "Calling a function with non-codeblock type: "+called.torepr());
         Code* code = static_cast<Code*>(called.get());
         Code* callCode = context.exists()?static_cast<Code*>(context.get()):nullptr;
-        bool sycnhronizeRun = true;//!code->scheduleForParallelExecution || !Future::acceptsThread();
+    
+        // run prample
+        BMemory newMemory(depth, &memory, LOCAL_EXPECTATION_FROM_CODE(code)+(callCode?LOCAL_EXPECTATION_FROM_CODE(callCode):0));
+        if(callCode) {
+            ExecutionInstance executor(depth, callCode, &newMemory, forceStayInThread);
+            auto returnedValue = executor.run(callCode);
+            if(returnedValue.returnSignal) DISPATCH_RESULT(returnedValue.get());
+        }
+        
+        // switch the memory to the new context
+        const auto& it = memory.codeOwners.find(code);
+        const auto& thisObj = it != memory.codeOwners.end() ? DataPtr(it->second) : memory.getOrNull(variableManager.thisId, true);
+        bool thisObjExists = thisObj.exists();
+        if(thisObjExists) newMemory.set(variableManager.thisId, thisObj);
+        newMemory.parent = memory.getParentWithFinals();  
+        newMemory.allowMutables = false;
+        
+        // run the called block
+        ExecutionInstance executor(depth, code, &newMemory, thisObjExists);
+        auto returnedValue = executor.run(code);
+        result = returnedValue.get();
+        newMemory.await();
+        DataPtr args = newMemory.getOrNullShallow(variableManager.argsId);
+        if(args.existsAndTypeEquals(LIST) && static_cast<BList*>(args.get())->len(&newMemory)) bberrorexplain("Too many arguments.", "The function was successfully called but there are "+std::to_string(static_cast<BList*>(args.get())->len(&newMemory))+" leftover args.", "");
+        DISPATCH_COMPUTED_RESULT;
 
-        if(sycnhronizeRun) {
-            // run prample
-            BMemory newMemory(depth, &memory, LOCAL_EXPECTATION_FROM_CODE(code)+(callCode?LOCAL_EXPECTATION_FROM_CODE(callCode):0));
-            if(callCode) {
-                ExecutionInstance executor(depth, callCode, &newMemory, forceStayInThread);
-                auto returnedValue = executor.run(callCode);
-                if(returnedValue.returnSignal) DISPATCH_RESULT(returnedValue.get());
-            }
-            
-            // switch the memory to the new context
-            const auto& it = memory.codeOwners.find(code);
-            const auto& thisObj = it != memory.codeOwners.end() ? DataPtr(it->second) : memory.getOrNull(variableManager.thisId, true);
-            bool thisObjExists = thisObj.exists();
-            if(thisObjExists) newMemory.set(variableManager.thisId, thisObj);
-            newMemory.parent = memory.getParentWithFinals();  
-            newMemory.allowMutables = false;
-            
-            // run the called block
-            ExecutionInstance executor(depth, code, &newMemory, thisObjExists);
-            auto returnedValue = executor.run(code);
-            result = returnedValue.get();
-            newMemory.await();
-            DataPtr args = newMemory.getOrNullShallow(variableManager.argsId);
-            if(args.existsAndTypeEquals(LIST) && static_cast<BList*>(args.get())->len(&newMemory)) bberrorexplain("Too many arguments.", "The function was successfully called but there are "+std::to_string(static_cast<BList*>(args.get())->len(&newMemory))+" leftover args.", "");
-            DISPATCH_COMPUTED_RESULT;
-        }
-        else { 
-            // run preample
-            auto newMemory = new BMemory(depth, &memory, LOCAL_EXPECTATION_FROM_CODE(code)+(callCode?LOCAL_EXPECTATION_FROM_CODE(callCode):0));
-            if(callCode) {
-                ExecutionInstance executor(depth, callCode, newMemory, forceStayInThread);
-                auto returnedValue = executor.run(callCode);
-                if(returnedValue.returnSignal) DISPATCH_RESULT(returnedValue.get());
-            }
-            auto it = memory.codeOwners.find(code);
-            const auto& thisObj = it != memory.codeOwners.end() ? DataPtr(it->second) : memory.getOrNull(variableManager.thisId, true);
-            if(thisObj.exists()) newMemory->set(variableManager.thisId, thisObj);
-            newMemory->parent = memory.getParentWithFinals();
-            newMemory->allowMutables = false;
-            auto futureResult = new ThreadResult();
-            auto future = new Future(futureResult);
-            memory.attached_threads.emplace_back(future);
-            result = future;
-            int carg = command.args[0]; 
-            if(carg!=variableManager.noneId) memory.setFuture(carg, result); 
-            futureResult->start(depth, code, newMemory, futureResult, &program[i], thisObj);
-            continue;
-        }
     }
 
     }//end try 
     catch (const BBError& e) {
+        std::string err = enrichErrorDescription(program[i], e.what());
         int carg = command.args[0]; 
+        if(command.operation==IS) {
+            BError* berror = new BError(std::move(err));
+            berror->consume();
+            memory.consumeAllErrors();
+            result = DataPtr(berror); 
+            return ExecutionInstanceRunReturn(true, Result(result));
+        }
+
+
+        if(command.operation!=RETURN)
         if(carg==variableManager.noneId) {
-            std::string err = enrichErrorDescription(program[i], e.what());
             err += "\n \033[33m !!! \033[0mAt this point, the error is returned because it is not assigned to"
                    "\n      a variable and would have been ignored otherwise.\033[0m";
             BError* berror = new BError(std::move(err));
             berror->consume();
+            memory.consumeAllErrors();
             result = DataPtr(berror);
             return ExecutionInstanceRunReturn(true, Result(result));
         }
+        /*if(command.operation==IS) {
+            err += "\n \033[33m !!! \033[0mAt this point, the error is returned instead of being copied.\033[0m";
+            BError* berror = new BError(std::move(err));
+            result = DataPtr(berror);
+            //memory.set(carg, berror); 
+            //memory.consumeAllErrors();
+            return ExecutionInstanceRunReturn(true, Result(result));
+        }*/
+        if(command.operation!=RETURN)
         if(command.operation==SET 
             || command.operation==SETFINAL 
             || command.operation==PUT 
@@ -1159,28 +1194,29 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             || command.operation==MOVE
             || command.operation==CLEAR
             || command.operation==FINAL
-            || command.operation==BB_PRINT
-            || carg==variableManager.noneId 
-            || command.operation==RETURN) {
-            std::string err = enrichErrorDescription(program[i], e.what());
-            err += "\n \033[33m !!! \033[0mAt this point, the error is returned instead of having a hidden side-effect.\033[0m";
+            || command.operation==BB_PRINT) {
+            err += "\n \033[33m !!! \033[0mAt this point, the error is returned instead of having a hidden side-effect.";
             BError* berror = new BError(std::move(err));
-            berror->consume();
             result = DataPtr(berror);
+            memory.set(carg, berror); 
+            memory.consumeAllErrors();
             return ExecutionInstanceRunReturn(true, Result(result));
         }
-        std::string err = enrichErrorDescription(program[i], e.what());
         BError* berror = new BError(std::move(err));
-        berror->consume();
         try {
             result = DataPtr(berror); 
-            memory.set(carg, result); 
-            if(command.operation==RETURN) return ExecutionInstanceRunReturn(true, Result(result));
+            if(command.operation==RETURN) {
+                berror->consume();
+                memory.consumeAllErrors();
+                return ExecutionInstanceRunReturn(true, Result(result));
+            }
+            else memory.set(carg, berror); 
         }
         catch (const BBError& e) {
             result = DataPtr::NULLP;
+            memory.set(carg, result); 
             delete berror;
-            handleExecutionError(program[i], e);
+            throw BBError(err);
         }
     }
     }//end loop

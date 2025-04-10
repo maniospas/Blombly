@@ -30,7 +30,7 @@ private:
 
 public:
     explicit BError(const std::string& val);
-    void consume();
+    BError* consume();
     bool isConsumed() const;
     std::string toString(BMemory* memory) override;
 

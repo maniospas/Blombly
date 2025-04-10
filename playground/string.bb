@@ -16,8 +16,18 @@ final String = {
         final length=length;
     }
 }
-final utf8(str value) => new{String:vale=value}
+final utf8(str value) => new{
+    String:
+    vale=value;
+    length = 0;
+    while(c in value) length += 1;
+}
 
-x = utf8("hi!", 2)+utf8("😀"); // CREATES AN ERROR
+x = utf8("hi!")+utf8("😀");
 print(x|len);
 print(x.contains("😀"));
+print(x.split("!"));
+
+
+x = utf8("hi!", 2); // CREATES AN ERROR
+print(x);
