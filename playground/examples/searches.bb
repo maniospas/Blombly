@@ -1,9 +1,6 @@
 tic = time();
-
 text = "I like banana";
-applied = bb.string.starts("banana");
-while(i in range(300000)) result = text|applied;
-
+while(i in range(300000))
+    result = text|bb.string.starts("banana");
 print(result);
-
-print(time()-tic);
+print(time() - tic);

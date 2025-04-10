@@ -647,7 +647,7 @@ void preliminarySimpleChecks(std::vector<Command>* program) {
         if(op==ISCACHED) bbassertexplain(size==2, "Invalid bbvm instruction: "+command.toString(), "`ISCACHED` accepts exactly 1 argument after the return value", getStackFrame(command));
         if(op==TOSQLITE) bbassertexplain(size==2, "Invalid bbvm instruction: "+command.toString(), "`sqllite` accepts exactly 1 argument after the return value", getStackFrame(command));
         if(op==TOGRAPHICS) bbassertexplain(size==4, "Invalid bbvm instruction: "+command.toString(), "`graphics` accepts exactly 3 arguments after the return value", getStackFrame(command));
-        if(op==RANDOM) bbassertexplain(size==4, "Invalid bbvm instruction: "+command.toString(), "`random` accepts exactly 1 argument after the return value", getStackFrame(command));
+        if(op==RANDOM) bbassertexplain(size==2, "Invalid bbvm instruction: "+command.toString(), "`random` accepts exactly 1 argument after the return value", getStackFrame(command));
         if(op==RANDVECTOR) bbassertexplain(size==2, "Invalid bbvm instruction: "+command.toString(), "`vector::consume` accepts exactly 1 argument after the return value", getStackFrame(command));
         if(op==ZEROVECTOR) bbassertexplain(size==2, "Invalid bbvm instruction: "+command.toString(), "`vector::zero` accepts exactly 1 argument after the return value", getStackFrame(command));
         if(op==ALLOCVECTOR) bbassertexplain(size==2, "Invalid bbvm instruction: "+command.toString(), "`vector::alloc` accepts exactly 1 argument after the return value", getStackFrame(command));

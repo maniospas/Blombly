@@ -1,5 +1,5 @@
 arr = list();
-rand = random(42);
+rand = random(time());
 while(i in range(10000)) arr << next(rand)*2000-1000;
 
 bruteForce(a) = {
