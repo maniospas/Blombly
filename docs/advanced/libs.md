@@ -149,43 +149,48 @@ canvas.show(width=800;height=600);
 
 ## bb.flat
 
-Blombly’s design intentionally omits strict type definitions for its struct-like 
-objects to stay flexible. However, in practice, bundling a few related values together 
-is a common need. Inspired by languages like Zig, bb.flat offers a way to bind small 
-groups of data efficiently, without creating new runtime objects.
+Blombly’s design intentionally omits types for structs to stay flexible. 
+However, in practice, bundling a few related values together 
+is a common need when passing data between interfaces. 
+Inspired by languages like Zig, *bb.flat* offers a way to bind small 
+groups of values efficiently and have them look similar to structs
+without actually creating structs.
 
-`bb.flat` provides a zero-cost abstraction for defining and passing 
-small data structures in Blombly. It allows you to name a sequence 
-of comma-separated elements, enabling structured, readable code without 
-introducing runtime overhead. Conceptually similar to structs or tuples 
-in other languages, flat types are a compile-time feature that expands 
-into local variables, eliminating the need to dynamically allocate objects
- or create nested data structures at runtime.
+<br>
 
-Flat data types are declared using the !flat directive, which defines a 
-named pattern for a group of fields. To create a variable of a flat type, 
-you prepend the assignment with the flat type’s name. Once declared, 
-variables of that type automatically unpack into individual elements, 
-which can then be referenced using dot-notation (e.g., p.x, p.y) directly 
-in the file. Importantly, flat types are file-local shorthand: they exist 
-purely for code clarity and are erased during compilation.
+This is a zero-cost abstraction that allows you to name a sequence 
+of comma-separated elements. Everything is resolved into local varaibles
+during compilation, eliminating most allocations.
 
-Flat variables are passed by value to functions. Internally, the compiler treats 
-them as separate local variables rather than composite objects. This ensures no 
-additional overhead compared to passing multiple independent values, achieving 
-efficiency comparable to manually managing multiple parameters.
+<br>
 
-Flat types onceptually treat memory like a list of values, but at the syntax 
-level they offer named fields. When a function takes flat types as arguments, 
-it’s compiled into passing multiple individual values (for example, 
-`a.x, a.y, b.x, b.y` in the example below, where each one is treated as one name
-with the dot embedded insde) instead of composite objects. 
-This drastically reduces instruction count and runtime overhead.
+Flat data types are declared using the `!flat` directive, followed by a name
+and argument names in a parenthessis - like a function signature without a body.
+To create variables of those types, prepend the assignment with the flat type’s name
+or put the type name before variable names in other types or function signatures.
+Once declared, those variables are automatically unpacked into individual elements, 
+which can then be referenced using dot-notation (e.g., `p.x`, `p.y`) directly 
+in the intermediate representation. Types are retained until the end of file,
+so use `!include{...}` to scope them. Use namespaces to borrow flat types.
 
-Moreover, flat assignment syntax (e.g., `Point p = 1,2;`) ensures simple expansion 
+<br>
+
+Flat variables are passed by value to functions. Conceptually, they treat memory 
+like a list of values, and the compiler does use this format to store them in the
+heap, for example in objects, lists, or maps. In the example bellow, the
+signature `(Point a, Point b)` is unpacked to `(a.x, a.y, b.x, b.y)` in the example below, 
+where each one is treated as one name
+with the dot embedded insde instead of composite objects. This interoperability
+with normal arguments allows you to directly use comma-separated values when
+flats are expected.
+
+<br>
+
+Similarly, flat assignment syntax (e.g., `Point p = 1,2;`) ensures simple expansion 
 to the underlying primitive types. Assignments like `p2 = p1` merely copy 
-lists of values without introducing tuple-specific metadata. The compiler
-optimizes away symbols aggressively.
+lists of values without introducing tuple-specific metadata. But the compiler
+optimizes away symbols aggressively and performs any list operations it can 
+reason about beforehand.
 
 
 ```java
