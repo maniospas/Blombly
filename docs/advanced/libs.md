@@ -132,7 +132,11 @@ bb.os.transfer("libs/download/html.bb", "https://raw.githubusercontent.com/manio
 ## bb.sci
 
 Provides a small data science package with plotting functionality over vectors.
-Plotting uses `graphics` under the hood. Here is an example.
+Plotting uses `graphics` under the hood but automates the event handling
+code. Just create a new struct with the appropriate code inlined, call `plot`
+to create interactive plots, and finally call `show` to see the result. You can overwrite
+sevreal defaults, also demonstrated below. For full UI capabilities, consider
+using the externally deployed [uibb](https://github.com/maniospas/uibb) engine.
 
 ```java
 x = list();

@@ -440,7 +440,8 @@ a string, a font file name (permission rules apply),
 the font size, the coordinates, and an angle rotation. Textures
 are displayed by providing a path, corrdinates, dimensions, and 
 rotation. Blombly caches fonts and textures under the hood,
-so everything runs efficiently.
+so everything runs efficiently and irrespective of the language's
+actual speed.
 
 
 ```java
@@ -492,6 +493,11 @@ while(events as g|pop) {
 }
 ```
 
+!!! tip
+    For full UI capabilities, consider
+    using the externally deployed [uibb](https://github.com/maniospas/uibb) engine.
+
 
 !!! warning
-    Multiple windows are not yet supported.
+    Multiple windows are not yet supported and it is unclear whether they will
+    be supported in the future at all.
