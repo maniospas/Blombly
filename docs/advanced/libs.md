@@ -146,3 +146,67 @@ canvas = canvas.plot(x, y :: color=255,0,0,255; title="y=(x-0.5)^2");
 canvas = canvas.plot(x, x :: color=0,255,0,255; title="y=x");
 canvas.show(width=800;height=600);
 ```
+
+## bb.flat
+
+Blombly’s design intentionally omits strict type definitions for its struct-like 
+objects to stay flexible. However, in practice, bundling a few related values together 
+is a common need. Inspired by languages like Zig, bb.flat offers a way to bind small 
+groups of data efficiently, without creating new runtime objects.
+
+`bb.flat` provides a zero-cost abstraction for defining and passing 
+small data structures in Blombly. It allows you to name a sequence 
+of comma-separated elements, enabling structured, readable code without 
+introducing runtime overhead. Conceptually similar to structs or tuples 
+in other languages, flat types are a compile-time feature that expands 
+into local variables, eliminating the need to dynamically allocate objects
+ or create nested data structures at runtime.
+
+Flat data types are declared using the !flat directive, which defines a 
+named pattern for a group of fields. To create a variable of a flat type, 
+you prepend the assignment with the flat type’s name. Once declared, 
+variables of that type automatically unpack into individual elements, 
+which can then be referenced using dot-notation (e.g., p.x, p.y) directly 
+in the file. Importantly, flat types are file-local shorthand: they exist 
+purely for code clarity and are erased during compilation.
+
+Flat variables are passed by value to functions. Internally, the compiler treats 
+them as separate local variables rather than composite objects. This ensures no 
+additional overhead compared to passing multiple independent values, achieving 
+efficiency comparable to manually managing multiple parameters.
+
+Flat types onceptually treat memory like a list of values, but at the syntax 
+level they offer named fields. When a function takes flat types as arguments, 
+it’s compiled into passing multiple individual values (for example, 
+`a.x, a.y, b.x, b.y` in the example below, where each one is treated as one name
+with the dot embedded insde) instead of composite objects. 
+This drastically reduces instruction count and runtime overhead.
+
+Moreover, flat assignment syntax (e.g., `Point p = 1,2;`) ensures simple expansion 
+to the underlying primitive types. Assignments like `p2 = p1` merely copy 
+lists of values without introducing tuple-specific metadata. The compiler
+optimizes away symbols aggressively.
+
+
+```java
+!flat Point(x,y);
+!flat Array2D(0,1);
+!flat Field(Point start, Array2D end);
+
+adder(Point a, Point b) = {
+    x = a.x+b.x;
+    y = a.y+b.y;
+    return x,y;
+}
+
+Point p1 = 1,2;
+Point p2 = p1;
+Point p3 = adder(p1, p2);
+print(p3.x);
+print(p3);
+
+Field f = p1,adder(p1,p2);
+print(f.start);
+print(f.start.y);
+print(f.end.1);
+```

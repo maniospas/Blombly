@@ -45,4 +45,5 @@ final bb = new {
     !include "bb://libs/tests"
     !include "bb://libs/collections"
     !include "bb://libs/plot"
+    !include "bb://libs/flat"
 }

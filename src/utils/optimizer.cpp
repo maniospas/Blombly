@@ -143,6 +143,147 @@
          //if(command->args[0]=="push" && command->args[1]=="#") command->args[1]  = command->args[2];
      }
      
+     // list
+     int listChanges = -1;
+     while(listChanges!=0) {
+        listChanges = 0;
+
+        std::unordered_map<std::string, int> symbolUsageCount;
+        for (const auto& command : program) {
+            if(!command->enabled || command->args.size()==0) continue;
+            if(command->args[0]=="END" || command->args[0]=="BEGIN" || command->args[0]=="BEGINFINAL" || command->args[0]=="final") continue;
+            size_t j = 2;
+            if(command->args[0]=="set" || command->args[0]=="push") {
+                const std::string& symbol = command->args[j];
+                if (symbol == "LAST") bberror("Internal error: the LAST keyword has been deprecated");
+                if (symbol != "#")  symbolUsageCount[symbol]++;
+                ++j;
+            }
+            for (; j < command->args.size(); ++j) {
+                const std::string& symbol = command->args[j];
+                if (symbol == "LAST") bberror("Internal error: the LAST keyword has been deprecated");
+                if (symbol != "#")  symbolUsageCount[symbol]++;
+            }
+        }
+
+        std::unordered_map<std::string, std::string> knownTypes;
+        std::unordered_map<std::string, int> elementListDefinition; // only definitions for list::element
+        std::unordered_map<std::string, std::string> rename;
+        int pos = 0;
+        for (const auto& command : program) {
+            if(!command->enabled || command->args.size()==0) {
+                pos++;
+                continue;
+            }
+            for(int i=1;i<command->args.size();++i) {
+                //if(elementListDefinition[command->args[i]].size())
+                if(rename[command->args[i]].size()) {
+                    command->args[i] = rename[command->args[i]];
+                    listChanges++;
+                }
+            }
+            if(command->args[0]=="END" || command->args[0]=="BEGIN" || command->args[0]=="BEGINFINAL" || command->args[0]=="INLINE" || command->args[0]=="call" || command->args[0]=="new") {
+                knownTypes.clear();
+                elementListDefinition.clear();
+                rename.clear(); // TODO: there may be some strange error if there is an invalid final definition
+                pos++;
+                continue;
+            }
+
+            if(command->args[0]=="list" && command->args.size()>=3 && knownTypes[command->args[2]]=="raw") {
+                command->args[0] = "list::element";
+                listChanges++;
+            }
+            else if(command->args[0]=="list" && command->args.size()>=3 && knownTypes[command->args[2]]=="list") {
+                //if(symbolUsageCount[command->args[1]]==1) {
+                //    command->enabled = false;
+                rename[command->args[1]] = command->args[2];
+                //}
+                //else 
+                command->args[0] = "IS";
+                listChanges++;
+            }
+            else if(command->args[0]=="add" && command->args.size()>=4 
+                && knownTypes[command->args[2]]=="list" && knownTypes[command->args[3]]=="list"
+                && elementListDefinition[command->args[2]]!=-1 && elementListDefinition[command->args[3]]!=-1 
+                && symbolUsageCount[command->args[2]]==1 && symbolUsageCount[command->args[3]]==1) {
+                program[elementListDefinition[command->args[2]]]->enabled = false;
+                program[elementListDefinition[command->args[3]]]->enabled = false;
+                std::string prev = command->args[1];
+                std::string a = command->args[2];
+                std::string b = command->args[3];
+                command->args.clear();
+                command->args.push_back("list::element");
+                command->args.push_back(prev);
+                command->args.insert(command->args.end(), program[elementListDefinition[a]]->args.begin()+2, program[elementListDefinition[a]]->args.end());
+                command->args.insert(command->args.end(), program[elementListDefinition[b]]->args.begin()+2, program[elementListDefinition[b]]->args.end());
+                listChanges++;
+            }
+            else if(command->args[0]=="push" && command->args.size()>=4 && knownTypes[command->args[2]]=="list" 
+                && elementListDefinition[command->args[2]]!=-1
+                && (command->args[1]==command->args[2] || symbolUsageCount[command->args[1]]<=1 || command->args[1]=="#")) {
+                    program[elementListDefinition[command->args[2]]]->args.push_back(command->args[3]);
+                    command->enabled = false;
+                    listChanges++;
+                    if(command->args[1]!="#") rename[command->args[1]] = rename[command->args[2]];
+            }
+            else if(command->args[0]=="pop" && command->args.size()>=3 && knownTypes[command->args[2]]=="list" && elementListDefinition[command->args[2]]!=-1) {
+                std::string contained = command->args[2];
+                std::string result = command->args[1];
+                if(program[elementListDefinition[contained]]->args.size()>2) {
+                    std::string replace = program[elementListDefinition[contained]]->args[program[elementListDefinition[contained]]->args.size()-1];
+                    command->args.clear();
+                    command->args.push_back("IS");
+                    command->args.push_back(result);
+                    command->args.push_back(replace);
+                    rename[result] = replace;
+                    program[elementListDefinition[contained]]->args.pop_back();
+                    listChanges++;
+                }
+            }
+            else if(command->args[0]=="next" && command->args.size()>=3 && knownTypes[command->args[2]]=="list" && elementListDefinition[command->args[2]]!=-1) {
+                std::string contained = command->args[2];
+                std::string result = command->args[1];
+                if(program[elementListDefinition[contained]]->args.size()>2) {
+                    std::string replace = program[elementListDefinition[contained]]->args[2];
+                    command->args.clear();
+                    command->args.push_back("IS");
+                    command->args.push_back(result);
+                    command->args.push_back(replace);
+                    rename[result] = replace;
+                    program[elementListDefinition[contained]]->args.erase(program[elementListDefinition[contained]]->args.begin()+2);
+                    listChanges++;
+                }
+            }
+            else if((command->args[0]=="pop" || command->args[0]=="next" || command->args[0]=="at" || command->args[0]=="put"
+                || command->args[0]=="push"|| command->args[0]=="read" || command->args[0]=="print") 
+                && command->args.size()>=3 && knownTypes[command->args[2]] == "list") {
+                knownTypes[command->args[2]] = "";
+                elementListDefinition[command->args[2]] = -1;
+                rename[command->args[2]] = "";
+            }
+            else if(command->args[0]=="BUILTIN" || command->args[0]=="int" || command->args[0]=="float" || command->args[0]=="str") knownTypes[command->args[1]] = "raw";
+            else if(command->args[0]=="list" && command->args.size()>=2) {
+                knownTypes[command->args[1]] = "list";
+                elementListDefinition[command->args[1]] = -1;
+            }
+            else if(command->args[0]=="list::element" && command->args.size()>=2) {
+                knownTypes[command->args[1]] = "list";
+                elementListDefinition[command->args[1]] = pos;
+            }
+            else if(command->args[0]=="list::gather" && command->args.size()>=2) {
+                knownTypes[command->args[1]] = "list";
+                elementListDefinition[command->args[1]] = -1;
+            }
+            else if(command->args.size()>=2 && knownTypes[command->args[1]]=="list") {
+                knownTypes[command->args[1]] = "";
+                elementListDefinition[command->args[1]] = -1;
+                rename[command->args[1]] = "";
+            }
+            pos++;
+        }
+     }
+     
      // remove unused methods
      int changes = minimify?-1:0; // skip the loop if not minifying
      while(changes!=0) {
@@ -181,10 +322,7 @@
                  || command->args[1]=="bool"
                  || command->args[1]=="list"
                  || command->args[1]=="list::gather"
-                 || command->args[1]=="list::element"
                  || command->args[1]=="vector"
-                 || command->args[1]=="vector::zero"
-                 || command->args[1]=="vector::aloc"
                  || command->args[1]=="len" 
                  || command->args[1]=="add" 
                  || command->args[1]=="sub" 
@@ -218,6 +356,9 @@
              if(command->args[0]=="final" && command->args.size()>=3 && symbolUsageCount[command->args[2]]==0) DISABLE;
              if(command->args[0]=="set" && command->args.size()>=4 && (symbolUsageCount[command->args[2]]==0 || symbolUsageCount[command->args[3]]==0)) DISABLE;
              if(command->args[0]=="push" && command->args.size()>=4 && (symbolUsageCount[command->args[2]]==0 || symbolUsageCount[command->args[3]]==0)) DISABLE;
+             if(command->args[0]=="list::element" && command->args.size()>=2 && symbolUsageCount[command->args[1]]==0) DISABLE;
+             if(command->args[0]=="vector::zero" && command->args.size()>=2 && symbolUsageCount[command->args[1]]==0) DISABLE;
+             if(command->args[0]=="vector::alloc" && command->args.size()>=2 && symbolUsageCount[command->args[1]]==0) DISABLE;
              if(command->args[0]=="BUILTIN" && command->args.size() && symbolUsageCount[command->args[1]]==0) DISABLE;
              if((command->args[0]=="IS" || command->args[0]=="AS" || command->args[0]=="new") && command->args.size() && symbolUsageCount[command->args[1]]==0) DISABLE;
              if(command->args[0]!="BEGIN" && command->args[0]!="BEGINFINAL") continue;
@@ -384,6 +525,7 @@ std::string removeCacheDuplicates(std::unordered_map<std::string, int> &programT
     while (std::getline(inputStream, line)) program.push_back(std::make_shared<OptimizerCommand>(line));
 
     std::string cachePreample("");
+    std::unordered_map<std::string, int> reuseCount;
     int pos = 0;
     while(pos<program.size()) {
         // the following prevents both _bbcache and intermediate inlines starting with _bb (e.g., used in while loops or expanded from macros)

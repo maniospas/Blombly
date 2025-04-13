@@ -18,12 +18,18 @@ the virtual machine.
 
 ## !include
 
-Dependencies on `.bb` files or folders are stated with an include statement that looks like below.
-When an include directive is encountered, it tries to see if adding the suffix `.bb` or `/.bb` to the path
-is a valid file and imports that. 
-In the example below, either `libs/html.bb` is included or, 
-if `libs/html` is a folder, `libs/html/.bb` is included. Inclusion paths are checked both relatively to blombly's
-executable and to the working directory from where the main file is being compiled.
+There are four main usages of the include statement:
+
+1. Recursively including file contents.
+2. Mocking the inclusion of a file's code.
+3. Including a string outcome from `!comptime`.
+4. Including a library stored in a *.bbvm* file.
+
+Dependencies on *.bb* files or folders are stated with an include statement that looks like below.
+When an include directive is encountered, it tries to see if adding the suffix *.bb* or */.bb* to the path
+is a valid file and imports that. In the example below, either *libpath.bb* is included or, 
+if *libspath* is a folder, *libpath/.bb* is included. Inclusion paths are checked both relatively to 
+Blombly's executable and to the working directory from where the main file is being compiled.
 
 <br>
 
@@ -55,6 +61,37 @@ from leaking outside the included code.
     print("This is a mock file");
 }
 ```
+
+Alternatively, chain a compilation time directive to programmatically generate code, like below.
+You can transfer code writting information through macros, but execution remains safe in that
+it cannot be dynamically altered once compilation concludes.
+
+```java
+!local{!compprint(@info);} as {
+    // @info is substituted
+    !include !comptime do {
+        print("Compiling "+@info); 
+        return "Running "+@info;
+    }
+}
+
+!compprint("step 1");
+name = read("What's your name?");
+!compprint("step 2");
+print("Hello !{name}!");
+```
+
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+Compiling step 1
+Compiling step 2
+Running step 1
+What's your name? Manios
+Running step 2
+Hello Manios!
+</pre>
+
 
 Finally, if you have already created a *.bbvm* file, you can inline
 its compilation outcome by giving a path to it, extension included, like below.
@@ -353,6 +390,22 @@ strings. Here is an example:
 ```java
 // main.bb
 message = !stringify(Hello " world!");
+print(message);
+```
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> main.bb
+Hello world!
+</pre>
+
+**!codestring**
+
+This is similar to stringifying, with the only difference being that spaces are
+maintained between variables. Here is an example:
+
+```java
+// main.bb
+message = !codestring(Hello "world!"); // we don't need the extra space
 print(message);
 ```
 

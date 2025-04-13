@@ -15,6 +15,7 @@ test("Func call")  {!include "tests/calls"}
 test("Sideerrors") {!include "tests/sideerrors"}
 test("Closure")    {!include "tests/closure"}
 test("Clear")      {!include "tests/clear"}
+test("Flat")       {!include "tests/flat"}
 test("Move ")      {!include "tests/move"}
 test("Collection") {!include "tests/collection"}
 test("Stringutil") {!include "tests/string"}

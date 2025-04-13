@@ -863,12 +863,18 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }
     DO_TOLIST: {
         if(command.args.size()<=1) DISPATCH_RESULT(new BList(0));
-        
         int id1 = command.args[1];
         arg0 = memory.get(id1);
         if(arg0.existsAndTypeEquals(LIST)) DISPATCH_RESULT(arg0);
         if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
-        bberrorexplain("Unexpected number of arguments.", "`list` can only be cast from another list or be created from no arguments. Use `list::gather` to create a list from an iterator, `list::element` to create a list of single element, or explicit parentheses if you want to create a list as a function argument like `foo((1,2))`.", "");
+        
+        // TODO: maybe it's not a good idea to allow this kind of typecasting
+        auto list = new BList(1);
+        if(arg0.exists()) arg0->addOwner();
+        list->contents.push_back(arg0);
+        DISPATCH_RESULT(list);
+
+        //bberrorexplain("Unexpected number of arguments.", "`list` can only be cast from another list or be created from no arguments. Use `list::gather` to create a list from an iterator, `list::element` to create a list of single element, or explicit parentheses if you want to create a list as a function argument like `foo((1,2))`.", "");
     }
     DO_GATHER: {
         int id1 = command.args[1];

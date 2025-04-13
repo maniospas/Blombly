@@ -35,7 +35,7 @@ class BBError : public std::runtime_error {public: explicit BBError(const std::s
 #define bbassert(expr, msg) if (!(expr)) bberror(msg);
 
 
-#define bbassertexplain(expr, msg, explain, postfix) if (!(expr)) bberrorexplain(msg, explain, postfix);
+#define bbassertexplain(expr, msg, explain, postfix) {if (!(expr)) bberrorexplain(msg, explain, postfix);}
 void bberrorexplain(const std::string& msg, const std::string& explanation, const std::string& postfix);
 
 enum Datatype {FUTURE, VECTOR, LIST, STRING, CODE, STRUCT, ITERATOR, FILETYPE, ERRORTYPE, MAP, SERVER, SQLLITE, GRAPHICS};
