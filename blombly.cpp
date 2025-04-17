@@ -44,7 +44,7 @@ extern std::string top_level_file;
 bool debug_info = true;
 BError* OUT_OF_RANGE = new BError("Out of range");
 BError* INCOMPATIBLE_SIZES = new BError("Incompatible sizes in operation");
-BError* NO_TRY_INTERCEPT = new BError("No error or return statement intercepted with `do`.");
+BError* NO_TRY_INTERCEPT = new BError("\033[0m(\x1B[31m ERROR \033[0m) No error or return statement intercepted with `do`.");
 extern void clearAllowedLocations();
 extern void initialize_dispatch_table();
 extern bool vsync;

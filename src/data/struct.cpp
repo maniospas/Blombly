@@ -143,6 +143,11 @@ void Struct::transferNoChecks(int id, const DataPtr& value) {
     data[id] = value;
 }
 
+void Struct::transferToMemory(BMemory* scopeMemory) {
+    std::lock_guard<std::recursive_mutex> lock(memoryLock);
+    for(const auto& dat_ : data) scopeMemory->set(dat_.first, dat_.second);
+}
+
 void Struct::releaseMemory() {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     std::string destroyerr;

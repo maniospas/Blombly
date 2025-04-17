@@ -214,7 +214,8 @@ void Graphics::render() {
             bbassert(texture, "Failed to render text: " + text);
             SDL_RenderCopyEx(renderer, texture, nullptr, &dstRect, angle, nullptr, SDL_FLIP_NONE);
             SDL_DestroyTexture(texture);
-        } else {
+        } 
+        else {
             // Validate data types for texture rendering
             bbassert(list->contents[0].existsAndTypeEquals(STRING), "First element must be a string (texture path)");
             bbassert(list->contents[1].isfloatorint(), "Second element must be a float or integer (x-coordinate)");

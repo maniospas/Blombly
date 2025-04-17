@@ -2,9 +2,10 @@ sci = new {
     Plot = {
         plots = list();
         defer {
+            default bg = 0,0,0,255;
             default axes = 255,255,255,255;
-            default shade = 255,255,255,32;
-            default text = 255,255,255,255;   
+            default shade = axes[0],axes[1],axes[2],32;
+            default text = axes;    
         }
 
         plot(vector x, vector y) = {
@@ -34,6 +35,8 @@ sci = new {
             }
 
             while(events as canvas|pop) {
+                canvas << this.bg;
+                canvas << "rect", 0, 0, width+50, height+50;
                 // draw all plots
                 while(plot in this.plots) {
                     plot:
@@ -60,9 +63,9 @@ sci = new {
 
                 // draw legend box
                 canvas << this.shade;
-                canvas << "rect",px+width-200,py,px+width,py+18*countplots+8;
+                canvas << "rect",px+width-200,py,200,18*countplots+8;
                 canvas << this.axes;
-                canvas << "orect",px+width-200,py,px+width,py+18*countplots+8;
+                canvas << "orect",px+width-200,py,200,18*countplots+8;
 
                 // draw plot legends
                 i = 0;
@@ -75,6 +78,7 @@ sci = new {
                     canvas << this.text;
                     canvas << plot.title,font,14,tx+30,ty,0;
                     i += 1;
+                    return;
                 }
                 
             }

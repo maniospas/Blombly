@@ -627,10 +627,10 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             auto returnedValue = run(code);
             RUN_IF_RETURN(returnedValue);
         }
-        /*if(source.existsAndTypeEquals(STRUCT)) {
-            memory.pull(static_cast<Struct*>(source.get())->getMemory());
+        if(source.existsAndTypeEquals(STRUCT)) {
+            static_cast<Struct*>(source.get())->transferToMemory(&memory);
             DISPATCH_RESULT(source);
-        }*/
+        }
         if(source.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(source.get())->consume()->toString(nullptr));
         bberrorexplain("Unexpected value: "+arg0.torepr(), "Only code blocks or structs can be inlined.", "");
     }
@@ -731,6 +731,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
                 continue;
             }*/
             auto returnedValueFromBody = run(program, codeBodyStart, codeBodyEnd);
+            if(returnedValueFromBody.get().existsAndTypeEquals(ERRORTYPE)) throw BBError(returnedValueFromBody.get()->toString(nullptr));
             RUN_IF_RETURN(returnedValueFromBody);
         }
         continue;
@@ -1176,7 +1177,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
             err += "\n \033[33m !!! \033[0mAt this point, the error is returned because it is not assigned to"
                    "\n      a variable and would have been ignored otherwise.\033[0m";
             BError* berror = new BError(std::move(err));
-            memory.consumeAllErrors();
+            //memory.consumeAllErrors();
             result = DataPtr(berror);
             return ExecutionInstanceRunReturn(true, Result(result));
         }

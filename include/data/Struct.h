@@ -38,6 +38,7 @@ public:
     DataPtr getOrNull(int id) const;
     void set(int id, const DataPtr& other);
     void transferNoChecks(int id, const DataPtr& other);
+    void transferToMemory(BMemory* scopeMemory);
 
     Result push(BMemory* scopeMemory, const DataPtr& other) override;
     Result pop(BMemory* scopeMemory) override;
