@@ -50,7 +50,6 @@
     <p>A simple programming language for reusable dynamic interfaces. Quickly produce sufficiently good solutions for many tasks.</p>
     <p>
         <a href="https://blombly.readthedocs.io/en/latest/setup">Get started</a> | 
-        <a href="https://github.com/maniospas/Blombly/releases/latest">Download</a> | 
         <a href="https://github.com/maniospas/Blombly">GitHub</a>
     </p>
 

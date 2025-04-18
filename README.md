@@ -12,9 +12,27 @@ A simple programming language for creating reusable dynamic interfaces.
 
 ## Install & run
 
-Find the latest release [here](https://github.com/maniospas/Blombly/releases/latest).
-<br>Build targets: *Windows x64*, *Linux x64*
+Build targets: *Windows x64*, *Linux x64*
 <br>Integration testing: *Linux x64*
+
+Find the latest release [here](https://github.com/maniospas/Blombly/releases/latest). You may also copy-paste one of the following installation commands.
+
+<details><summary>Linux installation</summary>
+
+Copy and past the following in your terminal.
+
+```bash
+mkdir -p /tmp/blombly_unpack && \
+curl -L https://github.com/maniospas/Blombly/releases/download/v1.45.1/linux_release.tar.gz -o /tmp/blombly_unpack/linux_release.tar.gz && \
+tar --no-same-owner --no-same-permissions -xzf /tmp/blombly_unpack/linux_release.tar.gz -C /tmp/blombly_unpack && \
+sudo cp -r /tmp/blombly_unpack/libs /usr/local/bin/ && \
+sudo cp /tmp/blombly_unpack/blombly /usr/local/bin/ && \
+rm -rf /tmp/blombly_unpack
+```
+
+You can then run the executable from everywhere, for example per `blombly main.bb`.
+
+</details><br>
 
 Unzip the release in a directory and create a file `main.bb`. Use any name but with the same extension. Add the following contents:
 
@@ -26,19 +44,6 @@ print("Hello !{name}."); // string interpolation with !{...}
 
 Run `./blombly main.bb`, where the executable and main files can be any path, and check that everything is working properly. 
 Do not move the executable without the packaged `libs/` directory and (in Windows) accompanying *.dll* libraries.
-
-
-## Optional: Add to path
-<details><summary>Linux</summary>
-
-```bash
-sudo mv blombly /usr/local/bin/
-sudo mv libs /usr/local/bin/
-```
-
-You can then run the executable from everywhere, for example per `blombly main.bb`.
-
-</details>
 
 
 

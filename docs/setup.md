@@ -1,17 +1,33 @@
 # Setup
 
-## Get ready
+## Download & install
 
 Download the latest Blombly [release](https://github.com/maniospas/Blombly/releases/latest). Extract it into a folder
 and add that to your system's PATH to make the executable accessible. 
 Alternatively, use the full path to the executable. 
 If you prefer building from source, follow the instructions on the
 [GitHub](https://github.com/maniospas/Blombly) repository.
+You may also copy-paste one of the following installation commands.
 
-<br>
+<details><summary>Linux installation</summary>
+
+Copy and paste the following in your terminal. This downloads, unzips, and moves 
+all necessary files to <i>/usr/local/bin/</i>.
+Then run the executable without specifying a path, for example per <code>blombly main.bb</code>.
+
+```bash
+mkdir -p /tmp/blombly_unpack && \
+curl -L https://github.com/maniospas/Blombly/releases/download/v1.45.1/linux_release.tar.gz -o /tmp/blombly_unpack/linux_release.tar.gz && \
+tar --no-same-owner --no-same-permissions -xzf /tmp/blombly_unpack/linux_release.tar.gz -C /tmp/blombly_unpack && \
+sudo cp -r /tmp/blombly_unpack/libs /usr/local/bin/ && \
+sudo cp /tmp/blombly_unpack/blombly /usr/local/bin/ && \
+rm -rf /tmp/blombly_unpack
+```
+
+</details>
 
 For better development experience, use a Java keyword highlighter but not syntax checker. 
-VSCode is a good editor because it lets you ctrl+click on
+VSCode is an editor that works well with the compiler because it lets you ctrl+click on
 error messages to navigate through the code. A preliminary language server is also available as a VSCode extension
 in [this link](https://github.com/maniospas/Blombly/raw/refs/heads/main/blombly-lsp/blombly-lsp-0.0.1.vsix).
 Install *python3* and then the extension with the following instruction:
@@ -22,7 +38,7 @@ code --install-extension blombly-lsp-0.0.1.vsix
 
 ## Hello world!
 
-Create the following example file, where the *.bb* extension is associated with Blombly source code.
+To check that everything works, create the following example file. The *.bb* extension is associated with Blombly source code.
 Then run Blombly's interpreter followed by the file name.
 If a message starting with `( ERROR )` appears, everything runs properly but there was a syntax or logic issue.
 Syntax errors make the compiler halt, whereas logic errors occur at runtime. 
@@ -76,7 +92,7 @@ dependencies inside. Share them with others to run directly.
 <br>
 
 Those files are normally compressed with zlib, but you can save them in human
-readable form with the `--text` option; they can be executed normally regardless
+readable form with the `--text` option. They are executed normally regardless
 on whether they are compressed or or not.
 Below are example contents of such a file, where lines starting with `%` contain
 debugging info and can be ignored. The rest of the file contains space-separated 
@@ -103,6 +119,12 @@ print # _bb162
 > <span style="color: cyan;">./blombly</span> main.bbvm
 Hello world!
 </pre>
+
+!!! tip
+    If you specify no file name, *main.bb* is assumed. This lets you
+    deploy the blombly executable and the *libs/* directory
+    alongside that main file and have your users double-click 
+    on the executable to run your application.
 
 The virtual machine can be controlled in terms of some basic functionality that
 permeates its running behavior. Options presented here are immutable.
@@ -221,4 +243,22 @@ by adding them as console arguments enclosed in single quotes. An example follow
 > <span style="color: cyan;">./blombly</span> main.bb 'print("Hi from the terminal.");'
 Hello world!
 Hi from the terminal.
+</pre>
+
+## Terminal utility
+
+Blombly comes alongside several standard library implementation. This means
+that you can use it not only as a simple calculator but also as a terminal
+utility that grants direct access to those implementations.
+Just enclose code provided through the terminal in single quotes (`'`). For ease of use, if no semicolon is 
+found in code provided through command line arguments, that code is enclosed in
+a print statement. Here are some examples:
+
+<pre style="font-size: 80%;background-color: #333; color: #AAA; padding: 10px 20px;">
+> <span style="color: cyan;">./blombly</span> 'log(3)+1'
+2.098612
+> <span style="color: cyan;">./blombly</span> 'n=10; fmt(x)=>x[".3f"]; print(fmt(2.5^n))'
+9536.743
+> <span style="color: cyan;">./blombly</span> 'bb.string.md5("this is a string")'
+b37e16c620c055cf8207b999e3270e9b
 </pre>
