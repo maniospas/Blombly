@@ -51,7 +51,7 @@ extern bool vsync;
 extern double wallclock_start;
 
 
-std::string get_executable_directory(const std::string& argv0) {
+std::string get_executable_directory_simpler(const std::string& argv0) {
     #ifdef _WIN32
         size_t pos = argv0.find_last_of("\\");
     #else
@@ -59,6 +59,25 @@ std::string get_executable_directory(const std::string& argv0) {
     #endif
     if (pos != std::string::npos) return argv0.substr(0, pos);
     return ".";
+}
+
+std::string get_executable_directory(const std::string& argv0) {
+    char buffer[4096];
+
+#ifdef _WIN32
+    DWORD len = GetModuleFileNameA(NULL, buffer, sizeof(buffer));
+    if (len <= 0 || len >= sizeof(buffer)) get_executable_directory_simpler(argv0);
+    std::string path(buffer);
+    size_t pos = path.find_last_of('\\');
+#else
+    ssize_t len = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
+    if (len == -1) get_executable_directory_simpler(argv0);
+    buffer[len] = '\0';
+    std::string path(buffer);
+    size_t pos = path.find_last_of('/');
+#endif
+    if (pos != std::string::npos) return path.substr(0, pos);
+    return get_executable_directory_simpler(argv0);;
 }
 
 int main(int argc, char* argv[]) {

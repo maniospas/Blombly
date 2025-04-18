@@ -27,6 +27,21 @@ print("Hello !{name}."); // string interpolation with !{...}
 Run `./blombly main.bb`, where the executable and main files can be any path, and check that everything is working properly. 
 Do not move the executable without the packaged `libs/` directory and (in Windows) accompanying *.dll* libraries.
 
+
+## Optional: Add to path
+<details><summary>Linux</summary>
+
+```bash
+sudo mv blombly /usr/local/bin/
+sudo mv libs /usr/local/bin/
+```
+
+You can then run the executable from everywhere, for example per `blombly main.bb`.
+
+</details>
+
+
+
 ## Terminal scripts
 
 ```bash

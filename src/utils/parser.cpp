@@ -242,13 +242,15 @@ public:
         std::string expr;
         std::string prev;
         for (int i = start; i <= end; i++) {
-            if (!tokens[i].printable) 
-                continue;
+            if (!tokens[i].printable) continue;
             prev = tokens[i].name;
             expr += prev;
             if(i<tokens.size()-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
-                        && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
-                            && tokens[i].name!="."&& tokens[i].name!="!")
+                            && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
+                            && tokens[i+1].name!="."&& tokens[i].name!="."&& tokens[i].name!="!"
+                            && tokens[i].name!="<"&& tokens[i].name!=">"&& tokens[i].name!="-"&& tokens[i].name!="+" && tokens[i].name!="*"&& tokens[i].name!="/"&& tokens[i].name!="^"&& tokens[i].name!=">="&& tokens[i].name!="<="&& tokens[i].name!="=="
+                            && tokens[i+1].name!="<"&& tokens[i+1].name!=">"&& tokens[i+1].name!="-"&& tokens[i+1].name!="+" && tokens[i+1].name!="*"&& tokens[i+1].name!="/"&& tokens[i].name!="^"&& tokens[i+1].name!=">="&& tokens[i+1].name!="<="&& tokens[i+1].name!="=="
+                            && tokens[i+1].name!=";")
                 expr += " ";
         }
         return expr;
@@ -258,13 +260,15 @@ public:
         std::string expr;
         std::string prev;
         for (int i = start; i <= end; i++) {
-            if (!tokens[i].printable) 
-                continue;
+            if (!tokens[i].printable) continue;
             prev = tokens[i].name;
             expr += prev;
             if(i<tokens.size()-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
-                        && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
-                            && tokens[i].name!="."&& tokens[i].name!="!")
+                            && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
+                            && tokens[i+1].name!="."&& tokens[i].name!="."&& tokens[i].name!="!"
+                            && tokens[i].name!="<"&& tokens[i].name!=">"&& tokens[i].name!="-"&& tokens[i].name!="+" && tokens[i].name!="*"&& tokens[i].name!="/"&& tokens[i].name!="^"&& tokens[i].name!=">="&& tokens[i].name!="<="&& tokens[i].name!="=="
+                            && tokens[i+1].name!="<"&& tokens[i+1].name!=">"&& tokens[i+1].name!="-"&& tokens[i+1].name!="+" && tokens[i+1].name!="*"&& tokens[i+1].name!="/"&& tokens[i].name!="^"&& tokens[i+1].name!=">="&& tokens[i+1].name!="<="&& tokens[i+1].name!="=="
+                            && tokens[i+1].name!=";")
                 expr += " ";
         }
         return expr;
@@ -317,9 +321,10 @@ public:
                 expr += tokens[i].name;
                 if(i<tokens.size()-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
                             && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
-                                && tokens[i].name!="."&& tokens[i].name!="!"
+                                && tokens[i+1].name!="."&& tokens[i].name!="."&& tokens[i].name!="!"
                                 && tokens[i].name!="<"&& tokens[i].name!=">"&& tokens[i].name!="-"&& tokens[i].name!="+" && tokens[i].name!="*"&& tokens[i].name!="/"&& tokens[i].name!="^"&& tokens[i].name!=">="&& tokens[i].name!="<="&& tokens[i].name!="=="
                                 && tokens[i+1].name!="<"&& tokens[i+1].name!=">"&& tokens[i+1].name!="-"&& tokens[i+1].name!="+" && tokens[i+1].name!="*"&& tokens[i+1].name!="/"&& tokens[i].name!="^"&& tokens[i+1].name!=">="&& tokens[i+1].name!="<="&& tokens[i+1].name!="=="
+                                && tokens[i+1].name!=";"
                             )
                     expr += " ";
             }
@@ -329,9 +334,10 @@ public:
                 for(size_t k=0;k<tokens[i].name.size();++k) expr += "~";
                 if(i<tokens.size()-1 && tokens[i+1].name!="(" && tokens[i+1].name!=")" && tokens[i+1].name!="{" && tokens[i+1].name!="}"&& tokens[i+1].name!="[" && tokens[i+1].name!="]"
                             && tokens[i].name!="(" && tokens[i].name!=")" && tokens[i].name!="{" && tokens[i].name!="}"&& tokens[i].name!="[" && tokens[i].name!="]"
-                                && tokens[i].name!="."&& tokens[i].name!="!"
+                            && tokens[i+1].name!="."&& tokens[i].name!="."&& tokens[i].name!="!"
                                 && tokens[i].name!="<"&& tokens[i].name!=">"&& tokens[i].name!="-"&& tokens[i].name!="+" && tokens[i].name!="*"&& tokens[i].name!="/"&& tokens[i].name!="^"&& tokens[i].name!=">="&& tokens[i].name!="<="&& tokens[i].name!="=="
                                 && tokens[i+1].name!="<"&& tokens[i+1].name!=">"&& tokens[i+1].name!="-"&& tokens[i+1].name!="+" && tokens[i+1].name!="*"&& tokens[i+1].name!="/"&& tokens[i].name!="^"&& tokens[i+1].name!=">="&& tokens[i+1].name!="<="&& tokens[i+1].name!="=="
+                                && tokens[i+1].name!=";"
                             )
                     expr += "~";
             }
@@ -514,11 +520,8 @@ public:
                 if (tokens[start_if_body].name == "{") {
                     bbassertexplain(find_end(start_if_body + 1, body_end, "}", true) == body_end || tokens[body_end].name=="else", "Invalid syntax.", "There is leftover code after closing `}`.", show_position(body_end));
                     parse(start_if_body + 1, body_end - 1);
-                } else if (tokens[body_end].name == "else") {
-                    parse(start_if_body, body_end - 1);
-                } else {
-                    parse(start_if_body, body_end);
-                }
+                } else if (tokens[body_end].name == "else") {parse(start_if_body, body_end - 1);
+                } else {parse(start_if_body, body_end);}
                 if (first_name == "while")
                     ret += condition_text;
                 ret += "END\n";
@@ -1461,6 +1464,7 @@ public:
        return "";
     }
     void parse(int start, int end) {
+        breakpoint(start, end);
         int statement_start = start;
         //try {
             while (statement_start <= end) {
@@ -2281,16 +2285,11 @@ void macros(std::vector<Token>& tokens, const std::string& first_source) {
                 inputFile.open(execFilePath.string());
             }*/
 
-            if (!inputFile.is_open()) 
-                bberrorexplain("Unable to open file: " + source,
-                        "This issue makes it impossible to complete the include statement.",
-                        Parser::show_position(tokens, i));
+            if (!inputFile.is_open()) bberrorexplain("Unable to open file: " + source, "This issue makes it impossible to complete the include statement.", Parser::show_position(tokens, i));
 
             std::string code = "";
             std::string line;
-            while (std::getline(inputFile, line)) {
-                code += line + "\n";
-            }
+            while (std::getline(inputFile, line)) code += line + "\n";
             inputFile.close();
 
             std::vector<Token> newTokens = tokenize(code, source);
