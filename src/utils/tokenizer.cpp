@@ -187,7 +187,8 @@ std::vector<Token> tokenize(const std::string& text, const std::string& file, bo
         }
 
         if (inString) {
-            if (c == '\\' && i<text.size()-1 && (text[i+1]=='{' || text[i+1]=='}' || text[i+1]=='"')) {
+            if (c == '\\' && i<text.size()-1) {
+                wordStream << text[i];
                 wordStream << text[i+1];
                 i += 1;
                 continue;

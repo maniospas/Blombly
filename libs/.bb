@@ -46,4 +46,5 @@ final bb = new {
     !include "bb://libs/collections"
     !include "bb://libs/plot"
     !include "bb://libs/flat"
+    !include "bb://libs/json"
 }

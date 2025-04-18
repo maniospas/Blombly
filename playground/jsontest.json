@@ -1,0 +1,36 @@
+{
+  "name": "Stress Test",
+  "description": "A complex JSON object to stress test a parser.",
+  "nested": {
+    "level1": {
+      "level2": {
+        "level3": {
+          "level4": {
+            "value": "Deep nesting",
+            "array": [1, "two", true, null, {"inner": [0, 1, 2, {"deeper": "yes"}]}]
+          }
+        }
+      }
+    }
+  },
+  "numbers": {
+    "bigInt": 123456789012345678901234567890,
+    "float": 3.14159265358979323846,
+    "negative": -273.15,
+    "scientific": 6.022e23
+  },
+  "strings": {
+    "escaped": "Line1\\nLine2\\tTabbed\\\"Quote\\\"",
+    "unicode": "😀 Unicode is fun 🧪 "
+  },
+  "array_of_objects": [
+    {"id": 1, "valid": true},
+    {"id": 2, "valid": false},
+    {"id": 3, "data": [null, "end", 999999999999999]}
+  ],
+  "booleans_and_nulls": [true, false, null, true, null],
+  "huge_array": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+    40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50]
+  }
+  

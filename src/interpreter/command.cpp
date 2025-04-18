@@ -23,6 +23,8 @@
 #include "BMemory.h"
 #include "common.h"
 #include <string>
+#include <sstream>
+#include <iomanip>
 
 void replaceAll(std::string &str, const std::string &from, const std::string &to) {
     size_t start_pos = 0;
@@ -31,6 +33,72 @@ void replaceAll(std::string &str, const std::string &from, const std::string &to
         start_pos += to.length(); // Advance past the last replaced portion
     }
 }
+
+std::string unescapeString(const std::string& input) {
+    std::string output;
+    output.reserve(input.size()); // Reserve space for performance
+    for (size_t i = 0; i < input.size(); ++i) {
+        if (input[i] == '\\' && i + 1 < input.size()) {
+            char next = input[i + 1];
+            switch (next) {
+                case 'n': output += '\n'; ++i; break;
+                case 't': output += '\t'; ++i; break;
+                case 'r': output += '\r'; ++i; break;
+                case 'b': output += '\b'; ++i; break;
+                case 'f': output += '\f'; ++i; break;
+                case '\\': output += '\\'; ++i; break;
+                case '"': output += '\"'; ++i; break;
+                case 'e':
+                    if (i + 2 < input.size() && input[i + 2] == '[') {
+                        output += '\033'; // ANSI escape
+                        i += 2;
+                        while (i < input.size()) {
+                            output += input[i];
+                            if (input[i] == 'm') break;
+                            ++i;
+                        }
+                    } else {
+                        output += '\\';
+                        output += 'e';
+                        i += 1;
+                    }
+                    break;
+                case 'u':
+                if (i + 5 < input.size()) {
+                    std::string hex = input.substr(i + 2, 4);
+                    unsigned int code = 0;
+                    std::istringstream(hex) >> std::hex >> code;
+                    // UTF-8 encode (only BMP)
+                    if (code <= 0x7F) {
+                        output += static_cast<char>(code);
+                    } else if (code <= 0x7FF) {
+                        output += static_cast<char>(0xC0 | ((code >> 6) & 0x1F));
+                        output += static_cast<char>(0x80 | (code & 0x3F));
+                    } else {
+                        output += static_cast<char>(0xE0 | ((code >> 12) & 0x0F));
+                        output += static_cast<char>(0x80 | ((code >> 6) & 0x3F));
+                        output += static_cast<char>(0x80 | (code & 0x3F));
+                    }
+                    i += 5; // skip \uXXXX
+                } else {
+                    output += '\\';
+                    output += 'u';
+                    i += 1;
+                }
+                break;
+                default:
+                    output += '\\';
+                    output += next;
+                    ++i;
+                    break;
+            }
+        } else {
+            output += input[i];
+        }
+    }
+    return output;
+}
+
 
 // SourceFile constructor
 SourceFile::SourceFile(const std::string& path) : path(path) {}
@@ -57,9 +125,7 @@ Command::Command(const std::string& command, SourceFile* source_, int line_, Com
             break;
         }
         if (!inString && (command[pos] == ' ' || pos == command.size() - 1)) {
-            if (command[pos] != ' ') {
-                accumulate += command[pos];
-            }
+            if (command[pos] != ' ') accumulate += command[pos];
             argNames.push_back(accumulate);
             accumulate = "";
         } else {
@@ -78,10 +144,7 @@ Command::Command(const std::string& command, SourceFile* source_, int line_, Com
         bbassert(raw.size()>=1, "There is no second argument provided to the `BUILTIN`");
         if (raw[0] == '"') {
             raw = raw.substr(1, raw.size() - 2);
-            replaceAll(raw, "\\n", "\n");
-            //replaceAll(raw, "\\t", "\t");
-            //replaceAll(raw, "\\'", "'");
-            //replaceAll(raw, "\\\"", "\"");
+            raw = unescapeString(raw);
             value = new BString(raw);
         }
         else if (raw[0] == 'I') value = DataPtr((int64_t)std::atoi(raw.substr(1).c_str()));//new Integer(std::atoi(raw.substr(1).c_str()));}

@@ -1376,6 +1376,7 @@ public:
             if (call != MISSING && find_end(call + 1, end, ")", true) == end) {
                 if (call == start)  // if it's just a redundant parenthesis
                     return parse_expression(start + 1, end - 1);
+                //breakpoint(start, end);
                 std::string var = create_temp();
                 if (tokens[call + 1].name == "{")
                     bbassertexplain(find_end(call + 1, end, "}", true) != end - 1,  

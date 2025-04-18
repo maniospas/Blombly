@@ -71,7 +71,7 @@ std::string BHashMap::toString(BMemory* memory) {
     bool firstEntry = true;
     for (const auto& bucket : contents) for (const auto& kvPair : bucket.second) {
         if (!firstEntry) result += ", ";
-        result += kvPair.first->toString(memory) + ": " + kvPair.second->toString(memory);
+        result += (kvPair.first.exists()?kvPair.first->toString(memory):kvPair.first.torepr()) + ": " + (kvPair.second.exists()?kvPair.second->toString(memory):kvPair.second.torepr());
         firstEntry = false;
     }
     result += "}";

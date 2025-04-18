@@ -49,39 +49,6 @@ std::recursive_mutex compileMutex;
 BMemory cachedData(0, nullptr, 32);
 extern BError* OUT_OF_RANGE;
 
-std::string replaceEscapeSequences(const std::string& input) {
-    std::string output;
-    size_t pos = 0;
-    while (pos < input.size()) {
-        // Look for \e[ in the string
-        size_t found = input.find("\\e[", pos);
-        if (found != std::string::npos) {
-            // Copy everything up to the \e[
-            output.append(input, pos, found - pos);
-
-            // Replace \e with the ANSI escape code \033
-            output += '\033';
-
-            // Find the end of the ANSI sequence (looking for 'm')
-            size_t end = input.find('m', found);
-            if (end != std::string::npos) {
-                // Copy the rest of the ANSI sequence including 'm'
-                output.append(input, found + 2, end - found - 2 + 1);
-                pos = end + 1;
-            } else {
-                // If no 'm' is found, treat it as an incomplete sequence
-                output += input.substr(found + 2);
-                break;
-            }
-        } else {
-            // No more \e[ found, copy the rest of the string
-            output.append(input, pos, input.size() - pos);
-            break;
-        }
-    }
-    return output;
-}
-
 #define DISPATCH_LITERAL(expr) {int carg = command.args[0]; result=DataPtr(expr); if(carg!=variableManager.noneId) [[likely]] memory.unsafeSetLiteral(carg, result); continue;}
 #define DISPATCH_RESULT(expr) {int carg = command.args[0]; result=DataPtr(expr); if(carg!=variableManager.noneId) [[likely]] memory.set(carg, result); continue;}
 #define DISPATCH_OUTCOME(expr) {int carg = command.args[0]; Result res(expr); result=res.get(); if(carg!=variableManager.noneId) [[likely]] memory.set(carg, result); continue;}
@@ -591,7 +558,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         arg0 = memory.get(id1);
         if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
         std::string printing = arg0.exists()?arg0->toString(&memory):arg0.torepr();
-        printing = replaceEscapeSequences(printing);
+        printing = printing;
         printing += "\n";
         std::lock_guard<std::recursive_mutex> lock(printMutex);
         std::cout << printing;
@@ -1174,8 +1141,8 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
 
         if(command.operation!=RETURN)
         if(carg==variableManager.noneId) {
-            err += "\n \033[33m !!! \033[0mAt this point, the error is returned because it is not assigned to"
-                   "\n      a variable and would have been ignored otherwise.\033[0m";
+            //err += "\n \033[33m !!! \033[0mAt this point, the error is returned because it is not assigned to"
+            //       "\n      a variable and would have been ignored otherwise.\033[0m";
             BError* berror = new BError(std::move(err));
             //memory.consumeAllErrors();
             result = DataPtr(berror);
