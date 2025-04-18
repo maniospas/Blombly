@@ -50,6 +50,12 @@ extern void initialize_dispatch_table();
 extern bool vsync;
 extern double wallclock_start;
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+
 
 std::string get_executable_directory_simpler(const std::string& argv0) {
     #ifdef _WIN32
