@@ -1,3 +1,7 @@
+// Greek
+// Contributors: 
+//  - Emmanouil Krasanakis (maniospas)
+
 !macro{διάνυσμα::μηδενικών} as {vector::zero}
 !macro{διάνυσμα} as {vector}
 !macro{λίστα} as {list}
@@ -40,6 +44,8 @@
 !macro{!σύμβολο} as {!symbol}
 !macro{!προμεταγλώττιση} as {!comptime}
 !macro{αυτό} as {this}
+!macro{χρόνος} as {time}
+!macro{τυχαίος} as {random}
 
 // standard library
 !macro{!ονόματα} as {!namespace}
