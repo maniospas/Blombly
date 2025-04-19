@@ -3,6 +3,7 @@
 
 test("Errors")     {!include "tests/errors"}
 test("Default")    {!include "tests/default"}
+test("Strings")    {!include "tests/strings"}
 test("String add") {!include "tests/concat"}
 test("List")       {!include "tests/list"}
 test("Range")      {!include "tests/range"}

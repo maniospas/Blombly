@@ -42,6 +42,10 @@ public:
     bool toBool(BMemory *memory) override;
     Result iter(BMemory *memory) override;
     Result add(BMemory *memory, const DataPtr& other) override;
+    Result lt(BMemory* memory, const DataPtr& other) override;
+    Result le(BMemory* memory, const DataPtr& other) override;
+    Result gt(BMemory* memory, const DataPtr& other) override;
+    Result ge(BMemory* memory, const DataPtr& other) override;
 };
 
 #endif // BSTRING_H

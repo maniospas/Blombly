@@ -51,22 +51,44 @@ inline std::string calculateHash(const std::string& input, const EVP_MD* (*hash_
 BString::BString(const std::string& val) : Data(STRING), contents(val) {}
 BString::BString() : Data(STRING), contents("") {}
 size_t BString::toHash() const {return std::hash<std::string>{}(contents);}
-
-std::string BString::toString(BMemory* memory){
-    return contents;
-}
-
-std::string& BString::toString(){
-    return contents;
-}
+std::string BString::toString(BMemory* memory){return contents;}
+std::string& BString::toString(){return contents;}
 
 bool BString::isSame(const DataPtr& other) {
     if (other.existsAndTypeEquals(STRING)) return toString() == static_cast<BString*>(other.get())->toString();
     return false;
 }
 
-Result BString::eq(BMemory *memory, const DataPtr& other) {return RESMOVE(Result(isSame(other)));}
-Result BString::neq(BMemory *memory, const DataPtr& other) {return RESMOVE(Result(!isSame(other)));}
+Result BString::eq(BMemory* memory, const DataPtr& other) {
+    bbassert(other.existsAndTypeEquals(STRING), "Strings can only be compared to strings and not " + other.torepr());
+    return RESMOVE(Result(toString() == static_cast<BString*>(other.get())->toString()));
+}
+
+Result BString::neq(BMemory* memory, const DataPtr& other) {
+    bbassert(other.existsAndTypeEquals(STRING), "Strings can only be compared to strings and not " + other.torepr());
+    return RESMOVE(Result(toString() != static_cast<BString*>(other.get())->toString()));
+}
+
+Result BString::lt(BMemory* memory, const DataPtr& other) {
+    bbassert(other.existsAndTypeEquals(STRING), "Strings can only be compared to strings and not " + other.torepr());
+    return RESMOVE(Result(toString() < static_cast<BString*>(other.get())->toString()));
+}
+
+Result BString::le(BMemory* memory, const DataPtr& other) {
+    bbassert(other.existsAndTypeEquals(STRING), "Strings can only be compared to strings and not " + other.torepr());
+    return RESMOVE(Result(toString() <= static_cast<BString*>(other.get())->toString()));
+}
+
+Result BString::gt(BMemory* memory, const DataPtr& other) {
+    bbassert(other.existsAndTypeEquals(STRING), "Strings can only be compared to strings and not " + other.torepr());
+    return RESMOVE(Result(toString() > static_cast<BString*>(other.get())->toString()));
+}
+
+Result BString::ge(BMemory* memory, const DataPtr& other) {
+    bbassert(other.existsAndTypeEquals(STRING), "Strings can only be compared to strings and not " + other.torepr());
+    return RESMOVE(Result(toString() >= static_cast<BString*>(other.get())->toString()));
+}
+
 
 Result BString::at(BMemory *memory, const DataPtr& other) {
     if(other.isint()) {

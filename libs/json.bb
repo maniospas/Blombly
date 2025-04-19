@@ -1,6 +1,31 @@
 !with colors:
 final json = new {
     final NULL = new {str() => "NULL"}
+    final \validate(str arg) = {
+        if(arg[0]=="[") return arg;
+        if(arg[0]=="{") return arg;
+        if(arg[0]=="\"") return arg;
+        if(arg[0]=="-") return arg;
+        if(arg=="NULL") return "\""+arg+"\"";
+        if(arg[0]>="0" and arg[0]<="9") return arg;
+        fail("This value has not been converted to json: "+arg);
+    }
+    final list = {
+        first = args|next;
+        if(first|len==1) if(largs as first|list|iter) first = largs|next else largs = args;
+        ret = this\validate(first);
+        while(arg as largs|next) ret += ","+this\validate(arg);
+        return "["+ret+"]";
+    }
+    final map = {
+        first = args|next;
+        if(margs as first|map|iter) first = margs|next else margs = args;
+        final unpack(list arg) => "\""+str(arg[0])+"\": "+this\validate(arg[1]);
+        ret = unpack(first);
+        while(arg as margs|next) ret += ","+unpack(arg);
+        return "{"+ret+"}";
+    }
+    final string(str value) => "\""+value+"\"";
     final parse(text) = {
         final text |= str;
         final state = new{
@@ -19,7 +44,7 @@ final json = new {
             if(c=="{") return parse_object();
             if(c=="[") return parse_array();
             if(c=="-") return parse_number();
-            while(i in range(10)) if(c==i|str) return parse_number();
+            if(c>="0" and c<="9") return parse_number();
             fail("Unexpected character: \\!{c}");
         }
         final parse_object() = {
@@ -132,8 +157,9 @@ final json = new {
             }
         }
         final is_digit(c) = {
-            while(i in range(10)) if(i|str==c) return true;
-            return false;
+            if(c<"0") return false;
+            if(c>"9") return false;
+            return true;
         }
         final match(query) = {
             n = len(query);

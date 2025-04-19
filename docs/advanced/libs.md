@@ -129,6 +129,31 @@ declared in the main program create an error and ask to be added.
 bb.os.transfer("libs/download/html.bb", "https://raw.githubusercontent.com/maniospas/Blombly/refs/heads/main/libs/html.bb");
 ```
 
+## bb.json
+
+Provides interfaces to convert to and from JSON respresentations. 
+Parse strings into lists, maps, and other primitive types
+like so:
+
+```java
+a = bb.os.read("test.json"); 
+obj = bb.json.parse(a);
+print(obj);
+```
+
+There are also helper methods for constructing JSON objects. 
+Convert lists, maps, and strings to their appropriate counterparts as follows.
+Other data are converted to strings through the `str()` function.
+There is a lightweight sanity check that helps identify most missing conversions.
+
+```java
+obj = bb.json.list(
+    bb.json.map(("A", 2), ("B", "test"|bb.json.string)),
+    bb.json.NULL
+);
+print(obj); // [{"A": 2,"B": "test"},"NULL"]
+```
+
 ## bb.sci
 
 Provides a small data science package with plotting functionality over vectors.
