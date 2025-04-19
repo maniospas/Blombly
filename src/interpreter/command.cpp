@@ -34,71 +34,7 @@ void replaceAll(std::string &str, const std::string &from, const std::string &to
     }
 }
 
-std::string unescapeString(const std::string& input) {
-    std::string output;
-    output.reserve(input.size()); // Reserve space for performance
-    for (size_t i = 0; i < input.size(); ++i) {
-        if (input[i] == '\\' && i + 1 < input.size()) {
-            char next = input[i + 1];
-            switch (next) {
-                case 'n': output += '\n'; ++i; break;
-                case 't': output += '\t'; ++i; break;
-                case 'r': output += '\r'; ++i; break;
-                case 'b': output += '\b'; ++i; break;
-                case 'f': output += '\f'; ++i; break;
-                case '\\': output += '\\'; ++i; break;
-                case '"': output += '\"'; ++i; break;
-                case 'e':
-                    if (i + 2 < input.size() && input[i + 2] == '[') {
-                        output += '\033'; // ANSI escape
-                        i += 2;
-                        while (i < input.size()) {
-                            output += input[i];
-                            if (input[i] == 'm') break;
-                            ++i;
-                        }
-                    } else {
-                        output += '\\';
-                        output += 'e';
-                        i += 1;
-                    }
-                    break;
-                case 'u':
-                if (i + 5 < input.size()) {
-                    std::string hex = input.substr(i + 2, 4);
-                    unsigned int code = 0;
-                    std::istringstream(hex) >> std::hex >> code;
-                    // UTF-8 encode (only BMP)
-                    if (code <= 0x7F) {
-                        output += static_cast<char>(code);
-                    } else if (code <= 0x7FF) {
-                        output += static_cast<char>(0xC0 | ((code >> 6) & 0x1F));
-                        output += static_cast<char>(0x80 | (code & 0x3F));
-                    } else {
-                        output += static_cast<char>(0xE0 | ((code >> 12) & 0x0F));
-                        output += static_cast<char>(0x80 | ((code >> 6) & 0x3F));
-                        output += static_cast<char>(0x80 | (code & 0x3F));
-                    }
-                    i += 5; // skip \uXXXX
-                } else {
-                    output += '\\';
-                    output += 'u';
-                    i += 1;
-                }
-                break;
-                default:
-                    output += '\\';
-                    output += next;
-                    ++i;
-                    break;
-            }
-        } else {
-            output += input[i];
-        }
-    }
-    return output;
-}
-
+extern std::string toUnicodeAndAnsi(const std::string& input);
 
 // SourceFile constructor
 SourceFile::SourceFile(const std::string& path) : path(path) {}
@@ -107,7 +43,7 @@ SourceFile::SourceFile(const std::string& path) : path(path) {}
 CommandContext::CommandContext(const std::string& source) : source(source) {}
 
 // Command constructor
-Command::Command(const std::string& command, SourceFile* source_, int line_, CommandContext* descriptor_) 
+Command::Command(const std::string& command, const std::shared_ptr<SourceFile>& source_, int line_, const std::shared_ptr<CommandContext>& descriptor_) 
     : source((source_)), line(line_), descriptor((descriptor_)), value(DataPtr::NULLP) {
     args.reserve(4); // small object optimization (also multiple of 2 for good alignment
     std::vector<std::string> argNames;
@@ -117,20 +53,18 @@ Command::Command(const std::string& command, SourceFile* source_, int line_, Com
     bool inString = false;
     while (pos < command.size()) {
         // strings can only be the last arguments of builtin types
-        if(command[pos]=='"' && !inString)
-            inString = !inString;
+        if(command[pos]=='"' && !inString) inString = !inString;
         if(inString && pos==command.size()-1) {
             accumulate += command[pos];
             argNames.push_back(accumulate);
             break;
         }
-        if (!inString && (command[pos] == ' ' || pos == command.size() - 1)) {
-            if (command[pos] != ' ') accumulate += command[pos];
+        if(!inString && (command[pos] == ' ' || pos == command.size() - 1)) {
+            if(command[pos] != ' ') accumulate += command[pos];
             argNames.push_back(accumulate);
             accumulate = "";
-        } else {
-            accumulate += command[pos];
-        }
+        } 
+        else accumulate += command[pos];
         pos += 1;
     }
 
@@ -144,14 +78,14 @@ Command::Command(const std::string& command, SourceFile* source_, int line_, Com
         bbassert(raw.size()>=1, "There is no second argument provided to the `BUILTIN`");
         if (raw[0] == '"') {
             raw = raw.substr(1, raw.size() - 2);
-            raw = unescapeString(raw);
+            raw = toUnicodeAndAnsi(raw);
             value = new BString(raw);
         }
         else if (raw[0] == 'I') value = DataPtr((int64_t)std::atoi(raw.substr(1).c_str()));//new Integer(std::atoi(raw.substr(1).c_str()));}
         else if (raw[0] == 'F') value = DataPtr((double)std::atof(raw.substr(1).c_str()));//new BFloat(std::atof(raw.substr(1).c_str()));
         else if (raw[0] == 'B') value = DataPtr((raw == "Btrue")?true:false);//(raw == "Btrue")?Boolean::valueTrue:Boolean::valueFalse;
         else bberror("Unable to understand builtin value prefix (should be one of I,F,B,\"): " + raw);
-        if(value.exists()) value->addOwner();
+        value.existsAddOwner();
     }
 
     // Initialize args and knownLocal vectors
@@ -161,12 +95,13 @@ Command::Command(const std::string& command, SourceFile* source_, int line_, Com
         //knownLocal.push_back(argNames[i + 1].size()>=3 && argNames[i + 1].substr(0, 3) == "_bb" && (argNames[i + 1].size()<=8 || argNames[i + 1].substr(0, 8) != "_bbmacro"));
         args.push_back(variableManager.getId(argNames[i + 1]));
     }
-
-    bbassert(args.size() == 0 || args[0] != variableManager.thisId || argNames[0] == "set" || argNames[0] == "setfinal" || argNames[0] == "get" || argNames[0] == "return",
+    bbassert(args.size() == 0 || argNames.size() == 0 || args[0] != variableManager.thisId || argNames[0] == "set" || argNames[0] == "setfinal" || argNames[0] == "get" || argNames[0] == "return",
         "Cannot assign to `this`."
         "\n    Encountered for operation: " + argNames[0] +
         "\n    This error appears only when you use `this` as a method argument or for invalid hand-written .bbvm files.");
 }
+
+Command::~Command() {}
 
 std::string Command::toString() const {
     std::string ret = getOperationTypeName(operation);

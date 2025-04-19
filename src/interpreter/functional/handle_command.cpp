@@ -89,7 +89,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
 
     //Use labels-as-values on non-MSVC (the latter does not support dynamic dispatch)
     #ifndef _MSC_VER
-    static void* dispatch_table[] = {
+    static const void* dispatch_table[] = {
         &&DO_NOT,
         &&DO_AND,
         &&DO_OR,
@@ -622,6 +622,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         }
         result = cachedData.getOrNullShallow(command.args[1]);
         command.value = result.get();
+        command.value.existsAddOwner();
         bbassertexplain(result.islitorexists(), "Missing cache value:" + variableManager.getSymbol(command.args[1]), "Cache values are created by blombly's optimization. This message can appear only due to an internal error.", "");
         DISPATCH_COMPUTED_RESULT;
     }
@@ -835,10 +836,9 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
         arg0 = memory.get(id1);
         if(arg0.existsAndTypeEquals(LIST)) DISPATCH_RESULT(arg0);
         if(arg0.existsAndTypeEquals(ERRORTYPE)) throw BBError(static_cast<BError*>(arg0.get())->consume()->toString(nullptr));
-        
         // TODO: maybe it's not a good idea to allow this kind of typecasting
         auto list = new BList(1);
-        if(arg0.exists()) arg0->addOwner();
+        arg0.existsAddOwner();
         list->contents.push_back(arg0);
         DISPATCH_RESULT(list);
 
@@ -1130,7 +1130,7 @@ ExecutionInstanceRunReturn ExecutionInstance::run(const std::vector<Command>& pr
     }//end try 
     catch (const BBError& e) {
         std::string err = enrichErrorDescription(program[i], e.what());
-        int carg = command.args[0]; 
+        int carg = command.args.size()?command.args[0]:variableManager.noneId; 
         if(command.operation==IS) {
             BError* berror = new BError(std::move(err));
             //memory.consumeAllErrors();

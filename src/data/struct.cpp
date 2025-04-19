@@ -152,7 +152,7 @@ void Struct::releaseMemory() {
     std::lock_guard<std::recursive_mutex> lock(memoryLock);
     std::string destroyerr;
     for(const auto& dat_ : data) {
-        auto& dat = dat_.second;
+        auto dat = dat_.second;
         try {
            dat.existsRemoveFromOwner();
         }

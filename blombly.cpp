@@ -38,6 +38,7 @@
 // cmake -B ./build
 // FOR LOCAL ENV:  cmake -G "MinGW Makefiles" -B ./build -S . -DCMAKE_BUILD_TYPE=Release
 // cmake --build ./build --config Release --parallel 8
+// -fstack-protector-strong -fsanitize=address,undefined
 
 std::string blombly_executable_path;
 extern std::string top_level_file;

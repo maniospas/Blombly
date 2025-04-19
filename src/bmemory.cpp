@@ -80,32 +80,17 @@ void BMemory::release() {
     //for(const auto& dat : contents) {
     for(unsigned int i=0;i<cache_size;++i) {
         auto& dat = cache[i];
-        try {
-            /*if(dat.exists()) {
-                Data* data = dat.get();
-                if(data->getType()==(ERRORTYPE) && !static_cast<BError*>(data)->isConsumed()) destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:\n"+data->toString(this)+"\n";
-                dat->removeFromOwner();
-            }*/
-           dat.existsRemoveFromOwner();
-        }
+        try {dat.existsRemoveFromOwner();}
         catch(const BBError& e) {destroyerr += std::string(e.what())+"\n";}
-        dat = DataPtr::NULLP;
     }
-    for(const auto& dat_ : data) {
-        auto& dat = dat_.second;
-        try {
-            /*if(dat.exists()) {
-                Data* data = dat.get();
-                if(data->getType()==(ERRORTYPE) && !static_cast<BError*>(data)->isConsumed()) destroyerr += "\033[0m(\x1B[31m ERROR \033[0m) The following error was caught but never handled:\n"+data->toString(this)+"\n";
-                dat->removeFromOwner();
-            }*/
-           dat.existsRemoveFromOwner();
-        }
+    for(auto& dat_ : data) {
+        auto dat = dat_.second;
+        try {dat.existsRemoveFromOwner();}
         catch(const BBError& e) {destroyerr += std::string(e.what())+"\n";}
     }
     data.clear();
-    if(cache_size) delete cache;
     cache_size = 0;
+    if(cache_size) delete[] cache;
     if(destroyerr.size()) throw BBError(destroyerr.substr(0, destroyerr.size()-1));
 }
 

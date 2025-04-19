@@ -1,24 +1,3 @@
-!namespace colors {
-    !var black;
-    !var red;
-    !var green;
-    !var yellow;
-    !var blue;
-    !var purple;
-    !var cyan;
-    !var white;
-    !var lightblack;
-    !var lightred;
-    !var lightgreen;
-    !var lightyellow;
-    !var lightblue;
-    !var lightpurple;
-    !var lightcyan;
-    !var lightwhite;
-    !var reset;
-}
-
-!with colors:
 ansi = new {
     final black = "\e[0;30m";
     final red = "\e[0;31m";
@@ -37,4 +16,6 @@ ansi = new {
     final lightcyan = "\e[0;96m";
     final lightwhite = "\e[0;97m";
     final reset = "\e[0m";
+    final clear_screen = "\e[2J\e[H"; // also moves the cursor to the top-left
+    final clear_last = "\e[1A\e[K"; // clears last line
 }

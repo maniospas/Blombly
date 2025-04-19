@@ -30,6 +30,7 @@ private:
     std::string& toString();
 public:
     explicit BString(const std::string& val);
+    ~BString();
     bool isSame(const DataPtr& other) override;
     Result eq(BMemory *memory, const DataPtr& other) override;
     Result neq(BMemory *memory, const DataPtr& other) override;

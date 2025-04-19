@@ -110,7 +110,7 @@ Result BList::push(BMemory* memory, const DataPtr& other) {
 Result BList::pop(BMemory* memory) {
     // std::lock_guard<std::recursive_mutex> lock(memoryLock);
     if (contents.empty()) return RESMOVE(Result(OUT_OF_RANGE));
-    const auto& element = contents.back();
+    auto& element = contents.back();
     auto ret = Result(element);
     contents.pop_back();
     element.existsRemoveFromOwner();
@@ -120,7 +120,7 @@ Result BList::pop(BMemory* memory) {
 Result BList::next(BMemory* memory) {
     // std::lock_guard<std::recursive_mutex> lock(memoryLock);
     if (front >= contents.size()) return RESMOVE(Result(OUT_OF_RANGE));
-    const auto& element = contents[front];
+    auto& element = contents[front];
     auto ret = Result(element);
     front++;
     resizeContents();

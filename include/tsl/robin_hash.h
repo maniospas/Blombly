@@ -39,6 +39,7 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+#include <deque>
 
 #include "robin_growth_policy.h"
 

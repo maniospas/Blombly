@@ -21,6 +21,7 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 #include "tsl/hopscotch_map.h"
 #include "data/Data.h"
 #include "data/List.h"

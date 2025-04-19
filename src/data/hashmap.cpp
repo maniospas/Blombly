@@ -26,6 +26,7 @@
 #include <memory>
 #include <mutex>
 #include <vector>
+#include <deque>
 
 extern BError* OUT_OF_RANGE;
 

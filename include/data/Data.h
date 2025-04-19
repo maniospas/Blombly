@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <vector>
+#include <deque>
 #include <string>
 #include <iostream>
 #include <atomic>
@@ -105,11 +106,16 @@ bool DataPtr::existsAndTypeEquals(Datatype type) const {
 void DataPtr::existsAddOwner() const {
     if(datatype & IS_NOT_PTR) return;
     if(data) std::bit_cast<Data*>(data)->addOwner();
+    //std::cout << "Adding: "<<get()->toString(nullptr)<<"\n";
 }
 
-void DataPtr::existsRemoveFromOwner() const {
+void DataPtr::existsRemoveFromOwner() {
     if(datatype & IS_NOT_PTR) return;
-    if(data) std::bit_cast<Data*>(data)->removeFromOwner();
+    if(data) {
+        //std::cout << "Removing: "<<get()->toString(nullptr)<<"\n";
+        std::bit_cast<Data*>(data)->removeFromOwner();
+        data = 0;
+    }
 }
 
 bool DataPtr::isSame(const DataPtr& other) const {

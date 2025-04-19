@@ -41,11 +41,12 @@ public:
     std::vector<int> args;
     int nargs;
     mutable DataPtr value;
-    SourceFile* source;
     int line;
-    CommandContext* descriptor;
+    std::shared_ptr<SourceFile> source;
+    std::shared_ptr<CommandContext> descriptor;
 
-    Command(const std::string& command, SourceFile* source, int line, CommandContext* descriptor);
+    Command(const std::string& command, const std::shared_ptr<SourceFile>& source, int line, const std::shared_ptr<CommandContext>& descriptor);
+    ~Command();
     std::string toString() const;
     std::string tocpp(bool first_assignment) const;
 };

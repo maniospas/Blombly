@@ -27,6 +27,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <deque>
 #include <openssl/evp.h>
 
 extern BError* OUT_OF_RANGE;
@@ -34,7 +35,7 @@ extern BError* OUT_OF_RANGE;
 inline std::string calculateHash(const std::string& input, const EVP_MD* (*hash_function)()) {
     EVP_MD_CTX* context = EVP_MD_CTX_new();
     bbassert(context, "OpenSSL error: Failed to create EVP_MD_CTX");
-    unsigned char hash_result[EVP_MAX_MD_SIZE];
+    uint8_t hash_result[EVP_MAX_MD_SIZE];
     unsigned int hash_length = 0;
     if (EVP_DigestInit_ex(context, hash_function(), nullptr) != 1 ||
         EVP_DigestUpdate(context, input.c_str(), input.size()) != 1 ||
@@ -54,6 +55,7 @@ BString::BString() : Data(STRING), contents("") {}
 size_t BString::toHash() const {return std::hash<std::string>{}(contents);}
 std::string BString::toString(BMemory* memory){return contents;}
 std::string& BString::toString(){return contents;}
+BString::~BString() {}
 
 bool BString::isSame(const DataPtr& other) {
     if (other.existsAndTypeEquals(STRING)) return toString() == static_cast<BString*>(other.get())->toString();
@@ -93,7 +95,7 @@ Result BString::ge(BMemory* memory, const DataPtr& other) {
 
 uint32_t decodeUTF8(const std::string& input, size_t& i) {
     if (i >= input.size()) bberror("Unexpected end of input when decoding UTF-8");
-    unsigned char ch = input[i];
+    uint8_t ch = input[i];
     uint32_t codepoint = 0;
     size_t extra = 0;
     if (ch <= 0x7F) {codepoint = ch;extra = 0;} 
@@ -104,7 +106,7 @@ uint32_t decodeUTF8(const std::string& input, size_t& i) {
     if (i + extra >= input.size()) bberror("Truncated UTF-8 sequence at position " + std::to_string(i));
     for (size_t j = 0; j < extra; ++j) {
         ++i;
-        unsigned char next = input[i];
+        uint8_t next = input[i];
         if ((next & 0xC0) != 0x80) bberror("Invalid UTF-8 continuation byte at position " + std::to_string(i));
         codepoint = (codepoint << 6) | (next & 0x3F);
     }
@@ -122,7 +124,7 @@ std::string fromUnicodeAndAnsi(const std::string& input) {
     std::ostringstream oss;
     size_t i = 0;
     while (i < input.size()) {
-        unsigned char ch = input[i];
+        uint8_t ch = input[i];
         if (ch == 0x1B) {  oss << "\\e"; ++i;} 
         else if (ch == '\n') { oss << "\\n";++i;} 
         else if (ch == '\r') { oss << "\\r";++i;} 
@@ -198,7 +200,7 @@ std::string fromUnicode(const std::string& input) {
     std::ostringstream oss;
     size_t i = 0;
     while (i < input.size()) {
-        unsigned char ch = input[i];
+        uint8_t ch = input[i];
         if (ch <= 0x7F) {oss << ch; ++i;} 
         else {
             uint32_t codepoint = decodeUTF8(input, i);
@@ -229,16 +231,18 @@ std::string toUnicodeAndAnsi(const std::string& input) {
                     if (i + 2 < input.size() && input[i + 2] == '[') {
                         output += '\033'; // ANSI escape
                         i += 2;
+                        bool valid = false;
                         while (i < input.size()) {
                             output += input[i];
-                            if (input[i] == 'm') break;
+                            if (input[i] == 'm' || input[i] == 'K' || input[i] == 'J' || input[i] == 'H' || input[i] == 'A') {
+                                valid = true;
+                                break;
+                            }
                             ++i;
                         }
-                    } else {
-                        output += '\\';
-                        output += 'e';
-                        i += 1;
+                        if (!valid) bberror("Invalid or unsafe ANSI escape sequence");
                     }
+                    else bberror("Invalid or unsafe ANSI sequence: expected '\\e['");
                     break;
                 case 'u':
                 if (i + 5 < input.size()) {
@@ -264,6 +268,7 @@ std::string toUnicodeAndAnsi(const std::string& input) {
                 }
                 break;
                 default:
+                    bberror("Invalid escape sequence: \\"+next);
                     output += '\\';
                     output += next;
                     ++i;
@@ -277,11 +282,11 @@ std::string toUnicodeAndAnsi(const std::string& input) {
 }
 
 std::string toBase64(const std::string& binary_input) {
-    size_t encoded_len = 4 * ((binary_input.size() + 2) / 3);
+    size_t encoded_len = 4 * ((binary_input.size() + 2) / 3) + 1;
     std::string encoded(encoded_len, '\0');
     int len = EVP_EncodeBlock(
-        reinterpret_cast<unsigned char*>(&encoded[0]),
-        reinterpret_cast<const unsigned char*>(binary_input.data()),
+        reinterpret_cast<uint8_t*>(&encoded[0]),
+        reinterpret_cast<const uint8_t*>(binary_input.data()),
         static_cast<int>(binary_input.size())
     );
     bbassert(len >= 0, "Base64 encoding failed");
@@ -290,22 +295,23 @@ std::string toBase64(const std::string& binary_input) {
 }
 
 std::string fromBase64(const std::string& base64_input) {
-    size_t max_decoded_len = base64_input.length() * 3 / 4;
-    std::string decoded(max_decoded_len + 1, '\0'); 
+    if (base64_input.length() % 4 != 0) bberror("Invalid Base64: it should always be a multiple of 4 bytes");
+    size_t max_decoded_len = (base64_input.length() / 4)*3;
+    std::string decoded(max_decoded_len, '\0'); 
     int len = EVP_DecodeBlock(
-        reinterpret_cast<unsigned char*>(&decoded[0]),
-        reinterpret_cast<const unsigned char*>(base64_input.c_str()),
+        reinterpret_cast<uint8_t*>(&decoded[0]),
+        reinterpret_cast<const uint8_t*>(base64_input.c_str()),
         static_cast<int>(base64_input.length())
     );
-    if (len < 0) throw std::runtime_error("Invalid Base64 provided");
+    if (len < 0) bberror("Invalid Base64: decoding error");
     size_t padding = 0;
     while (padding < base64_input.size() && base64_input[base64_input.size() - 1 - padding] == '=') ++padding;
     size_t first_pad = base64_input.find('=');
     if (first_pad != std::string::npos && first_pad < base64_input.size() - padding) bberror("Invalid Base64 provided - padding found in invalid position");
+    if (static_cast<size_t>(len) < padding) bberror("Invalid Base64: decoded length smaller than padding");
     decoded.resize(len - padding); 
     return decoded;
 }
-
 
 
 Result BString::at(BMemory *memory, const DataPtr& other) {

@@ -1,4 +1,3 @@
-!with colors:
 final json = new {
     final NULL = new {str() => "NULL"}
     final \validate(str arg) = {

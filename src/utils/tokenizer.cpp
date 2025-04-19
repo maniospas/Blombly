@@ -22,6 +22,7 @@
 #include <unordered_set>
 #include <map>
 #include <vector>
+#include <deque>
 #include <sstream>
 #include "utils.h"
 #include "common.h"

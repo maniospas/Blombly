@@ -19,6 +19,7 @@
 #include "BMemory.h"
 #include "data/Jitable.h"
 #include <vector>
+#include <deque>
 #include <mutex>
 
 extern std::vector<SymbolWorries> symbolUsage;

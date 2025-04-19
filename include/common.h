@@ -19,6 +19,7 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 #include <memory>
 #include <iostream>
 #include <cstring>
@@ -235,7 +236,7 @@ public:
 
     inline bool existsAndTypeEquals(Datatype type) const;
     inline void existsAddOwner() const;
-    inline void existsRemoveFromOwner() const;
+    inline void existsRemoveFromOwner();
     inline bool isSame(const DataPtr& other) const;
     inline std::string torepr() const;
 

@@ -40,6 +40,7 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+#include <deque>
 
 #include "hopscotch_growth_policy.h"
 

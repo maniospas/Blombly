@@ -22,6 +22,7 @@
 #include <string>
 #include <stack>
 #include <vector>
+#include <deque>
 #include <iostream>
 #include <atomic>
 #include "data/Data.h"

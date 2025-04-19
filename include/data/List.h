@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <vector>
+#include <deque>
 #include <mutex>
 #include "data/Data.h"
 

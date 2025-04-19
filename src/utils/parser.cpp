@@ -22,6 +22,7 @@
 #include <unordered_map>
 #include <map>
 #include <vector>
+#include <deque>
 #include <stack> 
 #include <filesystem>
 #include <iostream>
@@ -84,27 +85,26 @@ std::string singleThreadedVMForComptime(const std::string& code, const std::stri
     std::string result;
     bool hadError = false;
     try {
+        std::vector<Command> program;
         {
             BMemory memory(0, nullptr, DEFAULT_LOCAL_EXPECTATION);
             try {
-                auto program = new std::vector<Command>();
-                auto source = new SourceFile(fileName);
+                auto source = std::make_shared<SourceFile>(fileName);
                 std::string line;
                 int i = 1;
                 
-                CommandContext* descriptor = nullptr;
+                std::shared_ptr<CommandContext> descriptor = nullptr;
                 std::istringstream inputStream(code);
                 while (std::getline(inputStream, line)) {
-                    if (line[0] != '%') program->emplace_back(line, source, i, descriptor);
-                    else descriptor = new CommandContext(line.substr(1));
+                    if (line[0] != '%') program.emplace_back(line, source, i, descriptor);
+                    else descriptor = std::make_shared<CommandContext>(line.substr(1));
                     ++i;
                 }
-                preliminarySimpleChecks(program);
+                preliminarySimpleChecks(&program);
 
-                auto code = new Code(program, 0, program->size() - 1, program->size() - 1);
-
-                ExecutionInstance executor(0, code, &memory, true);
-                auto returnedValue = executor.run(code);
+                Code code(&program, 0, program.size() - 1, program.size() - 1);
+                ExecutionInstance executor(0, &code, &memory, true);
+                auto returnedValue = executor.run(&code);
                 DataPtr ret = returnedValue.get();
                 if (ret.existsAndTypeEquals(FUTURE)) {
                     auto res2 = static_cast<Future*>(ret.get())->getResult();

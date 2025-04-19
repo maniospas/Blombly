@@ -20,6 +20,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <deque>
 #include <unordered_map>
 #include <stack>
 #include <map>

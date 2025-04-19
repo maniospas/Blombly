@@ -107,7 +107,7 @@ void preliminaryDependencies(std::vector<Command>* program) {
         }
         else {
             const Command& command = (*program)[i];
-            if(command.operation!=BEGIN && command.operation!=BEGINFINAL && command.operation!=BEGINCACHE) continue;
+            if(command.operation!=BEGIN && command.operation!=BEGINFINAL) continue;
             commandSymbolGroup = mergedSymbols.find(command.args[0])==mergedSymbols.end()?command.args[0]:mergedSymbols[command.args[0]];
         }
         // find end of code block while checking symbols inside
@@ -172,35 +172,35 @@ void preliminaryDependencies(std::vector<Command>* program) {
                 if(command_type == CALL) {
                     fullyControlledVariables.clear();
                     if(mergedSymbols.find(variableManager.callId)!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[variableManager.callId]);
+                    if(mergedSymbols.find(codeCommand.args[1])!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[codeCommand.args[1]]);
+                    else calls[commandSymbolGroup].insert(codeCommand.args[1]);
                     if(mergedSymbols.find(codeCommand.args[2])!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[codeCommand.args[2]]);
                     else calls[commandSymbolGroup].insert(codeCommand.args[2]);
-                    if(mergedSymbols.find(codeCommand.args[3])!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[codeCommand.args[3]]);
-                    else calls[commandSymbolGroup].insert(codeCommand.args[3]);
                     continue;
                 }
                 if(command_type == WHILE) {
-                    if(mergedSymbols.find(codeCommand.args[2])!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[codeCommand.args[2]]);
-                    else calls[commandSymbolGroup].insert(codeCommand.args[2]);
                     if(mergedSymbols.find(codeCommand.args[1])!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[codeCommand.args[1]]);
                     else calls[commandSymbolGroup].insert(codeCommand.args[1]);
+                    if(mergedSymbols.find(codeCommand.args[0])!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[codeCommand.args[0]]);
+                    else calls[commandSymbolGroup].insert(codeCommand.args[0]);
                     continue;
                 }
                 if(command_type == IF) {
-                    if(mergedSymbols.find(codeCommand.args[3])!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[codeCommand.args[3]]);
-                    else calls[commandSymbolGroup].insert(codeCommand.args[3]);
                     if(mergedSymbols.find(codeCommand.args[2])!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[codeCommand.args[2]]);
                     else calls[commandSymbolGroup].insert(codeCommand.args[2]);
                     if(mergedSymbols.find(codeCommand.args[1])!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[codeCommand.args[1]]);
                     else calls[commandSymbolGroup].insert(codeCommand.args[1]);
+                    if(mergedSymbols.find(codeCommand.args[0])!=mergedSymbols.end()) uses[commandSymbolGroup].insert(mergedSymbols[codeCommand.args[0]]);
+                    else uses[commandSymbolGroup].insert(codeCommand.args[0]);
                     continue;
                 }
                 if(command_type == CATCH) {
-                    if(mergedSymbols.find(codeCommand.args[3])!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[codeCommand.args[3]]);
-                    else calls[commandSymbolGroup].insert(codeCommand.args[3]);
                     if(mergedSymbols.find(codeCommand.args[2])!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[codeCommand.args[2]]);
                     else calls[commandSymbolGroup].insert(codeCommand.args[2]);
                     if(mergedSymbols.find(codeCommand.args[1])!=mergedSymbols.end()) calls[commandSymbolGroup].insert(mergedSymbols[codeCommand.args[1]]);
                     else calls[commandSymbolGroup].insert(codeCommand.args[1]);
+                    if(mergedSymbols.find(codeCommand.args[0])!=mergedSymbols.end()) uses[commandSymbolGroup].insert(mergedSymbols[codeCommand.args[0]]);
+                    else uses[commandSymbolGroup].insert(codeCommand.args[0]);
                     continue;
                 }
                 //if(command_type == CALL) calls[commandSymbolGroup].insert(variableManager.structCall);
@@ -529,7 +529,7 @@ void preliminaryDependencies(std::vector<Command>* program) {
     // allocate to compiled blocks their group's affect and input symbols
     for(int i=0;i<programSize;++i) {
         const Command& command = (*program)[i];
-        if(command.operation!=BEGIN && command.operation!=BEGINFINAL && command.operation!=BEGINCACHE) continue;
+        if(command.operation!=BEGIN && command.operation!=BEGINFINAL) continue;
         int commandSymbolGroup = mergedSymbols.find(command.args[0])==mergedSymbols.end()?command.args[0]:mergedSymbols[command.args[0]];
         Code* cache = static_cast<Code*>(command.value.get());
         cache->requestAccess.reserve(uses[commandSymbolGroup].size());
@@ -548,7 +548,7 @@ void preliminaryDependencies(std::vector<Command>* program) {
     // schedule for paralell execution everything that does not use modifiable struct fields and itself does not modify said fields
     for(int i=0;i<programSize;++i) {
         Command& command = (*program)[i];
-        if(command.operation!=BEGIN && command.operation!=BEGINFINAL && command.operation!=BEGINCACHE) continue;
+        if(command.operation!=BEGIN && command.operation!=BEGINFINAL) continue;
         int commandSymbolGroup = mergedSymbols.find(command.args[0])==mergedSymbols.end()?command.args[0]:mergedSymbols[command.args[0]];
         Code* cache = static_cast<Code*>(command.value.get());
         bool usesAffected(false);
@@ -662,7 +662,6 @@ void preliminarySimpleChecks(std::vector<Command>* program) {
     }
     if(depth) bberrorexplain("Unexpected end of bbvm file", "There are "+std::to_string(depth)+" missing `END` instructions. These should have been placed throughout the file. If this file was a compilation outcome, it may now be corrupted or tempered.", "");
 
-
     std::unordered_set<int> symbolDefinitions;
     for (const auto& command : *program) {
         if(command.args.size()) symbolDefinitions.insert(command.args[0]);
@@ -699,51 +698,17 @@ void preliminarySimpleChecks(std::vector<Command>* program) {
 }
 
 
-Result compileAndLoad(const std::string& fileName, BMemory* currentMemory) {
-    std::lock_guard<std::recursive_mutex> lock(compileMutex);
-
-    // Compile and optimize
-    std::string file = fileName;
-    if (fileName.substr(fileName.size() - 3, 3) == ".bb") {
-        compile(fileName, fileName + "vm");
-        optimize(fileName + "vm", fileName + "vm", true, true); // always minify and compress
-        file = fileName + "vm";
-    }
-
-    // Open the compiled .bbvm file
-    std::ifstream inputFile(file);
-    if (!inputFile.is_open()) {
-        bberror("Unable to open file: " + file);
-        return Result(DataPtr::NULLP);
-    }
-
-    // Organize each line into a new assembly command
-    auto program = new std::vector<Command>();
-    auto source = new SourceFile(file);
-    std::string line;
-    int i = 1;
-    while (std::getline(inputFile, line)) {
-        if (line[0] != '%') program->emplace_back(line, source, i, nullptr);
-        ++i;
-    }
-    inputFile.close();
-    // the following ensure smooth close-up even if the program is terminated through logically a non-assigned call
-    program->emplace_back("BUILTIN _bbdonothing I0", source, i, nullptr);
-    preliminarySimpleChecks(program);
-
-    return Result(new Code(program, 0, program->size() - 1, program->size() - 1));
-}
-
-
 int vm(const std::string& fileName, int numThreads) {
     Future::setMaxThreads(numThreads);
     bool hadError = false;
+    std::vector<Command> program;
     try {
         {
             std::unique_ptr<std::istream> inputFile;
+            std::string contents;
 
             try {
-                std::string contents = read_decompressed(fileName);
+                contents = read_decompressed(fileName);
                 inputFile = std::make_unique<std::stringstream>(contents);
             } 
             catch (...) {
@@ -752,31 +717,31 @@ int vm(const std::string& fileName, int numThreads) {
                 inputFile = std::move(input);
             }
 
-            auto program = new std::vector<Command>();
-            auto source = new SourceFile(fileName);
+            auto source = std::make_shared<SourceFile>(fileName);
             std::string line;
             int i = 1;
             
-            //program->emplace_back("BEGIN _bbmain", source, 0, new CommandContext("main context start"));
-            CommandContext* descriptor = nullptr;
+            //program.emplace_back("BEGIN _bbmain", source, 0, new CommandContext("main context start"));
+            std::shared_ptr<CommandContext> descriptor = nullptr;
             while (std::getline(*inputFile, line)) {
-                if (line[0] != '%') program->emplace_back(line, source, i, descriptor);
-                else descriptor = new CommandContext(line.substr(1));
+                if (line.size()==0) {}
+                else if (line[0] != '%') program.emplace_back(line, source, i, descriptor);
+                else descriptor = std::make_shared<CommandContext>(line.substr(1));
                 ++i;
             }
 
-            //program->emplace_back("END", source, program->size()-1, new CommandContext("main context end"));
-            //program->emplace_back("call _bbmainresult # _bbmain", source, program->size()-1, new CommandContext("main context run"));
+            //program.emplace_back("END", source, program.size()-1, new CommandContext("main context end"));
+            //program.emplace_back("call _bbmainresult # _bbmain", source, program.size()-1, new CommandContext("main context run"));
 
             // the following ensure smooth close-up even if the program is terminated through logically a non-assigned call
-            program->emplace_back("BUILTIN _bbdonothing I0", source, i, descriptor);
-            preliminarySimpleChecks(program);
+            program.emplace_back("BUILTIN _bbdonothing I0", source, i, descriptor);
+            preliminarySimpleChecks(&program);
             
             BMemory memory(0, nullptr, DEFAULT_LOCAL_EXPECTATION);
             try {
-                auto code = new Code(program, 0, program->size() - 1, program->size() - 1);
-                ExecutionInstance executor(0, code, &memory, false);
-                auto returnedValue = executor.run(code);
+                Code code(&program, 0, program.size() - 1, program.size() - 1);
+                ExecutionInstance executor(0, &code, &memory, false);
+                auto returnedValue = executor.run(&code);
                 if(returnedValue.get().existsAndTypeEquals(ERRORTYPE)) throw BBError(returnedValue.get()->toString(nullptr));
                 bbassert(!returnedValue.returnSignal, "The virtual machine cannot return a value.");
                 //memory.detach(nullptr);
@@ -794,6 +759,7 @@ int vm(const std::string& fileName, int numThreads) {
         std::cerr << e.what() << "\033[0m\n";
         hadError = true;
     }
+    for(const auto& command : program) command.value.existsRemoveFromOwner();
     if(hadError) {
         std::cerr << "Docs and bug reports for the Blombly language: https://maniospas.github.io/Blombly\n";
         return 1;
@@ -807,6 +773,7 @@ extern std::string optimizeFromCode(const std::string& code, bool minimify);
 int vmFromSourceCode(const std::string& sourceCode, int numThreads) {
     Future::setMaxThreads(numThreads);
     bool hadError = false;
+    std::vector<Command> program;
     try {
         {
             std::string newCode = compileFromCode(sourceCode, "terminal argument");
@@ -817,25 +784,24 @@ int vmFromSourceCode(const std::string& sourceCode, int numThreads) {
             try {
                 std::istringstream inputFile(newCode);
 
-                auto program = new std::vector<Command>();
-                auto source = new SourceFile("terminal argument");
+                auto source = std::make_shared<SourceFile>("terminal argument");
                 std::string line;
                 int i = 1;
-                
-                CommandContext* descriptor = nullptr;
+                std::shared_ptr<CommandContext> descriptor = nullptr;
                 while (std::getline(inputFile, line)) {
-                    if (line[0] != '%') program->emplace_back(line, source, i, descriptor);
-                    else descriptor = new CommandContext(line.substr(1));
+                    if(line.size()==0) {}
+                    else if (line[0] != '%') program.emplace_back(line, source, i, descriptor);
+                    else descriptor = std::make_shared<CommandContext>(line.substr(1));
                     ++i;
                 }
                 // the following ensure smooth close-up even if the program is terminated through logically a non-assigned call
-                program->emplace_back("BUILTIN _bbdonothing I0", source, i, descriptor);
-                preliminarySimpleChecks(program);
+                program.emplace_back("BUILTIN _bbdonothing I0", source, i, descriptor);
+                preliminarySimpleChecks(&program);
 
-                auto code = new Code(program, 0, program->size() - 1, program->size() - 1);
+                Code code(&program, 0, program.size() - 1, program.size() - 1);
                 if(numThreads) {
-                    ExecutionInstance executor(0, code, &memory, false);
-                    auto returnedValue = executor.run(code);
+                    ExecutionInstance executor(0, &code, &memory, false);
+                    auto returnedValue = executor.run(&code);
                     if(returnedValue.get().existsAndTypeEquals(ERRORTYPE)) throw BBError(returnedValue.get()->toString(nullptr));
                     bbassert(!returnedValue.returnSignal, "The virtual machine cannot return a value.");
                 }
@@ -854,6 +820,7 @@ int vmFromSourceCode(const std::string& sourceCode, int numThreads) {
         std::cerr << e.what() << "\033[0m\n";
         hadError = true;
     }
+    for(const auto& command : program) command.value.existsRemoveFromOwner();
     if(hadError) {
         std::cerr << "Docs and bug reports for the Blombly language: https://maniospas.github.io/Blombly\n";
         return 1;

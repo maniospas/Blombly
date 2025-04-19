@@ -133,6 +133,7 @@ this is what I use for releases; differences are neglibile.
 ```cpp
 #include <iostream>
 #include <vector>
+#include <deque>
 #include <chrono>
 #include <cstdint>
 
@@ -205,6 +206,7 @@ Definitions.
 #include <iostream>
 #include <cstdint>
 #include <vector>
+#include <deque>
 #include <chrono>
 #include <bit>
 #include <cstdint>

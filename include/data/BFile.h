@@ -20,6 +20,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <deque>
 #include "data/Data.h"
 #include <mutex>
 

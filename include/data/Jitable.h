@@ -20,6 +20,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <deque>
 #include <iostream>
 #include "tsl/hopscotch_map.h"
 #include "data/Data.h"
