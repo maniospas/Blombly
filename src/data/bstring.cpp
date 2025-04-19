@@ -27,6 +27,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <openssl/evp.h>
 
 extern BError* OUT_OF_RANGE;
 
@@ -90,6 +91,223 @@ Result BString::ge(BMemory* memory, const DataPtr& other) {
 }
 
 
+uint32_t decodeUTF8(const std::string& input, size_t& i) {
+    if (i >= input.size()) bberror("Unexpected end of input when decoding UTF-8");
+    unsigned char ch = input[i];
+    uint32_t codepoint = 0;
+    size_t extra = 0;
+    if (ch <= 0x7F) {codepoint = ch;extra = 0;} 
+    else if ((ch & 0xE0) == 0xC0) {codepoint = ch & 0x1F;extra = 1;} 
+    else if ((ch & 0xF0) == 0xE0) {codepoint = ch & 0x0F;extra = 2;}
+    else if ((ch & 0xF8) == 0xF0) {codepoint = ch & 0x07;extra = 3;} 
+    else bberror("Invalid UTF-8 start byte at position " + std::to_string(i));
+    if (i + extra >= input.size()) bberror("Truncated UTF-8 sequence at position " + std::to_string(i));
+    for (size_t j = 0; j < extra; ++j) {
+        ++i;
+        unsigned char next = input[i];
+        if ((next & 0xC0) != 0x80) bberror("Invalid UTF-8 continuation byte at position " + std::to_string(i));
+        codepoint = (codepoint << 6) | (next & 0x3F);
+    }
+    ++i;
+    if ((extra == 1 && codepoint <= 0x7F) ||
+        (extra == 2 && codepoint <= 0x7FF) ||
+        (extra == 3 && codepoint <= 0xFFFF)) {
+        bberror("Overlong UTF-8 encoding at position " + std::to_string(i - extra - 1));
+    }
+    if (codepoint > 0x10FFFF || (codepoint >= 0xD800 && codepoint <= 0xDFFF)) bberror("Invalid Unicode codepoint at position " + std::to_string(i - extra - 1));
+    return codepoint;
+}
+
+std::string fromUnicodeAndAnsi(const std::string& input) {
+    std::ostringstream oss;
+    size_t i = 0;
+    while (i < input.size()) {
+        unsigned char ch = input[i];
+        if (ch == 0x1B) {  oss << "\\e"; ++i;} 
+        else if (ch == '\n') { oss << "\\n";++i;} 
+        else if (ch == '\r') { oss << "\\r";++i;} 
+        else if (ch == '\t') { oss << "\\t"; ++i;} 
+        else if (ch == '\b') {oss << "\\b";++i;} 
+        else if (ch == '\f') {oss << "\\f"; ++i;} 
+        else if (ch == '\\') {oss << "\\\\";++i;}
+        else if (ch == '\"') {oss << "\\\"";++i;} 
+        else if (ch <= 0x7F) {oss << ch;++i;} 
+        else {
+            uint32_t codepoint = decodeUTF8(input, i);
+            if (codepoint <= 0xFFFF) oss << "\\u" << std::hex << std::setw(4) << std::setfill('0') << codepoint;
+            else oss << "\\U" << std::hex << std::setw(8) << std::setfill('0') << codepoint;
+        }
+    }
+    return oss.str();
+}
+
+std::string toUnicode(const std::string& input) {
+    std::string output;
+    size_t i = 0;
+    while (i < input.size()) {
+        if (input[i] == '\\' && i + 1 < input.size() && input[i + 1] == 'u') {
+            if (i + 5 < input.size()) {
+                std::string hex = input.substr(i + 2, 4);
+                unsigned int code = std::stoul(hex, nullptr, 16);
+
+                if (code <= 0x7F) {
+                    output += static_cast<char>(code);
+                } else if (code <= 0x7FF) {
+                    output += static_cast<char>(0xC0 | ((code >> 6) & 0x1F));
+                    output += static_cast<char>(0x80 | (code & 0x3F));
+                } else {
+                    output += static_cast<char>(0xE0 | ((code >> 12) & 0x0F));
+                    output += static_cast<char>(0x80 | ((code >> 6) & 0x3F));
+                    output += static_cast<char>(0x80 | (code & 0x3F));
+                }
+                i += 6;
+            } else {
+                output += input[i++];
+            }
+        } 
+        else if (input[i] == '\\' && i + 1 < input.size() && input[i + 1] == 'U') {
+            if (i + 9 < input.size()) {
+                std::string hex = input.substr(i + 2, 8);
+                unsigned int code = std::stoul(hex, nullptr, 16);
+                if (code <= 0x7F) {
+                    output += static_cast<char>(code);
+                } else if (code <= 0x7FF) {
+                    output += static_cast<char>(0xC0 | ((code >> 6) & 0x1F));
+                    output += static_cast<char>(0x80 | (code & 0x3F));
+                } else if (code <= 0xFFFF) {
+                    output += static_cast<char>(0xE0 | ((code >> 12) & 0x0F));
+                    output += static_cast<char>(0x80 | ((code >> 6) & 0x3F));
+                    output += static_cast<char>(0x80 | (code & 0x3F));
+                } else {
+                    output += static_cast<char>(0xF0 | ((code >> 18) & 0x07));
+                    output += static_cast<char>(0x80 | ((code >> 12) & 0x3F));
+                    output += static_cast<char>(0x80 | ((code >> 6) & 0x3F));
+                    output += static_cast<char>(0x80 | (code & 0x3F));
+                }
+                i += 10;
+            } 
+            else output += input[i++];
+        } 
+        else output += input[i++];
+    }
+
+    return output;
+}
+
+std::string fromUnicode(const std::string& input) {
+    std::ostringstream oss;
+    size_t i = 0;
+    while (i < input.size()) {
+        unsigned char ch = input[i];
+        if (ch <= 0x7F) {oss << ch; ++i;} 
+        else {
+            uint32_t codepoint = decodeUTF8(input, i);
+            if (codepoint <= 0xFFFF) oss << "\\u" << std::hex << std::setw(4) << std::setfill('0') << codepoint;
+            else oss << "\\U" << std::hex << std::setw(8) << std::setfill('0') << codepoint;
+        }
+    }
+    return oss.str();
+}
+
+
+
+std::string toUnicodeAndAnsi(const std::string& input) {
+    std::string output;
+    output.reserve(input.size()); // Reserve space for performance
+    for (size_t i = 0; i < input.size(); ++i) {
+        if (input[i] == '\\' && i + 1 < input.size()) {
+            char next = input[i + 1];
+            switch (next) {
+                case 'n': output += '\n'; ++i; break;
+                case 't': output += '\t'; ++i; break;
+                case 'r': output += '\r'; ++i; break;
+                case 'b': output += '\b'; ++i; break;
+                case 'f': output += '\f'; ++i; break;
+                case '\\': output += '\\'; ++i; break;
+                case '"': output += '\"'; ++i; break;
+                case 'e':
+                    if (i + 2 < input.size() && input[i + 2] == '[') {
+                        output += '\033'; // ANSI escape
+                        i += 2;
+                        while (i < input.size()) {
+                            output += input[i];
+                            if (input[i] == 'm') break;
+                            ++i;
+                        }
+                    } else {
+                        output += '\\';
+                        output += 'e';
+                        i += 1;
+                    }
+                    break;
+                case 'u':
+                if (i + 5 < input.size()) {
+                    std::string hex = input.substr(i + 2, 4);
+                    unsigned int code = 0;
+                    std::istringstream(hex) >> std::hex >> code;
+                    // UTF-8 encode (only BMP)
+                    if (code <= 0x7F) {
+                        output += static_cast<char>(code);
+                    } else if (code <= 0x7FF) {
+                        output += static_cast<char>(0xC0 | ((code >> 6) & 0x1F));
+                        output += static_cast<char>(0x80 | (code & 0x3F));
+                    } else {
+                        output += static_cast<char>(0xE0 | ((code >> 12) & 0x0F));
+                        output += static_cast<char>(0x80 | ((code >> 6) & 0x3F));
+                        output += static_cast<char>(0x80 | (code & 0x3F));
+                    }
+                    i += 5; // skip \uXXXX
+                } else {
+                    output += '\\';
+                    output += 'u';
+                    i += 1;
+                }
+                break;
+                default:
+                    output += '\\';
+                    output += next;
+                    ++i;
+                    break;
+            }
+        } else {
+            output += input[i];
+        }
+    }
+    return output;
+}
+
+std::string toBase64(const std::string& binary_input) {
+    size_t encoded_len = 4 * ((binary_input.size() + 2) / 3);
+    std::string encoded(encoded_len, '\0');
+    int len = EVP_EncodeBlock(
+        reinterpret_cast<unsigned char*>(&encoded[0]),
+        reinterpret_cast<const unsigned char*>(binary_input.data()),
+        static_cast<int>(binary_input.size())
+    );
+    bbassert(len >= 0, "Base64 encoding failed");
+    encoded.resize(len);
+    return encoded;
+}
+
+std::string fromBase64(const std::string& base64_input) {
+    size_t max_decoded_len = base64_input.length() * 3 / 4;
+    std::string decoded(max_decoded_len + 1, '\0'); 
+    int len = EVP_DecodeBlock(
+        reinterpret_cast<unsigned char*>(&decoded[0]),
+        reinterpret_cast<const unsigned char*>(base64_input.c_str()),
+        static_cast<int>(base64_input.length())
+    );
+    if (len < 0) throw std::runtime_error("Invalid Base64 provided");
+    size_t padding = 0;
+    while (padding < base64_input.size() && base64_input[base64_input.size() - 1 - padding] == '=') ++padding;
+    size_t first_pad = base64_input.find('=');
+    if (first_pad != std::string::npos && first_pad < base64_input.size() - padding) bberror("Invalid Base64 provided - padding found in invalid position");
+    decoded.resize(len - padding); 
+    return decoded;
+}
+
+
+
 Result BString::at(BMemory *memory, const DataPtr& other) {
     if(other.isint()) {
         int64_t index = other.unsafe_toint();
@@ -104,9 +322,16 @@ Result BString::at(BMemory *memory, const DataPtr& other) {
         bbassert(v2 == "md5" || v2 == "sha1" || v2 == "sha256" || v2 == "sha512" ||
                     v2 == "sha224" || v2 == "sha384" || v2 == "sha3_224" || v2 == "sha3_256" || 
                     v2 == "sha3_384" || v2 == "sha3_512" || v2 == "blake2b" || v2 == "blake2s" || 
-                    v2 == "ripemd160" || v2 == "whirlpool" || v2 == "sm3", 
-                    "Only md5, sha1, sha224, sha256, sha384, sha512, sha3_224, sha3_256, sha3_384, sha3_512, blake2b, blake2s, ripemd160, whirlpool, or sm3 formatting is allowed for strings");
+                    v2 == "ripemd160" || v2 == "whirlpool" || v2 == "sm3" 
+                    || v2=="base64" || v2=="debase64" || v2=="utf8" || v2=="deutf8" || v2=="escape" || v2=="deescape",
+                    "Only one of the following formattings allowed for strings: escape, deescape, deutf8, utf8, base64, debase64, md5, sha1, sha224, sha256, sha384, sha512, sha3_224, sha3_256, sha3_384, sha3_512, blake2b, blake2s, ripemd160, whirlpool, or sm3");
             
+        if (v2 == "base64") return RESMOVE(Result(new BString(toBase64(v1))));
+        if (v2 == "debase64") return RESMOVE(Result(new BString(fromBase64(v1))));
+        if (v2 == "escape") return RESMOVE(Result(new BString(toUnicodeAndAnsi(v1))));
+        if (v2 == "deescape") return RESMOVE(Result(new BString(fromUnicodeAndAnsi(v1))));
+        if (v2 == "deutf8") return RESMOVE(Result(new BString(fromUnicode(v1))));
+        if (v2 == "utf8") return RESMOVE(Result(new BString(toUnicode(v1))));
         if (v2 == "sha1") return RESMOVE(Result(new BString(calculateHash(v1, EVP_sha1))));
         if (v2 == "sha224") return RESMOVE(Result(new BString(calculateHash(v1, EVP_sha224))));
         if (v2 == "sha256") return RESMOVE(Result(new BString(calculateHash(v1, EVP_sha256))));

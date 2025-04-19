@@ -96,6 +96,14 @@ string = new {
     // can use bb.string instead of str for typecasting
     call(str value) => value;
 
+    // encodings and de-encodings
+    base64(str arg) => arg["base64"];
+    debase64(str arg) => arg["debase64"];
+    utf8(str arg) => arg["utf8"];
+    deutf8(str arg) => arg["deutf8"];
+    escape(str arg) => arg["escape"];
+    deescape(str arg) => arg["deescape"];
+
     // hash functions exposed from openssl
     md5(arg) => arg["md5"];
     sha1(arg) => arg["sha1"];
